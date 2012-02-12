@@ -1,0 +1,233 @@
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+
+h1 {
+	margin-top:0px;
+	padding-top:0px;
+}
+
+.mainbox {
+	position:fixed;
+	border:2px solid #CCCCCC;
+	overflow:none;
+	padding:2px;
+	box-shadow: 5px 5px 3px #888;
+	background-color:white;
+}
+
+
+#header {
+	top:5px;
+	left:5px;
+	right:5px;
+	height:50px;
+}
+
+#topbox {
+	top:70px;
+	left:220px;
+	right:220px;
+	height:95px;
+}
+
+#main {
+	top:180px;
+	left:220px;
+	right:220px;
+	bottom:5px;
+}
+
+#sidebar {
+	top:70px;
+	left:5px;
+	width:200px;
+	bottom:5px;
+}
+
+#right {
+	top:70px;
+	right:5px;
+	width:200px;
+	bottom:5px;
+}
+
+#load_files {
+	font-size:9pt;
+}
+
+#drop_zone {
+	height:60px;
+	border:3px dashed #DDDDDD;
+	margin:5px;
+	text-align:center;
+	font-size:14pt;
+}
+
+#sb_log {
+	font-size:8pt;
+	overflow-y:auto;
+	display:none;
+}
+
+#sb_log p {
+	margin:0px;
+	padding:0px;
+	margin-top:2px;
+	padding-top:1px;
+	border-top:1px solid #EEEEEE;
+}
+
+#sb_sequences_container {
+	font-size:9pt;
+}
+
+#sb_sequences {
+	overflow:auto;
+}
+
+#canvas_wrapper {
+	position:absolute;
+	top:0px;
+	left:0px;
+	right:0px;
+	bottom:0px;
+	overflow:auto;
+}
+
+#main_slider {
+	border-right:1px solid #EEEEEE;
+}
+
+#sequence_canvas {
+	position:fixed;
+	width:100%;
+	height:100%;
+}
+
+#seq_functions {
+	float:right;
+	font-size:9pt;
+}
+
+#seq_functions_seq_only {
+	display:none;
+}
+
+.left_sidebar_box {
+	margin-top:5px;
+	border-top:1px solid #DDDDDD;
+	padding-top:2px;
+}
+
+.feature {
+	position:absolute;
+	height:15px;
+	text-align:center;
+	font-size:8pt;
+	font-family:Verdana,Times;
+	overflow:hidden;
+	border:thin solid black;
+	z-index:2;
+}
+
+.feat_other {
+	top:10px;
+	color:black;
+	background-color:#DDDDDD;
+}
+
+.feat_gene {
+	top:25px;
+	color:white;
+	background-color:blue;
+}
+
+.feat_cds {
+	top:45px;
+	color:white;
+	background-color:red;
+}
+
+.feat_promoter {
+	top:45px;
+	color:white;
+	background-color:black;
+}
+
+#top_zone {
+	position:absolute;
+	overflow:auto;
+	left:0px;
+	top:0px;
+	right:30px;
+	bottom:0px;
+}
+
+.pos_marker {
+	position:absolute;
+	border-left:1px solid black;
+	padding-bottom:5;
+	font-size:6pt;
+	font-family:Verdana,Times;
+	z-index:2;
+}
+
+#top_zone_marker {
+	z-index:0;
+	position:absolute;
+	background-color:#FFFFC8;
+	top:0px;
+	bottom:0px;
+	border:none;
+}
+
+#sb_display_options {
+	font-size:10pt;
+}
+
+#re_manual {
+	width:100%;
+	max-width:190px;
+}
+
+
+
+
+
+
+/* The cut/copy operation textarea */
+#copywrap {
+	color:white;
+	background-color:white;
+	display:none;
+	position:fixed;
+	right:0px;
+	bottom:0px;
+}
+#copytb {
+	color:white;
+	background-color:white;
+	border:none;
+}
+
+/*
+::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+}
+::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background-color: rgba(0,0,0,.5);
+	-webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+*/
+
+/* For help.html */
+pre.jscode {
+	border:3px dotted #AAAAAA;
+	padding:5px;
+	margin:5px;
+	background-color:#EEEEEE;
+}
