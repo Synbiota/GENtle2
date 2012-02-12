@@ -264,7 +264,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		var name = '' ;
 		if ( v['gene'] !== undefined ) name = v['gene'] ;
 		else if ( v['product'] !== undefined ) name = v['product'] ;
-		else if ( v['product'] !== undefined ) name = v['product'] ;
+		else if ( v['name'] !== undefined ) name = v['name'] ;
 		name = name.replace(/^"/,'').replace(/"$/,'') ;
 
 		$.each ( v['_range'] , function ( k , r ) {

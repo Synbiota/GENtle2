@@ -110,7 +110,7 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 		var name = '' ;
 		if ( v['gene'] !== undefined ) name = v['gene'] ;
 		else if ( v['product'] !== undefined ) name = v['product'] ;
-		else if ( v['product'] !== undefined ) name = v['product'] ;
+		else if ( v['name'] !== undefined ) name = v['name'] ;
 		name = name.replace(/^"/,'').replace(/"$/,'') ;
 		
 		var desc = '' ;
