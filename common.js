@@ -113,17 +113,6 @@ function loadBaseData () {
 	
 }
 
-function getUrlVars ( def ) {
-	var vars = def , hash;
-	var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
-	$.each ( hashes , function ( i , j ) {
-		var hash = j.split('=');
-		hash[1] += '' ;
-		vars[hash[0]] = decodeURI(hash[1]).replace(/_/g,' ');
-	} ) ;
-	return vars;
-}
-
 // This function allows for arbitrary text to be copied/pasted to the clipboard,
 // but only during actual cut/copy actions from menu or keyboard. It does this by
 // showing a textarea with the selected text to be copied when the action is performed;

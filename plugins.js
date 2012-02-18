@@ -15,12 +15,6 @@ var plugins = {
 	initial_plugins_loaded : false ,
 	all : {} ,
 	load_on_start : [] ,
-	default_plugins : [
-		'plugins/synbiota.js' ,
-		'plugins/find_in_sequence.js' ,
-		'plugins/prepend_append_sequence.js' ,
-		'plugins/export_as_file.js'
-	] ,
 	tools : {
 		dna : {
 			sequence : {} ,
@@ -160,7 +154,7 @@ var plugins = {
 		} ) ;
 		
 		// Show all built-in but deactivated plugins
-		$.each ( plugins.default_plugins , function ( k , url ) {
+		$.each ( gentle_config.default_plugins , function ( k , url ) {
 			if ( undefined !== hadthat[url] ) return ; // Already listed
 			
 			var n = url.replace ( /^.*\//g , '' ) ;

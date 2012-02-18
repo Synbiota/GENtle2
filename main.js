@@ -15,8 +15,11 @@ var gentle = {
 	main_sequence_canvas : undefined ,
 
 	init : function () {
+		if ( undefined === gentle_config ) {
+			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
+		}
 		gentle.url_vars = {} ;
-		gentle.url_vars = getUrlVars ( gentle.url_vars ) ;
+		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
 		gentle.plugins = plugins ;
 		loadBaseData() ;
 		this.showDefaultBlurb() ;
@@ -54,7 +57,10 @@ var gentle = {
 	} ,
 	
 	loadLocally : function () {
-		if (! localStorage.getItem('saved') ) return ;
+		if ( !localStorage.getItem('saved') ) {
+			gentle.loadLocalPlugins() ;
+			return ;
+		}
 	
 		// We cannot just assign the stored item, because of missing class methods
 		// Each sequence object needs to be reconstructed individually
@@ -74,23 +80,29 @@ var gentle = {
 		
 		// Now show last sequence, if any
 		gentle.current_sequence_entry === undefined ;
-		if ( gentle.sequences.length == 0 ) return ;
+
+		if ( gentle.sequences.length > 0 ) {
+			
+			var cse = localStorage.getItem('last_entry')*1 ;
+			$('#sb_sequences').html ( '' ) ;
+			$.each ( gentle.sequences , function ( seqid , seq ) {
+				$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
+			} ) ;
+			$('#sb_sequences').val(cse) ;
 		
-		var cse = localStorage.getItem('last_entry')*1 ;
-		$('#sb_sequences').html ( '' ) ;
-		$.each ( gentle.sequences , function ( seqid , seq ) {
-			$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
-		} ) ;
-		$('#sb_sequences').val(cse) ;
+			gentle.handleSelectSequenceEntry ( cse ) ;
+		}
+		
+		gentle.loadLocalPlugins() ;
+	} ,
 	
-		gentle.handleSelectSequenceEntry ( cse ) ;
-		
+	loadLocalPlugins : function () {
 		var plugin_list = localStorage.getItem('plugins') ;
 		if ( plugin_list ) {
 			plugins.load_on_start = JSON.parse ( plugin_list ) ;
 			plugins.loadPlugins() ;
 		} else {
-			plugins.load_o_start = plugins.default_plugins ;
+			plugins.load_on_start = gentle_config.default_plugins ;
 		}
 	} ,
 
@@ -180,7 +192,18 @@ var gentle = {
 		gentle.main_sequence_canvas = new SequenceCanvasDNA ( gentle.sequences[entry] , 'sequence_canvas' ) ;
 	
 	} ,
-	
+
+	getUrlVars : function ( def ) {
+		var vars = def , hash;
+		var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+		$.each ( hashes , function ( i , j ) {
+			var hash = j.split('=');
+			hash[1] += '' ;
+			vars[hash[0]] = decodeURI(hash[1]).replace(/_/g,' ');
+		} ) ;
+		return vars;
+	} ,
+		
 
 	// File open/drop handlers
 	handleFileSelect : function ( evt ) {
