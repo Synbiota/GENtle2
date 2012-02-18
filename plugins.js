@@ -16,6 +16,7 @@ var plugins = {
 	all : {} ,
 	load_on_start : [] ,
 	default_plugins : [
+		'plugins/synbiota.js' ,
 		'plugins/find_in_sequence.js' ,
 		'plugins/prepend_append_sequence.js' ,
 		'plugins/export_as_file.js'

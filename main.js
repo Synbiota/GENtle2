@@ -15,6 +15,8 @@ var gentle = {
 	main_sequence_canvas : undefined ,
 
 	init : function () {
+		gentle.url_vars = {} ;
+		gentle.url_vars = getUrlVars ( gentle.url_vars ) ;
 		gentle.plugins = plugins ;
 		loadBaseData() ;
 		this.showDefaultBlurb() ;
