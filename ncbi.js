@@ -22,7 +22,7 @@ function load_ncbi () {
 	if ( id == '' ) return false ;
 	$('#ncbi_id').val('') ;
 	$('#nbci_form').html("<i>Querying NCBI...</i>") ;
-	$.getJSON ( 'proxy.php?callback=?' , 
+	$.getJSON ( gentle_config.proxy + '?callback=?' , 
 	{ url : 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id='+id+'&rettype=gb&retmode=text' } ,
 	function ( data ) {
 		var text = data ;

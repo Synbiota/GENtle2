@@ -1,5 +1,3 @@
-/* COPY THIS FILE TO "config.js", AND MODIFY ONLY THAT FOR YOUR LOCAL INSTALLATION! */
-
 var gentle_config = {
 
 	default_plugins : [
@@ -10,6 +8,8 @@ var gentle_config = {
 	] ,
 	
 	deactivated_plugins : [
-	]
+	] ,
+	
+	proxy : './proxy.php'
 	
 } ;
