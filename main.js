@@ -32,13 +32,15 @@ var gentle = {
 		$(window).bind('beforeunload', function(){
 		  gentle.saveLocally () ;
 		});
+		
+		$('#main').height ( $('body').height()-50 ) ;
 	
 		
 		$('#files').change ( gentle.handleFileSelect ) ;
 		$('#drop_zone') .bind('dragover',function(evt){gentle.markDropArea(evt,true)})
 						.bind('dragleave',function(evt){gentle.markDropArea(evt,false)})
 						.bind('drop',gentle.handleFileDrop) ;
-		$('#sb_sequences').css ( { 'width' : '100%' , 'max-width' : $('#sidebar').width() } ) ;
+//		$('#sb_sequences').css ( { 'width' : '100%' , 'max-width' : $('#sidebar').width() } ) ;
 		
 		$('#sb_log').append ( '<p>Supported file formats:<br/>' + gentle.fileTypeList.join(', ') + '</p>' ) ;
 		$('#sb_sequences').change ( function() { gentle.handleSelectSequenceEntry ( $("#sb_sequences").val() ) } ) ;
@@ -183,6 +185,8 @@ var gentle = {
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
+		
+		$('#canvas_wrapper').height ( $('#main').height() ) ;
 		
 		// Set up new top display
 		top_display = new TopDisplayDNA () ;

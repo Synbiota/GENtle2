@@ -3,15 +3,45 @@
 
 <head>
 <title>GENtle 2</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />	
+<link type="text/css" href="css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
+<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
+<!--<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap-responsive.min.css" />-->
 <link rel="stylesheet" type="text/css" href="main.css" />
 </head>
 
 <body>
 <div id='all'>
 
-<div id='header' class='mainbox'>
+<div class="navbar">
+  <div class="navbar-inner">
+	<div class="container-fluid">
+	  <a class="brand" href="#">GENtle2</a>
+	  <ul class="nav">
+	  
+		<li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			  	<li><a href='#' onclick='start_nbci_dialog();return false'>Open from NCBI</a></li>
+			</ul>
+		</li>
+	  
+	  
+	  	<li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
+<!--		<li class="active"><a href="#">Home</a></li>
+		<li><a href="#about">About</a></li>
+		<li><a href="#contact">Contact</a></li>
+-->
+	  </ul>
+<!--	  <p class="pull-right">Logged in as <a href="#">username</a></p>-->
+	</div>
+  </div>
+</div>
+
+<!--
+<div  class='row'>
+<div class='span12'>
 <div id='seq_functions'>
 <div id='seq_functions_seq_only'>
 <a href='#' onclick='gentle.saveLocally();return false'>Save all</a><br/>
@@ -21,16 +51,20 @@
 </div>
 <h1>GENtle 2</h1>
 </div>
+</div>
+-->
 
+<div class='container-fluid'>
+<div class='row-fluid'>
 
-<div id='sidebar' class='mainbox'>
+<div class='sidebar left well'>
 	<div id='load_files'>
 		<h2>Load files</h2>
 		<div id='load_local_files'>
 		<input type="file" id="files" name="files[]" multiple size='10' />
 		<div id="drop_zone"><br/>Drop files here</div>
 		</div>
-		<div><input type='button' value='NCBI query' onclick='start_nbci_dialog()' /></div>
+<!--		<div><input type='button' value='NCBI query' onclick='start_nbci_dialog()' /></div>-->
 	</div>
 	<div id='sb_sequences_container'>
 	<h2>Loaded sequences</h2>
@@ -45,16 +79,22 @@
 	<div id='sb_log'><h2>Log</h2></div>
 </div>
 
+<!--
 <div id='topbox' class='mainbox'>
 </div>
+-->
 
-<div id='main' class='mainbox'>
+<div id='right' class='sidebar right well'>
 </div>
 
-<div id='right' class='mainbox'>
-
-
+<div id='main' class='content fixed-fixed'>
 </div>
+
+
+</div> <!--row-fluid-->
+
+</div> <!--container-fluid-->
+
 <div id="copywrap"><textarea id="copytb"></textarea></div><!-- This is needed for cut&copy. It will only be visible for a fraction of a second during copying. -->
 
 </div>
@@ -63,6 +103,7 @@
 <!-- Loading scripts last -->
 <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
 <script type="text/javascript" src="mousewheel.js"></script>
 
 <script type="text/javascript" src="config.js"></script>
