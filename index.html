@@ -18,17 +18,27 @@
   <div class="navbar-inner">
 	<div class="container-fluid">
 	  <a class="brand" href="#">GENtle2</a>
-	  <ul class="nav">
+	  <ul class="nav" id='toolbar_ul'>
 	  
 		<li class="dropdown">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
 			<ul class="dropdown-menu">
+<!--			  	<li><a href='#' onclick='gentle.open_file_from_disk_dialog();return false'>Open from disk</a></li>-->
+			  	<li><a data-toggle='modal' href='#openFileFromDisk'>Open from disk</a></li>
 			  	<li><a href='#' onclick='start_nbci_dialog();return false'>Open from NCBI</a></li>
+				<li><a id='close_sequence' href='#' onclick='gentle.closeCurrentSequence();return false'>Close sequence</a></li>
 			</ul>
 		</li>
+		
 	  
 	  
-	  	<li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
+		<li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools<b class="caret"></b></a>
+			<ul class="dropdown-menu">
+			  	<li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
+			</ul>
+		</li>
+	  	
 <!--		<li class="active"><a href="#">Home</a></li>
 		<li><a href="#about">About</a></li>
 		<li><a href="#contact">Contact</a></li>
@@ -58,14 +68,12 @@
 <div class='row-fluid'>
 
 <div class='sidebar left well'>
-	<div id='load_files'>
+<!--	<div id='load_files'>
 		<h2>Load files</h2>
 		<div id='load_local_files'>
-		<input type="file" id="files" name="files[]" multiple size='10' />
-		<div id="drop_zone"><br/>Drop files here</div>
 		</div>
-<!--		<div><input type='button' value='NCBI query' onclick='start_nbci_dialog()' /></div>-->
-	</div>
+		<div><input type='button' value='NCBI query' onclick='start_nbci_dialog()' /></div>
+	</div>-->
 	<div id='sb_sequences_container'>
 	<h2>Loaded sequences</h2>
 	<select id='sb_sequences' size='10'></select>
@@ -85,6 +93,7 @@
 -->
 
 <div id='right' class='sidebar right well'>
+This space temporarily left blank
 </div>
 
 <div id='main' class='content fixed-fixed'>
@@ -96,6 +105,23 @@
 </div> <!--container-fluid-->
 
 <div id="copywrap"><textarea id="copytb"></textarea></div><!-- This is needed for cut&copy. It will only be visible for a fraction of a second during copying. -->
+
+<div class="modal" id="openFileFromDisk" style='display:none'>
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>Open file from disk</h3>
+  </div>
+  <div class="modal-body">
+    <p>
+		<input type="file" id="files" name="files[]" multiple size='10' />
+		<div id="drop_zone"><br/>Drop files here</div>
+    </p>
+  </div>
+<!--  <div class="modal-footer">
+    <a href="#" class="btn btn-primary">Save changes</a>
+    <a href="#" class="btn">Close</a>
+  </div>-->
+</div>
 
 </div>
 

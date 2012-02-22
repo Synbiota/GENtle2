@@ -146,12 +146,13 @@ var gentle = {
 		gentle.current_sequence_entry = undefined ;
 		if ( gentle.sequences.length == 0 ) {
 			gentle.clearLocalStorage () ;
-			$('#seq_functions_seq_only').hide() ;
+			$('#close_sequence').hide() ;
 			$('#topbox').html ( '' ) ;
 			$('#main').html ( '' ) ;
 			$('#sb_display_options').html ( '' ) ;
 			$('#position').html ( '&nbsp;' ) ;
-			$('#right').html ( '' ) ;
+//			$('#right').html ( '' ) ;
+			$('#toolbar_ul .toolbar_plugin').remove() ;
 			gentle.showDefaultBlurb() ;
 			return ;
 		}
@@ -176,7 +177,7 @@ var gentle = {
 	
 	handleSelectSequenceEntry : function ( entry ) {
 		gentle.updateCurrentSequenceSettings () ;
-		$('#seq_functions_seq_only').show() ;
+		$('#close_sequence').show() ;
 	
 		gentle.current_sequence_entry = entry ;
 		
@@ -239,6 +240,10 @@ var gentle = {
 			file.checkFile ( f ) ;
 		} ) ;
 	
+	} ,
+	
+	open_file_from_disk_dialog : function () {
+		$('#all').append ( h ) ;
 	}
 
 } ;

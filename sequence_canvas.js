@@ -18,11 +18,21 @@ SequenceCanvas.prototype.initSidebar = function () {
 	if ( this.type === undefined ) return ;
 	var me = this ;
 	var h = '' ;
-	$.each ( plugins.tools[me.type] , function ( k , v ) {
+/*	$.each ( plugins.tools[me.type] , function ( k , v ) {
 		h += "<h3 class='toolheader'>" + ucFirst ( k ) + "</h3>" ;
 		h += "<div class='toolblock' id='tools_" + k + "'></div>" ;
 	} ) ;
 	$('#right').html ( h ) ;
+*/	
+	$('#toolbar_ul .toolbar_plugin').remove() ;
+	h = '' ;
+	$.each ( plugins.tools[me.type] , function ( k , v ) {
+		h += "<li class='dropdown toolbar_plugin' id='toolbar_plugins_"+k+"' style='display:none'>" ;
+		h += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">'+ucFirst(k)+'<b class="caret"></b></a>' ;
+		h += '<ul class="dropdown-menu"></ul></li>' ;
+	} ) ;
+	$('#toolbar_ul').append ( h ) ;
+	
 	$.each ( plugins.tools[me.type] , function ( section , v1 ) {
 		$.each ( v1 , function ( tool , v2 ) {
 			me.registerTool ( v2 ) 
@@ -41,11 +51,20 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
 	var x = new window[o.className]();
 	this.tools[o.name] = x ;
 	
-	var id = 'tools_' + o.section ;
-	var h = "<div class='tool' name='tool_" + x.name + "'>" ;
-	h += "<a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a>" ;
-	h += "</div>" ;
-	$('#'+id).append ( h ) ;
+	if ( true ) {
+		var id = 'toolbar_plugins_' + o.section ;
+		var h = "<li><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
+		$('#'+id+' ul').append(h) ;
+		$('#'+id).show() ;
+	}
+	
+	if ( true ) {
+		var id = 'tools_' + o.section ;
+		var h = "<div class='tool' name='tool_" + x.name + "'>" ;
+		h += "<a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a>" ;
+		h += "</div>" ;
+		$('#'+id).append ( h ) ;
+	}
 }
 
 
