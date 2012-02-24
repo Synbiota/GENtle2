@@ -18,6 +18,7 @@ var gentle = {
 		if ( undefined === gentle_config ) {
 			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
 		}
+		gentle.dragEntered = 0 ;
 		gentle.url_vars = {} ;
 		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
 		gentle.plugins = plugins ;
@@ -35,6 +36,15 @@ var gentle = {
 		
 		$('#main').height ( $('body').height()-50 ) ;
 	
+		$(window)
+		.bind ( 'dragenter' , function ( evt ) {
+			gentle.dragEntered++ ;
+			if ( gentle.dragEntered == 1 ) $('#drop_zone').show() ;
+		} )
+		.bind ( 'dragleave' , function ( evt ) {
+			gentle.dragEntered-- ;
+			if ( gentle.dragEntered == 0 ) $('#drop_zone').hide() ;
+		} ) ;
 		
 		$('#files').change ( gentle.handleFileSelect ) ;
 		$('#drop_zone') .bind('dragover',function(evt){gentle.markDropArea(evt,true)})
@@ -190,7 +200,7 @@ var gentle = {
 		$('#canvas_wrapper').height ( $('#main').height() ) ;
 		
 		// Set up new top display
-		top_display = new TopDisplayDNA () ;
+		top_display = new TopDisplayDNA ( true ) ;
 		top_display.init() ;
 		
 		// Set up new sequence canvas
@@ -219,6 +229,7 @@ var gentle = {
 		evt.originalEvent.preventDefault();
 		$.each ( evt.originalEvent.dataTransfer.files , function ( k , f ) { gentle.addLocalFile ( f ) } ) ;
 		gentle.markDropArea(evt,false);
+		$('#drop_zone').hide() ;
 	} ,
 	markDropArea : function ( evt , mode ) {
 		evt.originalEvent.stopPropagation();

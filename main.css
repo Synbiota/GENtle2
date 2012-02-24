@@ -93,11 +93,20 @@ h1 {
 }
 
 #drop_zone {
-	height:60px;
+	z-index:99;
+	position:fixed;
+	left:33%;
+	right:33%;
+	top:33%;
+	height:33%;
 	border:3px dashed #DDDDDD;
 	margin:5px;
 	text-align:center;
+	vertical-align:middle;
 	font-size:14pt;
+	background-color:#EEEEEE;
+	line-height:4em;
+	display:none;
 }
 
 #sb_log {
@@ -151,54 +160,46 @@ h1 {
 	padding-top:2px;
 }
 
+
+
+
 .feature {
 	position:absolute;
-	height:15px;
 	text-align:center;
 	font-size:8pt;
 	font-family:Verdana,Times;
-	overflow:hidden;
 	border:thin solid black;
 	z-index:2;
 }
 
 .feat_other {
-	top:10px;
 	color:black;
 	background-color:#DDDDDD;
 }
 
 .feat_gene {
-	top:25px;
 	color:white;
 	background-color:blue;
 }
 
 .feat_cds {
-	top:45px;
 	color:white;
 	background-color:red;
 }
 
 .feat_promoter {
-	top:45px;
 	color:white;
 	background-color:black;
 }
 
 #top_zone {
-	position:absolute;
+	position:relative;
 	overflow:auto;
-	left:0px;
-	top:0px;
-	right:30px;
-	bottom:0px;
 }
 
 .pos_marker {
 	position:absolute;
-	border-left:1px solid black;
-	padding-bottom:5;
+/*	padding-bottom:5;*/
 	font-size:6pt;
 	font-family:Verdana,Times;
 	z-index:2;
@@ -206,10 +207,8 @@ h1 {
 
 #top_zone_marker {
 	z-index:0;
-	position:absolute;
+	position:relative;
 	background-color:#FFFFC8;
-	top:0px;
-	bottom:0px;
 	border:none;
 }
 

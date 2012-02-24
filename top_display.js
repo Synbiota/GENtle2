@@ -26,10 +26,15 @@ TopDisplayDNA.prototype.do_zoom_top= function ( how ) {
 	if ( zoom > 1000 ) zoom = 1000 ;
 	
 	gentle.sequences[gentle.current_sequence_entry].top_zoom = zoom ;
-	var oldpos = $('#top_zone').scrollLeft() * gentle.sequences[gentle.current_sequence_entry].seq.length / $('#top_zone').width() ;
+	var tz = this.is_vertical ? $('#top_zone').height() : $('#top_zone').width() ;
+	var sc = this.is_vertical ? $('#top_zone').scrollTop() : $('#top_zone').scrollLeft() ;
+	var oldpos = sc * gentle.sequences[gentle.current_sequence_entry].seq.length / tz ;
 	$('#top_zone').html ( this.get_top_zone() ) ;
-	var newpos = Math.floor ( oldpos * $('#top_zone').width() / gentle.sequences[gentle.current_sequence_entry].seq.length ) ;
-	$('#top_zone').scrollLeft(newpos) ;
+	
+	tz = this.is_vertical ? $('#top_zone').height() : $('#top_zone').width() ;
+	var newpos = Math.floor ( oldpos * tz / gentle.sequences[gentle.current_sequence_entry].seq.length ) ;
+	if ( this.is_vertical ) $('#top_zone').scrollTop(newpos) ;
+	else $('#top_zone').scrollLeft(newpos) ;
 	this.update_marker() ;
 	this.make_draggable() ;
 }
@@ -40,14 +45,14 @@ TopDisplayDNA.prototype.make_draggable = function () {
 	var sc = gentle.sequences[gentle.current_sequence_entry] ;
 	var zoom = sc.top_zoom ;
 	if ( zoom === undefined ) zoom = 1 ;
-	var tw = ( $('#topbox').width() - 30 ) * zoom ;
+	var tw = ( ( me.is_vertical ? $('#topbox').height() : $('#topbox').width() ) - 30 ) * zoom ;
 	var bw = this.horizontal_borders ;
 
 	$('#top_zone_marker').draggable({
-		axis: 'x' ,
+		axis: me.is_vertical ? 'y' : 'x' ,
 		containment: 'parent',
 		drag: function(event, ui) {
-			var left = ui.position.left - bw ;
+			var left = ( me.is_vertical ? ui.position.top : ui.position.left ) - bw ;
 			var start = Math.floor ( left * sc.seq.length / ( tw - bw*2 ) ) ; // TODO : Check this works with zoom
 			if ( start < 0 ) start = 0 ;
 			var stop = start + ( gentle.main_sequence_canvas.end_base - gentle.main_sequence_canvas.start_base ) ;
@@ -66,29 +71,53 @@ TopDisplayDNA.prototype.make_draggable = function () {
 }
 
 TopDisplayDNA.prototype.get_top_zone = function () {
+	var me = this ;
 	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
 	var html = '' ;
 	var zoom = sequence.top_zoom ;
 	if ( zoom === undefined ) zoom = 1 ;
 
+	if ( me.is_vertical ) {
+		var p = $('#topbox').position() ;
+		$('#topbox').height ( $(window).height() - p.top - 50 ) ; // HACKISH FIXME
+	}
+
 	var tw = ( $('#topbox').width() - 30 ) * zoom ;
 	var th = $('#topbox').height() ;
 	var bw = this.horizontal_borders ;
+	var attr_left = 'left' ;
+	var attr_width = 'width' ;
+	var tbw = $('#topbox').width() ;
+	var feat_size = 'height:15px;overflow:hidden' ;
+	if ( me.is_vertical ) {
+		var q = tw ; tw = th ; th = q ;
+//		tw = $('#topbox').width() ;
+//		th = ( $('#topbox').height() - 30 ) * zoom ;
+		attr_left = 'top' ;
+		attr_width = 'height' ;
+		tbw = $('#topbox').height() ;
+		feat_size = 'width:15px;overflow:show;color:black;' ;
+	}
 	
 	sequence.top_virtual_width = tw ;
 	sequence.top_virtual_borders = bw ;
 	
-	html += "<div id='top_zone_marker' title='Drag me!'></div>" ;
+	html += "<div id='top_zone_marker' title='Drag me!' style='" ;
+	if ( me.is_vertical ) html += "left:0px;right:0px;" ;
+	else html += "top:0px;bottom:0px;" ;
+	html += "'></div>" ;
 	
 	// Position indicators
-	var maxpos = sequence.seq.length * ( $('#topbox').width() - 30 ) / ( tw - bw*2 ) ;
+	var maxpos = sequence.seq.length * ( tbw - 30 ) / ( tw - bw*2 ) ;
 	var every = 1000 ;
 	while ( maxpos / ( every * 10 ) > 20 ) every *= 10 ;
 	for ( var i = 1 ; i < sequence.seq.length ; i += every ) {
 		var pos = i ;
 		if ( pos != 1 ) pos-- ;
 		var left = Math.floor ( ( tw - bw*2 ) * pos / sequence.seq.length ) + bw ;
-		html += "<div class='pos_marker' style='left:"+left+"px'>" + addCommas(pos) + "</div>" ;
+		html += "<div class='pos_marker' style='"+attr_left+":"+left+"px;" ;
+		html += me.is_vertical ? "border-top:1px solid black;" : "border-left:1px solid black;" ;
+		html += "'>" + addCommas(pos) + "</div>" ;
 	}
 	
 	// Features
@@ -123,11 +152,25 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 		desc = ucFirst ( v['_type'].toLowerCase() ) + desc ;
 		desc += "\n(" + (base_left+1) + "-" + (base_right+1) + ")" ;
 		
-		if ( right < left ) {
-			html += "<div class='feature feat_"+cl+"' style='left:"+bw+"px;width:"+(left-bw)+"px;' title='"+desc.replace("'","&quot;")+"'>"+name+"</div>" ; 
-			html += "<div class='feature feat_"+cl+"' style='left:"+right+"px;width:"+(tw-bw)+"px;' title='"+desc.replace("'","&quot;")+"'>"+name+"</div>" ; 
+		var po = '' ;
+		if ( me.is_vertical ) {
+			if ( cl == 'other' ) po = 'left:10px;' ;
+			if ( cl == 'gene' ) po = 'left:25px;' ;
+			if ( cl == 'cds' ) po = 'left:45px;' ;
+			if ( cl == 'promoter' ) po = 'left:45px;' ;
 		} else {
-			html += "<div class='feature feat_"+cl+"' style='left:"+left+"px;width:"+(right-left)+"px;' title='"+desc.replace("'","&quot;")+"'>"+name+"</div>" ; 
+			if ( cl == 'other' ) po = 'top:10px;' ;
+			if ( cl == 'gene' ) po = 'top:25px;' ;
+			if ( cl == 'cds' ) po = 'top:45px;' ;
+			if ( cl == 'promoter' ) po = 'top:45px;' ;
+		}
+		po += feat_size ;
+		
+		if ( right < left ) {
+			html += "<div class='feature feat_"+cl+"' style='"+attr_left+":"+bw+"px;"+attr_width+":"+(left-bw)+"px;"+po+"' title='"+desc.replace("'","&quot;")+"'>"+name+"</div>" ; 
+			html += "<div class='feature feat_"+cl+"' style='"+attr_left+":"+right+"px;"+attr_width+":"+(tw-bw)+"px;"+po+"' title='"+desc.replace("'","&quot;")+"'>"+name+"</div>" ; 
+		} else {
+			html += "<div class='feature feat_"+cl+"' style='"+attr_left+":"+left+"px;"+attr_width+":"+(right-left)+"px;"+po+"' title='"+desc.replace("'","&quot;")+"'>"+name+"</div>" ; 
 		}
 	} ) ;
 	return html ;
@@ -140,25 +183,50 @@ TopDisplayDNA.prototype.update_marker = function () {
 	if ( zoom === undefined ) zoom = 1 ;
 	var tw = gentle.sequences[gentle.current_sequence_entry].top_virtual_width ;
 	var bw = gentle.sequences[gentle.current_sequence_entry].top_virtual_borders ;
-	var left = Math.floor ( ( tw - bw*2 ) * from / gentle.sequences[gentle.current_sequence_entry].seq.length ) + bw ;
-	var right = Math.floor ( ( tw - bw*2 ) * to / gentle.sequences[gentle.current_sequence_entry].seq.length ) + bw ;
-	var width = right - left + 1 ;
-	$('#top_zone_marker').css ( { left : left , width : width } ) ;
+	if ( this.is_vertical ) {
+		var top = Math.floor ( ( tw - bw*2 ) * from / gentle.sequences[gentle.current_sequence_entry].seq.length ) + bw ;
+		var bottom = Math.floor ( ( tw - bw*2 ) * to / gentle.sequences[gentle.current_sequence_entry].seq.length ) + bw ;
+		var height = bottom - top + 1 ;
+		$('#top_zone_marker').css ( { top : top , height : height } ) ;
+	} else {
+		var left = Math.floor ( ( tw - bw*2 ) * from / gentle.sequences[gentle.current_sequence_entry].seq.length ) + bw ;
+		var right = Math.floor ( ( tw - bw*2 ) * to / gentle.sequences[gentle.current_sequence_entry].seq.length ) + bw ;
+		var width = right - left + 1 ;
+		$('#top_zone_marker').css ( { left : left , width : width } ) ;
+	}
 }
 
 TopDisplayDNA.prototype.init = function () {
 	html = "" ;
-	html += "<div style='position:absolute;right:2px;top:0px;' ><img title='Zoom full' width='24px' onclick='top_display.do_zoom_top(\"full\")' src='icons/full.png'/></div>" ;
-	html += "<div style='position:absolute;right:2px;top:25px;'><img title='Zoom out' width='24px' onclick='top_display.do_zoom_top(\"out\")' src='icons/zoom_out.png'/></div>" ;
-	html += "<div style='position:absolute;right:2px;top:50px;'><img title='Zoom in' width='24px' onclick='top_display.do_zoom_top(\"in\")' src='icons/zoom_in.png'/></div>" ;
-	html += "<div style='position:absolute;right:2px;top:75px;'><img title='Zoom 1:1' width='24px' onclick='top_display.do_zoom_top(\"1:1\")' src='icons/1.png'/></div>" ;
-	html += "<div id='top_zone'>" ;
+	if ( this.is_vertical ) {
+		html += "<div style='float:right'>" ;
+		html += "<div style='' ><i class='icon-resize-full' onclick='top_display.do_zoom_top(\"full\")'></i></div>" ;
+		html += "<div style='' ><i class='icon-minus' onclick='top_display.do_zoom_top(\"out\")'></i></div>" ;
+		html += "<div style='' ><i class='icon-plus' onclick='top_display.do_zoom_top(\"in\")'></i></div>" ;
+		html += "<div style='' ><i class='icon-resize-small' onclick='top_display.do_zoom_top(\"1:1\")'></i></div>" ;
+		html += "</div>" ;
+	} else {
+		html += "<div style='position:absolute;right:2px;top:0px;' ><img title='Zoom full' width='24px' onclick='top_display.do_zoom_top(\"full\")' src='icons/full.png'/></div>" ;
+		html += "<div style='position:absolute;right:2px;top:25px;'><img title='Zoom out' width='24px' onclick='top_display.do_zoom_top(\"out\")' src='icons/zoom_out.png'/></div>" ;
+		html += "<div style='position:absolute;right:2px;top:50px;'><img title='Zoom in' width='24px' onclick='top_display.do_zoom_top(\"in\")' src='icons/zoom_in.png'/></div>" ;
+		html += "<div style='position:absolute;right:2px;top:75px;'><img title='Zoom 1:1' width='24px' onclick='top_display.do_zoom_top(\"1:1\")' src='icons/1.png'/></div>" ;
+	}
+
+	html += "<div id='top_zone' style='" ;
+	if ( this.is_vertical ) {
+		html += 'left:0px;top:0px;right:0px;height:'+($(window).height()-100)+'px;' ; // HACK FIXME
+	} else {
+		html += 'left:0px;top:0px;right:30px;bottom:0px;' ;
+	}
+	html += "'>" ;
+	
 	html += this.get_top_zone() ;
 	html += "</div>" ;
 	$('#topbox').html ( html ) ;
 	this.make_draggable() ;
 }
 
-function TopDisplayDNA () {
-	this.horizontal_borders = 20 ;
+function TopDisplayDNA ( is_vertical ) {
+	this.is_vertical = is_vertical ;
+	this.horizontal_borders = is_vertical ? 0 : 20 ;
 }
