@@ -12,6 +12,8 @@ TopDisplay.prototype.do_zoom_top = function ( how ) {
 TopDisplayDNA.prototype = new TopDisplay () ;
 TopDisplayDNA.prototype.constructor = TopDisplayDNA ;
 
+/*
+
 TopDisplayDNA.prototype.do_zoom_top= function ( how ) {
 	var zoom = gentle.sequences[gentle.current_sequence_entry].top_zoom ;
 	if ( zoom === undefined ) zoom = 1 ;
@@ -226,7 +228,146 @@ TopDisplayDNA.prototype.init = function () {
 	this.make_draggable() ;
 }
 
+*/
+
+TopDisplayDNA.prototype.pos2y = function ( pos ) {
+	var h = parseInt ( $('#top_zone').css('max-height') ) ;
+	var y = Math.floor ( pos * h / this.zoom_equivalent ) ;
+	return y ;
+}
+
+TopDisplayDNA.prototype.y2pos = function ( y ) {
+	// $('#top_zone').scrollTop()
+}
+
+TopDisplayDNA.prototype.get_feature_div = function ( v ) {
+	var html = '' ;
+	if ( v['_type'].match(/^source$/i) ) return html ;
+	if ( undefined === v['_range'] ) return html ;
+	if ( 0 == v['_range'].length ) return html ;
+	
+	// Positions
+	var base_start = v['_range'][0].from ;
+	var base_end = v['_range'][v['_range'].length-1].to ;
+
+	// Type
+	var cl = 'other' ;
+	if ( v['_type'].match(/^promoter$/i) ) cl = 'promoter' ;
+	if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
+	if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
+	
+	// Name
+	var name = '' ;
+	if ( v['gene'] !== undefined ) name = v['gene'] ;
+	else if ( v['product'] !== undefined ) name = v['product'] ;
+	else if ( v['name'] !== undefined ) name = v['name'] ;
+	name = name.replace(/^"/,'').replace(/"$/,'') ;
+//	name = name.replace ( /\s+$/ , '' ).replace ( /^\s+/ , '' ) ;
+	
+	// Description
+	var desc = '' ;
+	if ( v['note'] !== undefined ) desc = v['note'] ;
+	else if ( v['protein'] !== undefined ) desc = v['protein'] ;
+	else if ( v['product'] !== undefined ) desc = v['product'] ;
+	else if ( v['bound_moiety'] !== undefined ) desc = v['bound_moiety'] ;
+	desc = desc.replace(/^"/,'').replace(/"$/,'') ;
+	if ( desc != '' ) desc = "\n" + ucFirst ( desc ) ;
+	desc = ucFirst ( v['_type'].toLowerCase() ) + desc ;
+	desc += "\n(" + (base_start+1) + "-" + (base_end+1) + ")" ;
+	
+	var sdesc = desc.replace("'","&quot;") ;
+	var sname = "<div class='vtext'>" + name + "</div>" ;
+	
+	var top = this.pos2y ( base_start ) ;
+	var bottom = this.pos2y ( base_end ) ;
+	
+	if ( top > bottom ) {
+		var len = gentle.sequences[gentle.current_sequence_entry].seq.length ;
+		var max = this.pos2y ( len ) ;
+		html += "<div class='feature feat_"+cl+"' style='top:"+0+"px;height:"+top+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+		html += "<div class='feature feat_"+cl+"' style='top:"+bottom+"px;height:"+max+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+	} else {
+		var height = bottom - top + 1 ;
+		html += "<div class='feature feat_"+cl+"' style='top:"+top+"px;height:"+height+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+	}
+	
+	return html ;
+}
+
+
+TopDisplayDNA.prototype.get_top_zone = function () {
+	var me = this ;
+	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
+	var len = sequence.seq.length ;
+
+	$('#top_zone').width ( 200 ) ;
+	$('#top_zone').height ( me.pos2y ( len ) ) ;
+
+	var html = '' ;
+	
+	// Features
+	$.each ( sequence.features , function ( k , v ) {
+		html += me.get_feature_div ( v ) ;
+	} ) ;
+	
+	var max = me.pos2y ( len ) ;
+	html += "<div style='top:"+max+"px;left:1px;height:10px;right:1px;position:absolute'></div>" ;
+	
+	return html ;
+}
+
+TopDisplayDNA.prototype.update_marker = function () {
+	var from = gentle.main_sequence_canvas.start_base ;
+	var to = gentle.main_sequence_canvas.end_base ;
+}
+
+TopDisplayDNA.prototype.do_zoom_top = function ( how ) {
+	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
+	var len = sequence.seq.length ;
+	
+	var min = 500000 ;
+	var max = 500 ;
+	
+	var nz = this.zoom_equivalent ;
+	if ( how == 'full' ) {
+		nz = len ;
+	} else if ( how == 'in' ) {
+		nz /= 2 ;
+	} else if ( how == 'out' ) {
+		nz *= 2 ;
+	} else if ( how == '1:1' ) {
+		nz = max ;
+	}
+	
+	nz = Math.floor ( nz ) ;
+	if ( nz < max ) nz = max ;
+	if ( nz > min ) nz = min ;
+
+	this.zoom_equivalent = nz ;
+	var h = parseInt ( $('#top_zone').css('max-height') ) ;
+	while ( this.pos2y(len) < h ) this.zoom_equivalent-- ;
+	$('#top_zone').html ( this.get_top_zone() ) ;
+}
+
+TopDisplayDNA.prototype.init = function () {
+	var html = "" ;
+
+	html += "<div style='position:absolute;float:right;z-index:99'>" ;
+	html += "<div class='top_display_icon'><i class='icon-resize-full' onclick='top_display.do_zoom_top(\"full\")'></i></div>" ;
+	html += "<div class='top_display_icon'><i class='icon-minus' onclick='top_display.do_zoom_top(\"out\")'></i></div>" ;
+	html += "<div class='top_display_icon'><i class='icon-plus' onclick='top_display.do_zoom_top(\"in\")'></i></div>" ;
+	html += "<div class='top_display_icon'><i class='icon-resize-small' onclick='top_display.do_zoom_top(\"1:1\")'></i></div>" ;
+	html += "</div>" ;
+
+	html += "<div id='top_zone' style='left:0px;top:0px;right:0px;max-height:"+($(window).height()-100)+"px;' >" ;
+	html += "</div>" ;
+	$('#topbox').html ( html ) ;
+	$('#top_zone').html ( this.get_top_zone() ) ;
+//	this.make_draggable() ;
+}
+
 function TopDisplayDNA ( is_vertical ) {
-	this.is_vertical = is_vertical ;
-	this.horizontal_borders = is_vertical ? 0 : 20 ;
+	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
+	var len = sequence.seq.length ;
+	this.zoom_equivalent = len > 50000 ? 50000 : len ;
 }

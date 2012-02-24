@@ -51,43 +51,6 @@ h1 {
 	background-color:white;
 }
 
-/*
-#header {
-	top:5px;
-	left:5px;
-	right:5px;
-	height:50px;
-}
-
-#topbox {
-	top:70px;
-	left:220px;
-	right:220px;
-	height:95px;
-}
-
-#main {
-	top:180px;
-	left:220px;
-	right:220px;
-	bottom:5px;
-}
-
-#sidebar {
-	top:70px;
-	left:5px;
-	width:200px;
-	bottom:5px;
-}
-
-#right {
-	top:70px;
-	right:5px;
-	width:200px;
-	bottom:5px;
-}
-*/
-
 #load_files {
 	font-size:9pt;
 }
@@ -95,10 +58,10 @@ h1 {
 #drop_zone {
 	z-index:99;
 	position:fixed;
-	left:33%;
-	right:33%;
-	top:33%;
-	height:33%;
+	left:25%;
+	right:25%;
+	top:25%;
+	bottom:25%;
 	border:3px dashed #DDDDDD;
 	margin:5px;
 	text-align:center;
@@ -162,35 +125,53 @@ h1 {
 
 
 
+.vtext {
+	writing-mode:tb-rl;
+	-webkit-transform:rotate(-90deg);
+	-moz-transform:rotate(-90deg);
+	-o-transform: rotate(-90deg);
+	top:50%;
+	left:-25%;
+	position:absolute;
+}
 
 .feature {
 	position:absolute;
-	text-align:center;
 	font-size:8pt;
 	font-family:Verdana,Times;
 	border:thin solid black;
 	z-index:2;
+	width:30px;
+	color:black;
+	overflow:hidden;
 }
 
 .feat_other {
-	color:black;
 	background-color:#DDDDDD;
+	left:30px;
 }
 
 .feat_gene {
-	color:white;
 	background-color:blue;
+	left:70px;
 }
 
 .feat_cds {
-	color:white;
 	background-color:red;
+	left:110px;
 }
 
 .feat_promoter {
-	color:white;
 	background-color:black;
+	left:110px;
 }
+
+.top_display_icon {
+	display:inline-block;
+	margin-right:5px;
+}
+
+
 
 #top_zone {
 	position:relative;
@@ -199,7 +180,6 @@ h1 {
 
 .pos_marker {
 	position:absolute;
-/*	padding-bottom:5;*/
 	font-size:6pt;
 	font-family:Verdana,Times;
 	z-index:2;
@@ -211,6 +191,9 @@ h1 {
 	background-color:#FFFFC8;
 	border:none;
 }
+
+
+
 
 #sb_display_options {
 	font-size:10pt;
