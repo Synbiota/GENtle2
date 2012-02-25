@@ -93,12 +93,9 @@ TopDisplayDNA.prototype.get_feature_div = function ( v ) {
 		var max = this.pos2y ( len ) ;
 		html += this.get_top_zone_feature_div ( cl , 0 , top , desc , name ) ;
 		html += this.get_top_zone_feature_div ( cl , bottom , max , desc , name ) ;
-//		html += "<div class='feature feat_"+cl+"' style='top:"+0+"px;height:"+top+"px' title='"+sdesc+"'>" + sname + "</div>" ;
-//		html += "<div class='feature feat_"+cl+"' style='top:"+bottom+"px;height:"+max+"px' title='"+sdesc+"'>" + sname + "</div>" ;
 	} else {
 		var height = bottom - top + 1 ;
 		html += this.get_top_zone_feature_div ( cl , top , height , desc , name ) ;
-//		html += "<div class='feature feat_"+cl+"' style='top:"+top+"px;height:"+height+"px' title='"+sdesc+"'>" + sname + "</div>" ;
 	}
 	
 	return html ;
@@ -118,20 +115,30 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
 	var len = sequence.seq.length ;
 
-//	$('#top_zone').width ( 200 ) ;
 	$('#top_zone').height ( me.pos2y ( len ) ) ;
 
 	var html = '' ;
-
-	html += "<div id='top_zone_marker' title='Visible sequence' style='left:0px;right:0px'></div>" ;
 	
+	// Top zone marker
+	html += "<div id='top_zone_marker' title='Visible sequence' style='left:0px;right:0px'></div>" ;
+
+	// Position indicators
+	var maxpos = me.y2pos ( $('#topbox').height() ) ; //len * ( $('#topbox').height() - 30 ) / ( tw - bw*2 ) ;
+	var every = 1000 ;
+	while ( maxpos / ( every * 10 ) > 20 ) every *= 10 ;
+	for ( var i = 1 ; i < sequence.seq.length ; i += every ) {
+		var pos = i ;
+		if ( pos != 1 ) pos-- ;
+		var y = me.pos2y ( pos ) ;
+		html += "<div class='pos_marker' style='top:"+y+"px'>" + addCommas(pos) + "</div>" ;
+	}
+		
 	// Features
 	$.each ( sequence.features , function ( k , v ) {
 		html += me.get_feature_div ( v ) ;
 	} ) ;
 	
 	var max = me.pos2y ( len ) ;
-//	html += "<div style='top:"+max+"px;left:1px;height:10px;right:1px;position:absolute'></div>" ;
 	html += "<div style='top:0px;left:1px;height:"+max+"px;width:1px;position:absolute'></div>" ;
 	
 	return html ;
@@ -178,14 +185,18 @@ TopDisplayDNA.prototype.do_zoom_top = function ( how ) {
 
 TopDisplayDNA.prototype.init = function () {
 	var html = "" ;
-
-	html += "<div style='position:absolute;float:right;z-index:99'>" ;
+	
+	// Zoom boxes
+//	html += "<div id='zoombox' style='position:absolute;float:right;z-index:99'>" ;
 	html += "<div class='top_display_icon'><i class='icon-resize-full' onclick='top_display.do_zoom_top(\"full\")'></i></div>" ;
 	html += "<div class='top_display_icon'><i class='icon-minus' onclick='top_display.do_zoom_top(\"out\")'></i></div>" ;
 	html += "<div class='top_display_icon'><i class='icon-plus' onclick='top_display.do_zoom_top(\"in\")'></i></div>" ;
 	html += "<div class='top_display_icon'><i class='icon-resize-small' onclick='top_display.do_zoom_top(\"1:1\")'></i></div>" ;
-	html += "</div>" ;
+//	html += "</div>" ;
+	$('#zoombox').html(html);
+	$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 
+	html = '' ;
 	html += "<div id='top_zone' style='left:0px;top:0px;right:0px;max-height:"+($(window).height()-100)+"px;' >" ;
 	html += "</div>" ;
 	$('#topbox').html ( html ) ;

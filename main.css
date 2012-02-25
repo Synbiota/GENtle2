@@ -145,36 +145,44 @@ h1 {
 	font-family:Verdana,Times;
 	border:thin solid black;
 	z-index:2;
-	width:20px;
-	color:black;
+	width:15px;
+	color:white;
 	overflow:hidden;
 }
 
 .feat_other {
 	background-color:#DDDDDD;
-	left:20px;
+	left:35px;
+	color:black;
 }
 
 .feat_gene {
 	background-color:blue;
-	left:50px;
+	left:60px;
 }
 
 .feat_cds {
 	background-color:red;
-	left:80px;
+	left:85px;
 }
 
 .feat_promoter {
 	background-color:black;
-	left:80px;
+	left:85px;
 }
 
 .top_display_icon {
-	display:inline-block;
-	margin-right:5px;
+/*	display:block;
+	margin-right:5px;*/
 }
 
+
+#zoombox {
+	position:fixed;
+	right:20px;
+	top:60px;
+	z-index:99;
+}
 
 
 #top_zone {
@@ -187,6 +195,11 @@ h1 {
 	font-size:6pt;
 	font-family:Verdana,Times;
 	z-index:2;
+	border-top:1px solid #999999;
+	color:black;
+	padding-top:0px;
+	margin-top:0px;
+	padding-left:5px;
 }
 
 #top_zone_marker {

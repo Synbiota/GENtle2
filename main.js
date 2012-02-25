@@ -287,6 +287,7 @@ var gentle = {
 		$('#canvas_wrapper').width ( $('#canvas_wrapper').width() + tbw ) ;
 		this.on_resize_event() ;
 		$('#right_sidebar_icon').toggleClass('icon-chevron-right').toggleClass('icon-chevron-left') ;
+		$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 	} ,
 	
 	set_hover : function ( html ) {
