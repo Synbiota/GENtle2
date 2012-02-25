@@ -84,8 +84,6 @@ TopDisplayDNA.prototype.get_feature_div = function ( v ) {
 	desc = ucFirst ( v['_type'].toLowerCase() ) + desc ;
 	desc += "\n(" + (base_start+1) + "-" + (base_end+1) + ")" ;
 	
-	var sdesc = desc.replace("'","&quot;") ;
-	var sname = "<div class='vtext'>" + name + "</div>" ;
 	
 	var top = this.pos2y ( base_start ) ;
 	var bottom = this.pos2y ( base_end ) ;
@@ -93,16 +91,27 @@ TopDisplayDNA.prototype.get_feature_div = function ( v ) {
 	if ( top > bottom ) {
 		var len = gentle.sequences[gentle.current_sequence_entry].seq.length ;
 		var max = this.pos2y ( len ) ;
-		html += "<div class='feature feat_"+cl+"' style='top:"+0+"px;height:"+top+"px' title='"+sdesc+"'>" + sname + "</div>" ;
-		html += "<div class='feature feat_"+cl+"' style='top:"+bottom+"px;height:"+max+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+		html += this.get_top_zone_feature_div ( cl , 0 , top , desc , name ) ;
+		html += this.get_top_zone_feature_div ( cl , bottom , max , desc , name ) ;
+//		html += "<div class='feature feat_"+cl+"' style='top:"+0+"px;height:"+top+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+//		html += "<div class='feature feat_"+cl+"' style='top:"+bottom+"px;height:"+max+"px' title='"+sdesc+"'>" + sname + "</div>" ;
 	} else {
 		var height = bottom - top + 1 ;
-		html += "<div class='feature feat_"+cl+"' style='top:"+top+"px;height:"+height+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+		html += this.get_top_zone_feature_div ( cl , top , height , desc , name ) ;
+//		html += "<div class='feature feat_"+cl+"' style='top:"+top+"px;height:"+height+"px' title='"+sdesc+"'>" + sname + "</div>" ;
 	}
 	
 	return html ;
 }
 
+TopDisplayDNA.prototype.get_top_zone_feature_div = function ( cl , top , height , desc , name ) {
+	var sdesc = desc.replace("'","&quot;") ;
+	var sname = "<div style='height:"+height+"px;margin-top:"+Math.floor(height/2)+"px;'><div class='vtext' style='position:relative'>" + name + "</div></div>" ;
+	var html = '' ;
+	html += "" ;
+	html += "<div class='feature feat_"+cl+"' style='top:"+top+"px;height:"+height+"px' title='"+sdesc+"'>" + sname + "</div>" ;
+	return html ;
+}
 
 TopDisplayDNA.prototype.get_top_zone = function () {
 	var me = this ;

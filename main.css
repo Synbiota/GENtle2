@@ -126,13 +126,13 @@ h1 {
 
 
 .vtext {
-	writing-mode:tb-rl;
+/*	writing-mode:tb-rl;*/
 	-webkit-transform:rotate(-90deg);
 	-moz-transform:rotate(-90deg);
 	-o-transform: rotate(-90deg);
-	top:50%;
-	left:-25%;
-	position:absolute;
+ 	-moz-transform-origin: 50% 50%;
+	-o-transform-origin:  bottom left;
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
 }
 
 .feature {
