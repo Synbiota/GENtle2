@@ -18,12 +18,6 @@ SequenceCanvas.prototype.initSidebar = function () {
 	if ( this.type === undefined ) return ;
 	var me = this ;
 	var h = '' ;
-/*	$.each ( plugins.tools[me.type] , function ( k , v ) {
-		h += "<h3 class='toolheader'>" + ucFirst ( k ) + "</h3>" ;
-		h += "<div class='toolblock' id='tools_" + k + "'></div>" ;
-	} ) ;
-	$('#right').html ( h ) ;
-*/	
 	$('#toolbar_ul .toolbar_plugin').remove() ;
 	h = '' ;
 	$.each ( plugins.tools[me.type] , function ( k , v ) {
@@ -330,12 +324,12 @@ SequenceCanvasDNA.prototype.init = function () {
 		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 		var target = sc.isOver ( x , y ) ;
 		if ( target === null ) {
-			if ( !sc.position_is_blank ) $('#position').html ('&nbsp;') ;
+			if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
 			sc.position_is_blank = true ;
 			return ;
 		}
-		if ( undefined === target.text ) $('#position').html ( "Position : " + (target.base+1) ) ;
-		else $('#position').html ( target.text ) ;
+		if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
+		else gentle.set_hover ( target.text ) ;
 		sc.position_is_blank = false ;
 		
 		if ( !sc.selecting ) return ;
@@ -386,13 +380,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	} ) ;
 
 	// Window resize event
-	$(window).resize ( function () {
-		var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
-		var h = $('#canvas_wrapper').height() ;
-		$('#sequence_canvas').css ( { width:w , height:h } ) ;
-		$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
-		sc.show () ;
-	} ) ;
+	$(window).resize ( gentle.on_resize_event ) ;
 	
 	// Attach mouse wheel event to canvas
 	$('#sequence_canvas').mousewheel(function(event, delta, deltaX, deltaY) {
@@ -687,7 +675,34 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 		} ;
 	} ) ;
 
-	var h = '<h3>Display options</h3>' ;
+/*
+<div class="modal" id="openFileFromDisk" style='display:none'>
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>Open file from disk</h3>
+  </div>
+  <div class="modal-body">
+    <p>
+		<input type="file" id="files" name="files[]" multiple size='10' />
+    </p>
+  </div>
+<!--  <div class="modal-footer">
+    <a href="#" class="btn btn-primary">Save changes</a>
+    <a href="#" class="btn">Close</a>
+  </div>-->
+</div>
+
+*/
+
+	var h = "" ;
+//	h += "<div class='modal'>" ;
+//	h += "<div class='modal-header'>" ;
+//    h += "<a class='close' data-dismiss='modal'>×</a>" ;
+//	h += "<h3>Display options</h3>" ;
+
+//	h += "</div>" ;
+//	h += "<div class='modal-body'>" ;
+
 	h += "<div class='left_sidebar_box'>" ;
 	h += "<div><input type='checkbox' id='cb_display_numbering' " + (this.getLineIndex('position')===undefined?'':'checked') + " /><label for='cb_display_numbering'>Display numbering</label></div>" ;
 	h += "<div><input type='checkbox' id='cb_display_annotation' " + (this.getLineIndex('annotation')===undefined?'':'checked') + " /><label for='cb_display_annotation'>Display inline annotation</label></div>" ;
@@ -730,6 +745,7 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	h += "</div>" ;
 	
 	$('#sb_display_options').html ( h ) ;
+	$('#sb_display_options').attr ( { title : 'Display options' } ) ;
 	
 	$('#sb_display_options input:radio[name=aa_display][value='+aa_settings.m1+']').attr('checked',true);
 	$('#sb_display_options input:radio[name=aa_rf][value='+aa_settings.m2+']').attr('checked',true);

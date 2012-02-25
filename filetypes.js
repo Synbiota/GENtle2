@@ -53,7 +53,7 @@ FT_plaintext.prototype.parseFile = function () {
 	var seqid = gentle.sequences.length ;
 	gentle.sequences.push ( v ) ;
 	$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
-	$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
+//	$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
 	if ( gentle.sequences.length == 1 ) {
 		$('#sb_sequences').val(seqid) ;
 		gentle.handleSelectSequenceEntry ( seqid ) ;
@@ -132,7 +132,7 @@ FT_fasta.prototype.parseFile = function () {
 		var seqid = gentle.sequences.length ;
 		gentle.sequences.push ( v ) ;
 		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
-		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
+//		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
 		if ( gentle.sequences.length == 1 ) {
 			$('#sb_sequences').val(seqid) ;
 			gentle.handleSelectSequenceEntry ( seqid ) ;
@@ -201,7 +201,7 @@ FT_genebank.prototype.checkFile =function ( f ) {
 FT_genebank.prototype.parseText = function ( text ) {
 	this.text = text ;
 	this.fileTypeValidated = true ;
-	$('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
+//	$('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
 	this.parseFile () ;
 }
 
@@ -300,7 +300,7 @@ FT_genebank.prototype.parseFile = function () {
 	var seqid = gentle.sequences.length ;
 	gentle.sequences.push ( seq ) ;
 	$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
-	$('#sb_log').append ( '<p>Loaded ' + seq.seq.length + ' bp :<br/>' + seq.name + '</p>' ) ;
+//	$('#sb_log').append ( '<p>Loaded ' + seq.seq.length + ' bp :<br/>' + seq.name + '</p>' ) ;
 	$('#sb_sequences').val(seqid) ;
 	gentle.handleSelectSequenceEntry ( seqid ) ;
 }

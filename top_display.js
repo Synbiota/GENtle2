@@ -118,12 +118,12 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
 	var len = sequence.seq.length ;
 
-	$('#top_zone').width ( 200 ) ;
+//	$('#top_zone').width ( 200 ) ;
 	$('#top_zone').height ( me.pos2y ( len ) ) ;
 
 	var html = '' ;
 
-	html += "<div id='top_zone_marker' title='Visible sequence' style='left:0px;right:0px;'></div>" ;
+	html += "<div id='top_zone_marker' title='Visible sequence' style='left:0px;right:0px'></div>" ;
 	
 	// Features
 	$.each ( sequence.features , function ( k , v ) {

@@ -3,7 +3,10 @@
 
 <head>
 <title>GENtle 2</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="target-densitydpi=high-dpi">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <link type="text/css" href="css/ui-lightness/jquery-ui-1.8.17.custom.css" rel="Stylesheet" />
 <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css" />
@@ -12,6 +15,7 @@
 </head>
 
 <body>
+<div id='hoverbox'></div>
 <div id='all'>
 
 <div class="navbar">
@@ -44,53 +48,25 @@
 		<li><a href="#contact">Contact</a></li>
 -->
 	  </ul>
-<!--	  <p class="pull-right">Logged in as <a href="#">username</a></p>-->
+	  
+	  <ul class="nav pull-right">
+		<li title='Display settings'><a href='#' onclick='gentle.toggle_display_settings();return false' class='btn-inverse'><i class='icon-cog icon-white'></i></a></li>
+		<li title='Loaded sequences'><a href='#' onclick='gentle.toggle_loaded_sequences();return false' class='btn-inverse'><i class='icon-list-alt icon-white'></i></a></li>
+		<li title='Toggle sidebar'><a href='#' onclick='gentle.toggle_right_sidebar();return false' class='btn-inverse'><i id='right_sidebar_icon' class='icon-chevron-right icon-white'></i></a></li>
+		
+		
+<!--	  Logged in as <a href="#">username</a>-->
+	  </ul>
+	  
 	</div>
   </div>
 </div>
 
-<!--
-<div  class='row'>
-<div class='span12'>
-<div id='seq_functions'>
-<div id='seq_functions_seq_only'>
-<a href='#' onclick='gentle.saveLocally();return false'>Save all</a><br/>
-<a href='#' onclick='gentle.closeCurrentSequence();return false'>Close sequence</a>
-</div>
-<a href='#' onclick='gentle.plugins.managePlugins();return false'>Manage plugins</a>
-</div>
-<h1>GENtle 2</h1>
-</div>
-</div>
--->
+
 
 <div class='container-fluid'>
 <div class='row-fluid'>
 
-<div class='sidebar left well'>
-<!--	<div id='load_files'>
-		<h2>Load files</h2>
-		<div id='load_local_files'>
-		</div>
-		<div><input type='button' value='NCBI query' onclick='start_nbci_dialog()' /></div>
-	</div>-->
-	<div id='sb_sequences_container'>
-	<h2>Loaded sequences</h2>
-	<select id='sb_sequences' size='10'></select>
-	</div>
-	
-	<div id='position'>&nbsp;</div>
-
-	<div id='sb_display_options'>
-	</div>
-
-	<div id='sb_log'><h2>Log</h2></div>
-</div>
-
-<!--
-<div id='topbox' class='mainbox'>
-</div>
--->
 
 <div id='topbox' class='sidebar right well'>
 </div>
@@ -120,6 +96,13 @@
     <a href="#" class="btn">Close</a>
   </div>-->
 </div>
+
+<div id='sb_display_options'></div>
+
+<div id='sb_sequences_container' style='display:none' title='Loaded sequences'>
+<select id='sb_sequences' size='10'></select>
+</div>
+
 
 </div>
 
