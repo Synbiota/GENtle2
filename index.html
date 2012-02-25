@@ -21,40 +21,38 @@
 <div class="navbar">
   <div class="navbar-inner">
 	<div class="container-fluid">
-	  <a class="brand" href="#">GENtle2</a>
-	  <ul class="nav" id='toolbar_ul'>
+
+		<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+		</a>
+
+		<a class="brand" href="#">GENtle2</a>
 	  
-		<li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
-			<ul class="dropdown-menu">
-<!--			  	<li><a href='#' onclick='gentle.open_file_from_disk_dialog();return false'>Open from disk</a></li>-->
-			  	<li><a data-toggle='modal' href='#openFileFromDisk'>Open from disk</a></li>
-			  	<li><a href='#' onclick='start_nbci_dialog();return false'>Open from NCBI</a></li>
-				<li><a id='close_sequence' href='#' onclick='gentle.closeCurrentSequence();return false'>Close sequence</a></li>
-			</ul>
-		</li>
-		
-	  
-	  
-		<li class="dropdown">
-			<a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools<b class="caret"></b></a>
-			<ul class="dropdown-menu">
-			  	<li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
-			</ul>
-		</li>
-	  	
-<!--		<li class="active"><a href="#">Home</a></li>
-		<li><a href="#about">About</a></li>
-		<li><a href="#contact">Contact</a></li>
--->
-	  </ul>
+		<div class="nav-collapse">
+		  <ul class="nav" id='toolbar_ul'>
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a data-toggle='modal' href='#openFileFromDisk'>Open from disk</a></li>
+					<li><a href='#' onclick='start_nbci_dialog();return false'>Open from NCBI</a></li>
+					<li><a id='close_sequence' href='#' onclick='gentle.closeCurrentSequence();return false'>Close sequence</a></li>
+				</ul>
+			</li>
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools<b class="caret"></b></a>
+				<ul class="dropdown-menu">
+					<li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
+				</ul>
+			</li>
+		  </ul>
+		</div>
 	  
 	  <ul class="nav pull-right">
 		<li title='Display settings'><a href='#' onclick='gentle.toggle_display_settings();return false' class='btn-inverse'><i class='icon-cog icon-white'></i></a></li>
 		<li title='Loaded sequences'><a href='#' onclick='gentle.toggle_loaded_sequences();return false' class='btn-inverse'><i class='icon-list-alt icon-white'></i></a></li>
 		<li title='Toggle sidebar'><a href='#' onclick='gentle.toggle_right_sidebar();return false' class='btn-inverse'><i id='right_sidebar_icon' class='icon-chevron-right icon-white'></i></a></li>
-		
-		
 <!--	  Logged in as <a href="#">username</a>-->
 	  </ul>
 	  
@@ -115,6 +113,7 @@
 <script type="text/javascript" src="js/jquery-1.7.1.min.js"></script>
 <script type="text/javascript" src="js/jquery-ui-1.8.17.custom.min.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="bootstrap/js/bootstrap-collapse.js"></script>
 <script type="text/javascript" src="mousewheel.js"></script>
 
 <script type="text/javascript" src="config.js"></script>

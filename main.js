@@ -17,6 +17,8 @@ var gentle = {
 	init : function () {
 	
 		if(navigator.userAgent.match(/Android/i)) window.scrollTo(0,1);
+		
+		window.onorientationchange = gentle.on_resize_event ;
 
 		if ( undefined === gentle_config ) {
 			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
@@ -294,9 +296,9 @@ var gentle = {
 		$('#hoverbox').html ( html ) ;
 	} ,
 	
-	open_file_from_disk_dialog : function () {
+/*	open_file_from_disk_dialog : function () {
 		$('#all').append ( h ) ;
-	} ,
+	} ,*/
 	
 	on_resize_event : function () {
 		var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
