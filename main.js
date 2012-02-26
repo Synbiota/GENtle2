@@ -13,10 +13,17 @@ var gentle = {
 	sequences : [] ,
 	current_sequence_entry : undefined ,
 	main_sequence_canvas : undefined ,
+	is_mobile : false ,
 
 	init : function () {
 	
-		if(navigator.userAgent.match(/Android/i)) window.scrollTo(0,1);
+		if(navigator.userAgent.match(/Android/i)) {
+			gentle.is_mobile = true ;
+//			setTimeout(scrollTo,200,0,1) ;
+		}
+		if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+			gentle.is_mobile = true ;
+		}
 		
 		window.onorientationchange = gentle.on_resize_event ;
 
@@ -202,7 +209,7 @@ var gentle = {
 		html += "</div>" ;
 		$('#main').html ( html ) ;
 		
-		$('#canvas_wrapper').height ( $('#main').height() ) ;
+		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		
 		// Set up new top display
 		top_display = new TopDisplayDNA ( true ) ;
@@ -266,7 +273,8 @@ var gentle = {
 		if ( $('#sb_display_options').is(':visible') ) {
 			$('#sb_display_options').dialog ( 'close' ) ;
 		} else {
-			$('#sb_display_options').dialog ( { modal : false } ) ;
+			$('#sb_display_options').dialog ( { modal : false , width : 'auto' } ) ;
+	 		$('#sb_display_options').dialog('option', 'position', 'center');
 		}
 	} ,
 	

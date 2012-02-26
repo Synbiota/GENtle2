@@ -286,6 +286,74 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	sc.show () ;
 }
 
+SequenceCanvasDNA.prototype.fix_touch_event = function ( e ) {
+	
+	if(e.originalEvent.touches && e.originalEvent.touches.length) {
+		e = e.originalEvent.touches[0];
+	} else if(e.originalEvent.changedTouches && e.originalEvent.changedTouches.length) {
+		e = e.originalEvent.changedTouches[0];
+	}
+	return e ;
+}
+
+SequenceCanvasDNA.prototype.absorb_event = function (event) { 
+	if ( !gentle.is_mobile ) return false ;
+	var e = event || window.event;
+	e.preventDefault && e.preventDefault();
+	e.stopPropagation && e.stopPropagation();
+	e.cancelBubble = true;
+	e.returnValue = false;
+	return false;
+}
+
+SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
+	if ( !sc.selecting ) return ;
+	sc.selecting = false ;
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;
+}
+
+SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+	if ( target === null ) {
+		sc.deselect() ;
+	return true ;
+//		return sc.absorb_event(e) ;
+	}
+	
+	sc.last_target = target ;
+	sc.selecting = true ;
+	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
+	sc.show() ;
+	return sc.absorb_event(e) ;
+}
+
+SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+	if ( target === null ) {
+		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
+		sc.position_is_blank = true ;
+		return ;
+	}
+	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
+	else gentle.set_hover ( target.text ) ;
+	sc.position_is_blank = false ;
+	
+	if ( !sc.selecting ) return ;
+
+	if ( sc.selections[0].to == target.base ) return ;
+	sc.selections[0].to = target.base ;
+	sc.show() ;
+	return sc.absorb_event(e) ;
+}
+
 SequenceCanvasDNA.prototype.init = function () {
 	var sc = this ;
 	var cw = $('#canvas_wrapper').offset() ;
@@ -297,47 +365,17 @@ SequenceCanvasDNA.prototype.init = function () {
 	// Select
 	sc.selecting = false ;
 	sc.selections = [] ;
-	$('#sequence_canvas').mousedown ( function ( e ) {
-		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
-		var target = sc.isOver ( x , y ) ;
-		if ( target === null ) {
-			sc.deselect() ;
-			return ;
-		}
-		
-		sc.last_target = target ;
-		sc.selecting = true ;
-		sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
-		sc.show() ;
-	} ) ;
-	$('#sequence_canvas').mouseup ( function ( e ) {
-		if ( !sc.selecting ) return ;
-		sc.selecting = false ;
-		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
-		var target = sc.isOver ( x , y ) ;
-		if ( target === null ) return ;
-	} ) ;
-	$('#sequence_canvas').mousemove ( function ( e ) {
-		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
-		var target = sc.isOver ( x , y ) ;
-		if ( target === null ) {
-			if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
-			sc.position_is_blank = true ;
-			return ;
-		}
-		if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
-		else gentle.set_hover ( target.text ) ;
-		sc.position_is_blank = false ;
-		
-		if ( !sc.selecting ) return ;
-		if ( sc.selections[0].to == target.base ) return ;
-		sc.selections[0].to = target.base ;
-		sc.show() ;
-	} ) ;
 	
+	if ( gentle.is_mobile ) {
+		$('#sequence_canvas').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas').bind ( 'touchcancel' , sc.absorb_event ) ;
+	} else {
+		$('#sequence_canvas').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
+		$('#sequence_canvas').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
+		$('#sequence_canvas').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
+	}
 	
 	// Double-click for editing
 	$('#sequence_canvas').dblclick ( function ( e ) {
@@ -357,6 +395,7 @@ SequenceCanvasDNA.prototype.init = function () {
 		sc.edit = { editing : true , line : target.line , base : target.base } ;
 		sc.show() ;
 	} ) ;
+	
 	
 	// Keys
 	$(document).off ( 'copy keydown paste cut' ) ;
@@ -392,8 +431,13 @@ SequenceCanvasDNA.prototype.init = function () {
 	});
 
 	sc.recalc() ;
-	
+
 	$('#canvas_wrapper').scroll ( function ( o ) {
+		if ( gentle.is_mobile && sc.selecting ) {
+			sc.on_mouse_move ( sc , sc.fix_touch_event(o) ) ;
+//			o.preventDefault();
+			return true ;
+		}
 		var oy = $('#canvas_wrapper').scrollTop() ;
 		sc.yoff = oy ;
 		sc.show() ;
@@ -619,10 +663,10 @@ SequenceCanvasDNA.prototype.update_display_aa = function () {
 SequenceCanvasDNA.prototype.update_display_res = function () {
 	var show_res = $('#show_res').is(':checked');
 	if ( show_res ) {
-		$('#re_options input').removeAttr('disabled');
+		$('.re_options input').removeAttr('disabled');
 		$('#re_manual').removeAttr('disabled');
 	} else {
-		$('#re_options input').attr('disabled','disabled');
+		$('.re_options input').attr('disabled','disabled');
 		$('#re_manual').attr('disabled','disabled');
 	}
 }
@@ -675,74 +719,65 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 		} ;
 	} ) ;
 
-/*
-<div class="modal" id="openFileFromDisk" style='display:none'>
-  <div class="modal-header">
-    <a class="close" data-dismiss="modal">×</a>
-    <h3>Open file from disk</h3>
-  </div>
-  <div class="modal-body">
-    <p>
-		<input type="file" id="files" name="files[]" multiple size='10' />
-    </p>
-  </div>
-<!--  <div class="modal-footer">
-    <a href="#" class="btn btn-primary">Save changes</a>
-    <a href="#" class="btn">Close</a>
-  </div>-->
-</div>
-
-*/
 
 	var h = "" ;
-//	h += "<div class='modal'>" ;
-//	h += "<div class='modal-header'>" ;
-//    h += "<a class='close' data-dismiss='modal'>×</a>" ;
-//	h += "<h3>Display options</h3>" ;
-
-//	h += "</div>" ;
-//	h += "<div class='modal-body'>" ;
-
-	h += "<div class='left_sidebar_box'>" ;
-	h += "<div><input type='checkbox' id='cb_display_numbering' " + (this.getLineIndex('position')===undefined?'':'checked') + " /><label for='cb_display_numbering'>Display numbering</label></div>" ;
-	h += "<div><input type='checkbox' id='cb_display_annotation' " + (this.getLineIndex('annotation')===undefined?'':'checked') + " /><label for='cb_display_annotation'>Display inline annotation</label></div>" ;
-	h += "<div><input type='checkbox' id='cb_display_rc' " + (this.getLineIndex('dna_rc')===undefined?'':'checked') + " /><label for='cb_display_rc'>Display reverse-complement</label></div>" ;
-	h += "<div><input type='checkbox' id='cb_display_blank' " + (this.getLineIndex('blank')===undefined?'':'checked') + " /><label for='cb_display_blank'>Display separator lines</label></div>" ;
-	h += "</div>" ;
 	
-	h += "<div class='left_sidebar_box'>" ;
-	h += "Amino acids / reading frame<br/>" ;
-	h += "<input type='radio' name='aa_display' value='none' id='aa_display_none' /><label for='aa_display_none'>none</label> " ;
-	h += "<input type='radio' name='aa_display' value='one' id='aa_display_one' /><label for='aa_display_one'>single</label> " ;
-	h += "<input type='radio' name='aa_display' value='three' id='aa_display_three' /><label for='aa_display_three'>three</label> letters<br/>" ;
-	h += "<input type='radio' name='aa_rf' value='all' id='aa_rf_all' /><label for='aa_rf_all'>all</label> " ;
-	h += "<input type='radio' name='aa_rf' value='1' id='aa_rf_1' /><label for='aa_rf_1'>1</label> " ;
-	h += "<input type='radio' name='aa_rf' value='2' id='aa_rf_2' /><label for='aa_rf_2'>2</label> " ;
-	h += "<input type='radio' name='aa_rf' value='3' id='aa_rf_3' /><label for='aa_rf_3'>3</label> " ;
-	h += "<input type='checkbox' id='aa_reverse' /><label for='aa_reverse'>reverse</label>" ;
+	h += "<table border=0 cellspacing=0 cellpadding=2 id='display_settings_table'>" ;
+	
+	h += "<tr><th>Rows</th><td colspan=2 nowrap>" ;
+	h += '<div class="btn-group" data-toggle="buttons-checkbox">' ;
+	h += "<input type='checkbox' id='cb_display_numbering' " + (this.getLineIndex('position')===undefined?'':'checked') + " /><label class='btn first-btn' for='cb_display_numbering'>Numbering</label>" ;
+	h += "<input type='checkbox' id='cb_display_annotation' " + (this.getLineIndex('annotation')===undefined?'':'checked') + " /><label class='btn' for='cb_display_annotation'>Annotation</label>" ;
+	h += "<input type='checkbox' id='cb_display_rc' " + (this.getLineIndex('dna_rc')===undefined?'':'checked') + " /><label class='btn' for='cb_display_rc'>Complement</label>" ;
+	h += "<input type='checkbox' id='cb_display_blank' " + (this.getLineIndex('blank')===undefined?'':'checked') + " /><label class='btn' for='cb_display_blank'>Separators</label>" ;
 	h += "</div>" ;
+	h += "</td></tr>" ;
 
-	h += "<div class='left_sidebar_box'>" ;
-	h += "<input type='checkbox' id='show_res' " + (this.getLineIndex('res')===undefined?'':'checked') + " /><label for='show_res'>Restriction enzyme sites</label><br/>" ;
-	h += "<div id='re_options'>" ;
+	h += "<tr><th rowspan=2>Amino acids</th><td>Letters</td><td>" ;
+	h += '<div class="btn-group" data-toggle="buttons-checkbox">' ;
+	h += "<input type='radio' name='aa_display' value='none' id='aa_display_none' /><label class='btn first-btn' for='aa_display_none'>Off</label> " ;
+	h += "<input type='radio' name='aa_display' value='one' id='aa_display_one' /><label class='btn' for='aa_display_one'>1</label> " ;
+	h += "<input type='radio' name='aa_display' value='three' id='aa_display_three' /><label class='btn' for='aa_display_three'>3</label>" ;
+	h += "</div></td></tr>" ;
+	h += "<tr><td>Reading frame</td><td>" ;
+	h += '<div class="btn-group" data-toggle="buttons-checkbox">' ;
+	h += "<input type='radio' name='aa_rf' value='all' id='aa_rf_all' /><label class='btn first-btn' for='aa_rf_all'>all</label> " ;
+	h += "<input type='radio' name='aa_rf' value='1' id='aa_rf_1' /><label class='btn first-btn' for='aa_rf_1'>1</label> " ;
+	h += "<input type='radio' name='aa_rf' value='2' id='aa_rf_2' /><label class='btn' for='aa_rf_2'>2</label> " ;
+	h += "<input type='radio' name='aa_rf' value='3' id='aa_rf_3' /><label class='btn' for='aa_rf_3'>3</label> " ;
+	h += "<input type='checkbox' id='aa_reverse' /><label class='btn first-btn' for='aa_reverse'>reverse</label>" ;
+	h += "</div></td></tr>" ;
 
-	h += "<div>Recognition sites:" ;
+
+	h += "<tr><th rowspan=3>Restriction enzymes</th>" ;
+	h += "<td>" ;
+	h += '<div class="btn-group" data-toggle="buttons-checkbox">' ;
+	h += "<input type='checkbox' id='show_res' " + (this.getLineIndex('res')===undefined?'':'checked') + " /><label class='btn first-btn' for='show_res'>Show sites</label>" ;
+	h += "</div></td>" ;
+	h += "<td class='re_options'><input type='number' value='3' id='re_maxcut' size='3' style='width:30px' /><label for='re_maxcut'> max cuts in sequence</label></td>" ;
+	h += "</tr><tr>" ;
+
+	h += "<td>Recognition sites</td><td class='re_options'>" ;
+	h += '<div class="btn-group" data-toggle="buttons-checkbox">' ;
+	var first = true ;
 	$.each ( cd.re_s2n , function ( len , enzymes ) {
-		h += "<input type='checkbox' id='re_len_" + len + "' /><label for='re_len_" + len + "'>" + len + "</label> " ;
-		if ( len == 7 ) h += "<br/>" ;
+		h += "<input type='checkbox' id='re_len_" + len + "' /><label class='btn" ;
+		if ( first ) {
+			h += " first-btn" ;
+			first = false ;
+		}
+		h += "' for='re_len_" + len + "'>" + len + "</label> " ;
 	} ) ;
 	h += "</div>" ;
 	
-	h += "<div><input type='number' value='3' id='re_maxcut' size='3' style='width:30px' /><label for='re_maxcut'> max cuts in sequence</label></div>" ;
+	h += "</td></tr>" ;
 
-	h += "<div>" ;
-	h += "Manual list of enzymes :<br/>" ;
-	h += "<textarea id='re_manual' rows='3'></textarea>" ;
-	h += "</div>" ;
+	h += "<tr><td>Manual enzyme list</td><td class='re_options'>" ;
+	h += "<textarea id='re_manual' rows='1'></textarea>" ;
+	h += "</td></tr>" ;
 
-	h += "</div>" ;
-	
-	h += "</div>" ;
+	h += "</table>" ;
+
 	
 	$('#sb_display_options').html ( h ) ;
 	$('#sb_display_options').attr ( { title : 'Display options' } ) ;
