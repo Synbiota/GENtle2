@@ -135,7 +135,6 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	}
 	
 
-
 	if ( code >= 65 && code <= 90 && !e.metaKey ) { // A-Z
 		var c = String.fromCharCode(code) ;
 		if ( !sc.isCharAllowed ( c ) ) {
@@ -307,8 +306,7 @@ SequenceCanvasDNA.prototype.absorb_event = function (event) {
 }
 
 SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
-
-	if ( gentle.is_mobile ) {
+	if ( gentle.is_mobile ) { // DoubleTap
 		var t = new Date().getTime();
 		if ( sc.last_mouse_down !== undefined && t - sc.last_mouse_down < 500 ) { // 500ms since last touch = double-touch
 			return sc.on_double_click ( sc , e ) ;
@@ -376,11 +374,84 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 			sc.edit.editing = false ;
 			sc.show() ;
 		}
+		$('#soft_keyboard').dialog ( 'close' ) ;
 		return ;
 	}
 	sc.edit = { editing : true , line : target.line , base : target.base } ;
 	sc.show() ;
+	
+	if ( gentle.is_mobile ) {
+		var h = "<div id='soft_keyboard' title='Keyboard'>" ;
+
+		h += "<div>" ;
+		h += '<div class="btn-group">' ;
+		h += "<button class='btn first-btn' id='skbd_a'>&nbsp;A&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_c'>&nbsp;C&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_g'>&nbsp;G&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_t'>&nbsp;T&nbsp;</button>" ;
+		h += "</div>" ;
+		h += "</div>" ;
+		
+		h += "<br/>" ;
+
+		h += "<div>" ;
+		h += '<div class="btn-group">' ;
+		h += "<button class='btn first-btn' id='skbd_left'><i class='icon-arrow-left'></i></button>" ;
+		h += "<button class='btn' id='skbd_backspace'>⌫</button>" ;
+		h += "<button class='btn' id='skbd_delete'>⌦</button>" ;
+		h += "<button class='btn' id='skbd_right'><i class='icon-arrow-right'></i></button>" ;
+		h += "</div>" ;
+		h += "</div>" ;
+
+		h += "</div>" ;
+		
+		$('#soft_keyboard').remove() ;
+		$('#all').append(h) ;
+		$('#soft_keyboard').dialog ( { 
+			modal : false , 
+			autoOpen : true , 
+			resizable : false ,
+			position : ['right','top'] , 
+			width : 'auto' ,
+			height : 130 ,
+			beforeClose: function(event, ui) {
+				if ( sc.edit.editing ) { // Turn off editing
+					sc.edit.editing = false ;
+					sc.show() ;
+				}
+			}
+		} ) ;
+		$('#skbd_a').click(function(e){sc.sim_key('A',false)});
+		$('#skbd_c').click(function(e){sc.sim_key('C',false)});
+		$('#skbd_g').click(function(e){sc.sim_key('G',false)});
+		$('#skbd_t').click(function(e){sc.sim_key('T',false)});
+		$('#skbd_backspace').click(function(e){sc.sim_key(String.fromCharCode(8),false)});
+		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
+		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
+		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
+		$('#soft_keyboard .ui-dialog-titlebar').hide();
+	}
+	
+	
+/*	if ( gentle.is_mobile ) { // An attempt to invoke the soft keyboard and redirect keystrokes from an input box to the canvas; failed for now
+		var h = "<input type='text' id='tmp' style='position:fixed;right:0px;top:0px;' />" ;
+		$('#tmp').remove();
+		$('#all').append(h) ;
+		$('#tmp').focus() ;
+		$('#tmp').keydown ( sc.keyhandler ) ;
+	}*/
+	
+	
 	return sc.absorb_event(e) ;
+}
+
+SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
+	var e = {} ;
+	e.keyCode = s.charCodeAt(0) ;
+	e.metaKey = mk ;
+	e.preventDefault = function () {} ; // Fake
+	e.stopPropagation = function () {} ; // Fake
+	this.keyhandler ( e ) ;
 }
 
 SequenceCanvasDNA.prototype.init = function () {
