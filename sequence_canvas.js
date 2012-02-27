@@ -307,12 +307,22 @@ SequenceCanvasDNA.prototype.absorb_event = function (event) {
 }
 
 SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
+
+	if ( gentle.is_mobile ) {
+		var t = new Date().getTime();
+		if ( sc.last_mouse_down !== undefined && t - sc.last_mouse_down < 500 ) { // 500ms since last touch = double-touch
+			return sc.on_double_click ( sc , e ) ;
+		}
+		sc.last_mouse_down = t ;
+	}
+
 	if ( !sc.selecting ) return ;
+
 	sc.selecting = false ;
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
-	return sc.absorb_event(e) ;
+
 	return sc.absorb_event(e) ;
 }
 
@@ -322,16 +332,16 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	var target = sc.isOver ( x , y ) ;
 	if ( target === null ) {
 		sc.deselect() ;
-	return true ;
-//		return sc.absorb_event(e) ;
+		return true ;
 	}
-	
+
 	sc.last_target = target ;
 	sc.selecting = true ;
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
 	sc.show() ;
 	return sc.absorb_event(e) ;
 }
+
 
 SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
@@ -350,6 +360,25 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 
 	if ( sc.selections[0].to == target.base ) return ;
 	sc.selections[0].to = target.base ;
+	sc.show() ;
+	return sc.absorb_event(e) ;
+}
+
+SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
+	sc.selecting = false ;
+	sc.selections = [] ;
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+	sc.last_target = target ;
+	if ( target === null ) { // Not clicked on a target
+		if ( sc.edit.editing ) { // Turn off editing
+			sc.edit.editing = false ;
+			sc.show() ;
+		}
+		return ;
+	}
+	sc.edit = { editing : true , line : target.line , base : target.base } ;
 	sc.show() ;
 	return sc.absorb_event(e) ;
 }
@@ -378,23 +407,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	}
 	
 	// Double-click for editing
-	$('#sequence_canvas').dblclick ( function ( e ) {
-		sc.selecting = false ;
-		sc.selections = [] ;
-		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
-		var target = sc.isOver ( x , y ) ;
-		sc.last_target = target ;
-		if ( target === null ) { // Not clicked on a target
-			if ( sc.edit.editing ) { // Turn off editing
-				sc.edit.editing = false ;
-				sc.show() ;
-			}
-			return ;
-		}
-		sc.edit = { editing : true , line : target.line , base : target.base } ;
-		sc.show() ;
-	} ) ;
+	$('#sequence_canvas').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
 	
 	
 	// Keys
