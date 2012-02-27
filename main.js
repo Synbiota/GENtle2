@@ -19,7 +19,6 @@ var gentle = {
 	
 		if(navigator.userAgent.match(/Android/i)) {
 			gentle.is_mobile = true ;
-//			setTimeout(scrollTo,200,0,1) ;
 		}
 		if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
 			gentle.is_mobile = true ;
@@ -325,3 +324,6 @@ var gentle = {
 $(document).ready ( function () {
 	gentle.init () ;
 } ) ;
+
+// Hide URL bar in most mobile browsers
+window.addEventListener("load",function() { setTimeout(function(){window.scrollTo(0, 1);}, 0); });
