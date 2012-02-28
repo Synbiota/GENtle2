@@ -389,13 +389,7 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 		h += "<button class='btn' id='skbd_c'>&nbsp;C&nbsp;</button>" ;
 		h += "<button class='btn' id='skbd_g'>&nbsp;G&nbsp;</button>" ;
 		h += "<button class='btn' id='skbd_t'>&nbsp;T&nbsp;</button>" ;
-		h += "</div>" ;
-		h += "</div>" ;
-		
-		h += "<br/>" ;
 
-		h += "<div>" ;
-		h += '<div class="btn-group">' ;
 		h += "<button class='btn first-btn' id='skbd_left'><i class='icon-arrow-left'></i></button>" ;
 		h += "<button class='btn' id='skbd_backspace'>⌫</button>" ;
 		h += "<button class='btn' id='skbd_delete'>⌦</button>" ;
@@ -411,9 +405,9 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 			modal : false , 
 			autoOpen : true , 
 			resizable : false ,
-			position : ['right','top'] , 
+			position : ['center','bottom'] , 
 			width : 'auto' ,
-			height : 130 ,
+			height : 70 ,
 			beforeClose: function(event, ui) {
 				if ( sc.edit.editing ) { // Turn off editing
 					sc.edit.editing = false ;
@@ -430,6 +424,7 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
 		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
 		$('#soft_keyboard .ui-dialog-titlebar').hide();
+		return false ;
 	}
 	
 	
