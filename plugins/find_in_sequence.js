@@ -87,6 +87,7 @@ PluginFindInSequence.prototype.clickHandler = function ( o ) {
 	this.sc.select ( from , to , 'yellow' ) ;
 	this.sc.ensureBaseIsVisible ( to ) ;
 	this.sc.ensureBaseIsVisible ( from ) ;
+	this.dropdown_focusout_cancel = true ;
 }
 
 
@@ -123,26 +124,34 @@ PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is
 PluginFindInSequence.prototype.updateResultsBox = function () {
 	var query = $('#toolbar_search_box').val() ;
 	
-	this.uses_dialog = false ;
-	var id = this.result_id + '_container' ;
+	var me = this ;
+	me.uses_dialog = false ;
+	var id = me.result_id + '_container' ;
 	if ( $('#'+id).length == 0 ) {
 		$('#'+id).remove() ;
 		var h = '' ;
 		h += "<div style='z-index:200;position:absolute;width:200px;height:400px;overflow:auto;border:1px solid black;background-color:white;' id='"+id+"'>" ;
 		h += "<div style='float:right;z-index:201'><a href='#' id='"+id+"_close'><i class='icon-remove'></i></a></div>" ;
-		h += "<div id='" + this.result_id + "'></div>" ;
+		h += "<div id='" + me.result_id + "'></div>" ;
 		h += "</div>" ;
 		$('#all').append ( h ) ;
 		
 		var p = $('#toolbar_search_box').offset() ;
 		$('#'+id).css ( { left : p.left + 10 , top : p.top+30 , width : $('#toolbar_search_box').width() , opacity : 0.9 } ) ;
 		$('#'+id+'_close').click ( function () { $('#'+id).remove(); } ) ;
-		$('#toolbar_search_box').focusout ( function () { $('#'+id+'_close').click() } ) ;
+		$('#toolbar_search_box').focusout ( function () {
+			setTimeout ( function () {
+				console.log ( "?" ) ;
+				if ( !me.dropdown_focusout_cancel ) $('#'+id+'_close').click() ;
+				else $('#toolbar_search_box').focus() ;
+				me.dropdown_focusout_cancel = false ;
+			} , 150 )
+		} ) ;
 
-		this.sc = this.getCurrentSequenceCanvas() ;
-		if ( this.sc === undefined ) return ; // Paranoia
-		this.dna_forward = this.sc.sequence.seq ;
-		this.dna_rc = rcSequence ( this.dna_forward ) ;
+		me.sc = me.getCurrentSequenceCanvas() ;
+		if ( me.sc === undefined ) return ; // Paranoia
+		me.dna_forward = me.sc.sequence.seq ;
+		me.dna_rc = rcSequence ( me.dna_forward ) ;
 	}
 	
 	this.query_id = 'toolbar_search_box' ;
@@ -155,6 +164,7 @@ function PluginFindInSequence () {
 	this.query_id = this.dialog_id + "_query" ;
 	this.result_id = this.dialog_id + "_result" ;
 	this.uses_dialog = true ;
+	this.dropdown_focusout_cancel = false ;
 }
 
 // Register plugin
