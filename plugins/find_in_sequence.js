@@ -120,14 +120,45 @@ PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is
 	return ret ;
 }
 
+PluginFindInSequence.prototype.updateResultsBox = function () {
+	var query = $('#toolbar_search_box').val() ;
+	
+	this.uses_dialog = false ;
+	var id = this.result_id + '_container' ;
+	if ( $('#'+id).length == 0 ) {
+		$('#'+id).remove() ;
+		var h = '' ;
+		h += "<div style='z-index:200;position:absolute;width:200px;height:400px;overflow:auto;border:1px solid black;background-color:white;' id='"+id+"'>" ;
+		h += "<div style='float:right;z-index:201'><a href='#' id='"+id+"_close'><i class='icon-remove'></i></a></div>" ;
+		h += "<div id='" + this.result_id + "'></div>" ;
+		h += "</div>" ;
+		$('#all').append ( h ) ;
+		
+		var p = $('#toolbar_search_box').offset() ;
+		$('#'+id).css ( { left : p.left + 10 , top : p.top+30 , width : $('#toolbar_search_box').width() , opacity : 0.9 } ) ;
+		$('#'+id+'_close').click ( function () { $('#'+id).remove(); } ) ;
+		$('#toolbar_search_box').focusout ( function () { $('#'+id+'_close').click() } ) ;
+
+		this.sc = this.getCurrentSequenceCanvas() ;
+		if ( this.sc === undefined ) return ; // Paranoia
+		this.dna_forward = this.sc.sequence.seq ;
+		this.dna_rc = rcSequence ( this.dna_forward ) ;
+	}
+	
+	this.query_id = 'toolbar_search_box' ;
+	this.queryChanged() ;
+}
+
 function PluginFindInSequence () {
 	this.name = 'find_in_sequence' ;
 	this.dialog_id = 'find_in_sequence_dialog' ;
 	this.query_id = this.dialog_id + "_query" ;
 	this.result_id = this.dialog_id + "_result" ;
+	this.uses_dialog = true ;
 }
 
 // Register plugin
 if ( plugins.registerPlugin ( { className : 'PluginFindInSequence' , url : 'plugins/find_in_sequence.js' , name : 'find_in_sequence' } ) ) {
 	plugins.registerAsTool ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'startDialog' , linkTitle : 'Find in sequence' } ) ;
+	plugins.registerAsSearch ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'updateResultsBox' , linkTitle : 'Search' } ) ;
 }

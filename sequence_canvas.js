@@ -32,6 +32,11 @@ SequenceCanvas.prototype.initSidebar = function () {
 			me.registerTool ( v2 ) 
 		} ) ;
 	} ) ;
+	$.each ( plugins.search[me.type] , function ( section , v1 ) {
+		$.each ( v1 , function ( tool , v2 ) {
+			me.registerSearch ( v2 ) 
+		} ) ;
+	} ) ;
 }
 
 SequenceCanvas.prototype.removePlugin = function ( name ) {
@@ -39,6 +44,20 @@ SequenceCanvas.prototype.removePlugin = function ( name ) {
 	// Remove tools
 	$('#right div[name="tool_'+name+'"]').remove();
 	
+}
+
+SequenceCanvas.prototype.registerSearch = function ( o ) {
+	var me = this ;
+	var x = new window[o.className]();
+	this.search = x ;
+	$('#search_form').remove() ;
+
+	var h = '' ;
+	h += '<form class="navbar-search" id="search_form">' ;
+	h += '<input id="toolbar_search_box" type="text" class="search-query" placeholder="' + o.linkTitle + '"' ;
+	h += " onkeyup='gentle.main_sequence_canvas.search." + o.call + "();return true' />" ;
+	h += '</form>' ;
+	$('#toolbar-right').prepend ( h ) ;
 }
 
 SequenceCanvas.prototype.registerTool = function ( o ) {

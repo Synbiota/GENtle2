@@ -11,7 +11,7 @@ Plugin.prototype.getCurrentSequenceCanvas = function () { return gentle.main_seq
 // Plugin list object
 
 var plugins = {
-	verbose : true ,
+	verbose : false ,
 	initial_plugins_loaded : false ,
 	all : {} ,
 	load_on_start : [] ,
@@ -21,58 +21,84 @@ var plugins = {
 			external : {}
 		}
 	} ,
+	search : {} ,
 	deactivated : {} ,
+	
+	init : function () {
+		this.search = jQuery.extend(true, {}, this.tools);
+	} ,
 
 
 // Methods functions
 
-	registerAsTool : function ( o ) {
+	registrationParanoia : function ( o ) {
 	
 		// BEGIN PARANOIA SECTION
 		if ( undefined === o ) {
 			console.log ( 'plugin.registerAsTool needs a data object as parameter' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === o.module ) {
 			console.log ( 'plugin.registerAsTool object needs "module" member' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === plugins.tools[o.module] ) {
 			console.log ( 'plugin.registerAsTool object member "member" is not valid (' + o.module + ')' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === o.section ) {
 			console.log ( 'plugin.registerAsTool object needs "section" member' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === plugins.tools[o.module][o.section] ) {
 			console.log ( 'plugin.registerAsTool object member "section" is not valid (' + o.section + ')' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === o.className ) {
 			console.log ( 'plugin.registerAsTool object needs "className" member' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === o.call ) {
 			console.log ( 'plugin.registerAsTool object needs "call" member' ) ;
-			return ;
+			return false ;
 		}
 		if ( undefined === o.linkTitle ) {
 			console.log ( 'plugin.registerAsTool object needs "linkTitle" member' ) ;
-			return ;
+			return false ;
 		}
 		// END PARANOIA SECTION
+		
+		return true ;
+	} ,
+
+	registerAsTool : function ( o ) {
+		if ( !this.registrationParanoia ( o ) ) return ; // BAAAD TOOL!
 		
 		plugins.registerPlugin ( o ) ;
 	
 		plugins.tools[o.module][o.section][o.name] = o ;
-		if ( plugins.verbose ) console.log ( 'registered ' + o.name ) ;
+		if ( plugins.verbose ) console.log ( 'registered tool ' + o.name ) ;
 		
 		// Try to add to live canvas if possible
 		var sc = gentle.main_sequence_canvas ;
 		if ( sc === undefined ) return ;
 		if ( sc.type != o.module ) return ;
 		sc.registerTool ( o ) ;
+	} ,
+	
+	registerAsSearch : function ( o ) {
+		if ( !this.registrationParanoia ( o ) ) return ; // BAAAD TOOL!
+		
+		plugins.registerPlugin ( o ) ;
+	
+		plugins.search[o.module][o.section][o.name] = o ;
+		if ( plugins.verbose ) console.log ( 'registered search ' + o.name ) ;
+		
+		// Try to add to live canvas if possible
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc === undefined ) return ;
+		if ( sc.type != o.module ) return ;
+		sc.registerSearch ( o ) ;
 	} ,
 	
 	registerPlugin : function ( o ) {

@@ -26,9 +26,12 @@ var gentle = {
 		
 		window.onorientationchange = gentle.on_resize_event ;
 
+		plugins.init() ;
 		if ( undefined === gentle_config ) {
 			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
 		}
+		
+		
 		gentle.dragEntered = 0 ;
 		gentle.url_vars = {} ;
 		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
@@ -123,8 +126,9 @@ var gentle = {
 		var plugin_list = localStorage.getItem('plugin_lists') ;
 		if ( plugin_list ) {
 			plugin_list = JSON.parse ( plugin_list ) ;
-			plugins.load_on_start = [] ;
+			plugins.load_on_start = gentle_config.default_plugins ;
 			$.each ( plugin_list.all , function ( k , v ) { plugins.load_on_start.push ( k ) ; } ) ;
+			plugins.load_on_start = jQuery.unique ( plugins.load_on_start ) ;
 			plugins.deactivated = plugin_list.deactivated ;
 			plugins.loadPlugins() ;
 		} else {
