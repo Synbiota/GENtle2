@@ -21,6 +21,7 @@ var plugins = {
 			external : {}
 		}
 	} ,
+	deactivated : {} ,
 
 
 // Methods functions
@@ -75,9 +76,10 @@ var plugins = {
 	} ,
 	
 	registerPlugin : function ( o ) {
-		if ( o === undefined ) return ;
+		if ( o === undefined ) return false ;
+		
 		if ( o.name === undefined ) {
-			if ( o.className === undefined ) return ;
+			if ( o.className === undefined ) return false ;
 			var x = new window[o.className](); // Class instance to get the name
 			o.name = x.name ;
 		}
@@ -86,12 +88,14 @@ var plugins = {
 			plugins.all[o.name] = o ;
 		} else {
 			$.each ( [ 'url' , 'className' ] , function ( k , v ) {
-				if ( o[v] === undefined ) return ;
+				if ( o[v] === undefined ) return false ;
 				if ( plugins.all[o.name][v] === undefined ) plugins.all[o.name][v] = o[v] ;
 			} ) ;
 		}
-
+//		if ( undefined !== this.deactivated[o.name] ) delete ( this.deactivated[o.name] ) ;
 		plugins.setManagePluginDialogHTML() ;
+		if ( undefined !== this.deactivated[o.name] ) return false ;
+		return true ;
 	} ,
 	
 	loadPluginFromURL : function ( url ) {
@@ -107,17 +111,27 @@ var plugins = {
 		plugins.initial_plugins_loaded = true ;
 		if ( undefined === plugins.load_on_start ) return ;
 		$.each ( plugins.load_on_start , function ( k , url ) {
+			if ( undefined !== plugins.deactivated[k] ) return ;
 			plugins.loadPluginFromURL ( url ) ;
 		} ) ;
 	} ,
 	
-	removePlugin : function ( name ) {
+	removePlugin : function ( name ) { // Currently not used
 		if ( undefined === plugins.all[name] ) return ;
 		
-		// TODO remove from sequences
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined !== sc ) sc.removePlugin ( name ) ;
 		delete plugins.all[name] ;
+		
+		plugins.setManagePluginDialogHTML() ;
+	} ,
+
+	deactivatePlugin : function ( name ) {
+		if ( undefined === plugins.all[name] ) return ;
+		
+		var sc = gentle.main_sequence_canvas ;
+		if ( undefined !== sc ) sc.removePlugin ( name ) ;
+		plugins.deactivated[name] = true ;
 		
 		plugins.setManagePluginDialogHTML() ;
 	} ,
@@ -127,6 +141,7 @@ var plugins = {
 	setManagePluginDialogHTML : function () {
 		if ( $('#manage_plugins_dialog').length == 0 ) return ; // Only if there actually is a dialog open
 		
+		var me = this ;
 		var h = '' ;
 
 		h += "<div>" ;
@@ -141,9 +156,15 @@ var plugins = {
 			h += "<tr>" ;
 			h += "<td>" + ucFirst ( o.name.replace(/_/g,' ') ) + "</td>" ;
 			
-			h += "<td>" ;
-			h += "<a href='#' onclick='gentle.plugins.removePlugin(\"" + name + "\");return false'>Remove</a>" ;
-			h += "</td>" ;
+			if ( undefined !== me.deactivated[name] ) {
+				h += "<td>" ;
+				h += "<a href='#' onclick='delete(gentle.plugins.deactivated[\"" + name + "\"]);gentle.plugins.loadPluginFromURL(\"" + o.url + "\");return false'>Activate</a>" ;
+				h += "</td>" ;
+			} else {
+				h += "<td>" ;
+				h += "<a href='#' onclick='gentle.plugins.deactivatePlugin(\"" + name + "\");return false'>Deactivate</a>" ;
+				h += "</td>" ;
+			}
 			
 			h += "<td>" ;
 			if ( o.url === undefined ) h += "Registered without URL, can not load again for next start" ;
@@ -152,26 +173,7 @@ var plugins = {
 			h += "</tr>" ;
 			
 		} ) ;
-		
-		// Show all built-in but deactivated plugins
-		$.each ( gentle_config.default_plugins , function ( k , url ) {
-			if ( undefined !== hadthat[url] ) return ; // Already listed
-			
-			var n = url.replace ( /^.*\//g , '' ) ;
-			n = n.replace ( /\.js$/ , '' ) ;
-			h += "<tr>" ;
-			h += "<td>" + ucFirst ( n.replace(/_/g,' ') ) + "</td>" ;
-			
-			h += "<td>" ;
-			h += "<a href='#' onclick='gentle.plugins.loadPluginFromURL(\"" + url + "\");return false'>Activate</a>" ;
-			h += "</td>" ;
-			
-			h += "<td>" ;
-			h += "Build-in but deactivated" ;
-			h += "</td>" ;
-			h += "</tr>" ;
-				
-			} ) ;
+
 		h += "</table>" ;
 
 		h += "</div>" ;

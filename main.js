@@ -120,9 +120,12 @@ var gentle = {
 	} ,
 	
 	loadLocalPlugins : function () {
-		var plugin_list = localStorage.getItem('plugins') ;
+		var plugin_list = localStorage.getItem('plugin_lists') ;
 		if ( plugin_list ) {
-			plugins.load_on_start = JSON.parse ( plugin_list ) ;
+			plugin_list = JSON.parse ( plugin_list ) ;
+			plugins.load_on_start = [] ;
+			$.each ( plugin_list.all , function ( k , v ) { plugins.load_on_start.push ( k ) ; } ) ;
+			plugins.deactivated = plugin_list.deactivated ;
 			plugins.loadPlugins() ;
 		} else {
 			plugins.load_on_start = gentle_config.default_plugins ;
@@ -146,11 +149,14 @@ var gentle = {
 		localStorage.setItem ( 'last_entry' , gentle.current_sequence_entry ) ;
 		localStorage.setItem ( 'saved' , 'true' ) ;
 		
-		var plugin_list = [] ;
+		var plugin_list = { all : {} , deactivated : {} } ;
 		$.each ( plugins.all , function ( k , v ) {
-			if ( v.url !== undefined ) plugin_list.push ( v.url ) ;
+			if ( v.url !== undefined ) plugin_list.all[v.url] = true;
 		} ) ;
-		localStorage.setItem ( 'plugins' , JSON.stringify(plugin_list) ) ;
+		$.each ( plugins.deactivated , function ( k , v ) {
+			plugin_list.deactivated[k] = true;
+		} ) ;
+		localStorage.setItem ( 'plugin_lists' , JSON.stringify(plugin_list) ) ;
 	} ,
 
 

@@ -112,5 +112,6 @@ function PluginPrependAppendSequence () {
 }
 
 // Register plugin
-plugins.registerPlugin ( { className : 'PluginPrependAppendSequence' , url : 'plugins/prepend_append_sequence.js' } ) ;
-plugins.registerAsTool ( { className : 'PluginPrependAppendSequence' , module : 'dna' , section : 'sequence' , call : 'startDialog' , linkTitle : 'Prepend/append sequence' } ) ;
+if ( plugins.registerPlugin ( { className : 'PluginPrependAppendSequence' , url : 'plugins/prepend_append_sequence.js' } ) ) {
+	plugins.registerAsTool ( { className : 'PluginPrependAppendSequence' , module : 'dna' , section : 'sequence' , call : 'startDialog' , linkTitle : 'Prepend/append sequence' } ) ;
+}

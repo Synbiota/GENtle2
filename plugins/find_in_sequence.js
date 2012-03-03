@@ -128,5 +128,6 @@ function PluginFindInSequence () {
 }
 
 // Register plugin
-plugins.registerPlugin ( { className : 'PluginFindInSequence' , url : 'plugins/find_in_sequence.js' } ) ;
-plugins.registerAsTool ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'startDialog' , linkTitle : 'Find in sequence' } ) ;
+if ( plugins.registerPlugin ( { className : 'PluginFindInSequence' , url : 'plugins/find_in_sequence.js' , name : 'find_in_sequence' } ) ) {
+	plugins.registerAsTool ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'startDialog' , linkTitle : 'Find in sequence' } ) ;
+}

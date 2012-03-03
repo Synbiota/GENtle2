@@ -68,8 +68,9 @@ function exportAsFile () {
 
 
 if ( undefined !== getBlobBuilder() ) {
-	plugins.registerPlugin ( { className : 'exportAsFile' , url : 'plugins/export_as_file.js' } ) ;
-	plugins.registerAsTool ( { className : 'exportAsFile' , module : 'dna' , section : 'external' , call : 'exportCurrentSequence' , linkTitle : 'Export as file' } ) ;
+	if ( plugins.registerPlugin ( { className : 'exportAsFile' , url : 'plugins/export_as_file.js' } ) ) {
+		plugins.registerAsTool ( { className : 'exportAsFile' , module : 'dna' , section : 'external' , call : 'exportCurrentSequence' , linkTitle : 'Export as file' } ) ;
+	}
 } else {
 	console.log ( "This browser does not seem to support BlobBuilder" ) ;
 }
