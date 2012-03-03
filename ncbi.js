@@ -11,7 +11,9 @@ function start_nbci_dialog () {
 	h += '<p>' ;
 	h += "<form id='nbci_form' action='x.html'>" ;
 	h += "<table>" ;
-	h += "<tr><th nowrap>NBCI ID</th><td><input type='text' size='30' id='ncbi_id' value='' /><br/><small>Example : JQ033384.1</small></td></tr>" ;
+	h += "<tr><th nowrap>NBCI ID</th><td><input type='text' size='30' id='ncbi_id' value='' /><br/>" ;
+	h += "<small>Example : <a href='#' onclick='$(\"#ncbi_id\").val(\"JQ033384.1\");load_ncbi();return false'>JQ033384.1</a></small>" ;
+	h += "</td></tr>" ;
 	h += "<tr><td /><td><input type='submit' onclick='load_ncbi()' value='Load' /></td></tr>" ;
 	h += "</table>" ;
 	h += "</form>" ;
