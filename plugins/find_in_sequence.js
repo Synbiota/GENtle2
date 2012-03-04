@@ -141,7 +141,6 @@ PluginFindInSequence.prototype.updateResultsBox = function () {
 		$('#'+id+'_close').click ( function () { $('#'+id).remove(); } ) ;
 		$('#toolbar_search_box').focusout ( function () {
 			setTimeout ( function () {
-				console.log ( "?" ) ;
 				if ( !me.dropdown_focusout_cancel ) $('#'+id+'_close').click() ;
 				else $('#toolbar_search_box').focus() ;
 				me.dropdown_focusout_cancel = false ;
