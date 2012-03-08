@@ -77,7 +77,10 @@ PluginFindInSequence.prototype.queryChanged = function () {
 	} ) ;
 	
 	$('#'+this.result_id).html ( h ) ;
-	$('#'+this.result_id+' a').click ( function () { me.clickHandler($(this)); return false; } ) ;
+	$('#'+this.result_id+' a').click ( function () {
+		me.clickHandler($(this));
+		return false;
+	} ) ;
 	if ( results.length == 1 ) $('#'+this.result_id+' a').click() ;
 }
 
@@ -138,13 +141,14 @@ PluginFindInSequence.prototype.updateResultsBox = function () {
 		
 		var p = $('#toolbar_search_box').offset() ;
 		$('#'+id).css ( { left : p.left + 10 , top : p.top+30 , width : $('#toolbar_search_box').width() , opacity : 0.9 } ) ;
+		
+		$('#'+id).mouseenter ( function () { me.dropdown_focusout_cancel = true ; } ) ;
+		$('#'+id).mouseleave ( function () { me.dropdown_focusout_cancel = false ; } ) ;
+		
 		$('#'+id+'_close').click ( function () { $('#'+id).remove(); } ) ;
 		$('#toolbar_search_box').focusout ( function () {
-			setTimeout ( function () {
-				if ( !me.dropdown_focusout_cancel ) $('#'+id+'_close').click() ;
-				else $('#toolbar_search_box').focus() ;
-				me.dropdown_focusout_cancel = false ;
-			} , 150 )
+			if ( me.dropdown_focusout_cancel ) $('#toolbar_search_box').focus() ;
+			else $('#'+id+'_close').click() ;
 		} ) ;
 
 		me.sc = me.getCurrentSequenceCanvas() ;
