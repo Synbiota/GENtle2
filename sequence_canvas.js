@@ -14,6 +14,15 @@ SequenceCanvas.prototype.select = function ( from , to ) {}
 SequenceCanvas.prototype.deselect = function () {}
 SequenceCanvas.prototype.applySettings = function ( settings ) {}
 
+SequenceCanvas.prototype.resizeCanvas = function () {
+	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+	var h = $('#canvas_wrapper').height() ;
+	$('#sequence_canvas').css ( { width:w+'px' , height:h } ) ;
+	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
+	$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
+	this.show() ;
+}
+
 SequenceCanvas.prototype.initSidebar = function () {
 	if ( this.type === undefined ) return ;
 	var me = this ;
