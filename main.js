@@ -31,11 +31,6 @@ var gentle = {
 			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
 		}
 		
-		if ( gentle.is_mobile ) {
-		
-//			$('#all').bind("touchmove",function(event){event.preventDefault();});
-   		}
-		
 		gentle.dragEntered = 0 ;
 		gentle.url_vars = {} ;
 		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
