@@ -44,8 +44,10 @@ var gentle = {
 		this.showDefaultBlurb() ;
 	
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
+		} else if ( gentle.is_mobile ) {
+			// Ignore iOS restrictions
 		} else {
-			$('#load_local_files').html ( "This browser does not support reading local files. Try FireFox 4+, Google Chrome, or similar." ) ;
+			gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
 		}
 	
 		$(window).bind('beforeunload', function(){
@@ -75,6 +77,15 @@ var gentle = {
 		
 		gentle.loadLocally() ;
 		plugins.loadPlugins() ;
+	} ,
+	
+	addAlert : function ( type , message ) {
+		var h = '<div class="alert alert-' + type + '">' ;
+		h += '<a class="close" data-dismiss="alert">×</a>' ;
+//		h += '<h4 class="alert-heading">Warning!</h4>' ;
+		h += message ;
+		h += '</div>' ;
+		$('#gentle_alerts').append ( h ) ;
 	} ,
 	
 	showDefaultBlurb : function () {

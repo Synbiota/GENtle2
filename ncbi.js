@@ -19,9 +19,8 @@ function start_nbci_dialog () {
 	h += "</form>" ;
 	h += '</p>' ;
 	h += '</div>' ;
-	h += '<div class="modal-footer">' ;
-	h += "<i>Note :</i> You can also drag'n'drop files directly into the browser window!" ;
-	h += '</div>' ;
+//	h += '<div class="modal-footer">' ;
+//	h += '</div>' ;
 	h += '</div>' ;
 	
 	$('#all').append ( h ) ;
