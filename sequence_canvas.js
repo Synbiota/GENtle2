@@ -111,13 +111,27 @@ SequenceCanvas.prototype.pasteHandler = function ( e ) {
 	// CROSS-BROWSER MADNESS!!!
 	var pastedText = undefined;
 	if (window.clipboardData && window.clipboardData.getData) { // IE
-	pastedText = window.clipboardData.getData('Text');
+		pastedText = window.clipboardData.getData('Text');
 	} else if (e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData) {
-	pastedText = e.originalEvent.clipboardData.getData('text/plain');
+		pastedText = e.originalEvent.clipboardData.getData('text/plain');
 	}
 	
-	if ( undefined === pastedText ) return ; // Eh...
-	
+	if ( undefined === pastedText ) {
+		$('#tmp1').remove() ;
+		var h = "<textarea style='position:fixed;left:-500px;bottom:5px;width:1px;height:0px' id='tmp1'></textarea>" ;
+		$('#all').append ( h ) ;
+		$('#tmp1').focus() ;
+		setTimeout ( function () {
+			var s = $('#tmp1').val() ;
+			$('#tmp1').remove() ;
+			sc.doCheckedPaste ( sc , s ) ;
+		} , 1 ) ; // TTGAGTCCAACCC
+	} else {
+		sc.doCheckedPaste ( sc , pastedText ) ;
+	}
+}
+
+SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
 	pastedText = pastedText.replace ( /\s/g , '' ) ;
 	var parts = pastedText.split ( '' ) ;
 	var ok = true ;
@@ -193,7 +207,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.recalc() ;
 		top_display.init() ;
 	} else if ( code == 27 ) { // Escape
-		sc.edit.editing = false ;
+		sc.setEditMode ( false ) ;
 		sc.show() ;
 		e.preventDefault();
 		return ;
@@ -243,6 +257,13 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 
 	sc.ensureBaseIsVisible ( sc.edit.base ) ;
 }
+
+SequenceCanvas.prototype.setEditMode = function ( state ) {
+	var sc = gentle.main_sequence_canvas ;
+	sc.edit.editing = state ;
+	gentle.setMenuState ( 'edit_menu_paste' , state ) ;
+}
+
 
 SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new position is visible, or scroll appropriately
 	var sc = gentle.main_sequence_canvas ;
@@ -310,11 +331,13 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 		to = i ;
 	}
 	var len = to - from + 1 ;
-	copyToClipboard ( sc.sequence.seq.substr ( from , len ) ) ;
-	if ( !do_cut ) return ;
+	var s = sc.sequence.seq.substr ( from , len ) ;
+	copyToClipboard ( s ) ;
+	if ( !do_cut ) return s ;
 	sc.deselect () ;
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;
+	return s ;
 }
 
 SequenceCanvasDNA.prototype.fix_touch_event = function ( e ) {
@@ -346,15 +369,24 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		sc.last_mouse_down = t ;
 	}
 
-	if ( !sc.selecting ) return ;
+	if ( !sc.selecting ) {
+		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		return ;
+	}
 
 	sc.selecting = false ;
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
 	
-	// Selection copy/paste hack
-	if ( !gentle.is_chrome ) {
+	gentle.setMenuState ( 'edit_menu_cut' , true ) ;
+	gentle.setMenuState ( 'edit_menu_copy' , true ) ;
+	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+
+/*	// THIS IS APPARENTLY OBSOLETE - USING contenteditable='true' ON CANVAS	
+	// Selection copy/paste hack for non-Chrome desktop browsers
+	if ( !gentle.is_chrome && !gentle.is_mobile ) {
 		var from = sc.selections[0].from ;
 		var to = sc.selections[0].to ;
 		if ( from > to ) {
@@ -368,7 +400,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:0px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
 		$('#tmp1').focus();
 		$('#tmp1').select();
-	}
+	}*/
 	
 	return sc.absorb_event(e) ;
 }
@@ -420,13 +452,16 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 	sc.last_target = target ;
 	if ( target === null ) { // Not clicked on a target
 		if ( sc.edit.editing ) { // Turn off editing
-			sc.edit.editing = false ;
+			sc.setEditMode ( false ) ;
 			sc.show() ;
 		}
 		$('#soft_keyboard').dialog ( 'close' ) ;
 		return ;
 	}
-	sc.edit = { editing : true , line : target.line , base : target.base } ;
+	sc.edit = { line : target.line , base : target.base } ;
+	sc.setEditMode ( true ) ;
+	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 	sc.show() ;
 	
 	if ( gentle.is_mobile ) {
@@ -459,7 +494,7 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 			height : 80 ,
 			beforeClose: function(event, ui) {
 				if ( sc.edit.editing ) { // Turn off editing
-					sc.edit.editing = false ;
+					sc.setEditMode ( false ) ;
 					sc.show() ;
 				}
 			}
@@ -498,6 +533,15 @@ SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
 	this.keyhandler ( e ) ;
 }
 
+SequenceCanvasDNA.prototype.bindKeyboard = function () {
+	var sc = this ;
+	$(document).off ( 'copy keydown paste cut' ) ;
+	$(document).keydown ( sc.keyhandler ) ;
+	$(document).bind ( "paste" , sc.pasteHandler );
+	$(document).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
+	$(document).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
+}
+
 SequenceCanvasDNA.prototype.init = function () {
 	var sc = this ;
 	var cw = $('#canvas_wrapper').offset() ;
@@ -526,11 +570,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	
 	
 	// Keys
-	$(document).off ( 'copy keydown paste cut' ) ;
-	$(document).keydown ( sc.keyhandler ) ;
-	$(document).bind ( "paste" , sc.pasteHandler );
-	$(document).live ( 'copy'  ,function () { sc.cut_copy ( false ) ; } ) ;
-	$(document).live ( 'cut'  ,function () { sc.cut_copy ( true ) ; } ) ;
+	sc.bindKeyboard() ;
 	
 	// Sequence hover event
 	$('#sequence_canvas').mousemove ( function ( e ) {
@@ -942,7 +982,10 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.update_display_aa() ;
 	this.update_display_res() ;
 	
-
+	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+	
 
 	this.canvas_id = 'sequence_canvas' ;
 	this.sequence = the_sequence ;

@@ -28,6 +28,10 @@ var gentle = {
 		
 		window.onorientationchange = gentle.on_resize_event ;
 
+		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+
 		plugins.init() ;
 		if ( undefined === gentle_config ) {
 			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
@@ -176,47 +180,79 @@ var gentle = {
 		localStorage.setItem ( 'plugin_lists' , JSON.stringify(plugin_list) ) ;
 	} ,
 
-/*
-	do_edit : function ( command ) { // Does not work
-		if ( gentle.main_sequence_canvas === undefined ) return ;
-		if ( command == 'cut' ) gentle.main_sequence_canvas.cut_copy ( true ) ;
-		else if ( command == 'copy' ) gentle.main_sequence_canvas.cut_copy ( false ) ;
-		else if ( command == 'paste' ) {
-			$('#paste_dialog').remove() ;
-			var sc = gentle.main_sequence_canvas ;
-			if ( !sc.edit.editing ) return ; // Edit mode only
+	setMenuState : function ( id , state ) {
+		if ( state ) {
+			$('#'+id).removeClass ( 'disabled btn-disabled' ) ;
+			$('#'+id).show() ;
+		} else {
+			$('#'+id).addClass ( 'disabled btn-disabled' ) ;
+			$('#'+id).hide() ;
+		}
+		
+		// Show/hide entire edit menu
+		var show_edit_menu = $('#edit_menu ul a:not(.disabled)').length ;
+		if ( show_edit_menu > 0 ) $('#edit_menu').show() ;
+		else $('#edit_menu').hide() ;
+	} ,
 
-			var h = '' ;
-			h += '<div class="modal" id="paste_dialog" style="display:none">' ;
-			h += '<div class="modal-header">' ;
-			h += '<a class="close" data-dismiss="modal">×</a>' ;
-			h += '<h3>Paste box</h3>' ;
-			h += '</div>' ;
-			h += '<div class="modal-body">' ;
-//			h += '<textarea id="paste_area" cols=60 rows=5 style="width:100%"></textarea>' ;
-			h += '</div>' ;
+	do_edit : function ( command ) {
+		if ( gentle.main_sequence_canvas === undefined ) return false ;
+
+		var sc = gentle.main_sequence_canvas ;
+
+		var s = '' ;
+		var title = 'Copy/paste area' ;
+		if ( command == 'cut' || command == 'copy' ) {
+			s = gentle.main_sequence_canvas.cut_copy ( (command=='cut') ) ;
+		} else if ( command == 'paste' ) {
+			if ( !sc.edit.editing ) return false ; // Edit mode only
+		} else {
+			console.log ( "Unknown command " + command + " in gentle.do_edit" ) ;
+			return false ;
+		}
+
+		$('#ccp_dialog').remove() ;
+
+		var h = '' ;
+		h += '<div class="modal" id="ccp_dialog" style="display:none">' ;
+		h += '<div class="modal-header">' ;
+		h += '<a class="close" data-dismiss="modal">×</a>' ;
+		h += '<h3>' + title + '</h3>' ;
+		h += '</div>' ;
+		h += '<div class="modal-body">' ;
+		h += '<textarea id="paste_area" cols=60 rows=5 style="width:100%">' + s + '</textarea>' ;
+		if ( command == 'paste' ) h += '<input type="button" id="ccp_dialog_doit" value="Paste" />' ;
+		h += '</div>' ;
+		if ( !gentle.is_mobile ) {
 			h += '<div class="modal-footer">' ;
-			h += '<input type="button" id="paste_dialog_doit" value="Paste" />' ;
-			h += '<div id="divName" contenteditable="true" designmode="on"></div>' ;
+			h += "<i>You can also use keyboard shortcuts for cut, copy, and paste without this dialog!</i>" ;
 			h += '</div>' ;
-			h += '</div>' ;
-			$('#all').append ( h ) ;
-			$('#paste_dialog').modal() ;
-			$('#divName').focus() ;
-			document.execCommand('paste');
-//			$('#paste_area').focus() ;
-			$('#paste_dialog_doit').click ( function () {
+		}
+		h += '</div>' ;
+		$('#all').append ( h ) ;
+		$('#ccp_dialog').modal() ;
+		$('#ccp_dialog').on('hidden' , function () {
+			sc.bindKeyboard() ;
+		} ) ;
+		$('#paste_area').focus() ;
+		$('#paste_area').select() ;
+		
+		$(document).off ( 'copy keydown paste cut' ) ;
+		
+		if ( command == 'paste' ) {
+			$('#ccp_dialog_doit').click ( function () {
 				var text = $('#paste_area').val() ;
 				var sc = gentle.main_sequence_canvas ;
-				sc.doPaste ( sc , text ) ;
-				$('#paste_dialog').modal('hide') ;
-				$('#paste_dialog').remove() ;
+				$('#ccp_dialog').modal('hide') ;
+				$('#ccp_dialog').remove() ;
+				sc.doCheckedPaste ( sc , text ) ;
 				return false ;
 			} ) ;
 		}
+
 		return false ;
 	} ,
-*/
+
 
 	closeCurrentSequence : function () {
 		if ( gentle.current_sequence_entry === undefined ) return ;
@@ -267,7 +303,7 @@ var gentle = {
 		gentle.current_sequence_entry = entry ;
 		
 		var html = "<div id='canvas_wrapper'>" ;
-		html += "<canvas id='sequence_canvas'></canvas>" ;
+		html += "<canvas id='sequence_canvas' contenteditable='true'></canvas>" ;
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
