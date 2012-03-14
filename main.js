@@ -303,10 +303,11 @@ var gentle = {
 		gentle.current_sequence_entry = entry ;
 		
 		var html = "<div id='canvas_wrapper'>" ;
-		html += "<canvas id='sequence_canvas' contenteditable='true'></canvas>" ;
+		html += "<canvas id='sequence_canvas'></canvas>" ;
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
+		if ( !gentle.is_mobile ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
 		
 		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		

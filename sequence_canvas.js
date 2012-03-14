@@ -538,7 +538,7 @@ SequenceCanvasDNA.prototype.bindKeyboard = function () {
 	$(document).off ( 'copy keydown paste cut' ) ;
 	$(document).keydown ( sc.keyhandler ) ;
 	$(document).bind ( "paste" , sc.pasteHandler );
-	$(document).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
+	$(document).live ( 'copy' , function () { console.log("?"); sc.cut_copy ( false ) ; } ) ;
 	$(document).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
 }
 
