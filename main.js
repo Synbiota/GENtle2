@@ -24,6 +24,8 @@ var gentle = {
 			gentle.is_mobile = true ;
 		}
 		
+		gentle.is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+		
 		window.onorientationchange = gentle.on_resize_event ;
 
 		plugins.init() ;
@@ -37,6 +39,7 @@ var gentle = {
 		gentle.plugins = plugins ;
 		loadBaseData() ;
 		this.showDefaultBlurb() ;
+		
 	
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
 		} else if ( gentle.is_mobile ) {
@@ -173,6 +176,47 @@ var gentle = {
 		localStorage.setItem ( 'plugin_lists' , JSON.stringify(plugin_list) ) ;
 	} ,
 
+/*
+	do_edit : function ( command ) { // Does not work
+		if ( gentle.main_sequence_canvas === undefined ) return ;
+		if ( command == 'cut' ) gentle.main_sequence_canvas.cut_copy ( true ) ;
+		else if ( command == 'copy' ) gentle.main_sequence_canvas.cut_copy ( false ) ;
+		else if ( command == 'paste' ) {
+			$('#paste_dialog').remove() ;
+			var sc = gentle.main_sequence_canvas ;
+			if ( !sc.edit.editing ) return ; // Edit mode only
+
+			var h = '' ;
+			h += '<div class="modal" id="paste_dialog" style="display:none">' ;
+			h += '<div class="modal-header">' ;
+			h += '<a class="close" data-dismiss="modal">×</a>' ;
+			h += '<h3>Paste box</h3>' ;
+			h += '</div>' ;
+			h += '<div class="modal-body">' ;
+//			h += '<textarea id="paste_area" cols=60 rows=5 style="width:100%"></textarea>' ;
+			h += '</div>' ;
+			h += '<div class="modal-footer">' ;
+			h += '<input type="button" id="paste_dialog_doit" value="Paste" />' ;
+			h += '<div id="divName" contenteditable="true" designmode="on"></div>' ;
+			h += '</div>' ;
+			h += '</div>' ;
+			$('#all').append ( h ) ;
+			$('#paste_dialog').modal() ;
+			$('#divName').focus() ;
+			document.execCommand('paste');
+//			$('#paste_area').focus() ;
+			$('#paste_dialog_doit').click ( function () {
+				var text = $('#paste_area').val() ;
+				var sc = gentle.main_sequence_canvas ;
+				sc.doPaste ( sc , text ) ;
+				$('#paste_dialog').modal('hide') ;
+				$('#paste_dialog').remove() ;
+				return false ;
+			} ) ;
+		}
+		return false ;
+	} ,
+*/
 
 	closeCurrentSequence : function () {
 		if ( gentle.current_sequence_entry === undefined ) return ;

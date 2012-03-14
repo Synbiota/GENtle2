@@ -103,6 +103,7 @@ h1 {
 #canvas_wrapper {
 	position:relative;
 	overflow:auto;
+	-webkit-overflow-scrolling: touch;
 }
 
 #main_slider {

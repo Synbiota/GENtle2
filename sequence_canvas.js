@@ -129,6 +129,10 @@ SequenceCanvas.prototype.pasteHandler = function ( e ) {
 		return false ;
 	}
 	
+	sc.doPaste ( sc , pastedText ) ;
+}
+
+SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
 	sc.sequence.insert ( sc.edit.base , pastedText.toUpperCase() ) ;
 	sc.edit.base += pastedText.length ;
 	sc.recalc() ;
@@ -348,7 +352,24 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
-
+	
+	// Selection copy/paste hack
+	if ( !gentle.is_chrome ) {
+		var from = sc.selections[0].from ;
+		var to = sc.selections[0].to ;
+		if ( from > to ) {
+			var i = from ; 
+			from = to ;
+			to = i ;
+		}
+		var len = to - from + 1 ;
+		var s = sc.sequence.seq.substr ( from , len ) ;
+		$('#tmp1').remove() ;
+		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:0px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
+		$('#tmp1').focus();
+		$('#tmp1').select();
+	}
+	
 	return sc.absorb_event(e) ;
 }
 
@@ -508,13 +529,9 @@ SequenceCanvasDNA.prototype.init = function () {
 	$(document).off ( 'copy keydown paste cut' ) ;
 	$(document).keydown ( sc.keyhandler ) ;
 	$(document).bind ( "paste" , sc.pasteHandler );
-	$(document).live ( 'copy'  ,function () {
-		sc.cut_copy ( false ) ;
-	} ) ;
-	$(document).live ( 'cut'  ,function () {
-		sc.cut_copy ( true ) ;
-	} ) ;
-
+	$(document).live ( 'copy'  ,function () { sc.cut_copy ( false ) ; } ) ;
+	$(document).live ( 'cut'  ,function () { sc.cut_copy ( true ) ; } ) ;
+	
 	// Sequence hover event
 	$('#sequence_canvas').mousemove ( function ( e ) {
 		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
