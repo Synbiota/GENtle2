@@ -384,7 +384,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	gentle.setMenuState ( 'edit_menu_copy' , true ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 
-/*	// THIS IS APPARENTLY OBSOLETE - USING contenteditable='true' ON CANVAS	
+	
 	// Selection copy/paste hack for non-Chrome desktop browsers
 	if ( !gentle.is_chrome && !gentle.is_mobile ) {
 		var from = sc.selections[0].from ;
@@ -397,10 +397,10 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		var len = to - from + 1 ;
 		var s = sc.sequence.seq.substr ( from , len ) ;
 		$('#tmp1').remove() ;
-		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:0px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
+		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:-100px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
 		$('#tmp1').focus();
 		$('#tmp1').select();
-	}*/
+	}
 	
 	return sc.absorb_event(e) ;
 }
@@ -538,7 +538,7 @@ SequenceCanvasDNA.prototype.bindKeyboard = function () {
 	$(document).off ( 'copy keydown paste cut' ) ;
 	$(document).keydown ( sc.keyhandler ) ;
 	$(document).bind ( "paste" , sc.pasteHandler );
-	$(document).live ( 'copy' , function () { console.log("?"); sc.cut_copy ( false ) ; } ) ;
+	$(document).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
 	$(document).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
 }
 

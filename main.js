@@ -307,7 +307,7 @@ var gentle = {
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
-		if ( !gentle.is_mobile ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
 		
 		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		

@@ -103,6 +103,7 @@ h1 {
 #canvas_wrapper {
 	position:relative;
 	overflow:auto;
+	color:white;
 	-webkit-overflow-scrolling: touch;
 }
 
