@@ -404,6 +404,11 @@ var gentle = {
 		$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 	} ,
 	
+	sequence_info : function () {
+		var sc = gentle.main_sequence_canvas ;
+		if ( undefined === sc ) return ;
+	} ,
+	
 	set_hover : function ( html ) {
 		$('#hoverbox').html ( html ) ;
 	} ,
