@@ -172,3 +172,7 @@ function copyToClipboard ( text ) {
 		});
 	};
 })(jQuery);
+
+jQuery.fn.outerHTML = function() {
+	return $('<div></div>').append( this.clone() ).html();
+}

@@ -9,7 +9,7 @@
 //________________________________________________________________________________________
 // gentle object containing core methods
 var gentle = {
-	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' ] ,
+	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' ] ,
 	sequences : [] ,
 	current_sequence_entry : undefined ,
 	main_sequence_canvas : undefined ,
@@ -392,10 +392,7 @@ var gentle = {
 			$('#topbox').hide() ;
 			sc.tbw = $('#canvas_wrapper').css('right');
 			$('#canvas_wrapper').css ( { right : 0 } ) ;
-//			$('#canvas_wrapper').width ( parseInt ( $('#canvas_wrapper').width() ) + sc.tbw ) ;
 		} else {
-//			sc.tbw = -sc.tbw ;
-//			$('#canvas_wrapper').width ( $('#canvas_wrapper').width() - sc.tbw ) ;
 			$('#canvas_wrapper').css ( { right : sc.tbw } ) ;
 			$('#topbox').show() ;
 		}
@@ -413,14 +410,8 @@ var gentle = {
 		$('#hoverbox').html ( html ) ;
 	} ,
 	
-/*	open_file_from_disk_dialog : function () {
-		$('#all').append ( h ) ;
-	} ,*/
-	
 	on_resize_event : function () {
 		gentle.main_sequence_canvas.resizeCanvas() ;
-//		gentle.handleSelectSequenceEntry ( gentle.current_sequence_entry ) ;
-//		sc.show () ;
 	}
 
 } ;

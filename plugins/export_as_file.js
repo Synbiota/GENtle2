@@ -17,7 +17,7 @@ exportAsFile.prototype.exportCurrentSequence = function () {
 		if ( undefined === file.getExportBlob ) return ;
 		h += "<div><input type='radio' name='file_export_format' value='"+v+"' id='file_export_format_"+v+"' " ;
 		if ( first ) h += "checked " ;
-		h += "/><label for='file_export_format_"+v+"'>" + ucFirst(v) + "</label></div>" ;
+		h += "/>&nbsp;<label for='file_export_format_"+v+"'>" + ucFirst(v) + "</label></div>" ;
 		first = false ;
 	} ) ;
 	if ( first ) h += "<i>No file formats available for export</i>" ; // Paranoia

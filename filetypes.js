@@ -309,3 +309,152 @@ FT_genebank.prototype.parseFile = function () {
 function FT_genebank () {
 	this.typeName = 'GeneBank' ;
 }
+
+
+//________________________________________________________________________________________
+// SYBIL - SYnthetic Biology Interchange Language
+FT_sybil.prototype = new Filetype() ;
+FT_sybil.prototype.constructor = FT_sybil ;
+
+FT_sybil.prototype.getFileExtension = function () {
+	return 'sybil' ;
+}
+
+FT_sybil.prototype.getExportBlob = function ( sequence ) {
+	var ret = { error : false } ;
+	ret.blob = getBlobBuilder() ;
+	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
+	
+	var s = '' ;
+	
+	s += "<sybil>\n" ;
+	s += "<session>\n" ;
+	
+	// TODO repo
+	// TODO history
+	
+	s += "<circuit>\n" ;
+	
+	$.each ( sequence.features , function ( k , v ) {
+		if ( v['_type'].match(/^source$/i) ) return ;
+		if ( undefined === v['_range'] ) return ;
+		if ( 0 == v['_range'].length ) return ;
+		
+		//         <annotation type='cmt' start='6' stop='7'>this RBS was designed by the anderson research group</annotation>              
+		
+		// Misc
+		var type = v['_type'] ;
+		var start = v['_range'][0].from ; // TODO store exons separately!
+		var stop = v['_range'][v['_range'].length-1].to ;
+
+		// Name
+		var name = '' ;
+		if ( v['gene'] !== undefined ) name = v['gene'] ;
+		else if ( v['product'] !== undefined ) name = v['product'] ;
+		else if ( v['name'] !== undefined ) name = v['name'] ;
+		name = name.replace(/^"/,'').replace(/"$/,'') ;
+		
+		// Description
+		var desc = '' ;
+		if ( v['note'] !== undefined ) desc = v['note'] ;
+		else if ( v['protein'] !== undefined ) desc = v['protein'] ;
+		else if ( v['product'] !== undefined ) desc = v['product'] ;
+		else if ( v['bound_moiety'] !== undefined ) desc = v['bound_moiety'] ;
+		desc = desc.replace(/^"/,'').replace(/"$/,'') ;
+		if ( desc != '' ) desc = "\n" + ucFirst ( desc ) ;
+		desc = desc.trim() ;
+		
+		if ( 1 != v['_range'].length ) {
+			$.each ( v['_range'] , function ( k2 , v2 ) {
+				desc += "<exon start='" + v2.from + "' to='" + v2.to + "' />\n" ;
+			} ) ;
+		}
+		
+//		var o = desc == '' ? $('<annotation/>') : $('<annotation>'+desc+"</annotation>") ;
+		var o = $('<annotation></annotation>') ;
+		o.text ( desc ) ;
+
+		$.each ( v , function ( k2 , v2 ) {
+			if ( k2.substr ( 0 , 1 ) == '_' ) return ;
+			var k3 = k2.toLowerCase() ;
+			if ( k3 == 'translation' ) return ;
+			var v3 = v2.replace ( /\"/g , '' ) ;
+			o.attr ( k2 , v3 ) ;
+		} ) ;
+
+		o.attr ( { type:type , start:start , stop:stop } ) ;
+		if ( name != '' ) o.attr ( { name:name } ) ;
+
+		s += o.outerHTML() + "\n" ;
+
+	} ) ;
+	
+	s += "<sequence type='dna'>" + sequence.seq + "</sequence>\n" ;
+	s += "</circuit>\n" ;
+	s += "</session>\n" ;
+	s += "</sybil>" ;
+
+	ret.blob.append ( s ) ;
+	ret.filetype = "text/plain;charset=utf-8" ;
+	
+	return ret ;
+}
+
+FT_sybil.prototype.parseFile = function () {
+	return ; // TODO implement!
+	
+	var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
+	var name = '' ;
+	var seq = '' ;
+	var tempseq = [] ;
+	$.each ( lines , function ( k , v ) {
+		if ( v.match ( /^>/ ) ) {
+			if ( seq != '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
+			name = v.replace ( /^>\s*/ , '' ) ;
+			seq = '' ;
+		} else {
+			seq += v.replace ( /\s/g , '' ).toUpperCase() ;
+		}
+	} ) ;
+	if ( seq != '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
+	
+	$.each ( tempseq , function ( k , v ) {
+		var seqid = gentle.sequences.length ;
+		gentle.sequences.push ( v ) ;
+		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
+//		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
+		if ( gentle.sequences.length == 1 ) {
+			$('#sb_sequences').val(seqid) ;
+			gentle.handleSelectSequenceEntry ( seqid ) ;
+		}
+	} ) ;
+}
+
+FT_sybil.prototype.checkFile =function ( f ) {
+	return ; // TODO implement!
+	
+	this.file = f ;
+	var reader = new FileReader();
+	var meh = this ;
+	
+	// Closure to capture the file information.
+	reader.onload = (function(theFile) {
+		return function(e) {
+			if ( f.isIdentified ) return ;
+			meh.text = e.target.result ;
+			if ( meh.text.match ( /^\>/ ) ) {
+				f.isIdentified = true ;
+				meh.fileTypeValidated = true ;
+				gentle.fileLoaded ( meh ) ;
+				meh.parseFile () ;
+			}
+		};
+	})(f);
+	
+	// Read in the image file as a data URL.
+	reader.readAsText(f);
+}
+
+function FT_sybil () {
+	this.typeName = 'SYBIL' ;
+}
