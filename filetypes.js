@@ -210,6 +210,7 @@ FT_genebank.prototype.parseFile = function () {
 
 	var mode = '' ;
 	var seq = new SequenceDNA ( '' , '' ) ;
+	seq.desc = '' ;
 	var feature = {} ;
 	$.each ( lines , function ( k , v ) {
 
@@ -223,6 +224,14 @@ FT_genebank.prototype.parseFile = function () {
 			seq.name = m[1] ;
 		} else if ( v.match(/^FEATURES/i) ) {
 			mode = 'FEATURES' ;
+			return ;
+		} else if ( v.match(/^REFERENCE/i) ) {
+			mode = 'REFERENCE' ;
+			return ;
+		} else if ( v.match(/^COMMENT\s+(.+)$/i) ) {
+			mode = 'COMMENT' ;
+			var m = v.match(/^COMMENT\s+(.+)$/i) ;
+			seq.desc += m[1] + "\n" ;
 			return ;
 		} else if ( v.match(/^ORIGIN/i) ) {
 			if ( feature['_last'] ) seq.features.push ( $.extend(true, {}, feature) ) ;
@@ -257,6 +266,9 @@ FT_genebank.prototype.parseFile = function () {
 				if ( m[1].match(/^[A-Z]+$/) === null ) feature[feature['_last']] += " " ;
 				feature[feature['_last']] += m[1] ;
 			}
+		
+		} else if ( mode == 'REFERENCE' ) {
+			seq.desc += v + "\n" ;
 		
 		} else if ( mode == 'ORIGIN' ) {
 		
@@ -297,6 +309,8 @@ FT_genebank.prototype.parseFile = function () {
 		v['_range'] = range ;
 	} ) ;
 	
+//	console.log ( JSON.stringify ( seq.features ) ) ;
+	
 	var seqid = gentle.sequences.length ;
 	gentle.sequences.push ( seq ) ;
 	$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
@@ -335,16 +349,20 @@ FT_sybil.prototype.getExportBlob = function ( sequence ) {
 	
 	s += "<circuit>\n" ;
 	
+	if ( '' != ( sequence.desc || '' ) ) {
+		var o = $('<general_description></general_description>') ;
+		o.text ( sequence.desc ) ;
+		s += o.outerHTML() + "\n" ;
+	}
+	
 	$.each ( sequence.features , function ( k , v ) {
 		if ( v['_type'].match(/^source$/i) ) return ;
 		if ( undefined === v['_range'] ) return ;
 		if ( 0 == v['_range'].length ) return ;
 		
-		//         <annotation type='cmt' start='6' stop='7'>this RBS was designed by the anderson research group</annotation>              
-		
 		// Misc
 		var type = v['_type'] ;
-		var start = v['_range'][0].from ; // TODO store exons separately!
+		var start = v['_range'][0].from ;
 		var stop = v['_range'][v['_range'].length-1].to ;
 
 		// Name
@@ -370,9 +388,9 @@ FT_sybil.prototype.getExportBlob = function ( sequence ) {
 			} ) ;
 		}
 		
-//		var o = desc == '' ? $('<annotation/>') : $('<annotation>'+desc+"</annotation>") ;
 		var o = $('<annotation></annotation>') ;
 		o.text ( desc ) ;
+		o.attr ( 'rc' , v['_range'][0].rc ? 1 : 0 ) ;
 
 		$.each ( v , function ( k2 , v2 ) {
 			if ( k2.substr ( 0 , 1 ) == '_' ) return ;
@@ -389,7 +407,11 @@ FT_sybil.prototype.getExportBlob = function ( sequence ) {
 
 	} ) ;
 	
-	s += "<sequence type='dna'>" + sequence.seq + "</sequence>\n" ;
+	var o = $("<sequence></sequence>") ;
+	o.text ( sequence.seq ) ;
+	o.attr( { type:'dna' , name:sequence.name } ) ;
+	s += o.outerHTML() + "\n" ;
+	
 	s += "</circuit>\n" ;
 	s += "</session>\n" ;
 	s += "</sybil>" ;
@@ -401,22 +423,47 @@ FT_sybil.prototype.getExportBlob = function ( sequence ) {
 }
 
 FT_sybil.prototype.parseFile = function () {
-	return ; // TODO implement!
+	var sybil = $.parseXML(this.text) ;
+	sybil = $(sybil) ;
 	
-	var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
-	var name = '' ;
-	var seq = '' ;
 	var tempseq = [] ;
-	$.each ( lines , function ( k , v ) {
-		if ( v.match ( /^>/ ) ) {
-			if ( seq != '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
-			name = v.replace ( /^>\s*/ , '' ) ;
-			seq = '' ;
-		} else {
-			seq += v.replace ( /\s/g , '' ).toUpperCase() ;
-		}
+
+	sybil.find('session').each ( function ( k1 , v1 ) {
+		$(v1).find('circuit').each ( function ( k2 , v2 ) {
+			var s = $(v2).find('sequence').get(0) ;
+			s = $(s) ;
+			var seq = new SequenceDNA ( s.attr('name') , s.text().toUpperCase() ) ;
+			seq.desc = $(v2).find('general_description').text() ;
+			
+			seq.features = [] ;
+			$(v2).find('annotation').each ( function ( k3 , v3 ) {
+				var attrs = $(v3).listAttributes() ;
+				var start , stop , rc ;
+				var feature = {} ;
+				feature['_range'] = [] ;
+				feature.desc = $(v3).text() ; // TODO exons
+				$.each ( attrs , function ( dummy , ak ) {
+					var av = $(v3).attr(ak) ;
+					if ( ak == 'start' ) start = av*1 ;
+					else if ( ak == 'stop' ) stop = av*1 ;
+					else if ( ak == 'rc' ) rc = ( av == 1 ) ;
+					else if ( ak == 'type' ) feature['_type'] = av ;
+					else feature[ak] = av ;
+				} ) ;
+				
+				if ( feature['_range'].length == 0 ) {
+					feature['_range'] = [ { from:start , to:stop , rc:rc } ] ;
+				}
+				
+				console.log ( JSON.stringify ( feature ) ) ;
+				
+				seq.features.push ( feature ) ;
+			} ) ;
+			
+			tempseq.push ( seq ) ;
+		} ) ;
 	} ) ;
-	if ( seq != '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
+	
 	
 	$.each ( tempseq , function ( k , v ) {
 		var seqid = gentle.sequences.length ;
@@ -428,11 +475,10 @@ FT_sybil.prototype.parseFile = function () {
 			gentle.handleSelectSequenceEntry ( seqid ) ;
 		}
 	} ) ;
+
 }
 
-FT_sybil.prototype.checkFile =function ( f ) {
-	return ; // TODO implement!
-	
+FT_sybil.prototype.checkFile = function ( f ) {
 	this.file = f ;
 	var reader = new FileReader();
 	var meh = this ;
@@ -442,7 +488,7 @@ FT_sybil.prototype.checkFile =function ( f ) {
 		return function(e) {
 			if ( f.isIdentified ) return ;
 			meh.text = e.target.result ;
-			if ( meh.text.match ( /^\>/ ) ) {
+			if ( meh.text.match ( /^<sybil\b/i ) ) {
 				f.isIdentified = true ;
 				meh.fileTypeValidated = true ;
 				gentle.fileLoaded ( meh ) ;
