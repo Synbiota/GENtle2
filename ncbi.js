@@ -19,8 +19,6 @@ function start_nbci_dialog () {
 	h += "</form>" ;
 	h += '</p>' ;
 	h += '</div>' ;
-//	h += '<div class="modal-footer">' ;
-//	h += '</div>' ;
 	h += '</div>' ;
 	
 	$('#all').append ( h ) ;
