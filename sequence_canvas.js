@@ -337,6 +337,7 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	sc.deselect () ;
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;
+	top_display.init() ;
 	return s ;
 }
 
