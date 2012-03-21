@@ -404,6 +404,8 @@ var gentle = {
 	sequence_info : function () {
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined === sc ) return ;
+		
+		gentle.sequence_info_dialog = new SequenceInfoDialogDNA ( sc ) ; // FIXME hardcoded for DNA
 	} ,
 	
 	set_hover : function ( html ) {

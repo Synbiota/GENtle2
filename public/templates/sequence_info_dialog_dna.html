@@ -1,0 +1,40 @@
+<div class="modal" id="sequence_info_dialog_dna" style="display:none">
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal"></a>
+		<h3>Sequence info</h3>
+	</div>
+    <div class="modal-body">
+
+		<ul id='sid_tab' class="nav nav-tabs">
+		  <li><a href="#sid_general" data-toggle='tab'>General</a></li>
+		  <li><a href="#sid_annotation" data-toggle='tab'>Annotation</a></li>
+		</ul>
+		
+		<div id='sid_tab_content' class="tab-content">
+		
+			<div class="tab-pane active" id="sid_general">
+				<div>
+					<h4>Sequence name</h4>
+					<input type='text' id='sid_name' style='width:90%' />
+				</div>
+				<div>
+					<h4>Description</h4>
+					<textarea id='sid_desc' rows=10 style='width:90%'></textarea>
+				</div>
+			</div>
+			
+			<div class="tab-pane" id="sid_annotation">
+				<i>Todo...</i>
+			</div>
+			
+		</div>
+	
+    </div>
+
+	<div class="modal-footer">
+		<a href="#" class="btn btn-primary" onclick='gentle.sequence_info_dialog.onSaveButton()'>Save changes</a>
+		<a href="#" class="btn" onclick='gentle.sequence_info_dialog.onCancelButton()'>Cancel</a>
+	</div>
+  </div>
+</div>
+
