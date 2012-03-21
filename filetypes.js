@@ -455,7 +455,7 @@ FT_sybil.prototype.parseFile = function () {
 					feature['_range'] = [ { from:start , to:stop , rc:rc } ] ;
 				}
 				
-				console.log ( JSON.stringify ( feature ) ) ;
+//				console.log ( JSON.stringify ( feature ) ) ;
 				
 				seq.features.push ( feature ) ;
 			} ) ;

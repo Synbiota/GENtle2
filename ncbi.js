@@ -17,7 +17,7 @@ function start_nbci_dialog () {
   }
 
   var dialogContainer = $("<div/>");
-  dialogContainer.load("public/templates/ncbi_dialog.php", function(){
+  dialogContainer.load("public/templates/ncbi_dialog.html", function(){
     dialogContainer.appendTo("#all");
     $('#ncbi_dialog').modal();
     $("#ncbi_form input[type=submit]").click(function(){submitTask();});
