@@ -1,44 +1,54 @@
+
+/*
+Create dialog to ask for NCBI input, 
+attempt to validate ID code, alert on bad entry.
+*/
 function start_nbci_dialog () {
-	$('#ncbi_dialog').remove() ;
-	
-	var h = '' ;
-	h += '<div class="modal" id="ncbi_dialog" style="display:none">' ;
-	h += '<div class="modal-header">' ;
-	h += '<a class="close" data-dismiss="modal">×</a>' ;
-	h += '<h3>Query NCBI</h3>' ;
-	h += '</div>' ;
-	h += '<div class="modal-body">' ;
-	h += '<p>' ;
-	h += "<form id='nbci_form' action='x.html'>" ;
-	h += "<table>" ;
-	h += "<tr><th nowrap>NBCI ID</th><td><input type='text' size='30' id='ncbi_id' value='' /><br/>" ;
-	h += "<small>Example : <a href='#' onclick='$(\"#ncbi_id\").val(\"JQ033384.1\");load_ncbi();return false'>JQ033384.1</a></small>" ;
-	h += "</td></tr>" ;
-	h += "<tr><td /><td><input type='submit' onclick='load_ncbi()' value='Load' /></td></tr>" ;
-	h += "</table>" ;
-	h += "</form>" ;
-	h += '</p>' ;
-	h += '</div>' ;
-	h += '</div>' ;
-	
-	$('#all').append ( h ) ;
-	$('#ncbi_dialog').modal() ;
-	$('#nbci_form').submit ( function () { load_ncbi(); return false ; } ) ;
+  $('#ncbi_dialog').remove() ;
+   function submitTask () {
+     var ncbiID = $('#ncbi_form input[name=ncbiID]').val();
+     //TODO: better check for ncbi codes, better way to deal with user errors.
+     if (ncbiID !== "") {
+       $('#nbci_form').html("<i>Querying NCBI...</i>");
+       load_ncbi(ncbiID);
+     } else {
+       alert("Bad ID provided");
+     }
+  }
+
+  var dialogContainer = $("<div/>");
+  dialogContainer.load("public/templates/ncbi_dialog.php", function(){
+    dialogContainer.appendTo("#all");
+    $('#ncbi_dialog').modal();
+    $("#ncbi_form input[type=submit]").click(function(){submitTask();});
+    $("#ncbi_form input[name=ncbiID]").keypress(function(e) {
+       console.log("hrmm...")
+      if(e.keyCode === 13) {
+        submitTask();
+      }
+    });
+  });
 }
 
-function load_ncbi () {
-	var id = $('#ncbi_id').val() ; // XXU13852 | JQ033384.1
-	if ( id == '' ) return false ;
-	$('#ncbi_id').val('') ;
-	$('#nbci_form').html("<i>Querying NCBI...</i>") ;
-	$.getJSON ( gentle_config.proxy + '?callback=?' , 
-	{ url : 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id='+id+'&rettype=gb&retmode=text' } ,
-	function ( data ) {
-		var text = data ;
-		$('#ncbi_dialog').modal('hide') ;
-		$('#ncbi_dialog').remove() ;
-		var gb = new FT_genebank () ;
-		gb.parseText ( text ) ;
-	} ) ;
-	return false ;
+
+/*
+Function queries NCBI database and 
+runs text pareser to open the file.
+*/
+function load_ncbi (ncbiID) {
+
+  $.ajax({
+    url: gentle_config.proxy + '?callback=?',
+    data: {
+      'url' : 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id='+ncbiID+'&rettype=gb&retmode=text' 
+    },
+    dataType: 'json',
+    success:  function ( NCBIResponse ) {
+      var gb = new FT_genebank () ;
+      $('#ncbi_dialog').modal('hide') ;
+      $('#ncbi_dialog').remove() ;
+      gb.parseText ( NCBIResponse ) ;
+    }
+
+  });
 }

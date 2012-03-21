@@ -10,6 +10,6 @@ var gentle_config = {
 	deactivated_plugins : [
 	] ,
 	
-	proxy : './proxy.php'
+	proxy : './data/proxy.php'
 	
 } ;
