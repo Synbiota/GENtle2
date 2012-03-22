@@ -42,7 +42,6 @@ var gentle = {
 		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
 		gentle.plugins = plugins ;
 		loadBaseData() ;
-		this.showDefaultBlurb() ;
 		
 	
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
@@ -76,6 +75,8 @@ var gentle = {
 		
 		gentle.loadLocally() ;
 		plugins.loadPlugins() ;
+
+		if ( gentle.sequences.length == 0 ) this.showDefaultBlurb() ;
 	} ,
 	
 	addAlert : function ( type , message ) {
