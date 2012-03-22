@@ -72,9 +72,6 @@ var gentle = {
 		$('#drop_zone') .bind('dragover',function(evt){gentle.markDropArea(evt,true)})
 						.bind('dragleave',function(evt){gentle.markDropArea(evt,false)})
 						.bind('drop',gentle.handleFileDrop) ;
-//		$('#sb_sequences').css ( { 'width' : '100%' , 'max-width' : $('#sidebar').width() } ) ;
-		
-//		$('#sb_log').append ( '<p>Supported file formats:<br/>' + gentle.fileTypeList.join(', ') + '</p>' ) ;
 		$('#sb_sequences').change ( function() { gentle.handleSelectSequenceEntry ( $("#sb_sequences").val() ) } ) ;
 		
 		gentle.loadLocally() ;
@@ -84,19 +81,19 @@ var gentle = {
 	addAlert : function ( type , message ) {
 		var h = '<div class="alert alert-' + type + '">' ;
 		h += '<a class="close" data-dismiss="alert">×</a>' ;
-//		h += '<h4 class="alert-heading">Warning!</h4>' ;
 		h += message ;
 		h += '</div>' ;
 		$('#gentle_alerts').append ( h ) ;
 	} ,
 	
 	showDefaultBlurb : function () {
-		var h = "<iframe id='main_blurb' src='default_main.html' style='border:none;position:relative;overflow-y:auto' />" ;
-		$('#main').html ( h ) ;
-		$('#main_blurb').css ( { 'left' : $('#main').width()/4 } ) ;
-		$('#main_blurb').width ( $('#main').width()/2 ) ;
-		$('#main_blurb').height ( $('#main').height() ) ;
-		$('#main_blurb').css ( { 'max-height' : $('#main').height() } ) ;
+
+                $("#main").load('public/templates/default_main.html', function(){
+		  $('#main_blurb').css ( { 'left' : $('#main').width()/4 } ) ;
+		  $('#main_blurb').width ( $('#main').width()/2 ) ;
+		  $('#main_blurb').height ( $('#main').height() ) ;
+		  $('#main_blurb').css ( { 'max-height' : $('#main').height() } ) ;
+                });
 	} ,
 	
 	loadLocally : function () {

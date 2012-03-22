@@ -17,7 +17,7 @@ Done! You can remove the plugin at any time. Plugins will be remembered across s
 <h3>Writing new plugins</h3>
 <p>If you know JavaScript (and preferably <a href='http://jquery.com/'>jQuery</a>), writing new plugins for GENtle is easy!</p>
 <pre class='jscode'>
-// Your new plugin class, based on <a href='plugins.js'>Plugin</a>.
+// Your new plugin class, based on <a href='/plugins.js'>Plugin</a>.
 MyPlugin.prototype = new Plugin() ;
 MyPlugin.prototype.constructor = MyPlugin ;
 MyPlugin.prototype.myMethod = function () {} // Some code to be executed on-demand later
@@ -40,7 +40,7 @@ plugins.registerAsTool ( {
 	linkTitle : 'Do stuff' // The text of the link in the side bar
 } ) ;
 </pre>
-<p>As a working example plugin, the "find in sequence" functionality has been implemented as a plugin. You can see the code <a href='plugins/find_in_sequence.js'>here</a>.</p>
+<p>As a working example plugin, the "find in sequence" functionality has been implemented as a plugin. You can see the code <a href='/plugins/find_in_sequence.js'>here</a>.</p>
 
 </body>
 

@@ -211,7 +211,7 @@ var plugins = {
 		h += "</form>" ;
 		h += "</div>" ;
 		
-		h += "<div><a target='_blank' href='help.html#plugins'>About plugins</a></div>" ;
+		h += "<div><a target='_blank' href='public/templates/help.html#plugins'>About plugins</a></div>" ;
 		
 		$('#manage_plugins_dialog').html ( h ) ;
 		$('#manage_plugins_dialog').dialog('option', 'position', 'center');
