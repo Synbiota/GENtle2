@@ -165,12 +165,12 @@ h1 {
 }
 
 .feat_gene {
-	background-color:blue;
+	background-color:#2F74D0;
 	left:60px;
 }
 
 .feat_cds {
-	background-color:red;
+	background-color:#FF4848;
 	left:85px;
 }
 

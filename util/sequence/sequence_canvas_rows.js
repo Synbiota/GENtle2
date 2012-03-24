@@ -249,17 +249,30 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 			showfeat[fid] = v ;
 	    } ) ;
 	}
+	
+	var styles = {
+		'other' : { offset:2 } ,
+		'promoter' : { offset:1 } ,
+		'gene' : { offset:0 } ,
+		'cds' : { offset:1 }
+	} ;
+	
+	$.each ( styles , function ( k , v ) {
+		if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
+		styles[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) ;
+	} ) ;
 
 	// Markup bases in this region
 	var bases = {} ;
 	$.each ( showfeat , function ( id , v ) {
 
 		var cl = 'other' ;
-		var col = '#BBBBBB' ;
-		var offset = 2 ;
-		if ( v['_type'].match(/^promoter$/i) ) { cl = 'promoter' ; col = 'black' ; offset = 1 ; }
-		if ( v['_type'].match(/^gene$/i) ) { cl = 'gene' ; col = 'blue' ; offset = 0 ; }
-		if ( v['_type'].match(/^CDS$/i) ) { cl = 'cds' ; col = 'red' ; offset = 1 ; }
+		if ( v['_type'].match(/^promoter$/i) ) cl = 'promoter' ;
+		else if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
+		else if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
+
+		var col = styles[cl].col ;
+		var offset = styles[cl].offset ;
 
 		var name = '' ;
 		if ( v['gene'] !== undefined ) name = v['gene'] ;
