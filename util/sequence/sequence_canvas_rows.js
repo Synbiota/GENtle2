@@ -551,7 +551,7 @@ SequenceCanvasRowRES.prototype.show = function ( ctx ) {
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
 	
-    ctx.fillStyle = "#32DF00";
+    ctx.fillStyle = "#59955C";
     ctx.font="7pt Courier";
     ctx.textAlign = "right";
     ctx.textBaseline = "top";
