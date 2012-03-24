@@ -47,7 +47,7 @@ var gentle = {
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
 		} else if ( gentle.is_mobile ) {
 			// Ignore iOS restrictions
-		} else {
+		} else if ( undefined !== getBlobBuilder() ) { // Otherwise, we have already warned...
 			gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
 		}
 	
