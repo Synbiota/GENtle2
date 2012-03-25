@@ -17,6 +17,7 @@ var plugins = {
 	load_on_start : [] ,
 	tools : {
 		dna : {
+			file : {} ,
 			sequence : {} ,
 			external : {}
 		}

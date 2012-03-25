@@ -34,7 +34,7 @@
 	  
 		<div class="nav-collapse">
 		  <ul class="nav" id='toolbar_ul'>
-			<li class="dropdown">
+			<li class="dropdown" id="toolbar_plugins_file">
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
 				<ul class="dropdown-menu">
 					<li><a data-toggle='modal' href='#openFileFromDisk'>Open from disk</a></li>
@@ -45,9 +45,10 @@
 			<li class="dropdown" id='edit_menu'>
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
-					<li><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
-					<li><a id='edit_menu_paste' href='#' onclick='gentle.do_edit("paste");return false'>Paste</a></li>
+					<li class='menu_needs_selection'><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
+					<li class='menu_needs_selection'><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
+					<li class='menu_needs_selection'><a id='edit_menu_annotate' href='#' onclick='gentle.do_annotate();return false'>Annotate selection</a></li>
+					<li class='menu_needs_edit_mode'><a id='edit_menu_paste' href='#' onclick='gentle.do_edit("paste");return false'>Paste</a></li>
 				</ul>
 			</li>
 			<li class="dropdown">

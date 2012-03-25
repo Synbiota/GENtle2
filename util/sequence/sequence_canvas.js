@@ -75,12 +75,12 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
 	
 	if ( true ) {
 		var id = 'toolbar_plugins_' + o.section ;
-		var h = "<li><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
+		var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
 		$('#'+id+' ul').append(h) ;
 		$('#'+id).show() ;
 	}
 	
-	if ( true ) {
+	if ( false ) {
 		var id = 'tools_' + o.section ;
 		var h = "<div class='tool' name='tool_" + x.name + "'>" ;
 		h += "<a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a>" ;
@@ -373,6 +373,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	if ( !sc.selecting ) {
 		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 		return ;
 	}
 
@@ -383,6 +384,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	
 	gentle.setMenuState ( 'edit_menu_cut' , true ) ;
 	gentle.setMenuState ( 'edit_menu_copy' , true ) ;
+	gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 
 	
@@ -463,6 +465,7 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 	sc.setEditMode ( true ) ;
 	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	sc.show() ;
 	
 	if ( gentle.is_mobile ) {
@@ -965,6 +968,8 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.type = 'dna' ;
 	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
 	
+	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
+	
 	var settings = the_sequence.settings ;
 	if ( settings === undefined ) settings = {
 		auto : true ,
@@ -985,6 +990,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
 

@@ -31,6 +31,7 @@ var gentle = {
 		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 		gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 
 		plugins.init() ;
 		if ( undefined === gentle_config ) {
@@ -177,7 +178,7 @@ var gentle = {
 		} ) ;
 		localStorage.setItem ( 'plugin_lists' , JSON.stringify(plugin_list) ) ;
 	} ,
-
+	
 	setMenuState : function ( id , state ) {
 		if ( state ) {
 			$('#'+id).removeClass ( 'disabled btn-disabled' ) ;
@@ -191,6 +192,15 @@ var gentle = {
 		var show_edit_menu = $('#edit_menu ul a:not(.disabled)').length ;
 		if ( show_edit_menu > 0 ) $('#edit_menu').show() ;
 		else $('#edit_menu').hide() ;
+	} ,
+
+	do_annotate : function () {
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc === undefined ) return false ;
+		
+		alert ( "TODO : Annotate" ) ;
+		
+		return false ;
 	} ,
 
 	do_edit : function ( command ) {

@@ -69,7 +69,7 @@ function exportAsFile () {
 
 if ( undefined !== getBlobBuilder() ) {
 	if ( plugins.registerPlugin ( { className : 'exportAsFile' , url : 'plugins/export_as_file.js' } ) ) {
-		plugins.registerAsTool ( { className : 'exportAsFile' , module : 'dna' , section : 'external' , call : 'exportCurrentSequence' , linkTitle : 'Export as file' } ) ;
+		plugins.registerAsTool ( { className : 'exportAsFile' , module : 'dna' , section : 'file' , call : 'exportCurrentSequence' , linkTitle : 'Export as file' } ) ;
 	}
 } else if ( !gentle.is_mobile ) {
 	gentle.addAlert ( 'block' , "This browser does not seem to support BlobBuilder. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
