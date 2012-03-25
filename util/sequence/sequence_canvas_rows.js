@@ -254,6 +254,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		'other' : { offset:2 } ,
 		'promoter' : { offset:1 } ,
 		'gene' : { offset:0 } ,
+		'note' : { offset:3 } ,
 		'cds' : { offset:1 }
 	} ;
 	
@@ -270,6 +271,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		if ( v['_type'].match(/^promoter$/i) ) cl = 'promoter' ;
 		else if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
 		else if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
+		else if ( v['_type'].match(/^note$/i) ) cl = 'note' ;
 
 		var col = styles[cl].col ;
 		var offset = styles[cl].offset ;

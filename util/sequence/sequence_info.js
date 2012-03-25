@@ -9,6 +9,7 @@ SequenceInfoDialog.prototype.onSaveButton = function () {}
 SequenceInfoDialog.prototype.closeDialog = function () {
 	$('#'+gentle.sequence_info_dialog.sid).modal('hide');
 	$('#'+gentle.sequence_info_dialog.sid).remove();
+	return false ;
 }
 
 
@@ -41,7 +42,8 @@ function SequenceInfoDialogDNA ( sc ) {
 		$('#sid_desc').val ( me.data.desc ) ;
 		
 		var h = '' ;
-		$.each ( sc.sequence.features , function ( k , v ) {
+		me.features = clone ( me.sc.sequence.features ) ;
+		$.each ( me.features , function ( k , v ) {
 			var type = v['_type'] || 'unknown' ;
 			if ( type == 'source' ) return ;
 			
@@ -57,29 +59,36 @@ function SequenceInfoDialogDNA ( sc ) {
 			name = name.replace(/^"/,'').replace(/"$/,'') ;
 
 			h += "<tr rowid='" + k + "'>" ;
-			h += "<td>" + name + "</td>" ;
-			h += "<td>" + type + "</td>" ;
-			h += "<td>" + from + " &ndash; " + to + " " + rc + "</td>" ;
+			h += "<td style='width:100%'>" + name + "</td>" ;
+			h += "<td nowrap>" + type + "</td>" ;
+			h += "<td nowrap>" + from + " &ndash; " + to + " " + rc + "</td>" ;
+			h += "<td><button class='btn btn-danger' onclick='gentle.sequence_info_dialog.deleteAnnotation("+k+");return false'>Delete</button></td>" ;
 			h += "</tr>" ;
 		} ) ;
 		$('#sid_annotation_tbody').html ( h ) ;
-		$('#sid_annotation_tbody tr').click ( function ( o ) {
+/*		$('#sid_annotation_tbody tr').click ( function ( o ) {
 			gentle.sequence_info_dialog.showAnnotationDetails ( $(o.currentTarget).attr('rowid') ) ;
-		} ) ;
+		} ) ;*/
 		
 		$('#sid_tab').tab('show') ;
 		$('#sid_tab a:first').tab('show')
 	} ) ;
 }
 
+SequenceInfoDialogDNA.prototype.deleteAnnotation = function ( id ) {
+	var me = gentle.sequence_info_dialog ;
+	me.features.splice ( id , 1 ) ; // TODO only do on local copy, only commit onSaveButton
+	$('#sid_annotation_tbody [rowid='+id+']').remove() ;
+	return false ;
+} ;
+
 SequenceInfoDialogDNA.prototype.showAnnotationDetails = function ( key ) {
 	$("#sid_annotation_details").html ( "TODO! " + key ) ;
 } ;
 
 SequenceInfoDialogDNA.prototype.onCancelButton = function () {
-	gentle.sequence_info_dialog.closeDialog() ;
-	$('#'+gentle.sequence_info_dialog.sid).modal('hide');
-	$('#'+gentle.sequence_info_dialog.sid).remove();
+	var me = gentle.sequence_info_dialog ;
+	return me.closeDialog() ;
 }
 
 SequenceInfoDialogDNA.prototype.onSaveButton = function () {
@@ -87,6 +96,11 @@ SequenceInfoDialogDNA.prototype.onSaveButton = function () {
 	
 	me.sc.sequence.name = $('#sid_name').val() ;
 	me.sc.sequence.desc = $('#sid_desc').val() ;
+	me.sc.sequence.features = clone ( me.features ) ;
+
+	me.sc.recalc() ;
+	me.sc.show () ;
+	top_display.init() ;
 	
-	me.closeDialog() ;
+	return me.closeDialog() ;
 }

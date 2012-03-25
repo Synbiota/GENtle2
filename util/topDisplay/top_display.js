@@ -63,8 +63,9 @@ TopDisplayDNA.prototype.get_feature_div = function ( v ) {
 	// Type
 	var cl = 'other' ;
 	if ( v['_type'].match(/^promoter$/i) ) cl = 'promoter' ;
-	if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
-	if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
+	else if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
+	else if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
+	else if ( v['_type'].match(/^note$/i) ) cl = 'note' ;
 	
 	// Name
 	var name = '' ;

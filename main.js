@@ -10,6 +10,7 @@
 // gentle object containing core methods
 var gentle = {
 	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' ] ,
+	features : { 'note':'Note' , 'gene':'Gene' , 'cds':'CDS' , 'promoter':'Promoter' , 'misc':'Misc' , 'protein_bind':'Protein binding site' } ,
 	sequences : [] ,
 	current_sequence_entry : undefined ,
 	main_sequence_canvas : undefined ,
@@ -197,8 +198,48 @@ var gentle = {
 	do_annotate : function () {
 		var sc = gentle.main_sequence_canvas ;
 		if ( sc === undefined ) return false ;
+		if ( sc.selections.length == 0 ) return ;
 		
-		alert ( "TODO : Annotate" ) ;
+		// This should probably get its own file...
+		
+		function submitTask () {
+			var ann = {
+				'_type' : $('#aad_type').val() ,
+				'_range' : [ { from:$('#aad_from').text()*1-1 , to:$('#aad_to').text()*1-1 } ] ,
+				'name' : $('#aad_name').val() ,
+				'desc' : $('#aad_desc').val()
+			} ;
+			console.log ( ann ) ;
+			sc.sequence.features.push ( ann ) ;
+			sc.recalc() ;
+			sc.show () ;
+			top_display.init() ;
+			$('#aad_annotation_dialog').modal('hide');
+			$('#aad_annotation_dialog').remove();
+		}
+		
+		$('#aad_annotation_dialog').remove() ;
+		var dialogContainer = $("<div/>");
+		dialogContainer.load("public/templates/aad_annotation_dialog.html", function(){
+			dialogContainer.appendTo("#all");
+			$('#aad_annotation_dialog').modal();
+			
+			$('#aad_from').text ( sc.selections[0].from+1 ) ;
+			$('#aad_to').text ( sc.selections[0].to+1 ) ;
+			
+			$.each ( gentle.features , function ( k , v ) {
+				var s = "<option value='"+k+"'" ;
+				if ( k == 'note' ) s += " selected" ;
+				s += ">"+v+"</option>" ;
+				$('#aad_type').append ( s ) ;
+			} ) ;
+			
+			$('#aad_name').focus() ;
+			
+			$("#aad_annotation_form input[type=submit]").click(function(){submitTask();});
+			$("#aad_name").keypress(function(e) { if(e.keyCode === 13) submitTask(); });
+		});
+		
 		
 		return false ;
 	} ,

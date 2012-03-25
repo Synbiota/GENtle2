@@ -127,3 +127,15 @@ function copyToClipboard ( text ) {
 }
 
 
+function clone(obj) {
+	return JSON.parse ( JSON.stringify(obj) );
+/*    // A clone of an object is an empty object 
+            // with a prototype reference to the original.
+
+    // a private constructor, used only by this one clone.
+            function Clone() { } 
+    Clone.prototype = obj;
+    var c = new Clone();
+            c.constructor = Clone;
+            return c;*/
+}
