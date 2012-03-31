@@ -184,6 +184,14 @@ h1 {
 	left:95px;
 }
 
+
+#new_sequence_entry {
+	width:100%;
+	font-family:Courier;
+	font-size:7pt;
+	line-height:110%;
+}
+
 .top_display_icon {
 /*	display:block;
 	margin-right:5px;*/

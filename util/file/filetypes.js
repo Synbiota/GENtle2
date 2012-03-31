@@ -9,6 +9,19 @@ Filetype.prototype.checkFile = function ( f ) {
 	console.log ( "Filetype.checkFile should never be called!" ) ;
 }
 
+Filetype.prototype.textHeuristic = function () {
+	return false ;
+}
+
+Filetype.prototype.checkText = function ( text ) {
+	this.text = text ;
+	if ( !this.textHeuristic() ) return false ;
+	this.fileTypeValidated = true ;
+	gentle.fileLoaded ( this ) ;
+	this.parseFile () ;
+	return true ;
+}
+
 Filetype.prototype.parseFile = function () {
 	console.log ( "Filetype.parseFile should never be called!" ) ;
 }
@@ -60,6 +73,11 @@ FT_plaintext.prototype.parseFile = function () {
 	}
 }
 
+FT_plaintext.prototype.textHeuristic = function () {
+	if ( this.text.match ( /[^a-zA-Z0-0\s]/ ) ) return false ;
+	return true ;
+}
+
 FT_plaintext.prototype.checkFile = function ( f ) {
 	this.file = f ;
 	var reader = new FileReader();
@@ -70,7 +88,7 @@ FT_plaintext.prototype.checkFile = function ( f ) {
 		return function(e) {
 			if ( f.isIdentified ) return ;
 			meh.text = e.target.result ;
-			if ( meh.text.match ( /[^a-zA-Z0-0\s]/ ) ) return ; // Return if other than alphanum chars
+			if ( !meh.textHeuristic() ) return ;
 			f.isIdentified = true ;
 			meh.fileTypeValidated = true ;
 			gentle.fileLoaded ( meh ) ;
@@ -140,6 +158,11 @@ FT_fasta.prototype.parseFile = function () {
 	} ) ;
 }
 
+FT_fasta.prototype.textHeuristic = function () {
+	if ( this.text.match ( /^\>/ ) ) return true ;
+	return false ;
+}
+
 FT_fasta.prototype.checkFile =function ( f ) {
 	this.file = f ;
 	var reader = new FileReader();
@@ -150,12 +173,11 @@ FT_fasta.prototype.checkFile =function ( f ) {
 		return function(e) {
 			if ( f.isIdentified ) return ;
 			meh.text = e.target.result ;
-			if ( meh.text.match ( /^\>/ ) ) {
-				f.isIdentified = true ;
-				meh.fileTypeValidated = true ;
-				gentle.fileLoaded ( meh ) ;
-				meh.parseFile () ;
-			}
+			if ( !meh.textHeuristic() ) return ;
+			f.isIdentified = true ;
+			meh.fileTypeValidated = true ;
+			gentle.fileLoaded ( meh ) ;
+			meh.parseFile () ;
 		};
 	})(f);
 	
@@ -175,6 +197,12 @@ function FT_fasta () {
 FT_genebank.prototype = new Filetype() ;
 FT_genebank.prototype.constructor = FT_genebank ;
 
+FT_genebank.prototype.textHeuristic = function () {
+	if ( this.text.match ( /^LOCUS\s+/i ) ) return true ;
+	return false ;
+}
+
+
 FT_genebank.prototype.checkFile =function ( f ) {
 	this.file = f ;
 	var reader = new FileReader();
@@ -185,12 +213,11 @@ FT_genebank.prototype.checkFile =function ( f ) {
 		return function(e) {
 			if ( f.isIdentified ) return ;
 			meh.text = e.target.result ;
-			if ( meh.text.match ( /^LOCUS\s+/i ) ) {
-				f.isIdentified = true ;
-				meh.fileTypeValidated = true ;
-				gentle.fileLoaded ( meh ) ;
-				meh.parseFile () ;
-			}
+			if ( !meh.textHeuristic() ) return ;
+			f.isIdentified = true ;
+			meh.fileTypeValidated = true ;
+			gentle.fileLoaded ( meh ) ;
+			meh.parseFile () ;
 		};
 	})(f);
 	
@@ -478,6 +505,12 @@ FT_sybil.prototype.parseFile = function () {
 
 }
 
+FT_sybil.prototype.textHeuristic = function () {
+	if ( this.text.match ( /^<sybil\b/i ) ) return true ;
+	return false ;
+}
+
+
 FT_sybil.prototype.checkFile = function ( f ) {
 	this.file = f ;
 	var reader = new FileReader();
@@ -488,12 +521,11 @@ FT_sybil.prototype.checkFile = function ( f ) {
 		return function(e) {
 			if ( f.isIdentified ) return ;
 			meh.text = e.target.result ;
-			if ( meh.text.match ( /^<sybil\b/i ) ) {
-				f.isIdentified = true ;
-				meh.fileTypeValidated = true ;
-				gentle.fileLoaded ( meh ) ;
-				meh.parseFile () ;
-			}
+			if ( !meh.textHeuristic() ) return ;
+			f.isIdentified = true ;
+			meh.fileTypeValidated = true ;
+			gentle.fileLoaded ( meh ) ;
+			meh.parseFile () ;
 		};
 	})(f);
 	

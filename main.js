@@ -79,6 +79,8 @@ var gentle = {
 		plugins.loadPlugins() ;
 
 		if ( gentle.sequences.length == 0 ) this.showDefaultBlurb() ;
+		
+		if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
 	} ,
 	
 	addAlert : function ( type , message ) {
@@ -209,7 +211,7 @@ var gentle = {
 				'name' : $('#aad_name').val() ,
 				'desc' : $('#aad_desc').val()
 			} ;
-			console.log ( ann ) ;
+
 			sc.sequence.features.push ( ann ) ;
 			sc.recalc() ;
 			sc.show () ;
@@ -300,6 +302,53 @@ var gentle = {
 		}
 
 		return false ;
+	} ,
+	
+	startNewSequenceDialog : function () {
+	  $('#newSequenceDialog').remove() ;
+	   function submitTask () {
+	/*     var ncbiID = $('#ncbi_form input[name=ncbiID]').val();
+		 //TODO: better check for ncbi codes, better way to deal with user errors.
+		 if (ncbiID !== "") {
+		   $('#nbci_form').html("<i>Querying NCBI...</i>");
+		   new_sequence_from_textarea(ncbiID);
+		 } else {
+		   alert("Bad ID provided");
+		 }*/
+	  }
+	
+	  var dialogContainer = $("<div/>");
+	  dialogContainer.load("public/templates/new_sequence_dialog.html", function(){
+		dialogContainer.appendTo("#all");
+		$('#newSequenceDialog').modal();
+		$('#new_sequence_entry').focus() ;
+	//    $("#ncbi_form input[type=submit]").click(function(){submitTask();});
+	  });
+	} ,
+	
+	createNewSequenceFromDialog : function () {
+		var text = $("#new_sequence_entry").val() ;
+		
+		if ( text == '' ) {
+			alert ( "In Soviet Russia, empty text parses YOU!" ) ;
+			return ;
+		}
+
+		// Determine file type
+		var found = false ;
+		$.each ( gentle.fileTypeList , function ( k , v ) {
+			var file = new window['FT_'+v]();
+			if ( file.checkText ( text ) ) { // End filetype search
+				found = true ;
+				return false ;
+			}
+		} ) ;
+		
+		if ( found ) {
+			$("#newSequenceDialog").modal("hide").remove();
+		} else {
+			alert ( "File type not recognised" ) ;
+		}
 	} ,
 
 
