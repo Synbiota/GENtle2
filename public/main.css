@@ -147,6 +147,12 @@ h1 {
 	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
 }
 
+#selection_context_marker {
+	z-index:50;
+	position:relative;
+	width:20pt;
+}
+
 .feature {
 	position:absolute;
 	font-size:8pt;
@@ -156,6 +162,8 @@ h1 {
 	width:15px;
 	color:white;
 	overflow:hidden;
+	-moz-border-radius:5px;
+	border-radius:5px;
 }
 
 .feat_other {

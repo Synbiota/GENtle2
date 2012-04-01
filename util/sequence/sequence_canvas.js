@@ -308,6 +308,26 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
 SequenceCanvasDNA.prototype = new SequenceCanvas() ;
 SequenceCanvasDNA.prototype.constructor = SequenceCanvasDNA ;
 
+SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
+	var h = '' ;
+	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
+//	h += "<i class='icon-chevron-down'></i>" ;
+
+	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
+	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'cut\');return false">Cut</a></li>' ;
+	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'copy\');return false">Copy</a></li>' ;
+	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_annotate();return false">Annotate selection</a></li>' ;
+	h += '</ul></div>' ;
+
+	h += "</div>" ;
+	
+	$('#selection_context_marker').remove() ;
+	$('#canvas_wrapper').prepend ( h ) ;
+/*	$('#selection_context_marker').click ( function () {
+		alert ( "!" ) ;
+	} ) ;*/
+}
+
 SequenceCanvasDNA.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
 	this.selections = [ { from : from , to : to , fcol : col , tcol : 'black' } ] ;
@@ -317,6 +337,7 @@ SequenceCanvasDNA.prototype.select = function ( from , to , col ) {
 SequenceCanvasDNA.prototype.deselect = function () {
 	if ( this.selections.length == 0 ) return ;
 	this.selections = [] ;
+	$('#selection_context_marker').remove() ;
 	this.show() ;
 }
 
@@ -386,7 +407,13 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	gentle.setMenuState ( 'edit_menu_copy' , true ) ;
 	gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
-
+	
+	// Add selection marker
+	if ( undefined !== sc.selection_end_pos ) {
+//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y ) ;
+	}
+	sc.selection_end_pos = undefined ;
 	
 	// Selection copy/paste hack for non-Chrome desktop browsers
 	if ( !gentle.is_chrome && !gentle.is_mobile ) {

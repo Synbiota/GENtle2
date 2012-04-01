@@ -61,13 +61,15 @@ FT_plaintext.prototype.getExportBlob = function ( sequence ) {
 }
 
 FT_plaintext.prototype.parseFile = function () {
-	var seqtext = ucFirst ( this.text.replace ( /[^a-z]/gi , '' ) ) ;
-	var v = new SequenceDNA ( this.file.name , seqtext ) ;
+	var seqtext = this.text.replace ( /[^a-z]/gi , '' ).toUpperCase() ;
+	var name = 'Unnamed sequence' ;
+	if ( this.file !== undefined ) name = ucFirst ( this.file.name ) ;
+	var v = new SequenceDNA ( name , seqtext ) ;
 	var seqid = gentle.sequences.length ;
 	gentle.sequences.push ( v ) ;
 	$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
 //	$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
-	if ( gentle.sequences.length == 1 ) {
+	if ( gentle.sequences.length >= 1 ) {
 		$('#sb_sequences').val(seqid) ;
 		gentle.handleSelectSequenceEntry ( seqid ) ;
 	}
@@ -151,7 +153,7 @@ FT_fasta.prototype.parseFile = function () {
 		gentle.sequences.push ( v ) ;
 		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
 //		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
-		if ( gentle.sequences.length == 1 ) {
+		if ( gentle.sequences.length >= 1 ) {
 			$('#sb_sequences').val(seqid) ;
 			gentle.handleSelectSequenceEntry ( seqid ) ;
 		}
@@ -497,7 +499,7 @@ FT_sybil.prototype.parseFile = function () {
 		gentle.sequences.push ( v ) ;
 		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
 //		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
-		if ( gentle.sequences.length == 1 ) {
+		if ( gentle.sequences.length >= 1 ) {
 			$('#sb_sequences').val(seqid) ;
 			gentle.handleSelectSequenceEntry ( seqid ) ;
 		}

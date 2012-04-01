@@ -119,6 +119,9 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 				$.each ( me.sc.selections , function ( k , v ) {
 					if ( ( v.from <= v.to ) && ( v.from > p || v.to < p ) ) return ;
 					if ( ( v.from > v.to ) && ( v.to > p || v.from < p ) ) return ;
+					if ( v.to == p ) {
+						me.sc.selection_end_pos = { x : Math.floor ( x + me.sc.cw/2 ) , y : y + me.sc.ch+2 } ;
+					}
 					ctx.fillStyle = v.fcol ;
 					ctx.fillRect ( x-1 , y+2 , me.sc.cw+1 , me.sc.ch+1 );
 					ctx.fillStyle = v.tcol ;
