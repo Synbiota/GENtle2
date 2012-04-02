@@ -6,8 +6,49 @@ function Filetype () {
 }
 
 Filetype.prototype.checkFile = function ( f ) {
-	console.log ( "Filetype.checkFile should never be called!" ) ;
+	this.file = f ;
+	var reader = new FileReader();
+	var meh = this ;
+	
+	// Closure to capture the file information.
+	reader.onload = (function(theFile) {
+		return function(e) {
+			if ( f.isIdentified ) return ;
+			meh.text = e.target.result ;
+			if ( !meh.textHeuristic() ) return ;
+			f.isIdentified = true ;
+			meh.fileTypeValidated = true ;
+			gentle.fileLoaded ( meh ) ;
+			meh.parseFile () ;
+		};
+	})(f);
+	
+	// Read in the image file as a data URL.
+	reader.readAsText(f);
 }
+
+Filetype.prototype.getExportString = function ( sequence ) {
+	return '' ;
+}
+
+Filetype.prototype.getExportBlob = function ( sequence ) {
+	var ret = { error : false } ;
+	ret.blob = getBlobBuilder() ;
+	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
+	
+	var t = this.getExportString ( sequence ) ;
+	if ( t == '' ) {
+		ret.error = true ;
+		return ret ;
+	}
+	
+	ret.blob.append ( t ) ;
+	ret.filetype = "text/plain;charset=utf-8" ;
+	
+	return ret ;
+}
+
+
 
 Filetype.prototype.textHeuristic = function () {
 	return false ;
@@ -24,6 +65,7 @@ Filetype.prototype.checkText = function ( text ) {
 
 Filetype.prototype.parseFile = function () {
 	console.log ( "Filetype.parseFile should never be called!" ) ;
+	return [] ;
 }
 
 Filetype.prototype.parseText = function () {
@@ -44,28 +86,24 @@ FT_plaintext.prototype.getFileExtension = function () {
 	return 'txt' ;
 }
 
-FT_plaintext.prototype.getExportBlob = function ( sequence ) {
-	var ret = { error : false } ;
-	ret.blob = getBlobBuilder() ;
-	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
-	
+FT_plaintext.prototype.getExportString = function ( sequence ) {
+	var ret = '' ;
 	var s = sequence.seq ;
 	while ( s != '' ) {
-		ret.blob.append ( s.substr ( 0 , 60 ) + "\n" ) ;
+		ret += s.substr ( 0 , 60 ) + "\n" ;
 		s = s.substr ( 60 , s.length-60 ) ;
 	}
-	
-	ret.filetype = "text/plain;charset=utf-8" ;
-	
 	return ret ;
 }
 
 FT_plaintext.prototype.parseFile = function () {
+	var ret = [] ;
 	var seqtext = this.text.replace ( /[^a-z]/gi , '' ).toUpperCase() ;
 	var name = 'Unnamed sequence' ;
 	if ( this.file !== undefined ) name = ucFirst ( this.file.name ) ;
 	var v = new SequenceDNA ( name , seqtext ) ;
 	var seqid = gentle.sequences.length ;
+	ret.push ( seqid ) ;
 	gentle.sequences.push ( v ) ;
 	$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
 //	$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
@@ -73,33 +111,12 @@ FT_plaintext.prototype.parseFile = function () {
 		$('#sb_sequences').val(seqid) ;
 		gentle.handleSelectSequenceEntry ( seqid ) ;
 	}
+	return ret ;
 }
 
 FT_plaintext.prototype.textHeuristic = function () {
 	if ( this.text.match ( /[^a-zA-Z0-0\s]/ ) ) return false ;
 	return true ;
-}
-
-FT_plaintext.prototype.checkFile = function ( f ) {
-	this.file = f ;
-	var reader = new FileReader();
-	var meh = this ;
-
-	// Closure to capture the file information.
-	reader.onload = (function(theFile) {
-		return function(e) {
-			if ( f.isIdentified ) return ;
-			meh.text = e.target.result ;
-			if ( !meh.textHeuristic() ) return ;
-			f.isIdentified = true ;
-			meh.fileTypeValidated = true ;
-			gentle.fileLoaded ( meh ) ;
-			meh.parseFile () ;
-		};
-	})(f);
-	
-	// Read in the image file as a data URL.
-	reader.readAsText(f);
 }
 
 function FT_plaintext () {
@@ -115,24 +132,19 @@ FT_fasta.prototype.getFileExtension = function () {
 	return 'fasta' ;
 }
 
-FT_fasta.prototype.getExportBlob = function ( sequence ) {
-	var ret = { error : false } ;
-	ret.blob = getBlobBuilder() ;
-	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
-	
-	ret.blob.append ( ">" + sequence.name + "\n" ) ;
+FT_fasta.prototype.getExportString = function ( sequence ) {
+	var ret = '' ;
+	ret += ">" + sequence.name + "\n" ;
 	var s = sequence.seq ;
 	while ( s != '' ) {
-		ret.blob.append ( s.substr ( 0 , 60 ) + "\n" ) ;
+		ret += s.substr ( 0 , 60 ) + "\n" ;
 		s = s.substr ( 60 , s.length-60 ) ;
 	}
-	
-	ret.filetype = "text/plain;charset=utf-8" ;
-	
 	return ret ;
 }
 
 FT_fasta.prototype.parseFile = function () {
+	var ret = [] ;
 	var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
 	var name = '' ;
 	var seq = '' ;
@@ -150,6 +162,7 @@ FT_fasta.prototype.parseFile = function () {
 	
 	$.each ( tempseq , function ( k , v ) {
 		var seqid = gentle.sequences.length ;
+		ret.push ( seqid ) ;
 		gentle.sequences.push ( v ) ;
 		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
 //		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
@@ -158,33 +171,12 @@ FT_fasta.prototype.parseFile = function () {
 			gentle.handleSelectSequenceEntry ( seqid ) ;
 		}
 	} ) ;
+	return ret ;
 }
 
 FT_fasta.prototype.textHeuristic = function () {
 	if ( this.text.match ( /^\>/ ) ) return true ;
 	return false ;
-}
-
-FT_fasta.prototype.checkFile =function ( f ) {
-	this.file = f ;
-	var reader = new FileReader();
-	var meh = this ;
-	
-	// Closure to capture the file information.
-	reader.onload = (function(theFile) {
-		return function(e) {
-			if ( f.isIdentified ) return ;
-			meh.text = e.target.result ;
-			if ( !meh.textHeuristic() ) return ;
-			f.isIdentified = true ;
-			meh.fileTypeValidated = true ;
-			gentle.fileLoaded ( meh ) ;
-			meh.parseFile () ;
-		};
-	})(f);
-	
-	// Read in the image file as a data URL.
-	reader.readAsText(f);
 }
 
 function FT_fasta () {
@@ -205,28 +197,6 @@ FT_genebank.prototype.textHeuristic = function () {
 }
 
 
-FT_genebank.prototype.checkFile =function ( f ) {
-	this.file = f ;
-	var reader = new FileReader();
-	var meh = this ;
-	
-	// Closure to capture the file information.
-	reader.onload = (function(theFile) {
-		return function(e) {
-			if ( f.isIdentified ) return ;
-			meh.text = e.target.result ;
-			if ( !meh.textHeuristic() ) return ;
-			f.isIdentified = true ;
-			meh.fileTypeValidated = true ;
-			gentle.fileLoaded ( meh ) ;
-			meh.parseFile () ;
-		};
-	})(f);
-	
-	// Read in the image file as a data URL.
-	reader.readAsText(f);
-}
-
 FT_genebank.prototype.parseText = function ( text ) {
 	this.text = text ;
 	this.fileTypeValidated = true ;
@@ -235,6 +205,7 @@ FT_genebank.prototype.parseText = function ( text ) {
 }
 
 FT_genebank.prototype.parseFile = function () {
+	var ret = [] ;
 	var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
 
 	var mode = '' ;
@@ -341,11 +312,13 @@ FT_genebank.prototype.parseFile = function () {
 //	console.log ( JSON.stringify ( seq.features ) ) ;
 	
 	var seqid = gentle.sequences.length ;
+	ret.push ( seqid ) ;
 	gentle.sequences.push ( seq ) ;
 	$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
 //	$('#sb_log').append ( '<p>Loaded ' + seq.seq.length + ' bp :<br/>' + seq.name + '</p>' ) ;
 	$('#sb_sequences').val(seqid) ;
 	gentle.handleSelectSequenceEntry ( seqid ) ;
+	return ret ;
 }
 
 
@@ -363,11 +336,7 @@ FT_sybil.prototype.getFileExtension = function () {
 	return 'sybil' ;
 }
 
-FT_sybil.prototype.getExportBlob = function ( sequence ) {
-	var ret = { error : false } ;
-	ret.blob = getBlobBuilder() ;
-	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
-	
+FT_sybil.prototype.getExportString = function ( sequence ) {
 	var s = '' ;
 	
 	s += "<sybil>\n" ;
@@ -445,13 +414,11 @@ FT_sybil.prototype.getExportBlob = function ( sequence ) {
 	s += "</session>\n" ;
 	s += "</sybil>" ;
 
-	ret.blob.append ( s ) ;
-	ret.filetype = "text/plain;charset=utf-8" ;
-	
-	return ret ;
+	return s ;
 }
 
 FT_sybil.prototype.parseFile = function () {
+	var ret = [] ;
 	var sybil = $.parseXML(this.text) ;
 	sybil = $(sybil) ;
 	
@@ -496,6 +463,7 @@ FT_sybil.prototype.parseFile = function () {
 	
 	$.each ( tempseq , function ( k , v ) {
 		var seqid = gentle.sequences.length ;
+		ret.push ( seqid ) ;
 		gentle.sequences.push ( v ) ;
 		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
 //		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
@@ -505,6 +473,7 @@ FT_sybil.prototype.parseFile = function () {
 		}
 	} ) ;
 
+	return ret ;
 }
 
 FT_sybil.prototype.textHeuristic = function () {
@@ -512,28 +481,6 @@ FT_sybil.prototype.textHeuristic = function () {
 	return false ;
 }
 
-
-FT_sybil.prototype.checkFile = function ( f ) {
-	this.file = f ;
-	var reader = new FileReader();
-	var meh = this ;
-	
-	// Closure to capture the file information.
-	reader.onload = (function(theFile) {
-		return function(e) {
-			if ( f.isIdentified ) return ;
-			meh.text = e.target.result ;
-			if ( !meh.textHeuristic() ) return ;
-			f.isIdentified = true ;
-			meh.fileTypeValidated = true ;
-			gentle.fileLoaded ( meh ) ;
-			meh.parseFile () ;
-		};
-	})(f);
-	
-	// Read in the image file as a data URL.
-	reader.readAsText(f);
-}
 
 function FT_sybil () {
 	this.typeName = 'SYBIL' ;
