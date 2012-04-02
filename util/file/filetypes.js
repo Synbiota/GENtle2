@@ -27,6 +27,7 @@ Filetype.prototype.checkFile = function ( f ) {
 	reader.readAsText(f);
 }
 
+
 Filetype.prototype.getExportString = function ( sequence ) {
 	return '' ;
 }

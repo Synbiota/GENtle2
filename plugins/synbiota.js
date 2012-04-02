@@ -8,16 +8,10 @@ synbiota.prototype.saveToSynbiota = function () {
 	var me = this ;
 	var sc = this.getCurrentSequenceCanvas() ;
 	if ( sc === undefined ) return ; // Paranoia
-	if ( sc.synbiota === undefined ) sc.synbiota = { project_id : -1 , sequence_id : -1 } ; //return ;
+	if ( sc.synbiota === undefined ) sc.synbiota = { project_id : synbiota_data.project_id , sequence_id : -1 } ; //return ;
 	
 	var file = new FT_sybil();
-//	var file = new window['FT_sybil'](); // Check if export is supported
-	console.log ( file ) ;
-	var sybil = file.getExportString(sc.sequence) ;
-//	sybil = sybil.toString() ;
-	
-	console.log ( sybil ) ;
-	return ;
+	var sybil = file.getExportString ( sc.sequence ) ;
 	
 	$.post ( synbiota_data.save_url , {
 		token : synbiota_data.token ,
@@ -25,7 +19,8 @@ synbiota.prototype.saveToSynbiota = function () {
 		id : sc.synbiota.sequence_id ,
 		sequence : sybil
 	} , function ( d ) {
-	} ) ;
+		console.log ( d ) ;
+	} , 'json' ) ;
 }
 
 function synbiota () {
@@ -53,7 +48,10 @@ function synbiota_load_sequence ( project_id , sequence_id ) {
 
 function synbiota_init () {
 	synbiota_data.load_url = 'http://synbiota-alpha.herokuapp.com' ;
-	synbiota_data.save_url = './data/synbiota_proxy.php' ;
+	
+//	synbiota_data.save_url = './data/synbiota_proxy.php' ; // Testing
+	synbiota_data.save_url = 'http://localhost:3000/gentle_files' ;
+	
 	synbiota_data.token = gentle.url_vars.token ;
 	if ( undefined === synbiota_data.token ) return ;
 	synbiota_data.project_id = gentle.url_vars.project_id ;
