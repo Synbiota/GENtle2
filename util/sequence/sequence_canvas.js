@@ -176,6 +176,9 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			sc.ensureBaseIsVisible ( sc.start_base - sc.bases_per_row ) ;
 		} else if ( code == 40 ) { // Cursor down
 			sc.ensureBaseIsVisible ( sc.end_base + sc.bases_per_row ) ;
+		} else if ( code == 8 ) { // Backspace, ignore
+			e.preventDefault();
+			e.stopPropagation();
 		}
 		return ;
 	}
@@ -411,7 +414,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	// Add selection marker
 	if ( undefined !== sc.selection_end_pos ) {
 //		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
-		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y ) ;
+		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
 	sc.selection_end_pos = undefined ;
 	

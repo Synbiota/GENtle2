@@ -30,7 +30,7 @@ function synbiota () {
 
 function synbiota_load_sequence ( project_id , sequence_id ) {
 	var url = synbiota_data.load_url + '/api/projects/'+project_id+'/sequences/'+sequence_id+'?token='+synbiota_data.token ;
-	console.log ( url ) ;
+//	console.log ( url ) ;
 	$.getJSON ( gentle_config.proxy + '?callback=?' , 
 		{ url : url } ,
 		function ( data ) {
@@ -41,8 +41,8 @@ function synbiota_load_sequence ( project_id , sequence_id ) {
 			fa.text = ">" + name + "\n" + seq ;
 			var seq = fa.parseFile() ;
 			var seqid = seq[0] ;
-			
-			gentle.sequences[seqid].sequence.synbiota = { sequence_id : sequence_id , project_id : project_id } ;
+//			console.log ( seqid ) ;
+			gentle.sequences[seqid].synbiota = { sequence_id : sequence_id , project_id : project_id } ;
 	} ) ;
 }
 
