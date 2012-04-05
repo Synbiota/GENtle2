@@ -449,6 +449,7 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	}
 
 	sc.last_target = target ;
+	if ( sc.edit.editing ) return sc.absorb_event(e) ;
 	sc.selecting = true ;
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
 	sc.show() ;
