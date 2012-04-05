@@ -117,9 +117,12 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 				do_write = false ;
 			} else if ( check_select ) {
 				$.each ( me.sc.selections , function ( k , v ) {
-					if ( ( v.from <= v.to ) && ( v.from > p || v.to < p ) ) return ;
-					if ( ( v.from > v.to ) && ( v.to > p || v.from < p ) ) return ;
-					if ( v.to == p ) {
+					var from = v.from > v.to ? v.to : v.from ;
+					var to = v.from < v.to ? v.to : v.from ;
+					if ( from > p || to < p ) return ;
+//					if ( ( v.from <= v.to ) && ( v.from > p || v.to < p ) ) return ;
+//					if ( ( v.from > v.to ) && ( v.to > p || v.from < p ) ) return ;
+					if ( to == p ) {
 						me.sc.selection_end_pos = { x : Math.floor ( x + me.sc.cw/2 ) , y : y + me.sc.ch+2 } ;
 					}
 					ctx.fillStyle = v.fcol ;
@@ -585,7 +588,7 @@ SequenceCanvasRowRES.prototype.show = function ( ctx ) {
 		if ( p >= me.sc.start_base-10 && undefined !== me.sites[p] ) {
 			$.each ( me.sites[p] , function ( k , v ) {
 				cache.push ( { data:v , pos:0 } ) ;
-				if ( v.name == 'AccII' ) console.log ( JSON.stringify ( v ) ) ;
+//				if ( v.name == 'AccII' ) console.log ( JSON.stringify ( v ) ) ;
 			} ) ;
 		}
 		

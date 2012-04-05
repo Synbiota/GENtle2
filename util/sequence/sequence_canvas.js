@@ -415,6 +415,11 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		return ;
 	}
 
+	if ( sc.selections[0].from > sc.selections[0].to ) {
+		var i = sc.selections[0].from ;
+		sc.selections[0].from = sc.selections[0].to ;
+		sc.selections[0].to = i ;
+	}
 	sc.selecting = false ;
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
@@ -461,6 +466,7 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 		return true ;
 	}
 
+	$('#selection_context_marker').remove() ;
 	sc.last_target = target ;
 	if ( sc.edit.editing ) return sc.absorb_event(e) ;
 	sc.selecting = true ;
