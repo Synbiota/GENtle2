@@ -499,6 +499,11 @@ var gentle = {
 		$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 	} ,
 	
+	delete_selection : function () {
+		var sc = gentle.main_sequence_canvas ;
+		sc.deleteSelection();
+	} ,
+	
 	sequence_info : function () {
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined === sc ) return ;

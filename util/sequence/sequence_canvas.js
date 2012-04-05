@@ -156,6 +156,17 @@ SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
 	return false; // Prevent the default handler from running.
 }
 
+SequenceCanvas.prototype.deleteSelection = function () {
+	var sc = gentle.main_sequence_canvas ;
+	if ( sc.selections.length != 1 ) return ;
+	var sel = sc.selections[0] ;
+	sc.sequence.remove ( sel.from , sel.to - sel.from + 1 ) ;
+	sc.recalc() ;
+	top_display.init() ;
+	sc.ensureBaseIsVisible ( sel.from ) ;
+	sc.deselect() ;
+}
+
 SequenceCanvas.prototype.keyhandler = function ( e ) {
 	var sc = gentle.main_sequence_canvas ;
 	var code = (e.keyCode ? e.keyCode : e.which);
@@ -176,9 +187,10 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			sc.ensureBaseIsVisible ( sc.start_base - sc.bases_per_row ) ;
 		} else if ( code == 40 ) { // Cursor down
 			sc.ensureBaseIsVisible ( sc.end_base + sc.bases_per_row ) ;
-		} else if ( code == 8 ) { // Backspace, ignore
+		} else if ( code == 8 || code == 46 ) { // Backspace or delete
 			e.preventDefault();
 			e.stopPropagation();
+			sc.deleteSelection();
 		}
 		return ;
 	}
@@ -320,6 +332,7 @@ SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
 	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'cut\');return false">Cut</a></li>' ;
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'copy\');return false">Copy</a></li>' ;
+	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.delete_selection();return false">Remove selection</a></li>' ;
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_annotate();return false">Annotate selection</a></li>' ;
 	h += '</ul></div>' ;
 
