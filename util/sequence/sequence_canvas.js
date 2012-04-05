@@ -265,6 +265,7 @@ SequenceCanvas.prototype.setEditMode = function ( state ) {
 	var sc = gentle.main_sequence_canvas ;
 	sc.edit.editing = state ;
 	gentle.setMenuState ( 'edit_menu_paste' , state ) ;
+	$('#selection_context_marker').remove() ;
 }
 
 
@@ -412,7 +413,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
 	// Add selection marker
-	if ( undefined !== sc.selection_end_pos ) {
+	if ( undefined !== sc.selection_end_pos && !sc.edit.editing ) {
 //		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
 		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
