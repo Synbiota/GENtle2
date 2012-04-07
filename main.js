@@ -118,6 +118,13 @@ var gentle = {
 					seq[k2] = v2 ;
 				} ) ;
 				gentle.sequences[k] = seq ;
+			} else if ( v.typeName == 'designer' ) {
+				var seq = new SequenceDNA () ;
+				$.each ( v , function ( k2 , v2 ) {
+					seq[k2] = v2 ;
+				} ) ;
+				seq.typeName = 'designer' ;
+				gentle.sequences[k] = seq ;
 			} else {
 				console.log ( 'UNKNOWN LOCAL STORAGE SEQUENCE TYPENAME ' + v.typeName ) ;
 			}
@@ -131,7 +138,8 @@ var gentle = {
 			var cse = localStorage.getItem('last_entry')*1 ;
 			$('#sb_sequences').html ( '' ) ;
 			$.each ( gentle.sequences , function ( seqid , seq ) {
-				$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
+				if ( seq.typeName == 'designer' ) $('#sb_sequences').append ( '<option value="' + seqid + '">Designer : ' + seq.name + '</option>' ) ;
+				else if ( seq.typeName == 'dna' ) $('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
 			} ) ;
 			$('#sb_sequences').val(cse) ;
 		
@@ -397,7 +405,39 @@ var gentle = {
 	handleSelectSequenceEntry : function ( entry ) {
 		gentle.updateCurrentSequenceSettings () ;
 		$('#close_sequence').show() ;
+		
+		var sc = gentle.sequences[entry] ;
+		
+		if ( sc.typeName == 'designer' ) gentle.handleSelectSequenceEntryDesigner ( entry ) ;
+		else gentle.handleSelectSequenceEntryDNA ( entry ) ; // Default
+	} ,
+
+	handleSelectSequenceEntryDesigner : function ( entry ) {
 	
+		gentle.current_sequence_entry = entry ;
+		
+		var html = "<div id='canvas_wrapper'>" ;
+//		html += "<canvas id='sequence_canvas'></canvas>" ;
+//		html += "<div id='main_slider'></div>" ;
+		html += "</div>" ;
+		$('#main').html ( html ) ;
+//		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		
+//		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
+		
+		// Set up new top display
+		$('#top_zone').html('');
+		top_display = undefined ;
+
+//		top_display = new TopDisplayDNA ( true ) ;
+//		top_display.init() ;
+		
+		// Set up new sequence canvas
+		gentle.main_sequence_canvas = new SequenceCanvasDesigner ( gentle.sequences[entry] , 'sequence_canvas' ) ;
+		if ( $('#topbox').is(':visible') ) gentle.toggle_right_sidebar();
+	} ,
+		
+	handleSelectSequenceEntryDNA : function ( entry ) {
 		gentle.current_sequence_entry = entry ;
 		
 		var html = "<div id='canvas_wrapper'>" ;
@@ -502,6 +542,14 @@ var gentle = {
 	delete_selection : function () {
 		var sc = gentle.main_sequence_canvas ;
 		sc.deleteSelection();
+	} ,
+	
+	startDesigner : function () {
+		var entry = gentle.sequences.length ;
+		gentle.sequences[entry] = clone ( gentle.sequences[gentle.current_sequence_entry] ) ;
+		gentle.sequences[entry].typeName = 'designer' ;
+		$('#sb_sequences').append ( '<option value="' + entry + '">Designer : ' + gentle.sequences[entry].name + '</option>' ) ;
+		gentle.handleSelectSequenceEntry ( entry ) ;
 	} ,
 	
 	sequence_info : function () {
