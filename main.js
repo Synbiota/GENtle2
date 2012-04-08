@@ -417,6 +417,8 @@ var gentle = {
 		gentle.current_sequence_entry = entry ;
 		
 		var html = "<div id='canvas_wrapper'>" ;
+		
+		
 //		html += "<canvas id='sequence_canvas'></canvas>" ;
 //		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;

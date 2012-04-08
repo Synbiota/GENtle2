@@ -1,3 +1,138 @@
+/* Designer CSS */
+.designer_row_feature {
+	margin-right:5px;
+	display:inline-block;
+	margin:1px;
+	padding:1px;
+	font-size:9pt;
+	text-align:center;
+	padding-left:3px;
+	padding-right:3px;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	-moz-box-shadow: 3px 3px 2px #888;
+	-webkit-box-shadow: 3px 3px 2px #888;
+	box-shadow: 3px 3px 2px #888;
+}
+
+.designer_row_feature_dragable {
+	cursor:move;
+}
+
+.designer_row_feature_droppable {
+}
+
+.designer_row_feature_droppable_space {
+	display:inline-block;
+	margin:1px;
+	padding:1px;
+	margin-left:3px;
+	margin-right:3px;
+	border:1px solid #EEEEEE;
+	min-width:6px;
+	height:26px;
+}
+
+.designer_row_feature_droppable_active {
+	border:1px solid gold;
+}
+
+.designer_row_feature_droppable_active_hover {
+	background-color:gold;
+}
+
+.designer_row_feature_space {
+	display:inline-block;
+	margin-left:5px;
+	margin-right:5px;
+	color:#999999;
+}
+
+.designer_row_feature_cds {
+	height:34px;
+	background-color:#FF4848;
+	color:white;
+}
+
+.designer_row_feature_promoter {
+	height:34px;
+	background-color:black;
+	color:white;
+}
+
+.designer_row_feature_gene {
+	background-color:#2F74D0;
+	color:white;
+}
+
+.designer_row_feature_misc {
+	background-color:#DDDDDD;
+	color:black;
+}
+
+
+.designer_row_features_top {
+	margin:0px;
+	padding:0px;
+	height:13px;
+	border-bottom:1px solid #DDDDDD;
+}
+
+.designer_row_features_main {
+	margin:0px;
+	padding:0px;
+	height:40px;
+}
+
+.designer_row_features_bottom {
+	margin:0px;
+	padding:0px;
+	height:13px;
+	border-top:1px solid #DDDDDD;
+}
+
+.designer_row_header {
+	float:left;
+	margin-top:2px;
+	width:150px;
+	max-width:150px;
+	height:73px;
+	max-height:73px;
+	overflow:auto;
+	font-size:9pt;
+}
+
+.designer_row_features {
+    position:relative;
+    left:2px;
+    top:2px;
+    right:5px;
+    padding:2px;
+	overflow:auto;
+	margin-right:5px;
+	height:70px;
+	max-height:70px;
+	overflow-x:auto;
+	overflow-y:hidden;
+}
+
+.designer_row {
+	margin:0px;
+	padding:0px;
+	border-top:1px solid #999999;
+	color:black;
+	height:80px;
+	overflow:hidden;
+}
+
+.designer_row_primary {
+	border-top:none;
+	background-color:#EEEEEE;
+}
+
+
+/* */
+
 .container-fluid > .sidebar {
     position: absolute;
     top: 0;
