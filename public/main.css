@@ -1,6 +1,5 @@
 /* Designer CSS */
 .designer_row_feature {
-	margin-right:5px;
 	display:inline-block;
 	margin:1px;
 	padding:1px;
@@ -8,11 +7,9 @@
 	text-align:center;
 	padding-left:3px;
 	padding-right:3px;
+	border:1px solid #EEEEEE;
 	-moz-border-radius:5px;
 	border-radius:5px;
-	-moz-box-shadow: 3px 3px 2px #888;
-	-webkit-box-shadow: 3px 3px 2px #888;
-	box-shadow: 3px 3px 2px #888;
 }
 
 .designer_row_feature_dragable {
@@ -20,14 +17,13 @@
 }
 
 .designer_row_feature_droppable {
+	border:1px solid #EEEEEE;
 }
 
 .designer_row_feature_droppable_space {
 	display:inline-block;
 	margin:1px;
 	padding:1px;
-	margin-left:3px;
-	margin-right:3px;
 	border:1px solid #EEEEEE;
 	min-width:6px;
 	height:26px;
@@ -38,7 +34,7 @@
 }
 
 .designer_row_feature_droppable_active_hover {
-	background-color:gold;
+	background-color:gold !important;
 }
 
 .designer_row_feature_space {

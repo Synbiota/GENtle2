@@ -19,14 +19,15 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 		var o = {
 			start : v['_range'][0].from ,
 			stop : v['_range'][v['_range'].length-1].to ,
-			name : v['name'] || v['gene'] || v['product'] || "??" ,
+			name : v['name'] || v['gene'] || v['product'] ,
 			type : 'misc' ,
 			row : 'bottom'
 		} ;
-		o.name = o.name.replace(/^"/,'').replace(/"$/,'') ;
 		if ( v['_type'].match(/^promoter$/i) ) o.type = 'promoter' ;
 		else if ( v['_type'].match(/^gene$/i) ) o.type = 'gene' ;
 		else if ( v['_type'].match(/^CDS$/i) ) o.type = 'cds' ;
+		if ( undefined === o.name ) o.name = o.type ;
+		o.name = o.name.replace(/^"/,'').replace(/"$/,'') ;
 		if ( o.type == 'promoter' || o.type == 'cds' ) o.row = 'main' ;
 		else if ( o.type == 'gene' ) o.row = 'top' ;
 		me.list[o.row].push ( o ) ;
@@ -62,18 +63,20 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	h += "<div class='designer_row_features_main'>" ;
 	$.each ( me.list.main , function ( k , v ) {
 		if ( v.type == 'space' ) {
-			h += "<div class='designer_row_feature_space' title='Un-annotated region'>" ;
+			h += "<div class='designer_row_feature_space" ;
+			if ( is_primary ) h += " designer_row_feature_droppable" ;
+			h += "' title='Un-annotated region'>" ;
 			h += "<br/><i>acgt</i>" ;
 			h += "</div>" ;
 		} else {
-			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' before='" + v.start + "'></div>" ;
+			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + v.start + "'></div>" ;
 			h += "<div class='designer_row_feature " ;
 			if ( is_primary ) h += "designer_row_feature_droppable" ;
 			else h += "designer_row_feature_draggable" ;
 			h += " designer_row_feature_" + v.type + "' title='" + v.type + "'>" ;
 			h += v.name + "<br/>" + addCommas ( v.stop - v.start + 1 ) + "&nbsp;bp" ;
 			h += "</div>" ;
-			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' after='" + v.stop + "'></div>" ;
+			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + (v.stop+1) + "'></div>" ;
 		}
 	} ) ;
 	h += "</div>" ;
@@ -119,9 +122,8 @@ SequenceCanvasDesigner.prototype.init = function () {
 			var source = ui.draggable ;
 			var target = $(this) ;
 			if ( target.hasClass ( 'designer_row_feature_droppable_space' ) ) {
-				var before = target.attr('before') ;
-				var after = target.attr('after') ;
-				console.log ( before + " / " + after ) ;
+				var next_base = target.attr('nextbase') ;
+				console.log ( next_base ) ;
 			} else {
 			}
 		}
