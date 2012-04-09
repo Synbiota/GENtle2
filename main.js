@@ -413,26 +413,14 @@ var gentle = {
 	} ,
 
 	handleSelectSequenceEntryDesigner : function ( entry ) {
-	
 		gentle.current_sequence_entry = entry ;
-		
 		var html = "<div id='canvas_wrapper'>" ;
-		
-		
-//		html += "<canvas id='sequence_canvas'></canvas>" ;
-//		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
-//		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
-		
-//		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
-		
+
 		// Set up new top display
 		$('#top_zone').html('');
 		top_display = undefined ;
-
-//		top_display = new TopDisplayDNA ( true ) ;
-//		top_display.init() ;
 		
 		// Set up new sequence canvas
 		gentle.main_sequence_canvas = new SequenceCanvasDesigner ( gentle.sequences[entry] , 'sequence_canvas' ) ;
@@ -547,8 +535,19 @@ var gentle = {
 	} ,
 	
 	startDesigner : function () {
+		var use_existing ;
+		$.each ( gentle.sequences , function ( k , v ) {
+			if ( v.typeName == 'designer' ) use_existing = k ;
+		} ) ;
+		if ( undefined != use_existing ) {
+			gentle.handleSelectSequenceEntry ( use_existing ) ;
+			return ;
+		}
+		
+		// Start new designed
 		var entry = gentle.sequences.length ;
-		gentle.sequences[entry] = clone ( gentle.sequences[gentle.current_sequence_entry] ) ;
+		var seq = gentle.sequences[gentle.current_sequence_entry].clone() ;
+		gentle.sequences[entry] = seq ;
 		gentle.sequences[entry].typeName = 'designer' ;
 		$('#sb_sequences').append ( '<option value="' + entry + '">Designer : ' + gentle.sequences[entry].name + '</option>' ) ;
 		gentle.handleSelectSequenceEntry ( entry ) ;

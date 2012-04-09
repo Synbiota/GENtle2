@@ -12,7 +12,7 @@
 	border-radius:5px;
 }
 
-.designer_row_feature_dragable {
+.designer_row_feature_draggable {
 	cursor:move;
 }
 
@@ -21,12 +21,19 @@
 }
 
 .designer_row_feature_droppable_space {
-	display:inline-block;
+	display:none;
 	margin:1px;
 	padding:1px;
+	font-size:9pt;
+	text-align:center;
+	padding-left:3px;
+	padding-right:3px;
 	border:1px solid #EEEEEE;
-	min-width:6px;
-	height:26px;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	height:34px;
+	color:white;
+	cursor:default;
 }
 
 .designer_row_feature_droppable_active {
@@ -39,9 +46,19 @@
 
 .designer_row_feature_space {
 	display:inline-block;
-	margin-left:5px;
-	margin-right:5px;
-	color:#999999;
+	margin:1px;
+	padding:1px;
+	font-size:9pt;
+	text-align:center;
+	padding-left:3px;
+	padding-right:3px;
+	border:1px solid #EEEEEE;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	background-color:#6094DB;
+	height:34px;
+	color:white;
+	cursor:default;
 }
 
 .designer_row_feature_cds {
@@ -127,7 +144,7 @@
 }
 
 
-/* */
+/* Other */
 
 .container-fluid > .sidebar {
     position: absolute;
@@ -395,8 +412,9 @@ label {
 	background:white;
 	z-index:99;
 	padding:2px;
-	opacity:0.8;
-	filter:alpha(opacity=80); /* For IE8 and earlier */
+	font-size:8pt;
+	opacity:0.5;
+	filter:alpha(opacity=50); /* For IE8 and earlier */
 }
 
 

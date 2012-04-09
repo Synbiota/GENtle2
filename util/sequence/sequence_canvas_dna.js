@@ -160,7 +160,7 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
 	if ( target === null ) {
-		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
+		if ( !sc.position_is_blank ) gentle.set_hover ( this.getHoverName() ) ;
 		sc.position_is_blank = true ;
 		return ;
 	}
@@ -691,6 +691,10 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	$('#re_manual').keyup(this.update_display) ;
 }
 
+SequenceCanvasDNA.prototype.getHoverName = function () {
+	return ( this.sequence.name || '' ) ;
+}
+
 
 function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
@@ -723,7 +727,6 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
-
 	this.canvas_id = 'sequence_canvas' ;
 	this.sequence = the_sequence ;
 	this.yoff = 0 ;
@@ -735,4 +738,5 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 		this.update_display() ;
 	}
 	
+	gentle.set_hover ( this.getHoverName() ) ;
 }
