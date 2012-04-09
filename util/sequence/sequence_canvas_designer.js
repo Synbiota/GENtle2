@@ -68,7 +68,9 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	
 	h += "<div class='designer_row_features_main'>" ;
 	$.each ( me.list.main , function ( k , v ) {
-		var len = addCommas ( v.stop - v.start + 1 ) + "&nbsp;bp" ;
+		var len = v.stop - v.start + 1 ;
+		if ( len <= 0 ) return ;
+		len = addCommas ( len ) + "&nbsp;bp" ;
 		if ( v.type == 'space' ) {
 			h += "<div class='designer_row_feature_space" ;
 			if ( is_primary ) h += " designer_row_feature_droppable" ;
