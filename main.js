@@ -463,6 +463,7 @@ var gentle = {
 	} ,
 	
 	handleFileDrop : function (evt) {
+		gentle.dragEntered = 0 ;
 		evt.originalEvent.stopPropagation();
 		evt.originalEvent.preventDefault();
 		$.each ( evt.originalEvent.dataTransfer.files , function ( k , f ) { gentle.addLocalFile ( f ) } ) ;
