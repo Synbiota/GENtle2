@@ -103,15 +103,8 @@ FT_plaintext.prototype.parseFile = function () {
 	var name = 'Unnamed sequence' ;
 	if ( this.file !== undefined ) name = ucFirst ( this.file.name ) ;
 	var v = new SequenceDNA ( name , seqtext ) ;
-	var seqid = gentle.sequences.length ;
+	var seqid = gentle.addSequence ( v , true ) ;
 	ret.push ( seqid ) ;
-	gentle.sequences.push ( v ) ;
-	$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
-//	$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
-	if ( gentle.sequences.length >= 1 ) {
-		$('#sb_sequences').val(seqid) ;
-		gentle.handleSelectSequenceEntry ( seqid ) ;
-	}
 	return ret ;
 }
 
@@ -162,15 +155,8 @@ FT_fasta.prototype.parseFile = function () {
 	if ( seq != '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
 	
 	$.each ( tempseq , function ( k , v ) {
-		var seqid = gentle.sequences.length ;
+		var seqid = gentle.addSequence ( v , true ) ;
 		ret.push ( seqid ) ;
-		gentle.sequences.push ( v ) ;
-		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
-//		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
-		if ( gentle.sequences.length >= 1 ) {
-			$('#sb_sequences').val(seqid) ;
-			gentle.handleSelectSequenceEntry ( seqid ) ;
-		}
 	} ) ;
 	return ret ;
 }
@@ -312,13 +298,8 @@ FT_genebank.prototype.parseFile = function () {
 	
 //	console.log ( JSON.stringify ( seq.features ) ) ;
 	
-	var seqid = gentle.sequences.length ;
+	var seqid = gentle.addSequence ( seq , true ) ;
 	ret.push ( seqid ) ;
-	gentle.sequences.push ( seq ) ;
-	$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
-//	$('#sb_log').append ( '<p>Loaded ' + seq.seq.length + ' bp :<br/>' + seq.name + '</p>' ) ;
-	$('#sb_sequences').val(seqid) ;
-	gentle.handleSelectSequenceEntry ( seqid ) ;
 	return ret ;
 }
 
@@ -463,15 +444,8 @@ FT_sybil.prototype.parseFile = function () {
 	
 	
 	$.each ( tempseq , function ( k , v ) {
-		var seqid = gentle.sequences.length ;
+		var seqid = gentle.addSequence ( seq , true ) ;
 		ret.push ( seqid ) ;
-		gentle.sequences.push ( v ) ;
-		$('#sb_sequences').append ( '<option value="' + seqid + '">' + v.name + '</option>' ) ;
-//		$('#sb_log').append ( '<p>Loaded ' + v.seq.length + ' bp :<br/>' + v.name + '</p>' ) ;
-		if ( gentle.sequences.length >= 1 ) {
-			$('#sb_sequences').val(seqid) ;
-			gentle.handleSelectSequenceEntry ( seqid ) ;
-		}
 	} ) ;
 
 	return ret ;

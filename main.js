@@ -44,7 +44,7 @@ var gentle = {
 		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
 		gentle.plugins = plugins ;
 		loadBaseData() ;
-		
+		gentle.updateSequenceList() ;
 	
 		if (window.File && window.FileReader && window.FileList && window.Blob) {
 		} else if ( gentle.is_mobile ) {
@@ -73,7 +73,6 @@ var gentle = {
 		$('#drop_zone') .bind('dragover',function(evt){gentle.markDropArea(evt,true)})
 						.bind('dragleave',function(evt){gentle.markDropArea(evt,false)})
 						.bind('drop',gentle.handleFileDrop) ;
-		$('#sb_sequences').change ( function() { gentle.handleSelectSequenceEntry ( $("#sb_sequences").val() ) } ) ;
 		
 		gentle.loadLocally() ;
 		plugins.loadPlugins() ;
@@ -134,16 +133,8 @@ var gentle = {
 		gentle.current_sequence_entry === undefined ;
 
 		if ( gentle.sequences.length > 0 ) {
-			
-			var cse = localStorage.getItem('last_entry')*1 ;
-			$('#sb_sequences').html ( '' ) ;
-			$.each ( gentle.sequences , function ( seqid , seq ) {
-				if ( seq.typeName == 'designer' ) $('#sb_sequences').append ( '<option value="' + seqid + '">Designer : ' + seq.name + '</option>' ) ;
-				else if ( seq.typeName == 'dna' ) $('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
-			} ) ;
-			$('#sb_sequences').val(cse) ;
-		
-			gentle.handleSelectSequenceEntry ( cse ) ;
+			gentle.updateSequenceList() ;
+			gentle.showSequence ( localStorage.getItem('last_entry') ) ;
 		}
 		
 		gentle.loadLocalPlugins() ;
@@ -361,17 +352,17 @@ var gentle = {
 
 
 	closeCurrentSequence : function () {
-		if ( gentle.current_sequence_entry === undefined ) return ;
-		var entry = gentle.current_sequence_entry ;
+		gentle.closeSequence ( gentle.current_sequence_entry ) ;
+	} ,
+	
+	closeSequence : function ( entry ) {
+		if ( entry === undefined ) return ;
 		
 		gentle.sequences.splice ( entry , 1 ) ;
-		$('#sb_sequences').html ( '' ) ;
-		$.each ( gentle.sequences , function ( seqid , seq ) {
-			$('#sb_sequences').append ( '<option value="' + seqid + '">' + seq.name + '</option>' ) ;
-		} ) ;
+		gentle.updateSequenceList() ;
 		
-		gentle.current_sequence_entry = undefined ;
 		if ( gentle.sequences.length == 0 ) {
+			gentle.current_sequence_entry = undefined ;
 			gentle.clearLocalStorage () ;
 			$('#close_sequence').hide() ;
 			$('#topbox').html ( '' ) ;
@@ -384,9 +375,10 @@ var gentle = {
 			return ;
 		}
 		
-		if ( entry >= gentle.sequences.length ) entry = gentle.sequences.length-1 ;
-		$('#sb_sequences').val(entry) ;
-		gentle.handleSelectSequenceEntry ( entry ) ;
+		if ( entry == gentle.current_sequence_entry ) gentle.current_sequence_entry = gentle.current_sequence_entry - 1 ;
+		else if ( entry < gentle.current_sequence_entry ) gentle.current_sequence_entry-- ;
+		if ( gentle.current_sequence_entry < 0 ) gentle.current_sequence_entry = 0 ;
+		gentle.showSequence ( gentle.current_sequence_entry ) ;
 	} ,
 	
 	clearLocalStorage : function () {
@@ -510,7 +502,7 @@ var gentle = {
 		if ( $('#sb_sequences_container').is(':visible') ) {
 			$('#sb_sequences_container').dialog ( 'close' ) ;
 		} else {
-			$('#sb_sequences_container').dialog ( { modal : false } ) ;
+			$('#sb_sequences_container').dialog ( { modal:false , width:'auto' , maxWidth:1200 , height:'auto' } ) ;
 		}
 	} ,
 	
@@ -547,11 +539,60 @@ var gentle = {
 		// Start new designed
 		var entry = gentle.sequences.length ;
 		var seq = gentle.sequences[gentle.current_sequence_entry].clone() ;
-		gentle.sequences[entry] = seq ;
-		gentle.sequences[entry].typeName = 'designer' ;
-		$('#sb_sequences').append ( '<option value="' + entry + '">Designer : ' + gentle.sequences[entry].name + '</option>' ) ;
-		gentle.handleSelectSequenceEntry ( entry ) ;
+		seq.typeName = 'designer' ;
+		gentle.addSequence ( seq , true ) ;
 	} ,
+	
+	
+	
+	addSequence : function ( sequence , show ) {
+		var seqid = gentle.sequences.length ;
+		gentle.sequences.push ( sequence ) ;
+		gentle.updateSequenceList () ;
+		if ( show ) gentle.showSequence ( seqid ) ;
+		return seqid ;
+	} ,
+	
+	showSequence : function ( seqid ) {
+		seqid = parseInt ( seqid ) ; // Paranoia
+		gentle.handleSelectSequenceEntry ( seqid ) ;
+		$('.loaded_sequence_select_icon').hide() ;
+		$('#loaded_sequence_select_icon'+seqid).show() ;
+	} ,
+
+	updateSequenceList : function () {
+		var h = "<table class='table table-condensed'>" ;
+		h += "<thead><tr><th>&nbsp;</th><th>Type</th><th>Sequence</th><th>Action</th></tr></thead><tbody>" ;
+		$.each ( gentle.sequences , function ( seqid , seq ) {
+			var show_title = seq.name ;
+			var show_type = seq.typeName ;
+			if ( show_type == 'dna' ) show_type = show_type.toUpperCase() ;
+			else show_type = ucFirst ( show_type ) ;
+			h += "<tr><td>" ;
+			h += "<i class='icon-chevron-right loaded_sequence_select_icon' id='loaded_sequence_select_icon" + seqid + "'></i>" ;
+			h += "</td><td>" ;
+			h += show_type ;
+			h += "</td><td>" ;
+			h += "<a href='#' onclick='gentle.showSequence(" + seqid + ");return false'>" + show_title + "</a>" ;
+			h += "</td><td>" ;
+			h += "<button class='btn btn-danger' onclick='gentle.closeSequence(" + seqid + ")'>Delete</button>" ;
+			h += "</td></tr>" ;
+		} ) ;
+		h += "</tbody></table>" ;
+
+		if ( gentle.sequences.length == 0 ) {
+			h = "<i>No sequences loaded</i>" ;
+		}
+
+		$('#sb_sequences_table_container').html ( h ) ;
+		$('.loaded_sequence_select_icon').hide() ;
+		if ( undefined !== gentle.current_sequence_entry && gentle.current_sequence_entry < gentle.sequences.length ) {
+			$('#loaded_sequence_select_icon'+gentle.current_sequence_entry).show() ;
+		}
+		$( "sb_sequences_container" ).dialog( "option", "position", 'center' );
+	} ,
+	
+	
 	
 	sequence_info : function () {
 		var sc = gentle.main_sequence_canvas ;

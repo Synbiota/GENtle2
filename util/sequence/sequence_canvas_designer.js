@@ -129,13 +129,10 @@ SequenceCanvasDesigner.prototype.init = function () {
 	$.each ( gentle.sequences , function ( k , v ) {
 		$('#designer_sequence_link'+k).click ( function () {
 			if ( v == me.sequence ) {
-				var entry = gentle.sequences.length ;
 				var seq = gentle.sequences[k].clone() ;
 				seq.typeName = 'dna' ;
 				seq.name += " (designed)" ;
-				gentle.sequences[entry] = seq ;
-				$('#sb_sequences').append ( '<option value="' + entry + '">' + gentle.sequences[entry].name + '</option>' ) ;
-				gentle.handleSelectSequenceEntry ( entry ) ;
+				gentle.addSequence ( seq , true ) ;
 			} else {
 				gentle.handleSelectSequenceEntry ( k ) ;
 			}

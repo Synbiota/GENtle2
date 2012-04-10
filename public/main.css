@@ -418,7 +418,10 @@ label {
 }
 
 
-
+#sb_sequences_table_container {
+	max-height:500px;
+	overflow:auto;
+}
 
 
 /* The cut/copy operation textarea */
