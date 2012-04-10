@@ -350,6 +350,11 @@ var gentle = {
 		}
 	} ,
 
+	closeAllSequences : function () {
+		while ( gentle.sequences.length > 0 ) {
+			gentle.closeSequence ( 0 ) ;
+		}
+	} ,
 
 	closeCurrentSequence : function () {
 		gentle.closeSequence ( gentle.current_sequence_entry ) ;
@@ -543,7 +548,7 @@ var gentle = {
 		gentle.addSequence ( seq , true ) ;
 	} ,
 	
-	
+	/* BEGIN Loaded sequences dialog functions */
 	
 	addSequence : function ( sequence , show ) {
 		var seqid = gentle.sequences.length ;
@@ -579,6 +584,7 @@ var gentle = {
 			h += "</td></tr>" ;
 		} ) ;
 		h += "</tbody></table>" ;
+		h += "<hr/><div style='text-align:right'><button class='btn btn-danger' onclick='gentle.closeAllSequences()'>Delete all</button></div>" ;
 
 		if ( gentle.sequences.length == 0 ) {
 			h = "<i>No sequences loaded</i>" ;
@@ -591,6 +597,8 @@ var gentle = {
 		}
 		$( "sb_sequences_container" ).dialog( "option", "position", 'center' );
 	} ,
+
+	/* END Loaded sequences dialog functions */
 	
 	
 	
