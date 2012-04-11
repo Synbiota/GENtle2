@@ -444,7 +444,7 @@ FT_sybil.prototype.parseFile = function () {
 	
 	
 	$.each ( tempseq , function ( k , v ) {
-		var seqid = gentle.addSequence ( seq , true ) ;
+		var seqid = gentle.addSequence ( v , true ) ;
 		ret.push ( seqid ) ;
 	} ) ;
 

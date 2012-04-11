@@ -574,12 +574,12 @@ var gentle = {
 			var show_type = seq.typeName ;
 			if ( show_type == 'dna' ) show_type = show_type.toUpperCase() ;
 			else show_type = ucFirst ( show_type ) ;
-			h += "<tr><td>" ;
+			h += "<tr onclick='gentle.showSequence(" + seqid + ");return false' style='cursor:pointer'><td>" ;
 			h += "<i class='icon-chevron-right loaded_sequence_select_icon' id='loaded_sequence_select_icon" + seqid + "'></i>" ;
 			h += "</td><td>" ;
 			h += show_type ;
 			h += "</td><td>" ;
-			h += "<a href='#' onclick='gentle.showSequence(" + seqid + ");return false'>" + show_title + "</a>" ;
+			h += show_title ;
 			h += "</td><td>" ;
 			h += "<button class='btn btn-danger' onclick='gentle.closeSequence(" + seqid + ")'>Delete</button>" ;
 			h += "</td></tr>" ;
