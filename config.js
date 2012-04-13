@@ -10,6 +10,10 @@ var gentle_config = {
 	deactivated_plugins : [
 	] ,
 	
+	colors : {
+		numbering : '#6094DB'
+	} ,
+	
 	proxy : './data/proxy.php'
 	
 } ;

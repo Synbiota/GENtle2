@@ -100,9 +100,12 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 		}
 
 		if ( x == this.sc.xoff && y > miny && me.is_primary ) {
+			var ofs = ctx.fillStyle ;
+			ctx.fillStyle = gentle_config.colors.numbering ;
 		    ctx.textAlign = "right";
 			ctx.fillText ( (p+1) , this.sc.xoff-this.sc.cw , y ) ;
 		    ctx.textAlign = "left";
+		    ctx.fillStyle = ofs ;
 		}
 		
 		if ( y > miny ) {
@@ -175,7 +178,7 @@ SequenceCanvasRowPosition.prototype.show = function ( ctx ) {
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
 	
-    ctx.fillStyle = "black";
+    ctx.fillStyle = gentle_config.colors.numbering ;
     ctx.font="9pt Courier";
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
