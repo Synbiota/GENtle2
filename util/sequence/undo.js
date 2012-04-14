@@ -18,10 +18,10 @@ function SequenceUndoElement ( event_name , data ) {
 //________________________________________________________________________________________
 // Undo/redo class
 function SequenceUndo ( seq ) {
-	this.setSequence ( seq ) ;
 	this.elements = [] ;
 	this.undo_position = 0 ;
 	this.prevent_recording = false ;
+	this.setSequence ( seq ) ;
 }
 
 SequenceUndo.prototype.setSequence = function ( seq ) {
@@ -88,8 +88,9 @@ SequenceUndo.prototype.doUndo = function ( sc ) {
 			me.sequence.remove ( d.base , d.seq.length , true ) ;
 		} else if ( d.action == 'alterFeatureSize' ) {
 //			console.log ( d.id + " : " + me.sequence.features[d.id].from+"-"+me.sequence.features[d.id].to + " => " + d.before[0]+"-"+d.before[1] ) ;
-			me.sequence.features[d.id].from = d.before[0] ;
-			me.sequence.features[d.id].to = d.before[1] ;
+//			console.log ( d.id + "/" + d.range_id + " : " + me.sequence.features[d.id].to + " => " + d.before[0]+"-"+d.before[1] ) ;
+			me.sequence.features[d.id]['_range'][d.range_id].from = d.before[0] ;
+			me.sequence.features[d.id]['_range'][d.range_id].to = d.before[1] ;
 		} else {
 			console.log ( "UNKNOWN UNDO ACTION : " + d.action + " WITH THIS DATA:" ) ;
 			console.log ( d ) ;

@@ -157,8 +157,13 @@ var gentle = {
 			gentle.clearLocalStorage () ;
 			return ;
 		}
+		
+		var tmp = [] ;
+		$.each ( gentle.sequences , function ( k , v ) {
+			tmp[k] = v.getStorageObject() ;
+		} ) ;
 
-		var s = JSON.stringify ( gentle.sequences ) ;
+		var s = JSON.stringify ( tmp ) ; // gentle.sequences
 		try {
 			localStorage.setItem ( 'sequences' , s ) ;
 		}  catch (e) {

@@ -23,6 +23,18 @@ Sequence.prototype.seedFrom = function ( seq_obj ) {
 	} ) ;
 }
 
+Sequence.prototype.getStorageObject = function () {
+	var me = this ;
+	var keys = clone ( me.data_keys ) ;
+	keys.push ( 'name' ) ;
+	keys.push ( 'seq' ) ;
+	var ret = {} ;
+	$.each ( keys , function ( dummy , key ) {
+		ret[key] = clone ( me[key] ) ;
+	} ) ;
+	return ret ;
+}
+
 
 
 //________________________________________________________________________________________
@@ -42,7 +54,7 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 			if ( v.from >= base ) v.from -= len ;
 			if ( v.to+1 >= base ) v.to -= len ;
 			if ( v.from != ov.from || v.to != ov.to ) {
-				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : k } ) ;
+				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : fid , range_id : k } ) ;
 			}
 			// TODO : Remove element if non-existant
 		} ) ;
