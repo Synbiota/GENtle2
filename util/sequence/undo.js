@@ -4,7 +4,12 @@ function SequenceUndoElement ( action , data ) {
 	this.action = action ;
 	this.editing = data.editing || false ; // Boolean for grouping typed text into single element
 	this.label = data.label || 'last action' ; // Generic fallback description
-	if ( undefined !== gentle.main_sequence_canvas ) data.selections = clone ( gentle.main_sequence_canvas.selections ) ;
+	
+	var sc = gentle.main_sequence_canvas ;
+	if ( undefined !== sc ) {
+		data.selections = clone ( sc.selections ) ;
+		data.edit = { editing : sc.edit.editing , base : sc.edit.base } ;
+	}
 	this.data = [ data ] ;
 }
 
@@ -86,7 +91,8 @@ SequenceUndo.prototype.doUndo = function ( sc ) {
 			console.log ( "UNKNOWN UNDO ACTION : " + d.action + " WITH THIS DATA:" ) ;
 			console.log ( d ) ;
 		}
-		sc.selections = clone ( d.selections ) ; // This doesn't work for some reason
+		sc.selections = clone ( d.selections ) ;
+		sc.edit = clone ( d.edit ) ;
 	}
 	sc.recalc() ;
 	sc.show() ;

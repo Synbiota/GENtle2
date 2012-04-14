@@ -214,6 +214,10 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.edit.base++ ;
 		sc.recalc() ;
 		top_display.init() ;
+	} else if ( code == 90 && e.metaKey ) { // Undo
+		e.preventDefault();
+		gentle.doUndo();
+		return ;
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();
