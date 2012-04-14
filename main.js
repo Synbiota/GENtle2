@@ -93,13 +93,12 @@ var gentle = {
 	} ,
 	
 	showDefaultBlurb : function () {
-
-                $("#main").load('public/templates/default_main.html', function(){
-		  $('#main_blurb').css ( { 'left' : $('#main').width()/4 } ) ;
-		  $('#main_blurb').width ( $('#main').width()/2 ) ;
-		  $('#main_blurb').height ( $('#main').height() ) ;
-		  $('#main_blurb').css ( { 'max-height' : $('#main').height() } ) ;
-                });
+		$("#main").load('public/templates/default_main.html', function(){
+			$('#main_blurb').css ( { 'left' : $('#main').width()/4 } ) ;
+			$('#main_blurb').width ( $('#main').width()/2 ) ;
+			$('#main_blurb').height ( $('#main').height() ) ;
+			$('#main_blurb').css ( { 'max-height' : $('#main').height() } ) ;
+		});
 	} ,
 	
 	loadLocally : function () {
@@ -107,7 +106,7 @@ var gentle = {
 			gentle.loadLocalPlugins() ;
 			return ;
 		}
-	
+
 		// We cannot just assign the stored item, because of missing class methods
 		// Each sequence object needs to be reconstructed individually
 		var tmpseq = JSON.parse ( localStorage.getItem('sequences') ) ;
@@ -115,15 +114,11 @@ var gentle = {
 		$.each ( tmpseq , function ( k , v ) {
 			if ( v.typeName == 'dna' ) {
 				var seq = new SequenceDNA () ;
-				$.each ( v , function ( k2 , v2 ) {
-					seq[k2] = v2 ;
-				} ) ;
+				seq.seedFrom ( v ) ;
 				gentle.sequences[k] = seq ;
 			} else if ( v.typeName == 'designer' ) {
 				var seq = new SequenceDNA () ;
-				$.each ( v , function ( k2 , v2 ) {
-					seq[k2] = v2 ;
-				} ) ;
+				seq.seedFrom ( v ) ;
 				seq.typeName = 'designer' ;
 				gentle.sequences[k] = seq ;
 			} else {

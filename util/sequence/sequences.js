@@ -1,6 +1,7 @@
 //________________________________________________________________________________________
 // Sequence base class
 function Sequence ( name , seq ) {
+	this.data_keys = ['typeName','features'] ;
 	this.seq = seq ;
 	this.typeName = 'none' ;
 	this.name = 'Unnamed' ;
@@ -11,6 +12,16 @@ function Sequence ( name , seq ) {
 Sequence.prototype.insert = function ( base , text , skip_feature_adjustment ) {}
 Sequence.prototype.remove = function ( base , len , skip_feature_adjustment ) {}
 Sequence.prototype.clone = function () {}
+
+Sequence.prototype.seedFrom = function ( seq_obj ) {
+	var me = this ;
+	var keys = clone ( me.data_keys ) ;
+	keys.push ( 'name' ) ;
+	keys.push ( 'seq' ) ;
+	$.each ( keys , function ( dummy , key ) {
+		me[key] = clone ( seq_obj[key] ) ;
+	} ) ;
+}
 
 
 
@@ -100,7 +111,7 @@ SequenceDNA.prototype.clone = function () {
 	var me = this ;
 	var ret = new SequenceDNA ( me.name , me.seq ) ;
 	
-	$.each ( ['desc','typeName','features'] , function ( k , v ) {
+	$.each ( me.data_keys , function ( k , v ) {
 		if ( undefined === me[v] ) return ;
 		ret[v] = clone(me[v]) ;
 	} ) ;
@@ -111,6 +122,7 @@ SequenceDNA.prototype.clone = function () {
 
 
 function SequenceDNA ( name , seq ) {
+	this.data_keys = ['desc','typeName','features','is_circular'] ;
 	this.seq = seq ;
 	this.name = name ;
 	this.typeName = 'dna' ;

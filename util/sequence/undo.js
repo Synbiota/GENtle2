@@ -1,7 +1,7 @@
 //________________________________________________________________________________________
 // Undo element class
-function SequenceUndoElement ( action , data ) {
-	this.action = action ;
+function SequenceUndoElement ( event_name , data ) {
+	this.event_name = event_name ;
 	this.editing = data.editing || false ; // Boolean for grouping typed text into single element
 	this.label = data.label || 'last action' ; // Generic fallback description
 	
@@ -10,6 +10,7 @@ function SequenceUndoElement ( action , data ) {
 		data.selections = clone ( sc.selections ) ;
 		data.edit = { editing : sc.edit.editing , base : sc.edit.base } ;
 	}
+	
 	this.data = [ data ] ;
 }
 
@@ -27,18 +28,18 @@ SequenceUndo.prototype.setSequence = function ( seq ) {
 	this.sequence = seq ;
 }
 
-SequenceUndo.prototype.addAction = function ( action , data ) {
+SequenceUndo.prototype.addAction = function ( event_name , data ) {
 	var me = this ;
 	if ( me.prevent_recording ) return ; // Currently un-/redoing something, don't record
 //	console.log ( "Adding : " + action ) ;
 //	console.log ( data ) ;
 	
-	if ( data.editing && me.elements.length > 0 && me.elements[me.elements.length-1].editing && action == me.elements[me.elements.length-1].action ) {
+	if ( data.editing && me.elements.length > 0 && me.elements[me.elements.length-1].editing && event_name == me.elements[me.elements.length-1].event_name ) {
 //		console.log ( "Grouping edit data" ) ;
 		me.elements[me.elements.length-1].data.push ( data ) ; // Group editing elements together
 	} else {
 		this.cancelEditing() ; // Paranoia
-		me.elements.push ( new SequenceUndoElement ( action , data ) ) ;
+		me.elements.push ( new SequenceUndoElement ( event_name , data ) ) ;
 	}
 	
 	me.undo_position = me.elements.length ;
@@ -80,19 +81,21 @@ SequenceUndo.prototype.doUndo = function ( sc ) {
 	me.undo_position-- ;
 	for ( var i = e.data.length-1 ; i >= 0 ; i-- ) {
 		var d = e.data[i] ;
+//		console.log ( d ) ;
 		if ( d.action == 'removeText' ) {
 			me.sequence.insert ( d.base , d.seq , true ) ;
 		} else if ( d.action == 'insertText' ) {
 			me.sequence.remove ( d.base , d.seq.length , true ) ;
 		} else if ( d.action == 'alterFeatureSize' ) {
-			me.sequence.features[d.id].from = d.before.from ;
-			me.sequence.features[d.id].to = d.before.to ;
+//			console.log ( d.id + " : " + me.sequence.features[d.id].from+"-"+me.sequence.features[d.id].to + " => " + d.before[0]+"-"+d.before[1] ) ;
+			me.sequence.features[d.id].from = d.before[0] ;
+			me.sequence.features[d.id].to = d.before[1] ;
 		} else {
 			console.log ( "UNKNOWN UNDO ACTION : " + d.action + " WITH THIS DATA:" ) ;
 			console.log ( d ) ;
 		}
-		sc.selections = clone ( d.selections ) ;
-		sc.edit = clone ( d.edit ) ;
+		sc.selections = clone ( d.selections ) || sc.selections ;
+		sc.edit = clone ( d.edit ) || sc.edit ;
 	}
 	sc.recalc() ;
 	sc.show() ;
