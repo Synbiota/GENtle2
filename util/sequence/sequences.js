@@ -5,6 +5,7 @@ function Sequence ( name , seq ) {
 	this.typeName = 'none' ;
 	this.name = 'Unnamed' ;
 	this.features = new Array() ;
+	this.undo = new SequenceUndo ( this ) ;
 }
 
 Sequence.prototype.insert = function ( base , text ) {}
@@ -19,29 +20,37 @@ SequenceDNA.prototype = new Sequence() ;
 SequenceDNA.prototype.constructor = SequenceDNA ;
 
 SequenceDNA.prototype.remove = function ( base , len ) {
-	// TODO : Undo log
 	var me = this ;
+	me.undo.addAction ( 'editRemove' , { editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
 	me.seq = me.seq.substr ( 0 , base ) + me.seq.substr ( base + len , me.seq.length - base - len ) ;
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
 		$.each ( f['_range'] , function ( k , v ) {
+			var ov = v ;
 			if ( v.from >= base ) v.from -= len ;
 			if ( v.to+1 >= base ) v.to -= len ;
+			if ( v.from != ov.from || v.to != ov.to ) {
+				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : k } ) ;
+			}
 			// TODO : Remove element if non-existant
 		} ) ;
 	} ) ;
 }
 
 SequenceDNA.prototype.insert = function ( base , text ) {
-	// TODO : Undo log
 	var me = this ;
+	me.undo.addAction ( 'editInsert' , { editing : true , action : 'insertText' , base : base , seq : text } ) ;
 	var l = text.length ;
 	me.seq = me.seq.substr ( 0 , base ) + text + me.seq.substr ( base , me.seq.length - base ) ;
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
 		$.each ( f['_range'] , function ( k , v ) {
+			var ov = v ;
 			if ( v.from >= base ) v.from += l ;
 			if ( v.to >= base ) v.to += l ;
+			if ( v.from != ov.from || v.to != ov.to ) {
+				me.undo.addAction ( 'editInsert' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : k } ) ;
+			}
 		} ) ;
 	} ) ;
 }
@@ -63,6 +72,7 @@ SequenceDNA.prototype.asNewSequenceDNA = function ( start , stop ) {
 		} ) ;
 		ret.features.push ( o ) ;
 	} ) ;
+	ret.setSequence ( ret ) ;
 	return ret ;
 }
 
@@ -91,7 +101,7 @@ SequenceDNA.prototype.clone = function () {
 		if ( undefined === me[v] ) return ;
 		ret[v] = clone(me[v]) ;
 	} ) ;
-	
+	// TODO : clone undo? Or not?
 	
 	return ret ;
 }
@@ -103,6 +113,7 @@ function SequenceDNA ( name , seq ) {
 	this.typeName = 'dna' ;
 	this.features = new Array() ;
 	this.edit_allowed = [] ;
+	this.undo = new SequenceUndo ( this ) ;
 	var me = this ;
 	$.each ( cd.bases2iupac , function ( k , v ) {
 		me.edit_allowed.push ( v ) ;

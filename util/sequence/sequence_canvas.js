@@ -178,17 +178,24 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	if ( !sc.edit.editing ) { // Keys for view mode
 		if ( code == 36 ) { // Start
 			sc.ensureBaseIsVisible ( 0 ) ;
+			sc.sequence.undo.cancelEditing() ;
 		} else if ( code == 35 ) { // End
 			sc.ensureBaseIsVisible ( sc.sequence.seq.length-1 ) ;
+			sc.sequence.undo.cancelEditing() ;
 		} else if ( code == 33 ) { // Page up
 			sc.ensureBaseIsVisible ( sc.start_base - bpp ) ;
+			sc.sequence.undo.cancelEditing() ;
 		} else if ( code == 34 ) { // Page down
 			sc.ensureBaseIsVisible ( sc.end_base + bpp ) ;
+			sc.sequence.undo.cancelEditing() ;
 		} else if ( code == 38 ) { // Cursor up
 			sc.ensureBaseIsVisible ( sc.start_base - sc.bases_per_row ) ;
+			sc.sequence.undo.cancelEditing() ;
 		} else if ( code == 40 ) { // Cursor down
 			sc.ensureBaseIsVisible ( sc.end_base + sc.bases_per_row ) ;
+			sc.sequence.undo.cancelEditing() ;
 		} else if ( code == 8 || code == 46 ) { // Backspace or delete
+			sc.sequence.undo.cancelEditing() ;
 			e.preventDefault();
 			e.stopPropagation();
 			sc.deleteSelection();
@@ -223,11 +230,13 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.recalc() ;
 		top_display.init() ;
 	} else if ( code == 27 ) { // Escape
+		sc.sequence.undo.cancelEditing() ;
 		sc.setEditMode ( false ) ;
 		sc.show() ;
 		e.preventDefault();
 		return ;
 	} else if ( code == 33 ) { // Page up
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base < bpp ) {
 			if ( sc.edit.base == 0 ) return ;
 			sc.edit.base = 0 ;
@@ -235,6 +244,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			sc.edit.base -= bpp ;
 		}
 	} else if ( code == 34 ) { // Page down
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base + bpp >= sc.sequence.seq.length ) {
 			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
 			sc.edit.base = sc.sequence.seq.length-1 ;
@@ -242,15 +252,19 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			sc.edit.base += bpp ;
 		}
 	} else if ( code == 36 ) { // Start
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base == 0 ) return ;
 		sc.edit.base = 0 ;
 	} else if ( code == 35 ) { // End
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
 		sc.edit.base = sc.sequence.seq.length-1 ;
 	} else if ( code == 37 ) { // Cursor left
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base == 0 ) return ;
 		sc.edit.base-- ;
 	} else if ( code == 38 ) { // Cursor up
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base < sc.bases_per_row ) {
 			if ( sc.edit.base == 0 ) return ;
 			sc.edit.base = 0 ;
@@ -258,9 +272,11 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			sc.edit.base -= sc.bases_per_row ;
 		}
 	} else if ( code == 39 ) { // Cursor right
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base > sc.sequence.seq.length ) return ;
 		sc.edit.base++ ;
 	} else if ( code == 40 ) { // Cursor down
+		sc.sequence.undo.cancelEditing() ;
 		if ( sc.edit.base + sc.bases_per_row >= sc.sequence.seq.length ) {
 			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
 			sc.edit.base = sc.sequence.seq.length-1 ;
@@ -276,6 +292,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 
 SequenceCanvas.prototype.setEditMode = function ( state ) {
 	var sc = gentle.main_sequence_canvas ;
+	sc.sequence.undo.cancelEditing() ;
 	sc.edit.editing = state ;
 	gentle.setMenuState ( 'edit_menu_paste' , state ) ;
 	$('#selection_context_marker').remove() ;
