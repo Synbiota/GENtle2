@@ -442,5 +442,11 @@ var cd = { // Common data, filled by loadBaseData()
 		{ "long":"Ile" , "short":"I" , "codons": [ "ATT", "ATC", "ATA" ] } ,
 		{ "long":"Val" , "short":"V" , "codons": [ "GTT", "GTC", "GTA", "GTG" ] } ,
 		{ "long":"STP" , "short":"X" , "codons": [ "TAG", "TGA", "TAA" ] }
-	]
+	] ,
+	"metakeys" : {
+		'CMD' : 8 ,
+		'SHIFT' : 4 ,
+		'ALT' : 2 ,
+		'CTRL' : 1
+   	}
 } ;

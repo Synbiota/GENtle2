@@ -6,6 +6,7 @@ function SequenceCanvas () {
 	this.sequence = {} ;
 	this.edit = { editing : false } ;
 	this.type = undefined ;
+	this.metakeys = 0 ;
 }
 
 SequenceCanvas.prototype.init = function () {}
@@ -168,12 +169,46 @@ SequenceCanvas.prototype.deleteSelection = function () {
 	sc.deselect() ;
 }
 
+SequenceCanvas.prototype.modifierCode = function (event) {
+	switch (event.keyCode) {
+	case 91:
+	case 93:
+		return cd.metakeys.CMD;
+	case 16:
+		return cd.metakeys.SHIFT;
+	case 18:
+		return cd.metakeys.ALT;
+	case 17:
+		return cd.metakeys.CTRL;
+	default:
+		return 0;
+	}
+}
+
+SequenceCanvas.prototype.keyhandler_up = function ( e ) {
+	var sc = gentle.main_sequence_canvas ;
+	sc.metakeys -= sc.modifierCode(e);
+}
+
 SequenceCanvas.prototype.keyhandler = function ( e ) {
 	var sc = gentle.main_sequence_canvas ;
 	var code = (e.keyCode ? e.keyCode : e.which);
 //	console.log ( code + "/" + e.metaKey ) ;
-
+	
+	var metakey = sc.modifierCode ( e ) ;
+	if ( metakey !== 0 ) {
+		sc.metakeys = sc.metakeys | metakey;
+		return ;
+	}
+	
 	var bpp = sc.end_base - sc.start_base + 1 ;
+
+	if ( code == 90 && e.metaKey ) { // Undo
+		e.preventDefault();
+		if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
+		else gentle.doUndo();
+		return ;
+	}
 
 	if ( !sc.edit.editing ) { // Keys for view mode
 		if ( code == 36 ) { // Start
@@ -214,10 +249,6 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.edit.base++ ;
 		sc.recalc() ;
 		top_display.init() ;
-	} else if ( code == 90 && e.metaKey ) { // Undo
-		e.preventDefault();
-		gentle.doUndo();
-		return ;
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();

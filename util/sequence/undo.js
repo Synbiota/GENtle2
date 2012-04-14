@@ -33,9 +33,10 @@ SequenceUndo.prototype.addAction = function ( event_name , data ) {
 	if ( me.prevent_recording ) return ; // Currently un-/redoing something, don't record
 //	console.log ( "Adding : " + action ) ;
 //	console.log ( data ) ;
+
+	while ( me.undo_position < me.elements.length ) me.elements.pop() ; // New action, remove any lingering redo events
 	
 	if ( data.editing && me.elements.length > 0 && me.elements[me.elements.length-1].editing && event_name == me.elements[me.elements.length-1].event_name ) {
-//		console.log ( "Grouping edit data" ) ;
 		me.elements[me.elements.length-1].data.push ( data ) ; // Group editing elements together
 	} else {
 		this.cancelEditing() ; // Paranoia
@@ -72,9 +73,8 @@ SequenceUndo.prototype.updateEditMenu = function () {
 	gentle.setMenuState ( 'edit_menu_redo' , me.undo_position < me.elements.length ) ;
 }
 
-SequenceUndo.prototype.doUndo = function ( sc ) {
+SequenceUndo.prototype.doUndo = function ( sc ) { // This is my undoing!
 	var me = this ;
-//	console.log ( "This is my undoing!" ) ;
 	if ( me.undo_position == 0 ) return ; // Noting to (un)do
 	var e = me.elements[me.undo_position-1] ;
 	me.prevent_recording = true ;
@@ -104,5 +104,29 @@ SequenceUndo.prototype.doUndo = function ( sc ) {
 
 SequenceUndo.prototype.doRedo = function ( sc ) {
 	var me = this ;
-	alert ( "Redo not implemented yet" ) ;
+	if ( me.undo_position >= me.elements.length ) return ; // Nothing to (re)do
+	var e = me.elements[me.undo_position] ;
+	me.prevent_recording = true ;
+	me.undo_position++ ;
+	for ( var i = 0 ; i < e.data.length ; i++ ) {
+		var d = e.data[i] ;
+//		console.log ( d ) ;
+		if ( d.action == 'removeText' ) {
+			me.sequence.remove ( d.base , d.len , true ) ;
+		} else if ( d.action == 'insertText' ) {
+			me.sequence.insert ( d.base , d.seq , true ) ;
+		} else if ( d.action == 'alterFeatureSize' ) {
+			me.sequence.features[d.id]['_range'][d.range_id].from = d.after[0] ;
+			me.sequence.features[d.id]['_range'][d.range_id].to = d.after[1] ;
+		} else {
+			console.log ( "UNKNOWN UNDO ACTION : " + d.action + " WITH THIS DATA:" ) ;
+			console.log ( d ) ;
+		}
+		sc.selections = clone ( d.selections ) || sc.selections ;
+		sc.edit = clone ( d.edit ) || sc.edit ;
+	}
+	sc.recalc() ;
+	sc.show() ;
+	me.updateEditMenu () ;
+	me.prevent_recording = false ;
 }
