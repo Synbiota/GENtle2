@@ -8,8 +8,8 @@ function Sequence ( name , seq ) {
 	this.undo = new SequenceUndo ( this ) ;
 }
 
-Sequence.prototype.insert = function ( base , text ) {}
-Sequence.prototype.remove = function ( base , len ) {}
+Sequence.prototype.insert = function ( base , text , skip_feature_adjustment ) {}
+Sequence.prototype.remove = function ( base , len , skip_feature_adjustment ) {}
 Sequence.prototype.clone = function () {}
 
 
@@ -19,14 +19,15 @@ Sequence.prototype.clone = function () {}
 SequenceDNA.prototype = new Sequence() ;
 SequenceDNA.prototype.constructor = SequenceDNA ;
 
-SequenceDNA.prototype.remove = function ( base , len ) {
+SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment ) {
 	var me = this ;
-	me.undo.addAction ( 'editRemove' , { editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
+	me.undo.addAction ( 'editRemove' , { label : 'typing' , editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
 	me.seq = me.seq.substr ( 0 , base ) + me.seq.substr ( base + len , me.seq.length - base - len ) ;
+	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
 		$.each ( f['_range'] , function ( k , v ) {
-			var ov = v ;
+			var ov = clone ( v ) ;
 			if ( v.from >= base ) v.from -= len ;
 			if ( v.to+1 >= base ) v.to -= len ;
 			if ( v.from != ov.from || v.to != ov.to ) {
@@ -37,15 +38,16 @@ SequenceDNA.prototype.remove = function ( base , len ) {
 	} ) ;
 }
 
-SequenceDNA.prototype.insert = function ( base , text ) {
+SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment ) {
 	var me = this ;
-	me.undo.addAction ( 'editInsert' , { editing : true , action : 'insertText' , base : base , seq : text } ) ;
+	me.undo.addAction ( 'editInsert' , { label : 'typing' , editing : true , action : 'insertText' , base : base , seq : text } ) ;
 	var l = text.length ;
 	me.seq = me.seq.substr ( 0 , base ) + text + me.seq.substr ( base , me.seq.length - base ) ;
+	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
 		$.each ( f['_range'] , function ( k , v ) {
-			var ov = v ;
+			var ov = clone ( v ) ;
 			if ( v.from >= base ) v.from += l ;
 			if ( v.to >= base ) v.to += l ;
 			if ( v.from != ov.from || v.to != ov.to ) {
@@ -77,6 +79,7 @@ SequenceDNA.prototype.asNewSequenceDNA = function ( start , stop ) {
 }
 
 SequenceDNA.prototype.insertSequenceDNA = function ( newseq , pos ) {
+	// TODO undo
 	var me = this ;
 	pos *= 1 ; // Force int
 	me.insert ( pos , newseq.seq ) ;

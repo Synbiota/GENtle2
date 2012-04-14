@@ -29,6 +29,8 @@ var gentle = {
 		
 		window.onorientationchange = gentle.on_resize_event ;
 
+		gentle.setMenuState ( 'edit_menu_undo' , false ) ;
+		gentle.setMenuState ( 'edit_menu_redo' , false ) ;
 		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 		gentle.setMenuState ( 'edit_menu_paste' , false ) ;
@@ -612,6 +614,22 @@ var gentle = {
 	
 	set_hover : function ( html ) {
 		$('#hoverbox').html ( html ) ;
+	} ,
+	
+	doUndo : function () {
+		var sc = gentle.main_sequence_canvas ;
+		if ( undefined === sc ) return false ;
+		if ( undefined === sc.sequence.undo ) return false ;
+		sc.sequence.undo.doUndo ( sc ) ;
+		return false ;
+	} ,
+	
+	doRedo : function () {
+		var sc = gentle.main_sequence_canvas ;
+		if ( undefined === sc ) return false ;
+		if ( undefined === sc.sequence.undo ) return false ;
+		sc.sequence.undo.doRedo ( sc ) ;
+		return false ;
 	} ,
 	
 	on_resize_event : function () {

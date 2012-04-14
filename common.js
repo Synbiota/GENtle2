@@ -128,6 +128,7 @@ function copyToClipboard ( text ) {
 
 
 function clone(obj) {
+	if ( undefined === obj ) return undefined ;
 	return JSON.parse ( JSON.stringify(obj) );
 /*    // A clone of an object is an empty object 
             // with a prototype reference to the original.

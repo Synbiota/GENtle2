@@ -46,6 +46,9 @@
 			<li class="dropdown" id='edit_menu'>
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
 				<ul class="dropdown-menu">
+					<li class='menu_needs_selection'><a id='edit_menu_undo' href='#' onclick='gentle.doUndo();return false'>Undo <span id='undo_action'></span></a></li>
+					<li class='menu_needs_selection'><a id='edit_menu_redo' href='#' onclick='gentle.doRedo();return false'>Redo <span id='redo_action'></span></a></li>
+					<li class="divider"></li>
 					<li class='menu_needs_selection'><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
 					<li class='menu_needs_selection'><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
 					<li class='menu_needs_selection'><a id='edit_menu_annotate' href='#' onclick='gentle.do_annotate();return false'>Annotate selection</a></li>

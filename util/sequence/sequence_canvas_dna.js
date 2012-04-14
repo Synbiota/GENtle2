@@ -722,6 +722,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.update_display_aa() ;
 	this.update_display_res() ;
 	
+	the_sequence.undo.updateEditMenu() ;
 	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
