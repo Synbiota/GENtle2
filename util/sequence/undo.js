@@ -87,8 +87,6 @@ SequenceUndo.prototype.doUndo = function ( sc ) {
 		} else if ( d.action == 'insertText' ) {
 			me.sequence.remove ( d.base , d.seq.length , true ) ;
 		} else if ( d.action == 'alterFeatureSize' ) {
-//			console.log ( d.id + " : " + me.sequence.features[d.id].from+"-"+me.sequence.features[d.id].to + " => " + d.before[0]+"-"+d.before[1] ) ;
-//			console.log ( d.id + "/" + d.range_id + " : " + me.sequence.features[d.id].to + " => " + d.before[0]+"-"+d.before[1] ) ;
 			me.sequence.features[d.id]['_range'][d.range_id].from = d.before[0] ;
 			me.sequence.features[d.id]['_range'][d.range_id].to = d.before[1] ;
 		} else {
@@ -106,5 +104,5 @@ SequenceUndo.prototype.doUndo = function ( sc ) {
 
 SequenceUndo.prototype.doRedo = function ( sc ) {
 	var me = this ;
-	alert ( "Redo not implemented" ) ;
+	alert ( "Redo not implemented yet" ) ;
 }

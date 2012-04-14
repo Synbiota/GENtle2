@@ -74,7 +74,7 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 			if ( v.from >= base ) v.from += l ;
 			if ( v.to >= base ) v.to += l ;
 			if ( v.from != ov.from || v.to != ov.to ) {
-				me.undo.addAction ( 'editInsert' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : k } ) ;
+				me.undo.addAction ( 'editInsert' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : fid , range_id : k } ) ;
 			}
 		} ) ;
 	} ) ;
