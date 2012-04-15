@@ -1,6 +1,8 @@
 <?PHP
 
-// $url = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=nuccore&id=NM_001079817.1&rettype=gb&retmode=text" ;
+ini_set('track_errors', 1); 
+ini_set('display_errors', 'On');
+error_reporting(E_ALL | E_STRICT);
 
 $url = $_REQUEST['url'] ;
 $callback = $_REQUEST['callback'] ;
