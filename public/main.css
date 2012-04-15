@@ -351,6 +351,12 @@ h1 {
 	color:black;
 }
 
+.feat_misc {
+	background-color:#DDDDDD;
+	left:35px;
+	color:black;
+}
+
 .feat_gene {
 	background-color:#2F74D0;
 	left:55px;

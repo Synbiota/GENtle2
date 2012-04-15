@@ -259,26 +259,11 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 	    } ) ;
 	}
 	
-	var styles = {
-		'other' : { offset:2 } ,
-		'promoter' : { offset:1 } ,
-		'gene' : { offset:0 } ,
-		'note' : { offset:3 } ,
-		'cds' : { offset:1 }
-	} ;
-	
 	// Markup bases in this region
 	var bases = {} ;
 	$.each ( showfeat , function ( id , v ) {
 
 		var cl = gentle.getFeatureType ( v['_type'] ) ;
-/*		var cl = 'other' ;
-		if ( v['_type'].match(/^promoter$/i) ) cl = 'promoter' ;
-		else if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
-		else if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
-		else if ( v['_type'].match(/^note$/i) ) cl = 'note' ;*/
-
-//		if ( undefined === cd.feature_types[cl] ) cd.feature_types[cl] = clone ( cd.feature_types['misc'] ) ;
 		var col = cd.feature_types[cl].col ;
 		var offset = cd.feature_types[cl].annotation_row_offset ;
 
