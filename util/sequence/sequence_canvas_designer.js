@@ -87,7 +87,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += "<div class='designer_row_feature " ;
 			if ( is_primary ) h += "designer_row_feature_droppable" ;
 			else h += "designer_row_feature_draggable" ;
-			h += " designer_row_feature_" + v.type + "' title='" + v.type + "'" ;
+			h += " designer_row_feature_" + v.type + "' title='" + cd.feature_types[v.type].name + "'" ;
 			if ( undefined !== v.featnum ) h += " seqnum='" + seqnum + "' featnum='" + v.featnum + "'" ;
 			h += ">" ;
 			h += v.name ;
