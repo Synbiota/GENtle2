@@ -24,13 +24,17 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			row : 'bottom' ,
 			featnum : k
 		} ;
-		if ( v['_type'].match(/^promoter$/i) ) o.type = 'promoter' ;
-		else if ( v['_type'].match(/^gene$/i) ) o.type = 'gene' ;
-		else if ( v['_type'].match(/^CDS$/i) ) o.type = 'cds' ;
+
 		if ( undefined === o.name ) o.name = o.type ;
 		o.name = o.name.replace(/^"/,'').replace(/"$/,'') ;
-		if ( o.type == 'promoter' || o.type == 'cds' ) o.row = 'main' ;
-		else if ( o.type == 'gene' ) o.row = 'top' ;
+
+		$.each ( cd.feature_types , function ( k2 , v2 ) {
+			if ( v['_type'].toLowerCase() !== k2 ) return ;
+			o.type = k2 ;
+			if ( v2.is_main_type ) o.row = 'main' ;
+		} ) ;
+
+		if ( o.type == 'gene' ) o.row = 'top' ;
 		if ( o.type == 'cds' ) o.rc = v['_range'][0].rc ;
 		me.list[o.row].push ( o ) ;
 	} ) ;
@@ -195,5 +199,6 @@ function SequenceCanvasDesigner ( the_sequence , canvas_id ) {
 	this.canvas_id = 'sequence_canvas' ;
 	this.sequence = the_sequence ;
 	this.init () ;
+	the_sequence.undo.updateEditMenu() ;
 	gentle.set_hover ( '' ) ;
 }

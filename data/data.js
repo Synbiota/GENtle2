@@ -448,5 +448,16 @@ var cd = { // Common data, filled by loadBaseData()
 		'SHIFT' : 4 ,
 		'ALT' : 2 ,
 		'CTRL' : 1
+   	} ,
+   	"feature_types" : {
+		'misc' : { 'annotation_row_offset':2 , 'name':'Misc' } ,
+		'protein_bind' : { 'annotation_row_offset':2 , 'name':'Protein binding site' } ,
+		'promoter' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Promoter' } ,
+		'gene' : { 'annotation_row_offset':0 , 'name':'Gene' } ,
+		'note' : { 'annotation_row_offset':3 , 'name':'Note' } ,
+		'terminator' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Terminator' } ,
+		'rbs' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Ribosome binding site' } ,
+		'ori' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Replication origin' } ,
+		'cds' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Coding sequence' }
    	}
 } ;

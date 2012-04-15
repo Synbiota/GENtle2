@@ -112,6 +112,13 @@ function loadBaseData () {
 		cd.re_s2n[l][s].push ( k ) ;
 	} ) ;
 	
+	// Type colors
+	$.each ( cd.feature_types , function ( k , v ) {
+		gentle.features[k] = v.name || ucFirst ( k ) ;
+		if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
+		cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) || '#DDDDDD' ;
+	} ) ;
+
 }
 
 // This function allows for arbitrary text to be copied/pasted to the clipboard,

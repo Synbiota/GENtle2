@@ -267,23 +267,20 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		'cds' : { offset:1 }
 	} ;
 	
-	$.each ( styles , function ( k , v ) {
-		if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
-		styles[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) ;
-	} ) ;
-
 	// Markup bases in this region
 	var bases = {} ;
 	$.each ( showfeat , function ( id , v ) {
 
-		var cl = 'other' ;
+		var cl = gentle.getFeatureType ( v['_type'] ) ;
+/*		var cl = 'other' ;
 		if ( v['_type'].match(/^promoter$/i) ) cl = 'promoter' ;
 		else if ( v['_type'].match(/^gene$/i) ) cl = 'gene' ;
 		else if ( v['_type'].match(/^CDS$/i) ) cl = 'cds' ;
-		else if ( v['_type'].match(/^note$/i) ) cl = 'note' ;
+		else if ( v['_type'].match(/^note$/i) ) cl = 'note' ;*/
 
-		var col = styles[cl].col ;
-		var offset = styles[cl].offset ;
+//		if ( undefined === cd.feature_types[cl] ) cd.feature_types[cl] = clone ( cd.feature_types['misc'] ) ;
+		var col = cd.feature_types[cl].col ;
+		var offset = cd.feature_types[cl].annotation_row_offset ;
 
 		var name = '' ;
 		if ( v['gene'] !== undefined ) name = v['gene'] ;

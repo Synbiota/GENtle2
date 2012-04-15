@@ -10,7 +10,7 @@
 // gentle object containing core methods
 var gentle = {
 	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' ] ,
-	features : { 'note':'Note' , 'gene':'Gene' , 'cds':'CDS' , 'promoter':'Promoter' , 'misc':'Misc' , 'protein_bind':'Protein binding site' } ,
+	features : {} , //{ 'note':'Note' , 'gene':'Gene' , 'cds':'CDS' , 'promoter':'Promoter' , 'misc':'Misc' , 'protein_bind':'Protein binding site' } ,
 	sequences : [] ,
 	current_sequence_entry : undefined ,
 	main_sequence_canvas : undefined ,
@@ -82,6 +82,12 @@ var gentle = {
 		if ( gentle.sequences.length == 0 ) this.showDefaultBlurb() ;
 		
 		if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
+	} ,
+	
+	getFeatureType : function ( s ) {
+		var t = s.toLowerCase() ;
+		if ( undefined === cd.feature_types[t] ) return 'misc' ;
+		return t ;
 	} ,
 	
 	addAlert : function ( type , message ) {

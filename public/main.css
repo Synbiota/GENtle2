@@ -73,6 +73,37 @@
 	color:white;
 }
 
+
+
+
+.designer_row_feature_terminator {
+	height:34px;
+	color:white;
+	background-color:black;
+}
+
+.designer_row_feature_rbs {
+	background-color:#27DE55;
+	height:34px;
+	color:black;
+}
+
+.designer_row_feature_ori {
+	background-color:#DFDF00;
+	height:34px;
+	color:black;
+}
+
+.designer_row_feature_protein_bind {
+	background-color:#9669FE;
+	height:34px;
+	color:black;
+}
+
+
+
+
+
 .designer_row_feature_gene {
 	background-color:#2F74D0;
 	color:white;
@@ -332,6 +363,26 @@ h1 {
 
 .feat_promoter {
 	background-color:black;
+	left:75px;
+}
+
+.feat_terminator {
+	background-color:black;
+	left:75px;
+}
+
+.feat_rbs {
+	background-color:#27DE55;
+	left:75px;
+}
+
+.feat_ori {
+	background-color:#DFDF00;
+	left:75px;
+}
+
+.feat_protein_bind {
+	background-color:#9669FE;
 	left:75px;
 }
 
