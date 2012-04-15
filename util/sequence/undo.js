@@ -28,6 +28,15 @@ SequenceUndo.prototype.setSequence = function ( seq ) {
 	this.sequence = seq ;
 }
 
+SequenceUndo.prototype.storeLastSelection = function () {
+	var me = this ;
+	if ( me.elements.length == 0 ) return ;
+	var sc = gentle.main_sequence_canvas ;
+	if ( undefined === sc ) return ;
+	var e = me.elements[me.elements.length-1] ;
+	e.lastSelection = { selections : clone ( sc.selections ) , edit : { editing : sc.edit.editing , base : sc.edit.base } } ;
+}
+
 SequenceUndo.prototype.addAction = function ( event_name , data ) {
 	var me = this ;
 	if ( me.prevent_recording ) return ; // Currently un-/redoing something, don't record
@@ -39,7 +48,8 @@ SequenceUndo.prototype.addAction = function ( event_name , data ) {
 	if ( data.editing && me.elements.length > 0 && me.elements[me.elements.length-1].editing && event_name == me.elements[me.elements.length-1].event_name ) {
 		me.elements[me.elements.length-1].data.push ( data ) ; // Group editing elements together
 	} else {
-		this.cancelEditing() ; // Paranoia
+		me.cancelEditing() ; // Paranoia
+		me.storeLastSelection() ;
 		me.elements.push ( new SequenceUndoElement ( event_name , data ) ) ;
 	}
 	
@@ -75,7 +85,8 @@ SequenceUndo.prototype.updateEditMenu = function () {
 
 SequenceUndo.prototype.doUndo = function ( sc ) { // This is my undoing!
 	var me = this ;
-	if ( me.undo_position == 0 ) return ; // Noting to (un)do
+	if ( me.undo_position == 0 ) return ; // Nothing to (un)do
+	if ( me.undo_position == me.elements.length ) me.storeLastSelection() ;
 	var e = me.elements[me.undo_position-1] ;
 	me.prevent_recording = true ;
 	me.undo_position-- ;
@@ -124,6 +135,10 @@ SequenceUndo.prototype.doRedo = function ( sc ) {
 		}
 		sc.selections = clone ( d.selections ) || sc.selections ;
 		sc.edit = clone ( d.edit ) || sc.edit ;
+	}
+	if ( undefined !== e.lastSelection ) {
+		sc.selections = clone ( e.lastSelection.selections ) || sc.selections ;
+		sc.edit = clone ( e.lastSelection.edit ) || sc.edit ;
 	}
 	sc.recalc() ;
 	sc.show() ;
