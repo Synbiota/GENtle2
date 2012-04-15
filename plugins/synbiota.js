@@ -53,7 +53,7 @@ synbiota.prototype.global_init = function () {
 	synbiota_data.use_proxy = true ; // MAIN SWITCH FOR TESTING/PRODUCTION SETUP
 	
 	synbiota_data.api_version = 1 ;
-	synbiota_data.api_url = 'http://synbiota-test.herokuapp.com' ;
+	synbiota_data.api_url = 'https://synbiota-test.herokuapp.com' ;
 //	synbiota_data.save_url = 'http://localhost:3000/gentle_files' ;
 	
 	
