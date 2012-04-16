@@ -40,8 +40,7 @@ SequenceUndo.prototype.storeLastSelection = function () {
 SequenceUndo.prototype.addAction = function ( event_name , data ) {
 	var me = this ;
 	if ( me.prevent_recording ) return ; // Currently un-/redoing something, don't record
-//	console.log ( "Adding : " + action ) ;
-//	console.log ( data ) ;
+//	console.log ( "Adding : " + event_name ) ;	console.log ( data ) ;
 
 	while ( me.undo_position < me.elements.length ) me.elements.pop() ; // New action, remove any lingering redo events
 	
@@ -100,6 +99,8 @@ SequenceUndo.prototype.doUndo = function ( sc ) { // This is my undoing!
 		} else if ( d.action == 'alterFeatureSize' ) {
 			me.sequence.features[d.id]['_range'][d.range_id].from = d.before[0] ;
 			me.sequence.features[d.id]['_range'][d.range_id].to = d.before[1] ;
+		} else if ( d.action == 'addAnnotation' ) {
+			me.sequence.features.splice ( d.feature_id , 1 ) ;
 		} else {
 			console.log ( "UNKNOWN UNDO ACTION : " + d.action + " WITH THIS DATA:" ) ;
 			console.log ( d ) ;
@@ -129,6 +130,8 @@ SequenceUndo.prototype.doRedo = function ( sc ) {
 		} else if ( d.action == 'alterFeatureSize' ) {
 			me.sequence.features[d.id]['_range'][d.range_id].from = d.after[0] ;
 			me.sequence.features[d.id]['_range'][d.range_id].to = d.after[1] ;
+		} else if ( d.action == 'addAnnotation' ) {
+			me.sequence.features.splice ( d.feature_id , 0 , clone ( d.feature ) ) ;
 		} else {
 			console.log ( "UNKNOWN UNDO ACTION : " + d.action + " WITH THIS DATA:" ) ;
 			console.log ( d ) ;

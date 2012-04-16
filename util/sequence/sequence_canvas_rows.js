@@ -274,9 +274,9 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		name = name.replace(/^"/,'').replace(/"$/,'') ;
 
 		$.each ( v['_range'] , function ( k , r ) {
-			for ( var p = r.from ; p <= r.to ; p++ ) {
+			for ( var p = r.from-1 ; p < r.to ; p++ ) {
 				if ( undefined === bases[p] ) bases[p] = [] ;
-				var o = { color : col , type : cl , offset : offset , first : ( p == r.from ) , name : name , fr : id+'/'+k } ;
+				var o = { color : col , type : cl , offset : offset , first : ( p == r.from-1 ) , name : name , fr : id+'/'+k } ;
 				bases[p].push ( o ) ;
 			}
 		} ) ;

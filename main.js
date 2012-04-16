@@ -214,11 +214,12 @@ var gentle = {
 		function submitTask () {
 			var ann = {
 				'_type' : $('#aad_type').val() ,
-				'_range' : [ { from:$('#aad_from').text()*1-1 , to:$('#aad_to').text()*1-1 } ] ,
+				'_range' : [ { from:$('#aad_from').text()*1 , to:$('#aad_to').text()*1 } ] ,
 				'name' : $('#aad_name').val() ,
 				'desc' : $('#aad_desc').val()
 			} ;
 
+			sc.sequence.undo.addAction ( 'addAnnotation' , { label : 'add annotation' , editing : false , action : 'addAnnotation' , feature_id : sc.sequence.features.length , feature : clone ( ann ) } ) ;
 			sc.sequence.features.push ( ann ) ;
 			sc.recalc() ;
 			sc.show () ;
