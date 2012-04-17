@@ -14,6 +14,12 @@ var gentle_config = {
 		numbering : '#6094DB'
 	} ,
 	
+	synbiota : {
+		use_proxy : 1 ,
+		api_version : 1 ,
+		api_url : 'https://synbiota-test.herokuapp.com'
+	} ,
+	
 	proxy : './data/proxy.php'
 	
 } ;

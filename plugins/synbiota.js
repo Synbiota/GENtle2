@@ -50,11 +50,10 @@ synbiota.prototype.global_init = function () {
 		return ; // Plugin registry failed. Abort, abort!!
 	}
 
-	synbiota_data.use_proxy = true ; // MAIN SWITCH FOR TESTING/PRODUCTION SETUP
-	
-	synbiota_data.api_version = 1 ;
-	synbiota_data.api_url = 'https://synbiota-test.herokuapp.com' ;
-//	synbiota_data.save_url = 'http://localhost:3000/gentle_files' ;
+	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
+	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
+	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
+	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
 	
 	
 	synbiota_data.token = gentle.url_vars.token ;
