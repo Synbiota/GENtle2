@@ -97,7 +97,7 @@ SequenceDNA.prototype.asNewSequenceDNA = function ( start , stop ) {
 		} ) ;
 		ret.features.push ( o ) ;
 	} ) ;
-	ret.setSequence ( ret ) ;
+	ret.undo.setSequence ( ret ) ;
 	return ret ;
 }
 
