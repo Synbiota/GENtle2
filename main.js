@@ -591,11 +591,11 @@ var gentle = {
 			h += "</td><td>" ;
 			h += show_title ;
 			h += "</td><td>" ;
-			h += "<button class='btn btn-danger' onclick='gentle.closeSequence(" + seqid + ")'>Delete</button>" ;
+			h += "<button class='btn btn-danger' onclick='gentle.closeSequence(" + seqid + ")'>Close</button>" ;
 			h += "</td></tr>" ;
 		} ) ;
 		h += "</tbody></table>" ;
-		h += "<hr/><div style='text-align:right'><button class='btn btn-danger' onclick='gentle.closeAllSequences()'>Delete all</button></div>" ;
+		h += "<hr/><div style='text-align:right'><button class='btn btn-danger' onclick='gentle.closeAllSequences()'>Close all</button></div>" ;
 
 		if ( gentle.sequences.length == 0 ) {
 			h = "<i>No sequences loaded</i>" ;
