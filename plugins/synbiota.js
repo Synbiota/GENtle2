@@ -52,7 +52,7 @@ synbiota.prototype.findParts = function () {
 	h += '<div class="modal-header"><a class="close" data-dismiss="modal"></a><h3>Find parts</h3></div>' ;
 	h += '<div class="modal-body">' ;
 
-	h += "<div><form id='fpd_form'><input type='text' id='fpd_query' value='cloning' size='50' /> <input type='submit' value='Find parts' /></form></div>" ;
+	h += "<div><form id='fpd_form'><input type='text' id='fpd_query' value='' size='50' /> <input type='submit' value='Find parts' /></form></div>" ;
 	
 	h += "<div id='fpd_results' class='well' style='min-height:300px;max-height:300px;width:95%;overflow:auto;'>" ;
 	h += "</div>" ; // fpd_results
