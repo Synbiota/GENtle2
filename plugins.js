@@ -20,6 +20,8 @@ var plugins = {
 			file : {} ,
 			sequence : {} ,
 			external : {}
+		} ,
+		designer : {
 		}
 	} ,
 	search : {} ,

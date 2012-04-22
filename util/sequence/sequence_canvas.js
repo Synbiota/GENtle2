@@ -75,7 +75,7 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
 	var x = new window[o.className]();
 	this.tools[o.name] = x ;
 	
-//	console.log ( o.name + "." + o.call + " : " + o.linkTitle ) ;
+//	console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
 	
 	var id = 'toolbar_plugins_' + o.section ;
 	var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;

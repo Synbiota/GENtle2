@@ -146,3 +146,22 @@ function SequenceDNA ( name , seq ) {
 		me.edit_allowed.push ( v ) ;
 	} ) ;
 }
+
+//________________________________________________________________________________________
+// SequenceDesigner
+SequenceDesigner.prototype = new SequenceDNA() ;
+SequenceDesigner.prototype.constructor = SequenceDesigner ;
+
+function SequenceDesigner ( name , seq ) {
+	this.data_keys = ['desc','typeName','features','is_circular','settings'] ;
+	this.seq = seq ;
+	this.name = name ;
+	this.typeName = 'designer' ;
+	this.features = new Array() ;
+	this.edit_allowed = [] ;
+	this.undo = new SequenceUndo ( this ) ;
+	var me = this ;
+	$.each ( cd.bases2iupac , function ( k , v ) {
+		me.edit_allowed.push ( v ) ;
+	} ) ;
+}

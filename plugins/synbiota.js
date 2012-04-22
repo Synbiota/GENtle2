@@ -39,6 +39,10 @@ synbiota.prototype.saveToSynbiota = function () {
 	} , 'json' ) ;
 }
 
+synbiota.prototype.findParts = function () {
+	alert ( "!" ) ;
+}
+
 synbiota.prototype.global_init = function () {
 	if ( undefined === gentle.url_vars.token ) {
 		return ; // No token, no joy!
@@ -46,7 +50,10 @@ synbiota.prototype.global_init = function () {
 
 	if ( plugins.registerPlugin ( { className : 'synbiota' , url : 'plugins/synbiota.js' } ) ) {
 		plugins.addSection ( 'dna' , 'synbiota' ) ;
+		plugins.addSection ( 'designer' , 'synbiota' ) ;
 		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'saveToSynbiota' , linkTitle : 'Save to Synbiota' } ) ;
+		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
+		plugins.registerAsTool ( { className : 'synbiota' , module : 'designer' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
 	} else {
 		return ; // Plugin registry failed. Abort, abort!!
 	}

@@ -200,6 +200,7 @@ function SequenceCanvasDesigner ( the_sequence , canvas_id ) {
 	this.type = 'designer' ;
 	
 	this.fixMenus() ;
+	this.initSidebar() ;
 
 	this.canvas_id = 'sequence_canvas' ;
 	this.sequence = the_sequence ;
