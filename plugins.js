@@ -32,6 +32,11 @@ var plugins = {
 
 // Methods functions
 
+	addSection : function ( module , section ) {
+		if ( undefined !== plugins.tools[module][section] ) return ;
+		plugins.tools[module][section] = {} ;
+	} ,
+
 	registrationParanoia : function ( o ) {
 	
 		// BEGIN PARANOIA SECTION
@@ -74,11 +79,13 @@ var plugins = {
 
 	registerAsTool : function ( o ) {
 		if ( !this.registrationParanoia ( o ) ) return ; // BAAAD TOOL!
-		
+
 		plugins.registerPlugin ( o ) ;
+		
+		var name2 = o.name + '.' + o.call ;
 	
-		plugins.tools[o.module][o.section][o.name] = o ;
-		if ( plugins.verbose ) console.log ( 'registered tool ' + o.name ) ;
+		plugins.tools[o.module][o.section][name2] = o ;
+		if ( plugins.verbose ) console.log ( 'registered tool ' + name2 ) ;
 		
 		// Try to add to live canvas if possible
 		var sc = gentle.main_sequence_canvas ;

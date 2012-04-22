@@ -123,7 +123,7 @@ var gentle = {
 				seq.seedFrom ( v ) ;
 				gentle.sequences[k] = seq ;
 			} else if ( v.typeName == 'designer' ) {
-				var seq = new SequenceDesigner () ;
+				var seq = new SequenceDNA () ;
 				seq.seedFrom ( v ) ;
 				seq.typeName = 'designer' ;
 				gentle.sequences[k] = seq ;

@@ -45,7 +45,8 @@ synbiota.prototype.global_init = function () {
 	}
 
 	if ( plugins.registerPlugin ( { className : 'synbiota' , url : 'plugins/synbiota.js' } ) ) {
-		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'file' , call : 'saveToSynbiota' , linkTitle : 'Save to Synbiota' } ) ;
+		plugins.addSection ( 'dna' , 'synbiota' ) ;
+		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'saveToSynbiota' , linkTitle : 'Save to Synbiota' } ) ;
 	} else {
 		return ; // Plugin registry failed. Abort, abort!!
 	}

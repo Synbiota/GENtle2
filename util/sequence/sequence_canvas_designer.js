@@ -118,13 +118,19 @@ SequenceCanvasDesigner.prototype.init = function () {
 	var cnt = 0 ;
 	$.each ( gentle.sequences , function ( k , v ) {
 		if ( v != me.sequence ) return ;
-		h += me.getSequenceSchemaHTML ( me.sequence , cnt++ , k ) ; // This happens only once...
+		var nh = me.getSequenceSchemaHTML ( me.sequence , cnt , k ) ; // This happens only once...
+		if ( nh != '' ) cnt++ ;
+		h += nh ;
 	} ) ;
 	$.each ( gentle.sequences , function ( k , v ) {
 		if ( v == me.sequence ) return ;
 		if ( v.typeName != 'dna' ) return ;
-		h += me.getSequenceSchemaHTML ( v , cnt++ , k ) ;
+		var nh = me.getSequenceSchemaHTML ( v , cnt , k ) ;
+		if ( nh != '' ) cnt++ ;
+		h += nh ;
 	} ) ;
+	
+	if ( cnt == 0 ) h = "<div style='color:black'><i>No suitable sequences loaded.</i></div>" ;
 	
 	$('#canvas_wrapper').html ( h ) ;
 	
@@ -188,13 +194,12 @@ SequenceCanvasDesigner.prototype.init = function () {
 	
 }
 
-
 function SequenceCanvasDesigner ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
 	this.type = 'designer' ;
 	
-	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
+	this.fixMenus() ;
 
 	this.canvas_id = 'sequence_canvas' ;
 	this.sequence = the_sequence ;

@@ -703,7 +703,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.type = 'dna' ;
 	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
 	
-	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
+	this.fixMenus() ;
 	
 	var default_settings = {
 		auto : true ,

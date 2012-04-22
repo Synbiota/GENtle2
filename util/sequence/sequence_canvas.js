@@ -75,20 +75,12 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
 	var x = new window[o.className]();
 	this.tools[o.name] = x ;
 	
-	if ( true ) {
-		var id = 'toolbar_plugins_' + o.section ;
-		var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
-		$('#'+id+' ul').append(h) ;
-		$('#'+id).show() ;
-	}
+//	console.log ( o.name + "." + o.call + " : " + o.linkTitle ) ;
 	
-	if ( false ) {
-		var id = 'tools_' + o.section ;
-		var h = "<div class='tool' name='tool_" + x.name + "'>" ;
-		h += "<a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a>" ;
-		h += "</div>" ;
-		$('#'+id).append ( h ) ;
-	}
+	var id = 'toolbar_plugins_' + o.section ;
+	var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
+	$('#'+id+' ul').append(h) ;
+	$('#'+id).show() ;
 }
 
 
@@ -370,4 +362,13 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
 		
 	}
 
+}
+
+SequenceCanvas.prototype.fixMenus = function () {
+	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
+	$('.toolbar_plugin').each ( function () {
+		if ( 0 < $(this).find('li').length ) $(this).show() ;
+		else $(this).hide() ;
+//		console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
+	} ) ;
 }
