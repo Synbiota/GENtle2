@@ -134,7 +134,7 @@ SequenceDNA.prototype.clone = function () {
 
 
 function SequenceDNA ( name , seq ) {
-	this.data_keys = ['desc','typeName','features','is_circular'] ;
+	this.data_keys = ['desc','typeName','features','is_circular','settings'] ;
 	this.seq = seq ;
 	this.name = name ;
 	this.typeName = 'dna' ;

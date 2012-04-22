@@ -118,20 +118,20 @@
 .designer_row_features_top {
 	margin:0px;
 	padding:0px;
-	height:13px;
+	min-height:13px;
 	border-bottom:1px solid #DDDDDD;
 }
 
 .designer_row_features_main {
 	margin:0px;
 	padding:0px;
-	height:40px;
+	min-height:40px;
 }
 
 .designer_row_features_bottom {
 	margin:0px;
 	padding:0px;
-	height:13px;
+	min-height:13px;
 	border-top:1px solid #DDDDDD;
 }
 
@@ -154,8 +154,8 @@
     padding:2px;
 	overflow:auto;
 	margin-right:5px;
-	height:70px;
-	max-height:70px;
+	min-height:70px;
+/*	max-height:70px;*/
 	overflow-x:auto;
 	overflow-y:hidden;
 }
@@ -165,7 +165,7 @@
 	padding:0px;
 	border-top:1px solid #999999;
 	color:black;
-	height:80px;
+	min-height:80px;
 	overflow:hidden;
 }
 

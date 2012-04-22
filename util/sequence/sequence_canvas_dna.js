@@ -705,8 +705,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
 	
-	var settings = the_sequence.settings ;
-	if ( settings === undefined ) settings = {
+	var default_settings = {
 		auto : true ,
 		primary_line : 2 , 
 		lines:[
@@ -716,6 +715,11 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			{type:"blank"}
 		]
 	} ;
+	var settings = the_sequence.settings ;
+	if ( settings === undefined ) settings = {} ;
+	$.each ( default_settings , function ( k , v ) {
+		if ( undefined === settings[k] ) settings[k] = default_settings[k] ;
+	} ) ;
 	this.applySettings ( settings ) ;
 	
 	this.initSidebar() ;
