@@ -75,7 +75,7 @@ synbiota.prototype.findParts = function () {
 		
 		var url = synbiota_data.api_url + '/api/' ;
 		if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
-		url += 'parts?token=' + synbiota_data.token + '&name=' + escape ( query ) ;
+		url += 'parts?token=' + synbiota_data.token + '&any=' + escape ( query ) ;
 
 		$.getJSON ( gentle_config.proxy + '?callback=?' , 
 			{ url : url } ,
