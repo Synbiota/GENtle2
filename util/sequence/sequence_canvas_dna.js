@@ -267,16 +267,6 @@ SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
 	this.keyhandler ( e ) ;
 }
 
-SequenceCanvasDNA.prototype.bindKeyboard = function () {
-	var sc = this ;
-	$(document).off ( 'copy keydown paste cut' ) ;
-	$(document).keydown ( sc.keyhandler ) ;
-	$(document).keyup ( sc.keyhandler_up ) ;
-	$(document).bind ( "paste" , sc.pasteHandler );
-	$(document).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
-	$(document).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
-}
-
 SequenceCanvasDNA.prototype.init = function () {
 	var sc = this ;
 	var cw = $('#canvas_wrapper').offset() ;

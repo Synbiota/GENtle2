@@ -15,6 +15,7 @@ var gentle = {
 	current_sequence_entry : undefined ,
 	main_sequence_canvas : undefined ,
 	is_mobile : false ,
+	is_in_dialog : false ,
 
 	init : function () {
 	
@@ -231,8 +232,14 @@ var gentle = {
 		$('#aad_annotation_dialog').remove() ;
 		var dialogContainer = $("<div/>");
 		dialogContainer.load("public/templates/aad_annotation_dialog.html", function(){
+			gentle.is_in_dialog = true ;
+			sc.unbindKeyboard() ;
 			dialogContainer.appendTo("#all");
 			$('#aad_annotation_dialog').modal();
+			$('#aad_annotation_dialog').on('hidden' , function () {
+				gentle.is_in_dialog = false ;
+				sc.bindKeyboard() ;
+			});
 			
 			$('#aad_from').text ( sc.selections[0].from+1 ) ;
 			$('#aad_to').text ( sc.selections[0].to+1 ) ;

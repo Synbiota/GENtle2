@@ -177,12 +177,31 @@ SequenceCanvas.prototype.modifierCode = function (event) {
 	}
 }
 
+SequenceCanvas.prototype.unbindKeyboard = function () {
+	var root = document ; //$('#main') ;
+	$(root).unbind('keydown').unbind('keyup').unbind('paste').unbind('cut').unbind('copy') ;
+}
+
+SequenceCanvas.prototype.bindKeyboard = function () {
+	var sc = this ;
+	sc.unbindKeyboard() ;
+	var root = document ; //$('#main') ;
+	$(root).off ( 'copy keydown paste cut' ) ;
+	$(root).keydown ( sc.keyhandler ) ;
+	$(root).keyup ( sc.keyhandler_up ) ;
+	$(root).bind ( "paste" , sc.pasteHandler );
+	$(root).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
+	$(root).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
+}
+
 SequenceCanvas.prototype.keyhandler_up = function ( e ) {
+	if ( gentle.is_in_dialog ) return false ;
 	var sc = gentle.main_sequence_canvas ;
 	sc.metakeys -= sc.modifierCode(e);
 }
 
 SequenceCanvas.prototype.keyhandler = function ( e ) {
+	if ( gentle.is_in_dialog ) return false ;
 	var sc = gentle.main_sequence_canvas ;
 	var code = (e.keyCode ? e.keyCode : e.which);
 //	console.log ( code + "/" + e.metaKey ) ;

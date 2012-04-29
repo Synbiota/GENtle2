@@ -33,9 +33,16 @@ function SequenceInfoDialogDNA ( sc ) {
 	var dialogContainer = $("<div/>");
 	dialogContainer.load ( "public/templates/sequence_info_dialog_dna.html", function() {
 		var me = gentle.sequence_info_dialog ;
+		gentle.is_in_dialog = true ;
 		
+		sc.unbindKeyboard() ;
 		dialogContainer.appendTo("#all");
 		$('#'+me.sid).modal();
+		
+		$('#'+me.sid).on('hidden', function () {
+			gentle.is_in_dialog = false ;
+			sc.bindKeyboard() ;
+		}) ;
 		
 		// TODO initialize display
 		$('#sid_name').val ( me.data.name ) ;

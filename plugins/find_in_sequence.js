@@ -21,6 +21,7 @@ PluginFindInSequence.prototype.startDialog = function () {
 	$('#'+this.dialog_id).css ( { 'font-size' : '10pt' } ) ;
 	
 	var me = this ;
+//	sc.unbindKeyboard() ;
 	$('#'+this.query_id).keyup(function(){me.queryChanged()}) ;
 }
 
