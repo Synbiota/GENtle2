@@ -72,16 +72,7 @@ SequenceCanvas.prototype.registerSearch = function ( o ) {
 
     $('#toolbar_search_box').keydown(function(e) {
         var code = (e.keyCode ? e.keyCode : e.which);
-        
-        if ( code == 36     // Start
-            || code == 35   // End
-            || code == 33   // Page up
-            || code == 34   // Page down
-            || code == 38   // Cursor up
-            || code == 40   // Cursor down
-            || code == 8 || code == 46 ) { // Backspace or delete
-            e.stopPropagation(); // filter deletes from the root handler
-        } else if (code == 27) { // ESC
+        if (code == 27) { // ESC
             $(this).val("");
         }
     });
@@ -217,6 +208,8 @@ SequenceCanvas.prototype.keyhandler_up = function ( e ) {
 }
 
 SequenceCanvas.prototype.keyhandler = function ( e ) {
+    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
+    
 	if ( gentle.is_in_dialog ) return false ;
 	var sc = gentle.main_sequence_canvas ;
 	var code = (e.keyCode ? e.keyCode : e.which);
