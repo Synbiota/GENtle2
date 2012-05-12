@@ -69,6 +69,22 @@ SequenceCanvas.prototype.registerSearch = function ( o ) {
 	h += " onkeyup='gentle.main_sequence_canvas.search." + o.call + "();return true' />" ;
 	h += '</form>' ;
 	$('#toolbar-right').prepend ( h ) ;
+
+    $('#toolbar_search_box').keydown(function(e) {
+        var code = (e.keyCode ? e.keyCode : e.which);
+        
+        if ( code == 36     // Start
+            || code == 35   // End
+            || code == 33   // Page up
+            || code == 34   // Page down
+            || code == 38   // Cursor up
+            || code == 40   // Cursor down
+            || code == 8 || code == 46 ) { // Backspace or delete
+            e.stopPropagation(); // filter deletes from the root handler
+        } else if (code == 27) { // ESC
+            $(this).val("");
+        }
+    });
 }
 
 SequenceCanvas.prototype.registerTool = function ( o ) {

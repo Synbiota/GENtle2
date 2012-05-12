@@ -22,10 +22,11 @@ PluginFindInSequence.prototype.startDialog = function () {
 	
 	var me = this ;
 //	sc.unbindKeyboard() ;
-	$('#'+this.query_id).keyup(function(){me.queryChanged()}) ;
+	$('#'+this.query_id).keyup(function(){me.queryChanged();}) ;
+	$('#'+this.query_id).keydown(function(o){me.keydownHandler(o)}) ;
 }
 
-PluginFindInSequence.prototype.queryChanged = function () {
+PluginFindInSequence.prototype.queryChanged = function (e) {
 	var me = this ;
 
 	var query = $('#'+this.query_id).val() ;
@@ -94,6 +95,23 @@ PluginFindInSequence.prototype.clickHandler = function ( o ) {
 	this.dropdown_focusout_cancel = true ;
 }
 
+PluginFindInSequence.prototype.keydownHandler = function ( e ) {
+	var code = (e.keyCode ? e.keyCode : e.which);
+//	console.log ( code + "/" + e.metaKey ) ;
+	
+    if ( code == 36     // Start
+        || code == 35   // End
+        || code == 33   // Page up
+        || code == 34   // Page down
+        || code == 38   // Cursor up
+        || code == 40   // Cursor down
+        || code == 8 || code == 46 ) { // Backspace or delete
+		e.stopPropagation(); // filter deletes from the root handler
+        return true;
+	}
+
+    return false;
+}
 
 PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is_dna ) {
 	var ret = { results : [] , toomany : false , ok : false } ;
@@ -146,7 +164,8 @@ PluginFindInSequence.prototype.updateResultsBox = function () {
 		$('#'+id).mouseenter ( function () { me.dropdown_focusout_cancel = true ; } ) ;
 		$('#'+id).mouseleave ( function () { me.dropdown_focusout_cancel = false ; } ) ;
 		
-		$('#'+id+'_close').click ( function () { $('#'+id).remove(); } ) ;
+        $('#'+id+'_close').click ( function () { $('#'+id).remove(); } ) ;
+
 		$('#toolbar_search_box').focusout ( function () {
 			if ( me.dropdown_focusout_cancel ) $('#toolbar_search_box').focus() ;
 			else $('#'+id+'_close').click() ;
