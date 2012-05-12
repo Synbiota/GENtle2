@@ -18,7 +18,7 @@ var gentle_config = {
 	synbiota : {
 		use_proxy : 1 ,
 		api_version : 1 ,
-		api_url : 'https://synbiota-test.herokuapp.com'
+		api_url : ''
 	} ,
 	
 	proxy : './data/proxy.php'
