@@ -648,8 +648,11 @@ var gentle = {
 	} ,
 	
 	help : function () {
-		$("#main").load('public/templates/help_popup.html', function() {
-			$('#help_dialog').modal () ;
+		$('#help_dialog').remove() ;
+		var dialogContainer = $("<div/>");
+		dialogContainer.load("public/templates/help_popup.html", function(){
+			dialogContainer.appendTo("#all");
+			$('#help_dialog').modal();
 		} ) ;
 	} ,
 	
