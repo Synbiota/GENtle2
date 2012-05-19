@@ -647,6 +647,12 @@ var gentle = {
 		return false ;
 	} ,
 	
+	help : function () {
+		$("#main").load('public/templates/help_popup.html', function() {
+			$('#help_dialog').modal () ;
+		} ) ;
+	} ,
+	
 	on_resize_event : function () {
 		gentle.main_sequence_canvas.resizeCanvas() ;
 	}
