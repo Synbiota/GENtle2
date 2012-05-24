@@ -101,8 +101,8 @@ var gentle = {
 	
 	showDefaultBlurb : function () {
 		$("#main").load('public/templates/default_main.html', function(){
-			$('#main_blurb').css ( { 'left' : $('#main').width()/4 } ) ;
-			$('#main_blurb').width ( $('#main').width()/2 ) ;
+			$('#main_blurb').css ( { overflow:'auto' } ) ;
+//			$('#main_blurb').width ( $('#main').width()/2 ) ;
 			$('#main_blurb').height ( $('#main').height() ) ;
 			$('#main_blurb').css ( { 'max-height' : $('#main').height() } ) ;
 		});
