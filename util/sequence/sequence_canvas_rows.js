@@ -228,6 +228,16 @@ function SequenceCanvasRowPosition ( sc , is_primary ) {
 SequenceCanvasRowAnnotation.prototype = new SequenceCanvasRow() ;
 SequenceCanvasRowAnnotation.prototype.constructor = SequenceCanvasRowAnnotation ;
 
+
+SequenceCanvasRowAnnotation.prototype.getAnnotationName = function ( v ) {
+	var name = '' ;
+	if ( v['gene'] !== undefined ) name = v['gene'] ;
+	else if ( v['product'] !== undefined ) name = v['product'] ;
+	else if ( v['name'] !== undefined ) name = v['name'] ;
+	name = name.replace(/^"/,'').replace(/"$/,'') ;
+	return name ;
+}
+
 SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 	var s = this.sc.sequence.seq ;
 	this.targets = [] ;
@@ -267,11 +277,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		var col = cd.feature_types[cl].col ;
 		var offset = cd.feature_types[cl].annotation_row_offset ;
 
-		var name = '' ;
-		if ( v['gene'] !== undefined ) name = v['gene'] ;
-		else if ( v['product'] !== undefined ) name = v['product'] ;
-		else if ( v['name'] !== undefined ) name = v['name'] ;
-		name = name.replace(/^"/,'').replace(/"$/,'') ;
+		var name = me.getAnnotationName ( v ) ;
 
 		$.each ( v['_range'] , function ( k , r ) {
 			for ( var p = r.from-1 ; p < r.to ; p++ ) {
@@ -323,6 +329,22 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 				if ( ( o.first || begin_of_line ) && o.name != '' ) {
 					ctx.fillStyle = o.color ;
 					ctx.fillText ( o.first ? o.name : "("+o.name+")" , x , y2-1 ) ;
+
+					if ( o.first ) {
+						var textwidth = o.name.length * 5 ; // Guess
+						var textheight = 5 ; // Guess
+						me.targets.push ( {
+							left : x , 
+							top : y+2 , 
+							right : x + textwidth , 
+							bottom : y2 , 
+							base : p , 
+							onHover : me.onHover ,
+							row : me ,
+							text : "<span style='color:" + ctx.fillStyle + "'>" + o.name + "</span>"
+						} ) ;
+				}
+
 				}
 			} ) ;
 		}
@@ -354,6 +376,64 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		ctx.stroke() ;
 	} ) ;
 	ctx.strokeStyle = ss ;
+}
+
+SequenceCanvasRowAnnotation.prototype.onHover = function ( target ) {
+	var me = target.row ;
+	var ox = parseInt($('#sequence_canvas').offset().left,10) ;
+	var oy = parseInt($('#sequence_canvas').offset().top,10) ;
+
+	if ( $('#annot_hover').length > 0 ) {
+		var base = $('#annot_hover').attr('base') ;
+		if ( base == target.base ) {
+			$('#annot_hover').popover ( 'show' ) ;
+			return ;
+		}
+	}
+
+	$('#annot_hover').popover ( 'hide' ) ;
+	$('#annot_hover').remove() ;
+	
+	var out = [] ;
+	$.each ( me.sc.sequence.features , function ( fid , v ) {
+		if ( v['_type'].match(/^source$/i) ) return ;
+		if ( undefined === v['_range'] ) return ;
+		if ( 0 == v['_range'].length ) return ;
+		var left = v['_range'][0].from ;
+		var right = v['_range'][v['_range'].length-1].to ;
+		if ( left-1 > target.base ) return ;
+		if ( right-1 < target.base ) return ;
+		var name = me.getAnnotationName ( v ) ;
+		var desc = v['desc'] || v['note'] || '' ;
+		out.push ( { name : name , desc : desc , type : v['_type'] } ) ;
+		
+	} ) ;
+
+	var title = '' ;
+	var content = '' ;
+	
+	if ( out.length == 0 ) return ; // Nope
+	if ( out.length == 1 ) {
+		title = out[0].name + ' <span style="font-size:8pt !important"><tt>[' + out[0].type + ']</tt></span>' ;
+		content = out[0].desc ;
+	} else {
+		title = 'Multiple annotation' ;
+		$.each ( out , function ( k , v ) {
+			content += "<h4>" + v.name + " <small><tt>[" + v.type + "]</tt></small></h4>" ;
+			if ( '' != v.desc ) content += "<div>" + v.desc + "</div>" ;
+		} ) ;
+	}
+	
+	$('#canvas_wrapper').prepend ( "<div id='annot_hover' class='temporary_popover_source'></div>" ) ;
+	$('#annot_hover').css ( { left : (target.left+ox)+'px' , top : (target.top+oy)+'px' , height : target.bottom-target.top+1 , width : target.right-target.left+1 , position:'fixed' } ) ;
+	$('#annot_hover').attr ( 'base' , target.base ) ;
+	$('#annot_hover').popover ( {
+		placement : 'top' ,
+		title : title ,
+		animation : false ,
+		content : content
+	} ) ;
+	$('#annot_hover').popover ( 'show' ) ;
 }
 
 SequenceCanvasRowAnnotation.prototype.init = function () {

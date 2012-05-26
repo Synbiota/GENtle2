@@ -162,11 +162,15 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 	if ( target === null ) {
 		if ( !sc.position_is_blank ) gentle.set_hover ( this.getHoverName() ) ;
 		sc.position_is_blank = true ;
+		$('.temporary_popover_source').popover('hide');
 		return ;
 	}
 	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
 	else gentle.set_hover ( target.text ) ;
 	sc.position_is_blank = false ;
+	
+	
+	if ( undefined !== target.onHover ) target.onHover ( target ) ;
 	
 	if ( !sc.selecting ) return ;
 
