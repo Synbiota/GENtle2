@@ -1,3 +1,13 @@
+var use_bugmuncher = true ;
+var bugmuncher_options = {
+	language:'en',
+	position:'right',
+	show_intro:true,
+	show_preview:true,
+	label_text:'Feedback',
+	api_key:'3ce92ba3439e62465ecdf9d56c02cad63b2172a6'
+}
+
 var synbiota_data = {} ;
 
 synbiota.prototype = new Plugin() ;
@@ -129,6 +139,14 @@ synbiota.prototype.fpd_load_part = function ( num ) {
 }
 
 synbiota.prototype.global_init = function () {
+
+	if ( use_bugmuncher ) { // BugMuncher
+		var node = document.createElement("script"); 
+		node.setAttribute("type", "text/javascript"); 
+		node.setAttribute("src", "https://app.bugmuncher.com/js/bugMuncher.min.js"); 
+		document.getElementsByTagName("head")[0].appendChild(node); 
+	}
+
 	if ( undefined === gentle.url_vars.token ) {
 		return ; // No token, no joy!
 	}
