@@ -18,11 +18,18 @@ function start_nbci_dialog () {
 
   var dialogContainer = $("<div/>");
   dialogContainer.load("public/templates/ncbi_dialog.html", function(){
+
+	var sc = gentle.main_sequence_canvas ;
+	if ( sc.edit.editing ) {
+		sc.setEditMode ( false ) ;
+		sc.show() ;
+	}
+	sc.unbindKeyboard() ;
+
     dialogContainer.appendTo("#all");
     $('#ncbi_dialog').modal();
     $("#ncbi_form input[type=submit]").click(function(){submitTask();});
     $("#ncbi_form input[name=ncbiID]").keypress(function(e) {
-       console.log("hrmm...")
       if(e.keyCode === 13) {
         submitTask();
       }

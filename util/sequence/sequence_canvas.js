@@ -70,6 +70,15 @@ SequenceCanvas.prototype.registerSearch = function ( o ) {
 	h += '</form>' ;
 	$('#toolbar-right').prepend ( h ) ;
 
+    $('#toolbar_search_box').focus(function() {
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc.edit.editing ) {
+			sc.setEditMode ( false ) ;
+			sc.show() ;
+		}
+		return false ;
+	} ) ;
+
     $('#toolbar_search_box').keydown(function(e) {
         var code = (e.keyCode ? e.keyCode : e.which);
         if (code == 27) { // ESC
