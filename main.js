@@ -334,6 +334,14 @@ var gentle = {
 	
 	  var dialogContainer = $("<div/>");
 	  dialogContainer.load("public/templates/new_sequence_dialog.html", function(){
+
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc.edit.editing ) {
+			sc.setEditMode ( false ) ;
+			sc.show() ;
+		}
+		sc.unbindKeyboard() ;
+	  	
 		dialogContainer.appendTo("#all");
 		$('#newSequenceDialog').modal();
 		$('#new_sequence_entry').focus() ;

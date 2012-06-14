@@ -20,11 +20,13 @@ function start_nbci_dialog () {
   dialogContainer.load("public/templates/ncbi_dialog.html", function(){
 
 	var sc = gentle.main_sequence_canvas ;
-	if ( sc.edit.editing ) {
-		sc.setEditMode ( false ) ;
-		sc.show() ;
+	if ( sc ) {
+		if ( sc.edit && sc.edit.editing ) {
+			sc.setEditMode ( false ) ;
+			sc.show() ;
+		}
+		sc.unbindKeyboard() ;
 	}
-	sc.unbindKeyboard() ;
 
     dialogContainer.appendTo("#all");
     $('#ncbi_dialog').modal();
