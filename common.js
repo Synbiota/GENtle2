@@ -1,10 +1,12 @@
 function getBlobBuilder () {
-/*	if ( window.BlobBuilder ) return new window.BlobBuilder() ;
-	if ( window.MozBlobBuilder ) return new window.MozBlobBuilder() ;
-	if ( window.WebKitBlobBuilder ) return new window.WebKitBlobBuilder() ;
-	if ( window.MsBlobBuilder ) return new window.MsBlobBuilder() ;*/
-	
-	if ( window.Blob ) return new window.Blob() ;
+	try {
+		if ( window.Blob ) return new window.Blob() ;
+	} catch ( e ) {
+		if ( window.BlobBuilder ) return new window.BlobBuilder() ;
+		if ( window.MozBlobBuilder ) return new window.MozBlobBuilder() ;
+		if ( window.WebKitBlobBuilder ) return new window.WebKitBlobBuilder() ;
+		if ( window.MsBlobBuilder ) return new window.MsBlobBuilder() ;
+	}
 	
 	return undefined ;
 }
