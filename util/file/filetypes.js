@@ -34,17 +34,26 @@ Filetype.prototype.getExportString = function ( sequence ) {
 
 Filetype.prototype.getExportBlob = function ( sequence ) {
 	var ret = { error : false } ;
-	ret.blob = getBlobBuilder() ;
-	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
 	
 	var t = this.getExportString ( sequence ) ;
 	if ( t == '' ) {
 		ret.error = true ;
 		return ret ;
 	}
-	
-	ret.blob.append ( t ) ;
+
 	ret.filetype = "text/plain;charset=utf-8" ;
+
+	try {
+		var dt = [ t ] ;
+		ret.blob = new Blob ( dt , { type:"text/plain;charset=utf-8" } ) ;
+	} catch ( e ) {
+		var b = getBlobBuilder() ;
+		b.append ( t ) ;
+		ret.blob = b.getBlob ( ret.filetype ) ;
+	}
+
+	if ( undefined === ret.blob ) return { error : true } ; // Paranoia
+
 	
 	return ret ;
 }

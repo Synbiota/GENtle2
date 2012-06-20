@@ -1,8 +1,11 @@
 function getBlobBuilder () {
-	if ( window.BlobBuilder ) return new window.BlobBuilder() ;
+/*	if ( window.BlobBuilder ) return new window.BlobBuilder() ;
 	if ( window.MozBlobBuilder ) return new window.MozBlobBuilder() ;
 	if ( window.WebKitBlobBuilder ) return new window.WebKitBlobBuilder() ;
-	if ( window.MsBlobBuilder ) return new window.MsBlobBuilder() ;
+	if ( window.MsBlobBuilder ) return new window.MsBlobBuilder() ;*/
+	
+	if ( window.Blob ) return new window.Blob() ;
+	
 	return undefined ;
 }
 

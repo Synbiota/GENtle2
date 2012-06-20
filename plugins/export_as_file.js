@@ -57,7 +57,7 @@ exportAsFile.prototype.doExport = function () {
 	
 	var file = new window['FT_'+filetype](); // Check if export is supported
 	var o = file.getExportBlob ( me.sc.sequence ) ;
-	saveAs(o.blob.getBlob(o.filetype), filename);
+	saveAs(o.blob, filename);
 	$('#'+this.dialog_id).dialog('close') ;
 }
 
