@@ -228,7 +228,7 @@ function SequenceCanvasRowPosition ( sc , is_primary ) {
 SequenceCanvasRowAnnotation.prototype = new SequenceCanvasRow() ;
 SequenceCanvasRowAnnotation.prototype.constructor = SequenceCanvasRowAnnotation ;
 
-
+/*
 SequenceCanvasRowAnnotation.prototype.getAnnotationName = function ( v ) {
 	var name = '' ;
 	if ( v['gene'] !== undefined ) name = v['gene'] ;
@@ -237,6 +237,7 @@ SequenceCanvasRowAnnotation.prototype.getAnnotationName = function ( v ) {
 	name = name.replace(/^"/,'').replace(/"$/,'') ;
 	return name ;
 }
+*/
 
 SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 	var s = this.sc.sequence.seq ;
@@ -277,7 +278,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		var col = cd.feature_types[cl].col ;
 		var offset = cd.feature_types[cl].annotation_row_offset ;
 
-		var name = me.getAnnotationName ( v ) ;
+		var name = me.sc.sequence.getAnnotationName ( v ) ;
 
 		$.each ( v['_range'] , function ( k , r ) {
 			for ( var p = r.from-1 ; p < r.to ; p++ ) {
@@ -404,7 +405,7 @@ SequenceCanvasRowAnnotation.prototype.onHover = function ( target ) {
 		var right = v['_range'][v['_range'].length-1].to ;
 		if ( left-1 > target.base ) return ;
 		if ( right-1 < target.base ) return ;
-		var name = me.getAnnotationName ( v ) ;
+		var name = me.sc.sequence.getAnnotationName ( v ) ;
 		var desc = v['desc'] || v['note'] || '' ;
 		var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
 		out.push ( { name : name , desc : desc , type : v['_type'] , col:col } ) ;

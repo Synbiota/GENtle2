@@ -401,6 +401,12 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
 
 }
 
+SequenceCanvas.prototype.editFeature = function ( fid ) {
+	var me = this ;
+	var feat = me.sequence.features[fid] ;
+	console.log ( feat ) ;
+}
+
 SequenceCanvas.prototype.fixMenus = function () {
 	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
 	$('.toolbar_plugin').each ( function () {

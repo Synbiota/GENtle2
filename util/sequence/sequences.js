@@ -35,7 +35,26 @@ Sequence.prototype.getStorageObject = function () {
 	return ret ;
 }
 
+Sequence.prototype.getAnnotationName = function ( v ) {
+	var name = '' ;
+	if ( v['gene'] !== undefined ) name = v['gene'] ;
+	else if ( v['product'] !== undefined ) name = v['product'] ;
+	else if ( v['name'] !== undefined ) name = v['name'] ;
+	name = name.replace(/^"/,'').replace(/"$/,'') ;
+	return name ;
+}
 
+Sequence.prototype.getFeaturesInRange = function ( from , to ) {
+	var me = this ;
+	var ret = {} ;
+	$.each ( me.features , function ( fid , f ) {
+		if ( undefined === f['_range'] ) return ;
+		if ( to < f['_range'][0].from ) return ;
+		if ( from > f['_range'][f['_range'].length-1].to ) return ;
+		ret[fid] = f ;
+	} ) ;
+	return ret ;
+}
 
 //________________________________________________________________________________________
 // SequenceDNA

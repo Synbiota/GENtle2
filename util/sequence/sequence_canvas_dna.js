@@ -13,6 +13,27 @@ SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'copy\');return false">Copy</a></li>' ;
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.delete_selection();return false">Remove selection</a></li>' ;
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_annotate();return false">Annotate selection</a></li>' ;
+
+	var sc = gentle.main_sequence_canvas ;
+	if ( sc !== undefined && sc.selections.length > 0 ) {
+		var feats = sc.sequence.getFeaturesInRange ( sc.selections[0].from , sc.selections[0].to ) ;
+		$.each ( feats , function ( k , v ) {
+			if ( v['_type'] == 'source' ) return ;
+			var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
+			var name = sc.sequence.getAnnotationName ( v ) ;
+			name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
+
+			h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false">' + name + '</a></li>' ;
+/*
+			h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#">' + name + '</a><ul class="dropdown-menu">' ; // style="font-size:8pt"
+			h += '<li><a href="#" onclick="alert(\"'+k+'\");return false">123</a></li>' ;
+			h += '<li><a href="#" onclick="alert(\"'+k+'\");return false">345</a></li>' ;
+			h += '</ul></div>' ;
+*/
+
+		} ) ;
+	}
+
 	h += '</ul></div>' ;
 
 	h += "</div>" ;
