@@ -292,6 +292,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 	var y = 2 - me.sc.yoff + me.line_off ;
 	var miny = -me.sc.ch ;
 	var lx = x ;
+	var min_textwidth = 30 ; // For hovering
 	var lines = [] ;
 	var linebuffer = {} ;
 	for ( var p = 0 ; p < s.length ; p++ ) {
@@ -326,24 +327,24 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 				}
 				
 				// Drawing labels directly, it doesn't get any cheaper...
-				if ( ( o.first || begin_of_line ) && o.name != '' ) {
+				if ( ( o.first || begin_of_line ) /*&& o.name != ''*/ ) {
 					ctx.fillStyle = o.color ;
 					ctx.fillText ( o.first ? o.name : "("+o.name+")" , x , y2-1 ) ;
 
-					if ( o.first ) {
+//					if ( o.first ) {
 						var textwidth = o.name.length * 5 ; // Guess
 						var textheight = 5 ; // Guess
 						me.targets.push ( {
 							left : x , 
 							top : y+2 , 
-							right : x + textwidth , 
+							right : x + (textwidth>min_textwidth?textwidth:min_textwidth) , 
 							bottom : y2 , 
 							base : p , 
 							onHover : me.onHover ,
 							row : me ,
 							text : "<span style='color:" + ctx.fillStyle + "'>" + o.name + "</span>"
 						} ) ;
-				}
+//				}
 
 				}
 			} ) ;
@@ -405,7 +406,8 @@ SequenceCanvasRowAnnotation.prototype.onHover = function ( target ) {
 		if ( right-1 < target.base ) return ;
 		var name = me.getAnnotationName ( v ) ;
 		var desc = v['desc'] || v['note'] || '' ;
-		out.push ( { name : name , desc : desc , type : v['_type'] } ) ;
+		var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
+		out.push ( { name : name , desc : desc , type : v['_type'] , col:col } ) ;
 		
 	} ) ;
 
@@ -414,21 +416,23 @@ SequenceCanvasRowAnnotation.prototype.onHover = function ( target ) {
 	
 	if ( out.length == 0 ) return ; // Nope
 	if ( out.length == 1 ) {
-		title = out[0].name + ' <span style="font-size:8pt !important"><tt>[' + out[0].type + ']</tt></span>' ;
+		title = out[0].name + ' <span style="font-size:8pt !important"><tt>[<span style="color:' + out[0].col + '">' + out[0].type + '</span>]</tt></span>' ;
 		content = out[0].desc ;
 	} else {
 		title = 'Multiple annotation' ;
 		$.each ( out , function ( k , v ) {
-			content += "<h4>" + v.name + " <small><tt>[" + v.type + "]</tt></small></h4>" ;
+			content += "<h4>" + v.name + ' <small><tt>[<span style="color:' + v.col + '">' + v.type + "</span>]</tt></small></h4>" ;
 			if ( '' != v.desc ) content += "<div>" + v.desc + "</div>" ;
 		} ) ;
 	}
+	
+	var placement = (target.left+ox>300) ? 'top' : 'right' ;
 	
 	$('#canvas_wrapper').prepend ( "<div id='annot_hover' class='temporary_popover_source'></div>" ) ;
 	$('#annot_hover').css ( { left : (target.left+ox)+'px' , top : (target.top+oy)+'px' , height : target.bottom-target.top+1 , width : target.right-target.left+1 , position:'fixed' } ) ;
 	$('#annot_hover').attr ( 'base' , target.base ) ;
 	$('#annot_hover').popover ( {
-		placement : 'top' ,
+		placement : placement ,
 		title : title ,
 		animation : false ,
 		content : content
