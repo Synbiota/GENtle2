@@ -403,8 +403,10 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
 
 SequenceCanvas.prototype.editFeature = function ( fid ) {
 	var me = this ;
-	var feat = me.sequence.features[fid] ;
-	console.log ( feat ) ;
+	var sc = gentle.main_sequence_canvas ;
+	$('#annot_hover').popover ( 'hide' ) ;
+	$('#annot_hover').remove() ;
+	gentle.annotation_editor_dialog = new AnnotationEditorDialogDNA ( sc , fid ) ; // FIXME hardcoded for DNA
 }
 
 SequenceCanvas.prototype.fixMenus = function () {

@@ -49,8 +49,8 @@ Sequence.prototype.getFeaturesInRange = function ( from , to ) {
 	var ret = {} ;
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
-		if ( to < f['_range'][0].from ) return ;
-		if ( from > f['_range'][f['_range'].length-1].to ) return ;
+		if ( to+1 < f['_range'][0].from ) return ;
+		if ( from+1 > f['_range'][f['_range'].length-1].to ) return ;
 		ret[fid] = f ;
 	} ) ;
 	return ret ;
