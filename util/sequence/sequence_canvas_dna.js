@@ -258,7 +258,6 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 		$('#tmp').keydown ( sc.keyhandler ) ;
 	}*/
 	
-	
 	return sc.absorb_event(e) ;
 }
 

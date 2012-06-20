@@ -485,6 +485,7 @@ var gentle = {
 	// File open/drop handlers
 	handleFileSelect : function ( evt ) {
 		$.each ( evt.target.files , function ( k , f ) { gentle.addLocalFile ( f ) } ) ;
+		$('#openFileFromDisk').modal ( 'hide' ) ;
 	} ,
 	
 	handleFileDrop : function (evt) {

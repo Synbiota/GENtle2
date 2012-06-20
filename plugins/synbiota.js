@@ -1,4 +1,4 @@
-var use_bugmuncher = true ;
+var use_bugmuncher = false ;
 var bugmuncher_options = {
 	language:'en',
 	position:'right',

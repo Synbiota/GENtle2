@@ -193,15 +193,15 @@ SequenceCanvas.prototype.modifierCode = function (event) {
 	}
 }
 
-SequenceCanvas.prototype.unbindKeyboard = function () {
-	var root = document ; //$('#main') ;
+SequenceCanvas.prototype.unbindKeyboard = function ( root ) {
+	if ( undefined === root ) root = document ; //$('#main') ;
 	$(root).unbind('keydown').unbind('keyup').unbind('paste').unbind('cut').unbind('copy') ;
 }
 
-SequenceCanvas.prototype.bindKeyboard = function () {
+SequenceCanvas.prototype.bindKeyboard = function ( root ) {
 	var sc = this ;
-	sc.unbindKeyboard() ;
-	var root = document ; //$('#main') ;
+	if ( undefined === root ) root = document ; //$('#main') ;
+	sc.unbindKeyboard(root) ;
 	$(root).off ( 'copy keydown paste cut' ) ;
 	$(root).keydown ( sc.keyhandler ) ;
 	$(root).keyup ( sc.keyhandler_up ) ;
