@@ -96,6 +96,7 @@ PluginFindInSequence.prototype.clickHandler = function ( o ) {
 
 PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is_dna ) {
 	var ret = { results : [] , toomany : false , ok : false } ;
+/*
 	var pattern = '' ;
 	if ( is_dna ) {
 		for ( var i = 0 ; i < query.length ; i++ ) {
@@ -107,13 +108,36 @@ PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is
 	} else {
 		pattern = query ;
 	}
+*/
+
+	var pattern_array = [] ;
+	var pattern = '' ;
+	if ( is_dna ) {
+		for ( var i = 0 ; i < query.length ; i++ ) {
+			var r = cd.iupac2bases[query[i].toUpperCase()] ;
+			if ( undefined === r ) pattern_array.push ( query[i] ) ;
+			else if ( r.length == 1 ) pattern_array.push ( query[i] ) ;
+			else pattern_array.push ( '['+r+']' ) ;
+		}
+		pattern = pattern_array.shift() ;
+		if ( pattern_array.length > 0 ) {
+			pattern += '(?=(' ;
+			$.each ( pattern_array , function ( k , v ) {
+				pattern += v ;
+			} ) ;
+			pattern += '))' ;
+		}
+	} else {
+		pattern = query ;
+	}
+
 	var rx = new RegExp('('+pattern+')','gi') ;
 	ret.ok = true ;
 	
 	var result ;
 	while ((result=rx.exec(sequence)) !== null ) {
-		var p = rx.lastIndex - query.length ;
-		ret.results.push ( { from : p , to : p+result[0].length-1 } ) ;
+		var p = result.index ;//rx.lastIndex - query.length ;
+		ret.results.push ( { from : p , to : p+result[1].length+result[2].length-1 } ) ;
 		if ( ret.results.length > 5000 ) {
 			ret.toomany = true ;
 			break ;
