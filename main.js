@@ -336,11 +336,13 @@ var gentle = {
 	  dialogContainer.load("public/templates/new_sequence_dialog.html", function(){
 
 		var sc = gentle.main_sequence_canvas ;
-		if ( sc.edit.editing ) {
-			sc.setEditMode ( false ) ;
-			sc.show() ;
+		if ( sc ) {
+			if ( sc.edit.editing ) {
+				sc.setEditMode ( false ) ;
+				sc.show() ;
+			}
+			sc.unbindKeyboard() ;
 		}
-		sc.unbindKeyboard() ;
 	  	
 		dialogContainer.appendTo("#all");
 		$('#newSequenceDialog').modal();

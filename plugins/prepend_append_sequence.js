@@ -57,7 +57,7 @@ PluginPrependAppendSequence.prototype.insertSequence = function () {
 	var me = this ;
 	var seqid = $('#'+me.dialog_id+'_seq option:selected').val() ;
 	var mode = $('input[name="'+me.dialog_id+'_mode"]:checked','#'+me.dialog_id).val() ;
-	console.log ( mode ) ;
+//	console.log ( mode ) ;
 	
 	var pos ;
 	switch ( mode ) {
@@ -66,7 +66,7 @@ PluginPrependAppendSequence.prototype.insertSequence = function () {
 		case 'pre_sel' : pos = me.sc.selections[0].from ; break ;
 		case 'post_sel' : pos = me.sc.selections[0].to+1 ; break ;
 	}
-	console.log ( pos ) ;
+//	console.log ( pos ) ;
 	
 	$('#'+me.dialog_id).dialog ( 'close' ) ;
 
