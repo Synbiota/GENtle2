@@ -44,6 +44,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	me.list.main = me.list.main.sort ( me.sortFeaturesByPosition ) ;
 	var m2 = [] ;
 	if ( me.list.main[0].start > 0 ) m2.push ( { start : 1 , stop : me.list.main[0].start-1 , type : 'space' } ) ;
+//	else if ( is_primary ) m2.push ( { start : 0 , stop :0 , type : 'space' } ) ;
 	$.each ( me.list.main , function ( k , v ) {
 		m2.push ( v ) ;
 		if ( k+1 == me.list.main.length ) return ;
@@ -71,6 +72,10 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	h += "</div>" ;
 	
 	h += "<div class='designer_row_features_main'>" ;
+//	if ( h += "<div style='display:none' class='designer_row_feature_droppable designer_row_feature_droppable_space'></div>" ;
+	if ( is_primary ) {
+		h += "<div class='designer_row_feature_droppable designer_row_feature_dummy'></div>" ;
+	}
 	$.each ( me.list.main , function ( k , v ) {
 		var len = v.stop - v.start + 1 ;
 		if ( len <= 0 ) return ;
@@ -83,7 +88,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += "&nbsp;<br/>&nbsp;" ;
 			h += "</div>" ;
 		} else {
-			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + v.start + "'>&nbsp;<br/>&nbsp;</div>" ;
+			if ( is_primary ) h += " <div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + v.start + "'>&nbsp;<br/>&nbsp;</div>" ;
 			h += "<div class='designer_row_feature " ;
 			if ( is_primary ) h += "designer_row_feature_droppable" ;
 			else h += "designer_row_feature_draggable" ;
@@ -167,8 +172,11 @@ SequenceCanvasDesigner.prototype.init = function () {
 		tolerance:'pointer',
 		activate : function (event,ui) {
 			$('.designer_row_feature_droppable_space').css({display:'inline-block'}); // Not very elegant, but $(this) doesn't work...
+			$('.designer_row_feature_dummy').hide() ;
 		} ,
 		deactivate : function (event,ui) {
+			$('.designer_row_feature_dummy').show() ;
+			$('.designer_row_feature_droppable_active').removeClass('designer_row_feature_droppable_active');
 			$('.designer_row_feature_droppable_space').hide(); // Not very elegant, but $(this) doesn't work...
 		} ,
 		drop : function ( event , ui ) {
