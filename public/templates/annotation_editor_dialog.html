@@ -1,0 +1,60 @@
+<div class="modal" id="annotation_editor_dialog">
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal"></a>
+		<h3>Annotation editor</h3>
+	</div>
+    <div class="modal-body">
+		<table border=0>
+			<tr><th>Name</th><td><input type='text' id='aed_name' class='span6'/></td></tr>
+			<tr><th>Type</th><td><select id='aed_type'></select></td></tr>
+			<tr><th>Description</th><td><textarea rows='5' id='aed_desc' class='span6'></textarea></td></tr>
+			<tr><th>Range</th><td>
+			<table border=0>
+				<thead><tr><td>From</td><td/><td>To</td></tr></thead>
+				<tbody id='aed_ranges'></tbody>
+			</table>
+			</td></tr>
+			<tr><td /><td><label><input type='checkbox' id='aed_rc' style='display:inline' />&nbsp;Reverse-complement</label></td></tr>
+		</table>
+<!--
+		<ul id='sid_tab' class="nav nav-tabs">
+		  <li><a href="#sid_general" data-toggle='tab'>General</a></li>
+		  <li><a href="#sid_annotation" data-toggle='tab'>Annotation</a></li>
+		</ul>
+		
+		<div id='sid_tab_content' class="tab-content">
+		
+			<div class="tab-pane active" id="sid_general">
+				<div>
+					<h4>Sequence name</h4>
+					<input type='text' id='sid_name' style='width:90%' />
+				</div>
+				<div>
+					<h4>Description</h4>
+					<textarea id='sid_desc' rows=10 style='width:90%'></textarea>
+				</div>
+			</div>
+			
+			<div class="tab-pane" id="sid_annotation">
+				<div>
+					<h4>Annotation elements</h4>
+					<div style='max-height:200px;overflow:auto'>
+						<table class="table table-striped table-bordered table-condensed">
+						<thead><tr><th>Name</th><th>Type</th><th>Range</th><th>Action</th></tr></thead>
+						<tbody id='sid_annotation_tbody'>
+						</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+-->	
+    </div>
+
+	<div class="modal-footer">
+		<a href="#" class="btn btn-primary" onclick='gentle.annotation_editor_dialog.onSaveButton();return false'>Save changes</a>
+		<a href="#" class="btn" onclick='gentle.annotation_editor_dialog.onCancelButton();return false'>Cancel</a>
+	</div>
+</div>
+
