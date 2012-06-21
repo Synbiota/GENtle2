@@ -70,32 +70,26 @@ function AnnotationEditorDialogDNA ( sc , fid ) {
 		} ) ;
 		
 		$.each ( feat['_range'] || [] , function ( k , v ) {
-			var h = "<tr class='aed_range'><td>" ;
-			h += "<input type='number' class='span2 aed_from' value='" + (v.from+1) + "' />" ;
-			h += "</td><td>&ndash;</td><td>" ;
-			h += "<input type='number' class='span2 aed_to' value='" + (v.to+1) + "' />" ;
-			h += "</td><tr>" ;
-			$('#aed_ranges').append ( h ) ;
+			$('#aed_ranges').append ( me.getRowHTML(v.from+1,v.to+1) ) ;
 		} ) ;
 		
 		$('#aed_rc').attr('checked',feat['_range'][0].rc) ;
-		
+		$('#aed_add_range_button').click ( function () {
+			$('#aed_ranges').append ( me.getRowHTML(1,1) ) ;
+			return false ;
+		} ) ;
 		$('#aed_name').focus() ;
 	} ) ;
 }
 
-/*
-AnnotationEditorDialogDNA.prototype.deleteAnnotation = function ( id ) {
-	var me = gentle.annotation_editor_dialog ;
-	me.features.splice ( id , 1 ) ; // TODO only do on local copy, only commit onSaveButton
-	$('#sid_annotation_tbody [rowid='+id+']').remove() ;
-	return false ;
-} ;
-
-AnnotationEditorDialogDNA.prototype.showAnnotationDetails = function ( key ) {
-	$("#sid_annotation_details").html ( "TODO! " + key ) ;
-} ;
-*/
+AnnotationEditorDialogDNA.prototype.getRowHTML = function ( from , to ) {
+	var h = "<tr class='aed_range'><td>" ;
+	h += "<input type='number' class='span2 aed_from' value='" + from + "' />" ;
+	h += "</td><td>&ndash;</td><td>" ;
+	h += "<input type='number' class='span2 aed_to' value='" + to + "' />" ;
+	h += "</td><td style='width:100%'><button class='btn btn-danger'><i class='icon-trash icon-white'></i></button></td></tr>" ;
+	return h ;
+}
 
 AnnotationEditorDialogDNA.prototype.onCancelButton = function () {
 	var me = gentle.annotation_editor_dialog ;

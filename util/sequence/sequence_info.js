@@ -69,13 +69,16 @@ function SequenceInfoDialogDNA ( sc ) {
 			h += "<td style='width:100%'>" + name + "</td>" ;
 			h += "<td nowrap>" + type + "</td>" ;
 			h += "<td nowrap>" + from + " &ndash; " + to + " " + rc + "</td>" ;
-			h += "<td><button class='btn btn-danger' onclick='gentle.sequence_info_dialog.deleteAnnotation("+k+");return false'>Delete</button></td>" ;
+			h += "<td nowrap>" ;
+//			h += "<button class='btn btn-success' onclick='gentle.sequence_info_dialog.editAnnotation("+k+");return false'><i class='icon-edit icon-white'></i></button>&nbsp;" ;
+			h += "<button class='btn btn-danger' onclick='gentle.sequence_info_dialog.deleteAnnotation("+k+");return false'><i class='icon-trash icon-white'></i></button>" ;
+			h += "</td>" ;
 			h += "</tr>" ;
 		} ) ;
 		$('#sid_annotation_tbody').html ( h ) ;
-/*		$('#sid_annotation_tbody tr').click ( function ( o ) {
+		$('#sid_annotation_tbody tr').click ( function ( o ) {
 			gentle.sequence_info_dialog.showAnnotationDetails ( $(o.currentTarget).attr('rowid') ) ;
-		} ) ;*/
+		} ) ;
 		
 		$('#sid_tab').tab('show') ;
 		$('#sid_tab a:first').tab('show')
@@ -83,6 +86,13 @@ function SequenceInfoDialogDNA ( sc ) {
 }
 
 SequenceInfoDialogDNA.prototype.deleteAnnotation = function ( id ) {
+	var me = gentle.sequence_info_dialog ;
+	me.features.splice ( id , 1 ) ; // TODO only do on local copy, only commit onSaveButton
+	$('#sid_annotation_tbody [rowid='+id+']').remove() ;
+	return false ;
+} ;
+
+SequenceInfoDialogDNA.prototype.editAnnotation = function ( id ) {
 	var me = gentle.sequence_info_dialog ;
 	me.features.splice ( id , 1 ) ; // TODO only do on local copy, only commit onSaveButton
 	$('#sid_annotation_tbody [rowid='+id+']').remove() ;
