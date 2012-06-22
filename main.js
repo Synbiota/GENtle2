@@ -9,7 +9,7 @@
 //________________________________________________________________________________________
 // gentle object containing core methods
 var gentle = {
-	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' ] ,
+	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' , 'cm5' ] ,
 	features : {} , //{ 'note':'Note' , 'gene':'Gene' , 'cds':'CDS' , 'promoter':'Promoter' , 'misc':'Misc' , 'protein_bind':'Protein binding site' } ,
 	sequences : [] ,
 	current_sequence_entry : undefined ,
@@ -521,6 +521,12 @@ var gentle = {
 			file.checkFile ( f ) ;
 		} ) ;
 	
+	} ,
+	
+	addFileType : function ( type ) {
+		// TODO check if class exists and has necessary methods
+		// TODO check to avoid duplicate entries
+		gentle.fileTypeList.push ( type ) ;
 	} ,
 	
 	toggle_display_settings : function () {
