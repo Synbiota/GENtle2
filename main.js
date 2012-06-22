@@ -533,6 +533,7 @@ var gentle = {
 		if ( $('#sb_display_options').is(':visible') ) {
 			$('#sb_display_options').dialog ( 'close' ) ;
 		} else {
+//			$('body').append("<div id='sb_display_options'></div>");
 			$('#sb_display_options').dialog ( { modal : false , width : 'auto' } ) ;
 	 		$('#sb_display_options').dialog('option', 'position', 'center');
 		}
@@ -542,7 +543,14 @@ var gentle = {
 		if ( $('#sb_sequences_container').is(':visible') ) {
 			$('#sb_sequences_container').dialog ( 'close' ) ;
 		} else {
-			$('#sb_sequences_container').dialog ( { modal:false , width:'auto' , maxWidth:1200 , height:'auto' } ) ;
+			$('body').append("<div id='sb_sequences_container' style='display:none' title='Loaded sequences'><div id='sb_sequences_table_container'></div></div>");
+			gentle.updateSequenceList();
+			$('#sb_sequences_container').dialog ( {
+				modal:false , width:'auto' , maxWidth:1200 , height:'auto' ,
+				close : function () {
+					$('#sb_sequences_container').remove();
+				}
+			} ) ;
 		}
 	} ,
 	

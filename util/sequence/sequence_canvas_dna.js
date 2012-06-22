@@ -164,6 +164,7 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	sc.selecting = true ;
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
 	sc.show() ;
+//	$('#sequence_canvas').click().focus();
 	return sc.absorb_event(e) ;
 }
 
@@ -259,6 +260,7 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
 		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
 //		$('#soft_keyboard .ui-dialog-titlebar').hide();
+
 		return false ;
 	}
 	
