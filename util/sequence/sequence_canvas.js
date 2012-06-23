@@ -217,7 +217,8 @@ SequenceCanvas.prototype.keyhandler_up = function ( e ) {
 }
 
 SequenceCanvas.prototype.keyhandler = function ( e ) {
-    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
+	if ( e.target.localName == "input" || ( e.target.localName == "textarea" && 'tmp1' != $(e.target).attr('id') ) ) return true ; // Don't touch that
+//    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
     
 	if ( gentle.is_in_dialog ) return false ;
 	var sc = gentle.main_sequence_canvas ;
