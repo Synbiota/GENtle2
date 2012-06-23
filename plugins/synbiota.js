@@ -165,8 +165,8 @@ synbiota.prototype.global_init = function () {
 		} ) ;
 
 		while ( tmpseq.length > 0 ) {
-			gentle.current_sequence_entry = tmpseq.pop() ;
-			gentle.closeCurrentSequence() ;
+//			gentle.current_sequence_entry = tmpseq.pop() ;
+//			gentle.closeCurrentSequence() ;
 		}
 		return ;
 	}
