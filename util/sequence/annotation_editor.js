@@ -119,13 +119,22 @@ AnnotationEditorDialogDNA.prototype.onSaveButton = function () {
 	feat['_type'] = $('#aed_type').val() ;
 	
 	var rc = $('#aed_rc').attr('checked') ;
+	var of = clone ( feat['_range'] ) ;
 	feat['_range'] = [] ;
 	$('#aed_ranges tr.aed_range').each ( function ( k1 , tr ) {
-		var from = $(tr).find('.aed_from').val()*1 - 1 ;
-		var to = $(tr).find('.aed_to').val()*1 - 1 ;
+		var from = $(tr).find('.aed_from').val()*1 ;
+		var to = $(tr).find('.aed_to').val()*1 ;
 		if ( undefined === from || undefined === to ) return ;
 		feat['_range'].push ( { rc:rc , from:from , to:to } ) ;
 	} ) ;
+	
+	var max = feat['_range'].length > of.length ? feat['_range'].length : of.length ;
+	for ( var i = 0 ; i < max ; i++ ) {
+		var d = { editing : true , action : 'alterFeatureSize' , id : me.fid , range_id : i } ;
+		if ( undefined !== of[i] ) d.before = [ of[i].from , of[i].to , of[i].rc ] ;
+		if ( undefined !== feat['_range'][i] ) d.after = [ feat['_range'][i].from , feat['_range'][i].to , feat['_range'][i].rc ] ;
+		me.sc.sequence.undo.addAction ( 'editAnnotation' , d ) ;
+	}
 
 	me.sc.recalc() ;
 	me.sc.show () ;

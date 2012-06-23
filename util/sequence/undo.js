@@ -97,8 +97,13 @@ SequenceUndo.prototype.doUndo = function ( sc ) { // This is my undoing!
 		} else if ( d.action == 'insertText' ) {
 			me.sequence.remove ( d.base , d.seq.length , true ) ;
 		} else if ( d.action == 'alterFeatureSize' ) {
-			me.sequence.features[d.id]['_range'][d.range_id].from = d.before[0] ;
-			me.sequence.features[d.id]['_range'][d.range_id].to = d.before[1] ;
+			if ( undefined === d.before ) {
+				while ( me.sequence.features[d.id]['_range'].length >= d.range_id ) me.sequence.features[d.id]['_range'].pop() ;
+			} else {
+				me.sequence.features[d.id]['_range'][d.range_id].from = d.before[0] ;
+				me.sequence.features[d.id]['_range'][d.range_id].to = d.before[1] ;
+				me.sequence.features[d.id]['_range'][d.range_id].rc = d.after[2]||me.sequence.features[d.id]['_range'][0].rc||false ;
+			}
 		} else if ( d.action == 'addAnnotation' ) {
 			me.sequence.features.splice ( d.feature_id , 1 ) ;
 		} else {
@@ -129,8 +134,13 @@ SequenceUndo.prototype.doRedo = function ( sc ) {
 		} else if ( d.action == 'insertText' ) {
 			me.sequence.insert ( d.base , d.seq , true ) ;
 		} else if ( d.action == 'alterFeatureSize' ) {
-			me.sequence.features[d.id]['_range'][d.range_id].from = d.after[0] ;
-			me.sequence.features[d.id]['_range'][d.range_id].to = d.after[1] ;
+			if ( undefined === d.after ) {
+				while ( me.sequence.features[d.id]['_range'].length >= d.range_id ) me.sequence.features[d.id]['_range'].pop() ;
+			} else {
+				me.sequence.features[d.id]['_range'][d.range_id].from = d.after[0] ;
+				me.sequence.features[d.id]['_range'][d.range_id].to = d.after[1] ;
+				me.sequence.features[d.id]['_range'][d.range_id].rc = d.after[2]||me.sequence.features[d.id]['_range'][0].rc||false ;
+			}
 		} else if ( d.action == 'addAnnotation' ) {
 			me.sequence.features.splice ( d.feature_id , 0 , clone ( d.feature ) ) ;
 		} else {
