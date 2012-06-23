@@ -70,7 +70,7 @@ function AnnotationEditorDialogDNA ( sc , fid ) {
 		} ) ;
 		
 		$.each ( feat['_range'] || [] , function ( k , v ) {
-			$('#aed_ranges').append ( me.getRowHTML(v.from+1,v.to+1) ) ;
+			$('#aed_ranges').append ( me.getRowHTML(v.from,v.to) ) ;
 		} ) ;
 		
 		$('#aed_rc').attr('checked',feat['_range'][0].rc) ;
