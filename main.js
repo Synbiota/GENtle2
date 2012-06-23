@@ -210,6 +210,8 @@ var gentle = {
 		if ( sc === undefined ) return false ;
 		if ( sc.selections.length == 0 ) return ;
 		
+		$("#selection_context_marker").remove();
+		
 		// This should probably get its own file...
 		
 		function submitTask () {
@@ -263,6 +265,7 @@ var gentle = {
 
 	do_edit : function ( command ) {
 		if ( gentle.main_sequence_canvas === undefined ) return false ;
+		$("#selection_context_marker").remove();
 
 		var sc = gentle.main_sequence_canvas ;
 
@@ -571,6 +574,7 @@ var gentle = {
 	
 	delete_selection : function () {
 		var sc = gentle.main_sequence_canvas ;
+		$("#selection_context_marker").remove();
 		sc.deleteSelection();
 	} ,
 	

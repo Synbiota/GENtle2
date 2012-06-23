@@ -407,6 +407,7 @@ SequenceCanvas.prototype.editFeature = function ( fid ) {
 	var sc = gentle.main_sequence_canvas ;
 	$('#annot_hover').popover ( 'hide' ) ;
 	$('#annot_hover').remove() ;
+	$("#selection_context_marker").remove();
 	gentle.annotation_editor_dialog = new AnnotationEditorDialogDNA ( sc , fid ) ; // FIXME hardcoded for DNA
 }
 
