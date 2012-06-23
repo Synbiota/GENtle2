@@ -12,8 +12,13 @@
 			<table border=0 id='aed_ranges_table' class='table table-condensed'>
 				<thead><tr><td>From</td><td/><td>To</td></tr></thead>
 				<tbody id='aed_ranges'></tbody>
-				<tfoot><tr><td colspan=2><button class='btn' id='aed_add_range_button'>Add range</button></td>
-				<td colspan=2><label><input type='checkbox' id='aed_rc' style='display:inline' />&nbsp;Reverse-complement</label></td></tr></tfoot>
+				<tfoot>
+				<tr>
+					<td><button class='btn btn-success' id='aed_add_range_button' title='Add range'><i class='icon-plus-sign'></i> range</button></td>
+					<td colspan=2><label><input type='checkbox' id='aed_rc' style='display:inline' />&nbsp;Reverse-complement</label></td>
+					<td nowrap style='text-align:right'><button class='btn btn-danger' onclick='gentle.annotation_editor_dialog.deleteAnnotation();return false'><i class='icon-trash icon-white'></i> Delete annotation</button></td>
+				</tr>
+				</tfoot>
 			</table>
 			</td></tr>
 		</table>

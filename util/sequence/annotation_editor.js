@@ -87,9 +87,23 @@ AnnotationEditorDialogDNA.prototype.getRowHTML = function ( from , to ) {
 	h += "<input type='number' class='span2 aed_from' value='" + from + "' />" ;
 	h += "</td><td>&ndash;</td><td>" ;
 	h += "<input type='number' class='span2 aed_to' value='" + to + "' />" ;
-	h += "</td><td style='width:100%'><button class='btn btn-danger'><i class='icon-trash icon-white'></i></button></td></tr>" ;
+	h += "</td><td style='width:100%'><button class='btn btn-danger' onclick='gentle.annotation_editor_dialog.deleteRange(this);return false'><i class='icon-trash icon-white'></i></button></td></tr>" ;
 	return h ;
 }
+
+AnnotationEditorDialogDNA.prototype.deleteAnnotation = function () {
+	alert ( "Not yet implemented, coming soon!" ) ;
+}
+
+AnnotationEditorDialogDNA.prototype.deleteRange = function ( o ) {
+	var number_of_ranges = $($(o).parents('tbody').get(0)).find('tr').length ;
+	if ( number_of_ranges == 1 ) {
+		alert ( "You cannot delete this range, as it is the only one." ) ;
+	} else {
+		$($(o).parents('tr').get(0)).remove();
+	}
+}
+
 
 AnnotationEditorDialogDNA.prototype.onCancelButton = function () {
 	var me = gentle.annotation_editor_dialog ;
