@@ -146,9 +146,29 @@ synbiota.prototype.global_init = function () {
 		node.setAttribute("src", "https://app.bugmuncher.com/js/bugMuncher.min.js"); 
 		document.getElementsByTagName("head")[0].appendChild(node); 
 	}
-
+/*
 	if ( undefined === gentle.url_vars.token ) {
 		return ; // No token, no joy!
+	}
+*/
+	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
+	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
+	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
+	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
+	
+	
+	synbiota_data.token = gentle.url_vars.token ;
+	if ( undefined === synbiota_data.token ) {
+		var tmpseq = [] ;
+		$.each ( gentle.sequences , function ( k , v ) { // Get all synbiota sequences
+			if ( undefined !== v.synbiota ) tmpseq.push ( k ) ;
+		} ) ;
+
+		while ( tmpseq.length > 0 ) {
+			gentle.current_sequence_entry = tmpseq.pop() ;
+			gentle.closeCurrentSequence() ;
+		}
+		return ;
 	}
 
 	if ( plugins.registerPlugin ( { className : 'synbiota' , url : 'plugins/synbiota.js' } ) ) {
@@ -161,16 +181,9 @@ synbiota.prototype.global_init = function () {
 		return ; // Plugin registry failed. Abort, abort!!
 	}
 
-	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
-	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
-	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
-	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
 	
-	
-	synbiota_data.token = gentle.url_vars.token ;
-	if ( undefined === synbiota_data.token ) return ;
 	synbiota_data.project_id = gentle.url_vars.project_id ;
-	
+
 	if ( gentle.url_vars.id == -1 ) {
 		gentle.startNewSequenceDialog() ;
 	} else {
@@ -215,6 +228,7 @@ function synbiota_load_sequence ( url ) {
 			}
 			
 			// Add synbiota data to sequence object
+			gentle.sequences[seqids[0]].data_keys.push ( 'synbiota' ) ;
 			gentle.sequences[seqids[0]].synbiota = {
 				project_id : data.project_id , 
 				sequence_id : data.id ,

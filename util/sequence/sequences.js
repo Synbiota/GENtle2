@@ -15,7 +15,7 @@ Sequence.prototype.clone = function () {}
 
 Sequence.prototype.seedFrom = function ( seq_obj ) {
 	var me = this ;
-	var keys = clone ( me.data_keys ) ;
+	var keys = clone ( seq_obj.data_keys ) ;
 	keys.push ( 'name' ) ;
 	keys.push ( 'seq' ) ;
 	$.each ( keys , function ( dummy , key ) {
@@ -28,6 +28,7 @@ Sequence.prototype.getStorageObject = function () {
 	var keys = clone ( me.data_keys ) ;
 	keys.push ( 'name' ) ;
 	keys.push ( 'seq' ) ;
+	keys.push ( 'data_keys' ) ;
 	var ret = {} ;
 	$.each ( keys , function ( dummy , key ) {
 		ret[key] = clone ( me[key] ) ;
