@@ -3,7 +3,10 @@ ini_set('track_errors', 1);
 ini_set('display_errors', 'On');
 error_reporting(E_ALL | E_STRICT);
 
+$use_put = false ;
+
 function do_post_curl ( $url , $data ) {
+	global $use_put ;
 	$ret = array () ;
 	$ret['query_url'] = $url ;
 	$ret['query_data'] = $data ;
@@ -14,6 +17,8 @@ function do_post_curl ( $url , $data ) {
 	curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 	curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 	curl_setopt($ch, CURLOPT_POST, true);
+	if ( $use_put ) curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "PUT");
+	//curl_setopt($ch, CURLOPT_PUT, true);
 	
 	curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
 	$output = curl_exec($ch);
@@ -30,6 +35,8 @@ function do_post_curl ( $url , $data ) {
 $data = array() ;
 if ( isset ( $_REQUEST['id'] ) ) $data['id'] = $_REQUEST['id'] ;
 if ( isset ( $_REQUEST['token'] ) ) $data['token'] = $_REQUEST['token'] ;
+if ( isset ( $_REQUEST['use_put'] ) ) $use_put = true ;
+
 
 if ( isset ( $_REQUEST['gentle_file'] ) ) {
 	$gf = $_REQUEST['gentle_file'] ;

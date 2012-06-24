@@ -1,4 +1,4 @@
-var use_bugmuncher = false ;
+var use_bugmuncher = true ;
 var bugmuncher_options = {
 	language:'en',
 	position:'right',
@@ -27,16 +27,31 @@ synbiota.prototype.saveToSynbiota = function () {
 	var file = new FT_sybil();
 	var sybil = file.getExportString ( sc.sequence ) ;
 	
-	var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + sc.sequence.synbiota.project_id + '/gentle_files' ;
-	var params = {
-		token : synbiota_data.token ,
-		'gentle_file[name]' : ( sc.sequence.name || '' ) ,
-		'gentle_file[kind]' : sc.sequence.synbiota.kind ,
-		'gentle_file[description]' : ( sc.sequence.desc || '' ) ,
-		'gentle_file[sybil]' : sybil
-	} ;
-	if ( sc.sequence.synbiota.sequence_id > -1 ) params.id = sc.sequence.synbiota.sequence_id ;
+	if ( sc.sequence.synbiota.sequence_id > -1 ) {
+		console.log ( "UPDATE" ) ;
+		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + sc.sequence.synbiota.project_id + '/gentle_files/' + sc.sequence.synbiota.sequence_id ;
+		var params = {
+			token : synbiota_data.token ,
+			id : sc.sequence.synbiota.sequence_id ,
+			'gentle_file[name]' : ( sc.sequence.name || '' ) ,
+			'gentle_file[kind]' : sc.sequence.synbiota.kind ,
+			'gentle_file[description]' : ( sc.sequence.desc || '' ) ,
+			'gentle_file[sybil]' : sybil ,
+			'use_put' : 1
+		}
 
+	} else {
+		console.log ( "SAVE" ) ;
+		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + sc.sequence.synbiota.project_id + '/gentle_files' ;
+		var params = {
+			token : synbiota_data.token ,
+			'gentle_file[name]' : ( sc.sequence.name || '' ) ,
+			'gentle_file[kind]' : sc.sequence.synbiota.kind ,
+			'gentle_file[description]' : ( sc.sequence.desc || '' ) ,
+			'gentle_file[sybil]' : sybil
+		} ;
+		if ( sc.sequence.synbiota.sequence_id > -1 ) params.id = sc.sequence.synbiota.sequence_id ;
+	}
 	
 	if ( synbiota_data.use_proxy ) {
 		params.url = url ;
@@ -45,7 +60,8 @@ synbiota.prototype.saveToSynbiota = function () {
 	
 	$.post ( url , params , function ( d ) {
 		// TODO check status
-//		console.log ( d ) ;
+		console.log ( url ) ;
+		console.log ( d ) ;
 	} , 'json' ) ;
 }
 
@@ -146,11 +162,7 @@ synbiota.prototype.global_init = function () {
 		node.setAttribute("src", "https://app.bugmuncher.com/js/bugMuncher.min.js"); 
 		document.getElementsByTagName("head")[0].appendChild(node); 
 	}
-/*
-	if ( undefined === gentle.url_vars.token ) {
-		return ; // No token, no joy!
-	}
-*/
+
 	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
 	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
 	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
@@ -239,7 +251,7 @@ function synbiota_load_sequence ( url ) {
 				kind : data.kind ,
 				last_editor_id : data.last_editor_id
 			} ;
-			
+
 	} ) ;
 }
 

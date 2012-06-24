@@ -404,6 +404,9 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
 	s += "</circuit>\n" ;
 	s += "</session>\n" ;
 	s += "</sybil>" ;
+	
+	// TODO me should do some serious "illegal XML characters" filtering here, but...
+	s = s.replace ( /\u0004/g , '' ) ;
 
 	return s ;
 }
