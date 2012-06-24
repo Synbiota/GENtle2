@@ -159,15 +159,16 @@ synbiota.prototype.global_init = function () {
 	
 	synbiota_data.token = gentle.url_vars.token ;
 	if ( undefined === synbiota_data.token ) {
+/*		// No Synbiota token, therefore remove all Synbiota sequences, so that the user does not edit them with no way to save them to the site later. Better safe than wasted time.
 		var tmpseq = [] ;
 		$.each ( gentle.sequences , function ( k , v ) { // Get all synbiota sequences
 			if ( undefined !== v.synbiota ) tmpseq.push ( k ) ;
 		} ) ;
 
 		while ( tmpseq.length > 0 ) {
-//			gentle.current_sequence_entry = tmpseq.pop() ;
-//			gentle.closeCurrentSequence() ;
-		}
+			gentle.current_sequence_entry = tmpseq.pop() ;
+			gentle.closeCurrentSequence() ;
+		}*/
 		return ;
 	}
 
