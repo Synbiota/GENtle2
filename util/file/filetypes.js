@@ -1,10 +1,17 @@
-//________________________________________________________________________________________
-// Filetype base class
+/**
+	Filetype base class
+	@class
+*/
 function Filetype () {
 	this.fileTypeValidated = false ;
 	this.typeName = 'none' ;
 }
 
+/**
+	Checks if a file matches this filetype, and then parses it. Does not return a result, but informs the gentle object that a match was found.
+	@param {file} f The file.
+	
+*/
 Filetype.prototype.checkFile = function ( f ) {
 	this.file = f ;
 	var reader = new FileReader();
@@ -27,7 +34,10 @@ Filetype.prototype.checkFile = function ( f ) {
 	reader.readAsText(f);
 }
 
-
+/**
+	Returns a string for file export.
+	@return {string} The string representing the sequence.
+*/
 Filetype.prototype.getExportString = function ( sequence ) {
 	return '' ;
 }
@@ -58,8 +68,10 @@ Filetype.prototype.getExportBlob = function ( sequence ) {
 	return ret ;
 }
 
-
-
+/**
+	Checks if a given file matches the filetype.
+	@returns {bool} True if the file matches, false if not.
+*/
 Filetype.prototype.textHeuristic = function () {
 	return false ;
 }
@@ -90,6 +102,12 @@ Filetype.prototype.getFileExtension = function () {
 //________________________________________________________________________________________
 // Plain text
 FT_plaintext.prototype = new Filetype() ;
+
+/**
+	Implements a plain text DNA file reader/writer.
+	@class FT_plaintext
+	@extends Filetype
+*/
 FT_plaintext.prototype.constructor = FT_plaintext ;
 
 FT_plaintext.prototype.getFileExtension = function () {
@@ -128,7 +146,14 @@ function FT_plaintext () {
 
 //________________________________________________________________________________________
 // FASTA
+
 FT_fasta.prototype = new Filetype() ;
+
+/**
+	Implements a FASTA file reader/writer.
+	@class FT_fasta
+	@extends Filetype
+*/
 FT_fasta.prototype.constructor = FT_fasta ;
 
 FT_fasta.prototype.getFileExtension = function () {
@@ -185,6 +210,12 @@ function FT_fasta () {
 //________________________________________________________________________________________
 // GeneBank
 FT_genebank.prototype = new Filetype() ;
+
+/**
+	Implements a GenBank format file reader/writer.
+	@class FT_genebank
+	@extends Filetype
+*/
 FT_genebank.prototype.constructor = FT_genebank ;
 
 FT_genebank.prototype.textHeuristic = function () {
@@ -321,6 +352,12 @@ function FT_genebank () {
 //________________________________________________________________________________________
 // SYBIL - SYnthetic Biology Interchange Language
 FT_sybil.prototype = new Filetype() ;
+
+/**
+	Implements a SyBIL (SYnthetic Biology Interchange Language) format file reader/writer.
+	@class FT_sybil
+	@extends Filetype
+*/
 FT_sybil.prototype.constructor = FT_sybil ;
 
 FT_sybil.prototype.getFileExtension = function () {
@@ -479,6 +516,13 @@ function FT_sybil () {
 //________________________________________________________________________________________
 // Clone Manager CM5
 FT_cm5.prototype = new Filetype() ;
+
+
+/**
+	Implements a CloneManager (CM5) format file reader.
+	@class FT_cm5
+	@extends Filetype
+*/
 FT_cm5.prototype.constructor = FT_cm5 ;
 
 FT_cm5.prototype.textHeuristic = function () {
