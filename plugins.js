@@ -1,15 +1,24 @@
 //________________________________________________________________________________________
-// Plugin class
-
+/**
+	Plugin class
+	@class
+	@classdesc This is the base class for all plugins.
+*/
 function Plugin () {
 	this.name = 'empty plugin' ;
 }
 
+/**
+	@return {object} The current sequence canvas object.
+*/
 Plugin.prototype.getCurrentSequenceCanvas = function () { return gentle.main_sequence_canvas ; }
 
 //________________________________________________________________________________________
-// Plugin list object
 
+/**
+	Plugin list and maintenance object
+	@namespace
+*/
 var plugins = {
 	verbose : false ,
 	initial_plugins_loaded : false ,
@@ -27,18 +36,30 @@ var plugins = {
 	search : {} ,
 	deactivated : {} ,
 	
+	/**
+		Constructor
+	*/
 	init : function () {
 		this.search = jQuery.extend(true, {}, this.tools);
 	} ,
 
 
-// Methods functions
-
+	/**
+		Adds a section to a module, unless the section exists.
+		@param {string} module The module to which to add the section
+		@param {string} section The section to add to the module
+	*/
 	addSection : function ( module , section ) {
 		if ( undefined !== plugins.tools[module][section] ) return ;
 		plugins.tools[module][section] = {} ;
 	} ,
 
+
+	/**
+		Checks a plugin parameter object is it is sane.
+		@param {object} o The plugin parameter object.
+		@return {bool} True if object passed all tests, false if not.
+	*/
 	registrationParanoia : function ( o ) {
 	
 		// BEGIN PARANOIA SECTION
@@ -78,7 +99,12 @@ var plugins = {
 		
 		return true ;
 	} ,
+	
 
+	/**
+		Registers a plugin as a tool.
+		@param {object} o The plugin parameter object.
+	*/
 	registerAsTool : function ( o ) {
 		if ( !this.registrationParanoia ( o ) ) return ; // BAAAD TOOL!
 
@@ -96,6 +122,11 @@ var plugins = {
 		sc.registerTool ( o ) ;
 	} ,
 	
+	
+	/**
+		Registers a plugin as the search handler.
+		@param {object} o The plugin parameter object.
+	*/
 	registerAsSearch : function ( o ) {
 		if ( !this.registrationParanoia ( o ) ) return ; // BAAAD TOOL!
 		
@@ -111,6 +142,12 @@ var plugins = {
 		sc.registerSearch ( o ) ;
 	} ,
 	
+	
+	/**
+		Registers a plugin. Must be done before registering it as a tool or search handler.
+		@param {object} o The plugin parameter object.
+		@return {bool} True if the plugin was registered, false if not.
+	*/
 	registerPlugin : function ( o ) {
 		if ( o === undefined ) return false ;
 		
@@ -134,6 +171,11 @@ var plugins = {
 		return true ;
 	} ,
 	
+	
+	/**
+		Loads a plugin from a URL.
+		@param {string} url The URL of the plugin.
+	*/
 	loadPluginFromURL : function ( url ) {
 		var fileref=document.createElement('script') ;
 		fileref.setAttribute("type","text/javascript") ;
@@ -142,6 +184,10 @@ var plugins = {
 		first.parentNode.insertBefore(fileref, first);
 	} ,
 	
+	
+	/**
+		Loads the initial plugins on GENtle launch.
+	*/
 	loadPlugins : function () {
 		if ( plugins.initial_plugins_loaded ) return ; // Only once, my dear
 		plugins.initial_plugins_loaded = true ;
@@ -152,6 +198,11 @@ var plugins = {
 		} ) ;
 	} ,
 	
+
+	/**
+		Removes a plugin.
+		@param {string} name The name of the plugin.
+	*/
 	removePlugin : function ( name ) { // Currently not used
 		if ( undefined === plugins.all[name] ) return ;
 		
@@ -162,6 +213,11 @@ var plugins = {
 		plugins.setManagePluginDialogHTML() ;
 	} ,
 
+
+	/**
+		Deactivates a plugin, without removing it.
+		@param {string} name The name of the plugin.
+	*/
 	deactivatePlugin : function ( name ) {
 		if ( undefined === plugins.all[name] ) return ;
 		
@@ -174,6 +230,9 @@ var plugins = {
 
 	// INTERFACE METHODS
 
+	/**
+		Initializes or updates the plugin dialog box.
+	*/
 	setManagePluginDialogHTML : function () {
 		if ( $('#manage_plugins_dialog').length == 0 ) return ; // Only if there actually is a dialog open
 		
@@ -234,6 +293,10 @@ var plugins = {
 		} ) ;
 	} ,
 	
+
+	/**
+		Starts the plugin dialog.
+	*/
 	managePlugins : function () {
 		var h = "<div id='manage_plugins_dialog'>" ;
 		h += "</div>" ;

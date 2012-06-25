@@ -1,3 +1,10 @@
+/*!
+ * GENtle 2 - gentle ojbect
+ * Copyright (C) 2012 Magnus Manske
+ * MIT Licensed
+ @module gentle
+ */
+
 // TODO :
 // ??? Maybe register API key for NCBI ajax access here : https://entrezajax.appspot.com/
 
@@ -6,8 +13,13 @@
 * plugins (plugins.js)
 */
 
+
+/**
+	gentle object containing core methods
+	@namespace
+*/
 //________________________________________________________________________________________
-// gentle object containing core methods
+// 
 var gentle = {
 	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' , 'cm5' ] ,
 	features : {} , //{ 'note':'Note' , 'gene':'Gene' , 'cds':'CDS' , 'promoter':'Promoter' , 'misc':'Misc' , 'protein_bind':'Protein binding site' } ,
@@ -17,6 +29,9 @@ var gentle = {
 	is_mobile : false ,
 	is_in_dialog : false ,
 
+	/**
+		Initializes the gentle object.
+	*/
 	init : function () {
 	
 		if(navigator.userAgent.match(/Android/i)) {
@@ -85,6 +100,12 @@ var gentle = {
 		if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
 	} ,
 	
+	/**
+		Returns the "blessed" feature type string, or "misc"
+		@function
+		@param {string} s The feature type to be "blessed"
+		@return {string} The blessed type
+	*/
 	getFeatureType : function ( s ) {
 		var t = s.toLowerCase() ;
 		if ( undefined === cd.feature_types[t] ) return 'misc' ;
