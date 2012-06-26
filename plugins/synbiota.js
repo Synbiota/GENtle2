@@ -1,4 +1,7 @@
+// Some external tools that can help in the initial phase with feedback.
 var use_bugmuncher = true ;
+var use_aweber = true ;
+
 var bugmuncher_options = {
 	language:'en',
 	position:'right',
@@ -161,6 +164,13 @@ synbiota.prototype.global_init = function () {
 		node.setAttribute("type", "text/javascript"); 
 		node.setAttribute("src", "https://app.bugmuncher.com/js/bugMuncher.min.js"); 
 		document.getElementsByTagName("head")[0].appendChild(node); 
+	}
+	
+	if ( use_aweber ) {
+		var node = document.createElement("script"); 
+		node.setAttribute("type", "text/javascript"); 
+		node.setAttribute("src", "https://forms.aweber.com/form/01/2100967401.js"); 
+		document.getElementsByTagName("body")[0].appendChild(node); 
 	}
 
 	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;

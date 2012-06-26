@@ -1,6 +1,14 @@
+/**
+ 	@extends Plugin
+*/
 PluginFindInSequence.prototype = new Plugin() ;
+
 PluginFindInSequence.prototype.constructor = PluginFindInSequence ;
 
+/**
+	Opens the find dialog.
+	@deprecated in favor of toolbar query box
+*/
 PluginFindInSequence.prototype.startDialog = function () {
 	// Init
 	this.sc = this.getCurrentSequenceCanvas() ;
@@ -25,6 +33,10 @@ PluginFindInSequence.prototype.startDialog = function () {
 	$('#'+this.query_id).keyup(function(){me.queryChanged();}) ;
 }
 
+/**
+	Event handler : query string has changed, search and update results
+	@param {object} e Event object. Not used.
+*/
 PluginFindInSequence.prototype.queryChanged = function (e) {
 	var me = this ;
 
@@ -85,6 +97,10 @@ PluginFindInSequence.prototype.queryChanged = function (e) {
 	if ( results.length == 1 ) $('#'+this.result_id+' a').click() ;
 }
 
+/**
+	Event handler : A search result was clicked, highlight corresponding text in sequence.
+	@param {object} o Clicked object. Contains start and end positions as HTML attributes.
+*/
 PluginFindInSequence.prototype.clickHandler = function ( o ) {
 	var from = o.attr('from') ;
 	var to = o.attr('to') ;
@@ -94,21 +110,15 @@ PluginFindInSequence.prototype.clickHandler = function ( o ) {
 	this.dropdown_focusout_cancel = true ;
 }
 
+/**
+	Performs DNA sequence search.
+	@param {string} sequence The sequence to search
+	@param {string} query The query string to find. May contain IUPAC bases.
+	@param {bool} is_dna If DNA sequence, true, otherwise false.
+	@return {object} Object member array "results" contains up to the first 5000 results. Object member "toomany" indicates there may be more.
+*/
 PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is_dna ) {
 	var ret = { results : [] , toomany : false , ok : false } ;
-/*
-	var pattern = '' ;
-	if ( is_dna ) {
-		for ( var i = 0 ; i < query.length ; i++ ) {
-			var r = cd.iupac2bases[query[i].toUpperCase()] ;
-			if ( undefined === r ) pattern += query[i] ;
-			else if ( r.length == 1 ) pattern += query[i] ;
-			else pattern += '['+r+']' ;
-		}
-	} else {
-		pattern = query ;
-	}
-*/
 
 	var pattern_array = [] ;
 	var pattern = '' ;
@@ -148,6 +158,9 @@ PluginFindInSequence.prototype.findInSequence = function ( sequence , query , is
 	return ret ;
 }
 
+/**
+	Updates the "floating" search result box beneath the query entry box in the toolbar.
+*/
 PluginFindInSequence.prototype.updateResultsBox = function () {
 	var query = $('#toolbar_search_box').val() ;
 	
@@ -186,6 +199,10 @@ PluginFindInSequence.prototype.updateResultsBox = function () {
 	this.queryChanged() ;
 }
 
+/**
+	A plugin to search in the current (DNA) sequence. Supports IUPAC base search.
+	@constructor
+*/
 function PluginFindInSequence () {
 	this.name = 'find_in_sequence' ;
 	this.dialog_id = 'find_in_sequence_dialog' ;
@@ -197,6 +214,10 @@ function PluginFindInSequence () {
 
 // Register plugin
 if ( plugins.registerPlugin ( { className : 'PluginFindInSequence' , url : 'plugins/find_in_sequence.js' , name : 'find_in_sequence' } ) ) {
+
+// This would register the plugin as a menu item. Deprecated in favor of toolbar query box.
 //	plugins.registerAsTool ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'startDialog' , linkTitle : 'Find in sequence' } ) ;
+
+// Registers plugin as toolbar query box handler. There should only be one at any time.
 	plugins.registerAsSearch ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'updateResultsBox' , linkTitle : 'Search' } ) ;
 }
