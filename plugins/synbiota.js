@@ -1,6 +1,5 @@
-// Some external tools that can help in the initial phase with feedback.
+// An external tool that can help in the initial phase with feedback.
 var use_bugmuncher = true ;
-var use_aweber = true ;
 
 var bugmuncher_options = {
 	language:'en',
@@ -166,13 +165,6 @@ synbiota.prototype.global_init = function () {
 		document.getElementsByTagName("head")[0].appendChild(node); 
 	}
 	
-	if ( use_aweber ) {
-		var node = document.createElement("script"); 
-		node.setAttribute("type", "text/javascript"); 
-		node.setAttribute("src", "https://forms.aweber.com/form/01/2100967401.js"); 
-		document.getElementsByTagName("body")[0].appendChild(node); 
-	}
-
 	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
 	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
 	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
@@ -268,3 +260,24 @@ function synbiota_load_sequence ( url ) {
 
 var dummy = new synbiota() ;
 dummy.global_init () ;
+
+// HACK add newsletter signup
+$(document).ready ( function () {
+
+	$('#help_menu').append ( "<li><a target='_blank' href='#' onclick='aweber();return false'>Sign up for mailing list</a></li>" ) ;
+	
+} ) ;
+
+function aweber () {
+	var h = '' ;
+	h += '<div class="modal" id="aweber">' ;
+	h += '<div class="modal-header"><a class="close" data-dismiss="modal"></a><h3>Subscribe to mailing list</h3></div>' ;
+	h += '<div class="modal-body">' ;
+	h += '<form method="post"   action="https://www.aweber.com/scripts/addlead.pl"  > <div style="display: none;"> <input type="hidden" name="meta_web_form_id" value="2100967401" /> <input type="hidden" name="meta_split_id" value="" /> <input type="hidden" name="listname" value="gentle2" /> <input type="hidden" name="redirect" value="https://www.aweber.com/thankyou-coi.htm?m=text" id="redirect_2e177b0a40e15a7557410215c2b3dd21" />  <input type="hidden" name="meta_adtracking" value="GENtle2_Signup" /> <input type="hidden" name="meta_message" value="1" /> <input type="hidden" name="meta_required" value="name,email" />  <input type="hidden" name="meta_tooltip" value="" /> </div> <div id="af-form-2100967401"  ><div id="af-header-2100967401"  ><div  ><p>&nbsp;</p></div></div> <div id="af-body-2100967401"   > <div  > <label   for="awf_field-36650604">Name: </label> <div  > <input id="awf_field-36650604" type="text" name="name"   value=""  tabindex="500" /> </div> <div  ></div></div> <div  > <label   for="awf_field-36650605">Email: </label> <div  ><input   id="awf_field-36650605" type="text" name="email" value="" tabindex="501"  /> </div><div  ></div> </div> <div  > <input name="submit"   type="submit" value="Submit" tabindex="502" /> <div  ></div> </div> <div   style="text-align: center"><p>We respect your <a title="Privacy Policy" href="https://www.aweber.com/permission.htm" target="_blank">email privacy</a></p> <div  ></div> </div> </div> <div id="af-footer-2100967401"  ><div  ><p>&nbsp;</p></div></div> </div> <div style="display: none;"></div> </form>' ;
+	h += '</div>' ; // modal-body
+	h += '</div>' ; // modal
+
+	$('body').append ( h ) ;
+	$('#aweber').modal();
+}
+// END HACK
