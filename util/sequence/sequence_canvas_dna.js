@@ -282,6 +282,7 @@ SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
 	e.metaKey = mk ;
 	e.preventDefault = function () {} ; // Fake
 	e.stopPropagation = function () {} ; // Fake
+	e.target = { localName : 'div' } ;
 	this.keyhandler ( e ) ;
 }
 
