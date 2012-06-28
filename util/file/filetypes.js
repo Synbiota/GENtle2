@@ -7,6 +7,43 @@ function Filetype () {
 	this.typeName = 'none' ;
 }
 
+Filetype.prototype._shl = function (a, b){
+        for (++b; --b; a = ((a %= 0x7fffffff + 1) & 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1);
+        return a;
+    }
+
+Filetype.prototype.stringToBytes = function ( str ) {
+/*
+  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+  var bufView = new Uint8Array(buf);
+  for (var i=0, strLen=str.length; i<strLen; i++) {
+    bufView[i] = str.charCodeAt(i);
+  }
+  
+  console.log ( bufView ) ;
+  
+  return buf;
+*/
+	var re = [] ;
+	for ( var i = 0 ; i < str.length ; i++ ) re.push ( this._shl ( str.charCodeAt(i) ) ) ;
+	return re ;
+/*  var ch, st, re = [];
+  for (var i = 0; i < str.length; i++ ) {
+    ch = str.charCodeAt(i);  // get char 
+    st = [];                 // set up "stack"
+    do {
+      st.push( ch & 0xFF );  // push byte to stack
+      ch = ch >> 8;          // shift value down by 1 byte
+    }  
+    while ( ch );
+    // add stack contents to result
+    // done because chars have "wrong" endianness
+    re = re.concat( st.reverse() );
+  }
+  // return an array of bytes
+  return re;*/
+}
+
 /**
 	Checks if a file matches this filetype, and then parses it. Does not return a result, but informs the gentle object that a match was found.
 	@param {file} f The file.
@@ -21,6 +58,7 @@ Filetype.prototype.checkFile = function ( f ) {
 	reader.onload = (function(theFile) {
 		return function(e) {
 			if ( f.isIdentified ) return ;
+//			console.log ( e.target.result.split(||) ) ;
 			meh.text = e.target.result ;
 			if ( !meh.textHeuristic() ) return ;
 			f.isIdentified = true ;
@@ -31,7 +69,8 @@ Filetype.prototype.checkFile = function ( f ) {
 	})(f);
 	
 	// Read in the image file as a data URL.
-	reader.readAsText(f);
+	if ( this.read_binary ) reader.readAsArrayBuffer ( f ) ;
+	else reader.readAsText(f);
 }
 
 /**
@@ -537,7 +576,136 @@ FT_cm5.prototype.parseText = function ( text ) {
 	this.parseFile () ;
 }
 
+FT_cm5.prototype.getLittleEndianUnsignedLong = function ( bytes , p ) {
+	var n1 = bytes[p+1] * 256 + bytes[p+0] ;
+	var n2 = bytes[p+2] * 256 + bytes[p+3] ;
+//	n2 *= 65536 ;
+	console.log ( "!" + n2 ) ;
+	return n1 ;
+//	return n2 * 65536 + n1 ;
+}
+
+FT_cm5.prototype.getLittleEndianUnsignedWord = function ( bytes , p ) {
+	var n1 = bytes[p+1] * 256 + bytes[p+0] ;
+	return n1 ;
+}
+
 FT_cm5.prototype.parseFile = function ( heuristic ) {
+	var me = this ;
+	var bytes = new Uint8Array(this.text);
+	if ( bytes[0] != 26 || bytes[1] != 83 || bytes[2] != 69 || bytes[3] != 83 ) return false ; // CHECK HEURISTIC!
+	
+	var seq = new SequenceDNA ( '' , '' ) ;
+	seq.desc = '' ;
+
+	var feat_start = [] ;
+	for ( var p = 4 ; p < bytes.length ; p++ ) {
+		if ( bytes[p-3] != 255 || bytes[p-2] != 255 || bytes[p-1] != 0 || bytes[p] != 0 ) continue ;
+		feat_start.push ( p+5 ) ;
+	}
+	
+	var seq_start ;
+	seq.features = [] ;
+	$.each ( feat_start , function ( dummy , p ) {
+		var type = '' ;
+		while ( bytes[p] > 0 ) type += String.fromCharCode ( bytes[p++] ) ;
+		if ( type == '' || type == 'source' ) return ;
+		p++ ;
+		p += 4 ; // Dunno what this is
+		var from = me.getLittleEndianUnsignedWord ( bytes , p ) ;
+		p += 4 ; // Skipping two bytes
+		var to = me.getLittleEndianUnsignedWord ( bytes , p ) ;
+		if ( from == 0 && to == 0 ) return ;
+		p += 4 ; // Skipping two bytes
+		p += 4 ; // Dunno what this is
+
+		var shortname = '' ;
+		while ( bytes[p] > 0 ) shortname += String.fromCharCode ( bytes[p++] ) ;
+		p++ ;
+		var name = '' ;
+		while ( bytes[p] > 0 ) name += String.fromCharCode ( bytes[p++] ) ;
+		p++ ;
+		seq_start = p ;
+		
+		var rc = to < from ;
+		if ( rc ) { var i = from ; from = to ; to = i ; }
+		
+		var feature = {} ;
+		feature.name = shortname ;
+		feature.desc = name ;
+		feature['_range'] = [ { from:from , to:to , rc:rc } ] ;
+		feature['_type'] = gentle.getFeatureType ( type ) ;
+		seq.features.push ( feature ) ;
+		
+//		console.log ( type + " : " + from + "-" + to + (rc?" RC":"") + " [" + shortname + "] " + name ) ;
+	} ) ;
+	
+	// Actual sequence
+	var p ;
+	for ( p = seq_start ; bytes[p] > 0 ; p++ ) seq.seq += String.fromCharCode ( bytes[p] ) ;
+	p++ ;
+	
+	var number_of_enzymes = me.getLittleEndianUnsignedWord ( bytes , p ) ;
+	p += 4 ; // Skipping two bytes
+	var enzymes = [] ;
+	for ( var i = 0 ; i < number_of_enzymes ; i++ ) {
+		var s = '' ;
+		while ( bytes[p] > 0 ) s += String.fromCharCode ( bytes[p++] ) ;
+		p++ ;
+		enzymes.push ( s ) ;
+	}
+	// TODO somehow use enzymes
+	
+	p = bytes.length - 2 ;
+	while ( bytes[p] > 0 ) p-- ;
+	p-- ;
+	while ( bytes[p] > 0 ) p-- ;
+	p++ ;
+	
+	while ( bytes[p] > 0 ) seq.name += String.fromCharCode ( bytes[p++] ) ;
+	p++ ;
+	while ( bytes[p] > 0 ) seq.desc += String.fromCharCode ( bytes[p++] ) ;
+	
+	if ( !heuristic ) gentle.addSequence ( seq , true ) ;
+	return true ;
+}
+
+FT_cm5.prototype.getExportString = function ( sequence ) { // TODO
+	return '' ;
+}
+
+
+function FT_cm5 () {
+	this.typeName = 'Clone Manager' ;
+	this.read_binary = true ;
+}
+
+
+//________________________________________________________________________________________
+// Clone Manager CM5 Text
+FT_cm5_text.prototype = new Filetype() ;
+
+
+/**
+	Implements a CloneManager (CM5) format file reader.
+	@class FT_cm5_text
+	@extends Filetype
+*/
+FT_cm5_text.prototype.constructor = FT_cm5_text ;
+
+FT_cm5_text.prototype.textHeuristic = function () {
+	return this.parseFile ( true ) ;
+}
+
+
+FT_cm5_text.prototype.parseText = function ( text ) {
+	this.text = text ;
+	this.fileTypeValidated = true ;
+//	$('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
+	this.parseFile () ;
+}
+
+FT_cm5_text.prototype.parseFile = function ( heuristic ) {
 	var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
 	if ( lines.length < 2 ) return false ;
 	
@@ -617,11 +785,12 @@ FT_cm5.prototype.parseFile = function ( heuristic ) {
 	return true ;
 }
 
-FT_cm5.prototype.getExportString = function ( sequence ) { // TODO
+
+FT_cm5_text.prototype.getExportString = function ( sequence ) { // TODO
 	return '' ;
 }
 
 
-function FT_cm5 () {
-	this.typeName = 'Clone Manager' ;
+function FT_cm5_text () {
+	this.typeName = 'Clone Manager 5, text' ;
 }
