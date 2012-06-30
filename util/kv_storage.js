@@ -3,15 +3,15 @@
 	@class
 	@classdesc This class abstracts localStorage.
 */
-function KeyValueStorage () {
-	this.dbname = 'GENtle' ; // Default : Key-Value-Storage
-	this.sname = 'kvps' ; // Default : Key-Value-Pair Storage
+function KeyValueStorage ( dbname , sname ) {
+	this.dbname = dbname || 'KeyValuePairStorage' ; // Database name
+	this.sname = sname || 'kvps' ; // Storage name (not for LocalStorage)
 }
 
 /**
 	Checks if an item with that key exists
 	@param {string} key The key to check.
-	@param {function} Callback function. Parameter is true if the item exists, false if not.
+	@param {function} callback Callback function. Parameter is true if the item exists, false if not.
 */
 KeyValueStorage.prototype.hasItem = function ( key , callback ) {
 	var me = this ;
@@ -40,7 +40,7 @@ KeyValueStorage.prototype.hasItem = function ( key , callback ) {
 /**
 	Gets the value for a specific key.
 	@param {string} key The key to check.
-	@param {function} Callback function. Parameter is the stored value, or undefined if no item with that key exists.
+	@param {function} callback Callback function. Parameter is the stored value, or undefined if no item with that key exists.
 */
 KeyValueStorage.prototype.getItem = function ( key , callback ) {
 	var me = this ;
@@ -69,19 +69,22 @@ KeyValueStorage.prototype.getItem = function ( key , callback ) {
 	callback ( undefined ) ;
 }
 
+/**
+	Stores a key-value pair.
+	@param key {string} The key.
+	@param v {string} The value. Must be string to be compatible to LocalStorage. JSON.stringify is your friend.
+*/
 KeyValueStorage.prototype.setItem = function ( key , v , callback ) {
 	var me = this ;
 
 	if ( me.type == 'indexeddb' ) {
-		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readwrite').put(v,key) ;
-		promise.fail(function(error, event){
-			console.log ( "indexedDB : setItem error " + error + " for " + key ) ;
-			console.log ( event ) ;
-			if ( undefined !== callback ) callback ( false ) ;
-		} ) ;
-		promise.done(function(result, event){
-			if ( undefined !== callback ) callback ( true ) ;
-		} ) ;
+	
+		$.indexedDB(me.dbname).objectStore(me.sname).put({value:v}, key).then(function(res, e){
+			console.log("Added " + key + " to objectStore1");
+		}, function(res,e){
+			console.log("Could not add data to objectStore");
+			console.log(e);
+		});
 		return ;
 	}
 
@@ -103,16 +106,19 @@ KeyValueStorage.prototype.setItem = function ( key , v , callback ) {
 	callback ( false ) ;
 }
 
+/**
+	Removes an item with a specific key.
+	@param {string} key The key.
+	@param {function} callback Callback function. Parameter is true if removal was successful, false otherwise.
+*/
 KeyValueStorage.prototype.removeItem = function ( key , callback ) {
 	var me = this ;
 	
 	
 	if ( me.type == 'indexeddb' ) {
-		var request = me.indexedDB.db.transaction([me.sname], 'readwrite' ).objectStore(me.sname).delete(key); // IDBTransaction.READ_WRITE
-		request.onsuccess = function () {
-			console.log("REMOVE OK!");
-			if ( undefined !== callback ) callback() ;
-		}
+		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readwrite').delete(key) ;
+		promise.fail(function(error, event){ console.log ( "indexedDB : removeItem error " + error + " for " + key ) ; if(undefined!==callback)callback ( false ) ; } ) ;
+		promise.done(function(result, event){ if(undefined!==callback)callback ( true ) ; } ) ;
 		return ;
 	}
 
@@ -143,20 +149,18 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 	// Premium : indexedDB
 	var idb = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 	if ( undefined !== idb ) {
+//			var deletePromise = $.indexedDB('GENtle').deleteDatabase(); // HACK FIXME CLEANUP
 
 //			var deletePromise = $.indexedDB(me.dbname).deleteDatabase(); return ;// DELETES THE DB!!!
-	
 		me.type = 'indexeddb' ;
 		me.indexedDB = {} ;
 		me.indexedDB.db = $.indexedDB(me.dbname, {
 			"schema": {
 				"1": function(versionTransaction){
-					var objectStore = versionTransaction.createObjectStore(me.sname, {
-						"keyPath": "key",
-						"autoIncrement": true
-					});
+					var objectStore = versionTransaction.createObjectStore(me.sname);
 				},
 				"2": function(versionTransaction){
+//					$.indexedDB(me.dbname).objectStore(me.sname).put({value:"xx"},'test').then(function(){console.log('ok')},function(){console.log("oh no")});
 				}
 			}
 		}) ;

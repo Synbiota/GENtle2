@@ -35,7 +35,7 @@ var gentle = {
 	*/
 	init : function () {
 	
-		this.storage = new KeyValueStorage () ;
+		this.storage = new KeyValueStorage ( 'GENtle2' ) ;
 		this.storage.initialize ( function () {
 
 			if(navigator.userAgent.match(/Android/i)) {
