@@ -1,14 +1,18 @@
-//________________________________________________________________________________________
 /**
-	KeyValueStorage class
+	KeyValueStorage class. Implements an abstract key-value-pair storage.
 	@class
 	@classdesc This class abstracts localStorage.
 */
-function KeyValueStorage ( callback ) {
+function KeyValueStorage () {
 	this.dbname = 'GENtle' ; // Default : Key-Value-Storage
 	this.sname = 'kvps' ; // Default : Key-Value-Pair Storage
 }
 
+/**
+	Checks if an item with that key exists
+	@param {string} key The key to check.
+	@param {function} Callback function. Parameter is true if the item exists, false if not.
+*/
 KeyValueStorage.prototype.hasItem = function ( key , callback ) {
 	var me = this ;
 	
@@ -18,13 +22,9 @@ KeyValueStorage.prototype.hasItem = function ( key , callback ) {
 	}
 
 	if ( me.type == 'indexeddb' ) {
-		var request = me.indexedDB.db.transaction([me.sname], 'readonly' ).objectStore(me.sname).get(key); // IDBTransaction.READ_ONLY
-		
-		request.onsuccess = function(event) {
-			callback ( undefined !== event.target.result ) ;
-//			var row = event.target.result;
-//			console.log(row.name + ' is ' + row.years + 'old');
-		}
+		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readonly').get(key) ;
+		promise.fail(function(error, event){ console.log ( "indexedDB : hasItem error " + error + " for " + key ) ; callback ( false ) ; } ) ;
+		promise.done(function(result, event){ callback ( undefined !== event.target.result ) ; } ) ;
 		return ;
 	}
 
@@ -34,8 +34,14 @@ KeyValueStorage.prototype.hasItem = function ( key , callback ) {
 	}
 	
 	console.log ( "KeyValueStorage not initialized" ) ;
+	callback ( false ) ;
 }
 
+/**
+	Gets the value for a specific key.
+	@param {string} key The key to check.
+	@param {function} Callback function. Parameter is the stored value, or undefined if no item with that key exists.
+*/
 KeyValueStorage.prototype.getItem = function ( key , callback ) {
 	var me = this ;
 	
@@ -45,13 +51,12 @@ KeyValueStorage.prototype.getItem = function ( key , callback ) {
 	}
 
 	if ( me.type == 'indexeddb' ) {
-		var request = me.indexedDB.db.transaction([me.sname], 'readonly' ).objectStore(me.sname).get(key); // IDBTransaction.READ_ONLY
-		
-		request.onsuccess = function(event) {
-			if ( undefined === event.target.result ) callback ( undefined ) ;
-			else callback ( event.target.result.value ) ;
-//			console.log ( event.target.result ) ;
-		}
+		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readonly').get(key) ;
+		promise.fail(function(error, event){ console.log ( "indexedDB : getItem error " + error + " for " + key ) ; callback ( undefined ) ; } ) ;
+		promise.done(function(result, event){
+			var v = ( undefined === event.target.result ) ? undefined : event.target.result.value ;
+			callback ( v ) ;
+		} ) ;
 		return ;
 	}
 
@@ -61,26 +66,22 @@ KeyValueStorage.prototype.getItem = function ( key , callback ) {
 	}
 
 	console.log ( "KeyValueStorage not initialized" ) ;
+	callback ( undefined ) ;
 }
 
 KeyValueStorage.prototype.setItem = function ( key , v , callback ) {
 	var me = this ;
 
-
 	if ( me.type == 'indexeddb' ) {
-//		console.log ( "Trying to store " + key + " = " + v ) ;
-		var objectStore = me.indexedDB.db.transaction([me.sname], 'readwrite').objectStore(me.sname); // IDBTransaction.READ_WRITE
-//		var request = me.indexedDB.db.transaction([me.sname], 'readonly' ).objectStore(me.sname).get(key); // IDBTransaction.READ_ONLY
-		var request = objectStore.put({key:key+'', value:v+''});
-		
-		request.onerror = function () {
-			console.log ( "Error while setItem : " + k + " <= " + v ) ;
+		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readwrite').put(v,key) ;
+		promise.fail(function(error, event){
+			console.log ( "indexedDB : setItem error " + error + " for " + key ) ;
+			console.log ( event ) ;
 			if ( undefined !== callback ) callback ( false ) ;
-		}
-		request.onsuccess = function() {
-//		console.log ( "Storage OK!");
+		} ) ;
+		promise.done(function(result, event){
 			if ( undefined !== callback ) callback ( true ) ;
-		}
+		} ) ;
 		return ;
 	}
 
@@ -99,6 +100,7 @@ KeyValueStorage.prototype.setItem = function ( key , v , callback ) {
 	}
 
 	console.log ( "KeyValueStorage not initialized" ) ;
+	callback ( false ) ;
 }
 
 KeyValueStorage.prototype.removeItem = function ( key , callback ) {
@@ -123,72 +125,51 @@ KeyValueStorage.prototype.removeItem = function ( key , callback ) {
 	console.log ( "KeyValueStorage not initialized" ) ;
 }
 
+/**
+	Checks storage status.
+	@return {bool} true if the storage is available and initialized, false otherwise.
+*/
 KeyValueStorage.prototype.isAvailable = function () {
 	return undefined !== me.type ;
 }
 
+/**
+	@constructor
+	@param callback {function} Call that function once a storage was found. Parameter is true if a storage was found, false otherwise.
+*/
 KeyValueStorage.prototype.initialize = function ( callback ) {
 	var me = this ;
 	
 	// Premium : indexedDB
-	var idb = window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;  
+	var idb = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 	if ( undefined !== idb ) {
+
+//			var deletePromise = $.indexedDB(me.dbname).deleteDatabase(); return ;// DELETES THE DB!!!
 	
-		if ('webkitIndexedDB' in window) {
-			window.IDBTransaction = window.webkitIDBTransaction;
-			window.IDBKeyRange = window.webkitIDBKeyRange;
-		}
 		me.type = 'indexeddb' ;
-		me.indexedDB = { version:1 };
-		me.indexedDB.db = null ;
-		me.indexedDB.onError = function ( e ) {
-			console.log('IndexedDB exception logged: ' + e.value );
-		} ;
+		me.indexedDB = {} ;
+		me.indexedDB.db = $.indexedDB(me.dbname, {
+			"schema": {
+				"1": function(versionTransaction){
+					var objectStore = versionTransaction.createObjectStore(me.sname, {
+						"keyPath": "key",
+						"autoIncrement": true
+					});
+				},
+				"2": function(versionTransaction){
+				}
+			}
+		}) ;
 
+		me.indexedDB.db.fail(function(db, event){
+			console.log ( "indexedDB FAIL" ) ;
+			if ( undefined !== callback ) callback(false) ;
+		} ) ;
 
-		var request = idb.open(me.dbname);
-		
-		request.onupgradeneeded = function(e) {
-			console.log("!!");
-			var db = e.target.result;
-			db.createObjectStore(me.sname, {keyPath: "key"});
-		} ;
-
-		request.onsuccess = function(e) {
-			var db = me.indexedDB.db = e.target.result;
-			console.log("1");
-
-			// set object store if version undefined or changed
-			if(me.indexedDB.version != db.version) {
-				// set the new version
-				console.log("2");
-				console.log ( ":" + me.indexedDB.version ) ;
-				var verRequest= db.setVersion(me.indexedDB.version);
-				
-				
-				// register failure callback
-				verRequest.onfailure = function (e3) { //me.indexedDB.onError;
-					console.log ( "ERROR SETVERSION" ) ;
-					console.log ( e3 ) ;
-				} ;
-				
-				// create object store in success callback
-				verRequest.onsuccess = function(e2) {
-					console.log("3");
-					console.log ( e2 ) ;
-					var x = db.createObjectStore(me.sname, {keyPath: "key"});
-					console.log("4");
-					console.log ( x ) ;
-					console.log ( db ) ;
-					
-					callback() ;
-				};
-			} else callback() ;
-			
-
-		} ;
-
-
+		me.indexedDB.db.done(function(db, event){
+			console.log ( "DB open OK" ) ;
+			if ( undefined !== callback ) callback(true) ;
+		} ) ;	
 
 		return ;
 		
@@ -202,6 +183,8 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 	// LocalStorage (fallback)
 	if ( typeof window.localStorage != 'undefined' ) {
 		me.type = 'localstorage' ;
-		if ( undefined !== callback ) callback() ;
+		if ( undefined !== callback ) callback(true) ;
 	}
+	
+	if ( undefined !== callback ) callback(false) ;
 }
