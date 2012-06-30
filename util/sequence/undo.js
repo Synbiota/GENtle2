@@ -118,6 +118,7 @@ SequenceUndo.prototype.doUndo = function ( sc ) { // This is my undoing!
 	top_display.init() ;
 	me.updateEditMenu () ;
 	me.prevent_recording = false ;
+	gentle.onThingsHaveChanged() ;
 }
 
 SequenceUndo.prototype.doRedo = function ( sc ) {
@@ -159,4 +160,5 @@ SequenceUndo.prototype.doRedo = function ( sc ) {
 	top_display.init() ;
 	me.updateEditMenu () ;
 	me.prevent_recording = false ;
+	gentle.onThingsHaveChanged() ;
 }

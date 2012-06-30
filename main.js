@@ -28,76 +28,81 @@ var gentle = {
 	main_sequence_canvas : undefined ,
 	is_mobile : false ,
 	is_in_dialog : false ,
+	storage : {} ,
 
 	/**
 		Initializes the gentle object.
 	*/
 	init : function () {
 	
-		if(navigator.userAgent.match(/Android/i)) {
-			gentle.is_mobile = true ;
-		}
-		if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
-			gentle.is_mobile = true ;
-		}
-		
-		gentle.is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
-		
-		window.onorientationchange = gentle.on_resize_event ;
+		this.storage = new KeyValueStorage () ;
+		this.storage.initialize ( function () {
 
-		gentle.setMenuState ( 'edit_menu_undo' , false ) ;
-		gentle.setMenuState ( 'edit_menu_redo' , false ) ;
-		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
-		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
-		gentle.setMenuState ( 'edit_menu_paste' , false ) ;
-		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
-
-		plugins.init() ;
-		if ( undefined === gentle_config ) {
-			gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
-		}
+			if(navigator.userAgent.match(/Android/i)) {
+				gentle.is_mobile = true ;
+			}
+			if(navigator.userAgent.match(/iPhone/i) || navigator.userAgent.match(/iPad/i)) {
+				gentle.is_mobile = true ;
+			}
+			
+			gentle.is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+			
+			window.onorientationchange = gentle.on_resize_event ;
+	
+			gentle.setMenuState ( 'edit_menu_undo' , false ) ;
+			gentle.setMenuState ( 'edit_menu_redo' , false ) ;
+			gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+			gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+			gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+			gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+	
+			plugins.init() ;
+			if ( undefined === gentle_config ) {
+				gentle_config = { default_plugins : [] , deactivated_plugins : [] } ;
+			}
+			
+			gentle.dragEntered = 0 ;
+			gentle.url_vars = {} ;
+			gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
+			gentle.plugins = plugins ;
+			loadBaseData() ;
+			gentle.updateSequenceList() ;
 		
-		gentle.dragEntered = 0 ;
-		gentle.url_vars = {} ;
-		gentle.url_vars = gentle.getUrlVars ( gentle.url_vars ) ;
-		gentle.plugins = plugins ;
-		loadBaseData() ;
-		gentle.updateSequenceList() ;
-	
-		if (window.File && window.FileReader && window.FileList && window.Blob) {
-		} else if ( gentle.is_mobile ) {
-			// Ignore iOS restrictions
-		} else if ( undefined !== getBlobBuilder() ) { // Otherwise, we have already warned...
-			gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
-		}
-	
-		$(window).bind('beforeunload', function(){
-		  gentle.saveLocally () ;
-		});
+			if (window.File && window.FileReader && window.FileList && window.Blob) {
+			} else if ( gentle.is_mobile ) {
+				// Ignore iOS restrictions
+			} else if ( undefined !== getBlobBuilder() ) { // Otherwise, we have already warned...
+				gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
+			}
 		
-		$('#main').height ( $('body').height()-50 ) ;
+			$(window).on('beforeunload', function(){
+			  gentle.saveLocally () ;
+			});
+			
+			$('#main').height ( $('body').height()-50 ) ;
+		
+			$(window)
+			.bind ( 'dragenter' , function ( evt ) {
+				gentle.dragEntered++ ;
+				if ( gentle.dragEntered == 1 ) $('#drop_zone').show() ;
+			} )
+			.bind ( 'dragleave' , function ( evt ) {
+				gentle.dragEntered-- ;
+				if ( gentle.dragEntered == 0 ) $('#drop_zone').hide() ;
+			} ) ;
+			
+			$('#files').change ( gentle.handleFileSelect ) ;
+			$('#drop_zone') .bind('dragover',function(evt){gentle.markDropArea(evt,true)})
+							.bind('dragleave',function(evt){gentle.markDropArea(evt,false)})
+							.bind('drop',gentle.handleFileDrop) ;
+			
+			gentle.loadLocally() ;
+			plugins.loadPlugins() ;
 	
-		$(window)
-		.bind ( 'dragenter' , function ( evt ) {
-			gentle.dragEntered++ ;
-			if ( gentle.dragEntered == 1 ) $('#drop_zone').show() ;
-		} )
-		.bind ( 'dragleave' , function ( evt ) {
-			gentle.dragEntered-- ;
-			if ( gentle.dragEntered == 0 ) $('#drop_zone').hide() ;
+			if ( gentle.sequences.length == 0 ) gentle.showDefaultBlurb() ;
+			
+			if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
 		} ) ;
-		
-		$('#files').change ( gentle.handleFileSelect ) ;
-		$('#drop_zone') .bind('dragover',function(evt){gentle.markDropArea(evt,true)})
-						.bind('dragleave',function(evt){gentle.markDropArea(evt,false)})
-						.bind('drop',gentle.handleFileDrop) ;
-		
-		gentle.loadLocally() ;
-		plugins.loadPlugins() ;
-
-		if ( gentle.sequences.length == 0 ) this.showDefaultBlurb() ;
-		
-		if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
 	} ,
 	
 	/**
@@ -130,56 +135,73 @@ var gentle = {
 	} ,
 	
 	loadLocally : function () {
-		if ( !localStorage.getItem('saved') ) {
-			gentle.loadLocalPlugins() ;
-			return ;
-		}
-
-		// We cannot just assign the stored item, because of missing class methods
-		// Each sequence object needs to be reconstructed individually
-		var tmpseq = JSON.parse ( localStorage.getItem('sequences') ) ;
-		gentle.sequences = [] ;
-		$.each ( tmpseq , function ( k , v ) {
-			if ( v.typeName == 'dna' ) {
-				var seq = new SequenceDNA () ;
-				seq.seedFrom ( v ) ;
-				gentle.sequences[k] = seq ;
-			} else if ( v.typeName == 'designer' ) {
-				var seq = new SequenceDesigner () ;
-				seq.seedFrom ( v ) ;
-				seq.typeName = 'designer' ;
-				gentle.sequences[k] = seq ;
-			} else {
-				console.log ( 'UNKNOWN LOCAL STORAGE SEQUENCE TYPENAME ' + v.typeName ) ;
+		var me = this ;
+		me.storage.hasItem('saved',function(hasit){
+			if ( !hasit ) {
+				gentle.loadLocalPlugins() ;
+				return ;
 			}
+	
+			// We cannot just assign the stored item, because of missing class methods
+			// Each sequence object needs to be reconstructed individually
+			me.storage.getItem('sequences',function(gi1){
+				var tmpseq = JSON.parse ( gi1 ) ;
+				gentle.sequences = [] ;
+				$.each ( tmpseq , function ( k , v ) {
+					if ( v.typeName == 'dna' ) {
+						var seq = new SequenceDNA () ;
+						seq.seedFrom ( v ) ;
+						gentle.sequences[k] = seq ;
+					} else if ( v.typeName == 'designer' ) {
+						var seq = new SequenceDesigner () ;
+						seq.seedFrom ( v ) ;
+						seq.typeName = 'designer' ;
+						gentle.sequences[k] = seq ;
+					} else {
+						console.log ( 'UNKNOWN LOCAL STORAGE SEQUENCE TYPENAME ' + v.typeName ) ;
+					}
+				} ) ;
+				
+				// Now show last sequence, if any
+				gentle.current_sequence_entry === undefined ;
+		
+				if ( gentle.sequences.length > 0 ) {
+					gentle.updateSequenceList() ;
+					me.storage.getItem('last_entry',function(gi2){
+						gentle.showSequence ( gi2 ) ;
+					} ) ;
+				}
+				
+				gentle.loadLocalPlugins() ;
+			} ) ;
 		} ) ;
-		
-		// Now show last sequence, if any
-		gentle.current_sequence_entry === undefined ;
-
-		if ( gentle.sequences.length > 0 ) {
-			gentle.updateSequenceList() ;
-			gentle.showSequence ( localStorage.getItem('last_entry') ) ;
-		}
-		
-		gentle.loadLocalPlugins() ;
 	} ,
 	
 	loadLocalPlugins : function () {
-		var plugin_list = localStorage.getItem('plugin_lists') ;
-		if ( plugin_list ) {
-			plugin_list = JSON.parse ( plugin_list ) ;
-			plugins.load_on_start = gentle_config.default_plugins ;
-			$.each ( plugin_list.all , function ( k , v ) { plugins.load_on_start.push ( k ) ; } ) ;
-			plugins.load_on_start = jQuery.unique ( plugins.load_on_start ) ;
-			plugins.deactivated = plugin_list.deactivated ;
-			plugins.loadPlugins() ;
-		} else {
-			plugins.load_on_start = gentle_config.default_plugins ;
-		}
+		var me = this ;
+		me.storage.getItem('plugin_lists',function(plugin_list){
+			if ( plugin_list ) {
+				plugin_list = JSON.parse ( plugin_list ) ;
+				plugins.load_on_start = gentle_config.default_plugins ;
+				$.each ( plugin_list.all , function ( k , v ) { plugins.load_on_start.push ( k ) ; } ) ;
+				plugins.load_on_start = jQuery.unique ( plugins.load_on_start ) ;
+				plugins.deactivated = plugin_list.deactivated ;
+				plugins.loadPlugins() ;
+			} else {
+				plugins.load_on_start = gentle_config.default_plugins ;
+			}
+		} ) ;
+	} ,
+	
+	/**
+		Wrapper around gentle.saveLocally(), might be wise to separate them for future use
+	*/
+	onThingsHaveChanged : function () {
+//		this.saveLocally() ;
 	} ,
 
 	saveLocally : function () {
+		var me = this ;
 		gentle.updateCurrentSequenceSettings () ;
 		if ( gentle.sequences.length == 0 ) {
 			gentle.clearLocalStorage () ;
@@ -192,14 +214,9 @@ var gentle = {
 		} ) ;
 
 		var s = JSON.stringify ( tmp ) ; // gentle.sequences
-		try {
-			localStorage.setItem ( 'sequences' , s ) ;
-		}  catch (e) {
-			alert ( 'Local storage quota exceeded. Changes since last page load will not be stored. Sorry about that.' ) ;
-			return ;
-		}
-		localStorage.setItem ( 'last_entry' , gentle.current_sequence_entry ) ;
-		localStorage.setItem ( 'saved' , 'true' ) ;
+		me.storage.setItem ( 'sequences' , s ) ;
+		me.storage.setItem ( 'last_entry' , gentle.current_sequence_entry ) ;
+		me.storage.setItem ( 'saved' , 'true' ) ;
 		
 		var plugin_list = { all : {} , deactivated : {} } ;
 		$.each ( plugins.all , function ( k , v ) {
@@ -208,7 +225,7 @@ var gentle = {
 		$.each ( plugins.deactivated , function ( k , v ) {
 			plugin_list.deactivated[k] = true;
 		} ) ;
-		localStorage.setItem ( 'plugin_lists' , JSON.stringify(plugin_list) ) ;
+		me.storage.setItem ( 'plugin_lists' , JSON.stringify(plugin_list) ) ;
 	} ,
 	
 	setMenuState : function ( id , state ) {
@@ -345,16 +362,6 @@ var gentle = {
 	
 	startNewSequenceDialog : function () {
 	  $('#newSequenceDialog').remove() ;
-	   function submitTask () {
-	/*     var ncbiID = $('#ncbi_form input[name=ncbiID]').val();
-		 //TODO: better check for ncbi codes, better way to deal with user errors.
-		 if (ncbiID !== "") {
-		   $('#nbci_form').html("<i>Querying NCBI...</i>");
-		   new_sequence_from_textarea(ncbiID);
-		 } else {
-		   alert("Bad ID provided");
-		 }*/
-	  }
 	
 	  var dialogContainer = $("<div/>");
 	  dialogContainer.load("public/templates/new_sequence_dialog.html", function(){
@@ -371,7 +378,6 @@ var gentle = {
 		dialogContainer.appendTo("#all");
 		$('#newSequenceDialog').modal();
 		$('#new_sequence_entry').focus() ;
-	//    $("#ncbi_form input[type=submit]").click(function(){submitTask();});
 	  });
 	} ,
 	
@@ -408,6 +414,7 @@ var gentle = {
 
 	closeCurrentSequence : function () {
 		gentle.closeSequence ( gentle.current_sequence_entry ) ;
+		gentle.onThingsHaveChanged() ;
 	} ,
 	
 	closeSequence : function ( entry ) {
@@ -437,10 +444,11 @@ var gentle = {
 	} ,
 	
 	clearLocalStorage : function () {
-//		localStorage.clear() ; // Don't use, would nuke plugins
-		localStorage.removeItem('saved') ;
-		localStorage.removeItem('last_entry') ;
-		localStorage.removeItem('sequences') ;
+		var me = this ;
+//		me.storage.clear() ; // Don't use, would nuke plugins
+		me.storage.removeItem('saved') ;
+		me.storage.removeItem('last_entry') ;
+		me.storage.removeItem('sequences') ;
 	} ,
 	
 	updateCurrentSequenceSettings : function () {
@@ -458,6 +466,8 @@ var gentle = {
 		
 		if ( sc.typeName == 'designer' ) gentle.handleSelectSequenceEntryDesigner ( entry ) ;
 		else gentle.handleSelectSequenceEntryDNA ( entry ) ; // Default
+
+		gentle.onThingsHaveChanged() ;
 	} ,
 
 	handleSelectSequenceEntryDesigner : function ( entry ) {
