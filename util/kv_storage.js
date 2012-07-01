@@ -30,7 +30,8 @@ KeyValueStorage.prototype.hasItem = function ( key , callback ) {
 	}
 
 	if ( me.type == 'localstorage' ) {
-		callback ( undefined !== localStorage.getItem ( key ) ) ;
+		var v = localStorage.getItem ( key ) ;
+		callback ( undefined !== v && null !== v ) ;
 		return ;
 	}
 	
@@ -183,8 +184,6 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 			"schema": {
 				"1": function(versionTransaction){
 					var objectStore = versionTransaction.createObjectStore(me.sname);
-				},
-				"2": function(versionTransaction){
 				}
 			}
 		}) ;
@@ -201,11 +200,6 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 
 		return ;
 		
-	}
-	
-	// Common : WebDB
-	var webdb = window.openDatabase ;
-	if ( undefined !== webdb ) {
 	}
 	
 	// LocalStorage (fallback)

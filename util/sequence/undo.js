@@ -42,6 +42,8 @@ SequenceUndo.prototype.addAction = function ( event_name , data ) {
 	if ( me.prevent_recording ) return ; // Currently un-/redoing something, don't record
 //	console.log ( "Adding : " + event_name ) ;	console.log ( data ) ;
 
+	gentle.onThingsHaveChanged();
+
 	while ( me.undo_position < me.elements.length ) me.elements.pop() ; // New action, remove any lingering redo events
 	
 	if ( data.editing && me.elements.length > 0 && me.elements[me.elements.length-1].editing && event_name == me.elements[me.elements.length-1].event_name ) {

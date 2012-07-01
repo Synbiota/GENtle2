@@ -75,9 +75,8 @@ var gentle = {
 				gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
 			}
 		
-			$(window).on('beforeunload', function(){
-			  gentle.saveLocally () ;
-			});
+			$(window).bind('beforeunload', function(){ gentle.saveLocally () ; });
+			$(window).bind('unload', function(){ gentle.saveLocally () ; });
 			
 			$('#main').height ( $('body').height()-50 ) ;
 		
@@ -137,6 +136,7 @@ var gentle = {
 	loadLocally : function () {
 		var me = this ;
 		me.storage.hasItem('saved',function(hasit){
+
 			if ( !hasit ) {
 				gentle.loadLocalPlugins() ;
 				return ;
@@ -197,7 +197,7 @@ var gentle = {
 		Wrapper around gentle.saveLocally(), might be wise to separate them for future use
 	*/
 	onThingsHaveChanged : function () {
-//		this.saveLocally() ;
+		this.saveLocally() ;
 	} ,
 
 	saveLocally : function () {
