@@ -6,6 +6,7 @@
 function KeyValueStorage ( dbname , sname ) {
 	this.dbname = dbname || 'KeyValuePairStorage' ; // Database name
 	this.sname = sname || 'kvps' ; // Storage name (not for LocalStorage)
+	this.convert_local_storage = true ;
 }
 
 /**
@@ -80,17 +81,19 @@ KeyValueStorage.prototype.setItem = function ( key , v , callback ) {
 	if ( me.type == 'indexeddb' ) {
 	
 		$.indexedDB(me.dbname).objectStore(me.sname).put({value:v}, key).then(function(res, e){
-			console.log("Added " + key + " to objectStore1");
+//			console.log("Added " + key + " to objectStore1");
+			if ( undefined !== callback ) callback ( true ) ;
 		}, function(res,e){
 			console.log("Could not add data to objectStore");
 			console.log(e);
+			if ( undefined !== callback ) callback ( false ) ;
 		});
 		return ;
 	}
 
 
 	if ( me.type == 'localstorage' ) {
-	console.log ( "OH NO! LOCALSTORAGE!" ) ;
+//	console.log ( "OH NO! LOCALSTORAGE!" ) ;
 		try {
 			localStorage.setItem ( key , v ) ;
 		} catch ( e ) {
@@ -139,6 +142,29 @@ KeyValueStorage.prototype.isAvailable = function () {
 	return undefined !== me.type ;
 }
 
+
+/**
+	Converts localStorage to modern DB storage, once. Clears localStorage.
+	@param callback {function} Callback to run afterwards. Optional.
+	@param success {bool} Parameter to pass to callback.
+*/
+KeyValueStorage.prototype.convertLocalStorage = function ( callback , success ) {
+	var me = this ;
+	if ( !me.convert_local_storage || me.type == 'localstorage' ) {
+		if ( undefined !== callback ) callback ( success ) ;
+		return ;
+	}
+	if ( localStorage && localStorage.length ) {
+		for (var i = 0; i < localStorage.length; i++) {
+			var k = localStorage.key(i) ;
+			var v = localStorage.getItem(k) ;
+			me.setItem ( k , v ) ; // Save old localStorage item in new DB
+		}
+		localStorage.clear() ; // Clear localStorage
+	}
+	if ( undefined !== callback ) callback ( success ) ;
+}
+
 /**
 	@constructor
 	@param callback {function} Call that function once a storage was found. Parameter is true if a storage was found, false otherwise.
@@ -149,7 +175,6 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 	// Premium : indexedDB
 	var idb = window.indexedDB || window.mozIndexedDB || window.webkitIndexedDB || window.msIndexedDB;
 	if ( undefined !== idb ) {
-//			var deletePromise = $.indexedDB('GENtle').deleteDatabase(); // HACK FIXME CLEANUP
 
 //			var deletePromise = $.indexedDB(me.dbname).deleteDatabase(); return ;// DELETES THE DB!!!
 		me.type = 'indexeddb' ;
@@ -160,19 +185,18 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 					var objectStore = versionTransaction.createObjectStore(me.sname);
 				},
 				"2": function(versionTransaction){
-//					$.indexedDB(me.dbname).objectStore(me.sname).put({value:"xx"},'test').then(function(){console.log('ok')},function(){console.log("oh no")});
 				}
 			}
 		}) ;
 
 		me.indexedDB.db.fail(function(db, event){
 			console.log ( "indexedDB FAIL" ) ;
-			if ( undefined !== callback ) callback(false) ;
+			me.convertLocalStorage ( callback , false ) ;
 		} ) ;
 
 		me.indexedDB.db.done(function(db, event){
 			console.log ( "DB open OK" ) ;
-			if ( undefined !== callback ) callback(true) ;
+			me.convertLocalStorage ( callback , true ) ;
 		} ) ;	
 
 		return ;
@@ -188,6 +212,7 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 	if ( typeof window.localStorage != 'undefined' ) {
 		me.type = 'localstorage' ;
 		if ( undefined !== callback ) callback(true) ;
+		return ;
 	}
 	
 	if ( undefined !== callback ) callback(false) ;
