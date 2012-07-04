@@ -95,12 +95,13 @@ var gentle = {
 							.bind('dragleave',function(evt){gentle.markDropArea(evt,false)})
 							.bind('drop',gentle.handleFileDrop) ;
 			
-			gentle.loadLocally() ;
-			plugins.loadPlugins() ;
-	
-			if ( gentle.sequences.length == 0 ) gentle.showDefaultBlurb() ;
-			
-			if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
+			gentle.loadLocally( function () {
+				plugins.loadPlugins() ;
+		
+				if ( gentle.sequences.length == 0 ) gentle.showDefaultBlurb() ;
+				
+				if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
+			} ) ;
 		} ) ;
 	} ,
 	
@@ -133,12 +134,12 @@ var gentle = {
 		});
 	} ,
 	
-	loadLocally : function () {
+	loadLocally : function ( callback ) {
 		var me = this ;
 		me.storage.hasItem('saved',function(hasit){
 
 			if ( !hasit ) {
-				gentle.loadLocalPlugins() ;
+				gentle.loadLocalPlugins ( callback ) ;
 				return ;
 			}
 	
@@ -172,15 +173,15 @@ var gentle = {
 					} ) ;
 				}
 				
-				gentle.loadLocalPlugins() ;
+				gentle.loadLocalPlugins ( callback ) ;
 			} ) ;
 		} ) ;
 	} ,
 	
-	loadLocalPlugins : function () {
+	loadLocalPlugins : function ( callback ) {
 		var me = this ;
 		me.storage.getItem('plugin_lists',function(plugin_list){
-			if ( plugin_list ) {
+			if ( plugin_list && object_length(plugin_list.all)>0 ) {
 				plugin_list = JSON.parse ( plugin_list ) ;
 				plugins.load_on_start = gentle_config.default_plugins ;
 				$.each ( plugin_list.all , function ( k , v ) { plugins.load_on_start.push ( k ) ; } ) ;
@@ -190,6 +191,7 @@ var gentle = {
 			} else {
 				plugins.load_on_start = gentle_config.default_plugins ;
 			}
+			callback();
 		} ) ;
 	} ,
 	

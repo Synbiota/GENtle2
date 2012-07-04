@@ -194,7 +194,7 @@ KeyValueStorage.prototype.initialize = function ( callback ) {
 		} ) ;
 
 		me.indexedDB.db.done(function(db, event){
-			console.log ( "DB open OK" ) ;
+//			console.log ( "DB open OK" ) ;
 			me.convertLocalStorage ( callback , true ) ;
 		} ) ;	
 

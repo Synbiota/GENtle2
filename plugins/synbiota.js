@@ -257,7 +257,6 @@ function synbiota_load_sequence ( url ) {
 	} ) ;
 }
 
-
 var dummy = new synbiota() ;
 dummy.global_init () ;
 
