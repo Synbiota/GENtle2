@@ -55,6 +55,12 @@ var gentle = {
 			gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 			gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 			gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+			
+			$('#toolbar_ul li.dropdown').each ( function ( k , v ) {
+				var id = $(v).attr('id') ;
+				if ( undefined === id ) return ;
+				gentle.sortMenu ( id ) ;
+			} ) ;
 	
 			plugins.init() ;
 			if ( undefined === gentle_config ) {
@@ -243,6 +249,18 @@ var gentle = {
 		var show_edit_menu = $('#edit_menu ul a:not(.disabled)').length ;
 		if ( show_edit_menu > 0 ) $('#edit_menu').show() ;
 		else $('#edit_menu').hide() ;
+	} ,
+	
+	sortMenu : function ( id ) {
+		console.log ( 'Sorting menu #' + id ) ;
+		var mylist = $($('#'+id+' ul').get(0)) ;
+		var listitems = mylist.children('li').get();
+		listitems.sort(function(a, b) {
+			var compA = $(a).attr('sort') || $(a).text().toUpperCase();
+			var compB = $(a).attr('sort') || $(b).text().toUpperCase();
+			return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
+		})
+		$.each(listitems, function(idx, itm) { mylist.append(itm); });
 	} ,
 
 	do_annotate : function () {

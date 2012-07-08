@@ -97,6 +97,7 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
 	var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
 	$('#'+id+' ul').append(h) ;
 	$('#'+id).show() ;
+	gentle.sortMenu ( id ) ;
 }
 
 

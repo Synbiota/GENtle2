@@ -264,6 +264,7 @@ dummy.global_init () ;
 $(document).ready ( function () {
 
 	$('#help_menu').append ( "<li><a target='_blank' href='#' onclick='aweber();return false'>Sign up for mailing list</a></li>" ) ;
+	gentle.sortMenu ( 'help_menu_wrapper' ) ;
 	
 } ) ;
 
