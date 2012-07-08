@@ -252,7 +252,6 @@ var gentle = {
 	} ,
 	
 	sortMenu : function ( id ) {
-		console.log ( 'Sorting menu #' + id ) ;
 		var mylist = $($('#'+id+' ul').get(0)) ;
 		var listitems = mylist.children('li').get();
 		listitems.sort(function(a, b) {

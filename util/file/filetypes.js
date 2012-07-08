@@ -592,7 +592,8 @@ FT_cm5.prototype.getLittleEndianUnsignedWord = function ( bytes , p ) {
 
 FT_cm5.prototype.parseFile = function ( heuristic ) {
 	var me = this ;
-	var bytes = new Uint8Array(this.text);
+	if ( me.text.substr(0,1) >= '0' && me.text.substr(0,1) <= '9' ) return false ; // HACK prevent error "Uncaught RangeError: ArrayBufferView size is not a small enough positive integer. "
+	var bytes = new Uint8Array(me.text);
 	if ( bytes[0] != 26 || bytes[1] != 83 || bytes[2] != 69 || bytes[3] != 83 ) return false ; // CHECK HEURISTIC!
 	
 	var seq = new SequenceDNA ( '' , '' ) ;
