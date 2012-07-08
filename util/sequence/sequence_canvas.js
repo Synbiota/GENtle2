@@ -144,6 +144,11 @@ SequenceCanvas.prototype.pasteHandler = function ( e ) {
 
 SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
 	pastedText = pastedText.replace ( /\s/g , '' ) ;
+	
+	if ( true ) { // Cleanup
+		pastedText = pastedText.replace ( /[^a-zA-Z]/g , '' ) ;
+	}
+	
 	var parts = pastedText.split ( '' ) ;
 	var ok = true ;
 	$.each ( parts , function ( k , c ) {
