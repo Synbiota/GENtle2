@@ -3,10 +3,10 @@
 SequenceCanvasDNA.prototype = new SequenceCanvas() ;
 SequenceCanvasDNA.prototype.constructor = SequenceCanvasDNA ;
 
+/*
 SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
 	var h = '' ;
 	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-//	h += "<i class='icon-chevron-down'></i>" ;
 
 	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
 	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'cut\');return false">Cut</a></li>' ;
@@ -32,10 +32,8 @@ SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
 	
 	$('#selection_context_marker').remove() ;
 	$('#canvas_wrapper').prepend ( h ) ;
-/*	$('#selection_context_marker').click ( function () {
-		alert ( "!" ) ;
-	} ) ;*/
 }
+*/
 
 SequenceCanvasDNA.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
@@ -741,6 +739,27 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+	
+	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
+	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
+	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
+	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
+	
+	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
+		var ret = [] ;
+		if ( sc !== undefined && sc.selections.length > 0 ) {
+			var feats = sc.sequence.getFeaturesInRange ( sc.selections[0].from , sc.selections[0].to ) ;
+			$.each ( feats , function ( k , v ) {
+				if ( v['_type'] == 'source' ) return ;
+				var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
+				var name = sc.sequence.getAnnotationName ( v ) ;
+				name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
+				ret.push ( { html : '<i class="icon-edit"></i> ' + name , callback : function () { gentle.main_sequence_canvas.editFeature(k) } , title : 'Edit annotation' } ) ;
+//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
+			} ) ;
+		}
+		return ret ;
+	} } ) ;
 	
 	this.canvas_id = 'sequence_canvas' ;
 	this.sequence = the_sequence ;

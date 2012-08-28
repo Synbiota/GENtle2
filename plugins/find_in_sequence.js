@@ -220,4 +220,7 @@ if ( plugins.registerPlugin ( { className : 'PluginFindInSequence' , url : 'plug
 
 // Registers plugin as toolbar query box handler. There should only be one at any time.
 	plugins.registerAsSearch ( { className : 'PluginFindInSequence' , module : 'dna' , section : 'sequence' , call : 'updateResultsBox' , linkTitle : 'Search' } ) ;
+
+// DEMO : Register as context menu. See SequenceCanvas.prototype.setContextMenuItem for details on the "cm" object.
+//	plugins.registerAsContextMenu ( { module : 'dna' , cm : { id:'find',items:[{html:'Test',callback:function(sc){alert("FIND!")}}] } } ) ;
 }

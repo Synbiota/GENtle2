@@ -7,6 +7,7 @@ function SequenceCanvas () {
 	this.edit = { editing : false } ;
 	this.type = undefined ;
 	this.metakeys = 0 ;
+	this.selection_context_menu = [] ;
 }
 
 SequenceCanvas.prototype.init = function () {}
@@ -15,6 +16,53 @@ SequenceCanvas.prototype.show = function () {}
 SequenceCanvas.prototype.select = function ( from , to ) {}
 SequenceCanvas.prototype.deselect = function () {}
 SequenceCanvas.prototype.applySettings = function ( settings ) {}
+
+/*
+data = {
+	id : 'some_id' , // MANDATORY
+	items : [ { html : "my item 1" , callback : function(SequenceCanvas){} } , ... ] , // Static items, or
+	getItems : function ( SequeneCanvas ) // Dynamic items (same format as above)
+}
+*/
+SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
+	var me = this ;
+	var found = false ;
+	$.each ( me.selection_context_menu , function ( k , v ) {
+		if ( found || v.id != data.id ) return ;
+		found = true ;
+		me.selection_context_menu = data ;
+		return false ;
+	} ) ;
+	if ( found ) return ;
+	me.selection_context_menu.push ( data ) ;
+}
+
+
+
+SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
+	var me = this ;
+	var h = '' ;
+	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
+	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
+	h += '</ul></div>' ;
+	h += "</div>" ;
+	
+	var context_menu = $(h) ;
+	$.each ( me.selection_context_menu , function ( k , v ) {
+		var o = ( undefined !== v.items ) ? v.items : v.getItems ( me ) ;
+		$.each ( o , function ( k2 , v2 ) {
+			var li = $("<li><a href='#'></a></li>") ;
+			li.find('a').click(function(){v2.callback(me);return false}) ;
+			li.find('a').html(v2.html) ;
+			if ( undefined !== v2.title ) li.find('a').attr('title',v2.title) ;
+			context_menu.find('ul').append(li) ;
+		} ) ;
+	} ) ;
+	
+	$('#selection_context_marker').remove() ;
+	$('#canvas_wrapper').prepend ( context_menu ) ;
+}
+
 
 SequenceCanvas.prototype.resizeCanvas = function () {
 	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
@@ -43,9 +91,14 @@ SequenceCanvas.prototype.initSidebar = function () {
 			me.registerTool ( v2 ) 
 		} ) ;
 	} ) ;
-	$.each ( plugins.search[me.type] , function ( section , v1 ) {
+	$.each ( plugins.search[me.type]||{} , function ( section , v1 ) {
 		$.each ( v1 , function ( tool , v2 ) {
 			me.registerSearch ( v2 ) 
+		} ) ;
+	} ) ;
+	$.each ( plugins.context_menu[me.type]||{} , function ( section , v1 ) {
+		$.each ( v1 , function ( tool , v2 ) {
+			me.setContextMenuItem ( v2 ) 
 		} ) ;
 	} ) ;
 }

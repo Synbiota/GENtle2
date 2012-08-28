@@ -34,6 +34,7 @@ var plugins = {
 		}
 	} ,
 	search : {} ,
+	context_menu : {} ,
 	deactivated : {} ,
 	
 	/**
@@ -141,7 +142,37 @@ var plugins = {
 		if ( sc.type != o.module ) return ;
 		sc.registerSearch ( o ) ;
 	} ,
+
+	/**
+		Registers a plugin as context menu item.
+		@param {object} o The plugin parameter object. o.cm needs to match the description in SequenceCanvas.prototype.setContextMenuItem
+	*/
+	registerAsContextMenu : function ( o ) {
+		if ( undefined === o ) {
+			console.log ( 'plugin.registerAsContextMenu needs a data object as parameter' ) ;
+			return ;
+		}
+		if ( undefined === o.module ) {
+			console.log ( 'plugin.registerAsContextMenu object needs "module" member' ) ;
+			return ;
+		}
+		if ( undefined === o.cm ) {
+			console.log ( 'plugin.registerAsContextMenu object needs context menu "cm" member' ) ;
+			return ;
+		}
+		
+		
+		plugins.registerPlugin ( o ) ;
 	
+		if ( plugins.context_menu[o.module] === undefined ) plugins.context_menu[o.module] = {} ;
+		plugins.context_menu[o.module][o.name] = o.cm ;
+		if ( plugins.verbose ) console.log ( 'registered search ' + o.name ) ;
+
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc === undefined ) return ;
+		if ( sc.type != o.module ) return ;
+		sc.setContextMenuItem ( o.cm ) ;
+	} ,
 	
 	/**
 		Registers a plugin. Must be done before registering it as a tool or search handler.
