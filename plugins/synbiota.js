@@ -199,12 +199,19 @@ synbiota.prototype.global_init = function () {
 	
 	synbiota_data.project_id = gentle.url_vars.project_id ;
 
-	if ( gentle.url_vars.id == -1 ) {
+	if ( undefined === gentle.url_vars.id ) gentle.url_vars.id = -1 ;
+	if ( gentle.url_vars.id == -1 && gentle.url_vars.ro == -1 ) {
 		gentle.startNewSequenceDialog() ;
 	} else {
 		while ( gentle.sequences.length > 0 ) gentle.closeCurrentSequence() ;
-		synbiota_data.sequence_id = gentle.url_vars.id ;
-		synbiota_load_sequence_from_project ( gentle.url_vars.project_id , gentle.url_vars.id ) ;
+		if ( gentle.url_vars.id != -1 ) {
+//			synbiota_data.sequence_id = gentle.url_vars.id ;
+			synbiota_load_sequence_from_project ( gentle.url_vars.project_id , gentle.url_vars.id ) ;
+		}
+		if ( gentle.url_vars.ro != -1 ) {
+//			synbiota_data.sequence_id = gentle.url_vars.id ;
+			synbiota_load_sequence_from_project ( gentle.url_vars.project_id , gentle.url_vars.ro ) ;
+		}
 	}
 }
 
