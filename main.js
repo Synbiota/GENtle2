@@ -348,7 +348,7 @@ var gentle = {
 			$('#selection_info_from').html(from+1);
 			$('#selection_info_to').html(to+1);
 
-			var tallies = {};
+			var tallies = { A: 0, C: 0, G: 0, T: 0 };
 
 			for (var i in s) {
 				if (typeof s[i] === 'string') {
@@ -364,6 +364,15 @@ var gentle = {
 			}
 
 			syms = syms.sort();
+
+
+			// http://www.geneinfinity.org/sp/sp_dnaprop.html
+
+			var mol_weight = (tallies['A'] * 313.2) + (tallies['C'] * 289.2) +
+					 (tallies['G'] * 329.2) + (tallies['T'] * 304.2);
+
+			$('#selection_info_mol_weight').html(mol_weight.toFixed(2));
+
 
 			var h = '<table cellspacing=5 cellpadding=5>';
 
@@ -387,8 +396,8 @@ var gentle = {
 			h += '</tr>';
 
 			var colors = {
-				A: 'green',
-				C: 'red',
+				A: 'red',
+				C: 'green',
 				G: 'blue',
 				T: 'yellow'
 			};
@@ -399,7 +408,6 @@ window.zcol = colors;
 			for (var i in syms) {
 				var height = Math.floor(plot_height * (tallies[syms[i]] / s.length));
 				var color = colors[syms[i]] || 'black';
-console.log(i);
 				h += '<td><div style="background-color:' + color + '; width: 50px; height: ' + height + 'px"></span></td>';
 			}
 			h += '</tr>';
@@ -407,7 +415,22 @@ console.log(i);
 			h += '</table>';
 
 			$('#selection_info_tallies').html(h);
-			console.log(h);
+
+
+
+			var AT = (tallies['A'] || 0) + (tallies['T'] || 0);
+			var CG = (tallies['C'] || 0) + (tallies['G'] || 0);
+
+			$('#selection_info_at_count').html(AT);
+			$('#selection_info_cg_count').html(CG);
+
+			$('#selection_info_at_percent').html((100.0 * AT / (AT + CG)).toFixed(2) + '%');
+			$('#selection_info_cg_percent').html((100.0 * CG / (AT + CG)).toFixed(2) + '%');
+
+			var graph_width = 400;
+
+			$('#selection_info_at_graph').css('width', Math.floor(graph_width * AT / (AT + CG)));
+			$('#selection_info_cg_graph').css('width', Math.floor(graph_width * CG / (AT + CG)));
 		});
 		
 		return false ;
