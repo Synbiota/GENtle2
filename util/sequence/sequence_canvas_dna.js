@@ -62,6 +62,7 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	var s = sc.sequence.seq.substr ( from , len ) ;
 	copyToClipboard ( s ) ;
 	if ( !do_cut ) return s ;
+	sc.sequence.undo.addAction ( 'editRemove' , { label : 'cut (-' + len + ')'  , editing : true , action : 'removeText' , base : from , len : len , seq : s } ) ;
 	sc.deselect () ;
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;

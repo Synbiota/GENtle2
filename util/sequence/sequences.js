@@ -64,7 +64,7 @@ SequenceDNA.prototype.constructor = SequenceDNA ;
 
 SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment ) {
 	var me = this ;
-	me.undo.addAction ( 'editRemove' , { label : 'typing' , editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
+	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
 	me.seq = me.seq.substr ( 0 , base ) + me.seq.substr ( base + len , me.seq.length - base - len ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {
@@ -83,7 +83,7 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 
 SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment ) {
 	var me = this ;
-	me.undo.addAction ( 'editInsert' , { label : 'typing' , editing : true , action : 'insertText' , base : base , seq : text } ) ;
+	me.undo.addAction ( 'editInsert' , { label : 'typed ' + text , editing : true , action : 'insertText' , base : base , seq : text } ) ;
 	var l = text.length ;
 	me.seq = me.seq.substr ( 0 , base ) + text + me.seq.substr ( base , me.seq.length - base ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
