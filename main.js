@@ -320,6 +320,99 @@ var gentle = {
 		return false ;
 	} ,
 
+	do_selection_info : function () {
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc === undefined ) return false ;
+		if ( sc.selections.length == 0 ) return ;
+		
+		$("#selection_context_marker").remove();
+		
+		$('#selection_info_dialog').remove() ;
+		var dialogContainer = $("<div/>");
+		dialogContainer.load("public/templates/selection_info_dialog.html", function(){
+			gentle.is_in_dialog = true ;
+			sc.unbindKeyboard() ;
+			dialogContainer.appendTo("#all");
+			$('#selection_info_dialog').modal();
+			$('#selection_info_dialog').on('hidden' , function () {
+				gentle.is_in_dialog = false ;
+				sc.bindKeyboard() ;
+			});
+
+			var from = sc.selections[0].from;
+			var to = sc.selections[0].to;
+			var len = to - from + 1 ;
+			var s = sc.sequence.seq.substr ( from , len ) ;
+
+			$('#selection_info_length').html(len);
+			$('#selection_info_from').html(from+1);
+			$('#selection_info_to').html(to+1);
+
+			var tallies = {};
+
+			for (var i in s) {
+				if (typeof s[i] === 'string') {
+					if (!tallies[s[i]]) tallies[s[i]] = 0;
+					tallies[s[i]]++;
+				}
+			}
+
+			var syms = [];
+
+			for (var i in tallies) {
+				syms.push(i);
+			}
+
+			syms = syms.sort();
+
+			var h = '<table cellspacing=5 cellpadding=5>';
+
+			h += '<tr><th>Symbol</th>';
+			for (var i in syms) {
+				h += '<td>' + syms[i] + '</td>';
+			}
+			h += '</tr>';
+
+			h += '<tr><th>Frequency</th>';
+			for (var i in syms) {
+				h += '<td>' + tallies[syms[i]] + '</td>';
+			}
+			h += '</tr>';
+
+			h += '<tr><th>Percentage</th>';
+			for (var i in syms) {
+				var percent = 100.0 * tallies[syms[i]] / s.length;
+				h += '<td>' + percent.toFixed(2) + '</td>';
+			}
+			h += '</tr>';
+
+			var colors = {
+				A: 'green',
+				C: 'red',
+				G: 'blue',
+				T: 'yellow'
+			};
+window.zcol = colors;
+
+			var plot_height = 250;
+			h += '<tr valign=bottom><th></th>';
+			for (var i in syms) {
+				var height = Math.floor(plot_height * (tallies[syms[i]] / s.length));
+				var color = colors[syms[i]] || 'black';
+console.log(i);
+				h += '<td><div style="background-color:' + color + '; width: 50px; height: ' + height + 'px"></span></td>';
+			}
+			h += '</tr>';
+
+			h += '</table>';
+
+			$('#selection_info_tallies').html(h);
+			console.log(h);
+		});
+		
+		return false ;
+	},
+
 	do_edit : function ( command ) {
 		if ( gentle.main_sequence_canvas === undefined ) return false ;
 		$("#selection_context_marker").remove();
