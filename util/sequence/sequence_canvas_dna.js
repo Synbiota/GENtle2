@@ -517,6 +517,10 @@ SequenceCanvasDNA.prototype.update_display = function () {
 		sc.lines.splice ( sc.lines.length-1 , 1 ) ;
 	}
 
+	if ( sc.sequence.spectrum && sc.lines[sc.lines.length-1].type != 'spectrum' ) {
+		sc.lines.push ( new SequenceCanvasRowSpectrum ( sc ) ) ;
+	}
+
 	// Amino acids
 	var m1 = $('#sb_display_options input[name=aa_display]:checked').val() ;
 	var m2 = $('#sb_display_options input[name=aa_rf]:checked').val() ;
@@ -616,6 +620,7 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 		var l ;
 		switch ( v.type ) {
 			case 'blank' : me.lines[k] = new SequenceCanvasRowBlank ( me , is_primary , v ) ; break ;
+			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
 			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; break ;
 			case 'dna_rc' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'dna_rc' ; break ;
 			case 'annotation' : me.lines[k] = new SequenceCanvasRowAnnotation ( me , is_primary , v ) ; break ;
@@ -719,6 +724,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			{type:"position"},
 			{type:"annotation"},
 			{type:"dna"},
+			{type:"spectrum"},
 			{type:"blank"}
 		]
 	} ;

@@ -45,6 +45,94 @@ function SequenceCanvasRowBlank ( sc , is_primary ) {
 	this.type = 'blank' ;
 }
 
+
+//________________________________________________________________________________________
+// SCR Spectrum
+SequenceCanvasRowSpectrum.prototype = new SequenceCanvasRow() ;
+SequenceCanvasRowSpectrum.prototype.constructor = SequenceCanvasRowSpectrum ;
+
+SequenceCanvasRowSpectrum.prototype.show = function ( ctx ) {
+	var me = this ;
+	var s = this.sc.sequence.seq ;
+	var spectrum = this.sc.sequence.spectrum ;
+
+	if (!spectrum) return;
+
+	var w = ctx.canvas.width ;
+	var h = ctx.canvas.height ;
+
+	var x = this.sc.xoff ;
+	var y = 2 - this.sc.yoff + me.line_off ;
+	var miny = -this.sc.ch ;
+
+
+	// Get bases per line
+	var ox = x ;
+	var bpl = 0 ; // Bases per line
+	while ( 1 ) {
+		bpl++ ;
+		x += this.sc.cw ;
+		if ( (bpl+1) % 10 == 0 ) {
+			x += 5 ;
+			if ( x + this.sc.cw * 11 >= w ) break ;
+		}
+	}
+
+	this.sc.bases_per_row = bpl + 1 ;
+	x = ox ;
+
+
+	for ( var p = 0 ; p < spectrum.length ; p++ ) {
+	
+		if ( y <= miny ) { // Speedup
+			p += me.sc.bases_per_row - 1 ;
+			y += me.sc.block_height ;
+			continue ;
+		}
+
+		//if ( x == this.sc.xoff && y > miny && me.is_primary ) {
+			draw_spectrum_curve(ctx, x, y, spectrum[p]['A'] || 0, 'red');
+			draw_spectrum_curve(ctx, x, y, spectrum[p]['C'] || 0, 'blue');
+			draw_spectrum_curve(ctx, x, y, spectrum[p]['G'] || 0, 'black');
+			draw_spectrum_curve(ctx, x, y, spectrum[p]['T'] || 0, 'green');
+		//}
+
+		if ( (p+1) % 10 == 0 ) {
+			x += 5 ;
+			if ( x + this.sc.cw * 11 >= w ) x = w ;
+		}
+		x += this.sc.cw ;
+		if ( x + this.sc.cw >= w ) {
+			x = this.sc.xoff ;
+			y += me.sc.block_height ;
+			if ( y > h ) break ;
+		}
+	}
+
+}
+
+function draw_spectrum_curve(ctx, x, y, sample, colour) {
+	var height = 90;
+	var width = 4;
+
+	x += 4;
+	y += 40;
+
+	var h = Math.floor((sample / 100.0) * height);
+
+	ctx.strokeStyle = colour;
+	ctx.beginPath();
+	ctx.moveTo(x - width, y);
+	ctx.quadraticCurveTo(x, y - h, x + width, y);
+	ctx.stroke() ;
+}
+
+function SequenceCanvasRowSpectrum ( sc , is_primary ) {
+	this.sc = sc ;
+	this.is_primary = is_primary ;
+	this.type = 'spectrum' ;
+}
+
 //________________________________________________________________________________________
 // SCR DNA
 SequenceCanvasRowDNA.prototype = new SequenceCanvasRow() ;
