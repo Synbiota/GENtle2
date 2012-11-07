@@ -5,6 +5,7 @@ var gentle_config = {
 		'plugins/prepend_append_sequence.js' ,
 		'plugins/export_as_file.js' ,
 		'plugins/dna.js'
+//		, 'plugins/alignments.js'
 	] ,
 	
 	deactivated_plugins : [

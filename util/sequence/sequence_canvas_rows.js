@@ -166,6 +166,132 @@ function SequenceCanvasRowDNA ( sc , is_primary ) {
 	this.type = 'dna' ;
 }
 
+//________________________________________________________________________________________
+// SCR Align
+SequenceCanvasRowAlign.prototype = new SequenceCanvasRow();
+SequenceCanvasRowAlign.prototype.constructor = SequenceCanvasRowAlign;
+
+SequenceCanvasRowAlign.prototype.show = function (ctx) {
+    var me = this;
+    var s = this.sc.sequence.seq;
+    var s2 = this.secondarySequence;
+    this.targets = [];
+
+
+
+    var w = ctx.canvas.width;
+    var h = ctx.canvas.height;
+
+    var is_align = me.type == 'dna_align' ? true : false;
+    var fs = is_align ? '#BBBBBB' : 'black';
+    ctx.fillStyle = fs;
+    ctx.font = "9pt Courier";
+    ctx.textAlign = "left";
+    ctx.textBaseline = "top";
+
+    this.start_base = undefined;
+    this.end_base = undefined;
+
+
+    var x = this.sc.xoff;
+    var y = 2 - this.sc.yoff + me.line_off;
+    var miny = -this.sc.ch;
+    var check_select = me.is_primary && me.sc.selections.length > 0;
+
+    //	if ( check_select ) console.log ( me.sc.selections[0].from + "-" + me.sc.selections[0].to ) ;
+
+
+    // Get bases per line
+    var ox = x;
+    var bpl = 0; // Bases per line
+    while (1) {
+        bpl++;
+        x += this.sc.cw;
+        if ((bpl + 1) % 10 == 0) {
+            x += 5;
+            if (x + this.sc.cw * 11 >= w) break;
+        }
+    }
+    this.sc.bases_per_row = bpl + 1;
+    x = ox;
+
+    for (var p = 0; p < s.length; p++) {
+
+        if (y <= miny) { // Speedup
+            p += me.sc.bases_per_row - 1;
+            y += me.sc.block_height;
+            continue;
+        }
+
+        if (x == this.sc.xoff && y > miny && me.is_primary) {
+            var ofs = ctx.fillStyle;
+            ctx.fillStyle = gentle_config.colors.numbering;
+            ctx.textAlign = "right";
+            ctx.fillText((p + 1), this.sc.xoff - this.sc.cw, y);
+            ctx.textAlign = "left";
+            ctx.fillStyle = ofs;
+        }
+
+        if (y > miny) {
+            if (this.start_base === undefined) this.start_base = p;
+            this.end_base = p;
+            do_write = true;
+            if (this.is_primary && this.sc.edit.editing && this.sc.edit.base == p) {
+                ctx.fillRect(x - 1, y + 2, this.sc.cw + 1, this.sc.ch + 1);
+                ctx.fillStyle = "white";
+                ctx.fillText(s[p], x, y);
+                ctx.fillStyle = fs;
+                do_write = false;
+            } else if (check_select) {
+                $.each(me.sc.selections, function (k, v) {
+                    var from = v.from > v.to ? v.to : v.from;
+                    var to = v.from < v.to ? v.to : v.from;
+                    if (from > p || to < p) return;
+                    //					if ( ( v.from <= v.to ) && ( v.from > p || v.to < p ) ) return ;
+                    //					if ( ( v.from > v.to ) && ( v.to > p || v.from < p ) ) return ;
+                    if (to == p) {
+                        me.sc.selection_end_pos = { x: Math.floor(x + me.sc.cw / 2), y: y + me.sc.ch + 2 };
+                    }
+                    ctx.fillStyle = v.fcol;
+                    ctx.fillRect(x - 1, y + 2, me.sc.cw + 1, me.sc.ch + 1);
+                    ctx.fillStyle = v.tcol;
+                    if (is_align) ctx.fillText(s2[p], x, y);
+                    else ctx.fillText(s[p], x, y);
+                    ctx.fillStyle = fs;
+                    do_write = false;
+                    return false;
+                });
+            }
+            if (do_write) {
+                if (s2.charAt(p) !== s.charAt(p)) ctx.fillStyle = "Red";
+                else ctx.fillStyle = fs;
+                if (is_align) ctx.fillText(s2[p], x, y);
+                else ctx.fillText(s[p], x, y);
+            }
+            this.targets.push({ left: x, top: y, right: x + this.sc.cw, bottom: y + this.sc.ch, base: p });
+        }
+
+        if ((p + 1) % 10 == 0) {
+            x += 5;
+            if (x + this.sc.cw * 11 >= w) x = w;
+        }
+        x += this.sc.cw;
+        if (x + this.sc.cw >= w) {
+            if (this.is_primary) {
+            }
+            x = this.sc.xoff;
+            y += me.sc.block_height;
+            if (y > h) break;
+        }
+    }
+}
+
+function SequenceCanvasRowAlign(sc, is_primary, secondarySequence) {
+    this.sc = sc;
+    this.is_primary = is_primary;
+    this.type = 'dna_align';
+    this.secondarySequence = secondarySequence;
+}
 
 //________________________________________________________________________________________
 // SCR Position

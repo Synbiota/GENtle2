@@ -425,6 +425,18 @@ var gentle = {
 		}
 	} ,
 
+	createNewSequenceForAlignment: function (sequence) {
+		var text = sequence;
+		
+		if (text == '') {
+			alert("In Soviet Russia, empty text parses YOU!");
+			return;
+		}
+		
+		var seq = new SequenceDNA('New Alignment', text);
+		gentle.addSequence(seq, true);
+	} ,
+
 	closeAllSequences : function () {
 		while ( gentle.sequences.length > 0 ) {
 			gentle.closeSequence ( 0 ) ;
