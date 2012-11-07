@@ -1,0 +1,44 @@
+<div class="modal" id="selection_info_dialog" >
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal"></a>
+		<h2>Selection Info (<span id="selection_info_from"></span> - <span id="selection_info_to"></span>)</h2>
+	</div>
+	<div class="modal-body" id="selection_info_container">
+		<fieldset><legend>Summary</legend>
+			<table>
+				<tr>
+					<th>Number of base pairs</th>
+					<td id="selection_info_length"></td>
+				</tr>
+				<tr>
+					<th>Molecular weight (g/mol)</th>
+					<td id="selection_info_mol_weight"></td>
+				</tr>
+			</table>
+		</fieldset>
+
+		<fieldset><legend>Base Pair Frequencies</legend>
+			<div id="selection_info_tallies"></div>
+		</fieldset>
+
+		<fieldset><legend>Pairs</legend>
+			<div id="selection_info_pairs">
+				<table>
+					<tr><th>AT/TA</th><th>CG/GC</th></tr>
+					<tr align="center">
+						<td id="selection_info_at_count"></td>
+						<td id="selection_info_cg_count"></td>
+					</tr>
+					<tr align="center">
+						<td id="selection_info_at_percent"></td>
+						<td id="selection_info_cg_percent"></td>
+					</tr>
+					<tr>
+						<td><div style="background-color:red; height: 30px;" id="selection_info_at_graph"></div></td>
+						<td><div style="background-color:blue; height: 30px;" id="selection_info_cg_graph"></div></td>
+					</tr>
+				</table>
+			</div>
+		</fieldset>
+	</div>
+</div>
