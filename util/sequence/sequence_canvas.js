@@ -34,7 +34,8 @@ SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
 		return false ;
 	} ) ;
 	if ( found ) return ;
-//	if ( typeof ( me.selection_context_menu ) == 'object' ) me.selection_context_menu = [ me.selection_context_menu ] ; // Wait...wat?
+	if ( undefined === me.selection_context_menu ) me.selection_context_menu = [ me.selection_context_menu ] ;
+//	if ( typeof ( me.selection_context_menu ) == 'object' ) me.selection_context_menu = [ me.selection_context_menu ] ;
 	me.selection_context_menu.push ( data ) ;
 }
 
