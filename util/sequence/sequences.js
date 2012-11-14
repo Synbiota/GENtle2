@@ -153,10 +153,11 @@ SequenceDNA.prototype.clone = function () {
 }
 
 
-function SequenceDNA ( name , seq ) {
+function SequenceDNA ( name , seq, spectrum ) {
 	this.data_keys = ['desc','typeName','features','is_circular','settings'] ;
 	this.seq = seq ;
 	this.name = name ;
+	this.spectrum = spectrum ;
 	this.typeName = 'dna' ;
 	this.features = new Array() ;
 	this.edit_allowed = [] ;
