@@ -6,6 +6,8 @@ var gentle_config = {
 		'plugins/export_as_file.js' ,
 		'plugins/dna.js'
 //		, 'plugins/alignments.js'
+		, 'plugins/IDToligoanalyzer.js'
+//		, 'plugins/alignments.js'
 	] ,
 	
 	deactivated_plugins : [
