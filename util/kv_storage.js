@@ -120,7 +120,7 @@ KeyValueStorage.prototype.removeItem = function ( key , callback ) {
 	
 	
 	if ( me.type == 'indexeddb' ) {
-		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readwrite').delete(key) ;
+		var promise = $.indexedDB(me.dbname).objectStore(me.sname,'readwrite').delete(String(key)) ;
 		promise.fail(function(error, event){ console.log ( "indexedDB : removeItem error " + error + " for " + key ) ; if(undefined!==callback)callback ( false ) ; } ) ;
 		promise.done(function(result, event){ if(undefined!==callback)callback ( true ) ; } ) ;
 		return ;
