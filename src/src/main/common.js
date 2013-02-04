@@ -19,12 +19,12 @@ function object_length(obj) {
         if (obj.hasOwnProperty(key)) size++;
     }
     return size;
-};
+}
 
 // Just what it says...
 String.prototype.reverse = function() {
     return this.split("").reverse().join("");
-}
+};
 
 // Just what it says...
 function ucFirst(string) {
@@ -66,12 +66,23 @@ function loadBaseData() {
     cd.rc = {};
     $.each(cd.iupac2bases, function(iupac, bases) {
         var nb = '';
-        if (bases.match(/T/)) nb += 'A';
-        if (bases.match(/G/)) nb += 'C';
-        if (bases.match(/C/)) nb += 'G';
-        if (bases.match(/A/)) nb += 'T';
-        if (nb == '') cd.rc[iupac] = 'N'; // N <=> N
-        else cd.rc[iupac] = cd.bases2iupac[nb];
+        if (bases.match(/T/)) {
+            nb += 'A';
+        }
+        if (bases.match(/G/)) {
+            nb += 'C';
+        }
+        if (bases.match(/C/)) {
+            nb += 'G';
+        }
+        if (bases.match(/A/)) {
+          nb += 'T';
+        }
+        if (nb === '') { 
+            cd.rc[iupac] = 'N'; // N <=> N
+        } else {
+            cd.rc[iupac] = cd.bases2iupac[nb];
+        }
     });
 
     // Amino Acids  : short to long
@@ -129,7 +140,9 @@ function loadBaseData() {
     // Type colors
     $.each(cd.feature_types, function(k, v) {
         gentle.features[k] = v.name || ucFirst(k);
-        if ($('#dummy_feature_' + k).length == 0) $('body').append("<div id='dummy_feature_" + k + "' class='feat_" + k + "' style='display:none'></div>");
+        if ($('#dummy_feature_' + k).length === 0) {
+            $('body').append("<div id='dummy_feature_" + k + "' class='feat_" + k + "' style='display:none'></div>");
+        }
         cd.feature_types[k].col = $('#dummy_feature_' + k).css('background-color') || '#DDDDDD';
     });
 
@@ -144,7 +157,10 @@ function copyToClipboard(text) {
     $('#copywrap').show();
     $('#copytb').focus();
     $('#copytb').select();
-    setTimeout("$('#copywrap').hide();", 100);
+
+    setTimeout(function(){ 
+        $('#copywrap').hide();
+    }, 100);
 }
 
 

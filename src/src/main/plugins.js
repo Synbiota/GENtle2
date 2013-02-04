@@ -1,25 +1,23 @@
 //________________________________________________________________________________________
 /**
-	Plugin class
-	@class
-	@classdesc This is the base class for all plugins.
+  Plugin class
+  @class
+  @classdesc This is the base class for all plugins.
 */
 function Plugin() {
     this.name = 'empty plugin';
 }
 
 /**
-	@return {object} The current sequence canvas object.
+  @return {object} The current sequence canvas object.
 */
 Plugin.prototype.getCurrentSequenceCanvas = function() {
     return gentle.main_sequence_canvas;
 }
 
-//________________________________________________________________________________________
-
 /**
-	Plugin list and maintenance object
-	@namespace
+  Plugin list and maintenance object
+  @namespace
 */
 var plugins = {
     verbose: false,
@@ -39,18 +37,18 @@ var plugins = {
     deactivated: {},
 
     /**
-		Constructor
-	*/
+    Constructor
+  */
     init: function() {
         this.search = jQuery.extend(true, {}, this.tools);
     },
 
 
     /**
-		Adds a section to a module, unless the section exists.
-		@param {string} module The module to which to add the section
-		@param {string} section The section to add to the module
-	*/
+    Adds a section to a module, unless the section exists.
+    @param {string} module The module to which to add the section
+    @param {string} section The section to add to the module
+  */
     addSection: function(module, section) {
         if (undefined !== plugins.tools[module][section]) return;
         plugins.tools[module][section] = {};
@@ -58,10 +56,10 @@ var plugins = {
 
 
     /**
-		Checks a plugin parameter object is it is sane.
-		@param {object} o The plugin parameter object.
-		@return {bool} True if object passed all tests, false if not.
-	*/
+    Checks a plugin parameter object is it is sane.
+    @param {object} o The plugin parameter object.
+    @return {bool} True if object passed all tests, false if not.
+  */
     registrationParanoia: function(o) {
 
         // BEGIN PARANOIA SECTION
@@ -104,9 +102,9 @@ var plugins = {
 
 
     /**
-		Registers a plugin as a tool.
-		@param {object} o The plugin parameter object.
-	*/
+    Registers a plugin as a tool.
+    @param {object} o The plugin parameter object.
+  */
     registerAsTool: function(o) {
         if (!this.registrationParanoia(o)) return; // BAAAD TOOL!
 
@@ -126,9 +124,9 @@ var plugins = {
 
 
     /**
-		Registers a plugin as the search handler.
-		@param {object} o The plugin parameter object.
-	*/
+    Registers a plugin as the search handler.
+    @param {object} o The plugin parameter object.
+  */
     registerAsSearch: function(o) {
         if (!this.registrationParanoia(o)) return; // BAAAD TOOL!
 
@@ -145,9 +143,9 @@ var plugins = {
     },
 
     /**
-		Registers a plugin as context menu item.
-		@param {object} o The plugin parameter object. o.cm needs to match the description in SequenceCanvas.prototype.setContextMenuItem
-	*/
+    Registers a plugin as context menu item.
+    @param {object} o The plugin parameter object. o.cm needs to match the description in SequenceCanvas.prototype.setContextMenuItem
+  */
     registerAsContextMenu: function(o) {
         if (undefined === o) {
             console.log('plugin.registerAsContextMenu needs a data object as parameter');
@@ -176,10 +174,10 @@ var plugins = {
     },
 
     /**
-		Registers a plugin. Must be done before registering it as a tool or search handler.
-		@param {object} o The plugin parameter object.
-		@return {bool} True if the plugin was registered, false if not.
-	*/
+    Registers a plugin. Must be done before registering it as a tool or search handler.
+    @param {object} o The plugin parameter object.
+    @return {bool} True if the plugin was registered, false if not.
+  */
     registerPlugin: function(o) {
         if (o === undefined) return false;
 
@@ -197,7 +195,7 @@ var plugins = {
                 if (plugins.all[o.name][v] === undefined) plugins.all[o.name][v] = o[v];
             });
         }
-        //		if ( undefined !== this.deactivated[o.name] ) delete ( this.deactivated[o.name] ) ;
+        //    if ( undefined !== this.deactivated[o.name] ) delete ( this.deactivated[o.name] ) ;
         plugins.setManagePluginDialogHTML();
         if (undefined !== this.deactivated[o.name]) return false;
         return true;
@@ -205,9 +203,9 @@ var plugins = {
 
 
     /**
-		Loads a plugin from a URL.
-		@param {string} url The URL of the plugin.
-	*/
+    Loads a plugin from a URL.
+    @param {string} url The URL of the plugin.
+  */
     loadPluginFromURL: function(url) {
         var fileref = document.createElement('script');
         fileref.setAttribute("type", "text/javascript");
@@ -218,8 +216,8 @@ var plugins = {
 
 
     /**
-		Loads the initial plugins on GENtle launch.
-	*/
+    Loads the initial plugins on GENtle launch.
+  */
     loadPlugins: function() {
         if (plugins.initial_plugins_loaded) return; // Only once, my dear
         plugins.initial_plugins_loaded = true;
@@ -232,9 +230,9 @@ var plugins = {
 
 
     /**
-		Removes a plugin.
-		@param {string} name The name of the plugin.
-	*/
+    Removes a plugin.
+    @param {string} name The name of the plugin.
+  */
     removePlugin: function(name) { // Currently not used
         if (undefined === plugins.all[name]) return;
 
@@ -247,9 +245,9 @@ var plugins = {
 
 
     /**
-		Deactivates a plugin, without removing it.
-		@param {string} name The name of the plugin.
-	*/
+    Deactivates a plugin, without removing it.
+    @param {string} name The name of the plugin.
+  */
     deactivatePlugin: function(name) {
         if (undefined === plugins.all[name]) return;
 
@@ -263,10 +261,10 @@ var plugins = {
     // INTERFACE METHODS
 
     /**
-		Initializes or updates the plugin dialog box.
-	*/
+    Initializes or updates the plugin dialog box.
+  */
     setManagePluginDialogHTML: function() {
-        if ($('#manage_plugins_dialog').length == 0) return; // Only if there actually is a dialog open
+        if ($('#manage_plugins_dialog').length === 0) return; // Only if there actually is a dialog open
 
         var me = this;
         var h = '';
@@ -327,8 +325,8 @@ var plugins = {
 
 
     /**
-		Starts the plugin dialog.
-	*/
+    Starts the plugin dialog.
+    */
     managePlugins: function() {
         var h = "<div id='manage_plugins_dialog'>";
         h += "</div>";

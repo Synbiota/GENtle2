@@ -29,12 +29,7 @@ var gentle = {
     is_mobile: false,
     is_in_dialog: false,
     storage: {},
-
-    /**
-    Initializes the gentle object.
-  */
-    init: function() {
-
+    init: (function(){
         this.storage = new KeyValueStorage('GENtle2');
         this.storage.initialize(function() {
 
@@ -95,31 +90,35 @@ var gentle = {
             $(window)
                 .bind('dragenter', function(evt) {
                 gentle.dragEntered++;
-                if (gentle.dragEntered == 1) $('#drop_zone').show();
+                if (gentle.dragEntered === 1) $('#drop_zone').show();
             })
                 .bind('dragleave', function(evt) {
                 gentle.dragEntered--;
-                if (gentle.dragEntered == 0) $('#drop_zone').hide();
+                if (gentle.dragEntered === 0) {
+                    $('#drop_zone').hide();
+                }
             });
 
             $('#files').change(gentle.handleFileSelect);
             $('#drop_zone').bind('dragover', function(evt) {
-                gentle.markDropArea(evt, true)
+                gentle.markDropArea(evt, true);
             })
                 .bind('dragleave', function(evt) {
-                gentle.markDropArea(evt, false)
+                gentle.markDropArea(evt, false);
             })
                 .bind('drop', gentle.handleFileDrop);
 
             gentle.loadLocally(function() {
                 plugins.loadPlugins();
 
-                if (gentle.sequences.length == 0) gentle.showDefaultBlurb();
+                if (gentle.sequences.length === 0) {
+                    gentle.showDefaultBlurb();
+                }
 
                 if (gentle.url_vars.newsequence !== undefined) gentle.startNewSequenceDialog();
             });
         });
-    },
+    }),
 
     /**
     Returns the "blessed" feature type string, or "misc"
@@ -169,12 +168,13 @@ var gentle = {
                 var tmpseq = JSON.parse(gi1);
                 gentle.sequences = [];
                 $.each(tmpseq, function(k, v) {
+                    var seq;
                     if (v.typeName == 'dna') {
-                        var seq = new SequenceDNA();
+                        seq = new SequenceDNA();
                         seq.seedFrom(v);
                         gentle.sequences[k] = seq;
                     } else if (v.typeName == 'designer') {
-                        var seq = new SequenceDesigner();
+                         seq = new SequenceDesigner();
                         seq.seedFrom(v);
                         seq.typeName = 'designer';
                         gentle.sequences[k] = seq;
@@ -184,8 +184,6 @@ var gentle = {
                 });
 
                 // Now show last sequence, if any
-                gentle.current_sequence_entry === undefined;
-
                 if (gentle.sequences.length > 0) {
                     gentle.updateSequenceList();
                     me.storage.getItem('last_entry', function(gi2) {
@@ -227,7 +225,7 @@ var gentle = {
     saveLocally: function() {
         var me = this;
         gentle.updateCurrentSequenceSettings();
-        if (gentle.sequences.length == 0) {
+        if (gentle.sequences.length === 0) {
             gentle.clearLocalStorage();
             return;
         }
@@ -277,7 +275,7 @@ var gentle = {
             var compA = $(a).attr('sort') || $(a).text().toUpperCase();
             var compB = $(a).attr('sort') || $(b).text().toUpperCase();
             return (compA < compB) ? -1 : (compA > compB) ? 1 : 0;
-        })
+        });
         $.each(listitems, function(idx, itm) {
             mylist.append(itm);
         });
@@ -285,8 +283,12 @@ var gentle = {
 
     do_annotate: function() {
         var sc = gentle.main_sequence_canvas;
-        if (sc === undefined) return false;
-        if (sc.selections.length == 0) return;
+        if (sc === undefined) {
+            return false;
+        }
+        if (sc.selections.length === 0) {
+            return;
+        }
 
         $("#selection_context_marker").remove();
 
@@ -356,14 +358,19 @@ var gentle = {
 
     do_selection_info: function() {
         var sc = gentle.main_sequence_canvas;
-        if (sc === undefined) return false;
-        if (sc.selections.length == 0) return;
+        if (typeof sc === "undefined") {
+            return false;
+        }
+        if (sc.selections.length === 0) {
+            return;
+        }
 
         $("#selection_context_marker").remove();
 
         $('#selection_info_dialog').remove();
         var dialogContainer = $("<div/>");
         dialogContainer.load("public/templates/selection_info_dialog.html", function() {
+            var i;
             gentle.is_in_dialog = true;
             sc.unbindKeyboard();
             dialogContainer.appendTo("#all");
@@ -389,7 +396,7 @@ var gentle = {
                 T: 0
             };
 
-            for (var i in s) {
+            for (i in s) {
                 if (typeof s[i] === 'string') {
                     if (!tallies[s[i]]) tallies[s[i]] = 0;
                     tallies[s[i]]++;
@@ -398,7 +405,7 @@ var gentle = {
 
             var syms = [];
 
-            for (var i in tallies) {
+            for (i in tallies) {
                 syms.push(i);
             }
 
@@ -415,19 +422,19 @@ var gentle = {
             var h = '<table cellspacing=5 cellpadding=5>';
 
             h += '<tr><th>Symbol</th>';
-            for (var i in syms) {
+            for (i in syms) {
                 h += '<td>' + syms[i] + '</td>';
             }
             h += '</tr>';
 
             h += '<tr><th>Frequency</th>';
-            for (var i in syms) {
+            for (i in syms) {
                 h += '<td>' + tallies[syms[i]] + '</td>';
             }
             h += '</tr>';
 
             h += '<tr><th>Percentage</th>';
-            for (var i in syms) {
+            for (i in syms) {
                 var percent = 100.0 * tallies[syms[i]] / s.length;
                 h += '<td>' + percent.toFixed(2) + '</td>';
             }
@@ -443,7 +450,7 @@ var gentle = {
 
             var plot_height = 250;
             h += '<tr valign=bottom><th></th>';
-            for (var i in syms) {
+            for (i in syms) {
                 var height = Math.floor(plot_height * (tallies[syms[i]] / s.length));
                 var color = colors[syms[i]] || 'black';
                 h += '<td><div style="background-color:' + color + '; width: 50px; height: ' + height + 'px"></span></td>';
@@ -557,7 +564,7 @@ var gentle = {
     createNewSequenceFromDialog: function() {
         var text = $("#new_sequence_entry").val();
 
-        if (text == '') {
+        if (text === '') {
             alert("In Soviet Russia, empty text parses YOU!");
             return;
         }
@@ -582,7 +589,7 @@ var gentle = {
     createNewSequenceForAlignment: function(sequence) {
         var text = sequence;
 
-        if (text == '') {
+        if (text === '') {
             alert("In Soviet Russia, empty text parses YOU!");
             return;
         }
@@ -608,7 +615,7 @@ var gentle = {
         gentle.sequences.splice(entry, 1);
         gentle.updateSequenceList();
 
-        if (gentle.sequences.length == 0) {
+        if (gentle.sequences.length === 0) {
             gentle.current_sequence_entry = undefined;
             gentle.clearLocalStorage();
             $('#close_sequence').hide();
@@ -707,7 +714,7 @@ var gentle = {
     // File open/drop handlers
     handleFileSelect: function(evt) {
         $.each(evt.target.files, function(k, f) {
-            gentle.addLocalFile(f)
+            gentle.addLocalFile(f);
         });
         $('#openFileFromDisk').modal('hide');
     },
@@ -717,7 +724,7 @@ var gentle = {
         evt.originalEvent.stopPropagation();
         evt.originalEvent.preventDefault();
         $.each(evt.originalEvent.dataTransfer.files, function(k, f) {
-            gentle.addLocalFile(f)
+            gentle.addLocalFile(f);
         });
         gentle.markDropArea(evt, false);
         $('#drop_zone').hide();
@@ -816,7 +823,7 @@ var gentle = {
         $.each(gentle.sequences, function(k, v) {
             if (v.typeName == 'designer') use_existing = k;
         });
-        if (undefined != use_existing) {
+        if ("undefined" !== typeof use_existing) {
             gentle.handleSelectSequenceEntry(use_existing);
             return;
         }
@@ -839,7 +846,7 @@ var gentle = {
     },
 
     showSequence: function(seqid) {
-        seqid = parseInt(seqid); // Paranoia
+        seqid = parseInt(seqid, 10); // Paranoia
         gentle.handleSelectSequenceEntry(seqid);
         $('.loaded_sequence_select_icon').hide();
         $('#loaded_sequence_select_icon' + seqid).show();
@@ -866,7 +873,7 @@ var gentle = {
         h += "</tbody></table>";
         h += "<hr/><div style='text-align:right'><button class='btn btn-danger' onclick='gentle.closeAllSequences()'>Close all</button></div>";
 
-        if (gentle.sequences.length == 0) {
+        if (gentle.sequences.length === 0) {
             h = "<i>No sequences loaded</i>";
         }
 
