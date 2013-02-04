@@ -37,30 +37,29 @@
       <li class="dropdown" id="toolbar_plugins_file">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
         <ul class="dropdown-menu">
-          <li sort='100'><a href='#' onclick='gentle.startNewSequenceDialog();return false'>New sequence</a></li>
+          <li sort='100'><a href='#'>New sequence</a></li>
           <li sort='300'><a data-toggle='modal' href='#openFileFromDisk'>Open from disk</a></li>
-          <li sort='310'><a href='#' onclick='ncbi.initializeDialog();return false'>Open from NCBI</a></li>
-          <li sort='500'><a id='close_sequence' href='#' onclick='gentle.closeCurrentSequence();return false'>Close sequence</a></li>
+          <li sort='310'><a href='#'>Open from NCBI</a></li>
+          <li sort='500'><a id='close_sequence' href='#'>Close sequence</a></li>
         </ul>
       </li>
       <li class="dropdown" id='edit_menu'>
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
         <ul class="dropdown-menu">
-          <li class='menu_needs_selection'><a id='edit_menu_undo' href='#' onclick='gentle.doUndo();return false'>Undo <span id='undo_action'></span></a></li>
-          <li class='menu_needs_selection'><a id='edit_menu_redo' href='#' onclick='gentle.doRedo();return false'>Redo <span id='redo_action'></span></a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_undo' href='#'>Undo <span id='undo_action'></span></a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_redo' href='#'>Redo <span id='redo_action'></span></a></li>
           <li class="divider"></li>
-          <li class='menu_needs_selection'><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
-          <li class='menu_needs_selection'><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
-          <li class='menu_needs_selection'><a id='edit_menu_selection_info' href='#' onclick='gentle.do_selection_info();return false'>Selection Info</a></li>
-          <li class='menu_needs_selection'><a id='edit_menu_annotate' href='#' onclick='gentle.do_annotate();return false'>Annotate selection</a></li>
-          <li class='menu_needs_edit_mode'><a id='edit_menu_paste' href='#' onclick='gentle.do_edit("paste");return false'>Paste</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_cut' href='#'>Cut</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_copy' href='#'>Copy</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_selection_info' href='#'>Selection Info</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_annotate' href='#'>Annotate selection</a></li>
+          <li class='menu_needs_edit_mode'><a id='edit_menu_paste' href='#'>Paste</a></li>
         </ul>
       </li>
       <li class="dropdown" id='tools_menu'>
         <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools<b class="caret"></b></a>
         <ul class="dropdown-menu">
-          <li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
-<!-- DEACTIVATED BECAUSE OF POTENTIAL PATENT TROLL          <li><a href='#' onclick='gentle.startDesigner();return false'>Designer</a></li>-->
+          <li><a href='#'>Plugins</a></li>
         </ul>
       </li>
       <li class="dropdown nav pull-right" id='help_menu_wrapper'>
@@ -78,11 +77,11 @@
     </div>
     
     <ul id="toolbar-right" class="nav pull-right">
-    <li title='Help'><a href='#' onclick='gentle.help();return false' class='btn-inverse'><i class='icon-info-sign icon-white'></i></a></li>
-    <li title='Edit name, description, and annotation'><a href='#' onclick='gentle.sequence_info();return false' class='btn-inverse'><i class='icon-cog icon-white'></i></a></li>
-    <li title='Display settings'><a href='#' onclick='gentle.toggle_display_settings();return false' class='btn-inverse'><i class='icon-eye-open icon-white'></i></a></li>
-    <li title='Loaded sequences'><a href='#' onclick='gentle.toggle_loaded_sequences();return false' class='btn-inverse'><i class='icon-list-alt icon-white'></i></a></li>
-    <li title='Toggle sidebar'><a href='#' onclick='gentle.toggle_right_sidebar();return false' class='btn-inverse'><i id='right_sidebar_icon' class='icon-chevron-right icon-white'></i></a></li>
+    <li title='Help'><a href='#'><i class='icon-info-sign icon-white'></i></a></li>
+    <li title='Edit name, description, and annotation'><a href='#' class='btn-inverse'><i class='icon-cog icon-white'></i></a></li>
+    <li title='Display settings'><a href='#' class='btn-inverse'><i class='icon-eye-open icon-white'></i></a></li>
+    <li title='Loaded sequences'><a href='#' class='btn-inverse'><i class='icon-list-alt icon-white'></i></a></li>
+    <li title='Toggle sidebar'><a href='#' class='btn-inverse'><i id='right_sidebar_icon' class='icon-chevron-right icon-white'></i></a></li>
     </ul>
     
   </div>
