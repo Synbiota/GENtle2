@@ -18,6 +18,7 @@ var gentle_config = {
 	} ,
 	
 	synbiota : {
+		show_designer : false ,
 		use_proxy : 1 ,
 		api_version : 1 ,
 		api_url : ''

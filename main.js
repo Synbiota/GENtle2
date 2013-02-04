@@ -37,6 +37,8 @@ var gentle = {
 	
 		this.storage = new KeyValueStorage ( 'GENtle2' ) ;
 		this.storage.initialize ( function () {
+		
+			if ( gentle_config.synbiota.show_designer ) $('#menu_tools_designer').show() ;
 
 			if(navigator.userAgent.match(/Android/i)) {
 				gentle.is_mobile = true ;
@@ -757,6 +759,11 @@ window.zcol = colors;
 	} ,
 	
 	startDesigner : function () {
+		if ( gentle.sequences.length == 0 ) {
+			alert ( "You need at least one DNA sequence open to start the Designer" ) ;
+			return ;
+		}
+		
 		var use_existing ;
 		$.each ( gentle.sequences , function ( k , v ) {
 			if ( v.typeName == 'designer' ) use_existing = k ;
