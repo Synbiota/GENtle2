@@ -30,12 +30,11 @@ SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
 	$.each ( me.selection_context_menu , function ( k , v ) {
 		if ( found || v.id != data.id ) return ;
 		found = true ;
-		me.selection_context_menu = data ;
+		me.selection_context_menu[k] = data ;
 		return false ;
 	} ) ;
 	if ( found ) return ;
-	if ( undefined === me.selection_context_menu ) me.selection_context_menu = [ me.selection_context_menu ] ;
-//	if ( typeof ( me.selection_context_menu ) == 'object' ) me.selection_context_menu = [ me.selection_context_menu ] ;
+	if ( undefined === me.selection_context_menu ) me.selection_context_menu = [  ] ;
 	me.selection_context_menu.push ( data ) ;
 }
 
