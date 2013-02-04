@@ -1,0 +1,548 @@
+/* Designer CSS */
+.designer_row_feature {
+	display:inline-block;
+	margin:1px;
+	padding:1px;
+	font-size:9pt;
+	text-align:center;
+	padding-left:3px;
+	padding-right:3px;
+	border:1px solid #EEEEEE;
+	-moz-border-radius:5px;
+	border-radius:5px;
+}
+
+.designer_row_feature_draggable {
+	cursor:move;
+}
+
+.designer_row_feature_droppable {
+	border:1px solid #EEEEEE;
+}
+
+.designer_row_feature_droppable_space {
+	display:none;
+	margin:1px;
+	padding:1px;
+	font-size:9pt;
+	text-align:center;
+	padding-left:3px;
+	padding-right:3px;
+	border:1px solid #EEEEEE;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	height:34px;
+	color:white;
+	cursor:default;
+}
+
+.designer_row_feature_droppable_active {
+	border:1px solid gold;
+}
+
+.designer_row_feature_droppable_active_hover {
+	background-color:gold !important;
+}
+
+.designer_row_feature_space {
+	display:inline-block;
+	margin:1px;
+	padding:1px;
+	font-size:9pt;
+	text-align:center;
+	padding-left:3px;
+	padding-right:3px;
+	border:1px solid #EEEEEE;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	background-color:#6094DB;
+	height:34px;
+	color:white;
+	cursor:default;
+}
+
+.designer_row_feature_cds {
+	height:34px;
+	background-color:#FF4848;
+	color:white;
+}
+
+.designer_row_feature_promoter {
+	height:34px;
+	background-color:black;
+	color:white;
+}
+
+
+
+
+.designer_row_feature_terminator {
+	height:34px;
+	color:white;
+	background-color:black;
+}
+
+.designer_row_feature_rbs {
+	background-color:#27DE55;
+	height:34px;
+	color:black;
+}
+
+.designer_row_feature_ori {
+	background-color:#DFDF00;
+	height:34px;
+	color:black;
+}
+
+.designer_row_feature_protein_bind {
+	background-color:#9669FE;
+	height:34px;
+	color:black;
+}
+
+
+
+
+
+.designer_row_feature_gene {
+	background-color:#2F74D0;
+	color:white;
+}
+
+.designer_row_feature_misc {
+	background-color:#DDDDDD;
+	color:black;
+}
+
+
+.designer_row_features_top {
+	margin:0px;
+	padding:0px;
+	min-height:13px;
+	border-bottom:1px solid #DDDDDD;
+}
+
+.designer_row_features_main {
+	margin:0px;
+	padding:0px;
+	min-height:40px;
+}
+
+.designer_row_features_bottom {
+	margin:0px;
+	padding:0px;
+	min-height:13px;
+	border-top:1px solid #DDDDDD;
+}
+
+.designer_row_header {
+	float:left;
+	margin-top:2px;
+	width:150px;
+	max-width:150px;
+	height:73px;
+	max-height:73px;
+	overflow:auto;
+	font-size:9pt;
+}
+
+.designer_row_features {
+    position:relative;
+    left:2px;
+    top:2px;
+    right:5px;
+    padding:2px;
+	overflow:auto;
+	margin-right:5px;
+	min-height:70px;
+/*	max-height:70px;*/
+	overflow-x:auto;
+	overflow-y:hidden;
+}
+
+.designer_row {
+	margin:0px;
+	padding:0px;
+	border-top:1px solid #999999;
+	color:black;
+	min-height:80px;
+	overflow:hidden;
+}
+
+.designer_row_primary {
+	border-top:none;
+	background-color:#EEEEEE;
+}
+
+
+/* Other */
+
+.container-fluid > .sidebar {
+    position: absolute;
+    top: 0;
+    left:auto;
+    width: 220px;
+}
+
+/*
+.left {
+    float:left;
+    width:220px;
+}
+*/
+
+.right {
+    float:right;
+    width:120px;
+}
+
+.fixed-fluid {
+/*    margin-left: 240px;*/
+}
+.fluid-fixed {
+    margin-right: 240px;
+    margin-left:auto !important;
+}
+.fixed-fixed {
+/*    margin: 0 240px;*/
+}
+​
+
+
+
+
+html, body {
+	width:100%;
+	height:100%;
+	overflow:hidden;
+	position:absolute;
+	padding:0px;
+	margin:0px;
+}
+
+h1 {
+	margin-top:0px;
+	padding-top:0px;
+}
+
+.mainbox {
+	position:fixed;
+	border:2px solid #CCCCCC;
+	overflow:none;
+	padding:2px;
+	box-shadow: 5px 5px 3px #888;
+	background-color:white;
+}
+
+#load_files {
+	font-size:9pt;
+}
+
+#drop_zone {
+	z-index:99;
+	position:fixed;
+	left:25%;
+	right:25%;
+	top:25%;
+	bottom:25%;
+	border:3px dashed #DDDDDD;
+	margin:5px;
+	text-align:center;
+	vertical-align:middle;
+	font-size:14pt;
+	background-color:#EEEEEE;
+	line-height:4em;
+	display:none;
+}
+
+/*
+#sb_log {
+	font-size:8pt;
+	overflow-y:auto;
+	display:none;
+}
+
+#sb_log p {
+	margin:0px;
+	padding:0px;
+	margin-top:2px;
+	padding-top:1px;
+	border-top:1px solid #EEEEEE;
+}
+*/
+
+#sb_sequences_container {
+	font-size:9pt;
+}
+
+#sb_sequences {
+	overflow:auto;
+}
+
+#canvas_wrapper {
+	position:relative;
+	overflow:auto;
+	color:white;
+	-webkit-overflow-scrolling: touch;
+}
+
+#main_slider {
+}
+
+#sequence_canvas {
+	position:fixed;
+	width:100%;
+	height:100%;
+}
+
+#seq_functions {
+	float:right;
+	font-size:9pt;
+}
+
+#seq_functions_seq_only {
+	display:none;
+}
+
+.left_sidebar_box {
+	margin-top:5px;
+	border-top:1px solid #DDDDDD;
+	padding-top:2px;
+}
+
+
+#display_settings_table th {
+	vertical-align:top;
+}
+
+
+.vtext {
+/*	writing-mode:tb-rl;*/
+	-webkit-transform:rotate(-90deg);
+	-moz-transform:rotate(-90deg);
+	-o-transform: rotate(-90deg);
+ 	-moz-transform-origin: 50% 50%;
+	-o-transform-origin:  bottom left;
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+}
+
+#selection_context_marker {
+	z-index:50;
+	position:relative;
+	width:20pt;
+}
+
+.feature {
+	position:absolute;
+	font-size:8pt;
+	font-family:Verdana,Times;
+	border:thin solid black;
+	z-index:2;
+	width:15px;
+	color:white;
+	overflow:hidden;
+	-moz-border-radius:5px;
+	border-radius:5px;
+}
+
+.feat_other {
+	background-color:#DDDDDD;
+	left:35px;
+	color:black;
+}
+
+.feat_misc {
+	background-color:#DDDDDD;
+	left:35px;
+	color:black;
+}
+
+.feat_gene {
+	background-color:#2F74D0;
+	left:55px;
+}
+
+.feat_cds {
+	background-color:#FF4848;
+	left:75px;
+}
+
+.feat_promoter {
+	background-color:black;
+	left:75px;
+}
+
+.feat_terminator {
+	background-color:black;
+	left:75px;
+}
+
+.feat_rbs {
+	background-color:#27DE55;
+	left:75px;
+}
+
+.feat_ori {
+	background-color:#DFDF00;
+	left:75px;
+}
+
+.feat_protein_bind {
+	background-color:#9669FE;
+	left:75px;
+}
+
+.feat_note {
+	background-color:#2DC800;
+	left:95px;
+}
+
+
+#new_sequence_entry {
+	width:100%;
+	font-family:Courier;
+	font-size:7pt;
+	line-height:110%;
+}
+
+.top_display_icon {
+/*	display:block;
+	margin-right:5px;*/
+}
+
+
+#zoombox {
+	position:fixed;
+	right:20px;
+	top:60px;
+	z-index:99;
+}
+
+
+#top_zone {
+	position:relative;
+	overflow:auto;
+}
+
+.pos_marker {
+	position:absolute;
+	font-size:6pt;
+	font-family:Verdana,Times;
+	z-index:2;
+	border-top:1px solid #999999;
+	color:black;
+	padding-top:0px;
+	margin-top:0px;
+	padding-left:5px;
+}
+
+#top_zone_marker {
+	z-index:0;
+	position:relative;
+	background-color:#FFFFC8;
+	border:none;
+	cursor:move;
+	right:0px;
+}
+
+
+
+
+#sb_display_options {
+	font-size:10pt;
+	display:none;
+}
+
+#re_manual {
+	width:100%;
+	max-width:190px;
+}
+
+label {
+	display:inline;
+}
+
+#hoverbox {
+	position:fixed;
+	right:0px;
+	bottom:0px;
+	background:white;
+	z-index:99;
+	padding:2px;
+	font-size:8pt;
+	opacity:0.5;
+	filter:alpha(opacity=50); /* For IE8 and earlier */
+}
+
+
+#sb_sequences_table_container {
+	max-height:500px;
+	overflow:auto;
+}
+
+
+/* The cut/copy operation textarea */
+#copywrap {
+	color:white;
+	background-color:white;
+	display:none;
+	position:fixed;
+	right:0px;
+	bottom:0px;
+}
+#copytb {
+	color:white;
+	background-color:white;
+	border:none;
+}
+
+/*
+::-webkit-scrollbar {
+	-webkit-appearance: none;
+	width: 7px;
+}
+::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background-color: rgba(0,0,0,.5);
+	-webkit-box-shadow: 0 0 1px rgba(255,255,255,.5);
+}
+*/
+
+/* For help.html */
+pre.jscode {
+	border:3px dotted #AAAAAA;
+	padding:5px;
+	margin:5px;
+	background-color:#EEEEEE;
+}
+
+/* For bootstrap checkboxes */
+.btn-group input {
+    display: none;
+}
+
+.btn-group .first-btn {
+     /* This is an actual copy/paste of the .btn-group .btn:first-child style */
+    border-bottom-left-radius: 4px;
+    border-top-left-radius: 4px;
+    margin-left: 0;
+}
+
+.btn-group input:checked + .btn {
+    /* This is an actual copy/paste of the .btn:active style */
+    background-color: #E6E6E6;
+    background-image: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) inset, 0 1px 2px rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.5);
+    outline: 0 none;
+}
+
+.btn-group input:disabled + .btn {
+    /* This is an actual copy/paste of the .btn:disabled style */
+    background-color: #E6E6E6;
+    background-image: none;
+    box-shadow: none;
+    cursor: default;
+    opacity: 0.65;
+}
+​

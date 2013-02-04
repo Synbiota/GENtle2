@@ -1,0 +1,19 @@
+<div class="modal" id="newSequenceDialog">
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>New sequence</h3>
+  </div>
+  <div class="modal-body">
+  	<h4>Enter sequence</h4>
+  	<textarea rows=20 cols=80 id="new_sequence_entry"></textarea>
+    <p>
+    You can enter or paste sequence data in plain text, FASTA, GenBank, or SYBIL format into the above box, or load a file from NCBI or your disk with the buttons below.
+    </p>
+  </div>
+	<div class="modal-footer">
+		<a href="#" class="btn btn-primary" onclick='gentle.createNewSequenceFromDialog();return false'>Create sequence</a>
+		<a href="#" class="btn" onclick='$("#newSequenceDialog").modal("hide").remove();start_nbci_dialog();return false'>Open from NCBI</a>
+		<a href="#" class="btn" onclick='$("#newSequenceDialog").modal("hide").remove();$("#openFileFromDisk").modal("show");return false'>Open from file</a>
+		
+	</div>
+</div>

@@ -1,0 +1,32 @@
+<div class="modal" id="annotation_editor_dialog">
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal"></a>
+		<h3>Annotation editor</h3>
+	</div>
+    <div class="modal-body">
+		<table border=0 class='table table-condensed'>
+			<tr><th>Name</th><td><input type='text' id='aed_name' class='span6'/></td></tr>
+			<tr><th>Type</th><td><select id='aed_type'></select></td></tr>
+			<tr><th>Description</th><td><textarea rows='5' id='aed_desc' class='span6'></textarea></td></tr>
+			<tr><th>Range</th><td>
+			<table border=0 id='aed_ranges_table' class='table table-condensed'>
+				<thead><tr><td>From</td><td/><td>To</td></tr></thead>
+				<tbody id='aed_ranges'></tbody>
+				<tfoot>
+				<tr>
+					<td><button class='btn btn-success' id='aed_add_range_button' title='Add range'><i class='icon-plus-sign'></i> range</button></td>
+					<td colspan=2><label><input type='checkbox' id='aed_rc' style='display:inline' />&nbsp;Reverse-complement</label></td>
+					<td nowrap style='text-align:right'><button class='btn btn-danger' onclick='gentle.annotation_editor_dialog.deleteAnnotation();return false'><i class='icon-trash icon-white'></i> Delete annotation</button></td>
+				</tr>
+				</tfoot>
+			</table>
+			</td></tr>
+		</table>
+    </div>
+
+	<div class="modal-footer">
+		<a href="#" class="btn btn-primary" onclick='gentle.annotation_editor_dialog.onSaveButton();return false'>Save changes</a>
+		<a href="#" class="btn" onclick='gentle.annotation_editor_dialog.onCancelButton();return false'>Cancel</a>
+	</div>
+</div>
+

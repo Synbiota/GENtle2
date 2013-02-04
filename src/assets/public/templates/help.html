@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>GENtle 2</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link rel="stylesheet" type="text/css" href="public/main.css" />
+</head>
+
+<body>
+<h1>GENtle help</h1>
+
+<h2>Community</h2>
+<ul>
+	<li><a href='https://en.wikibooks.org/wiki/GENtle_2'>GENtle manual at WikiBooks</a></li>
+	<li><a href='https://groups.google.com/forum/?fromgroups#!forum/gentledna'>GENtle at Google groups</a></li>
+	<li><a href='https://github.com/Synbiota/GENtle2'>Code at GitHub</a></li>
+	<li><a href='http://ec2-23-20-169-157.compute-1.amazonaws.com/jsdoc'>Technical documentation</a></li>
+</ul>
+
+<h2 name='videos'>Video tutorials</h2>
+<ul class="nav nav-list">
+	<li><a target="_blank" href="http://youtu.be/_tKTddbeGMs?hd=1">Load DNA</a></li>
+	<li><a target="_blank" href="http://youtu.be/4jirSH8yNX8?hd=1">Edit DNA</a></li>
+	<li><a target="_blank" href="http://youtu.be/36aTelwzKBM?hd=1">Find DNA</a></li>
+	<li><a target="_blank" href="http://youtu.be/taa6LP5WPlI?hd=1">Annotation</a></li>
+	<li><a target="_blank" href="http://youtu.be/eBwSPP6m6vU?hd=1">Display options</a></li>
+	<li><a target="_blank" href="http://youtu.be/Oq4xRLHknXQ?hd=1">Saving</a></li>
+	<li><a target="_blank" href="http://youtu.be/J0Cuyiz4qkY?hd=1">Plugins</a></li>
+</ul>
+
+<h2 name='plugins'>Plugins</h2>
+<h3>Managing plugins</h3>
+<p>You can add plugins from anywhere on your hard disk, or on the web. Just click on "Manage plugins", enter the URL of the JavaScript file containing the plugin, and click "Add plugin".
+Done! You can remove the plugin at any time. Plugins will be remembered across sessions.</p>
+<h3>Writing new plugins</h3>
+<p>If you know JavaScript (and preferably <a href='http://jquery.com/'>jQuery</a>), writing new plugins for GENtle is easy!</p>
+<pre><code>
+// Your new plugin class, based on <a href='../../plugins.js'>Plugin</a>.
+MyPlugin.prototype = new Plugin() ;
+MyPlugin.prototype.constructor = MyPlugin ;
+MyPlugin.prototype.myMethod = function () {} // Some code to be executed on-demand later
+function MyPlugin () {
+	this.name = 'my_plugin' ; // Plugin identifier needs to be set here, preferably all-lowercase, no spaces.
+}
+
+// Register your plugin (mandatory).
+if ( plugins.registerPlugin ( { 
+	className : 'MyPlugin' , // Your plugin class name from above
+	url : 'plugins/my_plugin.js' // The (relative or absolute) URL of the plugin
+	} ) ) {
+	
+	// Register your plugin as a sequence-type-specific tool (optional). It will show up in the right side bar. You can register the same plugin for multiple sequence types.
+	plugins.registerAsTool ( { 
+		className : 'MyPlugin' , // Your plugin class name from above
+		module : 'dna' , // Which sequence type this tool applies to
+		section : 'sequence' ,  // The section of the menu (the menu bar)
+		linkTitle : 'Do stuff' , // The text of the menu item
+		call : 'myMethod' // Which method in your class to call when the user clicks the menu item
+	} ) ;
+}
+</code></pre>
+
+<p>As a working example plugin, the "find in sequence" functionality has been implemented as a plugin. You can see the code <a href='../../plugins/find_in_sequence.js'>here</a>, and the technical documentation <a href='http://ec2-23-20-169-157.compute-1.amazonaws.com/jsdoc/PluginFindInSequence.html'>here</a>.</p>
+
+</body>
+
+</html>

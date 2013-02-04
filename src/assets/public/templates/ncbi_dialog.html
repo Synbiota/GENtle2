@@ -1,0 +1,33 @@
+<div class="modal" id="ncbi_dialog" >
+	<div class="modal-header">
+		<a class="close" data-dismiss="modal"></a>
+		<h3>Query NCBI</h3>
+	</div>
+	<div class="modal-body" id="ncbi_form">
+	
+		<div>
+			<form class='form-inline' id='form_ncbi_database'>
+				NCBI database
+				<label class="radio inline"><input type='radio' name='ncbi_database' value='nuccore' />Nucleotides</label>
+				<label class="radio inline"><input type='radio' name='ncbi_database' value='genbank' />GenBank</label>
+			</form>
+		</div>
+
+		<div>
+			<form class="form-search" id='form_ncbi_search'>
+				<input type='text' class="input-medium search-query" id="ncbi_query" placeholder='Search NCBI' />
+				<button type="submit" class="btn btn-primary">Search</button>
+			</form>
+			<div id='ncbi_results' style='max-height:200px;overflow:auto'></div>
+		</div>
+		
+		<div>
+			<form class='form-inline' id='form_ncbi_go'>
+				<input type='text' size='30' name="ncbiID" placeholder='NBCI ID' />
+				<button type="submit" class='btn'>Load NCBI ID</button>
+				Demo : <a href='#' id='ncbi_demo_link'>JQ033384.1</a>
+			</form>
+		</div>
+		
+	</div>
+</div>
