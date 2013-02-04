@@ -1,0 +1,20 @@
+var gentle_config = {
+    default_plugins : [
+        'plugins/find_in_sequence.js',
+        'plugins/prepend_append_sequence.js',
+        'plugins/export_as_file.js',
+        'plugins/dna.js',
+        'plugins/IDToligoanalyzer.js'
+    ],
+    deactivated_plugins : [ ],
+    colors : {
+        numbering : '#6094DB'
+    },
+    
+    synbiota : {
+        use_proxy : 1 ,
+        api_version : 1 ,
+        api_url : ''
+    },
+    proxy : './data/proxy.php'
+} ;

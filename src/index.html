@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>GENtle 2</title>
+<meta name="viewport" content="target-densitydpi=high-dpi">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"/>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+<link type="text/css" href="assets/jquery/css/smoothness/jquery-ui-1.8.18.custom.css" rel="Stylesheet" />
+<link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css" />
+<link rel="stylesheet" type="text/css" href="public/main.css" />
+</head>
+
+<body>
+<div id='hoverbox'></div>
+<div id='debug' style='position:fixed;left:0px;top:50px'></div>
+<div id='all' style='overflow:hidden;width:100%;height:100%;padding:0px;margin:0px'>
+
+
+<div class="navbar">
+  <div class="navbar-inner">
+  <div class="container-fluid">
+
+    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </a>
+
+    <a class="brand" href="#">GENtle2</a>
+    
+    <div class="nav-collapse">
+      <ul class="nav" id='toolbar_ul'>
+      <li class="dropdown" id="toolbar_plugins_file">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">File<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li sort='100'><a href='#' onclick='gentle.startNewSequenceDialog();return false'>New sequence</a></li>
+          <li sort='300'><a data-toggle='modal' href='#openFileFromDisk'>Open from disk</a></li>
+          <li sort='310'><a href='#' onclick='ncbi.initializeDialog();return false'>Open from NCBI</a></li>
+          <li sort='500'><a id='close_sequence' href='#' onclick='gentle.closeCurrentSequence();return false'>Close sequence</a></li>
+        </ul>
+      </li>
+      <li class="dropdown" id='edit_menu'>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li class='menu_needs_selection'><a id='edit_menu_undo' href='#' onclick='gentle.doUndo();return false'>Undo <span id='undo_action'></span></a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_redo' href='#' onclick='gentle.doRedo();return false'>Redo <span id='redo_action'></span></a></li>
+          <li class="divider"></li>
+          <li class='menu_needs_selection'><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_selection_info' href='#' onclick='gentle.do_selection_info();return false'>Selection Info</a></li>
+          <li class='menu_needs_selection'><a id='edit_menu_annotate' href='#' onclick='gentle.do_annotate();return false'>Annotate selection</a></li>
+          <li class='menu_needs_edit_mode'><a id='edit_menu_paste' href='#' onclick='gentle.do_edit("paste");return false'>Paste</a></li>
+        </ul>
+      </li>
+      <li class="dropdown" id='tools_menu'>
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Tools<b class="caret"></b></a>
+        <ul class="dropdown-menu">
+          <li><a href='#' onclick='gentle.plugins.managePlugins();return false'>Plugins</a></li>
+<!-- DEACTIVATED BECAUSE OF POTENTIAL PATENT TROLL          <li><a href='#' onclick='gentle.startDesigner();return false'>Designer</a></li>-->
+        </ul>
+      </li>
+      <li class="dropdown nav pull-right" id='help_menu_wrapper'>
+        
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>
+        <ul class="dropdown-menu" id='help_menu'>
+          <li sort='100'><a target='_blank' href='public/templates/help.html'>GENtle help page</a></li>
+          <li sort='200'><a target='_blank' href='https://en.wikibooks.org/wiki/GENtle_2'>GENtle manual at WikiBooks</a></li>
+          <li sort='300'><a target='_blank' href='https://groups.google.com/forum/?fromgroups#!forum/gentledna'>GENtle on Google groups</a></li>
+          <li sort='400'><a target='_blank' href='http://ec2-23-20-169-157.compute-1.amazonaws.com/jsdoc/'>Technical documentation</a></li>
+          <li sort='500'><a target='_blank' href='https://github.com/Synbiota/GENtle2'>Code at GitHub</a></li>
+        </ul>
+      </li>
+      </ul>
+    </div>
+    
+    <ul id="toolbar-right" class="nav pull-right">
+    <li title='Help'><a href='#' onclick='gentle.help();return false' class='btn-inverse'><i class='icon-info-sign icon-white'></i></a></li>
+    <li title='Edit name, description, and annotation'><a href='#' onclick='gentle.sequence_info();return false' class='btn-inverse'><i class='icon-cog icon-white'></i></a></li>
+    <li title='Display settings'><a href='#' onclick='gentle.toggle_display_settings();return false' class='btn-inverse'><i class='icon-eye-open icon-white'></i></a></li>
+    <li title='Loaded sequences'><a href='#' onclick='gentle.toggle_loaded_sequences();return false' class='btn-inverse'><i class='icon-list-alt icon-white'></i></a></li>
+    <li title='Toggle sidebar'><a href='#' onclick='gentle.toggle_right_sidebar();return false' class='btn-inverse'><i id='right_sidebar_icon' class='icon-chevron-right icon-white'></i></a></li>
+    </ul>
+    
+  </div>
+  </div>
+</div>
+
+
+
+<div class='container-fluid'>
+<div class='row-fluid'>
+
+
+<div id='topbox' class='sidebar right well'>
+</div>
+
+<div id='main' class='content fixed-fixed'>
+</div>
+
+
+</div> <!--row-fluid-->
+
+</div> <!--container-fluid-->
+
+<div id="copywrap"><textarea id="copytb"></textarea></div><!-- This is needed for cut&copy. It will only be visible for a fraction of a second during copying. -->
+
+<div class="modal" id="openFileFromDisk" style='display:none'>
+  <div class="modal-header">
+    <a class="close" data-dismiss="modal">×</a>
+    <h3>Open file from disk</h3>
+  </div>
+  <div class="modal-body">
+    <p>
+      <input type="file" id="files" name="files[]" multiple size='10' />
+    </p>
+  </div>
+</div>
+
+<div id='sb_display_options'></div>
+
+<div id='zoombox'>
+</div>
+
+</div>
+
+<div id="drop_zone"><div>Drop files here</div></div>
+
+<div id='gentle_alerts' style='position:fixed;left:2px;bottom:2px;z-index:99'></div>
+
+<!-- Load third-party assets -->
+<script type="text/javascript" src="assets/jquery/js/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="assets/jquery/js/jquery-ui-1.8.17.custom.min.js"></script>
+<script type="text/javascript" src="assets/jquery/js/indexeddb.shim.js"></script>
+<script type="text/javascript" src="assets/jquery/js/jquery.indexeddb.js"></script>
+<script type="text/javascript" src="assets/bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="assets/bootstrap/js/bootstrap-button.js"></script>
+<script type="text/javascript" src="assets/bootstrap/js/bootstrap-collapse.js"></script>
+<script type="text/javascript" src="assets/bootstrap/js/bootstrap-tab.js"></script>
+<script type="text/javascript" src="assets/bootstrap/js/bootstrap-popover.js"></script>
+<script type="text/javascript" src="assets/mousewheel.js"></script>
+<script type="text/javascript" src="assets/FileSaver.js"></script>
+<script type="text/javascript" src="assets/DoubleTap.js"></script>
+<script type="text/javascript" src="assets/listAttributes.js"></script>
+
+<!-- Load GENtle code-->
+<script type="text/javascript" src="data/data.js"></script>
+<script type="text/javascript" src="config.js"></script>
+
+<script type="text/javascript" src="util/topDisplay/top_display.js"></script>
+
+<script type="text/javascript" src="util/sequence/undo.js"></script>
+<script type="text/javascript" src="util/sequence/sequences.js"></script>
+<script type="text/javascript" src="util/sequence/sequence_canvas.js"></script>
+<script type="text/javascript" src="util/sequence/sequence_canvas_dna.js"></script>
+<script type="text/javascript" src="util/sequence/sequence_canvas_designer.js"></script>
+<script type="text/javascript" src="util/sequence/sequence_canvas_rows.js"></script>
+<script type="text/javascript" src="util/sequence/sequence_info.js"></script>
+<script type="text/javascript" src="util/sequence/annotation_editor.js"></script>
+
+<script type="text/javascript" src="util/kv_storage.js"></script>
+<script type="text/javascript" src="util/file/filetypes.js"></script>
+<script type="text/javascript" src="util/file/ncbi.js"></script>
+
+<script type="text/javascript" src="common.js"></script>
+<script type="text/javascript" src="main.js"></script>
+<script type="text/javascript" src="plugins.js"></script>
+
+</body>
+
+</html>
