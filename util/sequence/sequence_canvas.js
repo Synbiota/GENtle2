@@ -485,8 +485,19 @@ SequenceCanvas.prototype.updateTitleBar = function () {
 	var me = this ;
 	var name = me.sequence.name ;
 	var h = "" ;
+	
+	if ( gentle.sequences.length == 1 ) {
+		h += "<span class='label'><i class='icon-chevron-left icon-white'/></span> " ;
+		h += "<span class='label'><i class='icon-chevron-right icon-white'/></span> " ;
+	} else {
+		var last = gentle.current_sequence_entry > 0 ? gentle.current_sequence_entry-1 : gentle.sequences.length-1 ;
+		var next = gentle.current_sequence_entry+1 < gentle.sequences.length ? gentle.current_sequence_entry+1 : 0 ;
+		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + last + ");return false'><i class='icon-chevron-left'/></a></span> " ;
+		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + next + ");return false'><i class='icon-chevron-right'/></a></span> " ;
+	}
+	
 	h += "<span class='label label-info'>" + name + "</span>&nbsp;" ;
-	h += "<span class='label'>" + me.sequence.seq.length + " bp</span>" ;
+	h += "<span class='label'>" + addCommas ( me.sequence.seq.length ) + " bp</span>" ;
 	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
 	
 	$('#sequence_canvas_title_bar').html ( h ) ;
