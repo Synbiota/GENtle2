@@ -446,7 +446,10 @@ h1 {
 }
 
 
-
+#sequence_canvas_title_bar {
+	height:20px;
+/*	border:1px solid red;*/
+}
 
 #sb_display_options {
 	font-size:10pt;

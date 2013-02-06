@@ -86,7 +86,7 @@ var gentle = {
 			$(window).bind('beforeunload', function(){ gentle.saveLocally () ; });
 			$(window).bind('unload', function(){ gentle.saveLocally () ; });
 			
-			$('#main').height ( $('body').height()-50 ) ;
+			$('#main').height ( $('body').height()-70 ) ;
 		
 			$(window)
 			.bind ( 'dragenter' , function ( evt ) {
@@ -165,6 +165,11 @@ var gentle = {
 						var seq = new SequenceDesigner () ;
 						seq.seedFrom ( v ) ;
 						seq.typeName = 'designer' ;
+						gentle.sequences[k] = seq ;
+					} else if ( v.typeName == 'pcr' ) {
+						var seq = new SequencePCR () ;
+						seq.seedFrom ( v ) ;
+						seq.typeName = 'pcr' ;
 						gentle.sequences[k] = seq ;
 					} else {
 						console.log ( 'UNKNOWN LOCAL STORAGE SEQUENCE TYPENAME ' + v.typeName ) ;
@@ -614,6 +619,7 @@ window.zcol = colors;
 		if ( sc === undefined ) return ; // Paranoia
 		
 		if ( sc.typeName == 'designer' ) gentle.handleSelectSequenceEntryDesigner ( entry ) ;
+		else if ( sc.typeName == 'pcr' ) gentle.handleSelectSequenceEntryPCR ( entry ) ;
 		else gentle.handleSelectSequenceEntryDNA ( entry ) ; // Default
 
 		gentle.onThingsHaveChanged() ;
@@ -634,6 +640,27 @@ window.zcol = colors;
 		if ( $('#topbox').is(':visible') ) gentle.toggle_right_sidebar();
 	} ,
 		
+	handleSelectSequenceEntryPCR : function ( entry ) {
+		gentle.current_sequence_entry = entry ;
+		
+		var html = "<div id='canvas_wrapper'>" ;
+		html += "<canvas id='sequence_canvas'></canvas>" ;
+		html += "<div id='main_slider'></div>" ;
+		html += "</div>" ;
+		$('#main').html ( html ) ;
+		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		
+		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
+		
+		// Set up new top display
+		top_display = new TopDisplayDNA ( true ) ;
+		top_display.init() ;
+		
+		// Set up new sequence canvas
+		gentle.main_sequence_canvas = new SequenceCanvasPCR ( gentle.sequences[entry] , 'sequence_canvas' ) ;
+	
+	} ,
+
 	handleSelectSequenceEntryDNA : function ( entry ) {
 		gentle.current_sequence_entry = entry ;
 		
@@ -743,8 +770,10 @@ window.zcol = colors;
 			$('#topbox').hide() ;
 			sc.tbw = $('#canvas_wrapper').css('right');
 			$('#canvas_wrapper').css ( { right : 0 } ) ;
+			$('#sequence_canvas_title_bar').css ( { right : 0 } ) ;
 		} else {
 			$('#canvas_wrapper').css ( { right : sc.tbw } ) ;
+			$('#sequence_canvas_title_bar').css ( { right : sc.tbw } ) ;
 			$('#topbox').show() ;
 		}
 		gentle.on_resize_event() ;
@@ -832,7 +861,38 @@ window.zcol = colors;
 
 	/* END Loaded sequences dialog functions */
 	
-	
+	do_start_pcr : function () {
+		var sc = gentle.main_sequence_canvas ;
+		if ( undefined === sc ) { console.log ( "No canvas" ) ; return ; }
+		
+		if ( undefined === sc.sequence ) { console.log ( "No sequence" ) ; return ; }
+		
+		// TODO paranoia
+		
+		var start = sc.selections[0].from ;
+		var stop = sc.selections[0].to ;
+		
+		var ret = new SequencePCR ( sc.sequence.name , sc.sequence.seq.substr ( start , stop-start+1 ) ) ;
+		$.each ( (sc.sequence.features||[]) , function ( k , v ) {
+			if ( v['_range'].length == 0 ) return ;
+			if ( v['_range'][0].from > stop ) return ;
+			if ( v['_range'][v['_range'].length-1].to < start ) return ;
+			var o = clone ( v ) ;
+			o['_range'] = [] ;
+			$.each ( v['_range'] , function ( k2 , v2 ) {
+				if ( v2.from > stop || v2.to < start ) return ;
+				var o2 = clone ( v2 ) ;
+				o2.from -= start ;
+				o2.to -= start ;
+				o['_range'].push ( o2 ) ;
+			} ) ;
+			ret.features.push ( o ) ;
+		} ) ;
+		ret.undo.setSequence ( ret ) ;
+
+		gentle.addSequence ( ret , true ) ;
+		return false ;
+	} ,
 	
 	sequence_info : function () {
 		var sc = gentle.main_sequence_canvas ;

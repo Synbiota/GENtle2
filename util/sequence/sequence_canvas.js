@@ -71,6 +71,7 @@ SequenceCanvas.prototype.resizeCanvas = function () {
 	$('#sequence_canvas').css ( { width:w+'px' , height:h } ) ;
 	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
 	$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
+	$('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
 	this.show() ;
 }
 
@@ -80,14 +81,14 @@ SequenceCanvas.prototype.initSidebar = function () {
 	var h = '' ;
 	$('#toolbar_ul .toolbar_plugin').remove() ;
 	h = '' ;
-	$.each ( plugins.tools[me.type] , function ( k , v ) {
+	$.each ( plugins.tools[me.type]||{} , function ( k , v ) {
 		h += "<li class='dropdown toolbar_plugin' id='toolbar_plugins_"+k+"' style='display:none'>" ;
 		h += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">'+ucFirst(k)+'<b class="caret"></b></a>' ;
 		h += '<ul class="dropdown-menu"></ul></li>' ;
 	} ) ;
 	$('#toolbar_ul').append ( h ) ;
 	
-	$.each ( plugins.tools[me.type] , function ( section , v1 ) {
+	$.each ( plugins.tools[me.type]||{} , function ( section , v1 ) {
 		$.each ( v1 , function ( tool , v2 ) {
 			me.registerTool ( v2 ) 
 		} ) ;
@@ -478,4 +479,12 @@ SequenceCanvas.prototype.fixMenus = function () {
 		else $(this).hide() ;
 //		console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
 	} ) ;
+}
+
+SequenceCanvas.prototype.updateTitleBar = function () {
+	var me = this ;
+	var name = me.sequence.name ;
+	var h = "<b>" + name + "</b>" ;
+	
+	$('#sequence_canvas_title_bar').html ( h ) ;
 }

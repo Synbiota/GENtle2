@@ -104,7 +104,7 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 SequenceDNA.prototype.asNewSequenceDNA = function ( start , stop ) {
 	var me = this ;
 	var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ;
-	$.each ( me.features , function ( k , v ) {
+	$.each ( (me.features||[]) , function ( k , v ) {
 		if ( v['_range'][0].from > stop ) return ;
 		if ( v['_range'][v['_range'].length-1].to < start ) return ;
 		var o = clone ( v ) ;
@@ -179,6 +179,83 @@ function SequenceDesigner ( name , seq ) {
 	this.seq = seq ;
 	this.name = name ;
 	this.typeName = 'designer' ;
+	this.features = new Array() ;
+	this.edit_allowed = [] ;
+	this.undo = new SequenceUndo ( this ) ;
+	var me = this ;
+	$.each ( cd.bases2iupac , function ( k , v ) {
+		me.edit_allowed.push ( v ) ;
+	} ) ;
+}
+
+
+//________________________________________________________________________________________
+// SequencePCR
+SequencePCR.prototype = new Sequence() ;
+SequencePCR.prototype.constructor = SequencePCR ;
+
+/*
+SequencePCR.prototype.remove = function ( base , len , skip_feature_adjustment ) {
+	var me = this ;
+	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
+	me.seq = me.seq.substr ( 0 , base ) + me.seq.substr ( base + len , me.seq.length - base - len ) ;
+	if ( skip_feature_adjustment ) return ; // For undo/redo
+	$.each ( me.features , function ( fid , f ) {
+		if ( undefined === f['_range'] ) return ;
+		$.each ( f['_range'] , function ( k , v ) {
+			var ov = clone ( v ) ;
+			if ( v.from >= base ) v.from -= len ;
+			if ( v.to+1 >= base ) v.to -= len ;
+			if ( v.from != ov.from || v.to != ov.to ) {
+				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : fid , range_id : k } ) ;
+			}
+			// TODO : Remove element if non-existant
+		} ) ;
+	} ) ;
+}
+
+
+SequencePCR.prototype.SequencePCR = function ( start , stop ) {
+	var me = this ;
+	var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ;
+	$.each ( me.features , function ( k , v ) {
+		if ( v['_range'][0].from > stop ) return ;
+		if ( v['_range'][v['_range'].length-1].to < start ) return ;
+		var o = clone ( v ) ;
+		o['_range'] = [] ;
+		$.each ( v['_range'] , function ( k2 , v2 ) {
+			if ( v2.from > stop || v2.to < start ) return ;
+			var o2 = clone ( v2 ) ;
+			o2.from -= start ;
+			o2.to -= start ;
+			o['_range'].push ( o2 ) ;
+		} ) ;
+		ret.features.push ( o ) ;
+	} ) ;
+	ret.undo.setSequence ( ret ) ;
+	return ret ;
+}
+*/
+SequencePCR.prototype.clone = function () {
+	var me = this ;
+	var ret = new SequencePCR ( me.name , me.seq ) ;
+	
+	$.each ( me.data_keys , function ( k , v ) {
+		if ( undefined === me[v] ) return ;
+		ret[v] = clone(me[v]) ;
+	} ) ;
+	// TODO : clone undo? Or not?
+	
+	return ret ;
+}
+
+
+function SequencePCR ( name , seq, spectrum ) {
+	this.data_keys = ['desc','typeName','features','is_circular','settings'] ;
+	this.seq = seq ;
+	this.name = name ;
+	this.spectrum = spectrum ;
+	this.typeName = 'pcr' ;
 	this.features = new Array() ;
 	this.edit_allowed = [] ;
 	this.undo = new SequenceUndo ( this ) ;

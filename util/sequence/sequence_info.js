@@ -117,6 +117,7 @@ SequenceInfoDialogDNA.prototype.onSaveButton = function () {
 
 	me.sc.recalc() ;
 	me.sc.show () ;
+	me.sc.updateTitleBar() ;
 	top_display.init() ;
 	
 	gentle.updateSequenceList() ;
