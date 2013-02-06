@@ -585,6 +585,7 @@ window.zcol = colors;
 			$('#main').html ( '' ) ;
 			$('#sb_display_options').html ( '' ) ;
 			$('#position').html ( '&nbsp;' ) ;
+			$('#sequence_canvas_title_bar').html ( '' ) ;
 //			$('#right').html ( '' ) ;
 			$('#toolbar_ul .toolbar_plugin').remove() ;
 			gentle.showDefaultBlurb() ;

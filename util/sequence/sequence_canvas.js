@@ -484,7 +484,10 @@ SequenceCanvas.prototype.fixMenus = function () {
 SequenceCanvas.prototype.updateTitleBar = function () {
 	var me = this ;
 	var name = me.sequence.name ;
-	var h = "<b>" + name + "</b>" ;
+	var h = "" ;
+	h += "<span class='label label-info'>" + name + "</span>&nbsp;" ;
+	h += "<span class='label'>" + me.sequence.seq.length + " bp</span>" ;
+	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
 	
 	$('#sequence_canvas_title_bar').html ( h ) ;
 }

@@ -1,54 +1,22 @@
 //________________________________________________________________________________________
-// SC DNA
-SequenceCanvasDNA.prototype = new SequenceCanvas() ;
-SequenceCanvasDNA.prototype.constructor = SequenceCanvasDNA ;
+// SC PCR
+SequenceCanvasPCR.prototype = new SequenceCanvas() ;
+SequenceCanvasPCR.prototype.constructor = SequenceCanvasPCR ;
 
-/*
-SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
-	var h = '' ;
-	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-
-	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'cut\');return false">Cut</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'copy\');return false">Copy</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.delete_selection();return false">Remove selected sequence</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_annotate();return false">Annotate selected sequence</a></li>' ;
-
-	var sc = gentle.main_sequence_canvas ;
-	if ( sc !== undefined && sc.selections.length > 0 ) {
-		var feats = sc.sequence.getFeaturesInRange ( sc.selections[0].from , sc.selections[0].to ) ;
-		$.each ( feats , function ( k , v ) {
-			if ( v['_type'] == 'source' ) return ;
-			var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
-			var name = sc.sequence.getAnnotationName ( v ) ;
-			name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
-			h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
-		} ) ;
-	}
-
-	h += '</ul></div>' ;
-
-	h += "</div>" ;
-	
-	$('#selection_context_marker').remove() ;
-	$('#canvas_wrapper').prepend ( h ) ;
-}
-*/
-
-SequenceCanvasDNA.prototype.select = function ( from , to , col ) {
+SequenceCanvasPCR.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
 	this.selections = [ { from : from , to : to , fcol : col , tcol : 'black' } ] ;
 	this.show() ;
 }
 
-SequenceCanvasDNA.prototype.deselect = function () {
+SequenceCanvasPCR.prototype.deselect = function () {
 	if ( this.selections.length == 0 ) return ;
 	this.selections = [] ;
 	$('#selection_context_marker').remove() ;
 	this.show() ;
 }
 
-SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
+SequenceCanvasPCR.prototype.cut_copy = function ( do_cut ) {
 	var sc = this ;
 	if ( sc.selections.length == 0 ) return ;
 	var from = sc.selections[0].from ;
@@ -70,7 +38,7 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	return s ;
 }
 
-SequenceCanvasDNA.prototype.fix_touch_event = function ( e ) {
+SequenceCanvasPCR.prototype.fix_touch_event = function ( e ) {
 	
 	if(e.originalEvent.touches && e.originalEvent.touches.length) {
 		e = e.originalEvent.touches[0];
@@ -80,7 +48,7 @@ SequenceCanvasDNA.prototype.fix_touch_event = function ( e ) {
 	return e ;
 }
 
-SequenceCanvasDNA.prototype.absorb_event = function (event) { 
+SequenceCanvasPCR.prototype.absorb_event = function (event) { 
 	if ( !gentle.is_mobile ) return false ;
 	var e = event || window.event;
 	e.preventDefault && e.preventDefault();
@@ -90,7 +58,7 @@ SequenceCanvasDNA.prototype.absorb_event = function (event) {
 	return false;
 }
 
-SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
+SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
 	if ( gentle.is_mobile ) { // DoubleTap
 		var t = new Date().getTime();
 		if ( sc.last_mouse_down !== undefined && t - sc.last_mouse_down < 500 ) { // 500ms since last touch = double-touch
@@ -148,7 +116,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	return sc.absorb_event(e) ;
 }
 
-SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
+SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
@@ -168,12 +136,12 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 }
 
 
-SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
+SequenceCanvasPCR.prototype.on_mouse_move = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
 	if ( target === null ) {
-		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ; // this.getHoverName()
+		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
 		sc.position_is_blank = true ;
 		$('.temporary_popover_source').popover('hide');
 		return ;
@@ -193,7 +161,7 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 	return sc.absorb_event(e) ;
 }
 
-SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
+SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 	sc.selecting = false ;
 	sc.selections = [] ;
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
@@ -264,18 +232,11 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 	}
 	
 	
-/*	if ( gentle.is_mobile ) { // An attempt to invoke the soft keyboard and redirect keystrokes from an input box to the canvas; failed for now
-		var h = "<input type='text' id='tmp' style='position:fixed;right:0px;top:0px;' />" ;
-		$('#tmp').remove();
-		$('#all').append(h) ;
-		$('#tmp').focus() ;
-		$('#tmp').keydown ( sc.keyhandler ) ;
-	}*/
 	
 	return sc.absorb_event(e) ;
 }
 
-SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
+SequenceCanvasPCR.prototype.sim_key = function ( s , mk ) {
 	var e = {} ;
 	e.keyCode = s.charCodeAt(0) ;
 	e.metaKey = mk ;
@@ -285,7 +246,7 @@ SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
 	this.keyhandler ( e ) ;
 }
 
-SequenceCanvasDNA.prototype.init = function () {
+SequenceCanvasPCR.prototype.init = function () {
 	var sc = this ;
 	var cw = $('#canvas_wrapper').offset() ;
 	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
@@ -293,7 +254,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	$('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
 	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
 	$('#sequence_canvas_title_bar').css ( { width:w } ) ;
-
+	
 	sc.updateTitleBar() ;
 	
 	// Select
@@ -354,13 +315,13 @@ SequenceCanvasDNA.prototype.init = function () {
 	} ) ;
 }
 
-SequenceCanvasDNA.prototype.recalc = function () {
+SequenceCanvasPCR.prototype.recalc = function () {
 	$.each ( this.lines , function ( k , v ) {
 		v.init() ;
 	} ) ;
 }
 
-SequenceCanvasDNA.prototype.isOver = function ( x , y ) {
+SequenceCanvasPCR.prototype.isOver = function ( x , y ) {
 	var ret = null ;
 	$.each ( this.lines , function ( line_id , line ) {
 		var r = line.isOver ( x , y ) ;
@@ -372,7 +333,7 @@ SequenceCanvasDNA.prototype.isOver = function ( x , y ) {
 	return ret ;
 }
 
-SequenceCanvasDNA.prototype.show = function () {
+SequenceCanvasPCR.prototype.show = function () {
 	if ( this.canvas_id == '' ) return ;
 	
 	var unixtime_ms = new Date().getTime();
@@ -431,7 +392,7 @@ SequenceCanvasDNA.prototype.show = function () {
 //	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
 }
 
-SequenceCanvasDNA.prototype.getLineIndex = function ( type ) {
+SequenceCanvasPCR.prototype.getLineIndex = function ( type ) {
 	var ret ;
 	$.each ( this.lines , function ( k , v ) {
 		if ( v.type == type ) ret = k ;
@@ -439,7 +400,7 @@ SequenceCanvasDNA.prototype.getLineIndex = function ( type ) {
 	return ret ;
 }
 
-SequenceCanvasDNA.prototype.update_display = function () {
+SequenceCanvasPCR.prototype.update_display = function () {
 	var sc = gentle.main_sequence_canvas ;
 	sc.update_display_aa() ;
 	sc.update_display_res() ;
@@ -552,7 +513,7 @@ SequenceCanvasDNA.prototype.update_display = function () {
 	sc.show() ;
 }
 
-SequenceCanvasDNA.prototype.update_display_aa = function () {
+SequenceCanvasPCR.prototype.update_display_aa = function () {
 	var m1 = $('#sb_display_options input[name=aa_display]:checked').val() ;
 	var m2 = $('#sb_display_options input[name=aa_rf]:checked').val() ;
 	
@@ -574,7 +535,7 @@ SequenceCanvasDNA.prototype.update_display_aa = function () {
 	
 }
 
-SequenceCanvasDNA.prototype.update_display_res = function () {
+SequenceCanvasPCR.prototype.update_display_res = function () {
 	var show_res = $('#show_res').is(':checked');
 	if ( show_res ) {
 		$('.re_options input').removeAttr('disabled');
@@ -586,7 +547,7 @@ SequenceCanvasDNA.prototype.update_display_res = function () {
 }
 
 
-SequenceCanvasDNA.prototype.getSettings = function () {
+SequenceCanvasPCR.prototype.getSettings = function () {
 	var me = this ;
 	var settings = {} ;
 	
@@ -605,7 +566,7 @@ SequenceCanvasDNA.prototype.getSettings = function () {
 }
 
 
-SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
+SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 	me = this ;
 
 	// Main parameters
@@ -709,15 +670,14 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	$('#re_manual').keyup(this.update_display) ;
 }
 
-SequenceCanvasDNA.prototype.getHoverName = function () {
+SequenceCanvasPCR.prototype.getHoverName = function () {
 	return ( this.sequence.name || '' ) ;
 }
 
-
-function SequenceCanvasDNA ( the_sequence , canvas_id ) {
+function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
-	this.type = 'dna' ;
+	this.type = 'pcr' ;
 	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
 	
 	this.fixMenus() ;
@@ -729,7 +689,6 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			{type:"position"},
 			{type:"annotation"},
 			{type:"dna"},
-			{type:"spectrum"},
 			{type:"blank"}
 		]
 	} ;
@@ -756,7 +715,6 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
 	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
 	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
-	this.setContextMenuItem ( { id:'start_pcr' , items : [ { callback:function(sc){gentle.do_start_pcr()} , html:'Start PCR based on selected sequence' } ] } ) ;
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
 		var ret = [] ;
@@ -785,5 +743,5 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 		this.update_display() ;
 	}
 	
-	gentle.set_hover ( '' ) ; // this.getHoverName()
+	gentle.set_hover ( '' ) ;
 }
