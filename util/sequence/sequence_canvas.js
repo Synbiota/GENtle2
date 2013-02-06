@@ -481,10 +481,9 @@ SequenceCanvas.prototype.fixMenus = function () {
 	} ) ;
 }
 
-SequenceCanvas.prototype.updateTitleBar = function () {
+SequenceCanvas.prototype.addTitleBarNavButtons = function ( core ) {
 	var me = this ;
-	var name = me.sequence.name ;
-	var h = "" ;
+	var h = '' ;
 	
 	if ( gentle.sequences.length == 1 ) {
 		h += "<span class='label'><i class='icon-chevron-left icon-white'/></span> " ;
@@ -495,10 +494,18 @@ SequenceCanvas.prototype.updateTitleBar = function () {
 		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + last + ");return false'><i class='icon-chevron-left'/></a></span> " ;
 		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + next + ");return false'><i class='icon-chevron-right'/></a></span> " ;
 	}
-	
+	h += core ;
+	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
+	return h ;
+}
+
+SequenceCanvas.prototype.updateTitleBar = function () {
+	var me = this ;
+	var name = me.sequence.name ;
+	var h = '' ;
+	h += '<span class="label label-success">' + me.sequence.typeName.toUpperCase() + '</span> ' ;
 	h += "<span class='label label-info'>" + name + "</span>&nbsp;" ;
 	h += "<span class='label'>" + addCommas ( me.sequence.seq.length ) + " bp</span>" ;
-	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
-	
+	h = me.addTitleBarNavButtons ( h ) ;
 	$('#sequence_canvas_title_bar').html ( h ) ;
 }
