@@ -494,8 +494,19 @@ SequenceCanvas.prototype.addTitleBarNavButtons = function ( core ) {
 		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + last + ");return false'><i class='icon-chevron-left'/></a></span> " ;
 		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + next + ");return false'><i class='icon-chevron-right'/></a></span> " ;
 	}
-	h += core ;
+	h += "<span class='label' style='margin-right:10px'>" + (gentle.current_sequence_entry+1) + "/" + gentle.sequences.length + "</span>" ;
+	
+	h += core + '&nbsp;' ;
+	
+	if ( me.sequence.is_circular ) {
+		h += "<span class='label'>circular</span>" ;
+	} else {
+		h += "<span class='label'>linear</span>" ;
+	}
+	
+//	h += "<button class='pull-right close'>&times;</button>" ;
 	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
+
 	return h ;
 }
 

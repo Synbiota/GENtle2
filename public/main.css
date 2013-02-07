@@ -448,6 +448,9 @@ h1 {
 
 #sequence_canvas_title_bar {
 	height:20px;
+	border-bottom:1px solid #DDDDDD;
+	padding-bottom:1px;
+	margin-bottom:1px;
 /*	border:1px solid red;*/
 }
 
