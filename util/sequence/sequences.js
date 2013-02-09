@@ -249,17 +249,29 @@ SequencePCR.prototype.clone = function () {
 	return ret ;
 }
 
+SequencePCR.prototype.addPrimer = function ( start , stop , is_rc ) {
+	var primer = {
+		from : start ,
+		to : stop ,
+		is_rc : is_rc
+	} ;
+	this.primers.push ( primer ) ;
+	gentle.showSequence ( gentle.current_sequence_entry ) ;
+}
 
-function SequencePCR ( name , seq, spectrum ) {
-	this.data_keys = ['desc','typeName','features','is_circular','settings'] ;
-	this.seq = seq ;
-	this.name = name ;
-	this.spectrum = spectrum ;
-	this.typeName = 'pcr' ;
-	this.features = new Array() ;
-	this.edit_allowed = [] ;
-	this.undo = new SequenceUndo ( this ) ;
+function SequencePCR ( name , seq , spectrum ) {
 	var me = this ;
+	me.data_keys = ['desc','typeName','features','is_circular','settings','primer_sequence_1','primer_sequence_2','primers'] ;
+	me.seq = seq ;
+	me.name = name ;
+	me.spectrum = spectrum ;
+	me.typeName = 'pcr' ;
+	me.features = new Array() ;
+	me.edit_allowed = [] ;
+	me.undo = new SequenceUndo ( me ) ;
+	me.primer_sequence_1 = (seq||'').replace(/./g,' ') ;
+	me.primer_sequence_2 = (seq||'').replace(/./g,' ') ;
+	me.primers = [] ;
 	$.each ( cd.bases2iupac , function ( k , v ) {
 		me.edit_allowed.push ( v ) ;
 	} ) ;

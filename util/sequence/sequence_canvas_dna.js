@@ -756,7 +756,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
 	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
 	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
-//	this.setContextMenuItem ( { id:'start_pcr' , items : [ { callback:function(sc){gentle.do_start_pcr()} , html:'Start PCR based on selected sequence' } ] } ) ;
+	if ( gentle_config.use_pcr_module ) this.setContextMenuItem ( { id:'start_pcr' , items : [ { callback:function(sc){gentle.do_start_pcr()} , html:'Start PCR based on selected sequence' } ] } ) ;
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
 		var ret = [] ;

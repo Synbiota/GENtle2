@@ -140,7 +140,22 @@ SequenceCanvasRowDNA.prototype.constructor = SequenceCanvasRowDNA ;
 
 SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
     var me = this ;
-	var s = this.sc.sequence.seq ;
+    
+    var is_primer = me.type.substr(0,6)=='primer' ;
+    var is_primer_rev = false ;
+    var primer_comp_seq ;
+    
+	var s = me.sc.sequence.seq ;
+	
+	if ( is_primer ) {
+		primer_comp_seq = s ;
+		if ( me.type == 'primer1' ) s = me.sc.sequence.primer_sequence_1 ;
+		else if ( me.type == 'primer2' ) {
+			s = me.sc.sequence.primer_sequence_2 ;
+			is_primer_rev = true ;
+		}
+	}
+	
 	this.targets = [] ;
 
 	var w = ctx.canvas.width ;
@@ -153,6 +168,9 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
     ctx.textAlign = "left";
     ctx.textBaseline = "top";
     
+	var show_numbering = me.is_primary ;
+	if ( is_primer && !is_rc ) show_numbering = true ;
+	
     this.start_base = undefined ;
     this.end_base = undefined ;
     
@@ -187,11 +205,12 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			continue ;
 		}
 
-		if ( x == this.sc.xoff && y > miny && me.is_primary ) {
+		if ( x == this.sc.xoff && y > miny && show_numbering ) {
+			var text = is_primer ? ( me.type=='primer1'?'P1':'P2' ) : (p+1)  ;
 			var ofs = ctx.fillStyle ;
 			ctx.fillStyle = gentle_config.colors.numbering ;
 		    ctx.textAlign = "right";
-			ctx.fillText ( (p+1) , this.sc.xoff-this.sc.cw , y ) ;
+			ctx.fillText ( text , this.sc.xoff-this.sc.cw , y ) ;
 		    ctx.textAlign = "left";
 		    ctx.fillStyle = ofs ;
 		}

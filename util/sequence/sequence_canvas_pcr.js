@@ -406,11 +406,11 @@ SequenceCanvasPCR.prototype.update_display = function () {
 	sc.update_display_res() ;
 	var show_numbering = $('#cb_display_numbering').is(':checked');
 	var show_annotation = $('#cb_display_annotation').is(':checked');
-	var show_blank = $('#cb_display_blank').is(':checked');
+	var show_blank = true;//$('#cb_display_blank').is(':checked');
 	var show_rc = $('#cb_display_rc').is(':checked');
 	var show_res = $('#show_res').is(':checked');
 	var do_recalc = false ;
-	
+
 	// Numbering
 	if ( show_numbering && sc.lines[0].type != 'position' ) {
 		sc.lines.splice ( 0 , 0 , new SequenceCanvasRowPosition ( sc ) ) ;
@@ -581,14 +581,15 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 	
 	var aa_settings = { m1 : 'none' , m2 : '1' , reverse : false } ;
 	$.each ( settings.lines , function ( k , v ) {
-		var is_primary = k == me.primary_line ? true : false ;
-		var l ;
+		var is_primary = v.type.substr(0,6)=='primer' ;
 		switch ( v.type ) {
 			case 'blank' : me.lines[k] = new SequenceCanvasRowBlank ( me , is_primary , v ) ; break ;
-			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
+//			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
+			case 'primer1' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer1' ; break ;
+			case 'primer2' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer2' ; break ;
 			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; break ;
 			case 'dna_rc' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'dna_rc' ; break ;
-			case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
+//			case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
 			case 'annotation' : me.lines[k] = new SequenceCanvasRowAnnotation ( me , is_primary , v ) ; break ;
 			case 'aa' : me.lines[k] = new SequenceCanvasRowAA ( me , is_primary , v ) ; aa_settings = v ; break ;
 			case 'res' : me.lines[k] = new SequenceCanvasRowRES ( me , is_primary , v ) ; break ;
@@ -596,9 +597,8 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 		} ;
 	} ) ;
 
+	var h = "PCR display settings TODO" ;
 
-	var h = "" ;
-	
 	h += "<table border=0 cellspacing=0 cellpadding=2 id='display_settings_table'>" ;
 	
 	h += "<tr><th>Rows</th><td colspan=2 nowrap>" ;
@@ -658,7 +658,7 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 	
 	$('#sb_display_options').html ( h ) ;
 	$('#sb_display_options').attr ( { title : 'Display options' } ) ;
-	
+
 	$('#sb_display_options input:radio[name=aa_display][value='+aa_settings.m1+']').attr('checked',true);
 	$('#sb_display_options input:radio[name=aa_rf][value='+aa_settings.m2+']').attr('checked',true);
 	if ( aa_settings.reverse ) $('#aa_reverse').attr('checked',true);
@@ -668,6 +668,7 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 	$('#sb_display_options input').change ( this.update_display ) ;
 	$('#re_maxcut').bind("input",this.update_display) ;
 	$('#re_manual').keyup(this.update_display) ;
+
 }
 
 SequenceCanvasPCR.prototype.getHoverName = function () {
@@ -688,7 +689,10 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 		lines:[
 			{type:"position"},
 			{type:"annotation"},
+			{type:"primer1"},
 			{type:"dna"},
+			{type:"dna_rc"},
+			{type:"primer2"},
 			{type:"blank"}
 		]
 	} ;
@@ -710,10 +714,10 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
-	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
+//	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
 	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
-	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
-	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
+//	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
+//	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
 	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {

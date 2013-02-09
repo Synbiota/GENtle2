@@ -865,33 +865,31 @@ window.zcol = colors;
 	do_start_pcr : function () {
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined === sc ) { console.log ( "No canvas" ) ; return ; }
-		
 		if ( undefined === sc.sequence ) { console.log ( "No sequence" ) ; return ; }
 		
-		// TODO paranoia
+		// TODO paranoia checks
 		
+		var template_sequence = sc.sequence ;
 		var start = sc.selections[0].from ;
 		var stop = sc.selections[0].to ;
 		
-		var ret = new SequencePCR ( sc.sequence.name , sc.sequence.seq.substr ( start , stop-start+1 ) ) ;
-		$.each ( (sc.sequence.features||[]) , function ( k , v ) {
-			if ( v['_range'].length == 0 ) return ;
-			if ( v['_range'][0].from > stop ) return ;
-			if ( v['_range'][v['_range'].length-1].to < start ) return ;
+		var pcr = new SequencePCR ( template_sequence.name , template_sequence.seq ) ;
+		pcr.is_circular = template_sequence.is_circular ;
+		$.each ( (template_sequence.features||[]) , function ( k , v ) {
 			var o = clone ( v ) ;
 			o['_range'] = [] ;
 			$.each ( v['_range'] , function ( k2 , v2 ) {
-				if ( v2.from > stop || v2.to < start ) return ;
-				var o2 = clone ( v2 ) ;
-				o2.from -= start ;
-				o2.to -= start ;
-				o['_range'].push ( o2 ) ;
+				o['_range'].push ( clone ( v2 ) ) ;
 			} ) ;
-			ret.features.push ( o ) ;
+			pcr.features.push ( o ) ;
 		} ) ;
-		ret.undo.setSequence ( ret ) ;
+		pcr.undo.setSequence ( pcr ) ;
+		
+		gentle.addSequence ( pcr , true ) ;
 
-		gentle.addSequence ( ret , true ) ;
+		pcr.addPrimer ( start , start+25 , false ) ;
+		pcr.addPrimer ( stop , stop-25 , true ) ;
+
 		return false ;
 	} ,
 	

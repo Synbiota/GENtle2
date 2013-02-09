@@ -518,5 +518,5 @@ SequenceCanvas.prototype.updateTitleBar = function () {
 	h += "<span class='label label-info'>" + name + "</span>&nbsp;" ;
 	h += "<span class='label'>" + addCommas ( me.sequence.seq.length ) + " bp</span>" ;
 	h = me.addTitleBarNavButtons ( h ) ;
-	$('#sequence_canvas_title_bar').html ( h ) ;
+	$('#sequence_canvas_title_bar').html(h).find('.label').css('font-weight','normal') ;
 }
