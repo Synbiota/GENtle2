@@ -141,6 +141,7 @@ SequenceCanvasRowDNA.prototype.constructor = SequenceCanvasRowDNA ;
 SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
     var me = this ;
     
+    var is_pcr_product = me.type == 'pcr_product' ;
     var is_primer = me.type.substr(0,6)=='primer' ;
     var is_primer_rev = false ;
     var primer_comp_seq ;
@@ -154,6 +155,9 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			s = me.sc.sequence.primer_sequence_2 ;
 			is_primer_rev = true ;
 		}
+//		console.log ( s ) ;
+	} else if ( is_pcr_product ) {
+		s = me.sc.sequence.pcr_product ;
 	}
 	
 	this.targets = [] ;
@@ -162,7 +166,9 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 	var h = ctx.canvas.height ;
 	
 	var is_rc = me.type == 'dna_rc' ? true : false ;
-	var fs = is_rc ? '#BBBBBB' : 'black' ;
+	var is_secondary = is_rc||(me.is_secondary||false) ;
+	var fs = is_secondary ? '#BBBBBB' : 'black' ;
+	if ( is_pcr_product ) fs = 'green' ;
     ctx.fillStyle = fs ;
     ctx.font="9pt Courier";
     ctx.textAlign = "left";
@@ -238,7 +244,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 					ctx.fillStyle = v.fcol ;
 					ctx.fillRect ( x-1 , y+2 , me.sc.cw+1 , me.sc.ch+1 );
 					ctx.fillStyle = v.tcol ;
-					if ( is_rc ) ctx.fillText ( cd.rc[s[p]] , x , y ) ;
+					if ( is_secondary ) ctx.fillText ( cd.rc[s[p]] , x , y ) ;
 					else ctx.fillText ( s[p] , x , y ) ;
 					ctx.fillStyle = fs;
 					do_write = false ;

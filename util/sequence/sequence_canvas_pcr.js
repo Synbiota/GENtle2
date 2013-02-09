@@ -587,7 +587,8 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 //			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
 			case 'primer1' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer1' ; break ;
 			case 'primer2' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer2' ; break ;
-			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; break ;
+			case 'pcr_product' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'pcr_product' ; break ;
+			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].is_secondary = true ; break ;
 			case 'dna_rc' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'dna_rc' ; break ;
 //			case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
 			case 'annotation' : me.lines[k] = new SequenceCanvasRowAnnotation ( me , is_primary , v ) ; break ;
@@ -683,6 +684,10 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	
 	this.fixMenus() ;
 	
+	$.each ( the_sequence.primers , function ( k , v ) {
+		the_sequence.writePrimer2sequence ( v ) ;
+	} ) ;
+	
 	var default_settings = {
 		auto : true ,
 		primary_line : 2 , 
@@ -693,6 +698,7 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 			{type:"dna"},
 			{type:"dna_rc"},
 			{type:"primer2"},
+			{type:"pcr_product"},
 			{type:"blank"}
 		]
 	} ;

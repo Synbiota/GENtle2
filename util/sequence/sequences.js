@@ -249,6 +249,22 @@ SequencePCR.prototype.clone = function () {
 	return ret ;
 }
 
+SequencePCR.prototype.updatePCRproduct = function () {
+	// TODO
+}
+
+SequencePCR.prototype.writePrimer2sequence = function ( primer ) {
+	var me = this ;
+	
+	if ( primer.is_rc ) {
+		me.primer_sequence_2 = me.primer_sequence_2.substr(0,primer.from) + rcSequence(me.seq.substr(primer.from,primer.to-primer.from+1)) + me.primer_sequence_2.substr(primer.to,me.primer_sequence_1.length) ;
+	} else {
+		me.primer_sequence_1 = me.primer_sequence_1.substr(0,primer.from) + me.seq.substr(primer.from,primer.to-primer.from+1) + me.primer_sequence_1.substr(primer.to,me.primer_sequence_1.length) ;
+	}
+
+	me.updatePCRproduct() ;
+}
+
 SequencePCR.prototype.addPrimer = function ( start , stop , is_rc ) {
 	var primer = {
 		from : start ,
@@ -256,6 +272,7 @@ SequencePCR.prototype.addPrimer = function ( start , stop , is_rc ) {
 		is_rc : is_rc
 	} ;
 	this.primers.push ( primer ) ;
+	this.writePrimer2sequence ( primer ) ;
 	gentle.showSequence ( gentle.current_sequence_entry ) ;
 }
 
@@ -271,6 +288,7 @@ function SequencePCR ( name , seq , spectrum ) {
 	me.undo = new SequenceUndo ( me ) ;
 	me.primer_sequence_1 = (seq||'').replace(/./g,' ') ;
 	me.primer_sequence_2 = (seq||'').replace(/./g,' ') ;
+	me.pcr_product = (seq||'').replace(/./g,' ') ;
 	me.primers = [] ;
 	$.each ( cd.bases2iupac , function ( k , v ) {
 		me.edit_allowed.push ( v ) ;
