@@ -46,7 +46,7 @@ function addCommas(nStr) {
 function rcSequence ( s ) {
 	var t = '' ;
 	for ( var i = 0 ; i < s.length ; i++ ) {
-		t = cd.rc[s[i]] + t ;
+		t = cd.rc[s.charAt(i)] + t ;
 	}
 	return t ;
 }

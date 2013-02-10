@@ -63,10 +63,15 @@ Sequence.prototype.getFeaturesInRange = function ( from , to ) {
 SequenceDNA.prototype = new Sequence() ;
 SequenceDNA.prototype.constructor = SequenceDNA ;
 
+SequenceDNA.prototype.getEditingSeq = function () { return this.seq ; }
+SequenceDNA.prototype.setEditingSeq = function (s) { this.seq = s ; }
+
 SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment ) {
 	var me = this ;
-	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : me.seq.substr ( base , len ) } ) ;
-	me.seq = me.seq.substr ( 0 , base ) + me.seq.substr ( base + len , me.seq.length - base - len ) ;
+	var editseq = me.getEditingSeq() ;
+	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : editseq.substr ( base , len ) } ) ;
+	editseq = editseq.substr ( 0 , base ) + editseq.substr ( base + len , editseq.length - base - len ) ;
+	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
@@ -86,7 +91,9 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 	var me = this ;
 	me.undo.addAction ( 'editInsert' , { label : 'typed ' + text , editing : true , action : 'insertText' , base : base , seq : text } ) ;
 	var l = text.length ;
-	me.seq = me.seq.substr ( 0 , base ) + text + me.seq.substr ( base , me.seq.length - base ) ;
+	var editseq = me.getEditingSeq() ;
+	editseq = editseq.substr ( 0 , base ) + text + editseq.substr ( base , editseq.length - base ) ;
+	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
@@ -191,7 +198,7 @@ function SequenceDesigner ( name , seq ) {
 
 //________________________________________________________________________________________
 // SequencePCR
-SequencePCR.prototype = new Sequence() ;
+SequencePCR.prototype = new SequenceDNA() ;
 SequencePCR.prototype.constructor = SequencePCR ;
 
 /*
@@ -215,26 +222,6 @@ SequencePCR.prototype.remove = function ( base , len , skip_feature_adjustment )
 }
 
 
-SequencePCR.prototype.SequencePCR = function ( start , stop ) {
-	var me = this ;
-	var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ;
-	$.each ( me.features , function ( k , v ) {
-		if ( v['_range'][0].from > stop ) return ;
-		if ( v['_range'][v['_range'].length-1].to < start ) return ;
-		var o = clone ( v ) ;
-		o['_range'] = [] ;
-		$.each ( v['_range'] , function ( k2 , v2 ) {
-			if ( v2.from > stop || v2.to < start ) return ;
-			var o2 = clone ( v2 ) ;
-			o2.from -= start ;
-			o2.to -= start ;
-			o['_range'].push ( o2 ) ;
-		} ) ;
-		ret.features.push ( o ) ;
-	} ) ;
-	ret.undo.setSequence ( ret ) ;
-	return ret ;
-}
 */
 SequencePCR.prototype.clone = function () {
 	var me = this ;
@@ -250,16 +237,41 @@ SequencePCR.prototype.clone = function () {
 }
 
 SequencePCR.prototype.updatePCRproduct = function () {
-	// TODO
+	var me = this ;
+	if ( undefined == me.seq ) return ;
+	var max_run_bp = me.seq.length ;
+	var start , stop ;
+	$.each ( me.primers , function ( k , p ) {
+		if ( p.is_rc ) {
+			if ( undefined === stop || stop > p.to ) stop = p.to ;
+		} else {
+			if ( undefined === start || start > p.from ) start = p.from ;
+		}
+	} ) ;
+	
+	me.pcr_product = (me.seq||'').replace(/./g,' ') ;
+	if ( undefined === start ) return ;
+	if ( undefined === stop ) return ;
+	if ( stop - start + 1 > max_run_bp ) return ;
+	
+	me.pcr_product = me.pcr_product.substr(0,start) + me.seq.substr(start,stop-start+1) + me.pcr_product.substr(stop) ; // TODO incorporate primers
+	$.each ( me.primers , function ( k , p ) {
+		if ( p.is_rc ) {
+		} else {
+		}
+	} ) ;
+	
 }
 
 SequencePCR.prototype.writePrimer2sequence = function ( primer ) {
 	var me = this ;
-	
+	var pf = primer.from ;
+	var pt = primer.to ;
+	var pl = pt - pf + 1 ;
 	if ( primer.is_rc ) {
-		me.primer_sequence_2 = me.primer_sequence_2.substr(0,primer.from) + rcSequence(me.seq.substr(primer.from,primer.to-primer.from+1)) + me.primer_sequence_2.substr(primer.to,me.primer_sequence_1.length) ;
+		me.primer_sequence_2 = me.primer_sequence_2.substr(0,pf) + rcSequence(me.seq.substr(pf,pl)).reverse() + me.primer_sequence_2.substr(pt+1) ;
 	} else {
-		me.primer_sequence_1 = me.primer_sequence_1.substr(0,primer.from) + me.seq.substr(primer.from,primer.to-primer.from+1) + me.primer_sequence_1.substr(primer.to,me.primer_sequence_1.length) ;
+		me.primer_sequence_1 = me.primer_sequence_1.substr(0,pf) + me.seq.substr(pf,pl) + me.primer_sequence_1.substr(pt+1) ;
 	}
 
 	me.updatePCRproduct() ;
@@ -274,6 +286,24 @@ SequencePCR.prototype.addPrimer = function ( start , stop , is_rc ) {
 	this.primers.push ( primer ) ;
 	this.writePrimer2sequence ( primer ) ;
 	gentle.showSequence ( gentle.current_sequence_entry ) ;
+}
+
+SequencePCR.prototype.getEditingSeq = function () {
+	if ( gentle.main_sequence_canvas.edit.editing ) {
+		var linetype = gentle.main_sequence_canvas.edit.line.type ;
+		if ( linetype == 'primer1' ) return this.primer_sequence_1 ;
+		if ( linetype == 'primer2' ) return this.primer_sequence_2 ;
+	}
+	return this.seq ;
+}
+
+SequencePCR.prototype.setEditingSeq = function (s) {
+	if ( gentle.main_sequence_canvas.edit.editing ) {
+		var linetype = gentle.main_sequence_canvas.edit.line.type ;
+		if ( linetype == 'primer1' ) this.primer_sequence_1 = s ;
+		else if ( linetype == 'primer2' ) this.primer_sequence_2 = s ;
+		else this.seq = s ;
+	} else this.seq = s ;
 }
 
 function SequencePCR ( name , seq , spectrum ) {
@@ -293,4 +323,5 @@ function SequencePCR ( name , seq , spectrum ) {
 	$.each ( cd.bases2iupac , function ( k , v ) {
 		me.edit_allowed.push ( v ) ;
 	} ) ;
+	me.updatePCRproduct() ;
 }

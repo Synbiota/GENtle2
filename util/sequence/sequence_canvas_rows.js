@@ -145,6 +145,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
     var is_primer = me.type.substr(0,6)=='primer' ;
     var is_primer_rev = false ;
     var primer_comp_seq ;
+    var static_label ;
     
 	var s = me.sc.sequence.seq ;
 	
@@ -155,15 +156,19 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			s = me.sc.sequence.primer_sequence_2 ;
 			is_primer_rev = true ;
 		}
-//		console.log ( s ) ;
+		static_label = me.type=='primer1'?'P1':'P2' ;
 	} else if ( is_pcr_product ) {
 		s = me.sc.sequence.pcr_product ;
+		static_label = '⇒' ;
 	}
 	
 	this.targets = [] ;
 
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
+	
+	var is_editing_this = me.sc.edit.editing && ( me.sc.edit.line.line_id == me.line_id ) ;
+
 	
 	var is_rc = me.type == 'dna_rc' ? true : false ;
 	var is_secondary = is_rc||(me.is_secondary||false) ;
@@ -176,6 +181,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
     
 	var show_numbering = me.is_primary ;
 	if ( is_primer && !is_rc ) show_numbering = true ;
+	if ( is_pcr_product ) show_numbering = true ;
 	
     this.start_base = undefined ;
     this.end_base = undefined ;
@@ -212,7 +218,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 		}
 
 		if ( x == this.sc.xoff && y > miny && show_numbering ) {
-			var text = is_primer ? ( me.type=='primer1'?'P1':'P2' ) : (p+1)  ;
+			var text = is_primer||is_pcr_product ? static_label : (p+1)  ;
 			var ofs = ctx.fillStyle ;
 			ctx.fillStyle = gentle_config.colors.numbering ;
 		    ctx.textAlign = "right";
@@ -225,7 +231,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			if ( this.start_base === undefined ) this.start_base = p ;
 			this.end_base = p ;
 			do_write = true ;
-			if ( this.is_primary && this.sc.edit.editing && this.sc.edit.base == p ) {
+			if ( is_editing_this && this.sc.edit.base == p ) {
 				ctx.fillRect ( x-1 , y+2 , this.sc.cw+1 , this.sc.ch+1 );
 				ctx.fillStyle = "white";
 				ctx.fillText ( s[p] , x , y ) ;

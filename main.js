@@ -13,7 +13,6 @@
 * plugins (plugins.js)
 */
 
-
 /**
 	gentle object containing core methods
 	@namespace
@@ -888,7 +887,7 @@ window.zcol = colors;
 		gentle.addSequence ( pcr , true ) ;
 
 		pcr.addPrimer ( start , start+25 , false ) ;
-		pcr.addPrimer ( stop , stop-25 , true ) ;
+		pcr.addPrimer ( stop-24 , stop , true ) ;
 
 		return false ;
 	} ,

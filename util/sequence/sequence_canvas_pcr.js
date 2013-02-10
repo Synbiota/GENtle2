@@ -319,6 +319,7 @@ SequenceCanvasPCR.prototype.recalc = function () {
 	$.each ( this.lines , function ( k , v ) {
 		v.init() ;
 	} ) ;
+	this.sequence.updatePCRproduct() ;
 }
 
 SequenceCanvasPCR.prototype.isOver = function ( x , y ) {
@@ -681,6 +682,7 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	this.tools = {} ;
 	this.type = 'pcr' ;
 	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
+	this.overwrite_only = true ;
 	
 	this.fixMenus() ;
 	
@@ -708,6 +710,7 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 		if ( undefined === settings[k] ) settings[k] = default_settings[k] ;
 	} ) ;
 	this.applySettings ( settings ) ;
+	the_sequence.updatePCRproduct() ;
 	
 	this.initSidebar() ;
 

@@ -285,6 +285,8 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	var sc = gentle.main_sequence_canvas ;
 	var code = (e.keyCode ? e.keyCode : e.which);
 //	console.log ( code + "/" + e.metaKey ) ;
+
+	var overwrite = sc.overwrite_only ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
 	
 	var metakey = sc.modifierCode ( e ) ;
 	if ( metakey !== 0 ) {
@@ -324,6 +326,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			sc.sequence.undo.cancelEditing() ;
 			e.preventDefault();
 			e.stopPropagation();
+			if ( overwrite ) return ;
 			sc.deleteSelection();
 		}
 		return ;
@@ -336,6 +339,9 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			alert ( c + " not allowed" ) ;
 			return false ;
 		}
+		if ( overwrite ) {
+			sc.sequence.remove ( sc.edit.base , 1 ) ;
+		}
 		sc.sequence.insert ( sc.edit.base , c ) ;
 		sc.edit.base++ ;
 		sc.recalc() ;
@@ -343,6 +349,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();
+		if ( overwrite ) return ;
 		if ( sc.edit.base == 0 ) return ;
 		sc.edit.base-- ;
 		sc.sequence.remove ( sc.edit.base , 1 ) ;
@@ -351,6 +358,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	} else if ( code == 46 ) { // Delete
 		e.preventDefault();
 		e.stopPropagation();
+		if ( overwrite ) return ;
 		if ( sc.edit.base == sc.sequence.seq.length ) return ;
 		sc.sequence.remove ( sc.edit.base , 1 ) ;
 		sc.recalc() ;
