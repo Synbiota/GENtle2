@@ -687,10 +687,6 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	
 	this.fixMenus() ;
 	
-	$.each ( the_sequence.primers , function ( k , v ) {
-		the_sequence.writePrimer2sequence ( v ) ;
-	} ) ;
-	
 	var default_settings = {
 		auto : true ,
 		primary_line : 2 , 
