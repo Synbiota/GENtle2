@@ -254,10 +254,12 @@ SequencePCR.prototype.updatePCRproduct = function () {
 	if ( undefined === stop ) return ;
 	if ( stop - start + 1 > max_run_bp ) return ;
 	
-	me.pcr_product = me.pcr_product.substr(0,start) + me.seq.substr(start,stop-start+1) + me.pcr_product.substr(stop) ; // TODO incorporate primers
+	me.pcr_product = me.pcr_product.substr(0,start) + me.seq.substr(start,stop-start+1) + me.pcr_product.substr(stop) ;
 	$.each ( me.primers , function ( k , p ) {
 		if ( p.is_rc ) {
+			me.pcr_product = me.pcr_product.substr(0,p.from) + rcSequence(me.primer_sequence_2.substr(p.from,p.to-p.from+1)).reverse() + me.pcr_product.substr(p.to+1) ;
 		} else {
+			me.pcr_product = me.pcr_product.substr(0,p.from) + me.primer_sequence_1.substr(p.from,p.to-p.from+1) + me.pcr_product.substr(p.to+1) ;
 		}
 	} ) ;
 	

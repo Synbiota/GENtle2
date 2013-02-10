@@ -150,14 +150,17 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 	var s = me.sc.sequence.seq ;
 	
 	if ( is_primer ) {
-		primer_comp_seq = s ;
-		if ( me.type == 'primer1' ) s = me.sc.sequence.primer_sequence_1 ;
-		else if ( me.type == 'primer2' ) {
+		if ( me.type == 'primer1' ) {
+			primer_comp_seq = s ;
+			s = me.sc.sequence.primer_sequence_1 ;
+		} else if ( me.type == 'primer2' ) {
+			primer_comp_seq = rcSequence(s).reverse() ;
 			s = me.sc.sequence.primer_sequence_2 ;
 			is_primer_rev = true ;
 		}
 		static_label = me.type=='primer1'?'P1':'P2' ;
 	} else if ( is_pcr_product ) {
+		primer_comp_seq = s ;
 		s = me.sc.sequence.pcr_product ;
 		static_label = '⇒' ;
 	}
@@ -258,8 +261,10 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 				} ) ;
 			}
 			if ( do_write ) {
+				if ( (is_primer||is_pcr_product) && primer_comp_seq[p] != s[p] ) ctx.fillStyle = 'red' ;
 				if ( is_rc ) ctx.fillText ( cd.rc[s[p]] , x , y ) ;
 				else ctx.fillText ( s[p] , x , y ) ;
+				if ( (is_primer||is_pcr_product) && primer_comp_seq[p] != s[p] ) ctx.fillStyle = fs ;
 			}
 			this.targets.push ( { left : x , top : y , right : x + this.sc.cw , bottom : y + this.sc.ch , base : p } ) ;
 		}

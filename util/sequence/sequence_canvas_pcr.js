@@ -176,6 +176,7 @@ SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 		$('#soft_keyboard').dialog ( 'close' ) ;
 		return ;
 	}
+	if ( target.line.is_secondary ) return ; // Do not edit secondary!
 	sc.edit = { line : target.line , base : target.base } ;
 	sc.setEditMode ( true ) ;
 	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
@@ -588,7 +589,7 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 //			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
 			case 'primer1' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer1' ; break ;
 			case 'primer2' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer2' ; break ;
-			case 'pcr_product' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'pcr_product' ; break ;
+			case 'pcr_product' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'pcr_product' ; me.lines[k].is_secondary = true ; break ;
 			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].is_secondary = true ; break ;
 			case 'dna_rc' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'dna_rc' ; break ;
 //			case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
