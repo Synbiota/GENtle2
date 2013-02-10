@@ -254,6 +254,9 @@ SequencePCR.prototype.updatePCRproduct = function () {
 	if ( undefined === stop ) return ;
 	if ( stop - start + 1 > max_run_bp ) return ;
 	
+	me.pcr_product_start = start ;
+	me.pcr_product_stop = stop ;
+	
 	me.pcr_product = me.pcr_product.substr(0,start) + me.seq.substr(start,stop-start+1) + me.pcr_product.substr(stop) ;
 	$.each ( me.primers , function ( k , p ) {
 		if ( p.is_rc ) {
@@ -325,5 +328,6 @@ function SequencePCR ( name , seq , spectrum ) {
 	$.each ( cd.bases2iupac , function ( k , v ) {
 		me.edit_allowed.push ( v ) ;
 	} ) ;
+	me.edit_allowed.push ( ' ' ) ;
 	me.updatePCRproduct() ;
 }

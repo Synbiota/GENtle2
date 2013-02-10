@@ -575,7 +575,7 @@ window.zcol = colors;
 		
 		gentle.sequences.splice ( entry , 1 ) ;
 		gentle.updateSequenceList() ;
-		
+
 		if ( gentle.sequences.length == 0 ) {
 			gentle.current_sequence_entry = undefined ;
 			gentle.clearLocalStorage () ;
@@ -590,9 +590,10 @@ window.zcol = colors;
 			gentle.showDefaultBlurb() ;
 			return ;
 		}
-		
-		if ( entry == gentle.current_sequence_entry ) gentle.current_sequence_entry = gentle.current_sequence_entry - 1 ;
-		else if ( entry < gentle.current_sequence_entry ) gentle.current_sequence_entry-- ;
+		if ( entry == gentle.current_sequence_entry ) {
+			gentle.current_sequence_entry = gentle.current_sequence_entry - 1 ;
+			gentle.main_sequence_canvas.invalidated = true ;
+		} else if ( entry < gentle.current_sequence_entry ) gentle.current_sequence_entry-- ;
 		if ( gentle.current_sequence_entry < 0 ) gentle.current_sequence_entry = 0 ;
 		gentle.showSequence ( gentle.current_sequence_entry ) ;
 	} ,
@@ -607,6 +608,7 @@ window.zcol = colors;
 	
 	updateCurrentSequenceSettings : function () {
 		if ( gentle.current_sequence_entry === undefined ) return ;
+		if ( gentle.main_sequence_canvas.invalidated ) return ;
 		gentle.sequences[gentle.current_sequence_entry].settings = gentle.main_sequence_canvas.getSettings() ;
 	//	console.log ( "STORING : " + JSON.stringify ( gentle.sequences[gentle.current_sequence_entry].settings ) ) ;
 	} ,
@@ -678,6 +680,7 @@ window.zcol = colors;
 		top_display.init() ;
 		
 		// Set up new sequence canvas
+
 		gentle.main_sequence_canvas = new SequenceCanvasDNA ( gentle.sequences[entry] , 'sequence_canvas' ) ;
 	
 	} ,

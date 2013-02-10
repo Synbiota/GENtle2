@@ -30,6 +30,11 @@ var plugins = {
 			sequence : {} ,
 			external : {}
 		} ,
+		pcr : {
+			file : {} ,
+			sequence : {} ,
+			external : {}
+		} ,
 		designer : {
 		}
 	} ,
