@@ -329,5 +329,6 @@ function SequencePCR ( name , seq , spectrum ) {
 		me.edit_allowed.push ( v ) ;
 	} ) ;
 	me.edit_allowed.push ( ' ' ) ;
+	me.edit_allowed.push ( '.' ) ;
 	me.updatePCRproduct() ;
 }

@@ -277,6 +277,8 @@ SequenceCanvas.prototype.keyhandler_up = function ( e ) {
 	sc.metakeys -= sc.modifierCode(e);
 }
 
+SequenceCanvas.prototype.specialKeyEvent = function ( eventName , base ) {} // Dummy for child classes
+
 SequenceCanvas.prototype.keyhandler = function ( e ) {
 	if ( e.target.localName == "input" || ( e.target.localName == "textarea" && 'tmp1' != $(e.target).attr('id') ) ) return true ; // Don't touch that
 //    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
@@ -332,9 +334,10 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		return ;
 	}
 	
+	var c = String.fromCharCode(code) ;
+	if ( code == 190 ) c = '.' ;
 
-	if ( code >= 65 && code <= 90 && !e.metaKey ) { // A-Z
-		var c = String.fromCharCode(code) ;
+	if ( sc.isCharAllowed ( c ) && !e.metaKey ) { // A-Z  code >= 65 && code <= 90
 		if ( !sc.isCharAllowed ( c ) ) {
 			alert ( c + " not allowed" ) ;
 			return false ;
@@ -344,23 +347,27 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		}
 		sc.sequence.insert ( sc.edit.base , c ) ;
 		sc.edit.base++ ;
+		sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();
-		if ( overwrite ) return ;
 		if ( sc.edit.base == 0 ) return ;
 		sc.edit.base-- ;
 		sc.sequence.remove ( sc.edit.base , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
+		sc.specialKeyEvent ( 'backspace' , sc.edit.base-1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
 	} else if ( code == 46 ) { // Delete
 		e.preventDefault();
 		e.stopPropagation();
-		if ( overwrite ) return ;
 		if ( sc.edit.base == sc.sequence.seq.length ) return ;
 		sc.sequence.remove ( sc.edit.base , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
+		sc.specialKeyEvent ( 'delete' , sc.edit.base ) ;
+		if ( overwrite ) sc.edit.base++ ;
 		sc.recalc() ;
 		top_display.init() ;
 	} else if ( code == 27 ) { // Escape

@@ -678,6 +678,33 @@ SequenceCanvasPCR.prototype.getHoverName = function () {
 	return ( this.sequence.name || '' ) ;
 }
 
+SequenceCanvasPCR.prototype.specialKeyEvent = function ( eventName , base ) {
+	var me = this ;
+	
+	if ( eventName == '.' ) {
+		if ( me.edit.line.type == 'primer1' ) {
+			me.sequence.primer_sequence_1 = me.sequence.primer_sequence_1.replaceAt ( base , me.sequence.seq[base] ) ;
+		} else {
+			me.sequence.primer_sequence_2 = me.sequence.primer_sequence_2.replaceAt ( base , rcSequence ( me.sequence.seq[base] ) ) ;
+		}
+	}
+	
+	$.each ( me.sequence.primers , function ( k , p ) {
+		if ( p.from > base + 1 ) return ;
+		if ( p.to < base - 1 ) return ;
+		if ( me.edit.line.type == 'primer1' && p.is_rc ) return ;
+		if ( me.edit.line.type == 'primer2' && !p.is_rc ) return ;
+		var s = String ( p.is_rc ? me.sequence.primer_sequence_2 : me.sequence.primer_sequence_1 ) ;
+		var middle = Math.floor ( ( p.to + p.from ) / 2 ) ;
+		var pos ;
+		for ( pos = middle ; pos > 0 && s[pos-1] != ' ' ; pos-- ) ;
+		p.from = pos ;
+		for ( pos = middle ; pos+1 < s.length && s[pos+1] != ' ' ; pos++ ) ;
+		p.to = pos ;
+		return false ;
+	} ) ;
+}
+
 function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;

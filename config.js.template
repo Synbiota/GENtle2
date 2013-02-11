@@ -24,7 +24,7 @@ var gentle_config = {
 		api_url : ''
 	} ,
 
-	use_pcr_module : false , // while testing
+	use_pcr_module : true ,
 	
 	proxy : './data/proxy.php'
 	
