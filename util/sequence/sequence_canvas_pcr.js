@@ -129,7 +129,7 @@ SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
 	sc.last_target = target ;
 	if ( sc.edit.editing ) return sc.absorb_event(e) ;
 	sc.selecting = true ;
-	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
+	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	sc.show() ;
 //	$('#sequence_canvas').click().focus();
 	return sc.absorb_event(e) ;
@@ -748,10 +748,10 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
 //	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
-	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
+//	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
 //	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
 //	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
-	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
+//	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
 		var ret = [] ;

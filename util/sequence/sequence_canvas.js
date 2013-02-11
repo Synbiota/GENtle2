@@ -48,6 +48,7 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 	h += '</ul></div>' ;
 	h += "</div>" ;
 	
+	var menu_item_count = 0 ;
 	var context_menu = $(h) ;
 	$.each ( me.selection_context_menu , function ( k , v ) {
 		var o = ( undefined !== v.items ) ? v.items : v.getItems ( me ) ;
@@ -57,10 +58,12 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 			li.find('a').html(v2.html) ;
 			if ( undefined !== v2.title ) li.find('a').attr('title',v2.title) ;
 			context_menu.find('ul').append(li) ;
+			menu_item_count++ ;
 		} ) ;
 	} ) ;
 	
 	$('#selection_context_marker').remove() ;
+	if ( menu_item_count == 0 ) return ;
 	$('#canvas_wrapper').prepend ( context_menu ) ;
 }
 
