@@ -36,6 +36,19 @@
 	cursor:default;
 }
 
+.designer_trash {
+	display:none;
+	margin-top:1px;
+	padding-left:3px;
+	padding-right:3px;
+	border:1px solid #EEEEEE;
+	-moz-border-radius:5px;
+	border-radius:5px;
+	height:34px;
+	cursor:default;
+	text-align:center;
+}
+
 .designer_row_feature_droppable_active {
 	border:1px solid gold;
 }

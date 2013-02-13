@@ -73,18 +73,30 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 	editseq = editseq.substr ( 0 , base ) + editseq.substr ( base + len , editseq.length - base - len ) ;
 	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
+	var keepfeat = [] ;
 	$.each ( me.features , function ( fid , f ) {
 		if ( undefined === f['_range'] ) return ;
+		var keep = [] ;
 		$.each ( f['_range'] , function ( k , v ) {
 			var ov = clone ( v ) ;
+			
+			if ( v.from >= base && v.to <= base + len ) {
+				// TODO : Undo
+				return ;
+			}
+
+
 			if ( v.from >= base ) v.from -= len ;
 			if ( v.to+1 >= base ) v.to -= len ;
 			if ( v.from != ov.from || v.to != ov.to ) {
 				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : fid , range_id : k } ) ;
 			}
-			// TODO : Remove element if non-existant
+			keep.push ( v ) ;
 		} ) ;
+		f['_range'] = keep ;
+		if ( keep.length > 0 ) keepfeat.push ( f ) ;
 	} ) ;
+	me.features = keepfeat ;
 }
 
 SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment ) {

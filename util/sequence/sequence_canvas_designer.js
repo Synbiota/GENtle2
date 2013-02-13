@@ -51,6 +51,10 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 		m2.push ( { start : v.stop+1 , stop : me.list.main[k+1].start-1 , type : 'space' } ) ;
 	} ) ;
 	if ( me.list.main[me.list.main.length-1].stop < sequence.seq.length-1 ) m2.push ( { start : me.list.main[me.list.main.length-1].stop+1 , stop : sequence.seq.length , type : 'space' } ) ;
+	
+	if ( is_primary ) m2.push ( { start : 1 , stop : sequence.seq.length , type : 'trash' } ) ;
+//	else m2.push ( { start : 1 , stop : sequence.seq.length , type : 'all' } ) ;
+	
 	me.list.main = m2 ;
 	
 	// Generate HTML
@@ -84,14 +88,21 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += "<div class='designer_row_feature_space" ;
 			if ( is_primary ) h += " designer_row_feature_droppable" ;
 			h += "' title='Un-annotated region, " + len + "'>" ;
-//			h += "DNA<br/>" + addCommas ( v.stop - v.start + 1 ) + "&nbsp;bp" ;
 			h += "&nbsp;<br/>&nbsp;" ;
+			h += "</div>" ;
+		} else if ( v.type == 'all' ) {
+			h += "<div class='designer_row_feature designer_row_feature_draggable designer_row_feature_cds ui-draggable' title='Drag entire construct'>" ;
+			h += "&Sigma;<br/>&nbsp;" ;
+			h += "</div>" ;
+		} else if ( v.type == 'trash' ) {
+			h += "<div class='designer_row_feature_droppable designer_trash' title='Trash'>" ;
+			h += "<b><i class='icon-trash' /></b><br/>Drop feature here to delete" ;
 			h += "</div>" ;
 		} else {
 			if ( is_primary ) h += " <div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + v.start + "'>&nbsp;<br/>&nbsp;</div>" ;
 			h += "<div class='designer_row_feature " ;
 			if ( is_primary ) h += "designer_row_feature_droppable" ;
-			else h += "designer_row_feature_draggable" ;
+			h += " designer_row_feature_draggable" ;
 			h += " designer_row_feature_" + v.type + "' title='" + cd.feature_types[v.type].name + "'" ;
 			if ( undefined !== v.featnum ) h += " seqnum='" + seqnum + "' featnum='" + v.featnum + "'" ;
 			h += ">" ;
@@ -184,17 +195,21 @@ SequenceCanvasDesigner.prototype.init = function () {
 		activate : function (event,ui) {
 			$('.designer_row_feature_droppable_space').css({display:'inline-block'}); // Not very elegant, but $(this) doesn't work...
 			$('.designer_row_feature_dummy').hide() ;
+			var source = ui.draggable ;
+			if ( source.hasClass('designer_row_feature_droppable') ) $('.designer_trash').css({display:'inline-block'}) ;
 		} ,
 		deactivate : function (event,ui) {
 			$('.designer_row_feature_dummy').show() ;
 			$('.designer_row_feature_droppable_active').removeClass('designer_row_feature_droppable_active');
 			$('.designer_row_feature_droppable_space').hide(); // Not very elegant, but $(this) doesn't work...
+			$('.designer_trash').hide() ;
 		} ,
 		drop : function ( event , ui ) {
 			var source = ui.draggable ;
 			var target = $(this) ;
 			var seqnum = source.attr('seqnum') ;
 			var featnum = source.attr('featnum') ;
+			$('.designer_trash').hide() ;
 			if ( undefined === seqnum || undefined === featnum ) return ; // Paranoia
 			if ( target.hasClass ( 'designer_row_feature_droppable_space' ) ) {
 				var next_base = target.attr('nextbase') ;
@@ -206,7 +221,15 @@ SequenceCanvasDesigner.prototype.init = function () {
 				me.sequence.insertSequenceDNA ( newseq , next_base ) ;
 				setTimeout ( function(){me.init()} , 1 ) ;
 			} else {
-				alert ( "Drop-to-merge function not yet implemented" ) ;
+				if ( target.hasClass('designer_trash') ) {
+					var oldfeat = gentle.sequences[seqnum].features[featnum] ;
+					var start = oldfeat['_range'][0].from ;
+					var stop = oldfeat['_range'][oldfeat['_range'].length-1].to ;
+					me.sequence.remove ( start , stop-start+1 ) ;
+					setTimeout ( function(){me.init()} , 1 ) ;
+				} else {
+					alert ( "Drop-to-merge function not yet implemented" ) ;
+				}
 			}
 		}
 	} ) ;
