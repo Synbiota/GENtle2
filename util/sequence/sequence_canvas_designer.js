@@ -53,7 +53,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	if ( me.list.main[me.list.main.length-1].stop < sequence.seq.length-1 ) m2.push ( { start : me.list.main[me.list.main.length-1].stop+1 , stop : sequence.seq.length , type : 'space' } ) ;
 	
 	if ( is_primary ) m2.push ( { start : 1 , stop : sequence.seq.length , type : 'trash' } ) ;
-//	else m2.push ( { start : 1 , stop : sequence.seq.length , type : 'all' } ) ;
+	else m2.push ( { start : 1 , stop : sequence.seq.length , type : 'all' } ) ;
 	
 	me.list.main = m2 ;
 	
@@ -91,8 +91,9 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += "&nbsp;<br/>&nbsp;" ;
 			h += "</div>" ;
 		} else if ( v.type == 'all' ) {
-			h += "<div class='designer_row_feature designer_row_feature_draggable designer_row_feature_cds ui-draggable' title='Drag entire construct'>" ;
-			h += "&Sigma;<br/>&nbsp;" ;
+			h += "<div class='designer_row_feature designer_row_feature_draggable designer_row_feature_all' title='Drag entire construct'" ;
+			h += " seqnum='" + seqnum + "'" ;
+			h += " nextbase='" + v.start + "'>Entire construct<br/>&Sigma;" ;
 			h += "</div>" ;
 		} else if ( v.type == 'trash' ) {
 			h += "<div class='designer_row_feature_droppable designer_trash' title='Trash'>" ;
@@ -210,15 +211,32 @@ SequenceCanvasDesigner.prototype.init = function () {
 			var seqnum = source.attr('seqnum') ;
 			var featnum = source.attr('featnum') ;
 			$('.designer_trash').hide() ;
-			if ( undefined === seqnum || undefined === featnum ) return ; // Paranoia
+			if ( undefined === seqnum ) return ; // Paranoia
 			if ( target.hasClass ( 'designer_row_feature_droppable_space' ) ) {
-				var next_base = target.attr('nextbase') ;
-				var oldfeat = gentle.sequences[seqnum].features[featnum] ;
-				var start = oldfeat['_range'][0].from ;
-				var stop = oldfeat['_range'][oldfeat['_range'].length-1].to ;
-				var newseq = gentle.sequences[seqnum].asNewSequenceDNA ( start , stop ) ;
-				if ( undefined === newseq ) return ; // Paranoia
-				me.sequence.insertSequenceDNA ( newseq , next_base ) ;
+
+				if ( source.hasClass('designer_row_feature_all') ) {
+					
+					var start = 0 ;
+					var stop = gentle.sequences[seqnum].seq.length ;
+					var newseq = gentle.sequences[seqnum].asNewSequenceDNA ( start , stop ) ;
+					if ( undefined === newseq ) return ; // Paranoia
+					me.sequence.insertSequenceDNA ( newseq , next_base ) ;
+					
+					
+				} else {
+			
+					if ( undefined === featnum ) return ;
+					var next_base = target.attr('nextbase') ;
+					var oldfeat = gentle.sequences[seqnum].features[featnum] ;
+					var start = oldfeat['_range'][0].from ;
+					var stop = oldfeat['_range'][oldfeat['_range'].length-1].to ;
+				
+				
+					var newseq = gentle.sequences[seqnum].asNewSequenceDNA ( start , stop ) ;
+					if ( undefined === newseq ) return ; // Paranoia
+					me.sequence.insertSequenceDNA ( newseq , next_base ) ;
+				}
+				
 				setTimeout ( function(){me.init()} , 1 ) ;
 			} else {
 				if ( target.hasClass('designer_trash') ) {

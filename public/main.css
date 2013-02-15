@@ -74,6 +74,12 @@
 	cursor:default;
 }
 
+.designer_row_feature_all {
+	height:34px;
+	background-color:#2966B8;
+	color:white;
+}
+
 .designer_row_feature_cds {
 	height:34px;
 	background-color:#FF4848;
