@@ -705,6 +705,68 @@ SequenceCanvasPCR.prototype.specialKeyEvent = function ( eventName , base ) {
 	} ) ;
 }
 
+SequenceCanvasPCR.prototype.onPrimerSelect = function ( pid ) {
+	var me = this ;
+	me.selectedPrimer = pid ;
+	me.updateMainDialog () ;
+
+	var target = {
+		from : me.sequence.primers[pid].from , 
+		to : me.sequence.primers[pid].to ,
+		line : me.sequence.primers[pid].is_rc ? me.lines[5] : me.lines[2]
+	} ;
+	$('#selection_context_marker').remove() ;
+//	me.last_target = target ;
+	if ( me.edit.editing ) return me.absorb_event(e) ;
+	me.selections = [ { from : target.from , to : target.to , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
+	me.show() ;
+	me.ensureBaseIsVisible ( target.to ) ;
+	me.ensureBaseIsVisible ( target.from ) ;
+//	me.select ( me.sequence.primers[pid].from , me.sequence.primers[pid].to ) ;
+}
+
+SequenceCanvasPCR.prototype.updateMainDialog = function () {
+	var me = this ;
+	var h = '' ;
+	
+	h += "<table class='table cable-condensed'>" ;
+	h += "<thead><tr><th/><th>Start</th><th>End</th><th>Length</th><th>Direction</th></tr></thead>" ;
+	h += "<tbody>" ;
+	$.each ( me.sequence.primers , function ( k , p ) {
+		h += "<tr onclick='gentle.main_sequence_canvas.onPrimerSelect(" + k + ");return false'>" ;
+		h += "<td>" + (k==me.selectedPrimer?"&Rarr;":"&nbsp;") + "</td>" ;
+		h += "<td>" + p.from + "</td>" ;
+		h += "<td>" + p.to + "</td>" ;
+		h += "<td>" + (p.to-p.from+1) + "</td>" ;
+		h += "<td style='text-align:center'>" + (p.is_rc?"&larr;":"&rarr;") + "</td>" ;
+		h += "</tr>" ;
+	} ) ;
+	h += "</tbody>" ;
+	h += "</table>" ;
+	
+	$('#pcr_main_dialog').html ( h ) ;
+	$('#pcr_main_dialog').dialog ( { position : { my: "right", at: "right", of: window } } ) ;
+}
+
+SequenceCanvasPCR.prototype.showMainDialog = function () {
+	var me = this ;
+	me.selectedPrimer = -1 ;
+	$('#pcr_main_dialog_container').remove() ;
+	var dialogContainer = $("<div id='pcr_main_dialog_container'></div>");
+	$(dialogContainer).load('public/templates/pcr_main_dialog.html', function(){
+		dialogContainer.appendTo("#all");
+		$('#pcr_main_dialog').dialog ( {
+			modal:false , 
+			width:'auto' , 
+			maxWidth:1200 , 
+			closeOnEscape : false ,
+			position : { my: "right", at: "right", of: window } ,
+			height:'auto'
+		});
+		me.updateMainDialog() ;
+	} ) ;
+}
+
 function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
@@ -752,6 +814,8 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 //	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
 //	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
 //	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
+
+	this.showMainDialog() ;
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
 		var ret = [] ;

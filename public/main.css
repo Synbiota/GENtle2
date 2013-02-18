@@ -533,6 +533,24 @@ label {
 }
 */
 
+#pcr_main_dialog {
+	font-size:9pt;
+}
+
+#pcr_main_dialog tbody tr {
+	cursor:arrow;
+}
+
+#pcr_main_dialog tbody tr:hover {
+	background-color:#DDDDDD;
+}
+
+#pcr_main_dialog tbody td {
+	font-family:Arial;
+	font-size:9pt;
+	text-align:right;
+}
+
 /* For help.html */
 pre.jscode {
 	border:3px dotted #AAAAAA;
