@@ -686,9 +686,10 @@ SequenceCanvasRowAnnotation.prototype.onHover = function ( target ) {
 	$('#annot_hover').attr ( 'base' , target.base ) ;
 	$('#annot_hover').popover ( {
 		placement : placement ,
-		title : title ,
+		title : "<div style='color:black'>" + title + "</div>" ,
+		html : true ,
 		animation : false ,
-		content : content
+		content : "<div style='color:black'>" + content + "</div>"
 	} ) ;
 	$('#annot_hover').popover ( 'show' ) ;
 }
