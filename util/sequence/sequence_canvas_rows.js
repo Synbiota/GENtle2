@@ -170,7 +170,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
 	
-	var is_editing_this = me.sc.edit.editing && ( me.sc.edit.line.line_id == me.line_id ) ;
+	var is_editing_this = me.sc.edit.editing && ( me.sc.edit.line === undefined || ( me.sc.edit.line !== undefined && me.sc.edit.line.line_id == me.line_id ) ) ;
 
 	
 	var is_rc = me.type == 'dna_rc' ? true : false ;
