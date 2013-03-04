@@ -815,6 +815,56 @@ SequenceCanvasRowAA.prototype.show = function ( ctx ) {
 	}
 }
 
+SequenceCanvasRowAA.prototype.calculateByAnnotation = function () {
+	var me = this ;
+	var sl = me.sc.sequence.seq.length ;
+	var single_base = ( me.m1 == 'one' ) ;
+	me.seq = [] ;
+	while ( me.seq.length < sl ) me.seq.push ( ' ' ) ;
+	$.each ( me.sc.sequence.features||[] , function ( k , v ) {
+		if ( (v['_type']||'') != 'CDS' ) return ;
+		var rc = false ;
+		var pos = [] ;
+		$.each ( v['_range']||[] , function ( k2 , v2 ) {
+			if ( undefined !== v2.rc ) rc = v2.rc ;
+			var from = v2.from ;
+			var to = v2.to ;
+			if ( undefined === from || undefined === to ) return ;
+			if ( to < from ) { var x = from ; from = to ; to = x ; }
+			for ( var p = from ; p <= to ; p++ ) {
+				pos.push ( p ) ;
+			}
+		} ) ;
+
+		if ( rc ) pos = pos.sort ( function(a,b) { return b-a } ) ;
+		else pos = pos.sort ( function(a,b) { return a-b } ) ;
+		
+		if ( v.codon_start !== undefined ) {
+			var codon_start = v.codon_start * 1 - 1 ;
+			while ( codon_start-- > 0 ) pos.shift() ;
+		}
+		
+		var s = '' ;
+		var disp_pos = [] ;
+		$.each ( pos , function ( k2 , v2 ) {
+			disp_pos.push ( v2-1 ) ;
+			s += rc ? cd.rc[me.sc.sequence.seq[v2-1]] : me.sc.sequence.seq[v2-1] ;
+			if ( s.length < 3 ) return ;
+			var aa ;
+			if ( undefined === cd.aa_c2s[s] ) {
+				aa = single_base ? '?  ' : '???' ;
+			} else {
+				aa = single_base ? cd.aa_c2s[s] + '  ' : cd.aa_s2l[cd.aa_c2s[s]] ;
+			}
+			if ( disp_pos[0] > disp_pos[2] ) { var x = disp_pos[0] ; disp_pos[0] = disp_pos[2] ; disp_pos[2] = x ; }
+			for ( var p = 0 ; p < 3 ; p++ ) me.seq[disp_pos[p]] = aa[p] ;
+			disp_pos = [] ;
+			s = '' ;
+		} ) ;
+	} ) ;
+	me.seq = me.seq.join ( '' ) ;
+}
+
 SequenceCanvasRowAA.prototype.init = function () {
 	var me = this ;
 	me.seq = '' ;
@@ -832,8 +882,8 @@ SequenceCanvasRowAA.prototype.init = function () {
 			if ( undefined === cd.aa_c2s[s] ) me.seq += '?' ;
 			else me.seq += cd.aa_c2s[s] ;
 		}
-	} else if ( me.m2 == 'auto' ) { // No radio button yet!
-		// TODO (this is a big one!)
+	} else if ( me.m2 == 'auto' ) {
+		me.calculateByAnnotation() ;
 	} else {
 		for ( var i = 1 ; i < me.m2*1 ; i++ ) me.seq += ' ' ;
 		for ( var p = me.m2*1-1 ; p+2 < me.sc.sequence.seq.length ; p += 3 ) {

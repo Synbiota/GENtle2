@@ -661,6 +661,7 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	h += "<input type='radio' name='aa_rf' value='1' id='aa_rf_1' /><label class='btn first-btn' for='aa_rf_1'>1</label> " ;
 	h += "<input type='radio' name='aa_rf' value='2' id='aa_rf_2' /><label class='btn' for='aa_rf_2'>2</label> " ;
 	h += "<input type='radio' name='aa_rf' value='3' id='aa_rf_3' /><label class='btn' for='aa_rf_3'>3</label> " ;
+	h += "<input type='radio' name='aa_rf' value='auto' id='aa_rf_auto' /><label class='btn' for='aa_rf_auto'>Auto</label> " ;
 	h += "<input type='checkbox' id='aa_reverse' /><label class='btn first-btn' for='aa_reverse'>reverse</label>" ;
 	h += "</div></td></tr>" ;
 
@@ -729,6 +730,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			{type:"position"},
 			{type:"annotation"},
 			{type:"dna"},
+			{type:"aa",m1 : 'three' , m2 : 'auto' , reverse : false},
 			{type:"spectrum"},
 			{type:"blank"}
 		]
