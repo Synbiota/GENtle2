@@ -931,6 +931,19 @@ window.zcol = colors;
 		} ) ;
 	} ,
 	
+	plasmidMap : function ( show ) {
+		if ( show ) {
+			$('#plasmid_map_icon').remove() ;
+			gentle.main_sequence_canvas.plasmid_map = new PlasmidMapDialog () ;
+		} else {
+			$("#plasmid_map_dialog").remove() ;
+			gentle.main_sequence_canvas.plasmid_map = undefined ;
+			if ( gentle.main_sequence_canvas.sequence.is_circular ) {
+				$('#toolbar-right').append ( '<li title="Plasmid map" id="plasmid_map_icon"><a href="#" onclick="gentle.plasmidMap(true);return false" class="btn-inverse"><i id="right_sidebar_icon" class="icon-time icon-white"></i></a></li>' ) ;
+			}
+		}
+	} ,
+	
 	on_resize_event : function () {
 		gentle.main_sequence_canvas.resizeCanvas() ;
 	}

@@ -719,7 +719,8 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
 	this.type = 'dna' ;
-	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
+	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' , 'show_plasmid_map' ] ;
+	if ( this.show_plasmid_map === undefined ) this.show_plasmid_map = true ;
 	
 	this.fixMenus() ;
 	
@@ -788,4 +789,10 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	}
 	
 	gentle.set_hover ( '' ) ; // this.getHoverName()
+	
+	if ( this.show_plasmid_map && gentle.main_sequence_canvas.sequence.is_circular ) {
+		gentle.plasmidMap ( true ) ;
+	} else {
+		gentle.plasmidMap ( false ) ;
+	}
 }
