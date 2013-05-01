@@ -65,6 +65,11 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	linegraph.draw(context);
 }
 
+PlasmidMapDialog.prototype.exportToPNG = function(){
+	var canvas = document.getElementById("plasmid_map_canvas") ;
+	var d = canvas.toDataURL("image/png") ;
+	window.open('about:blank','image from canvas').document.write("<img src='"+d+"'alt='Plasmid Map'  download='plasmid.png' />");
+}
 
 function PlasmidMap(dna,res){
 	this.dna = dna;
