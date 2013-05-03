@@ -63,6 +63,13 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	//draw angular graph
 	var linegraph = new RadialLineGraph(0,0,100,50,self.somePlasmid.gcat_ratio,'blue');
 	linegraph.draw(context);
+
+	// highlight current selection
+	var from = gentle.main_sequence_canvas.start_base * Math.PI * 2 / len;
+	var to = gentle.main_sequence_canvas.end_base * Math.PI * 2 / len;
+	var  currentSelection = new WasherSegment(0,0,10,200,from,to,'rgba(100,100,100,0.25)', 'rgba(0,0,0,0)',false);
+	currentSelection.draw(context);
+
 }
 
 PlasmidMapDialog.prototype.exportToPNG = function(){
