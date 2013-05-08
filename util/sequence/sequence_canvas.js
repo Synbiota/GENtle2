@@ -225,6 +225,7 @@ SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
 	sc.edit.base += pastedText.length ;
 	sc.recalc() ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	sc.ensureBaseIsVisible ( sc.edit.base ) ;
 	
 	return false; // Prevent the default handler from running.
@@ -237,6 +238,7 @@ SequenceCanvas.prototype.deleteSelection = function () {
 	sc.sequence.remove ( sel.from , sel.to - sel.from + 1 ) ;
 	sc.recalc() ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	sc.ensureBaseIsVisible ( sel.from ) ;
 	sc.deselect() ;
 }
@@ -353,6 +355,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();
@@ -363,6 +366,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.specialKeyEvent ( 'backspace' , sc.edit.base-1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	} else if ( code == 46 ) { // Delete
 		e.preventDefault();
 		e.stopPropagation();
@@ -373,6 +377,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		if ( overwrite ) sc.edit.base++ ;
 		sc.recalc() ;
 		top_display.init() ;
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	} else if ( code == 27 ) { // Escape
 		sc.sequence.undo.cancelEditing() ;
 		sc.setEditMode ( false ) ;

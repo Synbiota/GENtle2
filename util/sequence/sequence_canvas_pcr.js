@@ -35,6 +35,7 @@ SequenceCanvasPCR.prototype.cut_copy = function ( do_cut ) {
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	return s ;
 }
 
@@ -389,6 +390,7 @@ SequenceCanvasPCR.prototype.show = function () {
 	if ( $('#main_slider').height() != pixel_height ) $('#main_slider').height ( pixel_height ) ;
 	
 	top_display.update_marker() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateSelection() ; }
 
 	var unixtime_ms2 = new Date().getTime();
 //	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;

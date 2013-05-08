@@ -25,6 +25,8 @@ PlasmidMapDialog.prototype.initMap = function () {
 	var self = this ;
 	var sc = gentle.main_sequence_canvas ;
 
+	self.mouseTool = {};
+
 	var canvas = $('#plasmid_map_canvas').get(0) ;
 	self.context = canvas.getContext('2d');
 	self.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
@@ -52,7 +54,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	//init segments for annotation
 	for (var i = 0; i < self.annotations.length; i++){
 		var ann = self.annotations[i];
-		ann.canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
+		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
 	}
 
 	//init gcat angular graph
@@ -91,14 +93,28 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	//re-init segments for annotation
 	for (var i = 0; i < self.annotations.length; i++){
 		var ann = self.annotations[i];
-		ann.canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
+		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
 	}
 
-	//init gcat angular graph
+	//re-init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
 	self.linegraph = new RadialLineGraph(0,0,100,50,self.somePlasmid.gcat_ratio,'blue');
 
-	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
+	//update selection marker
+	this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
+	this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
+
+	self.drawMap();
+}
+
+PlasmidMapDialog.prototype.updateSelection = function () {
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
+	// display current selection
+	this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
+	this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
+
+	this.drawMap();
 }
 
 PlasmidMapDialog.prototype.drawMap = function () {
@@ -137,19 +153,30 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 	var mousePoint = { 	x:ev.pageX - parseInt($('#plasmid_map_canvas').offset().left,10) - 250 ,
 						y:ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10) - 250} ;
 
-	console.log(pmd.currentSelection.pointWithin(mousePoint));
-	if ( pmd.currentSelection.pointWithin(mousePoint) ) {
-		if ( ! pmd.currentSelection.highlight ) {
-			pmd.currentSelection.setHighLight(true, '#FFFF00', '#00FFFF');
-			console.log(pmd.currentSelection)
-			pmd.drawMap();
+	if (ev.type == "mousemove"){
+		if ( pmd.currentSelection.pointWithin(mousePoint) ) {
+			if ( ! pmd.currentSelection.highlight ) {
+				pmd.currentSelection.setHighLight(true, '#FFFF00', '#00FFFF');
+				console.log(pmd.currentSelection)
+				pmd.drawMap();
+			}
+		} else {
+			if ( pmd.currentSelection.highlight ) {
+				pmd.currentSelection.setHighLight(false);
+				pmd.drawMap();
+			}
 		}
-	} else {
-		if ( pmd.currentSelection.highlight ) {
-			pmd.currentSelection.setHighLight(false);
-			pmd.drawMap();
-		}
+	} else if (ev.type == "mousedown"){
+		pmd.currentSelection.setHighLight(true, '#FF0000', '#00FFFF');
+		pmd.drawMap();
+		console.log("mousedown");
+	} else if (ev.type == "mouseup"){
+		pmd.currentSelection.setHighLight(false);
+		console.log("mouseup");
+		pmd.drawMap();
 	}
+
+
 	return pmd.absorb_event(ev);
 }
 

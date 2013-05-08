@@ -92,6 +92,8 @@ PluginPrependAppendSequence.prototype.insertSequence = function () {
 
 	me.sc.recalc() ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+
 	me.sc.ensureBaseIsVisible ( pos ) ;
 	me.sc.show() ;
 }
