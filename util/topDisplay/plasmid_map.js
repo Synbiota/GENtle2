@@ -26,6 +26,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	var sc = gentle.main_sequence_canvas ;
 
 	self.mouseTool = {};
+	self.mouseTool.drag = false;
 
 	var canvas = $('#plasmid_map_canvas').get(0) ;
 	self.context = canvas.getContext('2d');
@@ -35,6 +36,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	self.context.translate(canvas.width/2, canvas.height/2);
 	
 	var len = sc.sequence.seq.length ;
+	self.seqLength = len;
 	self.annotations = [] ;
 	$.each ( sc.sequence.features , function ( k , v ) {
 		if ( v['_type'] == 'source' ) return ;
@@ -64,7 +66,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	// display current selection
 	var from = sc.start_base * Math.PI * 2 / len;
 	var to = sc.end_base * Math.PI * 2 / len;
-	self.currentSelection = new WasherSegment(0,0,10,200,from,to,'rgba(100,100,100,0.25)', 'rgba(0,0,0,0)',false);
+	self.currentSelection = new WasherSegment(0,0,10,200,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 
 	self.drawMap();
 }
@@ -74,6 +76,7 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	var sc = gentle.main_sequence_canvas ;
 
 	var len = sc.sequence.seq.length ;
+	self.seqLength = len;
 	self.annotations = [] ;
 	$.each ( sc.sequence.features , function ( k , v ) {
 		if ( v['_type'] == 'source' ) return ;
@@ -108,13 +111,15 @@ PlasmidMapDialog.prototype.updateMap = function () {
 }
 
 PlasmidMapDialog.prototype.updateSelection = function () {
-	var sc = gentle.main_sequence_canvas ;
-	var len = sc.sequence.seq.length ;
-	// display current selection
-	this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
-	this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
+	if (! this.mouseTool.dragSelector){
+		var sc = gentle.main_sequence_canvas ;
+		var len = sc.sequence.seq.length ;
+		// display current selection
+		this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
+		this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
 
-	this.drawMap();
+		this.drawMap();
+	}
 }
 
 PlasmidMapDialog.prototype.drawMap = function () {
@@ -123,6 +128,9 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	//clear canvas set bg colour to white
 	self.context.fillStyle = 'white' ;
 	self.context.fillRect (-250, -250, 500, 500);
+
+	//draw the current selection marker first
+	self.currentSelection.draw(self.context);
 
 	//draw a circle to represent our plasmid...
 	self.context.beginPath();
@@ -139,9 +147,8 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	}
 
 	self.linegraph.draw(self.context);
-	self.currentSelection.draw(self.context);
-}
 
+}
 
 PlasmidMapDialog.prototype.exportToPNG = function(){
 	var canvas = document.getElementById("plasmid_map_canvas") ;
@@ -149,31 +156,55 @@ PlasmidMapDialog.prototype.exportToPNG = function(){
 	window.open('about:blank','image from canvas').document.write("<img src='"+d+"'alt='Plasmid Map'  download='plasmid.png' />");
 }
 
+PlasmidMapDialog.prototype.angleToBase = function (angle) {
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
+
+	return Math.floor(angle * len / ( Math.PI * 2 )); 
+}
+
+
 PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 	var mousePoint = { 	x:ev.pageX - parseInt($('#plasmid_map_canvas').offset().left,10) - 250 ,
 						y:ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10) - 250} ;
 
 	if (ev.type == "mousemove"){
-		if ( pmd.currentSelection.pointWithin(mousePoint) ) {
-			if ( ! pmd.currentSelection.highlight ) {
-				pmd.currentSelection.setHighLight(true, '#FFFF00', '#00FFFF');
-				console.log(pmd.currentSelection)
+		if (pmd.mouseTool.dragSelector){
+				var angleChanged = normaliseAngle(Math.atan2(mousePoint.y,mousePoint.x)) - normaliseAngle(pmd.mouseTool.dragMouseStartAngle); 
+				pmd.currentSelection.startAngle = pmd.mouseTool.dragStartBaseStartAngle + angleChanged;
+				pmd.currentSelection.endAngle =  pmd.mouseTool.dragStartBaseEndAngle + angleChanged;
+				if (pmd.currentSelection.startAngle < 0){
+					pmd.currentSelection.endAngle = pmd.mouseTool.dragStartBaseEndAngle - pmd.mouseTool.dragStartBaseStartAngle;
+					pmd.currentSelection.startAngle = 0;
+
+				} else if (pmd.currentSelection.endAngle > 2*Math.PI){
+					pmd.currentSelection.startAngle = 2*Math.PI + pmd.mouseTool.dragStartBaseStartAngle - pmd.mouseTool.dragStartBaseEndAngle;
+					pmd.currentSelection.endAngle = 2*Math.PI;
+				}
 				pmd.drawMap();
-			}
-		} else {
-			if ( pmd.currentSelection.highlight ) {
-				pmd.currentSelection.setHighLight(false);
-				pmd.drawMap();
-			}
+				var start = pmd.angleToBase(pmd.currentSelection.startAngle);
+				var stop = start + ( gentle.main_sequence_canvas.end_base - gentle.main_sequence_canvas.start_base ) ;
+				gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
+				gentle.main_sequence_canvas.ensureBaseIsVisible (  stop) ;
 		}
 	} else if (ev.type == "mousedown"){
-		pmd.currentSelection.setHighLight(true, '#FF0000', '#00FFFF');
-		pmd.drawMap();
-		console.log("mousedown");
+		if ( pmd.currentSelection.pointWithin(mousePoint) ) {
+			pmd.currentSelection.setHighLight(true, 'rgba(255,255,50,.5)');
+			pmd.drawMap();
+
+			pmd.mouseTool.dragSelector = true;
+			pmd.mouseTool.dragMouseStartAngle = Math.atan2(mousePoint.y,mousePoint.x);
+			pmd.mouseTool.dragStartBaseStartAngle = pmd.currentSelection.startAngle;
+			pmd.mouseTool.dragStartBaseEndAngle = pmd.currentSelection.endAngle;
+		} 
 	} else if (ev.type == "mouseup"){
-		pmd.currentSelection.setHighLight(false);
-		console.log("mouseup");
-		pmd.drawMap();
+
+		if ( pmd.mouseTool.dragSelector ) {
+				pmd.currentSelection.setHighLight(false);
+				pmd.drawMap();
+
+				pmd.mouseTool.dragSelector = false;
+		} 
 	}
 
 
