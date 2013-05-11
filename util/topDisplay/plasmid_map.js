@@ -124,10 +124,36 @@ PlasmidMapDialog.prototype.updateSelection = function () {
 
 PlasmidMapDialog.prototype.drawMap = function () {
 	var self = this;
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
 
 	//clear canvas set bg colour to white
 	self.context.fillStyle = 'white' ;
 	self.context.fillRect (-250, -250, 500, 500);
+
+	//draw line numbers
+	var lineNumberIncrement = 1000 ; 
+	var angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ;
+	var r = 175;
+	var R = 250;
+	var textX = 220;
+	var textY = 10;
+
+	self.context.save() ;
+	self.strokeStyle = '#000' ; 
+	self.context.fillStyle = "#000";
+	self.context.lineWidth = 1 ;
+	self.context.font = "10px Arial";
+
+	for ( var i = 0; i < len/lineNumberIncrement; i++){
+		self.context.beginPath()
+		self.context.moveTo(r,0);
+		self.context.lineTo(R,0);
+		self.context.stroke();
+		self.context.fillText(i*lineNumberIncrement, textX, textY);
+		self.context.rotate(angleIncrement);
+	}
+	self.context.restore() ;
 
 	//draw the current selection marker first
 	self.currentSelection.draw(self.context);
