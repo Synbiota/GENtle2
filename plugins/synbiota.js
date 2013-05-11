@@ -11,7 +11,7 @@ var bugmuncher_options = {
 }
 
 var synbiota_data = {} ;
-
+console.log("synbiota.js processing")
 synbiota.prototype = new Plugin() ;
 synbiota.prototype.constructor = synbiota ;
 
@@ -19,6 +19,7 @@ synbiota.prototype.saveToSynbiota = function () {
 	// Init
 	var me = this ;
 	var sc = this.getCurrentSequenceCanvas() ;
+	console.log("sc: " + sc);
 	if ( sc === undefined ) return ; // Paranoia
 	if ( sc.sequence.synbiota === undefined ) sc.sequence.synbiota = {
 		project_id : synbiota_data.project_id ,
@@ -28,10 +29,12 @@ synbiota.prototype.saveToSynbiota = function () {
 	
 	var file = new FT_sybil();
 	var sybil = file.getExportString ( sc.sequence ) ;
-	
+	var use_put = false;
+
 	if ( sc.sequence.synbiota.sequence_id > -1 ) {
 		console.log ( "UPDATE" ) ;
 		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + sc.sequence.synbiota.project_id + '/gentle_files/' + sc.sequence.synbiota.sequence_id ;
+		
 		var params = {
 			token : synbiota_data.token ,
 			id : sc.sequence.synbiota.sequence_id ,
@@ -39,8 +42,10 @@ synbiota.prototype.saveToSynbiota = function () {
 			'gentle_file[kind]' : sc.sequence.synbiota.kind ,
 			'gentle_file[description]' : ( sc.sequence.desc || '' ) ,
 			'gentle_file[sybil]' : sybil ,
-			'use_put' : 1
+			
 		}
+
+		use_put = true;
 
 	} else {
 		console.log ( "SAVE" ) ;
@@ -53,18 +58,30 @@ synbiota.prototype.saveToSynbiota = function () {
 			'gentle_file[sybil]' : sybil
 		} ;
 		if ( sc.sequence.synbiota.sequence_id > -1 ) params.id = sc.sequence.synbiota.sequence_id ;
+		use_put = false;
 	}
 	
-	if ( synbiota_data.use_proxy ) {
+	/*if ( synbiota_data.use_proxy ) {
 		params.url = url ;
 		url = './data/synbiota_proxy.php' ;
-	}
+	}*/
 	
+	$.ajax({
+		url: url,
+		data: params,
+		type: "PUT",
+		datatype: "JSON",
+		success: function(result) { console.log(result)}
+
+	});
+
+
+	/*
 	$.post ( url , params , function ( d ) {
 		// TODO check status
 		console.log ( url ) ;
 		console.log ( d ) ;
-	} , 'json' ) ;
+	} , 'json' ) ;*/
 }
 
 synbiota.prototype.findParts = function () {
@@ -145,13 +162,16 @@ synbiota.prototype.show_fpd_results = function () {
 }
 
 synbiota.prototype.fpd_load_part = function ( num ) {
+	console.log("fpd_load_part")
 	var me = this ;
 	var o = me.fpd_results[num] ;
-	
-//	console.log ( o ) ;
+	console.log ( o ) ;
+
 	if ( undefined === o.completed_part_id || null === o.completed_part_id ) { // Load part from project/id
+		console.log("doing synbiota_load_sequence_from_project " + o.project_id + ", " + o.id)
 		synbiota_load_sequence_from_project ( o.project_id , o.id ) ;
 	} else { // Load completed part
+		console.log("doing synbiota_load_sequence_part " + o.completed_part_id)
 		synbiota_load_sequence_part ( o.completed_part_id ) ;
 	}
 }
@@ -169,6 +189,7 @@ synbiota.prototype.global_init = function () {
 	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
 	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
 	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
+	//alert(synbiota_data.api_url)
 	
 	
 	synbiota_data.token = gentle.url_vars.token ;
@@ -185,7 +206,7 @@ synbiota.prototype.global_init = function () {
 		}*/
 		return ;
 	}
-
+	console.log("attempting to register synbiota plugin")
 	if ( plugins.registerPlugin ( { className : 'synbiota' , url : 'plugins/synbiota.js' } ) ) {
 		plugins.addSection ( 'dna' , 'synbiota' ) ;
 		plugins.addSection ( 'designer' , 'synbiota' ) ;
@@ -193,6 +214,7 @@ synbiota.prototype.global_init = function () {
 		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
 		plugins.registerAsTool ( { className : 'synbiota' , module : 'designer' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
 	} else {
+		console.log("Synbiota plugin couldn't load")
 		return ; // Plugin registry failed. Abort, abort!!
 	}
 
@@ -225,6 +247,7 @@ function synbiota () {
 
 
 function synbiota_load_sequence_from_project ( project_id , sequence_id ) {
+	console.log("synbiota_load_sequence_from_project: " + project_id + " , " + sequence_id)
 	var url = synbiota_data.api_url + '/api/' ;
 	if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
 	url += 'projects/'+project_id+'/gentle_files/'+sequence_id+'?token='+synbiota_data.token ;
@@ -232,6 +255,7 @@ function synbiota_load_sequence_from_project ( project_id , sequence_id ) {
 }
 
 function synbiota_load_sequence_part ( part_id ) {
+	console.log("synbiota_load_sequence_part: " + part_id)
 	var url = synbiota_data.api_url + '/api/' ;
 	if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
 	url += 'parts/' + part_id + '?token='+synbiota_data.token ;
@@ -239,20 +263,38 @@ function synbiota_load_sequence_part ( part_id ) {
 }
 
 function synbiota_load_sequence ( url ) {
-	$.getJSON ( gentle_config.proxy + '?callback=?' , 
-		{ url : url } ,
-		function ( data ) {
-			data = JSON.parse ( data ) ;
-			// data keys : created_at creator_id description project_id sybil updated_at id kind last_editor_id name
+	console.log("synbiota_load_sequence: " +url)
+
+	$.ajax({
+		url: url,
+		data: {url: url},
+		datatype: "jsonp",
+		error: function (jqXHR, textStatus, errorThrown) {console.log(errorThrown)},
+		crossDomain: true,
+		
+		success: function (data, textStatus, jqXHR ) {
+			console.log("success!");
+			console.log(data)
 			
+			if(typeof(data)=="string")
+			{
+				// Chrome appears to be parsing the return data as a JSON object, firefox keeps it as a string
+				data = $.parseJSON(data);
+			}
+			
+
+			console.log(data)
 			var sybil = new FT_sybil () ;
 			sybil.text = data.sybil ;
+			
+			//console.log(sybil.text)
+			
 			var seqids = sybil.parseFile() ;
 			if ( seqids.length != 1 ) {
 				alert ( "There was a problem opening Synbiota sequence " + sequence_id + " in project " + project_id ) ;
 				return ;
 			}
-			
+
 			// Add synbiota data to sequence object
 			gentle.sequences[seqids[0]].data_keys.push ( 'synbiota' ) ;
 			gentle.sequences[seqids[0]].synbiota = {
@@ -265,7 +307,10 @@ function synbiota_load_sequence ( url ) {
 				last_editor_id : data.last_editor_id
 			} ;
 
-	} ) ;
+			console.log("success finished")
+		} // success
+
+	}); // $.ajax
 }
 
 var dummy = new synbiota() ;
@@ -292,3 +337,6 @@ function aweber () {
 	$('#aweber').modal();
 }
 // END HACK
+
+/*
+ */
