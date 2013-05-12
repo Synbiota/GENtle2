@@ -120,14 +120,29 @@ synbiota.prototype.findParts = function () {
 		
 		var url = synbiota_data.api_url + '/api/' ;
 		if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
-		url += 'parts?token=' + synbiota_data.token + '&any=' + escape ( query ) ;
+		url += 'gentle_files?token=' + synbiota_data.token + '&any=' + escape ( query ) ;
 
-		$.getJSON ( gentle_config.proxy + '?callback=?' , 
+		/*$.getJSON ( gentle_config.proxy + '?callback=?' , 
 			{ url : url } ,
 			function ( data ) {
 				me.fpd_results = JSON.parse ( data ) ;
 				me.show_fpd_results() ;
-		} ) ;
+		} ) ;*/
+
+		$.ajax({
+			url: url,
+			datatype: "json",
+			type: "GET",
+			success: function(data) {
+				if(typeof(data)=="string")
+				{
+					// Chrome appears to be parsing the return data as a JSON object, firefox keeps it as a string
+					data = $.parseJSON(data);
+				}
+				me.fpd_results = data;
+				me.show_fpd_results();
+			}
+		})
 		
 		return false ;
 	} ) ;
