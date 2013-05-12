@@ -65,13 +65,54 @@ synbiota.prototype.saveToSynbiota = function () {
 		params.url = url ;
 		url = './data/synbiota_proxy.php' ;
 	}*/
-	
+	if (use_put)
+		{
+			ajax_type = "PUT"
+		}
+	else
+		{
+			ajax_type = "POST"
+		}
+
 	$.ajax({
 		url: url,
 		data: params,
-		type: "PUT",
+		type: ajax_type,
 		datatype: "JSON",
-		success: function(result) { console.log(result)}
+		success: function(data) { 
+			//console.log("return from save")
+			//console.log(data)
+			if(data && data!=null)
+			{
+				//console.log("getting canvas")
+				sc = gentle.main_sequence_canvas;
+
+				if(typeof(data)=="string")
+				{
+					//console.log("found string")
+					data = $.parseJSON(data);
+				}
+				else
+				{
+					//console.log("nobody panic, it's just JSON")
+				}
+
+				if(sc.sequence.synbiota.sequence_id == -1)
+				{
+					//console.log("saving new id")
+					// if the sequence being saved was a new one, grab the assigned id 
+					sc.sequence.synbiota.sequence_id = data.id
+				}
+				else 
+				{
+					//console.log("nothing to see here")
+				}
+			}
+			else
+			{
+				//console.log("do nothing")
+			}
+		}
 
 	});
 
@@ -176,6 +217,8 @@ synbiota.prototype.show_fpd_results = function () {
 	} ) ;
 }
 
+
+
 synbiota.prototype.fpd_load_part = function ( num ) {
 	console.log("fpd_load_part")
 	var me = this ;
@@ -237,8 +280,8 @@ synbiota.prototype.global_init = function () {
 	synbiota_data.project_id = gentle.url_vars.project_id ;
 
 	if ( undefined === gentle.url_vars.id ) gentle.url_vars.id = -1 ;
-	if ( gentle.url_vars.id == -1 && gentle.url_vars.ro == -1 ) {
-		gentle.startNewSequenceDialog() ;
+	if (gentle.url_vars.id == -1 && gentle.url_vars.ro == -1) {
+		gentle.startNewSequenceDialog();
 	} else {
 		while ( gentle.sequences.length > 0 ) gentle.closeCurrentSequence() ;
 		if ( gentle.url_vars.id != -1 ) {
@@ -300,7 +343,11 @@ function synbiota_load_sequence ( url ) {
 
 			console.log(data)
 			var sybil = new FT_sybil () ;
-			sybil.text = data.sybil ;
+			
+			
+			sybil.text = data.sybil;
+			
+			console.log("after")
 			
 			//console.log(sybil.text)
 			
@@ -327,7 +374,6 @@ function synbiota_load_sequence ( url ) {
 
 	}); // $.ajax
 }
-
 var dummy = new synbiota() ;
 dummy.global_init () ;
 
