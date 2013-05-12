@@ -61,11 +61,7 @@ synbiota.prototype.saveToSynbiota = function () {
 		use_put = false;
 	}
 	
-	/*if ( synbiota_data.use_proxy ) {
-		params.url = url ;
-		url = './data/synbiota_proxy.php' ;
-	}*/
-	if (use_put)
+	if (use_put) // Use 'PUT' when updating a file, and 'POST' when saving a new fiel
 		{
 			ajax_type = "PUT"
 		}
@@ -80,49 +76,26 @@ synbiota.prototype.saveToSynbiota = function () {
 		type: ajax_type,
 		datatype: "JSON",
 		success: function(data) { 
-			//console.log("return from save")
-			//console.log(data)
 			if(data && data!=null)
 			{
-				//console.log("getting canvas")
 				sc = gentle.main_sequence_canvas;
 
 				if(typeof(data)=="string")
 				{
-					//console.log("found string")
 					data = $.parseJSON(data);
 				}
-				else
-				{
-					//console.log("nobody panic, it's just JSON")
-				}
-
+				
 				if(sc.sequence.synbiota.sequence_id == -1)
 				{
-					//console.log("saving new id")
-					// if the sequence being saved was a new one, grab the assigned id 
 					sc.sequence.synbiota.sequence_id = data.id
 				}
-				else 
-				{
-					//console.log("nothing to see here")
-				}
+				
 			}
-			else
-			{
-				//console.log("do nothing")
-			}
-		}
+			
+		} // success
 
 	});
 
-
-	/*
-	$.post ( url , params , function ( d ) {
-		// TODO check status
-		console.log ( url ) ;
-		console.log ( d ) ;
-	} , 'json' ) ;*/
 }
 
 synbiota.prototype.findParts = function () {
@@ -156,19 +129,13 @@ synbiota.prototype.findParts = function () {
 	$('#'+this.fpdid).modal();
 	$('#fpd_query').focus() ;
 	$('#fpd_form').submit ( function () {
-		setTimeout ( function () { $('#fpd_results').html ( '<div class="alert alert-info">Querying database...</div>' ) ; } , 1 ) ;
+		setTimeout ( function () { $('#fpd_results').html( '<div class="alert alert-info">Querying database...</div>' ) ; } , 1 ) ;
 		var query = $('#fpd_query').val() ;
 		
 		var url = synbiota_data.api_url + '/api/' ;
 		if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
-		url += 'gentle_files?token=' + synbiota_data.token + '&any=' + escape ( query ) ;
+		url += 'gentle_files?token=' + synbiota_data.token + '&any=' + escape( query ) ;
 
-		/*$.getJSON ( gentle_config.proxy + '?callback=?' , 
-			{ url : url } ,
-			function ( data ) {
-				me.fpd_results = JSON.parse ( data ) ;
-				me.show_fpd_results() ;
-		} ) ;*/
 
 		$.ajax({
 			url: url,
@@ -211,25 +178,19 @@ synbiota.prototype.show_fpd_results = function () {
 
 	$.each ( me.fpd_results , function ( k , v ) {
 		$('#fpd_result_'+k).click ( function () { me.fpd_load_part ( k ) } ) ;
-/*		var s = ( v.description || '' ) ;
-		if ( s == '' ) return ;
-		$('#fpd_result_'+k).popover ( { content : "<pre>" + s + "</pre>" } ) ;*/
+
 	} ) ;
 }
 
 
 
 synbiota.prototype.fpd_load_part = function ( num ) {
-	console.log("fpd_load_part")
 	var me = this ;
 	var o = me.fpd_results[num] ;
-	console.log ( o ) ;
 
 	if ( undefined === o.completed_part_id || null === o.completed_part_id ) { // Load part from project/id
-		console.log("doing synbiota_load_sequence_from_project " + o.project_id + ", " + o.id)
 		synbiota_load_sequence_from_project ( o.project_id , o.id ) ;
 	} else { // Load completed part
-		console.log("doing synbiota_load_sequence_part " + o.completed_part_id)
 		synbiota_load_sequence_part ( o.completed_part_id ) ;
 	}
 }
@@ -247,7 +208,6 @@ synbiota.prototype.global_init = function () {
 	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
 	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
 	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
-	//alert(synbiota_data.api_url)
 	
 	
 	synbiota_data.token = gentle.url_vars.token ;
@@ -331,8 +291,6 @@ function synbiota_load_sequence ( url ) {
 		crossDomain: true,
 		
 		success: function (data, textStatus, jqXHR ) {
-			console.log("success!");
-			console.log(data)
 			
 			if(typeof(data)=="string")
 			{
@@ -340,17 +298,11 @@ function synbiota_load_sequence ( url ) {
 				data = $.parseJSON(data);
 			}
 			
-
-			console.log(data)
 			var sybil = new FT_sybil () ;
 			
 			
 			sybil.text = data.sybil;
-			
-			console.log("after")
-			
-			//console.log(sybil.text)
-			
+	
 			var seqids = sybil.parseFile() ;
 			if ( seqids.length != 1 ) {
 				alert ( "There was a problem opening Synbiota sequence " + sequence_id + " in project " + project_id ) ;
