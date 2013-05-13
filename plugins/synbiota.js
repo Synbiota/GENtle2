@@ -70,6 +70,12 @@ synbiota.prototype.saveToSynbiota = function () {
 			ajax_type = "POST"
 		}
 
+	if(synbiota_data.use_proxy)
+	{
+		params.url = url 
+		url = './data/synbiota_proxy.php';
+	}
+
 	$.ajax({
 		url: url,
 		data: params,
@@ -136,9 +142,20 @@ synbiota.prototype.findParts = function () {
 		if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
 		url += 'gentle_files?token=' + synbiota_data.token + '&any=' + escape( query ) ;
 
+		if(synbiota_data.use_proxy)
+		{
+			params = { url: url}
+			url = gentle_config.proxy 
+
+		}
+		else 
+		{
+			params = ""
+		}
 
 		$.ajax({
 			url: url,
+			data: params,
 			datatype: "json",
 			type: "GET",
 			success: function(data) {
@@ -205,7 +222,18 @@ synbiota.prototype.global_init = function () {
 	}
 	
 	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
-	synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
+	//synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
+
+	if(gentle_config.synbiota.use_proxy == 0)
+	{
+		synbiota_data.use_proxy = false;
+	}
+	else
+	{
+		synbiota_data.use_proxy = true;
+	}
+
+	console.log("proxy setting: " + gentle_config.synbiota.use_proxy + ", use proxy? " + synbiota_data.use_proxy)
 	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
 	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
 	
@@ -283,10 +311,24 @@ function synbiota_load_sequence_part ( part_id ) {
 function synbiota_load_sequence ( url ) {
 	console.log("synbiota_load_sequence: " +url)
 
+	if(synbiota_data.use_proxy)
+	{
+		console.log("using proxy")
+		params = {
+			url: url
+		} 
+		url = gentle_config.proxy
+	}
+	else
+	{
+		params= "";
+	}
+
+
 	$.ajax({
 		url: url,
-		data: {url: url},
-		datatype: "jsonp",
+		datatype: "json",
+		data: params,
 		error: function (jqXHR, textStatus, errorThrown) {console.log(errorThrown)},
 		crossDomain: true,
 		
