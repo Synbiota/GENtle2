@@ -37,27 +37,9 @@ PlasmidMapDialog.prototype.initMap = function () {
 	
 	var len = sc.sequence.seq.length ;
 	self.seqLength = len;
-	self.annotations = [] ;
-	$.each ( sc.sequence.features , function ( k , v ) {
-		if ( v['_type'] == 'source' ) return ;
-		var min = 125 ;
-		var max = 175 ;
-		var col = '#CCCCCC' ;
-		if ( v['_type'] == 'promoter' ) { col='black' ; }
-		if ( v['_type'] == 'CDS' ) { col='red' ; min=160; }
-		if ( v['_type'] == 'gene' ) { col='blue' ; max=140; }
-		$.each( v['_range'] , function ( k2 , v2 ) {
-			var f = v2.from * Math.PI * 2 / len ;
-			var t = v2.to * Math.PI * 2 / len ;
-			self.annotations.push ( { start:f , end:t , colour:col , min:min , max:max } ) ;
-		} ) ;
-	} ) ;
 
-	//init segments for annotation
-	for (var i = 0; i < self.annotations.length; i++){
-		var ann = self.annotations[i];
-		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
-	}
+	//init Annotations
+	self.updateAnnotations();
 
 	//init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
@@ -77,27 +59,9 @@ PlasmidMapDialog.prototype.updateMap = function () {
 
 	var len = sc.sequence.seq.length ;
 	self.seqLength = len;
-	self.annotations = [] ;
-	$.each ( sc.sequence.features , function ( k , v ) {
-		if ( v['_type'] == 'source' ) return ;
-		var min = 125 ;
-		var max = 175 ;
-		var col = '#CCCCCC' ;
-		if ( v['_type'] == 'promoter' ) { col='black' ; }
-		if ( v['_type'] == 'CDS' ) { col='red' ; min=160; }
-		if ( v['_type'] == 'gene' ) { col='blue' ; max=140; }
-		$.each( v['_range'] , function ( k2 , v2 ) {
-			var f = v2.from * Math.PI * 2 / len ;
-			var t = v2.to * Math.PI * 2 / len ;
-			self.annotations.push ( { start:f , end:t , colour:col , min:min , max:max } ) ;
-		} ) ;
-	} ) ;	
 
-	//re-init segments for annotation
-	for (var i = 0; i < self.annotations.length; i++){
-		var ann = self.annotations[i];
-		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
-	}
+	//re-init annotation
+	self.updateAnnotations();
 
 	//re-init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
@@ -108,6 +72,43 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
 
 	self.drawMap();
+}
+
+PlasmidMapDialog.prototype.updateAnnotations = function(){
+	var self = this ;
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
+	self.seqLength = len;
+
+	self.annotations = [] ;
+	$.each ( sc.sequence.features , function ( k , v ) {
+		if ( v['_type'] == 'source' ) return ;
+		var min = 125 ;
+		var max = 175 ;
+		var col = '#CCCCCC' ;
+		if ( v['_type'] == 'promoter' ) { col='black' ; }
+		if ( v['_type'] == 'CDS' ) { col='red' ; min=160; }
+		if ( v['_type'] == 'gene' ) { col='blue' ; max=140; }
+
+		// Name
+		var name = '' ;
+		if ( v['gene'] !== undefined ) name = v['gene'] ;
+		else if ( v['product'] !== undefined ) name = v['product'] ;
+		else if ( v['name'] !== undefined ) name = v['name'] ;
+		name = name.replace(/^"/,'').replace(/"$/,'') ;
+
+		$.each( v['_range'] , function ( k2 , v2 ) {
+			var f = v2.from * Math.PI * 2 / len ;
+			var t = v2.to * Math.PI * 2 / len ;
+			self.annotations.push ( { start:f , end:t , colour:col , min:min , max:max, name:name } ) ;
+		} ) ;
+	} ) ;	
+
+	//re-init segments for annotation
+	for (var i = 0; i < self.annotations.length; i++){
+		var ann = self.annotations[i];
+		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
+	}	
 }
 
 PlasmidMapDialog.prototype.updateSelection = function () {
@@ -170,6 +171,19 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	//draw annotations
 	for (var i = 0; i < self.annotations.length; i++){
 		self.annotations[i].canvasShape.draw( self.context );
+		self.context.save();
+		self.context.fillStyle = "white";
+		self.context.textAlign = 'center';
+		self.context.font = "12px Arial";
+
+		var midAngle = (self.annotations[i].start + self.annotations[i].end)/2;
+		var midR = (self.annotations[i].min + self.annotations[i].max*2)/3;
+		drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle)
+
+
+		// self.context.rotate(midAngle - Math.PI/2);
+		// self.context.fillText(self.annotations[i].name, 0, midR);
+		self.context.restore();
 	}
 
 	self.linegraph.draw(self.context);
@@ -412,3 +426,43 @@ RadialLineGraph.prototype.draw = function(ctx){
 	ctx.fill();
 }
 
+function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font) {
+	// modified from
+	// http://www.html5canvastutorials.com/labs/html5-canvas-text-along-arc-path/
+	// so that it works with varying fonts...
+
+    var s;
+    var len = str.length;
+    var wh = stringWidthHeight(str, font); //gives a little breathing room
+    var rad = radius-wh.height;
+
+    var angularWidth = wh.width/rad;
+
+
+    context.save();
+    context.translate(centerX, centerY);
+    context.rotate(angle - Math.PI/2);
+    context.rotate(angularWidth / 2);
+    for(var n = 0; n < len; n++) {
+      context.rotate(-angularWidth/len);
+
+      s = str[n];
+      context.fillText(s, 0, radius);
+    }
+    context.restore();
+}
+
+stringWidthHeight = function(str, font) {
+	//copied from
+	//http://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
+	  var f = font || '12px arial',
+	      o = $('<div>' + str + '</div>')
+	            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': f})
+	            .appendTo($('body')),
+	      w = o.width();
+	      h = o.height();
+
+	  o.remove();
+
+	  return {width:w,height:h};
+}
