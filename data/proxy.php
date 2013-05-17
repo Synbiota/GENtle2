@@ -5,7 +5,7 @@ ini_set('display_errors', 'On');
 error_reporting(E_ALL | E_STRICT);
 
 $url = $_REQUEST['url'] ;
-if($_REQUEST['callback'])
+if(isset($_REQUEST['callback']))
 {
   $callback = $_REQUEST['callback'];
 }
