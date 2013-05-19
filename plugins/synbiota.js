@@ -26,6 +26,12 @@ synbiota.prototype.saveToSynbiota = function () {
 		sequence_id : -1 ,
 		kind : 'Misc'
 	} ;
+
+	if (sc.sequence.synbiota.read_only==true)
+	{
+		alert("Sorry, this sequence is read-only. You may wish to save this file locally from the File menu.")
+		return;
+	}
 	
 	var file = new FT_sybil();
 	var sybil = file.getExportString ( sc.sequence ) ;
@@ -65,7 +71,7 @@ synbiota.prototype.saveToSynbiota = function () {
 
 	if(synbiota_data.use_proxy)
 	{
-		if (use_put) // Use 'PUT' when updating a file, and 'POST' when saving a new fiel
+		if (use_put) // Use 'PUT' when updating a file, and 'POST' when saving a new file
 		{
 			params.use_put = true;
 		}
@@ -305,7 +311,7 @@ function synbiota_load_sequence_from_project ( project_id , sequence_id ) {
 }
 
 function synbiota_load_sequence_part ( part_id ) {
-	console.log("synbiota_load_sequence_part: " + part_id)
+	//console.log("synbiota_load_sequence_part: " + part_id)
 	var url = synbiota_data.api_url + '/api/' ;
 	if ( synbiota_data.api_version > 0 ) url += synbiota_data.api_version + '/' ;
 	url += 'parts/' + part_id + '?token='+synbiota_data.token ;
@@ -313,11 +319,11 @@ function synbiota_load_sequence_part ( part_id ) {
 }
 
 function synbiota_load_sequence ( url ) {
-	console.log("synbiota_load_sequence: " +url)
+	//console.log("synbiota_load_sequence: " +url)
 
 	if(synbiota_data.use_proxy)
 	{
-		console.log("using proxy")
+		//console.log("using proxy")
 		params = {
 			url: url
 		} 
@@ -344,18 +350,34 @@ function synbiota_load_sequence ( url ) {
 				data = $.parseJSON(data);
 			}
 			
-			var sybil = new FT_sybil () ;
+
 			
-			
+			var sybil = new FT_sybil ();			
 			sybil.text = data.sybil;
-	
+			
 			var seqids = sybil.parseFile() ;
 			if ( seqids.length != 1 ) {
 				alert ( "There was a problem opening Synbiota sequence " + sequence_id + " in project " + project_id ) ;
 				return ;
 			}
 
+
+			read_only = true;
+			// Determine if sequence is editable
+			if(data.state=="wip")
+			{
+				read_only = false;
+			}
+			else
+			{
+				// hack to add 'read-only' tag to nav bar - can't be done automatically in first instance as nav bar is configure
+				// by sybil.parseFile() first. Subsequent calls are done automatically.
+				$("#sequence_canvas_title_bar").append("&nbsp;<span class='label label-warning'>read-only</span>")
+			}
+			
+
 			// Add synbiota data to sequence object
+			
 			gentle.sequences[seqids[0]].data_keys.push ( 'synbiota' ) ;
 			gentle.sequences[seqids[0]].synbiota = {
 				project_id : data.project_id , 
@@ -364,10 +386,10 @@ function synbiota_load_sequence ( url ) {
 				creator_id : data.creator_id ,
 				updated_at : data.updated_at ,
 				kind : data.kind ,
-				last_editor_id : data.last_editor_id
+				last_editor_id : data.last_editor_id,
+				read_only: read_only
 			} ;
 
-			console.log("success finished")
 		} // success
 
 	}); // $.ajax
