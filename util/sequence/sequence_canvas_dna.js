@@ -790,9 +790,10 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	gentle.set_hover ( '' ) ; // this.getHoverName()
 	
+	/* hide plasmid map for the moment
 	if ( this.show_plasmid_map && gentle.main_sequence_canvas.sequence.is_circular ) {
 		gentle.plasmidMap ( true ) ;
 	} else {
 		gentle.plasmidMap ( false ) ;
-	}
+	}*/
 }
