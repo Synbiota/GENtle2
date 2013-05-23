@@ -28,13 +28,41 @@ PlasmidMapDialog.prototype.initMap = function () {
 	self.mouseTool = {};
 	self.mouseTool.drag = false;
 
+
+
 	var canvas = $('#plasmid_map_canvas').get(0) ;
 	self.context = canvas.getContext('2d');
 	self.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
 	self.context.canvas.height = parseInt ( $('#plasmid_map').height() ) ;
+
+	self.canvasOffset = { x: self.context.canvas.width * 2, y:self.context.canvas.height /2};
+	self.canvasAngle = Math.PI/4;
 	//centre the context, makes life easier!
-	self.context.translate(canvas.width/2, canvas.height/2);
+	self.context.translate(self.canvasOffset.x, self.canvasOffset.y) ;
 	
+
+	self.radii = {
+					currentSelection: {r:10, R:200},
+					plasmidCircle: {r:150},
+					annotations: {r1:125, r2:140, r3:160, r4:175 },
+					linegraph: {r:100},
+					lineNumbering: {r:180, R:240}
+	};
+
+	for (var key in self.radii) {
+	   if (self.radii.hasOwnProperty(key)) {
+	      var obj = self.radii[key];
+	      for (var prop in obj) {
+	         if (obj.hasOwnProperty(prop)) {
+	            obj[prop] = obj[prop] + self.canvasOffset.x - 300 ;
+	         }
+	      }
+	   }
+	}
+
+	//testing rotation
+	//self.context.rotate(Math.PI/4);
+
 	var len = sc.sequence.seq.length ;
 	self.seqLength = len;
 
@@ -43,12 +71,12 @@ PlasmidMapDialog.prototype.initMap = function () {
 
 	//init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
-	self.linegraph = new RadialLineGraph(0,0,100,50,self.somePlasmid.gcat_ratio,'blue');
+	self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
 
 	// display current selection
 	var from = sc.start_base * Math.PI * 2 / len;
 	var to = sc.end_base * Math.PI * 2 / len;
-	self.currentSelection = new WasherSegment(0,0,10,200,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
+	self.currentSelection = new WasherSegment(0,0,self.radii.currentSelection.r,self.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 
 	self.drawMap();
 }
@@ -83,12 +111,12 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 	self.annotations = [] ;
 	$.each ( sc.sequence.features , function ( k , v ) {
 		if ( v['_type'] == 'source' ) return ;
-		var min = 125 ;
-		var max = 175 ;
+		var min = self.radii.annotations.r1 ;
+		var max = self.radii.annotations.r4 ;
 		var col = '#CCCCCC' ;
 		if ( v['_type'] == 'promoter' ) { col='black' ; }
-		if ( v['_type'] == 'CDS' ) { col='red' ; min=160; }
-		if ( v['_type'] == 'gene' ) { col='blue' ; max=140; }
+		if ( v['_type'] == 'CDS' ) { col='red' ; min=self.radii.annotations.r3; }
+		if ( v['_type'] == 'gene' ) { col='blue' ; max=self.radii.annotations.r2; }
 
 		// Name
 		var name = '' ;
@@ -130,14 +158,14 @@ PlasmidMapDialog.prototype.drawMap = function () {
 
 	//clear canvas set bg colour to white
 	self.context.fillStyle = 'white' ;
-	self.context.fillRect (-250, -250, 500, 500);
+	self.context.fillRect ( - self.canvasOffset.x, - self.canvasOffset.y, 500, 500);
 
 	//draw line numbers
-	var lineNumberIncrement = 1000 ; 
+	var lineNumberIncrement = bestLineNumbering(len, 200) ; 
 	var angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ;
-	var r = 175;
-	var R = 250;
-	var textX = 220;
+	var r = self.radii.lineNumbering.r;
+	var R =  self.radii.lineNumbering.R;
+	var textX = self.radii.lineNumbering.R;
 	var textY = 10;
 
 	self.context.save() ;
@@ -145,6 +173,7 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	self.context.fillStyle = "#000";
 	self.context.lineWidth = 1 ;
 	self.context.font = "10px Arial";
+	self.context.textAlign = 'end';
 
 	for ( var i = 0; i < len/lineNumberIncrement; i++){
 		self.context.beginPath()
@@ -159,13 +188,14 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	//draw the current selection marker first
 	self.currentSelection.draw(self.context);
 
-	//draw a circle to represent our plasmid...
+	/*//draw a circle to represent our plasmid...
 	self.context.beginPath();
-	self.context.arc(0,0,150,0,Math.PI*2, true);
+	self.context.arc(0,0,self.radii.plasmidCircle.r,0,Math.PI*2, true);
 	self.context.strokeStyle = 'grey';
 	self.context.lineWidth = 15;
+	//self.context.fillStyle = 'grey'; //();
 	self.context.stroke();
-
+	*/
 	self.context.lineWidth = 5;
 
 	//draw annotations
@@ -180,9 +210,6 @@ PlasmidMapDialog.prototype.drawMap = function () {
 		var midR = (self.annotations[i].min + self.annotations[i].max*2)/3;
 		drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle)
 
-
-		// self.context.rotate(midAngle - Math.PI/2);
-		// self.context.fillText(self.annotations[i].name, 0, midR);
 		self.context.restore();
 	}
 
@@ -205,8 +232,8 @@ PlasmidMapDialog.prototype.angleToBase = function (angle) {
 
 
 PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
-	var mousePoint = { 	x:ev.pageX - parseInt($('#plasmid_map_canvas').offset().left,10) - 250 ,
-						y:ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10) - 250} ;
+	var mousePoint = { 	x:ev.pageX - parseInt($('#plasmid_map_canvas').offset().left,10) - pmd.canvasOffset.x ,
+						y:ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10) - pmd.canvasOffset.y} ;
 
 	if (ev.type == "mousemove"){
 		if (pmd.mouseTool.dragSelector){
@@ -465,4 +492,36 @@ stringWidthHeight = function(str, font) {
 	  o.remove();
 
 	  return {width:w,height:h};
+}
+
+function bestLineNumbering(bp,radius){
+
+	var min_d = 25;
+	var max_d = 100;
+
+	var min_c = Math.floor(2*Math.PI*radius/max_d);
+	var max_c = Math.floor(2*Math.PI*radius/min_d);
+	var c = min_c;
+	var q = [1,2,2.5,5];
+	var i = 0;
+	var n = Math.floor(Math.log(bp/(q[q.length-1]*(max_c+1)))/Math.log(10));
+	var guess = (c+1)*q[i]*Math.pow(10,n);
+
+	while (guess < bp){
+		
+		if (c < max_c){
+			c = c+1;
+		}else{
+			c = min_c;
+			if(i < q.length -1){
+				i+=1;
+			}else{
+				i = 0;
+				n += 1;
+			}
+		}
+		guess = (c+1)*q[i]*Math.pow(10,n);
+	}
+
+	return q[i]*Math.pow(10,n);
 }
