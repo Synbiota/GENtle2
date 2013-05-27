@@ -105,10 +105,20 @@ synbiota.prototype.saveToSynbiota = function () {
 				{
 					sc.sequence.synbiota.sequence_id = data.id
 				}
-				
+
+				//update last saved notification.
+				sc.sequence.synbiota.updated_at = data.updated_at ;
+				sc.updateTitleBar() ;
+
 			}
 			
 		} // success
+		,
+		error: function(jqXHR, textStatus, errorThrown) {
+				//update last saved notification.
+				sc.sequence.synbiota.updated_at = "save failed!!" ;
+				sc.updateTitleBar() ;
+		}
 
 	});
 
