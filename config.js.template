@@ -14,7 +14,14 @@ var gentle_config = {
 	] ,
 	
 	colors : {
-		numbering : '#6094DB'
+		numbering : '#6094DB',
+		DRuMS : { 	A: '#5050ff',
+					C: '#e00000', 
+					G: '#00c000', 
+					T: '#e6e600', 
+					U: '#cc9900', 
+					N: '#ff0000' 
+		}
 	} ,
 	
 	synbiota : {
