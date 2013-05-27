@@ -522,11 +522,15 @@ SequenceCanvas.prototype.addTitleBarNavButtons = function ( core ) {
 		h += "<span class='label'>linear</span>" ;
 	}
 
+
 	if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1 ) {
 		var sb = gentle.sequences[gentle.current_sequence_entry].synbiota
-		
-		h += "&nbsp;<span class='label label-info' style='margin-right:10px'> Last Saved: " + sb.updated_at + "</span> " ;
-		
+
+		//use moment for fancier time output
+		var lastsave = moment(sb.update_at).calendar();
+
+		h += "&nbsp;<span class='label label-info' style='margin-right:10px'> Last Saved: " + lastsave + "</span> " ;
+
 		if (sb.read_only) //&& gentle.sequences[gentle.current_sequence_entry].synbiota.read_only) { // && me.sequence.synbiota.read_only
 		{
 			h += "&nbsp;<span class='label label-warning'>read-only</span> ";

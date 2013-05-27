@@ -305,6 +305,8 @@ synbiota.prototype.global_init = function () {
 			} ) ;
 		}
 	}
+
+	gentle.main_sequence_canvas.updateTitleBar();
 }
 
 function synbiota () {
@@ -380,7 +382,7 @@ function synbiota_load_sequence ( url ) {
 			}
 			else
 			{
-				// hack to add 'read-only' tag to nav bar - can't be done automatically in first instance as nav bar is configure
+				// hack to add 'read-only' tag to nav bar - can't be done automatically in first instance as nav bar is configured
 				// by sybil.parseFile() first. Subsequent calls are done automatically.
 				$("#sequence_canvas_title_bar").append("&nbsp;<span class='label label-warning'>read-only</span>")
 			}
@@ -399,6 +401,8 @@ function synbiota_load_sequence ( url ) {
 				last_editor_id : data.last_editor_id,
 				read_only: read_only
 			} ;
+
+			
 
 		} // success
 
