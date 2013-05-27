@@ -288,6 +288,8 @@ synbiota.prototype.global_init = function () {
 	synbiota_data.project_id = gentle.url_vars.project_id ;
 
 	if ( undefined === gentle.url_vars.id ) gentle.url_vars.id = -1 ;
+	if ( undefined === gentle.url_vars.ro || gentle.url_vars.ro == "") gentle.url_vars.ro = -1 ;
+
 	if (gentle.url_vars.id == -1 && gentle.url_vars.ro == -1) {
 		gentle.startNewSequenceDialog();
 	} else {
@@ -306,7 +308,6 @@ synbiota.prototype.global_init = function () {
 		}
 	}
 
-	gentle.main_sequence_canvas.updateTitleBar();
 }
 
 function synbiota () {
@@ -402,8 +403,11 @@ function synbiota_load_sequence ( url ) {
 				read_only: read_only
 			} ;
 
+			//same hack as above, for updated_at flag...
+			//TODO is there a better way?
+			var lastsave = moment(data.created_at);
+			$("#sequence_canvas_title_bar").append("&nbsp;<span class='label label-info' style='font-weight: normal;'> Last Saved: " + lastsave.calendar() + "</span> " )
 			
-
 		} // success
 
 	}); // $.ajax
