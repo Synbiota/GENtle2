@@ -264,6 +264,24 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			}
 			if ( do_write ) {
 				if ( (is_primer||is_pcr_product) && primer_comp_seq[p] != s[p] ) ctx.fillStyle = 'red' ;
+				
+				//DRuMS colours
+				function convertHex(hex,opacity){
+				    hex = hex.replace('#','');
+				    r = parseInt(hex.substring(0,2), 16);
+				    g = parseInt(hex.substring(2,4), 16);
+				    b = parseInt(hex.substring(4,6), 16);
+				    result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
+				    return result;
+				}
+
+				var ch= is_rc ? cd.rc[s[p]] : s[p];
+				if (this.sc.show_drums_colors && gentle_config.colors.DRuMS[ch]) {
+					ctx.fillStyle = convertHex(gentle_config.colors.DRuMS[ch],50);
+					ctx.fillRect(x-1,y+3,9,11);
+					ctx.fillStyle = fs;
+				}
+
 				if ( is_rc ) ctx.fillText ( cd.rc[s[p]] , x , y ) ;
 				else ctx.fillText ( s[p] , x , y ) ;
 				if ( (is_primer||is_pcr_product) && primer_comp_seq[p] != s[p] ) ctx.fillStyle = fs ;
