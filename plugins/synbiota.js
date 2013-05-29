@@ -363,7 +363,6 @@ function synbiota_load_sequence ( url ) {
 				data = $.parseJSON(data);
 			}
 			
-
 			
 			var sybil = new FT_sybil ();			
 			sybil.text = data.sybil;
@@ -403,9 +402,10 @@ function synbiota_load_sequence ( url ) {
 				read_only: read_only
 			} ;
 
+
 			//same hack as above, for updated_at flag...
 			//TODO is there a better way?
-			var lastsave = moment(data.created_at);
+			var lastsave = moment(data.updated_at);
 			$("#sequence_canvas_title_bar").append("&nbsp;<span class='label label-info' style='font-weight: normal;'> Last Saved: " + lastsave.calendar() + "</span> " )
 			
 		} // success
