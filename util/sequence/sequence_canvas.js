@@ -526,10 +526,25 @@ SequenceCanvas.prototype.addTitleBarNavButtons = function ( core ) {
 	} else {
 		h += "<span class='label'>linear</span>" ;
 	}
+
+	if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1 ) {
+		var sb = gentle.sequences[gentle.current_sequence_entry].synbiota
+
+		//Using Moment for fancier timing.
+		var lastsave = moment(sb.updated_at);
+
+		h += "&nbsp;<span class='label label-info' style='margin-right:10px'> Last Saved: " + lastsave.calendar() + "</span> " ;
+
+		if (sb.read_only) //&& gentle.sequences[gentle.current_sequence_entry].synbiota.read_only) { // && me.sequence.synbiota.read_only
+		{
+			h += "&nbsp;<span class='label label-warning'>read-only</span> ";
+		}
+	}
 	
 //	h += "<button class='pull-right close'>&times;</button>" ;
 	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
 
+//	console.log("reloaded titlebar");
 	return h ;
 }
 

@@ -450,8 +450,18 @@ SequenceCanvasDNA.prototype.update_display = function () {
 	var show_blank = $('#cb_display_blank').is(':checked');
 	var show_rc = $('#cb_display_rc').is(':checked');
 	var show_res = $('#show_res').is(':checked');
+	var show_drums_colors = $('#cb_display_drums_colors').is(':checked');
 	var do_recalc = false ;
 	
+	//DRuMS Colouring
+	if (show_drums_colors && undefined === sc.show_drums_colors) { 
+		sc.show_drums_colors=true;
+			do_recalc = true ;
+	} else if (show_drums_colors==false && sc.show_drums_colors) {
+		sc.show_drums_colors=undefined;
+			do_recalc = true ;
+	}
+
 	// Numbering
 	if ( show_numbering && sc.lines[0].type != 'position' ) {
 		sc.lines.splice ( 0 , 0 , new SequenceCanvasRowPosition ( sc ) ) ;
@@ -619,7 +629,8 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
     this.ch = 10 ;
     this.xoff = 50 ;
 	this.lines = [] ;
-	
+	this.show_drums_colors = settings.show_drums_colors;
+
 	var aa_settings = { m1 : 'none' , m2 : '1' , reverse : false } ;
 	$.each ( settings.lines , function ( k , v ) {
 		var is_primary = k == me.primary_line ? true : false ;
@@ -648,6 +659,12 @@ SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	h += "<input type='checkbox' id='cb_display_annotation' " + (this.getLineIndex('annotation')===undefined?'':'checked') + " /><label class='btn' for='cb_display_annotation'>Annotation</label>" ;
 	h += "<input type='checkbox' id='cb_display_rc' " + (this.getLineIndex('dna_rc')===undefined?'':'checked') + " /><label class='btn' for='cb_display_rc'>Complement</label>" ;
 	h += "<input type='checkbox' id='cb_display_blank' " + (this.getLineIndex('blank')===undefined?'':'checked') + " /><label class='btn' for='cb_display_blank'>Separators</label>" ;
+	h += "</div>" ;
+	h += "</td></tr>" ;
+
+	h += "<tr><th>DRuMS Colors</th><td colspan=2 nowrap>" ;
+	h += '<div class="btn-group" data-toggle="buttons-checkbox">' ;
+	h += "<input type='checkbox' id='cb_display_drums_colors' " + (this.show_drums_colors==undefined?'':'checked') + " /><label class='btn first-btn' for='cb_display_drums_colors'>Show</label>" ;
 	h += "</div>" ;
 	h += "</td></tr>" ;
 
@@ -736,7 +753,8 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			{type:"aa",m1 : 'three' , m2 : 'auto' , reverse : false},
 			{type:"spectrum"},
 			{type:"blank"}
-		]
+		],
+		show_drums_colors:true
 	} ;
 	var settings = the_sequence.settings ;
 	if ( settings === undefined ) settings = {} ;
@@ -792,9 +810,10 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	gentle.set_hover ( '' ) ; // this.getHoverName()
 	
+	/* hide plasmid map for the moment
 	if ( this.show_plasmid_map && gentle.main_sequence_canvas.sequence.is_circular ) {
 		gentle.plasmidMap ( true ) ;
 	} else {
 		gentle.plasmidMap ( false ) ;
-	}
+	}*/
 }

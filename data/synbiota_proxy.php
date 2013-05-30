@@ -28,7 +28,7 @@ function do_post_curl ( $url , $data ) {
 	$ret['status'] = 'OK' ;
 	$ret['echo'] = json_decode ( $output ) ;
 	$ret['info'] = $info ;
-	return $ret ;
+	return $ret['echo'] ;
 }
 
 
@@ -44,6 +44,8 @@ if ( isset ( $_REQUEST['gentle_file'] ) ) {
 		$data['gentle_file['.$k.']'] = $v ;
 	}
 }
+
+
 
 $url = $_REQUEST['url'] ; // TODO force URL to point to a synbiota server
 
