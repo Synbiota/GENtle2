@@ -17,6 +17,8 @@ function PlasmidMapDialog () {
 		$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
+		$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
+		$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
 	} ) ;
 
 }
@@ -28,8 +30,6 @@ PlasmidMapDialog.prototype.initMap = function () {
 	self.mouseTool = {};
 	self.mouseTool.drag = false;
 
-
-
 	var canvas = $('#plasmid_map_canvas').get(0) ;
 	self.context = canvas.getContext('2d');
 	self.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
@@ -37,8 +37,37 @@ PlasmidMapDialog.prototype.initMap = function () {
 
 	self.canvasOffset = { x: self.context.canvas.width * 2, y:self.context.canvas.height /2};
 	self.canvasAngle = Math.PI/4;
+
+	// This is silly, but only way I can keep track of 
+	// the context's transform, like these guys...
+	// http://stackoverflow.com/questions/7395813/html5-canvas-get-transform-matrix
+	self.ctm = {
+		t:new simple2d.Transform()
+	} ;
+
+	self.ctm.translate = function(x, y){
+		self.ctm.t = self.ctm.t.mult(simple2d.translate(x, y));
+        self.context.translate(x, y);
+	}
+	self.ctm.rotate = function(t){
+		self.ctm.t = self.ctm.t.mult(simple2d.rotate(t));
+        self.context.rotate(t);
+	}
+    self.ctm.setTransform = function(newt){
+        self.ctm.t = newt.clone();
+        self.context.setTransform(  newt.m[0], 
+                                    newt.m[1], 
+                                    newt.m[2], 
+                                    newt.m[3], 
+                                    newt.m[4], 
+                                    newt.m[5]
+        )
+    }
+
+
 	//centre the context, makes life easier!
-	self.context.translate(self.canvasOffset.x, self.canvasOffset.y) ;
+    self.ctm.translate(self.canvasOffset.x, self.canvasOffset.y) ;
+    self.ctm.rotate(Math.PI/2);
 	
 
 	self.radii = {
@@ -151,14 +180,31 @@ PlasmidMapDialog.prototype.updateSelection = function () {
 	}
 }
 
+PlasmidMapDialog.prototype.rotate = function (t) {
+    this.ctm.rotate(t) ;
+    this.drawMap();
+}
+
 PlasmidMapDialog.prototype.drawMap = function () {
 	var self = this;
 	var sc = gentle.main_sequence_canvas ;
 	var len = sc.sequence.seq.length ;
 
 	//clear canvas set bg colour to white
+    // using a box defined by our canvas, then pushed through our matrices!
+    var p1 = self.ctm.t.invert().mult(new simple2d.Point(0, 0)),
+        p2 = self.ctm.t.invert().mult(new simple2d.Point(self.context.canvas.width, 0)),
+        p3 = self.ctm.t.invert().mult(new simple2d.Point(self.context.canvas.width, self.context.canvas.height)),
+        p4 = self.ctm.t.invert().mult(new simple2d.Point(0, self.context.canvas.height));
+
 	self.context.fillStyle = 'white' ;
-	self.context.fillRect ( - self.canvasOffset.x, - self.canvasOffset.y, 500, 500);
+    self.context.beginPath();
+    self.context.moveTo(p1.x, p1.y);
+    self.context.lineTo(p2.x, p2.y);
+    self.context.lineTo(p3.x, p3.y);
+    self.context.lineTo(p4.x, p4.y);
+    self.context.lineTo(p1.x, p1.y);
+	self.context.fill();
 
 	//draw line numbers
 	var lineNumberIncrement = bestLineNumbering(len, 200) ; 
@@ -217,6 +263,8 @@ PlasmidMapDialog.prototype.drawMap = function () {
 
 }
 
+
+
 PlasmidMapDialog.prototype.exportToPNG = function(){
 	var canvas = document.getElementById("plasmid_map_canvas") ;
 	var d = canvas.toDataURL("image/png") ;
@@ -232,8 +280,11 @@ PlasmidMapDialog.prototype.angleToBase = function (angle) {
 
 
 PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
-	var mousePoint = { 	x:ev.pageX - parseInt($('#plasmid_map_canvas').offset().left,10) - pmd.canvasOffset.x ,
-						y:ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10) - pmd.canvasOffset.y} ;
+	var mousePoint = new simple2d.Point(ev.pageX - parseInt($('#plasmid_map_canvas').offset().left,10),
+						ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10)) ;
+
+	var untransposed = mousePoint.clone();
+    mousePoint = pmd.ctm.t.invert().mult(mousePoint);
 
 	if (ev.type == "mousemove"){
 		if (pmd.mouseTool.dragSelector){
@@ -253,7 +304,14 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 				var stop = start + ( gentle.main_sequence_canvas.end_base - gentle.main_sequence_canvas.start_base ) ;
 				gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
 				gentle.main_sequence_canvas.ensureBaseIsVisible (  stop) ;
-		}
+		} else if (pmd.mouseTool.rotatDrag == true ){
+            console.log("mm - bg");
+            var angleChanged = simple2d.angleBetween( pmd.mouseTool.rotatDragStartMouse, pmd.mouseTool.rotatDragTM.invert().mult(untransposed)) *5;
+            pmd.ctm.setTransform(pmd.mouseTool.rotatDragTM);
+            pmd.ctm.rotate(angleChanged);
+            //pmd.mouseTool.rotatDragStartMouse = simple2d.rotate(angleChanged).mult(pmd.mouseTool.rotatDragStartMouse.clone()) ;
+            pmd.drawMap();
+        }
 	} else if (ev.type == "mousedown"){
 		if ( pmd.currentSelection.pointWithin(mousePoint) ) {
 			pmd.currentSelection.setHighLight(true, 'rgba(255,255,50,.5)');
@@ -263,7 +321,13 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 			pmd.mouseTool.dragMouseStartAngle = Math.atan2(mousePoint.y,mousePoint.x);
 			pmd.mouseTool.dragStartBaseStartAngle = pmd.currentSelection.startAngle;
 			pmd.mouseTool.dragStartBaseEndAngle = pmd.currentSelection.endAngle;
-		} 
+		} else {
+            //assuming it's background for the moment
+            console.log("md - bg");
+            pmd.mouseTool.rotatDrag = true;
+            pmd.mouseTool.rotatDragStartMouse = mousePoint.clone();
+            pmd.mouseTool.rotatDragTM = pmd.ctm.t.clone() ;
+        }
 	} else if (ev.type == "mouseup"){
 
 		if ( pmd.mouseTool.dragSelector ) {
@@ -271,7 +335,21 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 				pmd.drawMap();
 
 				pmd.mouseTool.dragSelector = false;
-		} 
+		} else if (pmd.mouseTool.rotatDrag){
+            pmd.mouseTool.rotatDrag = false;
+        }
+	} else if (ev.type == "mouseover"){
+		console.log("mouseover - pm")
+	} else if (ev.type == "mouseout"){
+		console.log("mouseout -pm")
+		if ( pmd.mouseTool.dragSelector ) {
+				pmd.currentSelection.setHighLight(false);
+				pmd.drawMap();
+
+				pmd.mouseTool.dragSelector = false;
+		} else if (pmd.mouseTool.rotatDrag){
+            pmd.mouseTool.rotatDrag = false;
+        }
 	}
 
 
