@@ -19,6 +19,7 @@ function PlasmidMapDialog () {
 		$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
+		$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
 	} ) ;
 
 }
@@ -35,8 +36,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	self.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
 	self.context.canvas.height = parseInt ( $('#plasmid_map').height() ) ;
 
-	self.canvasOffset = { x: self.context.canvas.width * 2, y:self.context.canvas.height /2};
-	self.canvasAngle = Math.PI/4;
+	self.canvasOffset = { x: self.context.canvas.width / 2, y:self.context.canvas.height /2};
 
 	// This is silly, but only way I can keep track of 
 	// the context's transform, like these guys...
@@ -66,8 +66,8 @@ PlasmidMapDialog.prototype.initMap = function () {
 
 
 	//centre the context, makes life easier!
-    self.ctm.translate(self.canvasOffset.x, self.canvasOffset.y) ;
-    self.ctm.rotate(Math.PI/2);
+    //self.ctm.translate(self.canvasOffset.x, self.canvasOffset.y) ;
+   // self.ctm.rotate(Math.PI);
 	
 
 	self.radii = {
@@ -78,16 +78,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 					lineNumbering: {r:180, R:240}
 	};
 
-	for (var key in self.radii) {
-	   if (self.radii.hasOwnProperty(key)) {
-	      var obj = self.radii[key];
-	      for (var prop in obj) {
-	         if (obj.hasOwnProperty(prop)) {
-	            obj[prop] = obj[prop] + self.canvasOffset.x - 300 ;
-	         }
-	      }
-	   }
-	}
+
 
 	//testing rotation
 	//self.context.rotate(Math.PI/4);
@@ -107,6 +98,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	var to = sc.end_base * Math.PI * 2 / len;
 	self.currentSelection = new WasherSegment(0,0,self.radii.currentSelection.r,self.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 
+	self.zoom(50);
 	self.drawMap();
 }
 
@@ -122,11 +114,13 @@ PlasmidMapDialog.prototype.updateMap = function () {
 
 	//re-init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
-	self.linegraph = new RadialLineGraph(0,0,100,50,self.somePlasmid.gcat_ratio,'blue');
+	self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
 
 	//update selection marker
 	this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
 	this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
+	this.currentSelection.innerRadius = self.radii.currentSelection.r
+	this.currentSelection.outerRadius = self.radii.currentSelection.R
 
 	self.drawMap();
 }
@@ -175,7 +169,8 @@ PlasmidMapDialog.prototype.updateSelection = function () {
 		// display current selection
 		this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
 		this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
-
+		this.currentSelection.innerRadius = self.radii.currentSelection.r
+		this.currentSelection.outerRadius = self.radii.currentSelection.R
 		this.drawMap();
 	}
 }
@@ -209,17 +204,18 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	//draw line numbers
 	var lineNumberIncrement = bestLineNumbering(len, 200) ; 
 	var angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ;
-	var r = self.radii.lineNumbering.r;
-	var R =  self.radii.lineNumbering.R;
-	var textX = self.radii.lineNumbering.R;
-	var textY = 10;
+	var r =  - self.radii.lineNumbering.r;
+	var R =    - self.radii.lineNumbering.R;
+	var textX = - self.radii.lineNumbering.R;
+	var textY = -10;
 
 	self.context.save() ;
 	self.strokeStyle = '#000' ; 
 	self.context.fillStyle = "#000";
 	self.context.lineWidth = 1 ;
 	self.context.font = "10px Arial";
-	self.context.textAlign = 'end';
+	self.context.textAlign = 'start';
+	self.context.rotate(Math.PI);
 
 	for ( var i = 0; i < len/lineNumberIncrement; i++){
 		self.context.beginPath()
@@ -253,14 +249,12 @@ PlasmidMapDialog.prototype.drawMap = function () {
 		self.context.font = "12px Arial";
 
 		var midAngle = (self.annotations[i].start + self.annotations[i].end)/2;
-		var midR = (self.annotations[i].min + self.annotations[i].max*2)/3;
+		var midR = (self.annotations[i].min + self.annotations[i].max*4)/5;
 		drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle)
 
 		self.context.restore();
 	}
-
 	self.linegraph.draw(self.context);
-
 }
 
 
@@ -286,6 +280,8 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 	var untransposed = mousePoint.clone();
     mousePoint = pmd.ctm.t.invert().mult(mousePoint);
 
+
+
 	if (ev.type == "mousemove"){
 		if (pmd.mouseTool.dragSelector){
 				var angleChanged = normaliseAngle(Math.atan2(mousePoint.y,mousePoint.x)) - normaliseAngle(pmd.mouseTool.dragMouseStartAngle); 
@@ -305,7 +301,6 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 				gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
 				gentle.main_sequence_canvas.ensureBaseIsVisible (  stop) ;
 		} else if (pmd.mouseTool.rotatDrag == true ){
-            console.log("mm - bg");
             var angleChanged = simple2d.angleBetween( pmd.mouseTool.rotatDragStartMouse, pmd.mouseTool.rotatDragTM.invert().mult(untransposed)) *5;
             pmd.ctm.setTransform(pmd.mouseTool.rotatDragTM);
             pmd.ctm.rotate(angleChanged);
@@ -323,7 +318,6 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 			pmd.mouseTool.dragStartBaseEndAngle = pmd.currentSelection.endAngle;
 		} else {
             //assuming it's background for the moment
-            console.log("md - bg");
             pmd.mouseTool.rotatDrag = true;
             pmd.mouseTool.rotatDragStartMouse = mousePoint.clone();
             pmd.mouseTool.rotatDragTM = pmd.ctm.t.clone() ;
@@ -339,9 +333,8 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
             pmd.mouseTool.rotatDrag = false;
         }
 	} else if (ev.type == "mouseover"){
-		console.log("mouseover - pm")
 	} else if (ev.type == "mouseout"){
-		console.log("mouseout -pm")
+		//kill whatever action we're doing when the mouse leaves...
 		if ( pmd.mouseTool.dragSelector ) {
 				pmd.currentSelection.setHighLight(false);
 				pmd.drawMap();
@@ -350,6 +343,8 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 		} else if (pmd.mouseTool.rotatDrag){
             pmd.mouseTool.rotatDrag = false;
         }
+	} else if (ev.type == "mousewheel"){ 
+		pmd.zoom(ev.delta);
 	}
 
 
@@ -365,7 +360,46 @@ PlasmidMapDialog.prototype.absorb_event = function (event) {
 	e.returnValue = false;
 	return false;
 }
+PlasmidMapDialog.prototype.zoom = function(delta){
 
+	//oh goodness this is odd...
+	
+	var canvas_vector = new simple2d.Point(delta,250);
+	var centre_of_context_in_terms_of_canvas = new simple2d.Point(this.ctm.t.m[4], this.ctm.t.m[5]);
+
+	if (canvas_vector.x + centre_of_context_in_terms_of_canvas.x < this.context.canvas.width/2){
+		//trying to move further towards centre than we want to allow, thus move exactly to centre.
+		this.ctm.setTransform(new simple2d.Transform(this.ctm.t.m[0],this.ctm.t.m[1],this.ctm.t.m[2],this.ctm.t.m[3],this.context.canvas.width/2,this.context.canvas.height/2));
+	} else {
+		// shift context by canvas_vector... 
+		var translation_vector = this.ctm.t.invert().mult(canvas_vector).normalise().mult(-delta*15);
+		this.ctm.translate(translation_vector.x, translation_vector.y);
+	}
+
+	centre_of_canvas_in_terms_of_context = this.ctm.t.invert().mult(new simple2d.Point( this.context.canvas.width/2 - 2, this.context.canvas.height/2)) ;
+
+	var distance_to_centre = centre_of_canvas_in_terms_of_context.magnitude();
+	var min_r = 30;
+	var max_r = distance_to_centre + this.context.canvas.width/2 - min_r;
+
+	if (distance_to_centre  > this.context.canvas.width/2 + min_r){
+		//centre is off canvas
+		min_r = distance_to_centre - this.context.canvas.width/2 + min_r;
+	}
+
+	var del_r = max_r - min_r;
+	
+	this.radii = {
+					currentSelection: {r:min_r, R:min_r + del_r*0.87},
+					plasmidCircle: {r:min_r + del_r*0.65},
+					annotations: {r1:min_r + del_r*0.54, r2:min_r + del_r*0.60, r3:min_r + del_r*0.7, r4:min_r + del_r*0.76 },
+					linegraph: {r:min_r + del_r*0.43},
+					lineNumbering: {r:min_r + del_r*0.78, R:max_r}
+	};
+
+	this.updateMap();
+	this.drawMap();
+}
 
 function PlasmidMap(dna,res){
 	this.dna = dna ;
@@ -557,7 +591,7 @@ function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font) {
     context.restore();
 }
 
-stringWidthHeight = function(str, font) {
+var stringWidthHeight = function(str, font) {
 	//copied from
 	//http://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
 	  var f = font || '12px arial',
