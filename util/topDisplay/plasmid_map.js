@@ -169,8 +169,8 @@ PlasmidMapDialog.prototype.updateSelection = function () {
 		// display current selection
 		this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
 		this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
-		this.currentSelection.innerRadius = self.radii.currentSelection.r
-		this.currentSelection.outerRadius = self.radii.currentSelection.R
+		this.currentSelection.innerRadius = this.radii.currentSelection.r
+		this.currentSelection.outerRadius = this.radii.currentSelection.R
 		this.drawMap();
 	}
 }

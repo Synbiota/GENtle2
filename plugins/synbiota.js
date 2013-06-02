@@ -116,7 +116,7 @@ synbiota.prototype.saveToSynbiota = function () {
 		,
 		error: function(jqXHR, textStatus, errorThrown) {
 				//update last saved notification.
-				sc.sequence.synbiota.updated_at = "save failed!!" ;
+				sc.sequence.synbiota.updated_at = "save failed." ;
 				sc.updateTitleBar() ;
 		}
 
