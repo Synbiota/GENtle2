@@ -545,11 +545,17 @@ SequenceCanvas.prototype.addTitleBarNavButtons = function ( core ) {
 
 SequenceCanvas.prototype.updateTitleBar = function () {
 	var me = this ;
-	var name = me.sequence.name ;
+	var name = me.sequence.name;
 	var h = '' ;
 	h += '<span class="label label-success">' + me.sequence.typeName.toUpperCase() + '</span> ' ;
-	h += "<span class='label label-info'>" + name + "</span>&nbsp;" ;
+	h += "<span class='label label-info' id='sequence_name'></span>&nbsp;" ;
 	h += "<span class='label'>" + addCommas ( me.sequence.seq.length ) + " bp</span>" ;
 	h = me.addTitleBarNavButtons ( h ) ;
 	$('#sequence_canvas_title_bar').html(h).find('.label').css('font-weight','normal') ;
+
+	// Add mechanism for inline editing of sequence title 
+	$('#sequence_name').text(name.trunc(50, true)).attr('title', name).inlineEditable({onSaveCallback: function(val) {
+		gentle.main_sequence_canvas.sequence.name = val;
+	}});
+
 }
