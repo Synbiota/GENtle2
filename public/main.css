@@ -199,6 +199,12 @@
 
 /* Other */
 
+.navbar-inner .container-fluid {
+	padding-right: 0;
+}
+.navbar-search {
+	margin-right: 10px;
+}
 .container-fluid > .sidebar {
     position: absolute;
     top: 0;
@@ -240,6 +246,7 @@ html, body {
 	position:absolute;
 	padding:0px;
 	margin:0px;
+	margin-top: 50px;
 }
 
 h1 {
