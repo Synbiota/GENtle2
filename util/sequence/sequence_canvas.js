@@ -71,9 +71,11 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 SequenceCanvas.prototype.resizeCanvas = function () {
   var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
   var h = $('#canvas_wrapper').height() ;
+  var new_h = $('#main').height() - 20;
   $('#sequence_canvas').css ( { width:w+'px' , height:h } ) ;
-  $('#canvas_wrapper').css ( { 'max-height' : h } ) ;
-  $('#canvas_wrapper').height ( $('#main').height() - 25 ) ;
+  $('#canvas_wrapper').css ( { 'max-height' : Math.max(h, new_h) } ) ;
+  $('#canvas_wrapper').height ( new_h) ;
+  console.log($('#canvas_wrapper').height());
   $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
   this.show() ;
 }

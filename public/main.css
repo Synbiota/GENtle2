@@ -199,6 +199,13 @@
 
 /* Other */
 
+.navbar .navbar-inner {
+	padding-right: 0;
+  padding-left: 0;
+  -webkit-border-radius: 0;
+     -moz-border-radius: 0;
+          border-radius: 0;
+}
 .navbar-inner .container-fluid {
 	padding-right: 0;
 }
@@ -246,7 +253,6 @@ html, body {
 	position:absolute;
 	padding:0px;
 	margin:0px;
-	margin-top: 50px;
 }
 
 h1 {
@@ -609,6 +615,7 @@ ul.nav-tabs.small-tabs {
 ul.nav-tabs.small-tabs > li > a {
 	padding-top: 2px;
 	padding-bottom: 2px;
+	white-space: nowrap;
 }
 ul.nav-tabs.small-tabs span.label {
 	font-size: 11px;

@@ -84,8 +84,7 @@ var gentle = {
 		
 			$(window).bind('beforeunload', function(){ gentle.saveLocally () ; });
 			$(window).bind('unload', function(){ gentle.saveLocally () ; });
-			
-			$('#main').height ( $('body').height()-70 ) ;
+			gentle.resizeMainDiv();
 		
 			$(window)
 			.bind ( 'dragenter' , function ( evt ) {
@@ -111,6 +110,11 @@ var gentle = {
 			} ) ;
 		} ) ;
 	} ,
+
+	resizeMainDiv: function() {
+		$('#main').height ( $('body').height()-($('.navbar').height()+30) );
+		console.log($('#main').height());
+	},
 	
 	/**
 		Returns the "blessed" feature type string, or "misc"
@@ -199,7 +203,7 @@ var gentle = {
 				$.each ( plugin_list.all , function ( k , v ) { plugins.load_on_start.push ( k ) ; } ) ;
 				plugins.load_on_start = jQuery.unique ( plugins.load_on_start ) ;
 				plugins.deactivated = plugin_list.deactivated ;
-				plugins.loadPlugins() ;
+				plugins.loadPlugins();
 			} else {
 				plugins.load_on_start = gentle_config.default_plugins ;
 			}
@@ -945,6 +949,7 @@ window.zcol = colors;
 	} ,
 	
 	on_resize_event : function () {
+		gentle.resizeMainDiv();
 		gentle.main_sequence_canvas.resizeCanvas() ;
 	}
 

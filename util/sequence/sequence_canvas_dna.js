@@ -287,14 +287,9 @@ SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
 
 SequenceCanvasDNA.prototype.init = function () {
 	var sc = this ;
-	var cw = $('#canvas_wrapper').offset() ;
-	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
-	var h = $('#canvas_wrapper').height() ;
-	$('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
-	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
-	$('#sequence_canvas_title_bar').css ( { width:w } ) ;
 
 	sc.updateTitleBar() ;
+	sc.resize();
 	
 	// Select
 	sc.selecting = false ;
@@ -329,7 +324,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	} ) ;
 
 	// Window resize event
-	$(window).resize ( gentle.on_resize_event ) ;
+	$(window).resize ( function() { gentle.on_resize_event(); sc.resize(); } ) ;
 	
 	// Attach mouse wheel event to canvas
 	$('#sequence_canvas').mousewheel(function(event, delta, deltaX, deltaY) {
@@ -352,6 +347,15 @@ SequenceCanvasDNA.prototype.init = function () {
 		sc.yoff = oy ;
 		sc.show() ;
 	} ) ;
+}
+
+SequenceCanvasDNA.prototype.resize = function() {
+	var cw = $('#canvas_wrapper').offset() ;
+	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+	var h = $('#canvas_wrapper').height() ;
+	$('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
+	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
+	$('#sequence_canvas_title_bar').css ( { width:w } ) ;
 }
 
 SequenceCanvasDNA.prototype.recalc = function () {
