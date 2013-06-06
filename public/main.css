@@ -1,3 +1,6 @@
+
+
+
 /* Designer CSS */
 .designer_row_feature {
 	display:inline-block;
@@ -466,8 +469,7 @@ h1 {
 
 
 #sequence_canvas_title_bar {
-	height:20px;
-	border-bottom:1px solid #DDDDDD;
+	height:28px;
 	padding-bottom:1px;
 	margin-bottom:1px;
 /*	border:1px solid red;*/
@@ -588,4 +590,47 @@ pre.jscode {
     cursor: default;
     opacity: 0.65;
 }
-​
+
+
+
+/* Title bar small tabs */
+
+ul.nav-tabs.small-tabs {
+	height: 25px;
+	font-size: 11px;
+}
+ul.nav-tabs.small-tabs > li > a {
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+ul.nav-tabs.small-tabs span.label {
+	font-size: 11px;
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
+ul.nav-tabs.small-tabs > li .close {
+	float: none;
+	font-size: 12px;
+	margin-left: 3px;
+}
+ul.nav-tabs.small-tabs > li.no-hover > a:hover {
+	border-color: transparent;
+}
+
+.no-bold {
+	font-weight: normal;
+}
+.small-caps {
+	font-variant: small-caps;
+}
+
+/* Variations on menus and dropdowns */
+ul.dropdown-menu > li.selected > a::before {
+	content: "\00BB";
+	position: absolute;
+	margin-left: -10px;
+}
+
+
+
+
