@@ -27,6 +27,7 @@
   			<b class="caret"></b>
   		</a>
   		<ul class="dropdown-menu">
+  			<li class="nav-header">Loaded sequences</li>
 				{{#allSequences}}
 					<li class="{{#currentSequence}}disabled selected{{/currentSequence}}"><a href='#' data-seq-id='{{id}}' class="sequenceListItem"><span class="text-warning small-caps">{{typeName}}</span> &nbsp;<span class="muted">&middot;</span>&nbsp; {{shortTitle}}</a></li>
 				{{/allSequences}}
