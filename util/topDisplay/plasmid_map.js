@@ -417,8 +417,9 @@ PlasmidMap.prototype.setRes = function(res){
 PlasmidMap.prototype.updateGcatRatios = function(){
 	//determine quantities of G,C,A,T in chunks, given resolution
 	this.gcat_chunks = [] ;
-	var chunk_res = this.res ;
-	var chunk_size = Math.ceil(this.dna.length/chunk_res);
+	var chunk_size = Math.ceil(this.dna.length/this.res);
+	var chunk_res = Math.ceil(this.dna.length/chunk_size); 
+	
 	for (var i = 0; i < chunk_res; i++){
 		var chunk;
 		if(i!=chunk_res-1){
