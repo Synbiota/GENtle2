@@ -113,7 +113,6 @@ var gentle = {
 
 	resizeMainDiv: function() {
 		$('#main').height ( $('body').height()-($('.navbar').height()+30) );
-		console.log($('#main').height());
 	},
 	
 	/**
