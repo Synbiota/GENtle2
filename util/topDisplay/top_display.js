@@ -47,6 +47,7 @@ TopDisplayDNA.prototype.pos2y = function ( pos ) {
 TopDisplayDNA.prototype.y2pos = function ( y ) {
 	var h = parseInt ( $('#top_zone').css('max-height') ) ;
 	var pos = Math.floor ( this.zoom_equivalent * y / h ) ;
+	console.log(h,y,pos);
 	return pos ;
 }
 
@@ -125,13 +126,15 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 
 	// Position indicators
 	var maxpos = me.y2pos ( $('#topbox').height() ) ; //len * ( $('#topbox').height() - 30 ) / ( tw - bw*2 ) ;
+	console.log(maxpos);
 	var every = 1000 ;
 	while ( maxpos / ( every * 10 ) > 20 ) every *= 10 ;
-	for ( var i = 1 ; i < sequence.seq.length ; i += every ) {
+	for ( var i = 1 ; i <= sequence.seq.length ; i += every ) {
 		var pos = i ;
 		if ( pos != 1 ) pos-- ;
 		var y = me.pos2y ( pos ) ;
-		html += "<div class='pos_marker' style='top:"+y+"px'>" + addCommas(pos) + "</div>" ;
+		if(!(y+30 > $('#topbox').height()))
+			html += "<div class='pos_marker' style='top:"+y+"px'>" + addCommas(pos) + "</div>" ;
 	}
 		
 	// Features
@@ -178,8 +181,13 @@ TopDisplayDNA.prototype.do_zoom_top = function ( how ) {
 
 	this.zoom_equivalent = nz ;
 	var h = parseInt ( $('#top_zone').css('max-height') ) ;
-	while ( this.pos2y(len) < h ) this.zoom_equivalent-- ;
+	if(this.pos2y(len)+30 < h) {
+		while ( this.pos2y(len)+30 < h ) this.zoom_equivalent-- ;
+	} else if(this.pos2y(len)+30 > h) {
+		while ( this.pos2y(len)+30 > h ) this.zoom_equivalent++ ;
+	}
 	$('#top_zone').html ( this.get_top_zone() ) ;
+
 	this.update_marker() ;
 	this.make_draggable() ;
 }
