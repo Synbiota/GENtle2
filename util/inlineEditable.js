@@ -16,6 +16,7 @@ function inlineEditable(reference, opts) {
   this.$ref.after(this.$input);
   this.minWidth = opts.minWidth || 250;
   this.onSaveCallback = opts.onSaveCallback;
+  this.editingClass = opts.editingClass || '';
   this.bindEventsToRef();
   this.initStyle();
 }
@@ -51,10 +52,9 @@ inlineEditable.prototype.unbindEventsToInput = function() {
 }
 
 inlineEditable.prototype.initStyle = function() {
-  this.$input
-    .copyCSSProperties(this.$ref, ['line-height', 'font-size', 'padding-top', 'padding-bottom', 'height', 'margin-bottom'])
-    .width(Math.max(this.$ref.width(),this.minWidth))
-    .hide();
+  this.$input.addClass(this.editingClass)
+  var deltaWidth = this.$input.outerWidth(true) - this.$input.width();
+  this.$input.width(this.$ref.outerWidth() - deltaWidth).hide();
 }
 
 inlineEditable.prototype.show = function () {

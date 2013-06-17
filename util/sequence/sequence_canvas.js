@@ -543,7 +543,7 @@ SequenceCanvas.prototype.updateTitleBar = function () {
   $titleBar.find('.sequenceListItem').on('click', function(e) { gentle.showSequence($(this).data('seq-id')); });
 
   // Add mechanism for inline editing of sequence title 
-  $('#sequence_name').inlineEditable({onSaveCallback: function(val) {
+  $('#sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
     gentle.main_sequence_canvas.sequence.name = val;
     me.updateTitleBar();
   }});

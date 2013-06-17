@@ -632,6 +632,11 @@ ul.nav-tabs.small-tabs > li .close {
 ul.nav-tabs.small-tabs > li.no-hover > a:hover {
   border-color: transparent;
 }
+.small-tabs .inline-edited {
+  height: 12px;
+  font-size: 11px;
+  margin-bottom: 1px;
+}
 
 .no-bold {
   font-weight: normal;
