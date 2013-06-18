@@ -44,7 +44,7 @@
   		</li>
   		<li class="disabled no-hover">
   			<a href="#">
-  				<span class="text-info">{{length}} bp</span>&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="text-warning">{{circularity}}</span>
+  				{{#length}}<span class="text-info">{{length}} bp</span>{{/length}}{{#circularity}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="text-warning">{{circularity}}</span>{{/circularity}}
   			</a>
   		</li>
   	{{/sequence}}

@@ -506,16 +506,10 @@ SequenceCanvas.prototype.updateTitleBar = function () {
 
   // Compile template (can preloaded at a later stage)
   var template = Hogan.compile($('#tpl-title_bar').html());
+  var notDesigner = !(this.sequence.typeName != "designer");
   
   // Build dataset for template
   var data = {
-    sequence: {
-      title: this.sequence.name,
-      shortTitle: this.sequence.name.trunc(50,true),
-      typeName: this.sequence.typeName,
-      length: this.sequence.seq.length,
-      circularity: (this.is_circular ? 'circular' : 'linear'),
-    },
     currentSequence: gentle.current_sequence_entry+1,
     totalSequences: gentle.sequences.length,
     allSequences: $.map(gentle.sequences, function(e,i) {
@@ -527,6 +521,20 @@ SequenceCanvas.prototype.updateTitleBar = function () {
       };
     })
   };
+
+  if(this.sequence.typeName != "designer") {
+    data.sequence =  {
+      title: this.sequence.name,
+      shortTitle: this.sequence.name.trunc(50,true),
+      typeName: this.sequence.typeName,
+      length: this.sequence.seq.length,
+      circularity: (this.is_circular ? 'circular' : 'linear'),
+    };
+  } else {
+    data.sequence = {
+      typeName: this.sequence.typeName
+    }
+  }
 
   if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
     var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
