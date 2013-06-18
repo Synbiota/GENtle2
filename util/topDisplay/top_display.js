@@ -47,6 +47,7 @@ TopDisplayDNA.prototype.pos2y = function ( pos ) {
 TopDisplayDNA.prototype.y2pos = function ( y ) {
 	var h = parseInt ( $('#top_zone').css('max-height') ) ;
 	var pos = Math.floor ( this.zoom_equivalent * y / h ) ;
+	console.log(h,y,pos);
 	return pos ;
 }
 
@@ -125,13 +126,14 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 
 	// Position indicators
 	var maxpos = me.y2pos ( $('#topbox').height() ) ; //len * ( $('#topbox').height() - 30 ) / ( tw - bw*2 ) ;
+	console.log(maxpos);
 	var every = 1000 ;
 	while ( maxpos / ( every * 10 ) > 20 ) every *= 10 ;
 	for ( var i = 1 ; i <= sequence.seq.length ; i += every ) {
 		var pos = i ;
 		if ( pos != 1 ) pos-- ;
 		var y = me.pos2y ( pos ) ;
-		if(true || !(y+25 > $('#topbox').height()))
+		if(!(y+30 > $('#topbox').height()))
 			html += "<div class='pos_marker' style='top:"+y+"px'>" + addCommas(pos) + "</div>" ;
 	}
 		
@@ -191,7 +193,7 @@ TopDisplayDNA.prototype.do_zoom_top = function ( how ) {
 }
 
 TopDisplayDNA.prototype.init = function () {
-	var html = "", me = this;
+	var html = "" ;
 	
 	// Zoom boxes
 //	html += "<div id='zoombox' style='position:absolute;float:right;z-index:99'>" ;
@@ -204,21 +206,12 @@ TopDisplayDNA.prototype.init = function () {
 	$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 
 	html = '' ;
-	html += "<div id='top_zone' style='left:0px;top:0px;right:0px;max-height:"+ ($('#main').height()-40)+"px;'>" ;
+	html += "<div id='top_zone' style='left:0px;top:0px;right:0px;max-height:"+($(window).height()-100)+"px;' >" ;
 	html += "</div>" ;
 	$('#topbox').html ( html ) ;
-	this.resize();
-	$(window).on('resize', function() { me.resize(); });
-	
-}
-TopDisplayDNA.prototype.resize = function () {
 	$('#top_zone').html ( this.get_top_zone() ) ;
-	$('#top_zone')
-		.css('max-height', $('#main').height()-40)
-		.height(this.pos2y(gentle.sequences[gentle.current_sequence_entry].seq.length ));
 	this.make_draggable() ;
 }
-
 
 function TopDisplayDNA ( is_vertical ) {
 	var sequence = gentle.sequences[gentle.current_sequence_entry] ;
