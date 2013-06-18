@@ -1,14 +1,14 @@
 function getBlobBuilder () {
-	try {
-		if ( window.Blob ) return new window.Blob() ;
-	} catch ( e ) {
-		if ( window.BlobBuilder ) return new window.BlobBuilder() ;
-		if ( window.MozBlobBuilder ) return new window.MozBlobBuilder() ;
-		if ( window.WebKitBlobBuilder ) return new window.WebKitBlobBuilder() ;
-		if ( window.MsBlobBuilder ) return new window.MsBlobBuilder() ;
-	}
-	
-	return undefined ;
+  try {
+    if ( window.Blob ) return new window.Blob() ;
+  } catch ( e ) {
+    if ( window.BlobBuilder ) return new window.BlobBuilder() ;
+    if ( window.MozBlobBuilder ) return new window.MozBlobBuilder() ;
+    if ( window.WebKitBlobBuilder ) return new window.WebKitBlobBuilder() ;
+    if ( window.MsBlobBuilder ) return new window.MsBlobBuilder() ;
+  }
+  
+  return undefined ;
 }
 
 // "length" of object
@@ -25,7 +25,7 @@ String.prototype.reverse=function(){return this.split("").reverse().join("");}
 
 // Just what it says...
 function ucFirst ( string ) {
-	return string.charAt(0).toUpperCase() + string.slice(1);
+  return string.charAt(0).toUpperCase() + string.slice(1);
 }
 
 // Add thousands separator commas
@@ -44,85 +44,85 @@ function addCommas(nStr) {
 // Reverse-complement sequence
 // TODO: find the five ways this function could run faster if you're bored!
 function rcSequence ( s ) {
-	var t = '' ;
-	for ( var i = 0 ; i < s.length ; i++ ) {
-		t = cd.rc[s.charAt(i)] + t ;
-	}
-	return t ;
+  var t = '' ;
+  for ( var i = 0 ; i < s.length ; i++ ) {
+    t = cd.rc[s.charAt(i)] + t ;
+  }
+  return t ;
 }
 
 // Post-process common data for easier access
 function loadBaseData () {
-	// IUPAC to bases
-	cd.iupac2bases = {} ;
-	$.each ( cd.bases2iupac , function ( k , v ) { cd.iupac2bases[v] = k ; } ) ;
-	
-	// Reverse-complement bases
-	cd.rc = {} ;
-	$.each ( cd.iupac2bases , function ( iupac , bases ) {
-		var nb = '' ;
-		if ( bases.match(/T/) ) nb += 'A' ;
-		if ( bases.match(/G/) ) nb += 'C' ;
-		if ( bases.match(/C/) ) nb += 'G' ;
-		if ( bases.match(/A/) ) nb += 'T' ;
-		if ( nb == '' ) cd.rc[iupac] = 'N' ; // N <=> N
-		else cd.rc[iupac] = cd.bases2iupac[nb] ;
-	} ) ;
-	
-	// Amino Acids  : short to long
-	cd.aa_s2l = {} ;
-	$.each ( cd.aa , function ( k , v ) { cd.aa_s2l[v.short] = v.long ; } ) ;
+  // IUPAC to bases
+  cd.iupac2bases = {} ;
+  $.each ( cd.bases2iupac , function ( k , v ) { cd.iupac2bases[v] = k ; } ) ;
+  
+  // Reverse-complement bases
+  cd.rc = {} ;
+  $.each ( cd.iupac2bases , function ( iupac , bases ) {
+    var nb = '' ;
+    if ( bases.match(/T/) ) nb += 'A' ;
+    if ( bases.match(/G/) ) nb += 'C' ;
+    if ( bases.match(/C/) ) nb += 'G' ;
+    if ( bases.match(/A/) ) nb += 'T' ;
+    if ( nb == '' ) cd.rc[iupac] = 'N' ; // N <=> N
+    else cd.rc[iupac] = cd.bases2iupac[nb] ;
+  } ) ;
+  
+  // Amino Acids  : short to long
+  cd.aa_s2l = {} ;
+  $.each ( cd.aa , function ( k , v ) { cd.aa_s2l[v.short] = v.long ; } ) ;
 
-	// Amino Acids  : short to codons
-	cd.aa_s2c = {} ;
-	$.each ( cd.aa , function ( k , v ) { cd.aa_s2c[v.short] = v.codons ; } ) ;
+  // Amino Acids  : short to codons
+  cd.aa_s2c = {} ;
+  $.each ( cd.aa , function ( k , v ) { cd.aa_s2c[v.short] = v.codons ; } ) ;
 
-	// Amino Acids  : codons to short
-	cd.aa_c2s = {} ;
-	$.each ( cd.aa , function ( k , v ) {
-		$.each ( v.codons , function ( k2 , v2 ) {
-			cd.aa_c2s[v2] = v.short ;
-		} ) ;
-	} ) ;
-	
-	// Restriction enzymes : Accessible by name
-	cd.re = {} ;
-	$.each ( cd.restriction_enzymes , function ( k , v ) {
+  // Amino Acids  : codons to short
+  cd.aa_c2s = {} ;
+  $.each ( cd.aa , function ( k , v ) {
+    $.each ( v.codons , function ( k2 , v2 ) {
+      cd.aa_c2s[v2] = v.short ;
+    } ) ;
+  } ) ;
+  
+  // Restriction enzymes : Accessible by name
+  cd.re = {} ;
+  $.each ( cd.restriction_enzymes , function ( k , v ) {
 
-		// Calculate regexp
-		var seq = v.seq ;
-		var pattern = '' ;
-		for ( var i = 0 ; i < seq.length ; i++ ) {
-			var r = cd.iupac2bases[seq[i]] ;
-			if ( r.length == 1 ) pattern += seq[i] ;
-			else pattern += '['+r+']' ;
-		}
-		
-		cd.re[v.name] = {
-			seq:v.seq , 
-			cut:v.cut , 
-			offset:v.offset , 
-			is_palindromic : ( v.seq == rcSequence(v.seq) ) , // TODO check cut/offset for is_palindromic
-			rx : new RegExp('('+pattern+')','gi')
-		} ;
-	} ) ;
+    // Calculate regexp
+    var seq = v.seq ;
+    var pattern = '' ;
+    for ( var i = 0 ; i < seq.length ; i++ ) {
+      var r = cd.iupac2bases[seq[i]] ;
+      if ( r.length == 1 ) pattern += seq[i] ;
+      else pattern += '['+r+']' ;
+    }
+    
+    cd.re[v.name] = {
+      seq:v.seq , 
+      cut:v.cut , 
+      offset:v.offset , 
+      is_palindromic : ( v.seq == rcSequence(v.seq) ) , // TODO check cut/offset for is_palindromic
+      rx : new RegExp('('+pattern+')','gi')
+    } ;
+  } ) ;
 
-	// Restriction enzymes : Group by recognition sequence and cut/offset
-	cd.re_s2n = {} ; // Sequence-to-name; actually [sequence_length][seq/cut/offset] = [ list,of,names ]
-	$.each ( cd.re , function ( k , v ) {
-		var l = v.seq.length ;
-		var s = v.seq + "/" + v.cut + "/" + v.offset ;
-		if ( undefined === cd.re_s2n[l] ) cd.re_s2n[l] = {} ;
-		if ( undefined === cd.re_s2n[l][s] ) cd.re_s2n[l][s] = [] ;
-		cd.re_s2n[l][s].push ( k ) ;
-	} ) ;
-	
-	// Type colors
-	$.each ( cd.feature_types , function ( k , v ) {
-		gentle.features[k] = v.name || ucFirst ( k ) ;
-		if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
-		cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) || '#DDDDDD' ;
-	} ) ;
+  // Restriction enzymes : Group by recognition sequence and cut/offset
+  cd.re_s2n = {} ; // Sequence-to-name; actually [sequence_length][seq/cut/offset] = [ list,of,names ]
+  $.each ( cd.re , function ( k , v ) {
+    var l = v.seq.length ;
+    var s = v.seq + "/" + v.cut + "/" + v.offset ;
+    if ( undefined === cd.re_s2n[l] ) cd.re_s2n[l] = {} ;
+    if ( undefined === cd.re_s2n[l][s] ) cd.re_s2n[l][s] = [] ;
+    cd.re_s2n[l][s].push ( k ) ;
+  } ) ;
+  
+  // Type colors
+  $.each ( cd.feature_types , function ( k , v ) {
+    gentle.features[k] = v.name || ucFirst ( k ) ;
+    if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
+    cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) || '#DDDDDD' ;
+  } ) ;
 
 }
 
@@ -131,17 +131,17 @@ function loadBaseData () {
 // showing a textarea with the selected text to be copied when the action is performed;
 // the textarea then executes the event. The textarea is then hidden again.
 function copyToClipboard ( text ) {
-	$('#copytb').val(text);
-	$('#copywrap').show();
-	$('#copytb').focus();
-	$('#copytb').select();
-	setTimeout ( "$('#copywrap').hide();" , 100 ) ;
+  $('#copytb').val(text);
+  $('#copywrap').show();
+  $('#copytb').focus();
+  $('#copytb').select();
+  setTimeout ( "$('#copywrap').hide();" , 100 ) ;
 }
 
 
 function clone(obj) {
-	if ( undefined === obj ) return undefined ;
-	return JSON.parse ( JSON.stringify(obj) );
+  if ( undefined === obj ) return undefined ;
+  return JSON.parse ( JSON.stringify(obj) );
 /*    // A clone of an object is an empty object 
             // with a prototype reference to the original.
 
@@ -154,3 +154,29 @@ function clone(obj) {
 }
 
 String.prototype.replaceAt=function(index, character) { return this.substr(0, index) + character + this.substr(index+character.length); }
+String.prototype.trunc =
+     function(n,useWordBoundary){
+         var tooLong = this.length>n,
+             s_ = tooLong ? this.substr(0,n-1) : this;
+         s_ = useWordBoundary && tooLong ? s_.substr(0,s_.lastIndexOf(' ')) : s_;
+         return  ""+(tooLong ? s_ + '...' : s_);
+      }; // adapted from http://stackoverflow.com/questions/1199352/smart-way-to-shorten-long-strings-with-javascript
+
+// if fullEscape option is set to true, escapes everything, otherwise escapes only < and >
+String.prototype.escapeHTML = function(fullEscape) {
+  return ""+ (fullEscape ? this.replace(/</i, '&lt;').replace(/>/i, '&gt;') : document.createTextNode(this).textContent);
+}
+
+/* Used to batch copy  a set of CSS properties from a DOM element to another */
+$.fn.copyCSSProperties = function (source, properties_array) {
+  for(var i in properties_array) {
+    var property = properties_array[i];
+    if(property == 'width')
+      this.width(source.width());
+    else if(property == 'height')
+      this.height(source.height());
+    else
+      this.css(property, source.css(property));
+  }
+  return this;
+}

@@ -12,6 +12,43 @@
 <link type="text/css" href="assets/jquery/css/smoothness/jquery-ui-1.8.18.custom.css" rel="Stylesheet" />
 <link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="public/main.css" />
+<script type="moustache/template" id="tpl-title_bar">
+  <ul class="nav nav-tabs small-tabs">
+  	{{#sequence}}{{#synbiota}}
+  		<li class="pull-right disabled no-hover">
+				<a href="#">
+					<span class="muted">Last saved: {{lastSave}}</span>{{#readOnly}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="label label-warning small-caps no-bold">read only</span>{{/readOnly}}
+				</a>
+			</li>
+		{{/synbiota}}{{/sequence}}
+  	<li class="dropdown">
+  		<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+  			<i class="icon-list"></i>
+  			<b class="caret"></b>
+  		</a>
+  		<ul class="dropdown-menu">
+  			<li class="nav-header">Loaded sequences</li>
+				{{#allSequences}}
+					<li class="{{#currentSequence}}disabled selected{{/currentSequence}}"><a href='#' data-seq-id='{{id}}' class="sequenceListItem"><span class="text-warning small-caps">{{typeName}}</span> &nbsp;<span class="muted">&middot;</span>&nbsp; {{shortTitle}}</a></li>
+				{{/allSequences}}
+			</ul>
+  	</li>
+  	{{#sequence}}
+  		<li class="active">
+  			<a href='#'>
+  				<span class="label no-bold">{{currentSequence}} / {{totalSequences}}</span>
+  				<span class="label label-success no-bold small-caps">{{typeName}}</span>&nbsp;&nbsp;
+  				<span title='{{title}}' id="sequence_name">{{shortTitle}}</span>
+  				<span href='#' class="close"><i class="icon-remove"></i></a>
+  			</a>
+  		</li>
+  		<li class="disabled no-hover">
+  			<a href="#">
+  				{{#length}}<span class="text-info">{{length}} bp</span>{{/length}}{{#circularity}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="text-warning">{{circularity}}</span>{{/circularity}}
+  			</a>
+  		</li>
+  	{{/sequence}}
+</script>
 </head>
 
 <body>
@@ -66,7 +103,7 @@
 			<li class="dropdown nav pull-right" id='help_menu_wrapper'>
 				
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>
-				<ul class="dropdown-menu" id='help_menu'>
+				<ul class="dropdown-menu pull-right" id='help_menu'>
 					<li sort='100'><a target='_blank' href='public/templates/help.html'>GENtle help page</a></li>
 					<li sort='200'><a target='_blank' href='https://en.wikibooks.org/wiki/GENtle_2'>GENtle manual at WikiBooks</a></li>
 					<li sort='300'><a target='_blank' href='https://groups.google.com/forum/?fromgroups#!forum/gentledna'>GENtle on Google groups</a></li>
@@ -151,6 +188,7 @@
 <script type="text/javascript" src="assets/DoubleTap.js"></script>
 <script type="text/javascript" src="assets/listAttributes.js"></script>
 <script type="text/javascript" src="assets/moment.min.js"></script>
+<script type="text/javascript" src="assets/hogan-2.0.0.js"></script>
 <script type="text/javascript" src="assets/simple2d.js"></script>
 
 
@@ -170,6 +208,7 @@
 <script type="text/javascript" src="util/sequence/sequence_info.js"></script>
 <script type="text/javascript" src="util/sequence/annotation_editor.js"></script>
 
+<script type="text/javascript" src="util/inlineEditable.js"></script>
 <script type="text/javascript" src="util/kv_storage.js"></script>
 <script type="text/javascript" src="util/file/filetypes.js"></script>
 <script type="text/javascript" src="util/file/ncbi.js"></script>

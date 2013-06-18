@@ -129,15 +129,6 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	return h ;
 }
 
-
-SequenceCanvasDesigner.prototype.updateTitleBar = function () {
-	var me = this ;
-	var h = '' ;
-	h += "<span class='label label-success'>Designer</span>&nbsp;" ;
-	h = me.addTitleBarNavButtons ( h ) ;
-	$('#sequence_canvas_title_bar').html(h).find('.label').css('font-weight','normal') ;
-}
-
 SequenceCanvasDesigner.prototype.init = function () {
 	var me = this ;
 	var h = '' ;

@@ -1,13 +1,13 @@
 //________________________________________________________________________________________
 // SequenceCanvas base class
 function SequenceCanvas () {
-	this.canvas_id = '' ;
-	this.yoff = 0 ;
-	this.sequence = {} ;
-	this.edit = { editing : false } ;
-	this.type = undefined ;
-	this.metakeys = 0 ;
-	this.selection_context_menu = [] ;
+  this.canvas_id = '' ;
+  this.yoff = 0 ;
+  this.sequence = {} ;
+  this.edit = { editing : false } ;
+  this.type = undefined ;
+  this.metakeys = 0 ;
+  this.selection_context_menu = [] ;
 }
 
 SequenceCanvas.prototype.init = function () {}
@@ -19,123 +19,124 @@ SequenceCanvas.prototype.applySettings = function ( settings ) {}
 
 /*
 data = {
-	id : 'some_id' , // MANDATORY
-	items : [ { html : "my item 1" , callback : function(SequenceCanvas){} } , ... ] , // Static items, or
-	getItems : function ( SequeneCanvas ) // Dynamic items (same format as above)
+  id : 'some_id' , // MANDATORY
+  items : [ { html : "my item 1" , callback : function(SequenceCanvas){} } , ... ] , // Static items, or
+  getItems : function ( SequeneCanvas ) // Dynamic items (same format as above)
 }
 */
 SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
-	var me = this ;
-	var found = false ;
-	$.each ( me.selection_context_menu , function ( k , v ) {
-		if ( found || v.id != data.id ) return ;
-		found = true ;
-		me.selection_context_menu[k] = data ;
-		return false ;
-	} ) ;
-	if ( found ) return ;
-	if ( undefined === me.selection_context_menu ) me.selection_context_menu = [  ] ;
-	me.selection_context_menu.push ( data ) ;
+  var me = this ;
+  var found = false ;
+  $.each ( me.selection_context_menu , function ( k , v ) {
+    if ( found || v.id != data.id ) return ;
+    found = true ;
+    me.selection_context_menu[k] = data ;
+    return false ;
+  } ) ;
+  if ( found ) return ;
+  if ( undefined === me.selection_context_menu ) me.selection_context_menu = [  ] ;
+  me.selection_context_menu.push ( data ) ;
 }
 
 
 
 SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
-	var me = this ;
-	var h = '' ;
-	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
-	h += '</ul></div>' ;
-	h += "</div>" ;
-	
-	var menu_item_count = 0 ;
-	var context_menu = $(h) ;
-	$.each ( me.selection_context_menu , function ( k , v ) {
-		var o = ( undefined !== v.items ) ? v.items : v.getItems ( me ) ;
-		$.each ( o , function ( k2 , v2 ) {
-			var li = $("<li><a href='#'></a></li>") ;
-			li.find('a').click(function(){v2.callback(me);return false}) ;
-			li.find('a').html(v2.html) ;
-			if ( undefined !== v2.title ) li.find('a').attr('title',v2.title) ;
-			context_menu.find('ul').append(li) ;
-			menu_item_count++ ;
-		} ) ;
-	} ) ;
-	
-	$('#selection_context_marker').remove() ;
-	if ( menu_item_count == 0 ) return ;
-	$('#canvas_wrapper').prepend ( context_menu ) ;
+  var me = this ;
+  var h = '' ;
+  h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
+  h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
+  h += '</ul></div>' ;
+  h += "</div>" ;
+  
+  var menu_item_count = 0 ;
+  var context_menu = $(h) ;
+  $.each ( me.selection_context_menu , function ( k , v ) {
+    var o = ( undefined !== v.items ) ? v.items : v.getItems ( me ) ;
+    $.each ( o , function ( k2 , v2 ) {
+      var li = $("<li><a href='#'></a></li>") ;
+      li.find('a').click(function(){v2.callback(me);return false}) ;
+      li.find('a').html(v2.html) ;
+      if ( undefined !== v2.title ) li.find('a').attr('title',v2.title) ;
+      context_menu.find('ul').append(li) ;
+      menu_item_count++ ;
+    } ) ;
+  } ) ;
+  
+  $('#selection_context_marker').remove() ;
+  if ( menu_item_count == 0 ) return ;
+  $('#canvas_wrapper').prepend ( context_menu ) ;
 }
 
 
 SequenceCanvas.prototype.resizeCanvas = function () {
-	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
-	var h = $('#canvas_wrapper').height() ;
-	$('#sequence_canvas').css ( { width:w+'px' , height:h } ) ;
-	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
-	$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
-	$('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
-	this.show() ;
+  var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+  var h = $('#canvas_wrapper').height() ;
+  var new_h = $('#main').height() - 20;
+  $('#sequence_canvas').css ( { width:w+'px' , height:h+'px' } ) ;
+  $('#canvas_wrapper').css ( { 'max-height' : Math.max(h, new_h) } ) ;
+  $('#canvas_wrapper').height ( new_h) ;
+  $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
+  this.show() ;
 }
 
 SequenceCanvas.prototype.initSidebar = function () {
-	if ( this.type === undefined ) return ;
-	var me = this ;
-	var h = '' ;
-	$('#toolbar_ul .toolbar_plugin').remove() ;
-	h = '' ;
-	$.each ( plugins.tools[me.type]||{} , function ( k , v ) {
-		h += "<li class='dropdown toolbar_plugin' id='toolbar_plugins_"+k+"' style='display:none'>" ;
-		h += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">'+ucFirst(k)+'<b class="caret"></b></a>' ;
-		h += '<ul class="dropdown-menu"></ul></li>' ;
-	} ) ;
-	$('#toolbar_ul').append ( h ) ;
-	
-	$.each ( plugins.tools[me.type]||{} , function ( section , v1 ) {
-		$.each ( v1 , function ( tool , v2 ) {
-			me.registerTool ( v2 ) 
-		} ) ;
-	} ) ;
-	$.each ( plugins.search[me.type]||{} , function ( section , v1 ) {
-		$.each ( v1 , function ( tool , v2 ) {
-			me.registerSearch ( v2 ) 
-		} ) ;
-	} ) ;
-	$.each ( plugins.context_menu[me.type]||{} , function ( section , v1 ) {
-		$.each ( v1 , function ( tool , v2 ) {
-			me.setContextMenuItem ( v2 ) 
-		} ) ;
-	} ) ;
+  if ( this.type === undefined ) return ;
+  var me = this ;
+  var h = '' ;
+  $('#toolbar_ul .toolbar_plugin').remove() ;
+  h = '' ;
+  $.each ( plugins.tools[me.type]||{} , function ( k , v ) {
+    h += "<li class='dropdown toolbar_plugin' id='toolbar_plugins_"+k+"' style='display:none'>" ;
+    h += '<a href="#" class="dropdown-toggle" data-toggle="dropdown">'+ucFirst(k)+'<b class="caret"></b></a>' ;
+    h += '<ul class="dropdown-menu"></ul></li>' ;
+  } ) ;
+  $('#toolbar_ul').append ( h ) ;
+  
+  $.each ( plugins.tools[me.type]||{} , function ( section , v1 ) {
+    $.each ( v1 , function ( tool , v2 ) {
+      me.registerTool ( v2 ) 
+    } ) ;
+  } ) ;
+  $.each ( plugins.search[me.type]||{} , function ( section , v1 ) {
+    $.each ( v1 , function ( tool , v2 ) {
+      me.registerSearch ( v2 ) 
+    } ) ;
+  } ) ;
+  $.each ( plugins.context_menu[me.type]||{} , function ( section , v1 ) {
+    $.each ( v1 , function ( tool , v2 ) {
+      me.setContextMenuItem ( v2 ) 
+    } ) ;
+  } ) ;
 }
 
 SequenceCanvas.prototype.removePlugin = function ( name ) {
-	
-	// Remove tools
-	$('#right div[name="tool_'+name+'"]').remove();
-	
+  
+  // Remove tools
+  $('#right div[name="tool_'+name+'"]').remove();
+  
 }
 
 SequenceCanvas.prototype.registerSearch = function ( o ) {
-	var me = this ;
-	var x = new window[o.className]();
-	this.search = x ;
-	$('#search_form').remove() ;
+  var me = this ;
+  var x = new window[o.className]();
+  this.search = x ;
+  $('#search_form').remove() ;
 
-	var h = '' ;
-	h += '<form class="navbar-search" id="search_form">' ;
-	h += '<input id="toolbar_search_box" type="text" class="search-query" placeholder="' + o.linkTitle + '"' ;
-	h += " onkeyup='gentle.main_sequence_canvas.search." + o.call + "();return true' />" ;
-	h += '</form>' ;
-	$('#toolbar-right').prepend ( h ) ;
+  var h = '' ;
+  h += '<form class="navbar-search" id="search_form">' ;
+  h += '<input id="toolbar_search_box" type="text" class="search-query" placeholder="' + o.linkTitle + '"' ;
+  h += " onkeyup='gentle.main_sequence_canvas.search." + o.call + "();return true' />" ;
+  h += '</form>' ;
+  $('#toolbar-right').prepend ( h ) ;
 
     $('#toolbar_search_box').focus(function() {
-		var sc = gentle.main_sequence_canvas ;
-		if ( sc.edit.editing ) {
-			sc.setEditMode ( false ) ;
-			sc.show() ;
-		}
-		return false ;
-	} ) ;
+    var sc = gentle.main_sequence_canvas ;
+    if ( sc.edit.editing ) {
+      sc.setEditMode ( false ) ;
+      sc.show() ;
+    }
+    return false ;
+  } ) ;
 
     $('#toolbar_search_box').keydown(function(e) {
         var code = (e.keyCode ? e.keyCode : e.which);
@@ -146,78 +147,78 @@ SequenceCanvas.prototype.registerSearch = function ( o ) {
 }
 
 SequenceCanvas.prototype.registerTool = function ( o ) {
-	var x = new window[o.className]();
-	this.tools[o.name] = x ;
-	
-//	console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
-	
-	var id = 'toolbar_plugins_' + o.section ;
-	var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
-	$('#'+id+' ul').append(h) ;
-	$('#'+id).show() ;
-	gentle.sortMenu ( id ) ;
+  var x = new window[o.className]();
+  this.tools[o.name] = x ;
+  
+//  console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
+  
+  var id = 'toolbar_plugins_' + o.section ;
+  var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
+  $('#'+id+' ul').append(h) ;
+  $('#'+id).show() ;
+  gentle.sortMenu ( id ) ;
 }
 
 
 SequenceCanvas.prototype.getSettings = function () {
-	return {} ;
+  return {} ;
 }
 
 SequenceCanvas.prototype.isCharAllowed = function ( c ) {
-	if ( undefined === this.sequence.edit_allowed ) return true ; // Anything goes
-	var allowed = false ;
-	c = ucFirst ( c ) ;
-	$.each ( this.sequence.edit_allowed , function ( k , v ) {
-		if ( v == c ) allowed = true ;
-	} ) ;
-	return allowed ;
+  if ( undefined === this.sequence.edit_allowed ) return true ; // Anything goes
+  var allowed = false ;
+  c = ucFirst ( c ) ;
+  $.each ( this.sequence.edit_allowed , function ( k , v ) {
+    if ( v == c ) allowed = true ;
+  } ) ;
+  return allowed ;
 }
 
 SequenceCanvas.prototype.pasteHandler = function ( e ) {
-	var sc = gentle.main_sequence_canvas ;
-	if ( !sc.edit.editing ) return ; // Edit mode only
+  var sc = gentle.main_sequence_canvas ;
+  if ( !sc.edit.editing ) return ; // Edit mode only
 
-	// CROSS-BROWSER MADNESS!!!
-	var pastedText = undefined;
-	if (window.clipboardData && window.clipboardData.getData) { // IE
-		pastedText = window.clipboardData.getData('Text');
-	} else if (e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData) {
-		pastedText = e.originalEvent.clipboardData.getData('text/plain');
-	}
-	
-	if ( undefined === pastedText ) {
-		$('#tmp1').remove() ;
-		var h = "<textarea style='position:fixed;left:-500px;bottom:5px;width:1px;height:0px' id='tmp1'></textarea>" ;
-		$('#all').append ( h ) ;
-		$('#tmp1').focus() ;
-		setTimeout ( function () {
-			var s = $('#tmp1').val() ;
-			$('#tmp1').remove() ;
-			sc.doCheckedPaste ( sc , s ) ;
-		} , 1 ) ; // TTGAGTCCAACCC
-	} else {
-		sc.doCheckedPaste ( sc , pastedText ) ;
-	}
+  // CROSS-BROWSER MADNESS!!!
+  var pastedText = undefined;
+  if (window.clipboardData && window.clipboardData.getData) { // IE
+    pastedText = window.clipboardData.getData('Text');
+  } else if (e.originalEvent.clipboardData && e.originalEvent.clipboardData.getData) {
+    pastedText = e.originalEvent.clipboardData.getData('text/plain');
+  }
+  
+  if ( undefined === pastedText ) {
+    $('#tmp1').remove() ;
+    var h = "<textarea style='position:fixed;left:-500px;bottom:5px;width:1px;height:0px' id='tmp1'></textarea>" ;
+    $('#all').append ( h ) ;
+    $('#tmp1').focus() ;
+    setTimeout ( function () {
+      var s = $('#tmp1').val() ;
+      $('#tmp1').remove() ;
+      sc.doCheckedPaste ( sc , s ) ;
+    } , 1 ) ; // TTGAGTCCAACCC
+  } else {
+    sc.doCheckedPaste ( sc , pastedText ) ;
+  }
 }
 
 SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
-	pastedText = pastedText.replace ( /\s/g , '' ) ;
-	
-	if ( true ) { // Cleanup
-		pastedText = pastedText.replace ( /[^a-zA-Z]/g , '' ) ;
-	}
-	
-	var parts = pastedText.split ( '' ) ;
-	var ok = true ;
-	$.each ( parts , function ( k , c ) {
-		if ( !sc.isCharAllowed ( c ) ) ok = false ;
-	} ) ;
-	if ( !ok ) {
-		alert ( "Text contains illegal characters, and was therefore not pasted" ) ;
-		return false ;
-	}
-	
-	sc.doPaste ( sc , pastedText ) ;
+  pastedText = pastedText.replace ( /\s/g , '' ) ;
+  
+  if ( true ) { // Cleanup
+    pastedText = pastedText.replace ( /[^a-zA-Z]/g , '' ) ;
+  }
+  
+  var parts = pastedText.split ( '' ) ;
+  var ok = true ;
+  $.each ( parts , function ( k , c ) {
+    if ( !sc.isCharAllowed ( c ) ) ok = false ;
+  } ) ;
+  if ( !ok ) {
+    alert ( "Text contains illegal characters, and was therefore not pasted" ) ;
+    return false ;
+  }
+  
+  sc.doPaste ( sc , pastedText ) ;
 }
 
 SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
@@ -244,103 +245,103 @@ SequenceCanvas.prototype.deleteSelection = function () {
 }
 
 SequenceCanvas.prototype.modifierCode = function (event) {
-	switch (event.keyCode) {
-	case 91:
-	case 93:
-		return cd.metakeys.CMD;
-	case 16:
-		return cd.metakeys.SHIFT;
-	case 18:
-		return cd.metakeys.ALT;
-	case 17:
-		return cd.metakeys.CTRL;
-	default:
-		return 0;
-	}
+  switch (event.keyCode) {
+  case 91:
+  case 93:
+    return cd.metakeys.CMD;
+  case 16:
+    return cd.metakeys.SHIFT;
+  case 18:
+    return cd.metakeys.ALT;
+  case 17:
+    return cd.metakeys.CTRL;
+  default:
+    return 0;
+  }
 }
 
 SequenceCanvas.prototype.unbindKeyboard = function ( root ) {
-	if ( undefined === root ) root = document ; //$('#main') ;
-	$(root).unbind('keydown').unbind('keyup').unbind('paste').unbind('cut').unbind('copy') ;
+  if ( undefined === root ) root = document ; //$('#main') ;
+  $(root).unbind('keydown').unbind('keyup').unbind('paste').unbind('cut').unbind('copy') ;
 }
 
 SequenceCanvas.prototype.bindKeyboard = function ( root ) {
-	var sc = this ;
-	if ( undefined === root ) root = document ; //$('#main') ;
-	sc.unbindKeyboard(root) ;
-	$(root).off ( 'copy keydown paste cut' ) ;
-	$(root).keydown ( sc.keyhandler ) ;
-	$(root).keyup ( sc.keyhandler_up ) ;
-	$(root).bind ( "paste" , sc.pasteHandler );
-	$(root).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
-	$(root).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
+  var sc = this ;
+  if ( undefined === root ) root = document ; //$('#main') ;
+  sc.unbindKeyboard(root) ;
+  $(root).off ( 'copy keydown paste cut' ) ;
+  $(root).keydown ( sc.keyhandler ) ;
+  $(root).keyup ( sc.keyhandler_up ) ;
+  $(root).bind ( "paste" , sc.pasteHandler );
+  $(root).live ( 'copy' , function () { sc.cut_copy ( false ) ; } ) ;
+  $(root).live ( 'cut' , function () { sc.cut_copy ( true ) ; } ) ;
 }
 
 SequenceCanvas.prototype.keyhandler_up = function ( e ) {
-	if ( gentle.is_in_dialog ) return false ;
-	var sc = gentle.main_sequence_canvas ;
-	sc.metakeys -= sc.modifierCode(e);
+  if ( gentle.is_in_dialog ) return false ;
+  var sc = gentle.main_sequence_canvas ;
+  sc.metakeys -= sc.modifierCode(e);
 }
 
 SequenceCanvas.prototype.specialKeyEvent = function ( eventName , base ) {} // Dummy for child classes
 
 SequenceCanvas.prototype.keyhandler = function ( e ) {
-	if ( e.target.localName == "input" || ( e.target.localName == "textarea" && 'tmp1' != $(e.target).attr('id') ) ) return true ; // Don't touch that
+  if ( e.target.localName == "input" || ( e.target.localName == "textarea" && 'tmp1' != $(e.target).attr('id') ) ) return true ; // Don't touch that
 //    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
     
-	if ( gentle.is_in_dialog ) return false ;
-	var sc = gentle.main_sequence_canvas ;
-	var code = (e.keyCode ? e.keyCode : e.which);
-//	console.log ( code + "/" + e.metaKey ) ;
+  if ( gentle.is_in_dialog ) return false ;
+  var sc = gentle.main_sequence_canvas ;
+  var code = (e.keyCode ? e.keyCode : e.which);
+//  console.log ( code + "/" + e.metaKey ) ;
 
-	var overwrite = sc.overwrite_only ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
-	
-	var metakey = sc.modifierCode ( e ) ;
-	if ( metakey !== 0 ) {
-		sc.metakeys = sc.metakeys | metakey;
-		return ;
-	}
-	
-	var bpp = sc.end_base - sc.start_base + 1 ;
+  var overwrite = sc.overwrite_only ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
+  
+  var metakey = sc.modifierCode ( e ) ;
+  if ( metakey !== 0 ) {
+    sc.metakeys = sc.metakeys | metakey;
+    return ;
+  }
+  
+  var bpp = sc.end_base - sc.start_base + 1 ;
 
-	if ( code == 90 && e.metaKey ) { // Undo
-		e.preventDefault();
-		if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
-		else gentle.doUndo();
-		return ;
-	}
+  if ( code == 90 && e.metaKey ) { // Undo
+    e.preventDefault();
+    if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
+    else gentle.doUndo();
+    return ;
+  }
 
-	if ( !sc.edit.editing ) { // Keys for view mode
-		if ( code == 36 ) { // Start
-			sc.ensureBaseIsVisible ( 0 ) ;
-			sc.sequence.undo.cancelEditing() ;
-		} else if ( code == 35 ) { // End
-			sc.ensureBaseIsVisible ( sc.sequence.seq.length-1 ) ;
-			sc.sequence.undo.cancelEditing() ;
-		} else if ( code == 33 ) { // Page up
-			sc.ensureBaseIsVisible ( sc.start_base - bpp ) ;
-			sc.sequence.undo.cancelEditing() ;
-		} else if ( code == 34 ) { // Page down
-			sc.ensureBaseIsVisible ( sc.end_base + bpp ) ;
-			sc.sequence.undo.cancelEditing() ;
-		} else if ( code == 38 ) { // Cursor up
-			sc.ensureBaseIsVisible ( sc.start_base - sc.bases_per_row ) ;
-			sc.sequence.undo.cancelEditing() ;
-		} else if ( code == 40 ) { // Cursor down
-			sc.ensureBaseIsVisible ( sc.end_base + sc.bases_per_row ) ;
-			sc.sequence.undo.cancelEditing() ;
-		} else if ( code == 8 || code == 46 ) { // Backspace or delete
-			sc.sequence.undo.cancelEditing() ;
-			e.preventDefault();
-			e.stopPropagation();
-			if ( overwrite ) return ;
-			sc.deleteSelection();
-		}
-		return ;
-	}
-	
-	var c = String.fromCharCode(code) ;
-	if ( code == 190 ) c = '.' ;
+  if ( !sc.edit.editing ) { // Keys for view mode
+    if ( code == 36 ) { // Start
+      sc.ensureBaseIsVisible ( 0 ) ;
+      sc.sequence.undo.cancelEditing() ;
+    } else if ( code == 35 ) { // End
+      sc.ensureBaseIsVisible ( sc.sequence.seq.length-1 ) ;
+      sc.sequence.undo.cancelEditing() ;
+    } else if ( code == 33 ) { // Page up
+      sc.ensureBaseIsVisible ( sc.start_base - bpp ) ;
+      sc.sequence.undo.cancelEditing() ;
+    } else if ( code == 34 ) { // Page down
+      sc.ensureBaseIsVisible ( sc.end_base + bpp ) ;
+      sc.sequence.undo.cancelEditing() ;
+    } else if ( code == 38 ) { // Cursor up
+      sc.ensureBaseIsVisible ( sc.start_base - sc.bases_per_row ) ;
+      sc.sequence.undo.cancelEditing() ;
+    } else if ( code == 40 ) { // Cursor down
+      sc.ensureBaseIsVisible ( sc.end_base + sc.bases_per_row ) ;
+      sc.sequence.undo.cancelEditing() ;
+    } else if ( code == 8 || code == 46 ) { // Backspace or delete
+      sc.sequence.undo.cancelEditing() ;
+      e.preventDefault();
+      e.stopPropagation();
+      if ( overwrite ) return ;
+      sc.deleteSelection();
+    }
+    return ;
+  }
+  
+  var c = String.fromCharCode(code) ;
+  if ( code == 190 ) c = '.' ;
 
 	if ( sc.isCharAllowed ( c ) && !e.metaKey ) { // A-Z  code >= 65 && code <= 90
 		if ( !sc.isCharAllowed ( c ) ) {
@@ -436,125 +437,128 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	
 	e.preventDefault();
 
-	sc.ensureBaseIsVisible ( sc.edit.base ) ;
+  sc.ensureBaseIsVisible ( sc.edit.base ) ;
 }
 
 SequenceCanvas.prototype.setEditMode = function ( state ) {
-	var sc = gentle.main_sequence_canvas ;
-	sc.sequence.undo.cancelEditing() ;
-	sc.edit.editing = state ;
-	gentle.setMenuState ( 'edit_menu_paste' , state ) ;
-	$('#selection_context_marker').remove() ;
+  var sc = gentle.main_sequence_canvas ;
+  sc.sequence.undo.cancelEditing() ;
+  sc.edit.editing = state ;
+  gentle.setMenuState ( 'edit_menu_paste' , state ) ;
+  $('#selection_context_marker').remove() ;
 }
 
 
 SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new position is visible, or scroll appropriately
-	var sc = gentle.main_sequence_canvas ;
-	if ( base < 0 ) base = 0 ;
-	if ( base >= sc.sequence.seq.length ) base = sc.sequence.seq.length-1 ;
-	var again = true ;
-	var last_try = -1000 ;
-	while ( again ) {
-		sc.show() ;
-		again = false ;
-//			console.log ( sc.end_base + " / " + sc.edit.base ) ;
-		
-		if ( sc.end_base < base ) {
-			again = true ;
-			var cur = $('#canvas_wrapper').scrollTop() ;
-			var np = cur + sc.lines.length * sc.ch * ( 1 + Math.floor((base-sc.end_base-1)/sc.bases_per_row) ) - (sc.primary_line-1)*sc.ch ;
-			np += sc.block_height - np % sc.block_height ;
-			if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
-			last_try = np ;
-//				console.log ( "Scrolling from " + cur + " to " + np ) ;
-			$('#canvas_wrapper').scrollTop ( np ) ;
-			$('#canvas_wrapper').scroll();
-		} else if ( sc.start_base > base ) {
-			again = true ;
-			var cur = $('#canvas_wrapper').scrollTop() ;
-			var np = cur - sc.lines.length * sc.ch * ( 1 + Math.floor((sc.start_base-base-1)/sc.bases_per_row) ) - (sc.primary_line+1)*sc.ch ;
-			if ( np < 0 ) np = 0 ;
-			np -= np % sc.block_height ;
-			if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
-			last_try = np ;
-//				console.log ( "Scrolling from " + cur + " to " + np ) ;
-			$('#canvas_wrapper').scrollTop ( np ) ;
-			$('#canvas_wrapper').scroll();
-		}
-		
-	}
+  var sc = gentle.main_sequence_canvas ;
+  if ( base < 0 ) base = 0 ;
+  if ( base >= sc.sequence.seq.length ) base = sc.sequence.seq.length-1 ;
+  var again = true ;
+  var last_try = -1000 ;
+  while ( again ) {
+    sc.show() ;
+    again = false ;
+//      console.log ( sc.end_base + " / " + sc.edit.base ) ;
+    
+    if ( sc.end_base < base ) {
+      again = true ;
+      var cur = $('#canvas_wrapper').scrollTop() ;
+      var np = cur + sc.lines.length * sc.ch * ( 1 + Math.floor((base-sc.end_base-1)/sc.bases_per_row) ) - (sc.primary_line-1)*sc.ch ;
+      np += sc.block_height - np % sc.block_height ;
+      if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
+      last_try = np ;
+//        console.log ( "Scrolling from " + cur + " to " + np ) ;
+      $('#canvas_wrapper').scrollTop ( np ) ;
+      $('#canvas_wrapper').scroll();
+    } else if ( sc.start_base > base ) {
+      again = true ;
+      var cur = $('#canvas_wrapper').scrollTop() ;
+      var np = cur - sc.lines.length * sc.ch * ( 1 + Math.floor((sc.start_base-base-1)/sc.bases_per_row) ) - (sc.primary_line+1)*sc.ch ;
+      if ( np < 0 ) np = 0 ;
+      np -= np % sc.block_height ;
+      if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
+      last_try = np ;
+//        console.log ( "Scrolling from " + cur + " to " + np ) ;
+      $('#canvas_wrapper').scrollTop ( np ) ;
+      $('#canvas_wrapper').scroll();
+    }
+    
+  }
 
 }
 
 SequenceCanvas.prototype.editFeature = function ( fid ) {
-	var me = this ;
-	var sc = gentle.main_sequence_canvas ;
-	$('#annot_hover').popover ( 'hide' ) ;
-	$('#annot_hover').remove() ;
-	$("#selection_context_marker").remove();
-	gentle.annotation_editor_dialog = new AnnotationEditorDialogDNA ( sc , fid ) ; // FIXME hardcoded for DNA
+  var me = this ;
+  var sc = gentle.main_sequence_canvas ;
+  $('#annot_hover').popover ( 'hide' ) ;
+  $('#annot_hover').remove() ;
+  $("#selection_context_marker").remove();
+  gentle.annotation_editor_dialog = new AnnotationEditorDialogDNA ( sc , fid ) ; // FIXME hardcoded for DNA
 }
 
 SequenceCanvas.prototype.fixMenus = function () {
-	$('.canvas_tool').remove() ; // Remove all menu entries from other canvases
-	$('.toolbar_plugin').each ( function () {
-		if ( 0 < $(this).find('li').length ) $(this).show() ;
-		else $(this).hide() ;
-//		console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
-	} ) ;
-}
-
-SequenceCanvas.prototype.addTitleBarNavButtons = function ( core ) {
-	var me = this ;
-	var h = '' ;
-	
-	if ( gentle.sequences.length == 1 ) {
-		h += "<span class='label'><i class='icon-chevron-left icon-white'/></span> " ;
-		h += "<span class='label'><i class='icon-chevron-right icon-white'/></span> " ;
-	} else {
-		var last = gentle.current_sequence_entry > 0 ? gentle.current_sequence_entry-1 : gentle.sequences.length-1 ;
-		var next = gentle.current_sequence_entry+1 < gentle.sequences.length ? gentle.current_sequence_entry+1 : 0 ;
-		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + last + ");return false'><i class='icon-chevron-left'/></a></span> " ;
-		h += "<span class='label'><a href='#' onclick='gentle.showSequence(" + next + ");return false'><i class='icon-chevron-right'/></a></span> " ;
-	}
-	h += "<span class='label' style='margin-right:10px'>" + (gentle.current_sequence_entry+1) + "/" + gentle.sequences.length + "</span>" ;
-	
-	h += core + '&nbsp;' ;
-	
-	if ( me.sequence.is_circular ) {
-		h += "<span class='label'>circular</span>" ;
-	} else {
-		h += "<span class='label'>linear</span>" ;
-	}
-
-	if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1 ) {
-		var sb = gentle.sequences[gentle.current_sequence_entry].synbiota
-
-		//Using Moment for fancier timing.
-		var lastsave = moment(sb.updated_at);
-
-		h += "&nbsp;<span class='label label-info' style='margin-right:10px'> Last Saved: " + lastsave.calendar() + "</span> " ;
-
-		if (sb.read_only) //&& gentle.sequences[gentle.current_sequence_entry].synbiota.read_only) { // && me.sequence.synbiota.read_only
-		{
-			h += "&nbsp;<span class='label label-warning'>read-only</span> ";
-		}
-	}
-	
-//	h += "<button class='pull-right close'>&times;</button>" ;
-	h += "<span class='pull-right'><a href='#' onclick='gentle.closeCurrentSequence();return false' title='Close sequence'><i style='background-color:red' class='icon-remove icon-white' /></a></span>" ;
-
-//	console.log("reloaded titlebar");
-	return h ;
+  $('.canvas_tool').remove() ; // Remove all menu entries from other canvases
+  $('.toolbar_plugin').each ( function () {
+    if ( 0 < $(this).find('li').length ) $(this).show() ;
+    else $(this).hide() ;
+//    console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
+  } ) ;
 }
 
 SequenceCanvas.prototype.updateTitleBar = function () {
-	var me = this ;
-	var name = me.sequence.name ;
-	var h = '' ;
-	h += '<span class="label label-success">' + me.sequence.typeName.toUpperCase() + '</span> ' ;
-	h += "<span class='label label-info'>" + name + "</span>&nbsp;" ;
-	h += "<span class='label'>" + addCommas ( me.sequence.seq.length ) + " bp</span>" ;
-	h = me.addTitleBarNavButtons ( h ) ;
-	$('#sequence_canvas_title_bar').html(h).find('.label').css('font-weight','normal') ;
+  var me = this;
+  var $titleBar = $('#sequence_canvas_title_bar');
+
+  // Compile template (can preloaded at a later stage)
+  var template = Hogan.compile($('#tpl-title_bar').html());
+  var notDesigner = !(this.sequence.typeName != "designer");
+  
+  // Build dataset for template
+  var data = {
+    currentSequence: gentle.current_sequence_entry+1,
+    totalSequences: gentle.sequences.length,
+    allSequences: $.map(gentle.sequences, function(e,i) {
+      return {
+        id: i,
+        shortTitle: e.name.trunc(50,true),
+        typeName: e.typeName,
+        currentSequence: (e == me.sequence)
+      };
+    })
+  };
+
+  if(this.sequence.typeName != "designer") {
+    data.sequence =  {
+      title: this.sequence.name,
+      shortTitle: this.sequence.name.trunc(50,true),
+      typeName: this.sequence.typeName,
+      length: this.sequence.seq.length,
+      circularity: (this.is_circular ? 'circular' : 'linear'),
+    };
+  } else {
+    data.sequence = {
+      typeName: this.sequence.typeName
+    }
+  }
+
+  if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
+    var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
+    data.sequence.synbiota = {
+      lastSave: moment(sb.updated_at).calendar(),
+      readOnly: sb.read_only
+    }
+  }
+
+  // Render & append template
+  $titleBar.html(template.render(data));
+  // Bind events
+  $titleBar.find('.close').on('click', function(e) { gentle.closeCurrentSequence(); });
+  $titleBar.find('.sequenceListItem').on('click', function(e) { gentle.showSequence($(this).data('seq-id')); });
+
+  // Add mechanism for inline editing of sequence title 
+  $('#sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
+    gentle.main_sequence_canvas.sequence.name = val;
+    me.updateTitleBar();
+  }});
+
 }
