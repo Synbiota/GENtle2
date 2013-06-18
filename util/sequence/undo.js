@@ -118,6 +118,8 @@ SequenceUndo.prototype.doUndo = function ( sc ) { // This is my undoing!
 	sc.recalc() ;
 	sc.show() ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+
 	me.updateEditMenu () ;
 	me.prevent_recording = false ;
 	gentle.onThingsHaveChanged() ;
@@ -160,6 +162,8 @@ SequenceUndo.prototype.doRedo = function ( sc ) {
 	sc.recalc() ;
 	sc.show() ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	
 	me.updateEditMenu () ;
 	me.prevent_recording = false ;
 	gentle.onThingsHaveChanged() ;

@@ -67,6 +67,7 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	return s ;
 }
 
@@ -430,6 +431,7 @@ SequenceCanvasDNA.prototype.show = function () {
 	if ( $('#main_slider').height() != pixel_height ) $('#main_slider').height ( pixel_height ) ;
 	
 	top_display.update_marker() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateSelection() ; }
 
 	var unixtime_ms2 = new Date().getTime();
 //	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
@@ -812,10 +814,9 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	gentle.set_hover ( '' ) ; // this.getHoverName()
 	
-	/* hide plasmid map for the moment
-	if ( this.show_plasmid_map && gentle.main_sequence_canvas.sequence.is_circular ) {
+	if ( this.show_plasmid_map ) { // we don't care if it's circular anymore }  && gentle.main_sequence_canvas.sequence.is_circular ) {
 		gentle.plasmidMap ( true ) ;
 	} else {
 		gentle.plasmidMap ( false ) ;
-	}*/
+	}
 }

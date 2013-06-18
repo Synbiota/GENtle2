@@ -139,6 +139,7 @@ AnnotationEditorDialogDNA.prototype.onSaveButton = function () {
 	me.sc.recalc() ;
 	me.sc.show () ;
 	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	
 	return me.closeDialog() ;
 }

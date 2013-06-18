@@ -222,24 +222,26 @@ SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
 }
 
 SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
-  sc.sequence.insert ( sc.edit.base , pastedText.toUpperCase() ) ;
-  sc.edit.base += pastedText.length ;
-  sc.recalc() ;
-  top_display.init() ;
-  sc.ensureBaseIsVisible ( sc.edit.base ) ;
-  
-  return false; // Prevent the default handler from running.
+	sc.sequence.insert ( sc.edit.base , pastedText.toUpperCase() ) ;
+	sc.edit.base += pastedText.length ;
+	sc.recalc() ;
+	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	sc.ensureBaseIsVisible ( sc.edit.base ) ;
+	
+	return false; // Prevent the default handler from running.
 }
 
 SequenceCanvas.prototype.deleteSelection = function () {
-  var sc = gentle.main_sequence_canvas ;
-  if ( sc.selections.length != 1 ) return ;
-  var sel = sc.selections[0] ;
-  sc.sequence.remove ( sel.from , sel.to - sel.from + 1 ) ;
-  sc.recalc() ;
-  top_display.init() ;
-  sc.ensureBaseIsVisible ( sel.from ) ;
-  sc.deselect() ;
+	var sc = gentle.main_sequence_canvas ;
+	if ( sc.selections.length != 1 ) return ;
+	var sel = sc.selections[0] ;
+	sc.sequence.remove ( sel.from , sel.to - sel.from + 1 ) ;
+	sc.recalc() ;
+	top_display.init() ;
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	sc.ensureBaseIsVisible ( sel.from ) ;
+	sc.deselect() ;
 }
 
 SequenceCanvas.prototype.modifierCode = function (event) {
@@ -341,96 +343,99 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
   var c = String.fromCharCode(code) ;
   if ( code == 190 ) c = '.' ;
 
-  if ( sc.isCharAllowed ( c ) && !e.metaKey ) { // A-Z  code >= 65 && code <= 90
-    if ( !sc.isCharAllowed ( c ) ) {
-      alert ( c + " not allowed" ) ;
-      return false ;
-    }
-    if ( overwrite ) {
-      sc.sequence.remove ( sc.edit.base , 1 ) ;
-    }
-    sc.sequence.insert ( sc.edit.base , c ) ;
-    sc.edit.base++ ;
-    sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
-    sc.recalc() ;
-    top_display.init() ;
-  } else if ( code == 8 ) { // Backspace
-    e.preventDefault();
-    e.stopPropagation();
-    if ( sc.edit.base == 0 ) return ;
-    sc.edit.base-- ;
-    sc.sequence.remove ( sc.edit.base , 1 ) ;
-    if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
-    sc.specialKeyEvent ( 'backspace' , sc.edit.base-1 ) ;
-    sc.recalc() ;
-    top_display.init() ;
-  } else if ( code == 46 ) { // Delete
-    e.preventDefault();
-    e.stopPropagation();
-    if ( sc.edit.base == sc.sequence.seq.length ) return ;
-    sc.sequence.remove ( sc.edit.base , 1 ) ;
-    if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
-    sc.specialKeyEvent ( 'delete' , sc.edit.base ) ;
-    if ( overwrite ) sc.edit.base++ ;
-    sc.recalc() ;
-    top_display.init() ;
-  } else if ( code == 27 ) { // Escape
-    sc.sequence.undo.cancelEditing() ;
-    sc.setEditMode ( false ) ;
-    sc.show() ;
-    e.preventDefault();
-    return ;
-  } else if ( code == 33 ) { // Page up
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base < bpp ) {
-      if ( sc.edit.base == 0 ) return ;
-      sc.edit.base = 0 ;
-    } else {
-      sc.edit.base -= bpp ;
-    }
-  } else if ( code == 34 ) { // Page down
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base + bpp >= sc.sequence.seq.length ) {
-      if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-      sc.edit.base = sc.sequence.seq.length-1 ;
-    } else {
-      sc.edit.base += bpp ;
-    }
-  } else if ( code == 36 ) { // Start
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base == 0 ) return ;
-    sc.edit.base = 0 ;
-  } else if ( code == 35 ) { // End
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-    sc.edit.base = sc.sequence.seq.length-1 ;
-  } else if ( code == 37 ) { // Cursor left
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base == 0 ) return ;
-    sc.edit.base-- ;
-  } else if ( code == 38 ) { // Cursor up
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base < sc.bases_per_row ) {
-      if ( sc.edit.base == 0 ) return ;
-      sc.edit.base = 0 ;
-    } else {
-      sc.edit.base -= sc.bases_per_row ;
-    }
-  } else if ( code == 39 ) { // Cursor right
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base > sc.sequence.seq.length ) return ;
-    sc.edit.base++ ;
-  } else if ( code == 40 ) { // Cursor down
-    sc.sequence.undo.cancelEditing() ;
-    if ( sc.edit.base + sc.bases_per_row >= sc.sequence.seq.length ) {
-      if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-      sc.edit.base = sc.sequence.seq.length-1 ;
-    } else {
-      sc.edit.base += sc.bases_per_row ;
-    }
-  } else return ;
-  
-  e.preventDefault();
+	if ( sc.isCharAllowed ( c ) && !e.metaKey ) { // A-Z  code >= 65 && code <= 90
+		if ( !sc.isCharAllowed ( c ) ) {
+			alert ( c + " not allowed" ) ;
+			return false ;
+		}
+		if ( overwrite ) {
+			sc.sequence.remove ( sc.edit.base , 1 ) ;
+		}
+		sc.sequence.insert ( sc.edit.base , c ) ;
+		sc.edit.base++ ;
+		sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
+		sc.recalc() ;
+		top_display.init() ;
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	} else if ( code == 8 ) { // Backspace
+		e.preventDefault();
+		e.stopPropagation();
+		if ( sc.edit.base == 0 ) return ;
+		sc.edit.base-- ;
+		sc.sequence.remove ( sc.edit.base , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
+		sc.specialKeyEvent ( 'backspace' , sc.edit.base-1 ) ;
+		sc.recalc() ;
+		top_display.init() ;
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	} else if ( code == 46 ) { // Delete
+		e.preventDefault();
+		e.stopPropagation();
+		if ( sc.edit.base == sc.sequence.seq.length ) return ;
+		sc.sequence.remove ( sc.edit.base , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
+		sc.specialKeyEvent ( 'delete' , sc.edit.base ) ;
+		if ( overwrite ) sc.edit.base++ ;
+		sc.recalc() ;
+		top_display.init() ;
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	} else if ( code == 27 ) { // Escape
+		sc.sequence.undo.cancelEditing() ;
+		sc.setEditMode ( false ) ;
+		sc.show() ;
+		e.preventDefault();
+		return ;
+	} else if ( code == 33 ) { // Page up
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base < bpp ) {
+			if ( sc.edit.base == 0 ) return ;
+			sc.edit.base = 0 ;
+		} else {
+			sc.edit.base -= bpp ;
+		}
+	} else if ( code == 34 ) { // Page down
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base + bpp >= sc.sequence.seq.length ) {
+			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
+			sc.edit.base = sc.sequence.seq.length-1 ;
+		} else {
+			sc.edit.base += bpp ;
+		}
+	} else if ( code == 36 ) { // Start
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base == 0 ) return ;
+		sc.edit.base = 0 ;
+	} else if ( code == 35 ) { // End
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
+		sc.edit.base = sc.sequence.seq.length-1 ;
+	} else if ( code == 37 ) { // Cursor left
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base == 0 ) return ;
+		sc.edit.base-- ;
+	} else if ( code == 38 ) { // Cursor up
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base < sc.bases_per_row ) {
+			if ( sc.edit.base == 0 ) return ;
+			sc.edit.base = 0 ;
+		} else {
+			sc.edit.base -= sc.bases_per_row ;
+		}
+	} else if ( code == 39 ) { // Cursor right
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base > sc.sequence.seq.length ) return ;
+		sc.edit.base++ ;
+	} else if ( code == 40 ) { // Cursor down
+		sc.sequence.undo.cancelEditing() ;
+		if ( sc.edit.base + sc.bases_per_row >= sc.sequence.seq.length ) {
+			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
+			sc.edit.base = sc.sequence.seq.length-1 ;
+		} else {
+			sc.edit.base += sc.bases_per_row ;
+		}
+	} else return ;
+	
+	e.preventDefault();
 
   sc.ensureBaseIsVisible ( sc.edit.base ) ;
 }
