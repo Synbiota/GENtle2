@@ -203,6 +203,7 @@ var plugins = {
 		}
 //		if ( undefined !== this.deactivated[o.name] ) delete ( this.deactivated[o.name] ) ;
 		plugins.setManagePluginDialogHTML() ;
+		$(window).trigger('resize'); // Force resize events in case menubar height has changed because of new menu item
 		if ( undefined !== this.deactivated[o.name] ) return false ;
 		return true ;
 	} ,
