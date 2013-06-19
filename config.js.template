@@ -15,12 +15,12 @@ var gentle_config = {
 	
 	colors : {
 		numbering : '#6094DB',
-		DRuMS : { 	A: '#5050ff',
-					C: '#e00000', 
-					G: '#00c000', 
-					T: '#e6e600', 
-					U: '#cc9900', 
-					N: '#ff0000' 
+		DRuMS : { 	A: '#2CA7DD',
+					C: '#E6278A', 
+					G: '#5EBC9A', 
+					T: '#FAA327', 
+					U: '#CC9900', 
+					N: '#FF0000' 
 		}
 	} ,
 	
