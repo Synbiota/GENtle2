@@ -14,15 +14,6 @@ function PlasmidMapDialog () {
 			width:700 ,
 			height:550
 		} ) ;
-
-	
-		/* Pre Kinetic Stuff
-		$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;*/
 	} ) ;
 
 }
@@ -30,7 +21,7 @@ function PlasmidMapDialog () {
 PlasmidMapDialog.prototype.initMap = function () {
 	var self = this ;
 	var sc = gentle.main_sequence_canvas ;
-
+	var len = sc.sequence.seq.length ;
 
 	self.mouseTool = {};
 	self.mouseTool.drag = false;
@@ -61,11 +52,20 @@ PlasmidMapDialog.prototype.initMap = function () {
 		radius:240,
 		fill:'#999999'
 	});
-	self.dragWheelLayer.add(self.dragWheel);
+	self.dwGroup = new Kinetic.Group({
+		x: 0,
+		y: 0,
+		rotationDeg: 0
+	});
+
+	self.dwGroup.add(self.dragWheel);
+	self.dragWheelLayer.add(self.dwGroup);
 	self.stage.add(self.dragWheelLayer);
 
 	//drag wheel mouse/touch stuff
 	self.dwMouseTool = {dwControl:false};
+
+
 
 	  self.dragWheel.on('mousedown mousemove mouseup touchstart touchend touchmove', function(evt){
 		var mousePos;
@@ -137,13 +137,16 @@ PlasmidMapDialog.prototype.initMap = function () {
 	//init visible Bases & mouse tool
 	self.vbMouseTool = {};
 
+	var startAngle = sc.start_base * Math.PI * 2 / len;
+	var endAngle = sc.end_base * Math.PI * 2 / len;
+
 	var vb = new Kinetic.WasherSegment({
 		x: 0,
 		y: 0,
 		innerRadius: 20,
 		outerRadius:240,
-		angleDeg:70,
-		rotationDeg:0,
+		angle:(endAngle-startAngle),
+		rotation:(startAngle+endAngle)/2,
 		name: "visible bases",
 		fill: 'rgba(150,150,100,.5)',
 	  });
@@ -160,11 +163,19 @@ PlasmidMapDialog.prototype.initMap = function () {
 		self.visibleBasesLayer.draw();
 	  })
 
-	vb.on('mousedown mousemove mouseup ', function(evt){
+	self.vb = vb;
 
-		var mousePos = {x: self.stage.getMousePosition().x - self.stage.getX(),
-						y: self.stage.getMousePosition().y - self.stage.getY()}
-		if(evt.type == "mousedown"){
+	vb.on('mousedown mousemove mouseup touchstart touchend touchmove', function(evt){
+		var mousePos;
+		if (evt.type[0] == 'm'){
+		  mousePos = {x:  self.stage.getMousePosition().x - self.stage.getX(),
+						y:  self.stage.getMousePosition().y - self.stage.getY()}
+		}else{
+		  mousePos = {x:  self.stage.getTouchPosition().x - self.stage.getX(),
+						y:  self.stage.getTouchPosition().y - self.stage.getY()} 
+		}
+
+		if((evt.type == "mousedown")|(evt.type == "touchstart")){
 			//capture current mouse 'angle to zero'
 			self.vbMouseTool.originalMousePos = {x: mousePos.x,
 								  y: mousePos.y};
@@ -179,16 +190,25 @@ PlasmidMapDialog.prototype.initMap = function () {
 			//set "wheelOfFortune control" to true
 			self.vbMouseTool.vbControl = true;
 
-		}else if (evt.type == "mousemove"){
+			//recolour wheel (for tablets)
+			vb.setFill('rgba(200,2,200,.5)');
+
+		}else if ((evt.type == "mousemove")|(evt.type == "touchmove")){
 			//update stage 'angle to whatever angle we're at'
 			if(self.vbMouseTool.vbControl){
 			  var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
 			  var currentStageAngle = self.stage.getRotation();
-			  vb.setRotation(self.vbMouseTool.originalVbAngle + self.vbMouseTool.originalStageAngle - currentStageAngle + currentMouseAngle - self.vbMouseTool.originalMouseAngle)
+			  var newRotation = self.vbMouseTool.originalVbAngle + self.vbMouseTool.originalStageAngle - currentStageAngle + currentMouseAngle - self.vbMouseTool.originalMouseAngle;
+			  vb.setRotation(newRotation)
 			  self.visibleBasesLayer.draw();
+			  var start = self.angleToBase(normaliseAngle(newRotation));
+			  var end = self.angleToBase(normaliseAngle(newRotation + vb.getAngle()));
+			  gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
+			  gentle.main_sequence_canvas.ensureBaseIsVisible (  stop) ;
 			}
 
-		}else if (evt.type == "mouseup" ){
+		}else if ((evt.type == "mouseup" )|(evt.type == "touchend")){
+			vb.setFill('rgba(100,200,50,.5)');
 			self.vbMouseTool.vbControl = false;
 		}
 	  });
@@ -200,7 +220,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	//testing rotation
 	//self.context.rotate(Math.PI/4);
 
-	var len = sc.sequence.seq.length ;
+
 	self.seqLength = len;
 
 	//init Annotations
@@ -281,10 +301,8 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 		} ) ;
 	} ) ;	
 
-	console.log("did this actually happen?")
-
 	//re-init segments for annotation
-   var group = new Kinetic.Group({
+   var annotationGroup = new Kinetic.Group({
 		x: 0,
 		y: 0,
 		rotationDeg: 0
@@ -307,7 +325,7 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 			stroke: 'black',
 			strokeWidth: .5
 		});
-			group.add(box);
+			annotationGroup.add(box);
 		})();
 	  }
 	 /* group.on('mousemove mouseover', function(ev) {
@@ -316,11 +334,9 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 			  highlightLayer.add(ev.targetNode.clone({fill:"yellow",stroke:"orange",strokeWidth:2}));
 			  highlightLayer.draw();
 		});*/
-	self.annotationsLayer.add(group);
+	self.annotationsLayer.add(annotationGroup);
 	  
-	  
-	  
-	  group.toImage({
+	  annotationGroup.toImage({
 		width:500,
 		height:500,
 		x:-250,y:-250,
@@ -338,7 +354,7 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 				canvas.fillStroke(this);
 			  }
 			});
-		  group.destroy();
+		  annotationGroup.destroy();
 		  self.annotationsLayer.add(image);
 
 		}
@@ -346,16 +362,16 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 }
 
 
-PlasmidMapDialog.prototype.updateSelection = function () {
-	if (! this.mouseTool.dragSelector){
+PlasmidMapDialog.prototype.updateSelection = function () { //selection is now called VB
+	if (! this.vbMouseTool.vbControl){
 		var sc = gentle.main_sequence_canvas ;
 		var len = sc.sequence.seq.length ;
 		// display current selection
-		this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
-		this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
-		this.currentSelection.innerRadius = this.radii.currentSelection.r
-		this.currentSelection.outerRadius = this.radii.currentSelection.R
-		this.drawMap();
+		var startAngle = sc.start_base * Math.PI * 2 / len;
+		var endAngle = sc.end_base * Math.PI * 2 / len;
+
+		this.vb.setRotation(startAngle);
+		this.vb.setAngle((endAngle-startAngle));
 	}
 }
 
@@ -377,6 +393,11 @@ PlasmidMapDialog.prototype.initLineNumbers = function (){
 	var textX = - self.radii.lineNumbering.R;
 	var textY = -10;
 
+	var lineNumberGroup = new Kinetic.Group({
+		x:0,
+		y:0,
+		rotation:0
+	})
 	// create line numbers
 	  for(var n = 0; n < len/lineNumberIncrement; n++) {
 		// anonymous function to induce scope
@@ -386,7 +407,7 @@ PlasmidMapDialog.prototype.initLineNumbers = function (){
 			x:0,
 			y:0,
 			rotation:angleIncrement*n,
-			points:[r,0,R,0],
+			points:[-r,0,-R,0],
 			stroke:'black',
 			strokeWidth:2
 		  });
@@ -406,16 +427,39 @@ PlasmidMapDialog.prototype.initLineNumbers = function (){
 		  });
 
 		  var dumbGroup = new Kinetic.Group({
-			offsetX:-(r+R)/2,
+			offsetX:(r+R)/2,
 			rotation:angleIncrement*n
 		  })
 		  dumbGroup.add(lineNumber);
-		  self.lineNumberLayer.add(line);
-		  self.lineNumberLayer.add(dumbGroup);
+		  lineNumberGroup.add(line);
+		  lineNumberGroup.add(dumbGroup);
 		})();
 	  }
-
+	  self.lineNumberLayer.add(lineNumberGroup);
 	  self.stage.add(self.lineNumberLayer);
+
+	  lineNumberGroup.toImage({
+		width:500,
+		height:500,
+		x:0,y:0,
+		callback: function(img){
+		  image = new Kinetic.Image({
+			  image: img,
+			  x:-250,
+			  y:-250,
+			  drawHitFunc:function(canvas) {
+				var context = canvas.getContext();
+				context.beginPath();
+				context.arc(0, 0, 5, 0, Math.PI * 2, true);
+				context.closePath();
+				canvas.fillStroke(this);
+			  }
+			});
+		  lineNumberGroup.destroy();
+		  self.lineNumberLayer.add(image);
+
+		}
+	  });
 
 }
 
