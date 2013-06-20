@@ -5,7 +5,7 @@ function PlasmidMapDialog () {
 	$('#main').append ( '<div id="plasmid_map_dialog" title="Plasmid map">' ) ;
 	$('#plasmid_map_dialog').load ( "public/templates/plasmid_map.html" , function () {
 		$('#plasmid_map_dialog').dialog ( {
-			create: function( event, ui ) { self.initMap() ; } ,
+			create: function( event, ui ) {  self.initMap() ; } ,
 			position: { my: "right center", at: "right center", of: $('#main') } ,
 			close: function( event, ui ) {
 				gentle.main_sequence_canvas.show_plasmid_map = false ; // Someone clicked on 'close'
@@ -14,12 +14,15 @@ function PlasmidMapDialog () {
 			width:700 ,
 			height:550
 		} ) ;
+
+	
+		/* Pre Kinetic Stuff
 		$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
 		$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
+		$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;*/
 	} ) ;
 
 }
@@ -28,47 +31,9 @@ PlasmidMapDialog.prototype.initMap = function () {
 	var self = this ;
 	var sc = gentle.main_sequence_canvas ;
 
+
 	self.mouseTool = {};
 	self.mouseTool.drag = false;
-
-	var canvas = $('#plasmid_map_canvas').get(0) ;
-	self.context = canvas.getContext('2d');
-	self.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
-	self.context.canvas.height = parseInt ( $('#plasmid_map').height() ) ;
-
-	self.canvasOffset = { x: self.context.canvas.width / 2, y:self.context.canvas.height /2};
-
-	// This is silly, but only way I can keep track of 
-	// the context's transform, like these guys...
-	// http://stackoverflow.com/questions/7395813/html5-canvas-get-transform-matrix
-	self.ctm = {
-		t:new simple2d.Transform()
-	} ;
-
-	self.ctm.translate = function(x, y){
-		self.ctm.t = self.ctm.t.mult(simple2d.translate(x, y));
-        self.context.translate(x, y);
-	}
-	self.ctm.rotate = function(t){
-		self.ctm.t = self.ctm.t.mult(simple2d.rotate(t));
-        self.context.rotate(t);
-	}
-    self.ctm.setTransform = function(newt){
-        self.ctm.t = newt.clone();
-        self.context.setTransform(  newt.m[0], 
-                                    newt.m[1], 
-                                    newt.m[2], 
-                                    newt.m[3], 
-                                    newt.m[4], 
-                                    newt.m[5]
-        )
-    }
-
-
-	//centre the context, makes life easier!
-    //self.ctm.translate(self.canvasOffset.x, self.canvasOffset.y) ;
-   // self.ctm.rotate(Math.PI);
-	
 
 	self.radii = {
 					currentSelection: {r:10, R:200},
@@ -78,7 +43,159 @@ PlasmidMapDialog.prototype.initMap = function () {
 					lineNumbering: {r:180, R:240}
 	};
 
+	//NEW KINETIC JS STUFF
+	self.stage = new Kinetic.Stage({
+		container: 'plasmid_map_container',
+		width: 500,
+		height: 500,
+		x: 250,
+		y:250
+	});
+	self.dragWheelLayer = new Kinetic.Layer();
+	self.lineNumberLayer = new Kinetic.Layer();
+	self.annotationsLayer = new Kinetic.Layer();
+	self.visibleBasesLayer = new Kinetic.Layer();
+	self.highlightLayer = new Kinetic.Layer();
 
+	self.dragWheel = new Kinetic.Circle({
+		radius:240,
+		fill:'#999999'
+	});
+	self.dragWheelLayer.add(self.dragWheel);
+	self.stage.add(self.dragWheelLayer);
+
+	//drag wheel mouse/touch stuff
+	self.dwMouseTool = {dwControl:false};
+
+	  self.dragWheel.on('mousedown mousemove mouseup touchstart touchend touchmove', function(evt){
+		var mousePos;
+		if (evt.type[0] == 'm'){
+		  mousePos = {x:  self.stage.getMousePosition().x - self.stage.getX(),
+						y:  self.stage.getMousePosition().y - self.stage.getY()}
+		}else{
+		  mousePos = {x:  self.stage.getTouchPosition().x - self.stage.getX(),
+						y:  self.stage.getTouchPosition().y - self.stage.getY()} 
+		}
+
+		if((evt.type == "mousedown")|(evt.type == "touchstart")){
+			//capture current mouse 'angle to zero'
+			self.dwMouseTool.originalMousePos = {x: mousePos.x,
+								  y: mousePos.y};
+			self.dwMouseTool.originalMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+
+			//capture current stage 'rotation angle'
+			self.dwMouseTool.originalStageAngle = self.stage.getRotation();
+
+
+			//set "wheelOfFortune control" to true
+			self.dwMouseTool.dwControl = true;
+
+			//
+			self.dwMouseTool.angularPos = [[self.dwMouseTool.originalMouseAngle,(new Date()).getMilliseconds()]];
+
+
+		}else if ((evt.type == "mousemove")|(evt.type == "touchmove")){
+			//update stage 'angle to whatever angle we're at'
+			if(self.dwMouseTool.dwControl){
+			  var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+			  self.stage.setRotation(self.dwMouseTool.originalStageAngle + currentMouseAngle - self.dwMouseTool.originalMouseAngle)
+
+			  if (self.dwMouseTool.angularPos.length > 5){
+				self.dwMouseTool.angularPos.shift();
+			  }
+			 self.dwMouseTool.angularPos.push([currentMouseAngle,(new Date()).getMilliseconds()])
+			}
+
+		}else if ((evt.type == "mouseup" )|(evt.type == "touchend")){
+			if (self.dwMouseTool.dwControl){
+			  var velSum = 0;
+			  if (self.dwMouseTool.angularPos.length > 1){
+				for (var n = 0; n < self.dwMouseTool.angularPos.length - 1; n++){
+				  if (self.dwMouseTool.angularPos[n+1][1] > self.dwMouseTool.angularPos[n][1]) //avoid dividing by zero
+					  velSum = velSum + (self.dwMouseTool.angularPos[n+1][0] - self.dwMouseTool.angularPos[n][0])*1000/(self.dwMouseTool.angularPos[n+1][1] - self.dwMouseTool.angularPos[n][1]);
+				}
+				self.angularSpeed = velSum/(self.dwMouseTool.angularPos.length-1);
+			  }else{
+				self.angularSpeed = 0;
+			  }
+			  self.dwMouseTool.dwControl = false;
+			
+			}
+		}
+	  });
+
+	  self.dragWheel.on('mouseover', function(evt){
+		self.dwMouseTool.dwControl = false;
+	  })
+	  self.dragWheel.on('mouseout', function(evt){
+		self.dwMouseTool.dwControl = false;
+	  })
+
+	//init line numbers
+	self.initLineNumbers();
+
+	//init visible Bases & mouse tool
+	self.vbMouseTool = {};
+
+	var vb = new Kinetic.WasherSegment({
+		x: 0,
+		y: 0,
+		innerRadius: 20,
+		outerRadius:240,
+		angleDeg:70,
+		rotationDeg:0,
+		name: "visible bases",
+		fill: 'rgba(150,150,100,.5)',
+	  });
+
+	  vb.on('mouseover', function(ev){
+		vb.setFill('rgba(200,2,200,.5)');
+		self.visibleBasesLayer.draw();
+
+	  })
+
+	  vb.on('mouseout', function(ev){
+		vb.setFill('rgba(100,200,50,.5)');
+		self.vbMouseToolvbControl = false;
+		self.visibleBasesLayer.draw();
+	  })
+
+	vb.on('mousedown mousemove mouseup ', function(evt){
+
+		var mousePos = {x: self.stage.getMousePosition().x - self.stage.getX(),
+						y: self.stage.getMousePosition().y - self.stage.getY()}
+		if(evt.type == "mousedown"){
+			//capture current mouse 'angle to zero'
+			self.vbMouseTool.originalMousePos = {x: mousePos.x,
+								  y: mousePos.y};
+			self.vbMouseTool.originalMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+
+			//capture current stage 'rotation angle'
+			self.vbMouseTool.originalStageAngle = self.stage.getRotation();
+
+			//capture current vb rotation
+			self.vbMouseTool.originalVbAngle = vb.getRotation();
+
+			//set "wheelOfFortune control" to true
+			self.vbMouseTool.vbControl = true;
+
+		}else if (evt.type == "mousemove"){
+			//update stage 'angle to whatever angle we're at'
+			if(self.vbMouseTool.vbControl){
+			  var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+			  var currentStageAngle = self.stage.getRotation();
+			  vb.setRotation(self.vbMouseTool.originalVbAngle + self.vbMouseTool.originalStageAngle - currentStageAngle + currentMouseAngle - self.vbMouseTool.originalMouseAngle)
+			  self.visibleBasesLayer.draw();
+			}
+
+		}else if (evt.type == "mouseup" ){
+			self.vbMouseTool.vbControl = false;
+		}
+	  });
+
+
+	  self.visibleBasesLayer.add(vb);
+	  self.stage.add(self.visibleBasesLayer);
 
 	//testing rotation
 	//self.context.rotate(Math.PI/4);
@@ -88,18 +205,27 @@ PlasmidMapDialog.prototype.initMap = function () {
 
 	//init Annotations
 	self.updateAnnotations();
+	self.stage.add(self.annotationsLayer);
 
 	//init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
-	self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
+	//self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
 
 	// display current selection
-	var from = sc.start_base * Math.PI * 2 / len;
-	var to = sc.end_base * Math.PI * 2 / len;
-	self.currentSelection = new WasherSegment(0,0,self.radii.currentSelection.r,self.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 
-	self.zoom(50);
-	self.drawMap();
+	self.angularSpeed = Math.PI / 8;
+	self.angularFriction = .1;
+	self.anim = new Kinetic.Animation(function(frame) {
+	if(!self.dwMouseTool.dwControl){
+		self.angularSpeed = (self.angularSpeed)*(1-self.angularFriction);
+		var angleDiff = frame.timeDiff * self.angularSpeed / 1000;
+		self.stage.rotate(angleDiff);
+	}
+
+	}, self.stage);
+
+	self.anim.start();
+
 }
 
 PlasmidMapDialog.prototype.updateMap = function () {
@@ -155,12 +281,70 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 		} ) ;
 	} ) ;	
 
+	console.log("did this actually happen?")
+
 	//re-init segments for annotation
-	for (var i = 0; i < self.annotations.length; i++){
-		var ann = self.annotations[i];
-		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
-	}	
+   var group = new Kinetic.Group({
+		x: 0,
+		y: 0,
+		rotationDeg: 0
+	});
+
+	for (var n = 0; n < self.annotations.length; n++){
+		// anonymous function to induce scope
+		(function() {
+		  var i = n;
+		  var ann = self.annotations[i];
+		  box = new Kinetic.WasherSegment({
+			x: 0,
+			y: 0,
+			innerRadius: ann.min,
+			outerRadius:ann.max,
+			angle:(ann.end - ann.start),
+			rotation:(ann.end + ann.start)/2,
+			name: i,
+			fill: ann.colour,
+			stroke: 'black',
+			strokeWidth: .5
+		});
+			group.add(box);
+		})();
+	  }
+	 /* group.on('mousemove mouseover', function(ev) {
+			  //writeMessage(messageLayer, 'Mouseover star');
+			  highlightLayer.removeChildren();
+			  highlightLayer.add(ev.targetNode.clone({fill:"yellow",stroke:"orange",strokeWidth:2}));
+			  highlightLayer.draw();
+		});*/
+	self.annotationsLayer.add(group);
+	  
+	  
+	  
+	  group.toImage({
+		width:500,
+		height:500,
+		x:-250,y:-250,
+		callback: function(img){
+
+		  image = new Kinetic.Image({
+			  image: img,
+			  x:-250,
+			  y:-250,
+			  drawHitFunc:function(canvas) {
+				var context = canvas.getContext();
+				context.beginPath();
+				context.arc(0, 0, 5, 0, Math.PI * 2, true);
+				context.closePath();
+				canvas.fillStroke(this);
+			  }
+			});
+		  group.destroy();
+		  self.annotationsLayer.add(image);
+
+		}
+	  });
 }
+
 
 PlasmidMapDialog.prototype.updateSelection = function () {
 	if (! this.mouseTool.dragSelector){
@@ -176,30 +360,14 @@ PlasmidMapDialog.prototype.updateSelection = function () {
 }
 
 PlasmidMapDialog.prototype.rotate = function (t) {
-    this.ctm.rotate(t) ;
-    this.drawMap();
+	this.ctm.rotate(t) ;
+	this.drawMap();
 }
 
-PlasmidMapDialog.prototype.drawMap = function () {
+PlasmidMapDialog.prototype.initLineNumbers = function (){
 	var self = this;
 	var sc = gentle.main_sequence_canvas ;
 	var len = sc.sequence.seq.length ;
-
-	//clear canvas set bg colour to white
-    // using a box defined by our canvas, then pushed through our matrices!
-    var p1 = self.ctm.t.invert().mult(new simple2d.Point(0, 0)),
-        p2 = self.ctm.t.invert().mult(new simple2d.Point(self.context.canvas.width, 0)),
-        p3 = self.ctm.t.invert().mult(new simple2d.Point(self.context.canvas.width, self.context.canvas.height)),
-        p4 = self.ctm.t.invert().mult(new simple2d.Point(0, self.context.canvas.height));
-
-	self.context.fillStyle = 'white' ;
-    self.context.beginPath();
-    self.context.moveTo(p1.x, p1.y);
-    self.context.lineTo(p2.x, p2.y);
-    self.context.lineTo(p3.x, p3.y);
-    self.context.lineTo(p4.x, p4.y);
-    self.context.lineTo(p1.x, p1.y);
-	self.context.fill();
 
 	//draw line numbers
 	var lineNumberIncrement = bestLineNumbering(len, 200) ; 
@@ -209,23 +377,74 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	var textX = - self.radii.lineNumbering.R;
 	var textY = -10;
 
-	self.context.save() ;
-	self.strokeStyle = '#000' ; 
-	self.context.fillStyle = "#000";
-	self.context.lineWidth = 1 ;
-	self.context.font = "10px Arial";
-	self.context.textAlign = 'start';
-	self.context.rotate(Math.PI);
+	// create line numbers
+	  for(var n = 0; n < len/lineNumberIncrement; n++) {
+		// anonymous function to induce scope
+		(function() {
+		  var i = n;
+		  var line = new Kinetic.Line({
+			x:0,
+			y:0,
+			rotation:angleIncrement*n,
+			points:[r,0,R,0],
+			stroke:'black',
+			strokeWidth:2
+		  });
 
-	for ( var i = 0; i < len/lineNumberIncrement; i++){
-		self.context.beginPath()
-		self.context.moveTo(r,0);
-		self.context.lineTo(R,0);
-		self.context.stroke();
-		self.context.fillText(i*lineNumberIncrement, textX, textY);
-		self.context.rotate(angleIncrement);
-	}
-	self.context.restore() ;
+		  var lineNumber = new Kinetic.Text({
+			x:0,
+			y:0,
+			width:60,
+			offsetX:30,
+			offsetY:-4,
+			text: n*lineNumberIncrement,
+			rotationDeg:0,
+			fontSize: 11,
+			fontFamily: 'Calibri',
+			fill: 'black',
+			align:'center'
+		  });
+
+		  var dumbGroup = new Kinetic.Group({
+			offsetX:-(r+R)/2,
+			rotation:angleIncrement*n
+		  })
+		  dumbGroup.add(lineNumber);
+		  self.lineNumberLayer.add(line);
+		  self.lineNumberLayer.add(dumbGroup);
+		})();
+	  }
+
+	  self.stage.add(self.lineNumberLayer);
+
+}
+
+PlasmidMapDialog.prototype.updateLineNumbers = function(){
+
+}
+
+PlasmidMapDialog.prototype.drawMap = function () {
+	var self = this;
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
+
+	//clear canvas set bg colour to white
+	// using a box defined by our canvas, then pushed through our matrices!
+	var p1 = self.ctm.t.invert().mult(new simple2d.Point(0, 0)),
+		p2 = self.ctm.t.invert().mult(new simple2d.Point(self.context.canvas.width, 0)),
+		p3 = self.ctm.t.invert().mult(new simple2d.Point(self.context.canvas.width, self.context.canvas.height)),
+		p4 = self.ctm.t.invert().mult(new simple2d.Point(0, self.context.canvas.height));
+
+	self.context.fillStyle = 'white' ;
+	self.context.beginPath();
+	self.context.moveTo(p1.x, p1.y);
+	self.context.lineTo(p2.x, p2.y);
+	self.context.lineTo(p3.x, p3.y);
+	self.context.lineTo(p4.x, p4.y);
+	self.context.lineTo(p1.x, p1.y);
+	self.context.fill();
+
+
 
 	//draw the current selection marker first
 	self.currentSelection.draw(self.context);
@@ -278,7 +497,7 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 						ev.pageY - parseInt($('#plasmid_map_canvas').offset().top,10)) ;
 
 	var untransposed = mousePoint.clone();
-    mousePoint = pmd.ctm.t.invert().mult(mousePoint);
+	mousePoint = pmd.ctm.t.invert().mult(mousePoint);
 
 
 
@@ -301,12 +520,12 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 				gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
 				gentle.main_sequence_canvas.ensureBaseIsVisible (  stop) ;
 		} else if (pmd.mouseTool.rotatDrag == true ){
-            var angleChanged = simple2d.angleBetween( pmd.mouseTool.rotatDragStartMouse, pmd.mouseTool.rotatDragTM.invert().mult(untransposed)) *5;
-            pmd.ctm.setTransform(pmd.mouseTool.rotatDragTM);
-            pmd.ctm.rotate(angleChanged);
-            //pmd.mouseTool.rotatDragStartMouse = simple2d.rotate(angleChanged).mult(pmd.mouseTool.rotatDragStartMouse.clone()) ;
-            pmd.drawMap();
-        }
+			var angleChanged = simple2d.angleBetween( pmd.mouseTool.rotatDragStartMouse, pmd.mouseTool.rotatDragTM.invert().mult(untransposed)) *5;
+			pmd.ctm.setTransform(pmd.mouseTool.rotatDragTM);
+			pmd.ctm.rotate(angleChanged);
+			//pmd.mouseTool.rotatDragStartMouse = simple2d.rotate(angleChanged).mult(pmd.mouseTool.rotatDragStartMouse.clone()) ;
+			pmd.drawMap();
+		}
 	} else if (ev.type == "mousedown"){
 		if ( pmd.currentSelection.pointWithin(mousePoint) ) {
 			pmd.currentSelection.setHighLight(true, 'rgba(255,255,50,.5)');
@@ -317,11 +536,11 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 			pmd.mouseTool.dragStartBaseStartAngle = pmd.currentSelection.startAngle;
 			pmd.mouseTool.dragStartBaseEndAngle = pmd.currentSelection.endAngle;
 		} else {
-            //assuming it's background for the moment
-            pmd.mouseTool.rotatDrag = true;
-            pmd.mouseTool.rotatDragStartMouse = mousePoint.clone();
-            pmd.mouseTool.rotatDragTM = pmd.ctm.t.clone() ;
-        }
+			//assuming it's background for the moment
+			pmd.mouseTool.rotatDrag = true;
+			pmd.mouseTool.rotatDragStartMouse = mousePoint.clone();
+			pmd.mouseTool.rotatDragTM = pmd.ctm.t.clone() ;
+		}
 	} else if (ev.type == "mouseup"){
 
 		if ( pmd.mouseTool.dragSelector ) {
@@ -330,8 +549,8 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 
 				pmd.mouseTool.dragSelector = false;
 		} else if (pmd.mouseTool.rotatDrag){
-            pmd.mouseTool.rotatDrag = false;
-        }
+			pmd.mouseTool.rotatDrag = false;
+		}
 	} else if (ev.type == "mouseover"){
 	} else if (ev.type == "mouseout"){
 		//kill whatever action we're doing when the mouse leaves...
@@ -341,8 +560,8 @@ PlasmidMapDialog.prototype.mouseEvent = function(pmd, ev){
 
 				pmd.mouseTool.dragSelector = false;
 		} else if (pmd.mouseTool.rotatDrag){
-            pmd.mouseTool.rotatDrag = false;
-        }
+			pmd.mouseTool.rotatDrag = false;
+		}
 	} else if (ev.type == "mousewheel"){ 
 		pmd.zoom(ev.delta);
 	}
@@ -571,36 +790,36 @@ function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font) {
 	// http://www.html5canvastutorials.com/labs/html5-canvas-text-along-arc-path/
 	// so that it works with varying fonts...
 
-    var s;
-    var len = str.length;
-    var wh = stringWidthHeight(str, font); //gives a little breathing room
-    var rad = radius-wh.height;
+	var s;
+	var len = str.length;
+	var wh = stringWidthHeight(str, font); //gives a little breathing room
+	var rad = radius-wh.height;
 
-    var angularWidth = wh.width/rad;
+	var angularWidth = wh.width/rad;
 
 
-    context.save();
-    context.translate(centerX, centerY);
-    context.rotate(angle - Math.PI/2);
-    context.rotate(angularWidth / 2);
-    for(var n = 0; n < len; n++) {
-      context.rotate(-angularWidth/len);
+	context.save();
+	context.translate(centerX, centerY);
+	context.rotate(angle - Math.PI/2);
+	context.rotate(angularWidth / 2);
+	for(var n = 0; n < len; n++) {
+	  context.rotate(-angularWidth/len);
 
-      s = str[n];
-      context.fillText(s, 0, radius);
-    }
-    context.restore();
+	  s = str[n];
+	  context.fillText(s, 0, radius);
+	}
+	context.restore();
 }
 
 var stringWidthHeight = function(str, font) {
 	//copied from
 	//http://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
 	  var f = font || '12px arial',
-	      o = $('<div>' + str + '</div>')
-	            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': f})
-	            .appendTo($('body')),
-	      w = o.width();
-	      h = o.height();
+		  o = $('<div>' + str + '</div>')
+				.css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': f})
+				.appendTo($('body')),
+		  w = o.width();
+		  h = o.height();
 
 	  o.remove();
 
