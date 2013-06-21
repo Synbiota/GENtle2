@@ -278,7 +278,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 				var ch= is_rc ? cd.rc[s[p]] : s[p];
 				if (this.sc.show_drums_colors && gentle_config.colors.DRuMS[ch]) {
 					ctx.fillStyle = convertHex(gentle_config.colors.DRuMS[ch],50);
-					ctx.fillRect(x-1,y+3,9,11);
+					ctx.fillRect(x-1,y,9,11);
 					ctx.fillStyle = fs;
 				}
 

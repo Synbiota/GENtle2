@@ -380,13 +380,6 @@ function synbiota_load_sequence ( url ) {
 			{
 				read_only = false;
 			}
-			else
-			{
-				// hack to add 'read-only' tag to nav bar - can't be done automatically in first instance as nav bar is configured
-				// by sybil.parseFile() first. Subsequent calls are done automatically.
-				$("#sequence_canvas_title_bar").append("&nbsp;<span class='label label-warning'>read-only</span>")
-			}
-			
 
 			// Add synbiota data to sequence object
 			
@@ -402,12 +395,9 @@ function synbiota_load_sequence ( url ) {
 				read_only: read_only
 			} ;
 
-
-			//same hack as above, for updated_at flag...
-			//TODO is there a better way?
-			var lastsave = moment(data.updated_at);
-			$("#sequence_canvas_title_bar").append("&nbsp;<span class='label label-info' style='font-weight: normal;'> Last Saved: " + lastsave.calendar() + "</span> " )
-			
+			//Update the title_bar
+			gentle.main_sequence_canvas.updateTitleBar();
+			console.log(data);
 		} // success
 
 	}); // $.ajax
