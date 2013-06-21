@@ -196,15 +196,19 @@ PlasmidMapDialog.prototype.initMap = function () {
 		}else if ((evt.type == "mousemove")|(evt.type == "touchmove")){
 			//update stage 'angle to whatever angle we're at'
 			if(self.vbMouseTool.vbControl){
-			  var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
-			  var currentStageAngle = self.stage.getRotation();
-			  var newRotation = self.vbMouseTool.originalVbAngle + self.vbMouseTool.originalStageAngle - currentStageAngle + currentMouseAngle - self.vbMouseTool.originalMouseAngle;
-			  vb.setRotation(newRotation)
-			  self.visibleBasesLayer.draw();
-			  var start = self.angleToBase(normaliseAngle(newRotation));
-			  var end = self.angleToBase(normaliseAngle(newRotation + vb.getAngle()));
-			  gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
-			  gentle.main_sequence_canvas.ensureBaseIsVisible (  stop) ;
+				var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+				var currentStageAngle = self.stage.getRotation();
+				var newRotation = self.vbMouseTool.originalVbAngle + self.vbMouseTool.originalStageAngle - currentStageAngle + currentMouseAngle - self.vbMouseTool.originalMouseAngle;
+				vb.setRotation(newRotation)
+				self.visibleBasesLayer.draw();
+				var start = self.angleToBase(normaliseAngle(newRotation));
+				var end = self.angleToBase(normaliseAngle(newRotation + vb.getAngle()));
+				if (start > end) {
+					start = 0;
+				}
+				gentle.main_sequence_canvas.ensureBaseIsVisible (  start) ;
+				gentle.main_sequence_canvas.ensureBaseIsVisible (  end) ;
+				console.log(start, end);
 			}
 
 		}else if ((evt.type == "mouseup" )|(evt.type == "touchend")){
@@ -249,6 +253,9 @@ PlasmidMapDialog.prototype.initMap = function () {
 }
 
 PlasmidMapDialog.prototype.updateMap = function () {
+	//gets called every text input, annotation update, etc... 
+	//make this slim and everything should work better
+
 	var self = this ;
 	var sc = gentle.main_sequence_canvas ;
 
@@ -256,19 +263,19 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	self.seqLength = len;
 
 	//re-init annotation
-	self.updateAnnotations();
+	//self.updateAnnotations();
 
 	//re-init gcat angular graph
-	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
-	self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
+	//self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
+	//self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
 
 	//update selection marker
-	this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
-	this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
-	this.currentSelection.innerRadius = self.radii.currentSelection.r
-	this.currentSelection.outerRadius = self.radii.currentSelection.R
+	//this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
+	//this.currentSelection.endAngle = sc.end_base * Math.PI * 2 / len;
+	//this.currentSelection.innerRadius = self.radii.currentSelection.r
+	//this.currentSelection.outerRadius = self.radii.currentSelection.R
 
-	self.drawMap();
+	//self.drawMap();
 }
 
 PlasmidMapDialog.prototype.updateAnnotations = function(){
