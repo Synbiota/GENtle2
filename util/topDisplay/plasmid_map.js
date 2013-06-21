@@ -50,7 +50,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 
 	self.dragWheel = new Kinetic.Circle({
 		radius:240,
-		fill:'#999999'
+		fill:'#e1e1e1'
 	});
 	self.dwGroup = new Kinetic.Group({
 		x: 0,
@@ -65,71 +65,69 @@ PlasmidMapDialog.prototype.initMap = function () {
 	//drag wheel mouse/touch stuff
 	self.dwMouseTool = {dwControl:false};
 
+	self.dragWheel.on('mousedown mousemove mouseup touchstart touchend touchmove', function(evt){
+	var mousePos;
+	if (evt.type[0] == 'm'){
+	  mousePos = {x:  self.stage.getMousePosition().x - self.stage.getX(),
+					y:  self.stage.getMousePosition().y - self.stage.getY()}
+	}else{
+	  mousePos = {x:  self.stage.getTouchPosition().x - self.stage.getX(),
+					y:  self.stage.getTouchPosition().y - self.stage.getY()} 
+	}
+
+	if((evt.type == "mousedown")|(evt.type == "touchstart")){
+		//capture current mouse 'angle to zero'
+		self.dwMouseTool.originalMousePos = {x: mousePos.x,
+							  y: mousePos.y};
+		self.dwMouseTool.originalMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+
+		//capture current stage 'rotation angle'
+		self.dwMouseTool.originalStageAngle = self.stage.getRotation();
 
 
-	  self.dragWheel.on('mousedown mousemove mouseup touchstart touchend touchmove', function(evt){
-		var mousePos;
-		if (evt.type[0] == 'm'){
-		  mousePos = {x:  self.stage.getMousePosition().x - self.stage.getX(),
-						y:  self.stage.getMousePosition().y - self.stage.getY()}
+		//set "wheelOfFortune control" to true
+		self.dwMouseTool.dwControl = true;
+
+		//
+		self.dwMouseTool.angularPos = [[self.dwMouseTool.originalMouseAngle,(new Date()).getMilliseconds()]];
+
+
+	}else if ((evt.type == "mousemove")|(evt.type == "touchmove")){
+		//update stage 'angle to whatever angle we're at'
+		if(self.dwMouseTool.dwControl){
+		  var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
+		  self.stage.setRotation(self.dwMouseTool.originalStageAngle + currentMouseAngle - self.dwMouseTool.originalMouseAngle)
+
+		  if (self.dwMouseTool.angularPos.length > 5){
+			self.dwMouseTool.angularPos.shift();
+		  }
+		 self.dwMouseTool.angularPos.push([currentMouseAngle,(new Date()).getMilliseconds()])
+		}
+
+	}else if ((evt.type == "mouseup" )|(evt.type == "touchend")){
+		if (self.dwMouseTool.dwControl){
+		  var velSum = 0;
+		  if (self.dwMouseTool.angularPos.length > 1){
+			for (var n = 0; n < self.dwMouseTool.angularPos.length - 1; n++){
+				if (self.dwMouseTool.angularPos[n+1][1] > self.dwMouseTool.angularPos[n][1]) //avoid dividing by zero
+					velSum = velSum + (self.dwMouseTool.angularPos[n+1][0] - self.dwMouseTool.angularPos[n][0])*1000/(self.dwMouseTool.angularPos[n+1][1] - self.dwMouseTool.angularPos[n][1]);
+			}
+			self.angularSpeed = velSum/(self.dwMouseTool.angularPos.length-1);
 		}else{
-		  mousePos = {x:  self.stage.getTouchPosition().x - self.stage.getX(),
-						y:  self.stage.getTouchPosition().y - self.stage.getY()} 
+			self.angularSpeed = 0;
 		}
-
-		if((evt.type == "mousedown")|(evt.type == "touchstart")){
-			//capture current mouse 'angle to zero'
-			self.dwMouseTool.originalMousePos = {x: mousePos.x,
-								  y: mousePos.y};
-			self.dwMouseTool.originalMouseAngle = Math.atan2(mousePos.y, mousePos.x);
-
-			//capture current stage 'rotation angle'
-			self.dwMouseTool.originalStageAngle = self.stage.getRotation();
-
-
-			//set "wheelOfFortune control" to true
-			self.dwMouseTool.dwControl = true;
-
-			//
-			self.dwMouseTool.angularPos = [[self.dwMouseTool.originalMouseAngle,(new Date()).getMilliseconds()]];
-
-
-		}else if ((evt.type == "mousemove")|(evt.type == "touchmove")){
-			//update stage 'angle to whatever angle we're at'
-			if(self.dwMouseTool.dwControl){
-			  var currentMouseAngle = Math.atan2(mousePos.y, mousePos.x);
-			  self.stage.setRotation(self.dwMouseTool.originalStageAngle + currentMouseAngle - self.dwMouseTool.originalMouseAngle)
-
-			  if (self.dwMouseTool.angularPos.length > 5){
-				self.dwMouseTool.angularPos.shift();
-			  }
-			 self.dwMouseTool.angularPos.push([currentMouseAngle,(new Date()).getMilliseconds()])
-			}
-
-		}else if ((evt.type == "mouseup" )|(evt.type == "touchend")){
-			if (self.dwMouseTool.dwControl){
-			  var velSum = 0;
-			  if (self.dwMouseTool.angularPos.length > 1){
-				for (var n = 0; n < self.dwMouseTool.angularPos.length - 1; n++){
-				  if (self.dwMouseTool.angularPos[n+1][1] > self.dwMouseTool.angularPos[n][1]) //avoid dividing by zero
-					  velSum = velSum + (self.dwMouseTool.angularPos[n+1][0] - self.dwMouseTool.angularPos[n][0])*1000/(self.dwMouseTool.angularPos[n+1][1] - self.dwMouseTool.angularPos[n][1]);
-				}
-				self.angularSpeed = velSum/(self.dwMouseTool.angularPos.length-1);
-			  }else{
-				self.angularSpeed = 0;
-			  }
-			  self.dwMouseTool.dwControl = false;
-			
-			}
+		self.dwMouseTool.dwControl = false;
+		
 		}
-	  });
+	}
+	});
 
-	  self.dragWheel.on('mouseover', function(evt){
+	self.dragWheel.on('mouseover', function(evt){
 		self.dwMouseTool.dwControl = false;
-	  })
-	  self.dragWheel.on('mouseout', function(evt){
+	})
+	self.dragWheel.on('mouseout', function(evt){
 		self.dwMouseTool.dwControl = false;
-	  })
+	})
 
 	//init line numbers
 	self.initLineNumbers();
@@ -148,17 +146,17 @@ PlasmidMapDialog.prototype.initMap = function () {
 		angle:(endAngle-startAngle),
 		rotation:(startAngle+endAngle)/2,
 		name: "visible bases",
-		fill: 'rgba(150,150,100,.5)',
+		fill: 'rgba(250, 163, 39,.5)',
 	  });
 
 	  vb.on('mouseover', function(ev){
-		vb.setFill('rgba(200,2,200,.5)');
+		vb.setFill('rgba(230, 40, 122,.5)');
 		self.visibleBasesLayer.draw();
 
 	  })
 
 	  vb.on('mouseout', function(ev){
-		vb.setFill('rgba(100,200,50,.5)');
+		vb.setFill('rgba(250, 163, 39,.5)');
 		self.vbMouseToolvbControl = false;
 		self.visibleBasesLayer.draw();
 	  })
@@ -191,7 +189,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 			self.vbMouseTool.vbControl = true;
 
 			//recolour wheel (for tablets)
-			vb.setFill('rgba(200,2,200,.5)');
+			vb.setFill('rgba(230, 40, 122,.5)');
 
 		}else if ((evt.type == "mousemove")|(evt.type == "touchmove")){
 			//update stage 'angle to whatever angle we're at'
@@ -212,7 +210,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 			}
 
 		}else if ((evt.type == "mouseup" )|(evt.type == "touchend")){
-			vb.setFill('rgba(100,200,50,.5)');
+			vb.setFill('rgba(250, 163, 39,.5)');
 			self.vbMouseTool.vbControl = false;
 		}
 	  });
@@ -233,9 +231,47 @@ PlasmidMapDialog.prototype.initMap = function () {
 
 	//init gcat angular graph
 	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
-	//self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
 
+	/*
+	this.centreX = centreX || 0;
+	this.centreY = centreY || 0;
+	this.radius = radius || 100;
+	this.offset = offset || 10;*/
+
+	var lineData = self.somePlasmid.gcat_ratio;
+	self.linegraph = new Kinetic.Shape({
+		//self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue'
+        drawFunc: function(canvas) {
+          	var ctx = canvas.getContext();
+			ctx.beginPath();
+			//draw arc going arround, ccw
+			ctx.arc(this.x, this.y, self.radii.linegraph.r, 0,2*Math.PI, true);
+			//determine angle between data points
+			var resAngle = 2*Math.PI/lineData.length;
+			var p0x = self.radii.linegraph.r + (lineData[0] - 0.5) * 50;
+			ctx.lineTo(p0x,0);
+			for (var i=1; i<lineData.length; i++){
+				//given data between 0 and 1
+				var ld = lineData[i]; 
+				var rad = self.radii.linegraph.r + (ld - 0.5) * 50;
+				var angle = i*resAngle;
+				var px = rad * Math.cos(angle);
+				var py = rad * Math.sin(angle);
+				ctx.lineTo(px,py);
+			}
+			//ctx.lineTo(p0x,0);
+			ctx.closePath();
+			canvas.stroke(this);
+        },
+        fill: '#00D2FF',
+        stroke: 'black',
+        //strokeWidth: 2
+    });
+    self.linegraph.linedata = self.somePlasmid.gcat_ratio;
 	// display current selection
+
+
+	self.dragWheelLayer.add(self.linegraph);
 
 	self.angularSpeed = Math.PI / 8;
 	self.angularFriction = .1;
@@ -266,8 +302,8 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	//self.updateAnnotations();
 
 	//re-init gcat angular graph
-	//self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
-	//self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
+	self.somePlasmid = new PlasmidMap(sc.sequence.seq,300);
+	self.linegraph = new RadialLineGraph(0,0,self.radii.linegraph.r,50,self.somePlasmid.gcat_ratio,'blue');
 
 	//update selection marker
 	//this.currentSelection.startAngle = sc.start_base * Math.PI * 2 / len;
@@ -291,8 +327,8 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 		var max = self.radii.annotations.r4 ;
 		var col = '#CCCCCC' ;
 		if ( v['_type'] == 'promoter' ) { col='black' ; }
-		if ( v['_type'] == 'CDS' ) { col='red' ; min=self.radii.annotations.r3; }
-		if ( v['_type'] == 'gene' ) { col='blue' ; max=self.radii.annotations.r2; }
+		if ( v['_type'] == 'CDS' ) { col='#5EBC9A' ; min=self.radii.annotations.r3; }
+		if ( v['_type'] == 'gene' ) { col='#2CA7DD' ; max=self.radii.annotations.r2; }
 
 		// Name
 		var name = '' ;
