@@ -9,6 +9,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 
+<link rel="stylesheet" href="public/feedback.css"  type="text/css" media="screen" />
 <link type="text/css" href="assets/jquery/css/smoothness/jquery-ui-1.8.18.custom.css" rel="Stylesheet" />
 <link rel="stylesheet" type="text/css" href="assets/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="public/main.css" />
@@ -219,5 +220,12 @@
 <script type="text/javascript" src="util/topDisplay/plasmid_map.js"></script>
 
 </body>
+<script src="Feedback/feedback.js"></script>
+   
+    <script type="text/javascript">
+    $(document).ready(function() {
+        Feedback({h2cPath:'libs/html2canvas.js'});
+      }); 
+    </script>
 
 </html>
