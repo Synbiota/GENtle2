@@ -450,14 +450,29 @@ var cd = { // Common data, filled by loadBaseData()
 		'CTRL' : 1
    	} ,
    	"feature_types" : {
-		'misc' : { 'annotation_row_offset':2 , 'name':'Misc' } ,
-		'protein_bind' : { 'annotation_row_offset':2 , 'name':'Protein binding site' } ,
-		'promoter' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Promoter' } ,
-		'gene' : { 'annotation_row_offset':0 , 'name':'Gene' } ,
-		'note' : { 'annotation_row_offset':3 , 'name':'Note' } ,
-		'terminator' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Terminator' } ,
-		'rbs' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Ribosome binding site' } ,
-		'ori' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Replication origin' } ,
-		'cds' : { 'is_main_type':1 , 'annotation_row_offset':1 , 'name':'Coding sequence' }
+		'misc' : 			{ 'category':'General',					'annotation_row_offset':2 , 'name':'Misc' } ,
+		'note' : 			{ 'category':'General', 				'annotation_row_offset':3 , 'name':'Note' } ,
+
+		'promoter' : 		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Promoter' } ,
+		'rbs' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Ribosomal binding site' } ,
+		'terminator' : 		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Terminator' } ,
+		'ori' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Replication origin' } ,
+		'gene' : 			{ 'category':'DNA', 					'annotation_row_offset':0 , 'name':'Gene' } ,
+		'cds' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Coding sequence' },
+		'cre' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Cis regulatory element' },
+		'tre' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Trans regulatory element' },
+		'mre' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Mobile genetic element' },
+		'intron' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Intron' },
+		'exon' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Exon' },
+		'pseudogene' :		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Pseudogene' },
+		'enhancer' :		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Enhancer' },
+		'crispr' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'CRISPR' },
+		'alu_element' : 	{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Alu element' },
+
+		'peptide' : 		{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Peptide' } ,
+		'protein_domain' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Protein domain' } ,
+		'protein_tag' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Protein tag' } ,
+		'binding_domain' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Binding domain' } ,		
+		'protein_bind' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Protein binding site' } ,
    	}
 } ;
