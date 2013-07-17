@@ -25,14 +25,7 @@ require("PHPMailer_5.2.0/class.phpmailer.php");
 
 $mail= new PHPMailer();
 
-//$mail->IsHTML(true);
-//trying https://forums.aws.amazon.com/thread.jspa?messageID=302819
-$mail->IsSMTP();                     // tell the class to use SMTP
-$mail->SMTPAuth   = true;            // enable SMTP authentication
-$mail->Port       = 443;             // set the SMTP server port
-$mail->Host       = "ssl://email-smtp.us-east-1.amazonaws.com"; // SMTP server
-$mail->Username   = "SMTP-User";     // SMTP server username
-$mail->Password   = "SMTP-PW";
+$mail->IsSendmail();
 
 
 $mail->FromName= "Synbiota.ca";

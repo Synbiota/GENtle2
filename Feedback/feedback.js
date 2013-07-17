@@ -125,7 +125,7 @@ window.Feedback = function( options ) {
                 }
             }
 
-            var a = element("a", "Ã—"),
+            var a = element("a", "x"),
             modalHeader = document.createElement("div"),
             // modal container
             modalFooter = document.createElement("div");
@@ -881,7 +881,7 @@ window.Feedback.XHR.prototype.send = function( data, callback ) {
         }
     };
     
-     xhr.open( "POST", "phpbackend/sendfeedback.php?p2="+text, true);
+    xhr.open( "POST", "../phpbackend/sendfeedback.php?p2="+text, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("p1="+imagesource);
 };
