@@ -474,5 +474,17 @@ var cd = { // Common data, filled by loadBaseData()
 		'protein_tag' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Protein tag' } ,
 		'binding_domain' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Binding domain' } ,		
 		'protein_bind' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Protein binding site' } ,
+
+		'tRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'tRNA' } ,
+		'rRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'rRNA' } ,
+		'snRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'snRNA' } ,
+		'snoRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'snoRNA' } ,
+		'miRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'miRNA' } ,
+		'Ribozymes' : 		{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'Ribozymes' } ,
+		'tmRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'tmRNA' } ,
+		'siRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'siRNA' } ,
+		'lncRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'lncRNA' } ,
+		'piRNA' : 			{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'piRNA' } ,
+		'rasiRNA' : 		{ 'category':'RNA', 				'annotation_row_offset':2 , 'name':'rasiRNA' } 
    	}
 } ;
