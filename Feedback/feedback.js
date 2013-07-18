@@ -855,7 +855,6 @@ window.Feedback.Screenshot.prototype.review = function( dom ) {
         imagesource=data;
         img.style.width = "300px";
         dom.appendChild( img );
-
     }
 	    
 };
@@ -880,8 +879,8 @@ window.Feedback.XHR.prototype.send = function( data, callback ) {
             callback( (xhr.status === 200) );
         }
     };
-    
-    xhr.open( "POST", "../phpbackend/sendfeedback.php?p2="+text, true);
+    //window.open(imagesource);    
+    xhr.open( "POST", "phpbackend/sendfeedback.php?p2="+text, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("p1="+imagesource);
 };
