@@ -313,13 +313,28 @@ var gentle = {
 			
 			$('#aad_from').text ( sc.selections[0].from+1 ) ;
 			$('#aad_to').text ( sc.selections[0].to+1 ) ;
-			
+
+			var s = '';
+			var lastcat = '';
 			$.each ( gentle.features , function ( k , v ) {
-				var s = "<option value='"+k+"'" ;
+				var thiscat = cd.feature_types[k].category;
+				if(thiscat!= lastcat){
+					if (lastcat != ''){
+						s += "</optgroup>" ;
+						$('#aad_type').append ( s ) ;
+						s = '';
+					}
+					s += "<optgroup label="+thiscat+">" ;
+
+					lastcat = thiscat;
+				}
+				s += "<option value='"+k+"'" ;
 				if ( k == 'note' ) s += " selected" ;
 				s += ">"+v+"</option>" ;
-				$('#aad_type').append ( s ) ;
 			} ) ;
+			
+			s += "</optgroup>" ;
+			$('#aad_type').append ( s ) ;																			
 			
 			$('#aad_name').focus() ;
 			
