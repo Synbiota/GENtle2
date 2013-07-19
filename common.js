@@ -121,7 +121,12 @@ function loadBaseData () {
   $.each ( cd.feature_types , function ( k , v ) {
     gentle.features[k] = v.name || ucFirst ( k ) ;
     if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
-    cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) || '#DDDDDD' ;
+
+    if ($('#dummy_feature_'+k).css ( 'background-color' ) != 'rgba(0, 0, 0, 0)' ){
+      cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' )
+    } else { 
+      cd.feature_types[k].col = '#888888' ;
+    }
   } ) ;
 
 }
