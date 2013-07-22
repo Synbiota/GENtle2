@@ -749,7 +749,7 @@ window.Feedback.Screenshot.prototype.render = function() {
         // let's load html2canvas library while user is writing message
 
         script = document.createElement("script");
-        script.src = options.h2cPath || "libs/html2canvas.js";
+        script.src = options.h2cPath || "Feedback/html2canvas.js";
         script.onerror = function() {
             log("Failed to load html2canvas library, check that the path is correctly defined");
         };
@@ -890,7 +890,7 @@ window.Feedback.XHR.prototype.send = function( data, callback ) {
         }
     };
     
-     xhr.open( "POST", "phpbackend/sendfeedback.php?p2="+text, true);
+     xhr.open( "POST", "Feedback/sendfeedback.php?p2="+text, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("p1="+imagesource);
 };
