@@ -30,7 +30,7 @@ removeElements = function( remove ) {
 },
 loader = function() {
     var div = document.createElement("div"), i = 3;
-    div.className = "feedback-loader";
+    div.className = "feedback-loader feedback-nopointer";
     
     while (i--) { div.appendChild( document.createElement( "span" )); }
     return div;
@@ -125,7 +125,7 @@ window.Feedback = function( options ) {
                 }
             }
 
-            var a = element("a", "x"),
+            var a = element("a", "Ã—"),
             modalHeader = document.createElement("div"),
             // modal container
             modalFooter = document.createElement("div");
@@ -134,7 +134,7 @@ window.Feedback = function( options ) {
             document.body.appendChild( glass );
 
             // modal close button
-            a.className =  "feedback-close";
+            a.className =  "feedback-close feedback-nopointer";
             a.onclick = returnMethods.close;
             a.href = "#";
 
@@ -143,9 +143,9 @@ window.Feedback = function( options ) {
             // build header element
             modalHeader.appendChild( a );
             modalHeader.appendChild( element("h3", options.header ) );
-            modalHeader.className =  "feedback-header";
+            modalHeader.className =  "feedback-header feedback-nopointer";
 
-            modalBody.className = "feedback-body";
+            modalBody.className = "feedback-body feedback-nopointer";
 
             emptyElements( modalBody );
             currentPage = 0;
@@ -155,7 +155,7 @@ window.Feedback = function( options ) {
             // Next button
             nextButton = element( "button", options.nextLabel );
 
-            nextButton.className =  "feedback-btn";
+            nextButton.className =  "feedback-btn feedback-nopointer";
             nextButton.onclick = function() {
                 
                 if (currentPage > 0 ) {
@@ -196,11 +196,11 @@ window.Feedback = function( options ) {
 
             };
 
-            modalFooter.className = "feedback-footer";
+            modalFooter.className = "feedback-footer feedback-nopointer";
             modalFooter.appendChild( nextButton );
 
 
-            modal.className =  "feedback-modal";
+            modal.className =  "feedback-modal feedback-nopointer";
             modal.setAttribute(H2C_IGNORE, true); // don't render in html2canvas
 
 
@@ -278,14 +278,14 @@ window.Feedback = function( options ) {
         }
     };
 
-    glass.className = "feedback-glass";
+    glass.className = "feedback-glass feedback-nopointer";
     glass.style.pointerEvents = "none";
     glass.setAttribute(H2C_IGNORE, true);
 
     options = options || {};
 
     button = element( "button", options.label );
-    button.className = "feedback-btn feedback-bottom-right";
+    button.className = "feedback-btn feedback-bottom-right feedback-nopointer";
 
     button.setAttribute(H2C_IGNORE, true);
 
@@ -366,7 +366,7 @@ window.Feedback.Form.prototype.end = function() {
         text=item.element.value;
         // check that all required fields are entered
         if ( item.required === true && item.element.value.length === 0) {
-            item.element.className = "feedback-error";
+            item.element.className = "feedback-error feedback-nopointer";
             return false;
         } else {
             item.element.className = "";
@@ -418,7 +418,7 @@ window.Feedback.Form.prototype.review = function( dom ) {
 window.Feedback.Review = function() {
 
     this.dom = document.createElement("div");
-    this.dom.className = "feedback-review";
+    this.dom.className = "feedback-review feedback-nopointer";
 
 };
 
@@ -446,8 +446,8 @@ window.Feedback.Review.prototype.render = function( pages ) {
 window.Feedback.Screenshot = function( options ) {
     this.options = options || {};
 
-    this.options.blackoutClass = this.options.blackoutClass || 'feedback-blackedout';
-    this.options.highlightClass = this.options.highlightClass || 'feedback-highlighted';
+    this.options.blackoutClass = this.options.blackoutClass || 'feedback-blackedout feedback-nopointer';
+    this.options.highlightClass = this.options.highlightClass || 'feedback-highlighted feedback-nopointer';
 
     this.h2cDone = false;
 };
@@ -482,45 +482,54 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
         nextButton.disabled = false;
         
         var $this = this,
-        feedbackHighlightElement = "feedback-highlight-element",
+        feedbackHighlightElement = "feedback-highlight-element feedback-nopointer",
         dataExclude = "data-exclude";
 
         var action = true;
 
         // delegate mouse move event for body
-        this.mouseMoveEvent = function( e ) {
+		
+		this.mouseMoveEvent = function( e ) {
+        var target;
+        if (jQuery.browser.msie) {
+            $(".feedback-nopointer").hide();
+            target = document.elementFromPoint(e.clientX, e.clientY); 
+            $(".feedback-nopointer").show();
+        } else {
+            target = e.target;
+        }
 
             // set close button
-            if ( e.target !== previousElement && (e.target.className.indexOf( $this.options.blackoutClass ) !== -1 || e.target.className.indexOf( $this.options.highlightClass ) !== -1)) {
+            if ( target !== previousElement && (target.className.indexOf( $this.options.blackoutClass ) !== -1 || target.className.indexOf( $this.options.highlightClass ) !== -1)) {
 
-                var left = (parseInt(e.target.style.left, 10) +  parseInt(e.target.style.width, 10));
+                var left = (parseInt(target.style.left, 10) +  parseInt(target.style.width, 10));
                 left = Math.max( left, 10 );
 
                 left = Math.min( left, window.innerWidth - 15 );
 
-                var top = (parseInt(e.target.style.top, 10));
+                var top = (parseInt(target.style.top, 10));
                 top = Math.max( top, 10 );
 
                 highlightClose.style.left = left + "px";
                 highlightClose.style.top = top + "px";
-                removeElement = e.target;
+                removeElement = target;
                 clearBox();
                 previousElement = undefined;
                 return;
             }
 
             // don't do anything if we are highlighting a close button or body tag
-            if (e.target.nodeName === "BODY" ||  e.target === highlightClose || e.target === modal || e.target === nextButton || e.target.parentNode === modal || e.target.parentNode === modalHeader) {
+            if (target.nodeName === "BODY" ||  target === highlightClose || target === modal || target === nextButton || target.parentNode === modal || target.parentNode === modalHeader) {
                 // we are not gonna blackout the whole page or the close item
                 clearBox();
-                previousElement = e.target;
+                previousElement = target;
                 return;
             }
 
             hideClose();
 
-            if (e.target !== previousElement ) {
-                previousElement = e.target;
+            if (target !== previousElement ) {
+                previousElement = target;
 
                 window.clearTimeout( timer );
 
@@ -575,7 +584,7 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
                 if ( highlightBox.getAttribute(dataExclude) === "false") {
 
                     highlightBox.className += " " + $this.options.highlightClass;
-                    highlightBox.className = highlightBox.className.replace(/feedback\-highlight\-element/g,"");
+                    highlightBox.className = highlightBox.className.replace(new RegExp(feedbackHighlightElement, "g"),"");
                     $this.highlightBox = highlightBox = document.createElement('canvas');
 
                     ctx = highlightBox.getContext("2d");
@@ -640,10 +649,10 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
         previousElement;
 
 
-        modal.className += ' feedback-animate-toside';
+        modal.className += ' feedback-animate-toside feedback-nopointer';
 
 
-        highlightClose.id = "feedback-highlight-close";
+        highlightClose.id = "feedback-highlight-close feedback-nopointer";
 
 
         highlightClose.addEventListener("click", function(){
@@ -654,7 +663,7 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
         document.body.appendChild( highlightClose );
 
 
-        this.h2cCanvas.className = 'feedback-canvas';
+        this.h2cCanvas.className = 'feedback-canvas feedback-nopointer';
         document.body.appendChild( this.h2cCanvas);
 
 
@@ -664,7 +673,7 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
 
         // add highlight and blackout buttons
         for (var i = 0; i < 2; i++ ) {
-            buttonItem[ i ].className = 'feedback-btn feedback-btn-small ' + (i === 0 ? 'active' : 'feedback-btn-inverse');
+            buttonItem[ i ].className = 'feedback-btn feedback-btn-small feedback-nopointer' + (i === 0 ? 'active' : 'feedback-btn-inverse feedback-nopointer');
 
             buttonItem[ i ].href = "#";
             buttonItem[ i ].onclick = buttonClickFunction;
@@ -677,12 +686,12 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
 
 
 
-        highlightContainer.id = "feedback-highlight-container";
+        highlightContainer.id = "feedback-highlight-container feedback-nopointer";
         highlightContainer.style.width = this.h2cCanvas.width + "px";
         highlightContainer.style.height = this.h2cCanvas.height + "px";
 
         this.highlightBox.className += " " + feedbackHighlightElement;
-        this.blackoutBox.id = "feedback-blackout-element";
+        this.blackoutBox.id = "feedback-blackout-element feedback-nopointer";
         document.body.appendChild( this.highlightBox );
         highlightContainer.appendChild( this.blackoutBox );
 
@@ -740,7 +749,7 @@ window.Feedback.Screenshot.prototype.render = function() {
         // let's load html2canvas library while user is writing message
 
         script = document.createElement("script");
-        script.src = options.h2cPath || "Feedback/html2canvas.js";
+        script.src = options.h2cPath || "libs/html2canvas.js";
         script.onerror = function() {
             log("Failed to load html2canvas library, check that the path is correctly defined");
         };
@@ -784,13 +793,13 @@ window.Feedback.Screenshot.prototype.data = function() {
         ctx.fillStyle = "#000";
 
         // draw blackouts
-        Array.prototype.slice.call( document.getElementsByClassName('feedback-blackedout'), 0).forEach( function( item ) {
+        Array.prototype.slice.call( document.getElementsByClassName('feedback-blackedout feedback-nopointer'), 0).forEach( function( item ) {
             var bounds = getBounds( item );
             ctx.fillRect( bounds.left, bounds.top, bounds.width, bounds.height );
         });
 
         // draw highlights
-        var items = Array.prototype.slice.call( document.getElementsByClassName('feedback-highlighted'), 0);
+        var items = Array.prototype.slice.call( document.getElementsByClassName('feedback-highlighted feedback-nopointer'), 0);
 
         if (items.length > 0 ) {
 
@@ -855,6 +864,7 @@ window.Feedback.Screenshot.prototype.review = function( dom ) {
         imagesource=data;
         img.style.width = "300px";
         dom.appendChild( img );
+
     }
 	    
 };
@@ -879,8 +889,8 @@ window.Feedback.XHR.prototype.send = function( data, callback ) {
             callback( (xhr.status === 200) );
         }
     };
-    //window.open(imagesource);    
-    xhr.open( "POST", "Feedback/sendfeedback.php?p2="+text, true);
+    
+     xhr.open( "POST", "phpbackend/sendfeedback.php?p2="+text, true);
     xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhr.send("p1="+imagesource);
 };
