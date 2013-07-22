@@ -517,7 +517,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 	var h = ctx.canvas.height ;
 	
     ctx.fillStyle = "black";
-    ctx.font="6pt Verdana";
+    ctx.font="8pt Verdana";
     ctx.textAlign = "left";
     ctx.textBaseline = "bottom";
     
@@ -587,7 +587,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 		
 		if ( y > miny && undefined !== bases[p] ) {
 			$.each ( bases[p] , function ( id , o ) {
-				var y2 = y + me.sc.ch - o.offset + 2 ;
+				var y2 = y + me.sc.ch - o.offset + 0 ;
 				
 				// Here, we collect information on drawing lines later.
 				// Drawing lines is expensive, so we minimize the number of lines.

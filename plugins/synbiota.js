@@ -1,5 +1,5 @@
 // An external tool that can help in the initial phase with feedback.
-var use_bugmuncher = true ;
+var use_bugmuncher = false ;
 
 var bugmuncher_options = {
 	language:'en',
