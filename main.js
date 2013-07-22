@@ -963,7 +963,7 @@ window.zcol = colors;
 
 			$('#plasmid_map_icon').remove() ; //HACK removes plasmid_map_icon if it already exists... 
 			if ( true ) { // we don't care if it's linear anymore... //gentle.main_sequence_canvas.sequence.is_circular ) {
-				$('#toolbar-right').append ( '<li title="Plasmid map" id="plasmid_map_icon"><a href="#" onclick="gentle.plasmidMap(true);return false" class="btn-inverse"><i id="right_sidebar_icon" class="icon-time icon-white"></i></a></li>' ) ;
+				$('#toolbar-right').append ( '<li title="Plasmid map" id="plasmid_map_icon"><a href="#" onclick="gentle.plasmidMap(true);return false" class=""><i id="right_sidebar_icon" class="icon-time"></i></a></li>' ) ;
 			}
 		}
 	} ,
