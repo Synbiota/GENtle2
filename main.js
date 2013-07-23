@@ -421,19 +421,11 @@ var gentle = {
 			}
 			h += '</tr>';
 
-			var colors = {
-				A: 'red',
-				C: 'green',
-				G: 'blue',
-				T: 'yellow'
-			};
-window.zcol = colors;
-
 			var plot_height = 250;
 			h += '<tr valign=bottom><th></th>';
 			for (var i in syms) {
 				var height = Math.floor(plot_height * (tallies[syms[i]] / s.length));
-				var color = colors[syms[i]] || 'black';
+				var color = gentle_config.colors.DRuMS[syms[i]] || 'black';
 				h += '<td><div style="background-color:' + color + '; width: 50px; height: ' + height + 'px"></span></td>';
 			}
 			h += '</tr>';
