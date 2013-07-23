@@ -566,8 +566,16 @@ PlasmidMapDialog.prototype.drawMap = function () {
 
 
 PlasmidMapDialog.prototype.exportToPNG = function(){
-	var canvas = document.getElementById("plasmid_map_canvas") ;
-	var d = canvas.toDataURL("image/png") ;
+	gentle.main_sequence_canvas.plasmid_map.stage.toDataURL( {         callback: function(dataUrl) {
+            /*
+             * here you can do anything you like with the data url.
+             * In this tutorial we'll just open the url with the browser
+             * so that you can see the result as an image
+             */
+            window.open(dataUrl);
+        }
+          })
+	var d = self.stage.toDataURL("image/png") ;
 	window.open('about:blank','image from canvas').document.write("<img src='"+d+"'alt='Plasmid Map'  download='plasmid.png' />");
 }
 
