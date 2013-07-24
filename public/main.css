@@ -198,9 +198,20 @@
 
 
 /* Other */
+#betatag {
+  background: url("/public/imgs/synbiota-sprites.png") no-repeat -250px -90px;
+  width: 79px;
+  height: 81px;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  z-index: 1050;
+}
+
 .navbar .brand {
   font-size: 2.0em;
   color: #3e3f41;
+  padding-left:60px;
 }
 
 .navbar .navbar-inner {
@@ -210,9 +221,20 @@
      -moz-border-radius: 0;
           border-radius: 0;
   border-top: 10px solid #5ebc9a;
+  border-left: ;
   background: #edf6fb;
   color: #edf6fb;
 }
+
+/*changing colours of dropdowns*/
+.open>.dropdown-menu {
+  display: block;
+  width: 310px;
+  border: 3px solid #2ea7de;
+  padding: 0;
+  background-color: #edf6fb;
+}
+
 .navbar-inner .container-fluid {
   padding-right: 0;
 }
