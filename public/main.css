@@ -234,6 +234,23 @@
   padding: 0;
   background-color: #edf6fb;
 }
+.navbar .navbar-inner .nav>li .dropdown-menu:before, .navbar .navbar-inner .nav>li .dropdown-menu:after {
+  border-bottom: 10px solid #2ea7de;
+  top: -12px;
+  margin-left: 2px;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+}
+
+.navbar .navbar-inner .nav>li .dropdown-menu:before, .navbar .navbar-inner .nav>li .dropdown-menu:after {
+  border-bottom: 10px solid #2ea7de;
+  top: -12px;
+  margin-left: 2px;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+}
+
+
 
 .navbar-inner .container-fluid {
   padding-right: 0;
