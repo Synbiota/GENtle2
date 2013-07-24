@@ -199,7 +199,7 @@
 
 /* Other */
 #betatag {
-  background: url("/public/imgs/synbiota-sprites.png") no-repeat -250px -90px;
+  background: url("../public/imgs/synbiota-sprites.png") no-repeat -250px -90px;
   width: 79px;
   height: 81px;
   position: fixed;
