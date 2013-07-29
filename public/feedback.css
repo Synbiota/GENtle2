@@ -13,11 +13,6 @@
     font-size: 14px;
 }
 
-
-.feedback-nopointer {
-pointer-events: none
-}
-
 .feedback-body .feedback-error {
     color: #b94a48;
     border-color: #b94a48;
@@ -404,6 +399,9 @@ button.feedback-btn.small, input[type="submit"].feedback-btn.small {
 
     -webkit-border-radius: 4px;
     border-radius: 4px;
+    
+    background-color:#fff;
+    opacity:0.5;
 
     z-index: 2000;
     -moz-background-clip: padding; -webkit-background-clip: padding-box; background-clip: padding-box;
