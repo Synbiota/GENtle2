@@ -541,11 +541,20 @@ SequenceCanvas.prototype.updateTitleBar = function () {
     }
   }
 
-  if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
-    var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
-    data.sequence.synbiota = {
-      lastSave: moment(sb.updated_at).calendar(),
-      readOnly: sb.read_only
+  if ("synbiota_data" in window){
+    if( undefined !== synbiota_data.token ){
+      if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
+        var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
+        data.sequence.synbiota = {
+          lastSave: moment(sb.updated_at).calendar(),
+          readOnly: sb.read_only
+        }
+      }else{ //synbiota token present, new sequence!
+        data.sequence.synbiota = {
+          lastSave: "Unsaved!",
+          readOnly: false
+        }
+      }
     }
   }
 
