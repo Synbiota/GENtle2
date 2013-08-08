@@ -49,7 +49,25 @@ var gentle = {
 			gentle.is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 			
 			window.onorientationchange = gentle.on_resize_event ;
-	
+			
+
+
+			$(window).bind('beforeunload', function(){
+				var confirmationMessage = "Did you mean to close this page? Files are saved locally automatically, but may not be stored in the cloud!";
+				//this Firefox trick only works for redirects, not for actual page closes.
+				/*if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
+					if(confirm(confirmationMessage)) {
+						history.go();
+					} else {
+						window.setTimeout(function() {
+							window.stop();
+						}, 1);
+					}
+				} else {*/
+					return confirmationMessage;
+				//}
+			});
+
 			gentle.setMenuState ( 'edit_menu_undo' , false ) ;
 			gentle.setMenuState ( 'edit_menu_redo' , false ) ;
 			gentle.setMenuState ( 'edit_menu_cut' , false ) ;
