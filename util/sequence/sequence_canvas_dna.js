@@ -814,9 +814,10 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	gentle.set_hover ( '' ) ; // this.getHoverName()
 	
+	/*  Now the plasmid map is being loaded somewhere else...
 	if ( this.show_plasmid_map ) { // we don't care if it's circular anymore }  && gentle.main_sequence_canvas.sequence.is_circular ) {
 		gentle.plasmidMap ( true ) ;
 	} else {
 		gentle.plasmidMap ( false ) ;
-	}
+	}*/
 }

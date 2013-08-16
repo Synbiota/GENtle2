@@ -126,6 +126,10 @@ var gentle = {
 				
 				if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
 			} ) ;
+
+			$('#plasmidbox').hide();
+			gentle.topdisplaystyle = 'linear';
+
 		} ) ;
 	} ,
 
@@ -708,11 +712,16 @@ var gentle = {
 		// Set up new top display
 		top_display = new TopDisplayDNA ( true ) ;
 		top_display.init() ;
+
+
 		
 		// Set up new sequence canvas
 
 		gentle.main_sequence_canvas = new SequenceCanvasDNA ( gentle.sequences[entry] , 'sequence_canvas' ) ;
-	
+		
+		// Set up new plasmid map
+		gentle.main_sequence_canvas.plasmid_map = new PlasmidMapDialog ( true ) ;
+		gentle.main_sequence_canvas.plasmid_map.initMap() ;
 	} ,
 
 	getUrlVars : function ( def ) {
@@ -799,18 +808,32 @@ var gentle = {
 	
 	toggle_right_sidebar : function () {
 		var sc = gentle.main_sequence_canvas ;
-		if ( $('#topbox').is(':visible') ) {
-			$('#topbox').hide() ;
+
+		if (gentle.topdisplaystyle == 'linear'){
+			$('#topbox').hide() ;	
+			$('#plasmidbox').show() ;	
+			$('#right_sidebar_icon').toggleClass('icon-asterisk').toggleClass('icon-chevron-right').attr('title', 'Hide Sidebar') ;
+			gentle.topdisplaystyle = 'circular' ;
+			console.log ("was linear, is circular") ;
+		}else if(gentle.topdisplaystyle == 'circular'){
 			sc.tbw = $('#canvas_wrapper').css('right');
 			$('#canvas_wrapper').css ( { right : 0 } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : 0 } ) ;
-		} else {
+			$('#plasmidbox').hide() ;
+			$('#right_sidebar_icon').toggleClass('icon-chevron-right').toggleClass('icon-chevron-left').attr('title', 'Show Linear Map') ;
+			gentle.topdisplaystyle = 'none' ;
+			console.log ("was circular, is none") ;
+		}else{
 			$('#canvas_wrapper').css ( { right : sc.tbw } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : sc.tbw } ) ;
 			$('#topbox').show() ;
+			$('#right_sidebar_icon').toggleClass('icon-chevron-left').toggleClass('icon-asterisk').attr('title', 'Show Circular Map') ;
+			gentle.topdisplaystyle = 'linear' ;		
+			console.log ("was none, is linear")	;
 		}
+
 		gentle.on_resize_event() ;
-		$('#right_sidebar_icon').toggleClass('icon-chevron-right').toggleClass('icon-chevron-left') ;
+		
 		$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 	} ,
 	
@@ -961,7 +984,7 @@ var gentle = {
 		} ) ;
 	} ,
 	
-	plasmidMap : function ( show ) {
+	/*plasmidMap : function ( show ) {
 		if ( show ) {
 			//console.log("gentle.plasmidMap(show = true)")
 			$('#plasmid_map_icon').remove() ;
@@ -976,7 +999,7 @@ var gentle = {
 				$('#toolbar-right').append ( '<li title="Plasmid map" id="plasmid_map_icon"><a href="#" onclick="gentle.plasmidMap(true);return false" class=""><i id="right_sidebar_icon" class="icon-time"></i></a></li>' ) ;
 			}
 		}
-	} ,
+	} ,*/
 	
 	on_resize_event : function () {
 		gentle.resizeMainDiv();

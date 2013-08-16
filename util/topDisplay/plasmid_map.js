@@ -1,27 +1,21 @@
 function PlasmidMapDialog () {
 	var self = this ;
-	
-	$("#plasmid_map_dialog").remove() ;
-	$('#main').append ( '<div id="plasmid_map_dialog" title="Plasmid map">' ) ;
-	$('#plasmid_map_dialog').load ( "public/templates/plasmid_map.html" , function () {
-		$('#plasmid_map_dialog').dialog ( {
-			create: function( event, ui ) { self.initMap() ; } ,
-			position: { my: "right center", at: "right center", of: $('#main') } ,
-			close: function( event, ui ) {
-				gentle.main_sequence_canvas.show_plasmid_map = false ; // Someone clicked on 'close'
-				gentle.plasmidMap ( false ) ;
-			} ,
-			width:700 ,
-			height:550
-		} ) ;
-		$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
-	} ) ;
 
+	var html = ""; 
+	html += "<div id='plasmid_map' style='position:relative;left:5px;top:5px;width:500px;height:500px;border:1px solid #DDDDDD'>" ;
+	html += "<canvas id='plasmid_map_canvas' style='width:500;height:500'></canvas></div> </div>" ;
+	//html += "<div style='position:absolute;left:510px;top:5px;'>" ;
+	//html += "<div><b>Options</b></div>" ;
+	//html += "<div><a class='btn' onclick='gentle.main_sequence_canvas.plasmid_map.exportToPNG(); return false'>Export as Image</a></div> </div>" ;
+	
+	$("#plasmidbox").html ( html ) ;
+
+	$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
 }
 
 PlasmidMapDialog.prototype.initMap = function () {

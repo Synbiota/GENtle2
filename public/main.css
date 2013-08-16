@@ -491,7 +491,7 @@ h1 {
   margin-right:5px;*/
 }
 
-
+/* Top Display */
 #zoombox {
   position:fixed;
   right:20px;
@@ -527,6 +527,13 @@ h1 {
   cursor:move;
   right:0px;
 }
+
+/*Plasmid Map Display*/
+
+#plasmidbox{
+  width: 520px;
+}
+
 
 
 #sequence_canvas_title_bar {
