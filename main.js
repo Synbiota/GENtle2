@@ -534,7 +534,28 @@ var gentle = {
 
 		return false ;
 	} ,
+
+	startAddSequenceDialog : function () {
+	  $('#addSequenceDialog').remove() ;
 	
+	  var dialogContainer = $("<div/>");
+	  dialogContainer.load("public/templates/add_sequence_dialog.html", function(){
+
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc ) {
+			if ( sc.edit.editing ) {
+				sc.setEditMode ( false ) ;
+				sc.show() ;
+			}
+			sc.unbindKeyboard() ;
+		}
+	  	
+		dialogContainer.appendTo("#all");
+		$('#addSequenceDialog').modal();
+
+	  });
+	} ,
+
 	startNewSequenceDialog : function () {
 	  $('#newSequenceDialog').remove() ;
 	
@@ -553,11 +574,16 @@ var gentle = {
 		dialogContainer.appendTo("#all");
 		$('#newSequenceDialog').modal();
 		$('#new_sequence_entry').focus() ;
+
+		$('#new_sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
+		    console.log("you changed names:", val);
+		}});
 	  });
 	} ,
 	
 	createNewSequenceFromDialog : function () {
 		var text = $("#new_sequence_entry").val() ;
+		var title = $('#new_sequence_name').text() ;
 		
 		if ( text == '' ) {
 			alert ( "In Soviet Russia, empty text parses YOU!" ) ;
@@ -576,6 +602,12 @@ var gentle = {
 		
 		if ( found ) {
 			$("#newSequenceDialog").modal("hide").remove();
+			console.log(title);
+			console.log(gentle.main_sequence_canvas.sequence.name);
+			if (title != "Unnamed sequence" && gentle.main_sequence_canvas.sequence.name == "Unnamed sequence"){
+				gentle.main_sequence_canvas.sequence.name = title;
+				gentle.main_sequence_canvas.updateTitleBar() ;
+			}
 		} else {
 			alert ( "File type not recognised" ) ;
 		}
