@@ -41,10 +41,14 @@ SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
 
 
 SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
+
+  console.log("y", y);
+
   var me = this ;
+
   var h = '' ;
   h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-  h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
+  h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu" >' ; // style="font-size:8pt"
   h += '</ul></div>' ;
   h += "</div>" ;
   
@@ -65,6 +69,20 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
   $('#selection_context_marker').remove() ;
   if ( menu_item_count == 0 ) return ;
   $('#canvas_wrapper').prepend ( context_menu ) ;
+
+
+  var this_width = $("#selection_context_marker ul").width();
+  //make sure we don't go outside borders!
+  if (x + this_width> $('#sequence_canvas').width()){
+    $("#selection_context_marker ul").css("left", - this_width + 'px');
+  }
+
+  var approx_height = $("#selection_context_marker ul").height();
+  if (y + approx_height > $('#sequence_canvas').height()){
+    console.log ($('#sequence_canvas').height(), y, approx_height);
+    $("#selection_context_marker ul").css("top",-approx_height-15+"px");
+  }
+
 }
 
 
@@ -73,6 +91,7 @@ SequenceCanvas.prototype.resizeCanvas = function () {
   var h = $('#canvas_wrapper').height() ;
   var new_h = $('#main').height() - 20;
   $('#sequence_canvas').css ( { width:w+'px' , height:h+'px' } ) ;
+  $('#sequence_canvas_overlay').css ( { width:w+'px' , height:h+'px' } ) ;
   $('#canvas_wrapper').css ( { 'max-height' : Math.max(h, new_h) } ) ;
   $('#canvas_wrapper').height ( new_h) ;
   $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;

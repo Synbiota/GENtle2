@@ -681,6 +681,7 @@ var gentle = {
 		
 		var html = "<div id='canvas_wrapper'>" ;
 		html += "<canvas id='sequence_canvas'></canvas>" ;
+		html += "<canvas id='sequence_canvas_overlay'></canvas>" ;
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
@@ -702,6 +703,7 @@ var gentle = {
 		
 		var html = "<div id='canvas_wrapper'>" ;
 		html += "<canvas id='sequence_canvas'></canvas>" ;
+		html += "<canvas id='sequence_canvas_overlay'></canvas>" ;
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;

@@ -139,14 +139,14 @@ SequenceCanvasRowDNA.prototype = new SequenceCanvasRow() ;
 SequenceCanvasRowDNA.prototype.constructor = SequenceCanvasRowDNA ;
 
 SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
-    var me = this ;
-    
-    var is_pcr_product = me.type == 'pcr_product' ;
-    var is_primer = me.type.substr(0,6)=='primer' ;
-    var is_primer_rev = false ;
-    var primer_comp_seq ;
-    var static_label ;
-    
+	var me = this ;
+	
+	var is_pcr_product = me.type == 'pcr_product' ;
+	var is_primer = me.type.substr(0,6)=='primer' ;
+	var is_primer_rev = false ;
+	var primer_comp_seq ;
+	var static_label ;
+	
 	var s = me.sc.sequence.seq ;
 	
 	if ( is_primer ) {
@@ -177,42 +177,33 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 	var is_secondary = is_rc||(me.is_secondary||false) ;
 	var fs = is_secondary ? '#BBBBBB' : 'black' ;
 	if ( is_pcr_product ) fs = 'green' ;
-    ctx.fillStyle = fs ;
-    ctx.font="9pt Courier";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    
+	ctx.fillStyle = fs ;
+	ctx.font="9pt Courier";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
+	
 	var show_numbering = me.is_primary ;
 	if ( is_primer && !is_rc ) show_numbering = true ;
 	if ( is_pcr_product ) show_numbering = true ;
 	
-    this.start_base = undefined ;
-    this.end_base = undefined ;
-    
+	this.start_base = undefined ;
+	this.end_base = undefined ;
+	
 
-    var x = this.sc.xoff ;
-    var y = 2 - this.sc.yoff + me.line_off ;
-    var miny = -this.sc.ch ;
-    var check_select = me.is_primary && me.sc.selections.length > 0 ;
-    if ( check_select && me.sc.selections[0].line !== undefined && me.sc.selections[0].line.line_id != me.line_id ) check_select = false ;
-    
+	var x = this.sc.xoff ;
+	var y = 2 - this.sc.yoff + me.line_off ;
+	var miny = -this.sc.ch ;
+	var check_select = me.is_primary && me.sc.selections.length > 0 ;
+	if ( check_select && me.sc.selections[0].line !== undefined && me.sc.selections[0].line.line_id != me.line_id ) check_select = false ;
+	
 
 //	if ( check_select ) console.log ( me.sc.selections[0].from + "-" + me.sc.selections[0].to ) ;
 
 
 	// Get bases per line
-	var ox = x ;
-    var bpl = 0 ; // Bases per line
-    while ( 1 ) {
-    	bpl++ ;
-    	x += this.sc.cw ;
-		if ( (bpl+1) % 10 == 0 ) {
-			x += 5 ;
-			if ( x + this.sc.cw * 11 >= w ) break ;
-		}
-    }
-    this.sc.bases_per_row = bpl + 1 ;
-	x = ox ;
+	var bpl = Math.floor((w - x)/(10*this.sc.cw + 5))*10;
+	bpl = (bpl > 0)? bpl : 10;
+	this.sc.bases_per_row = bpl;
 
 	for ( var p = 0 ; p < s.length ; p++ ) {
 	
@@ -226,10 +217,10 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			var text = is_primer||is_pcr_product ? static_label : (p+1)  ;
 			var ofs = ctx.fillStyle ;
 			ctx.fillStyle = gentle_config.colors.numbering ;
-		    ctx.textAlign = "right";
+			ctx.textAlign = "right";
 			ctx.fillText ( text , this.sc.xoff-this.sc.cw , y ) ;
-		    ctx.textAlign = "left";
-		    ctx.fillStyle = ofs ;
+			ctx.textAlign = "left";
+			ctx.fillStyle = ofs ;
 		}
 		
 		if ( y > miny ) {
@@ -237,11 +228,17 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			this.end_base = p ;
 			do_write = true ;
 			if ( is_editing_this && this.sc.edit.base == p ) {
-				ctx.fillRect ( x-1 , y - 2 , this.sc.cw+1 , this.sc.ch+5 );
+				/*ctx.fillRect ( x-1 , y - 2 , this.sc.cw+1 , this.sc.ch+5 );
 				ctx.fillStyle = "white";
 				ctx.fillText ( s[p] , x , y ) ;
 				ctx.fillStyle = fs;
-				do_write = false ;
+				do_write = false ;*/
+				//almod
+				var octx = ctx.overlay;
+
+				octx.fillStyle = "black";
+				octx.fillRect (x-1 , y - 4 , 1 , this.sc.ch+9 ) ;
+
 			} else if ( check_select ) {
 				$.each ( me.sc.selections , function ( k , v ) {
 					var from = v.from > v.to ? v.to : v.from ;
@@ -267,12 +264,12 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 				
 				//DRuMS colours
 				function convertHex(hex,opacity){
-				    hex = hex.replace('#','');
-				    r = parseInt(hex.substring(0,2), 16);
-				    g = parseInt(hex.substring(2,4), 16);
-				    b = parseInt(hex.substring(4,6), 16);
-				    result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
-				    return result;
+					hex = hex.replace('#','');
+					r = parseInt(hex.substring(0,2), 16);
+					g = parseInt(hex.substring(2,4), 16);
+					b = parseInt(hex.substring(4,6), 16);
+					result = 'rgba('+r+','+g+','+b+','+opacity/100+')';
+					return result;
 				}
 
 				var ch= is_rc ? cd.rc[s[p]] : s[p];
@@ -316,125 +313,125 @@ SequenceCanvasRowAlign.prototype = new SequenceCanvasRow();
 SequenceCanvasRowAlign.prototype.constructor = SequenceCanvasRowAlign;
 
 SequenceCanvasRowAlign.prototype.show = function (ctx) {
-    var me = this;
-    var s = this.sc.sequence.seq;
-    var s2 = this.secondarySequence;
-    this.targets = [];
+	var me = this;
+	var s = this.sc.sequence.seq;
+	var s2 = this.secondarySequence;
+	this.targets = [];
 
 
 
-    var w = ctx.canvas.width;
-    var h = ctx.canvas.height;
+	var w = ctx.canvas.width;
+	var h = ctx.canvas.height;
 
-    var is_align = me.type == 'dna_align' ? true : false;
-    var fs = is_align ? '#BBBBBB' : 'black';
-    ctx.fillStyle = fs;
-    ctx.font = "9pt Courier";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
+	var is_align = me.type == 'dna_align' ? true : false;
+	var fs = is_align ? '#BBBBBB' : 'black';
+	ctx.fillStyle = fs;
+	ctx.font = "9pt Courier";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
 
-    this.start_base = undefined;
-    this.end_base = undefined;
-
-
-    var x = this.sc.xoff;
-    var y = 2 - this.sc.yoff + me.line_off;
-    var miny = -this.sc.ch;
-    var check_select = me.is_primary && me.sc.selections.length > 0;
-
-    //	if ( check_select ) console.log ( me.sc.selections[0].from + "-" + me.sc.selections[0].to ) ;
+	this.start_base = undefined;
+	this.end_base = undefined;
 
 
-    // Get bases per line
-    var ox = x;
-    var bpl = 0; // Bases per line
-    while (1) {
-        bpl++;
-        x += this.sc.cw;
-        if ((bpl + 1) % 10 == 0) {
-            x += 5;
-            if (x + this.sc.cw * 11 >= w) break;
-        }
-    }
-    this.sc.bases_per_row = bpl + 1;
-    x = ox;
+	var x = this.sc.xoff;
+	var y = 2 - this.sc.yoff + me.line_off;
+	var miny = -this.sc.ch;
+	var check_select = me.is_primary && me.sc.selections.length > 0;
 
-    for (var p = 0; p < s.length; p++) {
+	//	if ( check_select ) console.log ( me.sc.selections[0].from + "-" + me.sc.selections[0].to ) ;
 
-        if (y <= miny) { // Speedup
-            p += me.sc.bases_per_row - 1;
-            y += me.sc.block_height;
-            continue;
-        }
 
-        if (x == this.sc.xoff && y > miny && me.is_primary) {
-            var ofs = ctx.fillStyle;
-            ctx.fillStyle = gentle_config.colors.numbering;
-            ctx.textAlign = "right";
-            ctx.fillText((p + 1), this.sc.xoff - this.sc.cw, y);
-            ctx.textAlign = "left";
-            ctx.fillStyle = ofs;
-        }
+	// Get bases per line
+	var ox = x;
+	var bpl = 0; // Bases per line
+	while (1) {
+		bpl++;
+		x += this.sc.cw;
+		if ((bpl + 1) % 10 == 0) {
+			x += 5;
+			if (x + this.sc.cw * 11 >= w) break;
+		}
+	}
+	this.sc.bases_per_row = bpl + 1;
+	x = ox;
 
-        if (y > miny) {
-            if (this.start_base === undefined) this.start_base = p;
-            this.end_base = p;
-            do_write = true;
-            if (this.is_primary && this.sc.edit.editing && this.sc.edit.base == p) {
-                ctx.fillRect(x - 1, y /*+ 2*/, this.sc.cw + 1, this.sc.ch + 1);
-                ctx.fillStyle = "white";
-                ctx.fillText(s[p], x, y);
-                ctx.fillStyle = fs;
-                do_write = false;
-            } else if (check_select) {
-                $.each(me.sc.selections, function (k, v) {
-                    var from = v.from > v.to ? v.to : v.from;
-                    var to = v.from < v.to ? v.to : v.from;
-                    if (from > p || to < p) return;
-                    //					if ( ( v.from <= v.to ) && ( v.from > p || v.to < p ) ) return ;
-                    //					if ( ( v.from > v.to ) && ( v.to > p || v.from < p ) ) return ;
-                    if (to == p) {
-                        me.sc.selection_end_pos = { x: Math.floor(x + me.sc.cw / 2), y: y + me.sc.ch + 2 };
-                    }
-                    ctx.fillStyle = v.fcol;
-                    ctx.fillRect(x - 1, y/* + 2*/, me.sc.cw + 1, me.sc.ch + 1);
-                    ctx.fillStyle = v.tcol;
-                    if (is_align) ctx.fillText(s2[p], x, y);
-                    else ctx.fillText(s[p], x, y);
-                    ctx.fillStyle = fs;
-                    do_write = false;
-                    return false;
-                });
-            }
-            if (do_write) {
-                if (s2.charAt(p) !== s.charAt(p)) ctx.fillStyle = "Red";
-                else ctx.fillStyle = fs;
-                if (is_align) ctx.fillText(s2[p], x, y);
-                else ctx.fillText(s[p], x, y);
-            }
-            this.targets.push({ left: x, top: y, right: x + this.sc.cw, bottom: y + this.sc.ch, base: p });
-        }
+	for (var p = 0; p < s.length; p++) {
 
-        if ((p + 1) % 10 == 0) {
-            x += 5;
-            if (x + this.sc.cw * 11 >= w) x = w;
-        }
-        x += this.sc.cw;
-        if (x + this.sc.cw >= w) {
-            if (this.is_primary) {
-            }
-            x = this.sc.xoff;
-            y += me.sc.block_height;
-            if (y > h) break;
-        }
-    }
+		if (y <= miny) { // Speedup
+			p += me.sc.bases_per_row - 1;
+			y += me.sc.block_height;
+			continue;
+		}
+
+		if (x == this.sc.xoff && y > miny && me.is_primary) {
+			var ofs = ctx.fillStyle;
+			ctx.fillStyle = gentle_config.colors.numbering;
+			ctx.textAlign = "right";
+			ctx.fillText((p + 1), this.sc.xoff - this.sc.cw, y);
+			ctx.textAlign = "left";
+			ctx.fillStyle = ofs;
+		}
+
+		if (y > miny) {
+			if (this.start_base === undefined) this.start_base = p;
+			this.end_base = p;
+			do_write = true;
+			if (this.is_primary && this.sc.edit.editing && this.sc.edit.base == p) {
+				ctx.fillRect(x - 1, y /*+ 2*/, this.sc.cw + 1, this.sc.ch + 1);
+				ctx.fillStyle = "white";
+				ctx.fillText(s[p], x, y);
+				ctx.fillStyle = fs;
+				do_write = false;
+			} else if (check_select) {
+				$.each(me.sc.selections, function (k, v) {
+					var from = v.from > v.to ? v.to : v.from;
+					var to = v.from < v.to ? v.to : v.from;
+					if (from > p || to < p) return;
+					//					if ( ( v.from <= v.to ) && ( v.from > p || v.to < p ) ) return ;
+					//					if ( ( v.from > v.to ) && ( v.to > p || v.from < p ) ) return ;
+					if (to == p) {
+						me.sc.selection_end_pos = { x: Math.floor(x + me.sc.cw / 2), y: y + me.sc.ch + 2 };
+					}
+					ctx.fillStyle = v.fcol;
+					ctx.fillRect(x - 1, y/* + 2*/, me.sc.cw + 1, me.sc.ch + 1);
+					ctx.fillStyle = v.tcol;
+					if (is_align) ctx.fillText(s2[p], x, y);
+					else ctx.fillText(s[p], x, y);
+					ctx.fillStyle = fs;
+					do_write = false;
+					return false;
+				});
+			}
+			if (do_write) {
+				if (s2.charAt(p) !== s.charAt(p)) ctx.fillStyle = "Red";
+				else ctx.fillStyle = fs;
+				if (is_align) ctx.fillText(s2[p], x, y);
+				else ctx.fillText(s[p], x, y);
+			}
+			this.targets.push({ left: x, top: y, right: x + this.sc.cw, bottom: y + this.sc.ch, base: p });
+		}
+
+		if ((p + 1) % 10 == 0) {
+			x += 5;
+			if (x + this.sc.cw * 11 >= w) x = w;
+		}
+		x += this.sc.cw;
+		if (x + this.sc.cw >= w) {
+			if (this.is_primary) {
+			}
+			x = this.sc.xoff;
+			y += me.sc.block_height;
+			if (y > h) break;
+		}
+	}
 }
 
 function SequenceCanvasRowAlign(sc, is_primary, secondarySequence) {
-    this.sc = sc;
-    this.is_primary = is_primary;
-    this.type = 'dna_align';
-    this.secondarySequence = secondarySequence;
+	this.sc = sc;
+	this.is_primary = is_primary;
+	this.type = 'dna_align';
+	this.secondarySequence = secondarySequence;
 }
 
 //________________________________________________________________________________________
@@ -448,18 +445,18 @@ SequenceCanvasRowPosition.prototype.show = function ( ctx ) {
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
 	
-    ctx.fillStyle = gentle_config.colors.numbering ;
-    ctx.font="9pt Courier";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    
-    var me = this ;
-    this.start_base = undefined ;
-    this.end_base = undefined ;
-    
-    var x = this.sc.xoff ;
-    var y = 2 - this.sc.yoff + me.line_off ;
-    var miny = -this.sc.ch ;
+	ctx.fillStyle = gentle_config.colors.numbering ;
+	ctx.font="9pt Courier";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
+	
+	var me = this ;
+	this.start_base = undefined ;
+	this.end_base = undefined ;
+	
+	var x = this.sc.xoff ;
+	var y = 2 - this.sc.yoff + me.line_off ;
+	var miny = -this.sc.ch ;
 	for ( var p = 0 ; p < s.length ; p++ ) {
 	
 		if ( y <= miny ) { // Speedup
@@ -516,16 +513,16 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
 	
-    ctx.fillStyle = "black";
-    ctx.font="8pt Verdana";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "bottom";
-    
-    var me = this ;
-    
-    // Get features in the displayed region from cache
-    var showfeat = {} ;
-    for ( var cid = Math.floor ( me.sc.start_base / me.cache_factor ) ; cid <= Math.floor ( me.sc.end_base / me.cache_factor ) ; cid++ ) {
+	ctx.fillStyle = "black";
+	ctx.font="8pt Verdana";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "bottom";
+	
+	var me = this ;
+	
+	// Get features in the displayed region from cache
+	var showfeat = {} ;
+	for ( var cid = Math.floor ( me.sc.start_base / me.cache_factor ) ; cid <= Math.floor ( me.sc.end_base / me.cache_factor ) ; cid++ ) {
 		if ( undefined === me.cache[cid] ) continue ;
 		$.each ( me.cache[cid] , function ( k , fid ) {
 			var v = me.sc.sequence.features[fid] ;
@@ -537,7 +534,7 @@ SequenceCanvasRowAnnotation.prototype.show = function ( ctx ) {
 			if ( left-1 > me.sc.end_base ) return ;
 			if ( right-1 < me.sc.start_base ) return ;
 			showfeat[fid] = v ;
-	    } ) ;
+		} ) ;
 	}
 	
 	// Markup bases in this region
@@ -744,7 +741,7 @@ SequenceCanvasRowAA.prototype = new SequenceCanvasRow() ;
 SequenceCanvasRowAA.prototype.constructor = SequenceCanvasRowAA ;
 
 SequenceCanvasRowAA.prototype.show = function ( ctx ) {
-    var me = this ;
+	var me = this ;
 	var s = me.seq ;
 	this.targets = [] ;
 
@@ -752,31 +749,31 @@ SequenceCanvasRowAA.prototype.show = function ( ctx ) {
 	var h = ctx.canvas.height ;
 	
 	var fs = me.is_primary ? 'black' : '#75B4FF' ;
-    ctx.fillStyle = fs ;
-    ctx.font="9pt Courier";
-    ctx.textAlign = "left";
-    ctx.textBaseline = "top";
-    
-    this.start_base = undefined ;
-    this.end_base = undefined ;
-    
+	ctx.fillStyle = fs ;
+	ctx.font="9pt Courier";
+	ctx.textAlign = "left";
+	ctx.textBaseline = "top";
+	
+	this.start_base = undefined ;
+	this.end_base = undefined ;
+	
 	var three = ( me.m1 == 'three' ) ;
-    var x = this.sc.xoff ;
-    var y = 2 - this.sc.yoff + me.line_off ;
-    var miny = -this.sc.ch ;
+	var x = this.sc.xoff ;
+	var y = 2 - this.sc.yoff + me.line_off ;
+	var miny = -this.sc.ch ;
 
 	// Get bases per line
 	var ox = x ;
-    var bpl = 0 ; // Bases per line
-    while ( 1 ) {
-    	bpl++ ;
-    	x += this.sc.cw ;
+	var bpl = 0 ; // Bases per line
+	while ( 1 ) {
+		bpl++ ;
+		x += this.sc.cw ;
 		if ( (bpl+1) % 10 == 0 ) {
 			x += 5 ;
 			if ( x + this.sc.cw * 11 >= w ) break ;
 		}
-    }
-    this.sc.bases_per_row = bpl + 1 ;
+	}
+	this.sc.bases_per_row = bpl + 1 ;
 	x = ox ;
 
 	for ( var p = 0 ; p < s.length ; p++ ) {
@@ -788,9 +785,9 @@ SequenceCanvasRowAA.prototype.show = function ( ctx ) {
 		}
 
 		if ( me.is_primary && x == this.sc.xoff && y > miny ) {
-		    ctx.textAlign = "right";
+			ctx.textAlign = "right";
 			ctx.fillText ( (p+1) , this.sc.xoff-this.sc.cw , y ) ;
-		    ctx.textAlign = "left";
+			ctx.textAlign = "left";
 		}
 		
 		if ( y > miny ) {
@@ -801,6 +798,7 @@ SequenceCanvasRowAA.prototype.show = function ( ctx ) {
 				ctx.fillStyle = "white";
 				ctx.fillText ( s[p] , x , y ) ;
 				ctx.fillStyle = fs;
+
 			} else {
 				var red = false ;
 				if ( !me.is_primary ) {
@@ -950,23 +948,23 @@ SequenceCanvasRowRES.prototype.show = function ( ctx ) {
 	var w = ctx.canvas.width ;
 	var h = ctx.canvas.height ;
 	
-    ctx.fillStyle = "#59955C";
-    ctx.font="7pt Courier";
-    ctx.textAlign = "right";
-    ctx.textBaseline = "top";
-    
-    var me = this ;
-    this.start_base = undefined ;
-    this.end_base = undefined ;
-    this.targets = [] ;
-    
-    var rc_offset = ( me.sc.lines[me.line_id-1].type == 'dna_rc' ) ? -me.sc.ch : 0 ;
-    
-    var x = this.sc.xoff ;
-    var y = 2 - this.sc.yoff + me.line_off ;
-    var miny = -this.sc.ch ;
-    var cache = [] ;
-    var last_x = x ;
+	ctx.fillStyle = "#59955C";
+	ctx.font="7pt Courier";
+	ctx.textAlign = "right";
+	ctx.textBaseline = "top";
+	
+	var me = this ;
+	this.start_base = undefined ;
+	this.end_base = undefined ;
+	this.targets = [] ;
+	
+	var rc_offset = ( me.sc.lines[me.line_id-1].type == 'dna_rc' ) ? -me.sc.ch : 0 ;
+	
+	var x = this.sc.xoff ;
+	var y = 2 - this.sc.yoff + me.line_off ;
+	var miny = -this.sc.ch ;
+	var cache = [] ;
+	var last_x = x ;
 	for ( var p = 0 ; p < s.length ; p++ ) {
 	
 		if ( y <= miny ) { // Speedup

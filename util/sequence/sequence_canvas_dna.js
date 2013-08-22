@@ -295,29 +295,32 @@ SequenceCanvasDNA.prototype.init = function () {
 	// Select
 	sc.selecting = false ;
 	sc.selections = [] ;
+
+	sc.selectionCursor = SelectionCursor();
+
 	
 	if ( gentle.is_mobile ) {
-		$('#sequence_canvas').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchcancel' , sc.absorb_event ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchcancel' , sc.absorb_event ) ;
 	} else {
-		$('#sequence_canvas').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
-		$('#sequence_canvas').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
-		$('#sequence_canvas').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
 	}
 	
 	// Double-click for editing
-	$('#sequence_canvas').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
+	$('#sequence_canvas_overlay').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
 	
 	
 	// Keys
 	sc.bindKeyboard() ;
 	
 	// Sequence hover event
-	$('#sequence_canvas').mousemove ( function ( e ) {
-		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	$('#sequence_canvas_overlay').mousemove ( function ( e ) {
+		var x = e.pageX - parseInt($('#sequence_canvas_overlay').offset().left,10) ;
+		var y = e.pageY - parseInt($('#sequence_canvas_overlay').offset().top,10) ;
 		var target = sc.isOver ( x , y ) ;
 		sc.last_target = target ;
 		if ( target === null ) return ;
@@ -328,7 +331,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	$(window).resize ( function() { gentle.on_resize_event(); sc.resize(); } ) ;
 	
 	// Attach mouse wheel event to canvas
-	$('#sequence_canvas').mousewheel(function(event, delta, deltaX, deltaY) {
+	$('#sequence_canvas_overlay').mousewheel(function(event, delta, deltaX, deltaY) {
 		var cur = $('#canvas_wrapper').scrollTop() ;
 		var max = $('#canvas_wrapper').height() ;
 		$('#canvas_wrapper').scrollTop ( cur - max * deltaY ) ;
@@ -355,6 +358,7 @@ SequenceCanvasDNA.prototype.resize = function() {
 	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
 	var h = $('#canvas_wrapper').height() ;
 	$('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
+	$('#sequence_canvas_overlay').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
 	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
 	$('#sequence_canvas_title_bar').css ( { width:w } ) ;
 }
@@ -398,6 +402,13 @@ SequenceCanvasDNA.prototype.show = function () {
 	ctx.canvas.width = w ;
 	ctx.canvas.height = h ;
 	
+	//Get overlay context
+	var octx = $('#sequence_canvas_overlay').get(0).getContext('2d');
+	octx.canvas.width = w ;
+	octx.canvas.height = h ;
+
+	ctx.overlay = octx ;
+
     this.bases_per_row = 0 ;
 	var sc = this ;
 	
@@ -426,7 +437,22 @@ SequenceCanvasDNA.prototype.show = function () {
 		line.line_number = line_id ;
 		line.show ( ctx ) ;
 	} ) ;
+
+
+	//update the selectionCursor!
+	var is_editing_this = this.edit.editing;
+	if (this.edit.editing && this.start_base < this.edit.base && this.edit.base < this.end_base ){
+		console.log("Showin' the cursor!");
+		//calculate cursor location:
+
+
+
+	}else {
+		console.log("Hidin' the cursor!") ;
+		//hide the cursor
+	}
 	
+
 	pixel_height = Math.floor ( ( this.sequence.seq.length + this.bases_per_row ) / this.bases_per_row ) * pixel_height ;
 	if ( $('#main_slider').height() != pixel_height ) $('#main_slider').height ( pixel_height ) ;
 	

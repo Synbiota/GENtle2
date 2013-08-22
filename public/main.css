@@ -376,6 +376,12 @@ h1 {
   height:100%;
 }
 
+#sequence_canvas_overlay {
+  position:fixed;
+  width:100%;
+  height:100%;
+}
+
 #seq_functions {
   float:right;
   font-size:9pt;
