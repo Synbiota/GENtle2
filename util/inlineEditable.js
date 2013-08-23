@@ -38,10 +38,14 @@ inlineEditable.prototype.bindEventsToInput = function() {
         case 13: //enter
           that.save();
           break;
+        case 9: //enter
+          that.save();
+          break;
         case 27: //escape
           that.hide();
       }
-    });
+    })
+    .on( "blur", function(e){ if(that.$input.is( ":visible" )){that.save();}} );
   $('html').on('click', function() {
     that.hide();
   });
@@ -65,7 +69,10 @@ inlineEditable.prototype.show = function () {
 }
 
 inlineEditable.prototype.hide = function () {
-  this.$input.hide().blur();
+  this.$input.hide()
+  if (this.$input.is(":focus")){
+    this.$input.blur();
+  }
   this.$ref.show();
   this.unbindEventsToInput();
 }
