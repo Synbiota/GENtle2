@@ -26,7 +26,27 @@ SelectionCursor = function(start, end){
 
 
 
+SelectionCursor.prototype.setStart = function(start){
+  this.start = start;
+}
 
+SelectionCursor.prototype.setEnd = function(end){
+  this.end = end;
+}
+
+SelectionCursor.prototype.getSelection = function(){
+  if (this.start < this.end){
+    return [{ from : this.start , to : this.end - 1, fcol : '#CCCCCC' , tcol : 'black' }] ;
+  } else if (this.start > this.end){
+    return [{ from : this.end , to : this.start-1, fcol : '#CCCCCC' , tcol : 'black' }] ;
+  } else {
+    return [] ; 
+  }
+}
+
+SelectionCursor.prototype.getBase = function(){
+  return this.end;
+}
 
 SelectionCursor.prototype.updateLocation = function ( x , y ){
   this.x = x;
@@ -56,6 +76,9 @@ SelectionCursor.prototype.onchange = null;
  * @type {Boolean}
  */
 SelectionCursor.prototype.activeEndSide = true;
+
+
+
 
 /**
  * Responsible for blinking

@@ -1,10 +1,10 @@
 //________________________________________________________________________________________
 // SequenceCanvas base class
-function SequenceCanvas () {
+function SequenceCanvas (base) {
   this.canvas_id = '' ;
   this.yoff = 0 ;
   this.sequence = {} ;
-  this.edit = { editing : false } ;
+  this.edit = { editing : true, base:base|0 } ;
   this.type = undefined ;
   this.metakeys = 0 ;
   this.selection_context_menu = [] ;

@@ -227,21 +227,12 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			if ( this.start_base === undefined ) this.start_base = p ;
 			this.end_base = p ;
 			do_write = true ;
-			if ( is_editing_this && this.sc.edit.base == p ) {
-				/*ctx.fillRect ( x-1 , y - 2 , this.sc.cw+1 , this.sc.ch+5 );
-				ctx.fillStyle = "white";
-				ctx.fillText ( s[p] , x , y ) ;
-				ctx.fillStyle = fs;
-				do_write = false ;*/
-				//almod
-				var octx = ctx.overlay;
-
-				octx.fillStyle = "black";
-				octx.fillRect (x-1 , y - 4 , 1 , this.sc.ch+9 ) ;
-
+			
+			if ( this.sc.edit.base == p ) {
 				me.sc.selectionCursor.updateLocation(x,y);
+			}
 
-			} else if ( check_select ) {
+			if ( check_select ) {
 				$.each ( me.sc.selections , function ( k , v ) {
 					var from = v.from > v.to ? v.to : v.from ;
 					var to = v.from < v.to ? v.to : v.from ;
@@ -288,6 +279,14 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			this.targets.push ( { left : x , top : y , right : x + this.sc.cw , bottom : y + this.sc.ch , base : p } ) ;
 		}
 		
+		if (p == s.length - 1){
+			//last basepair, add a target end of sequence
+			this.targets.push ( { left : x + this.sc.cw , top : y , right : w , bottom : y + this.sc.ch , base : p+1 } ) ;
+			if ( this.sc.edit.base == p+1 ) {
+				me.sc.selectionCursor.updateLocation(x+ this.sc.cw,y);
+			}
+		}
+
 		if ( (p+1) % 10 == 0 ) {
 			x += 5 ;
 			if ( x + this.sc.cw * 11 >= w ) x = w ;
