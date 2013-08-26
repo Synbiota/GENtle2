@@ -127,7 +127,7 @@ window.Feedback = function( options ) {
                 }
             }
 
-            var a = element("a", "Ã—"),
+            var a = element("a", "x"),
             modalHeader = document.createElement("div"),
             // modal container
             modalFooter = document.createElement("div");
@@ -600,7 +600,7 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
 
         };
 
-        this.highlightClose = element("div", "Ã—");
+        this.highlightClose = element("div", "x");
         this.blackoutBox = document.createElement('div');
         this.highlightBox = document.createElement( "canvas" );
         this.highlightContainer = document.createElement('div');
@@ -1018,7 +1018,7 @@ window.Feedback = function( options ) {
                 }
             }
 
-            var a = element("a", "Ã—"),
+            var a = element("a", "x"),
             modalHeader = document.createElement("div"),
             // modal container
             modalFooter = document.createElement("div");
@@ -1485,7 +1485,7 @@ window.Feedback.Screenshot.prototype.start = function( modal, modalHeader, modal
 
         };
 
-        this.highlightClose = element("div", "Ã—");
+        this.highlightClose = element("div", "x");
         this.blackoutBox = document.createElement('div');
         this.highlightBox = document.createElement( "canvas" );
         this.highlightContainer = document.createElement('div');

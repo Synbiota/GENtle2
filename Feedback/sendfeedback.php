@@ -20,7 +20,7 @@ require("PHPMailer_5.2.0/class.phpmailer.php");
 $mail= new PHPMailer();
 $mail->IsSendmail();
 $mail->FromName= "gentle.synbiota.ca";
-$mail->AddAddress("info@synbiota.ca", "Support Team");
+$mail->AddAddress("gentle2.feedback@gmail.com", "Support Team");
 $mail->From= "no-reply@synbiota.ca";
 $mail->AddStringAttachment($data, $filename, $encoding, $type);
 $mail->Body ="Issue:".'<br/><br/>'.$text.'<br/><br/>';
