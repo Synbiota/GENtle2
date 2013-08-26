@@ -20,7 +20,24 @@
 SelectionCursor = function(start, end){
   this.start = start | 0;
   this.end = end | 0;
+  this.ctx = false;
+  this.blink_vis = false;
 }
+
+
+
+
+
+SelectionCursor.prototype.updateLocation = function ( x , y ){
+  this.x = x;
+  this.y = y;
+}
+
+
+SelectionCursor.prototype.setContext = function ( ctx ){
+  this.ctx = ctx;
+}
+
 
 /**
  * Hold blink interval for the cursor
@@ -45,10 +62,13 @@ SelectionCursor.prototype.activeEndSide = true;
  * @return {void}
  */
 SelectionCursor.prototype.blink = function() {
-  if (parseInt(this.el.style.opacity, 10)) {
-    this.el.style.opacity = 0;
+  if (this.blink_vis) {
+    this.ctx.clearRect ( 0 , 0 , this.ctx.canvas.width , this.ctx.canvas.height );
+    this.blink_vis = false;
   } else {
-    this.el.style.opacity = 1;
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect (this.x-1 , this.y - 4 , 1 , 19 ) ;
+    this.blink_vis = true;
   }
 };
 
@@ -59,11 +79,12 @@ SelectionCursor.prototype.blink = function() {
 SelectionCursor.prototype.setVisible = function(visible) {
   clearInterval(this.interval);
   if(visible) {
-    this.el.style.display = 'block';
-    this.el.style.opacity = 1;
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect (this.x-1 , this.y - 4 , 1 , 19 ) ;
+    this.blink_vis = true;
     this.interval = setInterval(this.blink.bind(this), this.blinkInterval);
   } else {
-    this.el.style.display = 'none';
+    this.ctx.clearRect ( 0 , 0 , this.ctx.canvas.width , this.ctx.canvas.height );
   }
   this.visible = visible;
 };

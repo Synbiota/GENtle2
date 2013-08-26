@@ -239,6 +239,8 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 				octx.fillStyle = "black";
 				octx.fillRect (x-1 , y - 4 , 1 , this.sc.ch+9 ) ;
 
+				me.sc.selectionCursor.updateLocation(x,y);
+
 			} else if ( check_select ) {
 				$.each ( me.sc.selections , function ( k , v ) {
 					var from = v.from > v.to ? v.to : v.from ;

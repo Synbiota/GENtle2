@@ -296,7 +296,9 @@ SequenceCanvasDNA.prototype.init = function () {
 	sc.selecting = false ;
 	sc.selections = [] ;
 
-	sc.selectionCursor = SelectionCursor();
+	sc.selectionCursor = new SelectionCursor();
+
+
 
 	
 	if ( gentle.is_mobile ) {
@@ -407,6 +409,8 @@ SequenceCanvasDNA.prototype.show = function () {
 	octx.canvas.width = w ;
 	octx.canvas.height = h ;
 
+
+
 	ctx.overlay = octx ;
 
     this.bases_per_row = 0 ;
@@ -440,16 +444,18 @@ SequenceCanvasDNA.prototype.show = function () {
 
 
 	//update the selectionCursor!
+	this.selectionCursor.setContext ( octx );
 	var is_editing_this = this.edit.editing;
 	if (this.edit.editing && this.start_base < this.edit.base && this.edit.base < this.end_base ){
 		console.log("Showin' the cursor!");
 		//calculate cursor location:
-
+		this.selectionCursor.setVisible(true);
 
 
 	}else {
 		console.log("Hidin' the cursor!") ;
 		//hide the cursor
+		this.selectionCursor.setVisible(false);
 	}
 	
 
