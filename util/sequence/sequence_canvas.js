@@ -233,7 +233,7 @@ SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
     if ( !sc.isCharAllowed ( c ) ) ok = false ;
   } ) ;
   if ( !ok ) {
-    alert ( "Text contains illegal characters, and was therefore not pasted" ) ;
+    alert ( "Text contains illegal characters, and was therefore not pasted" + parts ) ;
     return false ;
   }
   
@@ -241,6 +241,9 @@ SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
 }
 
 SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
+  if (sc.selections.length == 1){
+    sc.deleteSelection() ;
+  }
 	sc.sequence.insert ( sc.edit.base , pastedText.toUpperCase() ) ;
 	sc.edit.base += pastedText.length ;
 	sc.recalc() ;
@@ -256,6 +259,11 @@ SequenceCanvas.prototype.deleteSelection = function () {
 	if ( sc.selections.length != 1 ) return ;
 	var sel = sc.selections[0] ;
 	sc.sequence.remove ( sel.from , sel.to - sel.from + 1 ) ;
+
+  sc.selectionCursor.setStart(sel.from) ;
+  sc.selectionCursor.setEnd(sel.from) ;
+  sc.edit.base = sel.from ;
+
 	sc.recalc() ;
 	top_display.init() ;
 	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
@@ -320,16 +328,59 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
     sc.metakeys = sc.metakeys | metakey;
     return ;
   }
-  
+
+  if ( 111 < code && code < 124 ) {  // skip f1 - f12
+    return ;
+  }
+
   var bpp = sc.end_base - sc.start_base + 1 ;
 
   if ( code == 90 && e.metaKey ) { // Undo
     e.preventDefault();
     if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
     else gentle.doUndo();
+    console.log("ctrl + z")
     return ;
   }
 
+  if (sc.metakeys & cd.metakeys.CTRL ) {
+    if ( code == 86 ) {
+      console.log("ctrl + v")
+      
+      return ;
+    } else if (code == 90 ) {
+      console.log("ctrl + z")
+      e.preventDefault();
+      return ;
+    } else if (code == 89) {
+      console.log("ctrl + y")
+      e.preventDefault();
+      return ;
+    } else if (code == 88) {
+      console.log("ctrl + x")
+      return ;
+    } else if (code == 65) {
+      console.log("ctrl + a")
+      e.preventDefault();
+      return ;
+    }else if (code == 67) {
+      console.log("ctrl + c")
+      //sc.cut_copy(false);
+      //e.preventDefault();
+      return ;
+    }else if (code == 83) {
+      if (sc.metakeys & cd.metakeys.SHIFT ) {
+        console.log("ctrl + shft + s")
+      } else {  
+        console.log("ctrl + s")
+      }
+      e.preventDefault();
+      return ;
+    }
+  }
+
+
+ /* Add this back at some point!
   if ( !sc.edit.editing ) { // Keys for view mode
     if ( code == 36 ) { // Start
       sc.ensureBaseIsVisible ( 0 ) ;
@@ -357,7 +408,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
       sc.deleteSelection();
     }
     return ;
-  }
+  }*/
   
   var c = String.fromCharCode(code) ;
   if ( code == 190 ) c = '.' ;
@@ -370,6 +421,14 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		if ( overwrite ) {
 			sc.sequence.remove ( sc.edit.base , 1 ) ;
 		}
+    if (sc.selections.length > 0){
+      sc.sequence.remove (sc.selections[0].from,sc.selections[0].to - sc.selections[0].from + 1  ) ;
+      sc.selectionCursor.setStart(sc.selections[0].from) ;
+      sc.selectionCursor.setEnd(sc.selections[0].from) ;
+      sc.edit.base = sc.selections[0].from ;
+      sc.selections = [] ;
+
+    }
 		sc.sequence.insert ( sc.edit.base , c ) ;
 		sc.edit.base++ ;
 		sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
@@ -379,6 +438,12 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();
+
+    if (sc.selections.length  == 1 ){
+      sc.deleteSelection();
+      return ;
+    }
+
 		if ( sc.edit.base == 0 ) return ;
 		sc.edit.base-- ;
 		sc.sequence.remove ( sc.edit.base , 1 ) ;
@@ -390,6 +455,12 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	} else if ( code == 46 ) { // Delete
 		e.preventDefault();
 		e.stopPropagation();
+
+    if (sc.selections.length  == 1 ){
+      sc.deleteSelection();
+      return ;
+    }
+
 		if ( sc.edit.base == sc.sequence.seq.length ) return ;
 		sc.sequence.remove ( sc.edit.base , 1 ) ;
 		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
@@ -430,28 +501,50 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		sc.edit.base = sc.sequence.seq.length-1 ;
 	} else if ( code == 37 ) { // Cursor left
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base == 0 ) return ;
-		sc.edit.base-- ;
+
+    if ( sc.selectionCursor.end > 0 ) sc.selectionCursor.end-- ;
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+    
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else if ( code == 38 ) { // Cursor up
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base < sc.bases_per_row ) {
-			if ( sc.edit.base == 0 ) return ;
-			sc.edit.base = 0 ;
+
+		if ( sc.selectionCursor.end < sc.bases_per_row ) {
+			sc.selectionCursor.end = 0 ;
 		} else {
-			sc.edit.base -= sc.bases_per_row ;
+			sc.selectionCursor.end -= sc.bases_per_row ;
 		}
+
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else if ( code == 39 ) { // Cursor right
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base > sc.sequence.seq.length ) return ;
-		sc.edit.base++ ;
+
+    if ( sc.selectionCursor.end < sc.sequence.seq.length ) sc.selectionCursor.end++ ;
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+    
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else if ( code == 40 ) { // Cursor down
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base + sc.bases_per_row >= sc.sequence.seq.length ) {
-			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-			sc.edit.base = sc.sequence.seq.length-1 ;
-		} else {
-			sc.edit.base += sc.bases_per_row ;
-		}
+
+    if ( sc.selectionCursor.end + sc.bases_per_row >= sc.sequence.seq.length ) {
+      sc.selectionCursor.end = sc.sequence.seq.length ;
+    } else {
+      sc.selectionCursor.end += sc.bases_per_row ;
+    }
+    
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else return ;
 	
 	e.preventDefault();

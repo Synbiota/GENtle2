@@ -49,6 +49,7 @@ SequenceCanvasDNA.prototype.deselect = function () {
 }
 
 SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
+	console.log("cut_copy") ;
 	var sc = this ;
 	if ( sc.selections.length == 0 ) return ;
 	var from = sc.selections[0].from ;
@@ -64,6 +65,10 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	if ( !do_cut ) return s ;
 	sc.sequence.undo.addAction ( 'editRemove' , { label : 'cut (-' + len + ')'  , editing : true , action : 'removeText' , base : from , len : len , seq : s } ) ;
 	sc.deselect () ;
+
+	sc.selectionCursor.setStart(from) ;
+	sc.selectionCursor.setEnd(from) ;
+	sc.edit.base = from ;
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;
 	top_display.init() ;
@@ -93,6 +98,7 @@ SequenceCanvasDNA.prototype.absorb_event = function (event) {
 
 
 SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	
@@ -102,8 +108,9 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 		return sc.absorb_event(e) ;
 	}
 
-	sc.selectionCursor.setStart(target.base) ;
 	sc.selectionCursor.setEnd(target.base) ;
+	if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+
 	sc.selecting = true;
 	sc.selections = sc.selectionCursor.getSelection();
 	sc.edit.base = sc.selectionCursor.getBase() ;
@@ -132,13 +139,13 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 
 
 SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
-	
+	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
 
 
-	if ( target === null && !sc.selecting ) {
+	if ( target === null ){ // && !sc.selecting ) {
 		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ; // this.getHoverName()
 		sc.position_is_blank = true ;
 		$('.temporary_popover_source').popover('hide');
@@ -174,6 +181,7 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 }
 
 SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; } // no right clicks
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
@@ -521,13 +529,11 @@ SequenceCanvasDNA.prototype.show = function () {
 	this.selectionCursor.setContext ( octx );
 	var is_editing_this = this.edit.editing;
 	if (this.edit.editing && this.start_base <= this.edit.base && this.edit.base <= this.end_base+1 ){
-		console.log("Showin' the cursor!");
 		//calculate cursor location:
 		this.selectionCursor.setVisible(true);
 
 
 	}else {
-		console.log("Hidin' the cursor!") ;
 		//hide the cursor
 		this.selectionCursor.setVisible(false);
 	}

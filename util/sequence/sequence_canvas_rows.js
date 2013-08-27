@@ -67,20 +67,9 @@ SequenceCanvasRowSpectrum.prototype.show = function ( ctx ) {
 
 
 	// Get bases per line
-	var ox = x ;
-	var bpl = 0 ; // Bases per line
-	while ( 1 ) {
-		bpl++ ;
-		x += this.sc.cw ;
-		if ( (bpl+1) % 10 == 0 ) {
-			x += 5 ;
-			if ( x + this.sc.cw * 11 >= w ) break ;
-		}
-	}
-
-	this.sc.bases_per_row = bpl + 1 ;
-	x = ox ;
-
+	var bpl = Math.floor((w - x)/(10*this.sc.cw + 5))*10;
+	bpl = (bpl > 0)? bpl : 10;
+	this.sc.bases_per_row = bpl;
 
 	for ( var p = 0 ; p < spectrum.length ; p++ ) {
 	
@@ -344,18 +333,9 @@ SequenceCanvasRowAlign.prototype.show = function (ctx) {
 
 
 	// Get bases per line
-	var ox = x;
-	var bpl = 0; // Bases per line
-	while (1) {
-		bpl++;
-		x += this.sc.cw;
-		if ((bpl + 1) % 10 == 0) {
-			x += 5;
-			if (x + this.sc.cw * 11 >= w) break;
-		}
-	}
-	this.sc.bases_per_row = bpl + 1;
-	x = ox;
+	var bpl = Math.floor((w - x)/(10*this.sc.cw + 5))*10;
+	bpl = (bpl > 0)? bpl : 10;
+	this.sc.bases_per_row = bpl;
 
 	for (var p = 0; p < s.length; p++) {
 
@@ -764,18 +744,9 @@ SequenceCanvasRowAA.prototype.show = function ( ctx ) {
 	var miny = -this.sc.ch ;
 
 	// Get bases per line
-	var ox = x ;
-	var bpl = 0 ; // Bases per line
-	while ( 1 ) {
-		bpl++ ;
-		x += this.sc.cw ;
-		if ( (bpl+1) % 10 == 0 ) {
-			x += 5 ;
-			if ( x + this.sc.cw * 11 >= w ) break ;
-		}
-	}
-	this.sc.bases_per_row = bpl + 1 ;
-	x = ox ;
+	var bpl = Math.floor((w - x)/(10*this.sc.cw + 5))*10;
+	bpl = (bpl > 0)? bpl : 10;
+	this.sc.bases_per_row = bpl;
 
 	for ( var p = 0 ; p < s.length ; p++ ) {
 	
