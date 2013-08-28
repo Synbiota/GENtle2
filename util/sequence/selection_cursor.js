@@ -1,5 +1,6 @@
 /*
- * Based on github.com/grassator/canvas-text-editor
+ * Based on selector from:
+ * github.com/grassator/canvas-text-editor
  * Copyright (c) 2012 Dmitriy Kubyshkin
  * ---------------------
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software and 

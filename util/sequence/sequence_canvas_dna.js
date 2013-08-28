@@ -190,7 +190,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 
 
 // Add selection marker
-	if ( undefined !== sc.selection_end_pos && !sc.edit.editing ) {
+	if ( undefined !== sc.selection_end_pos && sc.selections.length == 1) {
 //		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
 		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
@@ -528,10 +528,9 @@ SequenceCanvasDNA.prototype.show = function () {
 	//update the selectionCursor!
 	this.selectionCursor.setContext ( octx );
 	var is_editing_this = this.edit.editing;
-	if (this.edit.editing && this.start_base <= this.edit.base && this.edit.base <= this.end_base+1 ){
+	if (this.edit.editing && this.start_base <= this.selectionCursor.end && this.selectionCursor.end <= this.end_base+1 ){
 		//calculate cursor location:
 		this.selectionCursor.setVisible(true);
-
 
 	}else {
 		//hide the cursor

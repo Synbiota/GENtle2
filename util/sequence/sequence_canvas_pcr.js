@@ -262,6 +262,10 @@ SequenceCanvasPCR.prototype.init = function () {
 	// Select
 	sc.selecting = false ;
 	sc.selections = [] ;
+
+	// Selection Cursor (not yet sure if this makes sense, but we'll leave it in for the moment)
+	sc.selectionCursor = new SelectionCursor();
+
 	
 	if ( gentle.is_mobile ) {
 		$('#sequence_canvas').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;

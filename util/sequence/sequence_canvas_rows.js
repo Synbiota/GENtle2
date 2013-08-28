@@ -217,7 +217,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			this.end_base = p ;
 			do_write = true ;
 			
-			if ( this.sc.edit.base == p ) {
+			if ( this.sc.selectionCursor.end == p ) {
 				me.sc.selectionCursor.updateLocation(x,y);
 			}
 
@@ -271,7 +271,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 		if (p == s.length - 1){
 			//last basepair, add a target end of sequence
 			this.targets.push ( { left : x + this.sc.cw , top : y , right : w , bottom : y + this.sc.ch , base : p+1 } ) ;
-			if ( this.sc.edit.base == p+1 ) {
+			if ( this.sc.selectionCursor.end == p+1 ) {
 				me.sc.selectionCursor.updateLocation(x+ this.sc.cw,y);
 			}
 		}
@@ -358,7 +358,7 @@ SequenceCanvasRowAlign.prototype.show = function (ctx) {
 			if (this.start_base === undefined) this.start_base = p;
 			this.end_base = p;
 			do_write = true;
-			if (this.is_primary && this.sc.edit.editing && this.sc.edit.base == p) {
+			if (this.is_primary && this.sc.edit.editing && this.sc.selectionCursor.end == p) {
 				ctx.fillRect(x - 1, y /*+ 2*/, this.sc.cw + 1, this.sc.ch + 1);
 				ctx.fillStyle = "white";
 				ctx.fillText(s[p], x, y);
@@ -765,7 +765,7 @@ SequenceCanvasRowAA.prototype.show = function ( ctx ) {
 		if ( y > miny ) {
 			if ( this.start_base === undefined ) this.start_base = p ;
 			this.end_base = p ;
-			if ( me.is_primary && me.sc.edit.editing && me.sc.edit.base == p ) {
+			if ( me.is_primary && me.sc.edit.editing && me.sc.selectionCursor.end == p ) {
 				ctx.fillRect ( x-1 , y+2 , me.sc.cw+1 , me.sc.ch+1 );
 				ctx.fillStyle = "white";
 				ctx.fillText ( s[p] , x , y ) ;

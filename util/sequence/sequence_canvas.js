@@ -42,8 +42,6 @@ SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
 
 SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 
-  console.log("y", y);
-
   var me = this ;
 
   var h = '' ;
@@ -78,8 +76,9 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
   }
 
   var approx_height = $("#selection_context_marker ul").height();
-  if (y + approx_height > $('#sequence_canvas').height()){
-    console.log ($('#sequence_canvas').height(), y, approx_height);
+  var sc = gentle.main_sequence_canvas
+  console.log ($('#sequence_canvas').height(), y - (sc.start_base/sc.bases_per_row)*sc.block_height, approx_height);
+  if (y - (sc.start_base/sc.bases_per_row)*sc.block_height + approx_height > $('#sequence_canvas').height()){
     $("#selection_context_marker ul").css("top",-approx_height-15+"px");
   }
 
@@ -244,12 +243,14 @@ SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
   if (sc.selections.length == 1){
     sc.deleteSelection() ;
   }
-	sc.sequence.insert ( sc.edit.base , pastedText.toUpperCase() ) ;
-	sc.edit.base += pastedText.length ;
+	sc.sequence.insert ( sc.selectionCursor.start, pastedText.toUpperCase() ) ;
+  sc.selectionCursor.start += pastedText.length ;
+  sc.selectionCursor.end = sc.selectionCursor.start ;
+	sc.edit.base = sc.selectionCursor.start ;
 	sc.recalc() ;
 	top_display.init() ;
 	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
-	sc.ensureBaseIsVisible ( sc.edit.base ) ;
+	sc.ensureBaseIsVisible ( sc.selectionCursor.start ) ;
 	
 	return false; // Prevent the default handler from running.
 }
@@ -262,7 +263,7 @@ SequenceCanvas.prototype.deleteSelection = function () {
 
   sc.selectionCursor.setStart(sel.from) ;
   sc.selectionCursor.setEnd(sel.from) ;
-  sc.edit.base = sel.from ;
+  sc.edit.base = sc.selectionCursor.start ;
 
 	sc.recalc() ;
 	top_display.init() ;
@@ -379,7 +380,6 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
     }
   }
 
-
  /* Add this back at some point!
   if ( !sc.edit.editing ) { // Keys for view mode
     if ( code == 36 ) { // Start
@@ -419,19 +419,22 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			return false ;
 		}
 		if ( overwrite ) {
-			sc.sequence.remove ( sc.edit.base , 1 ) ;
+			sc.sequence.remove ( sc.selectionCursor.start , 1 ) ;
 		}
     if (sc.selections.length > 0){
       sc.sequence.remove (sc.selections[0].from,sc.selections[0].to - sc.selections[0].from + 1  ) ;
       sc.selectionCursor.setStart(sc.selections[0].from) ;
       sc.selectionCursor.setEnd(sc.selections[0].from) ;
-      sc.edit.base = sc.selections[0].from ;
+      sc.edit.base = sc.selectionCursor.start;
       sc.selections = [] ;
-
     }
-		sc.sequence.insert ( sc.edit.base , c ) ;
-		sc.edit.base++ ;
-		sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
+		sc.sequence.insert ( sc.selectionCursor.start , c ) ;
+
+    sc.selectionCursor.start ++ ;
+    sc.selectionCursor.end = sc.selectionCursor.start;
+    sc.edit.base = sc.selectionCursor.start;
+
+		sc.specialKeyEvent ( c , sc.selectionCursor.start-1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
 		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
@@ -444,11 +447,13 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
       return ;
     }
 
-		if ( sc.edit.base == 0 ) return ;
-		sc.edit.base-- ;
-		sc.sequence.remove ( sc.edit.base , 1 ) ;
-		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
-		sc.specialKeyEvent ( 'backspace' , sc.edit.base-1 ) ;
+		if ( sc.selectionCursor.start  == 0 ) return ;
+    sc.selectionCursor.start -- ;
+    sc.selectionCursor.end = sc.selectionCursor.start ;
+		sc.edit.base = sc.selectionCursor.start ;
+		sc.sequence.remove ( sc.selectionCursor.start  , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.selectionCursor.start , ' ' ) ;
+		sc.specialKeyEvent ( 'backspace' , sc.selectionCursor.start -1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
 		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
@@ -461,11 +466,15 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
       return ;
     }
 
-		if ( sc.edit.base == sc.sequence.seq.length ) return ;
-		sc.sequence.remove ( sc.edit.base , 1 ) ;
-		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
-		sc.specialKeyEvent ( 'delete' , sc.edit.base ) ;
-		if ( overwrite ) sc.edit.base++ ;
+		if ( sc.selectionCursor.start == sc.sequence.seq.length ) return ;
+		sc.sequence.remove ( sc.selectionCursor.start , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.selectionCursor.start , ' ' ) ;
+		sc.specialKeyEvent ( 'delete' , sc.selectionCursor.start ) ;
+		if ( overwrite ) {
+        sc.selectionCursor.start ++ ;
+        sc.selectionCursor.end = sc.selectionCursor.start ;
+        sc.edit.base = sc.selectionCursor.start ;
+      }
 		sc.recalc() ;
 		top_display.init() ;
 		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
@@ -477,35 +486,47 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		return ;
 	} else if ( code == 33 ) { // Page up
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base < bpp ) {
-			if ( sc.edit.base == 0 ) return ;
-			sc.edit.base = 0 ;
+		if ( sc.selectionCursor.start < bpp ) {
+			if ( sc.selectionCursor.start == 0 ) return ;
+      sc.selectionCursor.start = 0 ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+			sc.edit.base = sc.selectionCursor.start ;
 		} else {
-			sc.edit.base -= bpp ;
+      sc.selectionCursor.start -= bpp ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+      sc.edit.base = sc.selectionCursor.start ;
 		}
 	} else if ( code == 34 ) { // Page down
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base + bpp >= sc.sequence.seq.length ) {
-			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-			sc.edit.base = sc.sequence.seq.length-1 ;
+		if ( sc.selectionCursor.start + bpp >= sc.sequence.seq.length ) {
+			if ( sc.selectionCursor.start == sc.sequence.seq.length-1 ) return ;
+      sc.selectionCursor.start = sc.sequence.seq.length-1 ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+      sc.edit.base = sc.selectionCursor.start ;
 		} else {
-			sc.edit.base += bpp ;
+      sc.selectionCursor.start += bpp ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+      sc.edit.base = sc.selectionCursor.start ;
 		}
 	} else if ( code == 36 ) { // Start
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base == 0 ) return ;
-		sc.edit.base = 0 ;
+		if ( sc.selectionCursor.start  == 0 ) return ;
+    sc.selectionCursor.start = 0 ;
+    sc.selectionCursor.end = sc.selectionCursor.start;
+    sc.edit.base = sc.selectionCursor.start ;
 	} else if ( code == 35 ) { // End
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-		sc.edit.base = sc.sequence.seq.length-1 ;
+		if ( sc.selectionCursor.start == sc.sequence.seq.length-1 ) return ;
+    sc.selectionCursor.start = sc.sequence.seq.length-1 ;
+    sc.selectionCursor.end = sc.selectionCursor.start;
+    sc.edit.base = sc.selectionCursor.start ;
 	} else if ( code == 37 ) { // Cursor left
 		sc.sequence.undo.cancelEditing() ;
 
     if ( sc.selectionCursor.end > 0 ) sc.selectionCursor.end-- ;
     if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
     
-    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.edit.base = sc.selectionCursor.getBase() ;
     sc.selections = sc.selectionCursor.getSelection() ;
 
 	} else if ( code == 38 ) { // Cursor up
@@ -549,7 +570,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 	
 	e.preventDefault();
 
-  sc.ensureBaseIsVisible ( sc.edit.base ) ;
+  sc.ensureBaseIsVisible ( sc.selectionCursor.start ) ;
 }
 
 SequenceCanvas.prototype.setEditMode = function ( state ) {
@@ -567,10 +588,13 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
   if ( base >= sc.sequence.seq.length ) base = sc.sequence.seq.length-1 ;
   var again = true ;
   var last_try = -1000 ;
+  var howmany = 0;
   while ( again ) {
     sc.show() ;
     again = false ;
-//      console.log ( sc.end_base + " / " + sc.edit.base ) ;
+    howmany ++ ;
+    console.log(howmany);
+    // console.log ( sc.end_base + " / " + sc.edit.base ) ;
     
     if ( sc.end_base < base ) {
       again = true ;
