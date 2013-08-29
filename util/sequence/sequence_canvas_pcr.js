@@ -91,9 +91,10 @@ SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
 	// Add selection marker
-	if ( undefined !== sc.selection_end_pos && !sc.edit.editing ) {
+	if ( undefined !== sc.selectionCursor.x && !sc.edit.editing ) {
 //		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
-		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
+
+		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
 	sc.selection_end_pos = undefined ;
 	
