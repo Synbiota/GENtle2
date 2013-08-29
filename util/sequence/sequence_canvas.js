@@ -322,7 +322,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
   var code = (e.keyCode ? e.keyCode : e.which);
 //  console.log ( code + "/" + e.metaKey ) ;
 
-  var overwrite = sc.overwrite_only ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
+  var overwrite = sc.selectionCursor.overwrite ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
   
   var metakey = sc.modifierCode ( e ) ;
   if ( metakey !== 0 ) {
@@ -331,6 +331,9 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
   }
 
   if ( 111 < code && code < 124 ) {  // skip f1 - f12
+    return ;
+  } else if (code == 45 ){ // insert mode!
+    sc.selectionCursor.toggleOverwrite() ;
     return ;
   }
 

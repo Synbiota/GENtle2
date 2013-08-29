@@ -23,9 +23,13 @@ SelectionCursor = function(start, end){
   this.end = end | 0;
   this.ctx = false;
   this.blink_vis = false;
+  this.overwrite = false;
 }
 
 
+SelectionCursor.prototype.toggleOverwrite = function(){
+  this.overwrite = !this.overwrite;
+}
 
 SelectionCursor.prototype.setStart = function(start){
   this.start = start;
@@ -91,7 +95,11 @@ SelectionCursor.prototype.blink = function() {
     this.blink_vis = false;
   } else {
     this.ctx.fillStyle = "black";
-    this.ctx.fillRect (this.x-1 , this.y - 4 , 1 , 19 ) ;
+    if (this.overwrite){
+      this.ctx.fillRect (this.x-1 , this.y + 13 , 9 , 1 ) ;
+    }else{
+      this.ctx.fillRect (this.x-1 , this.y - 4 , 1 , 19 ) ;
+    }
     this.blink_vis = true;
   }
 };
@@ -104,7 +112,11 @@ SelectionCursor.prototype.setVisible = function(visible) {
   clearInterval(this.interval);
   if(visible) {
     this.ctx.fillStyle = "black";
-    this.ctx.fillRect (this.x-1 , this.y - 4 , 1 , 19 ) ;
+    if (this.overwrite){
+      this.ctx.fillRect (this.x-1 , this.y + 13 , 9 , 1 ) ;
+    }else{
+      this.ctx.fillRect (this.x-1 , this.y - 4 , 1 , 19 ) ;
+    }
     this.blink_vis = true;
     this.interval = setInterval(this.blink.bind(this), this.blinkInterval);
   } else {

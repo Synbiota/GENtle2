@@ -265,28 +265,29 @@ SequenceCanvasPCR.prototype.init = function () {
 
 	// Selection Cursor (not yet sure if this makes sense, but we'll leave it in for the moment)
 	sc.selectionCursor = new SelectionCursor();
+	sc.selectionCursor.toggleOverwrite();
 
 	
 	if ( gentle.is_mobile ) {
-		$('#sequence_canvas').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchcancel' , sc.absorb_event ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchcancel' , sc.absorb_event ) ;
 	} else {
-		$('#sequence_canvas').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
-		$('#sequence_canvas').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
-		$('#sequence_canvas').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
 	}
 	
 	// Double-click for editing
-	$('#sequence_canvas').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
+	$('#sequence_canvas_overlay').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
 	
 	
 	// Keys
 	sc.bindKeyboard() ;
 	
 	// Sequence hover event
-	$('#sequence_canvas').mousemove ( function ( e ) {
+	$('#sequence_canvas_overlay').mousemove ( function ( e ) {
 		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 		var target = sc.isOver ( x , y ) ;
@@ -299,7 +300,7 @@ SequenceCanvasPCR.prototype.init = function () {
 	$(window).resize ( gentle.on_resize_event ) ;
 	
 	// Attach mouse wheel event to canvas
-	$('#sequence_canvas').mousewheel(function(event, delta, deltaX, deltaY) {
+	$('#sequence_canvas_overlay').mousewheel(function(event, delta, deltaX, deltaY) {
 		var cur = $('#canvas_wrapper').scrollTop() ;
 		var max = $('#canvas_wrapper').height() ;
 		$('#canvas_wrapper').scrollTop ( cur - max * deltaY ) ;
@@ -778,7 +779,7 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	this.tools = {} ;
 	this.type = 'pcr' ;
 	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
-	this.overwrite_only = true ;
+	
 	
 	this.fixMenus() ;
 	
