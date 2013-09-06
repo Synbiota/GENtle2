@@ -212,7 +212,21 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		$('#tmp1').focus();
 		$('#tmp1').select();
 	}
-	
+	if ( sc.selections.length == 1) {
+		gentle.setMenuState ( 'edit_menu_cut' , true ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , true ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_selection_info', true) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , true ) ;
+	} else {
+		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;	
+		gentle.setMenuState ( 'edit_menu_selection_info', false) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
+	}
 	return sc.absorb_event(e) ; 
 
 	/*
@@ -937,11 +951,12 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.update_display_aa() ;
 	this.update_display_res() ;
 	
-	the_sequence.undo.updateEditMenu() ;
+	//the_sequence.undo.updateEditMenu() ;
 	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
-	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+	gentle.setMenuState ( 'edit_menu_paste' , true ) ;
+	gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
 	
 	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
 	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;

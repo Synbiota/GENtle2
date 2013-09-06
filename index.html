@@ -86,13 +86,15 @@
 			<li class="dropdown" id='edit_menu'>
 				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Edit<b class="caret"></b></a>
 				<ul class="dropdown-menu">
-					<li class='menu_needs_selection'><a id='edit_menu_undo' href='#' onclick='gentle.doUndo();return false'>Undo <span id='undo_action'></span></a></li>
-					<li class='menu_needs_selection'><a id='edit_menu_redo' href='#' onclick='gentle.doRedo();return false'>Redo <span id='redo_action'></span></a></li>
-					<li class='menu_needs_selection'><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
-					<li class='menu_needs_selection'><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
-					<li class='menu_needs_selection'><a id='edit_menu_selection_info' href='#' onclick='gentle.do_selection_info();return false'>Selection Info</a></li>
-					<li class='menu_needs_selection'><a id='edit_menu_annotate' href='#' onclick='gentle.do_annotate();return false'>Annotate selection</a></li>
-					<li class='menu_needs_edit_mode'><a id='edit_menu_paste' href='#' onclick='gentle.do_edit("paste");return false'>Paste</a></li>
+					<li sort='100'class='menu_needs_selection'><a id='edit_menu_undo' href='#' onclick='gentle.doUndo();return false'>Undo <span id='undo_action'></span></a></li>
+					<li sort='200'class='menu_needs_selection'><a id='edit_menu_redo' href='#' onclick='gentle.doRedo();return false'>Redo <span id='redo_action'></span></a></li>
+					<li sort='300'class='menu_needs_selection'><a id='edit_menu_cut' href='#' onclick='gentle.do_edit("cut");return false'>Cut</a></li>
+					<li sort='400'class='menu_needs_selection'><a id='edit_menu_copy' href='#' onclick='gentle.do_edit("copy");return false'>Copy</a></li>
+					<li sort='500'class='menu_needs_edit_mode'><a id='edit_menu_paste' href='#' onclick='gentle.do_edit("paste");return false'>Paste</a></li>
+					<li sort='600'class='menu_needs_selection'><a id='edit_menu_selection_info' href='#' onclick='gentle.do_selection_info();return false'>Selection Info</a></li>
+					<li sort='700'class='menu_needs_selection'><a id='edit_menu_annotate' href='#' onclick='gentle.do_annotate();return false'>Annotate selection</a></li>
+					<li sort='800'class='menu_needs_selection'><a id='edit_menu_remove_selection' href='#' onclick='gentle.delete_selection();return false'>Remove selection</a></li>
+
 				</ul>
 			</li>
 			<li class="dropdown" id='tools_menu'>

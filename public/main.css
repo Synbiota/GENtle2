@@ -685,6 +685,8 @@ ul.nav-tabs.small-tabs > li > a {
   background:none;
   background-image: none;
   color:darkgrey;
+  pointer-events: none;
+  cursor: default;
 }
 
 ul.nav-tabs.small-tabs span.label {

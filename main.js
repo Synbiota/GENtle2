@@ -74,6 +74,7 @@ var gentle = {
 			gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 			gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 			gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+			gentle.setMenuState ( 'edit_menu_selection_info' , false ) ;
 			
 			$('#toolbar_ul li.dropdown').each ( function ( k , v ) {
 				var id = $(v).attr('id') ;
