@@ -678,6 +678,15 @@ ul.nav-tabs.small-tabs > li > a {
   padding-bottom: 2px;
   white-space: nowrap;
 }
+
+.dropdown-menu .disabled:hover,
+.dropdown-menu .disabled:focus,
+.dropdown-menu .disabled {
+  background:none;
+  background-image: none;
+  color:darkgrey;
+}
+
 ul.nav-tabs.small-tabs span.label {
   font-size: 11px;
   padding-top: 1px;

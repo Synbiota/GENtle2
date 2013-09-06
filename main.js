@@ -270,10 +270,10 @@ var gentle = {
 	setMenuState : function ( id , state ) {
 		if ( state ) {
 			$('#'+id).removeClass ( 'disabled btn-disabled' ) ;
-			$('#'+id).show() ;
+			//$('#'+id).show() ;
 		} else {
 			$('#'+id).addClass ( 'disabled btn-disabled' ) ;
-			$('#'+id).hide() ;
+			//$('#'+id).hide() ;
 		}
 		
 		// Show/hide entire edit menu
