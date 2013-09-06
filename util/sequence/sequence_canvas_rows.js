@@ -217,7 +217,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			this.end_base = p ;
 			do_write = true ;
 			
-			if ( this.sc.selectionCursor.end == p ) {
+			if ( this.sc.selectionCursor.end == p && this.is_primary) {
 				me.sc.selectionCursor.updateLocation(x,y);
 			}
 

@@ -372,7 +372,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	var sc = this ;
 
 	sc.updateTitleBar() ;
-	sc.resize();
+	sc.resizeCanvas();
 	
 	// Select
 	sc.selecting = false ;
@@ -380,13 +380,60 @@ SequenceCanvasDNA.prototype.init = function () {
 
 	sc.selectionCursor = new SelectionCursor();
 
+	
+	if ( true ) { //gentle.is_mobile ) {
+		var h = "<div id='soft_keyboard' title='Keyboard'>" ;
 
+		//h += "<div style='font-size:20pt'>" ;
+		h += '<div class="btn-group">' ;
+		h += "<button class='btn first-btn' id='skbd_a'>&nbsp;A&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_c'>&nbsp;C&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_g'>&nbsp;G&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_t'>&nbsp;T&nbsp;</button>" ;
+
+		h += "<button class='btn first-btn' id='skbd_left'>&larr;</button>" ;
+		h += "<button class='btn' id='skbd_backspace'>⌫</button>" ;
+		h += "<button class='btn' id='skbd_delete'>⌦</button>" ;
+		h += "<button class='btn' id='skbd_right'>&rarr;</button>" ;
+		h += "</div>" ;
+		//h += "</div>" ;
+		//h += "<span id='mobile_debug'>nadap</span>" ;
+		h += "</div>" ;
+		
+		$('#soft_keyboard').remove() ;
+		$('#all').append(h) ;
+		// $('#soft_keyboard').dialog ( { 
+		// 	modal : false , 
+		// 	autoOpen : true , 
+		// 	resizable : false ,
+		// 	draggable : true,
+		// 	position : ['center','bottom'] , 
+		// 	width : 'auto' ,
+		// 	height : 80 ,
+		// 	beforeClose: function(event, ui) {
+		// 		if ( sc.edit.editing ) { // Turn off editing
+		// 			sc.setEditMode ( false ) ;
+		// 			sc.show() ;
+		// 		}
+		// 	}
+		// } ) ;
+		$('#skbd_a').click(function(e){sc.sim_key('A',false)});
+		$('#skbd_c').click(function(e){sc.sim_key('C',false)});
+		$('#skbd_g').click(function(e){sc.sim_key('G',false)});
+		$('#skbd_t').click(function(e){sc.sim_key('T',false)});
+		$('#skbd_backspace').click(function(e){sc.sim_key(String.fromCharCode(8),false)});
+		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
+		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
+		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
+		//$('#soft_keyboard .ui-dialog-titlebar').hide();
+
+	}
 
 	
 	if ( gentle.is_mobile ) {
-		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas_overlay').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas_overlay').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ; //$("#mobile_debug").text("down"); 
+		$('#sequence_canvas_overlay').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ; //$("#mobile_debug").text("up"); 
+		$('#sequence_canvas_overlay').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ; //$("#mobile_debug").text("move"); 
 		$('#sequence_canvas_overlay').bind ( 'touchcancel' , sc.absorb_event ) ;
 	} else {
 		$('#sequence_canvas_overlay').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
@@ -412,7 +459,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	} ) ;
 
 	// Window resize event
-	$(window).resize ( function() { gentle.on_resize_event(); sc.resize(); } ) ;
+	$(window).resize ( function() { gentle.on_resize_event(); sc.resize(); sc.show(); } ) ;
 	
 	// Attach mouse wheel event to canvas
 	$('#sequence_canvas_overlay').mousewheel(function(event, delta, deltaX, deltaY) {
@@ -435,12 +482,19 @@ SequenceCanvasDNA.prototype.init = function () {
 		sc.yoff = oy ;
 		sc.show() ;
 	} ) ;
+
+	sc.show();
 }
 
 SequenceCanvasDNA.prototype.resize = function() {
 	var cw = $('#canvas_wrapper').offset() ;
 	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
 	var h = $('#canvas_wrapper').height() ;
+
+	if(gentle.is_mobile){
+		$("#soft_keyboard").css( {width:w} ) ; 
+		h -= $("#soft_keyboard").height() ;
+	}
 	$('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
 	$('#sequence_canvas_overlay').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
 	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;

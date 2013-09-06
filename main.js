@@ -717,7 +717,7 @@ var gentle = {
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
-		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		//if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
 		
 		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		
@@ -739,7 +739,7 @@ var gentle = {
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
-		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		//if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
 		
 		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		
@@ -1038,6 +1038,7 @@ var gentle = {
 	on_resize_event : function () {
 		gentle.resizeMainDiv();
 		gentle.main_sequence_canvas.resizeCanvas() ;
+		gentle.main_sequence_canvas.show() ;
 	}
 
 } ;

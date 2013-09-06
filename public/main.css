@@ -711,6 +711,21 @@ ul.dropdown-menu > li.selected > a::before {
   margin-left: -10px;
 }
 
+/* Soft Keyboard */
+#soft_keyboard {
+  position:fixed;
+  bottom:0px;
+  width:763px;
+}
 
+#soft_keyboard > .btn-group {
+  display:block;
+  width:100%;
+  max-width:500px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-
+#soft_keyboard > .btn-group > .btn {
+ width: 12.5%;
+}

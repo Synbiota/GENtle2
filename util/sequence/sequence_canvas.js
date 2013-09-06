@@ -89,12 +89,16 @@ SequenceCanvas.prototype.resizeCanvas = function () {
   var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
   var h = $('#canvas_wrapper').height() ;
   var new_h = $('#main').height() - 20;
+  if(gentle.is_mobile){
+    $("#soft_keyboard").css( {width:w} ) ; 
+    h -= $("#soft_keyboard").height() ;
+  }
   $('#sequence_canvas').css ( { width:w+'px' , height:h+'px' } ) ;
   $('#sequence_canvas_overlay').css ( { width:w+'px' , height:h+'px' } ) ;
   $('#canvas_wrapper').css ( { 'max-height' : Math.max(h, new_h) } ) ;
   $('#canvas_wrapper').height ( new_h) ;
   $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
-  this.show() ;
+  
 }
 
 SequenceCanvas.prototype.initSidebar = function () {
