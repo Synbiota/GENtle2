@@ -381,7 +381,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	sc.selectionCursor = new SelectionCursor();
 
 	
-	if ( true ) { //gentle.is_mobile ) {
+	if ( gentle.is_mobile ) {
 		var h = "<div id='soft_keyboard' title='Keyboard'>" ;
 
 		//h += "<div style='font-size:20pt'>" ;
