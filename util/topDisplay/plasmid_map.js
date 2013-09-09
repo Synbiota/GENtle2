@@ -234,8 +234,10 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	*/
 	self.context.lineWidth = 5;
 
+	var annLength = self.annotations.length ;
+
 	//draw annotations
-	for (var i = 0; i < self.annotations.length; i++){
+	for (var i = 0; i < annLength; i++){
 		self.annotations[i].canvasShape.draw( self.context );
 		self.context.save();
 		self.context.fillStyle = "white";
@@ -244,7 +246,10 @@ PlasmidMapDialog.prototype.drawMap = function () {
 
 		var midAngle = (self.annotations[i].start + self.annotations[i].end)/2;
 		var midR = (self.annotations[i].min + self.annotations[i].max*4)/5;
-		drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle)
+		
+		if( annLength < 1000){
+			drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle)
+		}
 
 		self.context.restore();
 	}
