@@ -151,7 +151,6 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 		$('.temporary_popover_source').popover('hide');
 		return ;
 	}
-
 	
 	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
 	else gentle.set_hover ( target.text ) ;
@@ -164,14 +163,8 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 
 	if ( !sc.selecting ) return ;
 
-	if (sc.selections[0]){
-		if ( sc.selections[0].to == target.base ) return ;
-	};
-
 	sc.selectionCursor.setEnd (target.base) ;
-
 	sc.selections = sc.selectionCursor.getSelection() ;
-
 	sc.edit.base = sc.selectionCursor.getBase() ;
 
 	sc.setEditMode ( true ) ;
