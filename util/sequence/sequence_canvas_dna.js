@@ -96,7 +96,6 @@ SequenceCanvasDNA.prototype.absorb_event = function (event) {
 	return false;
 }
 
-
 SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
@@ -132,11 +131,10 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	sc.selecting = true ;
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
 	sc.show() ;
-//	$('#sequence_canvas').click().focus();
+	//	$('#sequence_canvas').click().focus();
 	return sc.absorb_event(e) ;
 	*/
 }
-
 
 SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
@@ -182,9 +180,9 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	sc.selecting = false ;
 
 
-// Add selection marker
+	// Add selection marker
 	if ( undefined !== sc.selectionCursor.x && sc.selections.length == 1) {
-//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+	//	console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
 		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + 14 + $('#canvas_wrapper').scrollTop() ) ;
 	}
 	sc.selection_end_pos = undefined ;
@@ -255,7 +253,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	
 	// Add selection marker
 	if ( undefined !== sc.selection_end_pos && !sc.edit.editing ) {
-//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+	//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
 		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
 	sc.selection_end_pos = undefined ;
@@ -280,6 +278,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	return sc.absorb_event(e) ; 
 	*/
 }
+
 SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 	/*
 	sc.selecting = false ;
@@ -346,7 +345,7 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
 		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
 		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
-//		$('#soft_keyboard .ui-dialog-titlebar').hide();
+	//		$('#soft_keyboard .ui-dialog-titlebar').hide();
 
 		return false ;
 
@@ -462,7 +461,7 @@ SequenceCanvasDNA.prototype.init = function () {
 		var target = sc.isOver ( x , y ) ;
 		sc.last_target = target ;
 		if ( target === null ) return ;
-//		console.log ( target.base + 1 ) ;
+	//		console.log ( target.base + 1 ) ;
 	} ) ;
 
 	// Window resize event
@@ -482,7 +481,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	$('#canvas_wrapper').scroll ( function ( o ) {
 		if ( gentle.is_mobile && sc.selecting ) {
 			sc.on_mouse_move ( sc , sc.fix_touch_event(o) ) ;
-//			o.preventDefault();
+	//			o.preventDefault();
 			return true ;
 		}
 		var oy = $('#canvas_wrapper').scrollTop() ;
@@ -606,7 +605,7 @@ SequenceCanvasDNA.prototype.show = function () {
 	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateSelection() ; }
 
 	var unixtime_ms2 = new Date().getTime();
-//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
+	//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
 }
 
 SequenceCanvasDNA.prototype.getLineIndex = function ( type ) {
@@ -773,7 +772,6 @@ SequenceCanvasDNA.prototype.update_display_res = function () {
 	}
 }
 
-
 SequenceCanvasDNA.prototype.getSettings = function () {
 	var me = this ;
 	var settings = {} ;
@@ -791,7 +789,6 @@ SequenceCanvasDNA.prototype.getSettings = function () {
 	
 	return settings ;
 }
-
 
 SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	me = this ;
@@ -909,7 +906,6 @@ SequenceCanvasDNA.prototype.getHoverName = function () {
 	return ( this.sequence.name || '' ) ;
 }
 
-
 function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
@@ -968,7 +964,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 				var name = sc.sequence.getAnnotationName ( v ) ;
 				name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
 				ret.push ( { html : '<i class="icon-edit"></i> ' + name , callback : function () { gentle.main_sequence_canvas.editFeature(k) } , title : 'Edit annotation' } ) ;
-//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
+	//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
 			} ) ;
 		}
 		return ret ;

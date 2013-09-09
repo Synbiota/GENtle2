@@ -39,7 +39,6 @@ SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
 }
 
 
-
 SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 
   var me = this ;
@@ -172,7 +171,7 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
   var x = new window[o.className]();
   this.tools[o.name] = x ;
   
-//  console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
+  //  console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
   
   var id = 'toolbar_plugins_' + o.section ;
   var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
@@ -319,12 +318,12 @@ SequenceCanvas.prototype.specialKeyEvent = function ( eventName , base ) {} // D
 
 SequenceCanvas.prototype.keyhandler = function ( e ) {
   if ( e.target.localName == "input" || ( e.target.localName == "textarea" && 'tmp1' != $(e.target).attr('id') ) ) return true ; // Don't touch that
-//    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
+  //    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
     
   if ( gentle.is_in_dialog ) return false ;
   var sc = gentle.main_sequence_canvas ;
   var code = (e.keyCode ? e.keyCode : e.which);
-//  console.log ( code + "/" + e.metaKey ) ;
+  //  console.log ( code + "/" + e.metaKey ) ;
 
   var overwrite = sc.selectionCursor.overwrite ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
   
@@ -610,7 +609,7 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
       np += sc.block_height - np % sc.block_height ;
       if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
       last_try = np ;
-//        console.log ( "Scrolling from " + cur + " to " + np ) ;
+      //        console.log ( "Scrolling from " + cur + " to " + np ) ;
       $('#canvas_wrapper').scrollTop ( np ) ;
       $('#canvas_wrapper').scroll();
     } else if ( sc.start_base > base ) {
@@ -621,7 +620,7 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
       np -= np % sc.block_height ;
       if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
       last_try = np ;
-//        console.log ( "Scrolling from " + cur + " to " + np ) ;
+      //        console.log ( "Scrolling from " + cur + " to " + np ) ;
       $('#canvas_wrapper').scrollTop ( np ) ;
       $('#canvas_wrapper').scroll();
     }
@@ -644,7 +643,7 @@ SequenceCanvas.prototype.fixMenus = function () {
   $('.toolbar_plugin').each ( function () {
     if ( 0 < $(this).find('li').length ) $(this).show() ;
     else $(this).hide() ;
-//    console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
+    //    console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
   } ) ;
 }
 

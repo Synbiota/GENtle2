@@ -92,7 +92,7 @@ SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
 	
 	// Add selection marker
 	if ( undefined !== sc.selectionCursor.x && !sc.edit.editing ) {
-//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+	//	console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
 
 		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
@@ -133,7 +133,7 @@ SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
 	sc.selecting = true ;
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	sc.show() ;
-//	$('#sequence_canvas').click().focus();
+	//	$('#sequence_canvas').click().focus();
 	return sc.absorb_event(e) ;
 }
 
@@ -229,7 +229,7 @@ SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
 		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
 		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
-//		$('#soft_keyboard .ui-dialog-titlebar').hide();
+		//		$('#soft_keyboard .ui-dialog-titlebar').hide();
 
 		return false ;
 	}
@@ -294,7 +294,7 @@ SequenceCanvasPCR.prototype.init = function () {
 		var target = sc.isOver ( x , y ) ;
 		sc.last_target = target ;
 		if ( target === null ) return ;
-//		console.log ( target.base + 1 ) ;
+		//	console.log ( target.base + 1 ) ;
 	} ) ;
 
 	// Window resize event
@@ -314,7 +314,7 @@ SequenceCanvasPCR.prototype.init = function () {
 	$('#canvas_wrapper').scroll ( function ( o ) {
 		if ( gentle.is_mobile && sc.selecting ) {
 			sc.on_mouse_move ( sc , sc.fix_touch_event(o) ) ;
-//			o.preventDefault();
+			//	o.preventDefault();
 			return true ;
 		}
 		var oy = $('#canvas_wrapper').scrollTop() ;
@@ -399,7 +399,7 @@ SequenceCanvasPCR.prototype.show = function () {
 	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateSelection() ; }
 
 	var unixtime_ms2 = new Date().getTime();
-//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
+	//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
 }
 
 SequenceCanvasPCR.prototype.getLineIndex = function ( type ) {
@@ -594,13 +594,13 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 		var is_primary = v.type.substr(0,6)=='primer' ;
 		switch ( v.type ) {
 			case 'blank' : me.lines[k] = new SequenceCanvasRowBlank ( me , is_primary , v ) ; break ;
-//			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
+			//	case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
 			case 'primer1' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer1' ; break ;
 			case 'primer2' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer2' ; break ;
 			case 'pcr_product' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'pcr_product' ; me.lines[k].is_secondary = true ; break ;
 			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].is_secondary = true ; break ;
 			case 'dna_rc' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'dna_rc' ; break ;
-//			case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
+			//	case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
 			case 'annotation' : me.lines[k] = new SequenceCanvasRowAnnotation ( me , is_primary , v ) ; break ;
 			case 'aa' : me.lines[k] = new SequenceCanvasRowAA ( me , is_primary , v ) ; aa_settings = v ; break ;
 			case 'res' : me.lines[k] = new SequenceCanvasRowRES ( me , is_primary , v ) ; break ;
@@ -724,13 +724,13 @@ SequenceCanvasPCR.prototype.onPrimerSelect = function ( pid ) {
 		line : me.sequence.primers[pid].is_rc ? me.lines[5] : me.lines[2]
 	} ;
 	$('#selection_context_marker').remove() ;
-//	me.last_target = target ;
+	//	me.last_target = target ;
 	if ( me.edit.editing ) return me.absorb_event(e) ;
 	me.selections = [ { from : target.from , to : target.to , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	me.show() ;
 	me.ensureBaseIsVisible ( target.to ) ;
 	me.ensureBaseIsVisible ( target.from ) ;
-//	me.select ( me.sequence.primers[pid].from , me.sequence.primers[pid].to ) ;
+	//	me.select ( me.sequence.primers[pid].from , me.sequence.primers[pid].to ) ;
 }
 
 SequenceCanvasPCR.prototype.updateMainDialog = function () {
@@ -817,11 +817,11 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
-//	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
-//	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
-//	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
-//	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
-//	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
 
 	this.showMainDialog() ;
 	
@@ -835,7 +835,7 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 				var name = sc.sequence.getAnnotationName ( v ) ;
 				name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
 				ret.push ( { html : '<i class="icon-edit"></i> ' + name , callback : function () { gentle.main_sequence_canvas.editFeature(k) } , title : 'Edit annotation' } ) ;
-//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
+				//	h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
 			} ) ;
 		}
 		return ret ;
