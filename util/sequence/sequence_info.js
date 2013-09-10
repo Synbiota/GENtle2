@@ -119,7 +119,7 @@ SequenceInfoDialogDNA.prototype.onSaveButton = function () {
 	me.sc.show () ;
 	me.sc.updateTitleBar() ;
 	top_display.init() ;
-	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ;	gentle.main_sequence_canvas.plasmid_map.updateMap() ;  }
 	
 	gentle.updateSequenceList() ;
 	

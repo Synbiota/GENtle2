@@ -315,7 +315,7 @@ var gentle = {
 			sc.recalc() ;
 			sc.show () ;
 			top_display.init() ;
-			if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+			if (gentle.main_sequence_canvas.plasmid_map){ gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ; 	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 			
 			$('#aad_annotation_dialog').modal('hide');
 			$('#aad_annotation_dialog').remove();
