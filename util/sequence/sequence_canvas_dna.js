@@ -104,7 +104,7 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	var target = sc.isOver ( x , y ) ;
 
 	if (target === null){
-		return sc.absorb_event(e) ;
+		return ; //sc.absorb_event(e) ;
 	}
 
 	sc.selectionCursor.setEnd(target.base) ;
@@ -117,7 +117,7 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	sc.setEditMode ( true ) ;
 	sc.show() ;
 
-	return sc.absorb_event(e) ;
+	return ; //sc.absorb_event(e) ;
 
 	/*
 	if ( target === null ) {
@@ -168,7 +168,7 @@ SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
 
 	sc.setEditMode ( true ) ;
 	sc.show() ;
-	return sc.absorb_event(e) ;
+	return ;// sc.absorb_event(e) ;
 	
 }
 
@@ -219,7 +219,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 		gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
 	}
-	return sc.absorb_event(e) ; 
+	return ; //sc.absorb_event(e) ; 
 
 	/*
 	if ( gentle.is_mobile ) { // DoubleTap
