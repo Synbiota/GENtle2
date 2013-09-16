@@ -183,9 +183,9 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 	var y = 2 - this.sc.yoff + me.line_off ;
 	var miny = -this.sc.ch ;
 	var check_select = me.is_primary && me.sc.selections.length > 0 ;
-	if ( check_select && me.sc.selections[0].line !== undefined && me.sc.selections[0].line.line_id != me.line_id ) check_select = false ;
+	if ( check_select && me.sc.selectionCursor.line !== undefined && me.sc.selectionCursor.line.line_id != me.line_id ) check_select = false ;
 	
-
+	//if (check_select ) console.log( me.sc.selections[0].line.line_id, me.line_id );
 //	if ( check_select ) console.log ( me.sc.selections[0].from + "-" + me.sc.selections[0].to ) ;
 
 
@@ -217,7 +217,7 @@ SequenceCanvasRowDNA.prototype.show = function ( ctx ) {
 			this.end_base = p ;
 			do_write = true ;
 			
-			if ( this.sc.selectionCursor.end == p && this.is_primary) {
+			if ( this.sc.selectionCursor.end == p && this.sc.selectionCursor.line == me) { //&& this.is_primary) {
 				me.sc.selectionCursor.updateLocation(x,y);
 			}
 

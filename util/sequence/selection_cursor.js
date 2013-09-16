@@ -21,6 +21,7 @@
 SelectionCursor = function(start, end){
   this.start = start | 0;
   this.end = end | 0;
+  this.line = false;
   this.ctx = false;
   this.blink_vis = false;
   this.overwrite = false;
@@ -41,9 +42,9 @@ SelectionCursor.prototype.setEnd = function(end){
 
 SelectionCursor.prototype.getSelection = function(){
   if (this.start < this.end){
-    return [{ from : this.start , to : this.end - 1, fcol : '#CCCCCC' , tcol : 'black' }] ;
+    return [{ from : this.start , to : this.end - 1, fcol : '#CCCCCC' , tcol : 'black'}] ;
   } else if (this.start > this.end){
-    return [{ from : this.end , to : this.start-1, fcol : '#CCCCCC' , tcol : 'black' }] ;
+    return [{ from : this.end , to : this.start-1, fcol : '#CCCCCC' , tcol : 'black'}] ;
   } else {
     return [] ; 
   }

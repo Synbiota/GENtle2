@@ -60,7 +60,55 @@ SequenceCanvasPCR.prototype.absorb_event = function (event) {
 }
 
 SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
-	if ( gentle.is_mobile ) { // DoubleTap
+	if (e.button == 2) { e.preventDefault() ; return; } // no right clicks
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+
+	sc.selecting = false ;
+
+	// Add selection marker
+	if ( undefined !== sc.selectionCursor.x && sc.selections.length == 1) {
+	//	console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + 14 + $('#canvas_wrapper').scrollTop() ) ;
+	}
+	sc.selection_end_pos = undefined ;
+	
+	// Selection copy/paste hack for non-Chrome desktop browsers
+	if ( !gentle.is_chrome && !gentle.is_mobile ) {
+		var from = sc.selections[0].from ;
+		var to = sc.selections[0].to ;
+		if ( from > to ) {
+			var i = from ; 
+			from = to ;
+			to = i ;
+		}
+		var len = to - from + 1 ;
+		var s = sc.sequence.seq.substr ( from , len ) ;
+		$('#tmp1').remove() ;
+		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:-100px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
+		$('#tmp1').focus();
+		$('#tmp1').select();
+	}
+	if ( sc.selections.length == 1) {
+		gentle.setMenuState ( 'edit_menu_cut' , true ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , true ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_selection_info', true) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , true ) ;
+	} else {
+		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;	
+		gentle.setMenuState ( 'edit_menu_selection_info', false) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
+	}
+	return sc.absorb_event(e) ; 
+
+
+	/*if ( gentle.is_mobile ) { // DoubleTap
 		var t = new Date().getTime();
 		if ( sc.last_mouse_down !== undefined && t - sc.last_mouse_down < 500 ) { // 500ms since last touch = double-touch
 			return sc.on_double_click ( sc , e ) ;
@@ -115,14 +163,49 @@ SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
 		$('#tmp1').select();
 	}
 	
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	
 	var target = sc.isOver ( x , y ) ;
-	if ( target === null ) {
+	
+
+	if (true){ //eventually an edit mode vs. view only mode, for now only edit.
+		
+		if ( target === null ) { //touched nothing.
+			//sc.deselect() ;
+			return true ;
+		}
+		console.log(target);
+
+		if ( target.line.is_secondary ) return ; // Do not edit secondary!
+
+		//blinker is somewhere in editable region
+		sc.selectionCursor.setEnd(target.base) ;
+		sc.selectionCursor.line = target.line ;
+		if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+		sc.selecting = true;
+		sc.selections = sc.selectionCursor.getSelection();
+		sc.edit.base = sc.selectionCursor.getBase() ;
+		sc.setEditMode ( true ) ;
+		sc.show() ;
+
+		return true ; //sc.absorb_event(e) ;
+	}
+
+
+
+
+
+
+
+
+
+	/*if ( target === null ) {
 		sc.deselect() ;
 		return true ;
 	}
@@ -134,7 +217,7 @@ SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	sc.show() ;
 	//	$('#sequence_canvas').click().focus();
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 
@@ -142,7 +225,33 @@ SequenceCanvasPCR.prototype.on_mouse_move = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
-	if ( target === null ) {
+
+	if ( target === null ){ // && !sc.selecting ) {
+		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ; // this.getHoverName()
+		sc.position_is_blank = true ;
+		$('.temporary_popover_source').popover('hide');
+		return ;
+	}
+	
+	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
+	else gentle.set_hover ( target.text ) ;
+	sc.position_is_blank = false ;
+
+	if ( undefined !== target.onHover ) target.onHover ( target ) ;
+	
+
+	if ( !sc.selecting ) return ;
+
+	if ( target.line == sc.selectionCursor.line){
+		sc.selectionCursor.setEnd (target.base) ;
+		sc.selections = sc.selectionCursor.getSelection() ;
+		sc.edit.base = sc.selectionCursor.getBase() ;
+	}
+	sc.setEditMode ( true ) ;
+	sc.show() ;
+	return sc.absorb_event(e) ;
+
+	/*if ( target === null ) {
 		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
 		sc.position_is_blank = true ;
 		$('.temporary_popover_source').popover('hide');
@@ -160,7 +269,7 @@ SequenceCanvasPCR.prototype.on_mouse_move = function ( sc , e ) {
 	if ( sc.selections[0].to == target.base ) return ;
 	sc.selections[0].to = target.base ;
 	sc.show() ;
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
@@ -169,8 +278,9 @@ SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
-	sc.last_target = target ;
-	if ( target === null ) { // Not clicked on a target
+	//sc.last_target = target ;
+	
+	/*if ( target === null ) { // Not clicked on a target
 		if ( sc.edit.editing ) { // Turn off editing
 			sc.setEditMode ( false ) ;
 			sc.show() ;
@@ -236,7 +346,7 @@ SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 	
 	
 	
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 SequenceCanvasPCR.prototype.sim_key = function ( s , mk ) {
@@ -267,7 +377,7 @@ SequenceCanvasPCR.prototype.init = function () {
 	// Selection Cursor (not yet sure if this makes sense, but we'll leave it in for the moment)
 	sc.selectionCursor = new SelectionCursor();
 	sc.selectionCursor.toggleOverwrite();
-
+	console.log(sc.lines);
 	
 	if ( gentle.is_mobile ) {
 		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
@@ -363,6 +473,14 @@ SequenceCanvasPCR.prototype.show = function () {
 	ctx.canvas.width = w ;
 	ctx.canvas.height = h ;
 	
+	//Get overlay context
+	var octx = $('#sequence_canvas_overlay').get(0).getContext('2d');
+	octx.canvas.width = w ;
+	octx.canvas.height = h ;
+
+	ctx.overlay = octx ;
+
+
     this.bases_per_row = 0 ;
 	var sc = this ;
 	
@@ -391,7 +509,19 @@ SequenceCanvasPCR.prototype.show = function () {
 		line.line_number = line_id ;
 		line.show ( ctx ) ;
 	} ) ;
-	
+
+	//update the selectionCursor!
+	this.selectionCursor.setContext ( octx );
+	var is_editing_this = this.edit.editing;
+	if (this.edit.editing && this.start_base <= this.selectionCursor.end && this.selectionCursor.end <= this.end_base+1 ){
+		//calculate cursor location:
+		this.selectionCursor.setVisible(true);
+
+	}else {
+		//hide the cursor
+		this.selectionCursor.setVisible(false);
+	}
+
 	pixel_height = Math.floor ( ( this.sequence.seq.length + this.bases_per_row ) / this.bases_per_row ) * pixel_height ;
 	if ( $('#main_slider').height() != pixel_height ) $('#main_slider').height ( pixel_height ) ;
 	
@@ -690,7 +820,7 @@ SequenceCanvasPCR.prototype.specialKeyEvent = function ( eventName , base ) {
 	var me = this ;
 	
 	if ( eventName == '.' ) {
-		if ( me.edit.line.type == 'primer1' ) {
+		if ( me.selectionCursor.line.type == 'primer1' ) {
 			me.sequence.primer_sequence_1 = me.sequence.primer_sequence_1.replaceAt ( base , me.sequence.seq[base] ) ;
 		} else {
 			me.sequence.primer_sequence_2 = me.sequence.primer_sequence_2.replaceAt ( base , rcSequence ( me.sequence.seq[base] ) ) ;
@@ -700,8 +830,8 @@ SequenceCanvasPCR.prototype.specialKeyEvent = function ( eventName , base ) {
 	$.each ( me.sequence.primers , function ( k , p ) {
 		if ( p.from > base + 1 ) return ;
 		if ( p.to < base - 1 ) return ;
-		if ( me.edit.line.type == 'primer1' && p.is_rc ) return ;
-		if ( me.edit.line.type == 'primer2' && !p.is_rc ) return ;
+		if ( me.selectionCursor.line.type == 'primer1' && p.is_rc ) return ;
+		if ( me.selectionCursor.line.type == 'primer2' && !p.is_rc ) return ;
 		var s = String ( p.is_rc ? me.sequence.primer_sequence_2 : me.sequence.primer_sequence_1 ) ;
 		var middle = Math.floor ( ( p.to + p.from ) / 2 ) ;
 		var pos ;
@@ -725,11 +855,14 @@ SequenceCanvasPCR.prototype.onPrimerSelect = function ( pid ) {
 	} ;
 	$('#selection_context_marker').remove() ;
 	//	me.last_target = target ;
-	if ( me.edit.editing ) return me.absorb_event(e) ;
-	me.selections = [ { from : target.from , to : target.to , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
+	//if ( me.edit.editing ) return ;
+	me.selectionCursor.start = target.from ;
+	me.selectionCursor.end = target.to + 1;
+	me.selectionCursor.line = target.line ;
+	me.selections = me.selectionCursor.getSelection(); //[ { from : target.from , to : target.to , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	me.show() ;
 	me.ensureBaseIsVisible ( target.to ) ;
-	me.ensureBaseIsVisible ( target.from ) ;
+	me.ensureBaseIsVisible ( target.from  + 1) ;
 	//	me.select ( me.sequence.primers[pid].from , me.sequence.primers[pid].to ) ;
 }
 

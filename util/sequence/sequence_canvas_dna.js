@@ -108,6 +108,7 @@ SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
 	}
 
 	sc.selectionCursor.setEnd(target.base) ;
+	sc.selectionCursor.line = target.line ;
 	if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
 
 	sc.selecting = true;
@@ -591,7 +592,6 @@ SequenceCanvasDNA.prototype.show = function () {
 	if (this.edit.editing && this.start_base <= this.selectionCursor.end && this.selectionCursor.end <= this.end_base+1 ){
 		//calculate cursor location:
 		this.selectionCursor.setVisible(true);
-
 	}else {
 		//hide the cursor
 		this.selectionCursor.setVisible(false);
