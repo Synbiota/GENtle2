@@ -342,7 +342,8 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 
   var bpp = sc.end_base - sc.start_base + 1 ;
 
-  if ( code == 90 && e.metaKey ) { // Undo
+  if ( code == 90 && sc.metakeys & cd.metakeys.CTRL ) { // Undo
+    console.log("undo");
     e.preventDefault();
     if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
     else gentle.doUndo();
