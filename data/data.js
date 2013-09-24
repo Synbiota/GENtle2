@@ -466,7 +466,6 @@ var cd = { // Common data, filled by loadBaseData()
 		'promoter' : 		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Promoter' } ,
 		'pseudogene' :		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Pseudogene' } ,
 		'rbs' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Ribosomal binding site' } ,
-		'terminator' : 		{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Terminator' } ,
 		'tre' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Trans regulatory element' } ,
 
 		'binding_domain' : 	{ 'category':'Protein', 				'annotation_row_offset':2 , 'name':'Binding domain' } ,		
@@ -484,8 +483,10 @@ var cd = { // Common data, filled by loadBaseData()
 		'siRNA' : 			{ 'category':'RNA', 					'annotation_row_offset':3 , 'name':'siRNA' } ,
 		'snoRNA' : 			{ 'category':'RNA', 					'annotation_row_offset':3 , 'name':'snoRNA' } ,
 		'snRNA' : 			{ 'category':'RNA', 					'annotation_row_offset':3 , 'name':'snRNA' } ,
+		'terminator' :		{ 'category':'RNA',	'is_main_type':1,	'annotation_row_offset':3 , 'name':'terminator' } ,
 		'tmRNA' : 			{ 'category':'RNA', 					'annotation_row_offset':3 , 'name':'tmRNA' } ,
 		'tRNA' : 			{ 'category':'RNA', 					'annotation_row_offset':3 , 'name':'tRNA' }
+		
 
    	}
 } ;
