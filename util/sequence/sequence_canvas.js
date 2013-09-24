@@ -16,6 +16,7 @@ SequenceCanvas.prototype.show = function () {}
 SequenceCanvas.prototype.select = function ( from , to ) {}
 SequenceCanvas.prototype.deselect = function () {}
 SequenceCanvas.prototype.applySettings = function ( settings ) {}
+SequenceCanvas.prototype.onClose = function () {}
 
 /*
 data = {
@@ -85,7 +86,7 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 
 
 SequenceCanvas.prototype.resizeCanvas = function () {
-  var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+  /*var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
   var h = $('#canvas_wrapper').height() ;
   var new_h = $('#main').height() - 20;
   if(gentle.is_mobile){
@@ -96,7 +97,19 @@ SequenceCanvas.prototype.resizeCanvas = function () {
   $('#sequence_canvas_overlay').css ( { width:w+'px' , height:h+'px' } ) ;
   $('#canvas_wrapper').css ( { 'max-height' : Math.max(h, new_h) } ) ;
   $('#canvas_wrapper').height ( new_h) ;
-  $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
+  $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;*/
+  var cw = $('#canvas_wrapper').offset() ;
+  var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+  var h = $('#canvas_wrapper').height() ;
+
+  if(gentle.is_mobile){
+    $("#soft_keyboard").css( {width:w} ) ; 
+    h -= $("#soft_keyboard").height() ;
+  }
+  $('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
+  $('#sequence_canvas_overlay').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
+  $('#canvas_wrapper').css ( { 'max-height' : h } ) ;
+  $('#sequence_canvas_title_bar').css ( { width:w } ) ;
   
 }
 

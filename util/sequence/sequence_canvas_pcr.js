@@ -3,6 +3,13 @@
 SequenceCanvasPCR.prototype = new SequenceCanvas() ;
 SequenceCanvasPCR.prototype.constructor = SequenceCanvasPCR ;
 
+SequenceCanvasPCR.prototype.onClose = function () {
+	console.log('onclose pcr');
+	this.selectionCursor.setVisible(false);
+	$('#pcr_main_dialog_container').modal('hide');
+	$('#pcr_main_dialog_container').remove() ;
+}
+
 SequenceCanvasPCR.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
 	this.selections = [ { from : from , to : to , fcol : col , tcol : 'black' } ] ;
@@ -890,6 +897,7 @@ SequenceCanvasPCR.prototype.updateMainDialog = function () {
 }
 
 SequenceCanvasPCR.prototype.showMainDialog = function () {
+	console.log("showMainPCRDialog");
 	var me = this ;
 	me.selectedPrimer = -1 ;
 	$('#pcr_main_dialog_container').remove() ;
@@ -909,6 +917,7 @@ SequenceCanvasPCR.prototype.showMainDialog = function () {
 }
 
 function SequenceCanvasPCR ( the_sequence , canvas_id ) {
+	console.log("new sequenceCanvasPCR") ;
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
 	this.type = 'pcr' ;
@@ -956,7 +965,8 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	//	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
 	//	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
 
-	this.showMainDialog() ;
+	//this.showMainDialog() ;
+	this.resizeCanvas();
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
 		var ret = [] ;

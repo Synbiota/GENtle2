@@ -3,37 +3,10 @@
 SequenceCanvasDNA.prototype = new SequenceCanvas() ;
 SequenceCanvasDNA.prototype.constructor = SequenceCanvasDNA ;
 
-/*
-SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
-	var h = '' ;
-	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-
-	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'cut\');return false">Cut</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'copy\');return false">Copy</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.delete_selection();return false">Remove selected sequence</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_annotate();return false">Annotate selected sequence</a></li>' ;
-
-	var sc = gentle.main_sequence_canvas ;
-	if ( sc !== undefined && sc.selections.length > 0 ) {
-		var feats = sc.sequence.getFeaturesInRange ( sc.selections[0].from , sc.selections[0].to ) ;
-		$.each ( feats , function ( k , v ) {
-			if ( v['_type'] == 'source' ) return ;
-			var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
-			var name = sc.sequence.getAnnotationName ( v ) ;
-			name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
-			h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
-		} ) ;
-	}
-
-	h += '</ul></div>' ;
-
-	h += "</div>" ;
-	
-	$('#selection_context_marker').remove() ;
-	$('#canvas_wrapper').prepend ( h ) ;
+SequenceCanvasDNA.prototype.onClose = function () {
+	console.log("on close dna");
+	this.selectionCursor.setVisible(false);
 }
-*/
 
 SequenceCanvasDNA.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
@@ -466,7 +439,7 @@ SequenceCanvasDNA.prototype.init = function () {
 	} ) ;
 
 	// Window resize event
-	$(window).resize ( function() { gentle.on_resize_event(); sc.resize(); sc.show(); } ) ;
+	$(window).resize ( function() { gentle.on_resize_event(); sc.resize();} ) ; // sc.show(); } ) ;
 	
 	// Attach mouse wheel event to canvas
 	$('#sequence_canvas_overlay').mousewheel(function(event, delta, deltaX, deltaY) {

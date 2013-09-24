@@ -683,7 +683,9 @@ var gentle = {
 	handleSelectSequenceEntry : function ( entry ) {
 		gentle.updateCurrentSequenceSettings () ;
 		$('#close_sequence').show() ;
-		
+		if ( gentle.current_sequence_entry !== undefined ){
+			gentle.main_sequence_canvas.onClose();
+		}
 		var sc = gentle.sequences[entry] ;
 		if ( sc === undefined ) return ; // Paranoia
 		
@@ -953,6 +955,7 @@ var gentle = {
 	/* END Loaded sequences dialog functions */
 	
 	do_start_pcr : function () {
+		console.log("do start pcr");
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined === sc ) { console.log ( "No canvas" ) ; return ; }
 		if ( undefined === sc.sequence ) { console.log ( "No sequence" ) ; return ; }
@@ -964,6 +967,7 @@ var gentle = {
 		var stop = sc.selections[0].to ;
 		
 		var pcr = new SequencePCR ( template_sequence.name , template_sequence.seq ) ;
+		console.log("sequencePCR");
 		pcr.is_circular = template_sequence.is_circular ;
 		$.each ( (template_sequence.features||[]) , function ( k , v ) {
 			var o = clone ( v ) ;
@@ -974,11 +978,13 @@ var gentle = {
 			pcr.features.push ( o ) ;
 		} ) ;
 		pcr.undo.setSequence ( pcr ) ;
-		
+		console.log("pcr.undo.setSequence (pcr)");
 		gentle.addSequence ( pcr , true ) ;
-
+		console.log("gentle.addSequence (pcr , true)");
 		pcr.addPrimer ( start , start+25 , false ) ;
+		console.log("pcr.addPrimer ( start , start+25 , false ) ;");
 		pcr.addPrimer ( stop-24 , stop , true ) ;
+		console.log("pcr.addPrimer ( stop-24 , stop , true ) ;");
 
 		return false ;
 	} ,
