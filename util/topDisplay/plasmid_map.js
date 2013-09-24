@@ -183,7 +183,7 @@ PlasmidMapDialog.prototype.recalcAnnotations = function(){
 		}
 	}
 
-	console.log(self.featureStack);
+	//console.log(self.featureStack);
 }
 
 PlasmidMapDialog.prototype.updateAnnotations = function(){

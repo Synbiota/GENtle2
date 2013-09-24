@@ -4,7 +4,7 @@ SequenceCanvasPCR.prototype = new SequenceCanvas() ;
 SequenceCanvasPCR.prototype.constructor = SequenceCanvasPCR ;
 
 SequenceCanvasPCR.prototype.onClose = function () {
-	console.log('onclose pcr');
+	//console.log('onclose pcr');
 	this.selectionCursor.setVisible(false);
 	$('#pcr_main_dialog_container').modal('hide');
 	$('#pcr_main_dialog_container').remove() ;
@@ -187,7 +187,7 @@ SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
 			//sc.deselect() ;
 			return true ;
 		}
-		console.log(target);
+		//console.log(target);
 
 		if ( target.line.is_secondary ) return ; // Do not edit secondary!
 
@@ -384,7 +384,6 @@ SequenceCanvasPCR.prototype.init = function () {
 	// Selection Cursor (not yet sure if this makes sense, but we'll leave it in for the moment)
 	sc.selectionCursor = new SelectionCursor();
 	sc.selectionCursor.toggleOverwrite();
-	console.log(sc.lines);
 	
 	if ( gentle.is_mobile ) {
 		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
@@ -897,7 +896,7 @@ SequenceCanvasPCR.prototype.updateMainDialog = function () {
 }
 
 SequenceCanvasPCR.prototype.showMainDialog = function () {
-	console.log("showMainPCRDialog");
+	//console.log("showMainPCRDialog");
 	var me = this ;
 	me.selectedPrimer = -1 ;
 	$('#pcr_main_dialog_container').remove() ;
@@ -917,7 +916,7 @@ SequenceCanvasPCR.prototype.showMainDialog = function () {
 }
 
 function SequenceCanvasPCR ( the_sequence , canvas_id ) {
-	console.log("new sequenceCanvasPCR") ;
+	//console.log("new sequenceCanvasPCR") ;
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
 	this.type = 'pcr' ;

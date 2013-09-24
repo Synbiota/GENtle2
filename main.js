@@ -603,8 +603,6 @@ var gentle = {
 		
 		if ( found ) {
 			$("#newSequenceDialog").modal("hide").remove();
-			console.log(title);
-			console.log(gentle.main_sequence_canvas.sequence.name);
 			if (title != "Unnamed sequence" && gentle.main_sequence_canvas.sequence.name == "Unnamed sequence"){
 				gentle.main_sequence_canvas.sequence.name = title;
 				gentle.main_sequence_canvas.updateTitleBar() ;
@@ -955,7 +953,6 @@ var gentle = {
 	/* END Loaded sequences dialog functions */
 	
 	do_start_pcr : function () {
-		console.log("do start pcr");
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined === sc ) { console.log ( "No canvas" ) ; return ; }
 		if ( undefined === sc.sequence ) { console.log ( "No sequence" ) ; return ; }

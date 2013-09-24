@@ -77,7 +77,7 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 
   var approx_height = $("#selection_context_marker ul").height();
   var sc = gentle.main_sequence_canvas
-  console.log ($('#sequence_canvas').height(), y - (sc.start_base/sc.bases_per_row)*sc.block_height, approx_height);
+  //console.log ($('#sequence_canvas').height(), y - (sc.start_base/sc.bases_per_row)*sc.block_height, approx_height);
   if (y - (sc.start_base/sc.bases_per_row)*sc.block_height + approx_height > $('#sequence_canvas').height()){
     $("#selection_context_marker ul").css("top",-approx_height-15+"px");
   }
@@ -86,6 +86,7 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
 
 
 SequenceCanvas.prototype.resizeCanvas = function () {
+  //console.log("resize canvas");
   /*var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
   var h = $('#canvas_wrapper').height() ;
   var new_h = $('#main').height() - 20;
@@ -100,16 +101,17 @@ SequenceCanvas.prototype.resizeCanvas = function () {
   $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;*/
   var cw = $('#canvas_wrapper').offset() ;
   var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
-  var h = $('#canvas_wrapper').height() ;
+  var h = $('#main').height() - 20 ;
 
   if(gentle.is_mobile){
     $("#soft_keyboard").css( {width:w} ) ; 
     h -= $("#soft_keyboard").height() ;
   }
-  $('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
-  $('#sequence_canvas_overlay').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
-  $('#canvas_wrapper').css ( { 'max-height' : h } ) ;
-  $('#sequence_canvas_title_bar').css ( { width:w } ) ;
+  $('#sequence_canvas').css ( { top:cw.top+'px' , left:cw.left+'px' , width:w+'px' , height:h+'px' } ) ;
+  $('#sequence_canvas_overlay').css ( { top:cw.top+'px' , left:cw.left+'px' , width:w+'px' , height:h+'px' } ) ;
+  $('#canvas_wrapper').css ( { 'max-height' : h+'px' } ) ;
+  $('#canvas_wrapper').height ( h) ;
+  $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
   
 }
 
@@ -613,7 +615,7 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
     sc.show() ;
     again = false ;
     howmany ++ ;
-    console.log(howmany);
+    //console.log(howmany);
     // console.log ( sc.end_base + " / " + sc.edit.base ) ;
     
     if ( sc.end_base < base ) {
