@@ -3,6 +3,13 @@
 SequenceCanvasPCR.prototype = new SequenceCanvas() ;
 SequenceCanvasPCR.prototype.constructor = SequenceCanvasPCR ;
 
+SequenceCanvasPCR.prototype.onClose = function () {
+	//console.log('onclose pcr');
+	this.selectionCursor.setVisible(false);
+	$('#pcr_main_dialog_container').modal('hide');
+	$('#pcr_main_dialog_container').remove() ;
+}
+
 SequenceCanvasPCR.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
 	this.selections = [ { from : from , to : to , fcol : col , tcol : 'black' } ] ;
@@ -60,7 +67,55 @@ SequenceCanvasPCR.prototype.absorb_event = function (event) {
 }
 
 SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
-	if ( gentle.is_mobile ) { // DoubleTap
+	if (e.button == 2) { e.preventDefault() ; return; } // no right clicks
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+
+	sc.selecting = false ;
+
+	// Add selection marker
+	if ( undefined !== sc.selectionCursor.x && sc.selections.length == 1) {
+	//	console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + 14 + $('#canvas_wrapper').scrollTop() ) ;
+	}
+	sc.selection_end_pos = undefined ;
+	
+	// Selection copy/paste hack for non-Chrome desktop browsers
+	if ( !gentle.is_chrome && !gentle.is_mobile ) {
+		var from = sc.selections[0].from ;
+		var to = sc.selections[0].to ;
+		if ( from > to ) {
+			var i = from ; 
+			from = to ;
+			to = i ;
+		}
+		var len = to - from + 1 ;
+		var s = sc.sequence.seq.substr ( from , len ) ;
+		$('#tmp1').remove() ;
+		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:-100px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
+		$('#tmp1').focus();
+		$('#tmp1').select();
+	}
+	if ( sc.selections.length == 1) {
+		gentle.setMenuState ( 'edit_menu_cut' , true ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , true ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_selection_info', true) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , true ) ;
+	} else {
+		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;	
+		gentle.setMenuState ( 'edit_menu_selection_info', false) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
+	}
+	return sc.absorb_event(e) ; 
+
+
+	/*if ( gentle.is_mobile ) { // DoubleTap
 		var t = new Date().getTime();
 		if ( sc.last_mouse_down !== undefined && t - sc.last_mouse_down < 500 ) { // 500ms since last touch = double-touch
 			return sc.on_double_click ( sc , e ) ;
@@ -91,9 +146,10 @@ SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
 	// Add selection marker
-	if ( undefined !== sc.selection_end_pos && !sc.edit.editing ) {
-//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
-		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
+	if ( undefined !== sc.selectionCursor.x && !sc.edit.editing ) {
+	//	console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+
+		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
 	sc.selection_end_pos = undefined ;
 	
@@ -114,14 +170,49 @@ SequenceCanvasPCR.prototype.on_mouse_up = function ( sc , e ) {
 		$('#tmp1').select();
 	}
 	
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	
 	var target = sc.isOver ( x , y ) ;
-	if ( target === null ) {
+	
+
+	if (true){ //eventually an edit mode vs. view only mode, for now only edit.
+		
+		if ( target === null ) { //touched nothing.
+			//sc.deselect() ;
+			return true ;
+		}
+		//console.log(target);
+
+		if ( target.line.is_secondary ) return ; // Do not edit secondary!
+
+		//blinker is somewhere in editable region
+		sc.selectionCursor.setEnd(target.base) ;
+		sc.selectionCursor.line = target.line ;
+		if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+		sc.selecting = true;
+		sc.selections = sc.selectionCursor.getSelection();
+		sc.edit.base = sc.selectionCursor.getBase() ;
+		sc.setEditMode ( true ) ;
+		sc.show() ;
+
+		return true ; //sc.absorb_event(e) ;
+	}
+
+
+
+
+
+
+
+
+
+	/*if ( target === null ) {
 		sc.deselect() ;
 		return true ;
 	}
@@ -132,8 +223,8 @@ SequenceCanvasPCR.prototype.on_mouse_down = function ( sc , e ) {
 	sc.selecting = true ;
 	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	sc.show() ;
-//	$('#sequence_canvas').click().focus();
-	return sc.absorb_event(e) ;
+	//	$('#sequence_canvas').click().focus();
+	return sc.absorb_event(e) ;*/
 }
 
 
@@ -141,7 +232,33 @@ SequenceCanvasPCR.prototype.on_mouse_move = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
-	if ( target === null ) {
+
+	if ( target === null ){ // && !sc.selecting ) {
+		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ; // this.getHoverName()
+		sc.position_is_blank = true ;
+		$('.temporary_popover_source').popover('hide');
+		return ;
+	}
+	
+	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
+	else gentle.set_hover ( target.text ) ;
+	sc.position_is_blank = false ;
+
+	if ( undefined !== target.onHover ) target.onHover ( target ) ;
+	
+
+	if ( !sc.selecting ) return ;
+
+	if ( target.line == sc.selectionCursor.line){
+		sc.selectionCursor.setEnd (target.base) ;
+		sc.selections = sc.selectionCursor.getSelection() ;
+		sc.edit.base = sc.selectionCursor.getBase() ;
+	}
+	sc.setEditMode ( true ) ;
+	sc.show() ;
+	return sc.absorb_event(e) ;
+
+	/*if ( target === null ) {
 		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ;
 		sc.position_is_blank = true ;
 		$('.temporary_popover_source').popover('hide');
@@ -159,7 +276,7 @@ SequenceCanvasPCR.prototype.on_mouse_move = function ( sc , e ) {
 	if ( sc.selections[0].to == target.base ) return ;
 	sc.selections[0].to = target.base ;
 	sc.show() ;
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
@@ -168,8 +285,9 @@ SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 	var target = sc.isOver ( x , y ) ;
-	sc.last_target = target ;
-	if ( target === null ) { // Not clicked on a target
+	//sc.last_target = target ;
+	
+	/*if ( target === null ) { // Not clicked on a target
 		if ( sc.edit.editing ) { // Turn off editing
 			sc.setEditMode ( false ) ;
 			sc.show() ;
@@ -228,14 +346,14 @@ SequenceCanvasPCR.prototype.on_double_click = function ( sc , e ) {
 		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
 		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
 		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
-//		$('#soft_keyboard .ui-dialog-titlebar').hide();
+		//		$('#soft_keyboard .ui-dialog-titlebar').hide();
 
 		return false ;
 	}
 	
 	
 	
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ;*/
 }
 
 SequenceCanvasPCR.prototype.sim_key = function ( s , mk ) {
@@ -262,40 +380,44 @@ SequenceCanvasPCR.prototype.init = function () {
 	// Select
 	sc.selecting = false ;
 	sc.selections = [] ;
+
+	// Selection Cursor (not yet sure if this makes sense, but we'll leave it in for the moment)
+	sc.selectionCursor = new SelectionCursor();
+	sc.selectionCursor.toggleOverwrite();
 	
 	if ( gentle.is_mobile ) {
-		$('#sequence_canvas').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchcancel' , sc.absorb_event ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
+		$('#sequence_canvas_overlay').bind ( 'touchcancel' , sc.absorb_event ) ;
 	} else {
-		$('#sequence_canvas').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
-		$('#sequence_canvas').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
-		$('#sequence_canvas').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
 	}
 	
 	// Double-click for editing
-	$('#sequence_canvas').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
+	$('#sequence_canvas_overlay').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
 	
 	
 	// Keys
 	sc.bindKeyboard() ;
 	
 	// Sequence hover event
-	$('#sequence_canvas').mousemove ( function ( e ) {
+	$('#sequence_canvas_overlay').mousemove ( function ( e ) {
 		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
 		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
 		var target = sc.isOver ( x , y ) ;
 		sc.last_target = target ;
 		if ( target === null ) return ;
-//		console.log ( target.base + 1 ) ;
+		//	console.log ( target.base + 1 ) ;
 	} ) ;
 
 	// Window resize event
 	$(window).resize ( gentle.on_resize_event ) ;
 	
 	// Attach mouse wheel event to canvas
-	$('#sequence_canvas').mousewheel(function(event, delta, deltaX, deltaY) {
+	$('#sequence_canvas_overlay').mousewheel(function(event, delta, deltaX, deltaY) {
 		var cur = $('#canvas_wrapper').scrollTop() ;
 		var max = $('#canvas_wrapper').height() ;
 		$('#canvas_wrapper').scrollTop ( cur - max * deltaY ) ;
@@ -308,7 +430,7 @@ SequenceCanvasPCR.prototype.init = function () {
 	$('#canvas_wrapper').scroll ( function ( o ) {
 		if ( gentle.is_mobile && sc.selecting ) {
 			sc.on_mouse_move ( sc , sc.fix_touch_event(o) ) ;
-//			o.preventDefault();
+			//	o.preventDefault();
 			return true ;
 		}
 		var oy = $('#canvas_wrapper').scrollTop() ;
@@ -357,6 +479,14 @@ SequenceCanvasPCR.prototype.show = function () {
 	ctx.canvas.width = w ;
 	ctx.canvas.height = h ;
 	
+	//Get overlay context
+	var octx = $('#sequence_canvas_overlay').get(0).getContext('2d');
+	octx.canvas.width = w ;
+	octx.canvas.height = h ;
+
+	ctx.overlay = octx ;
+
+
     this.bases_per_row = 0 ;
 	var sc = this ;
 	
@@ -385,7 +515,19 @@ SequenceCanvasPCR.prototype.show = function () {
 		line.line_number = line_id ;
 		line.show ( ctx ) ;
 	} ) ;
-	
+
+	//update the selectionCursor!
+	this.selectionCursor.setContext ( octx );
+	var is_editing_this = this.edit.editing;
+	if (this.edit.editing && this.start_base <= this.selectionCursor.end && this.selectionCursor.end <= this.end_base+1 ){
+		//calculate cursor location:
+		this.selectionCursor.setVisible(true);
+
+	}else {
+		//hide the cursor
+		this.selectionCursor.setVisible(false);
+	}
+
 	pixel_height = Math.floor ( ( this.sequence.seq.length + this.bases_per_row ) / this.bases_per_row ) * pixel_height ;
 	if ( $('#main_slider').height() != pixel_height ) $('#main_slider').height ( pixel_height ) ;
 	
@@ -393,7 +535,7 @@ SequenceCanvasPCR.prototype.show = function () {
 	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateSelection() ; }
 
 	var unixtime_ms2 = new Date().getTime();
-//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
+	//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
 }
 
 SequenceCanvasPCR.prototype.getLineIndex = function ( type ) {
@@ -588,13 +730,13 @@ SequenceCanvasPCR.prototype.applySettings = function ( settings ) {
 		var is_primary = v.type.substr(0,6)=='primer' ;
 		switch ( v.type ) {
 			case 'blank' : me.lines[k] = new SequenceCanvasRowBlank ( me , is_primary , v ) ; break ;
-//			case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
+			//	case 'spectrum' : me.lines[k] = new SequenceCanvasRowSpectrum ( me , is_primary , v ) ; break ;
 			case 'primer1' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer1' ; break ;
 			case 'primer2' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'primer2' ; break ;
 			case 'pcr_product' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'pcr_product' ; me.lines[k].is_secondary = true ; break ;
 			case 'dna' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].is_secondary = true ; break ;
 			case 'dna_rc' : me.lines[k] = new SequenceCanvasRowDNA ( me , is_primary , v ) ; me.lines[k].type = 'dna_rc' ; break ;
-//			case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
+			//	case 'dna_align': me.lines[k] = new SequenceCanvasRowAlign(me, is_primary); break;
 			case 'annotation' : me.lines[k] = new SequenceCanvasRowAnnotation ( me , is_primary , v ) ; break ;
 			case 'aa' : me.lines[k] = new SequenceCanvasRowAA ( me , is_primary , v ) ; aa_settings = v ; break ;
 			case 'res' : me.lines[k] = new SequenceCanvasRowRES ( me , is_primary , v ) ; break ;
@@ -684,7 +826,7 @@ SequenceCanvasPCR.prototype.specialKeyEvent = function ( eventName , base ) {
 	var me = this ;
 	
 	if ( eventName == '.' ) {
-		if ( me.edit.line.type == 'primer1' ) {
+		if ( me.selectionCursor.line.type == 'primer1' ) {
 			me.sequence.primer_sequence_1 = me.sequence.primer_sequence_1.replaceAt ( base , me.sequence.seq[base] ) ;
 		} else {
 			me.sequence.primer_sequence_2 = me.sequence.primer_sequence_2.replaceAt ( base , rcSequence ( me.sequence.seq[base] ) ) ;
@@ -694,8 +836,8 @@ SequenceCanvasPCR.prototype.specialKeyEvent = function ( eventName , base ) {
 	$.each ( me.sequence.primers , function ( k , p ) {
 		if ( p.from > base + 1 ) return ;
 		if ( p.to < base - 1 ) return ;
-		if ( me.edit.line.type == 'primer1' && p.is_rc ) return ;
-		if ( me.edit.line.type == 'primer2' && !p.is_rc ) return ;
+		if ( me.selectionCursor.line.type == 'primer1' && p.is_rc ) return ;
+		if ( me.selectionCursor.line.type == 'primer2' && !p.is_rc ) return ;
 		var s = String ( p.is_rc ? me.sequence.primer_sequence_2 : me.sequence.primer_sequence_1 ) ;
 		var middle = Math.floor ( ( p.to + p.from ) / 2 ) ;
 		var pos ;
@@ -718,13 +860,16 @@ SequenceCanvasPCR.prototype.onPrimerSelect = function ( pid ) {
 		line : me.sequence.primers[pid].is_rc ? me.lines[5] : me.lines[2]
 	} ;
 	$('#selection_context_marker').remove() ;
-//	me.last_target = target ;
-	if ( me.edit.editing ) return me.absorb_event(e) ;
-	me.selections = [ { from : target.from , to : target.to , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
+	//	me.last_target = target ;
+	//if ( me.edit.editing ) return ;
+	me.selectionCursor.start = target.from ;
+	me.selectionCursor.end = target.to + 1;
+	me.selectionCursor.line = target.line ;
+	me.selections = me.selectionCursor.getSelection(); //[ { from : target.from , to : target.to , fcol : '#CCCCCC' , tcol : 'black' , line : target.line } ] ;
 	me.show() ;
 	me.ensureBaseIsVisible ( target.to ) ;
-	me.ensureBaseIsVisible ( target.from ) ;
-//	me.select ( me.sequence.primers[pid].from , me.sequence.primers[pid].to ) ;
+	me.ensureBaseIsVisible ( target.from  + 1) ;
+	//	me.select ( me.sequence.primers[pid].from , me.sequence.primers[pid].to ) ;
 }
 
 SequenceCanvasPCR.prototype.updateMainDialog = function () {
@@ -751,6 +896,7 @@ SequenceCanvasPCR.prototype.updateMainDialog = function () {
 }
 
 SequenceCanvasPCR.prototype.showMainDialog = function () {
+	//console.log("showMainPCRDialog");
 	var me = this ;
 	me.selectedPrimer = -1 ;
 	$('#pcr_main_dialog_container').remove() ;
@@ -770,11 +916,12 @@ SequenceCanvasPCR.prototype.showMainDialog = function () {
 }
 
 function SequenceCanvasPCR ( the_sequence , canvas_id ) {
+	//console.log("new sequenceCanvasPCR") ;
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
 	this.type = 'pcr' ;
 	this.keySettings = [ 'primary_line' , 'start_base' , 'end_base' ] ;
-	this.overwrite_only = true ;
+	
 	
 	this.fixMenus() ;
 	
@@ -811,13 +958,14 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
 	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 	
-//	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
-//	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
-//	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
-//	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
-//	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'delete' , items : [ { callback:function(sc){gentle.delete_selection()} , html:'Remove selected sequence' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'annotate' , items : [ { callback:function(sc){gentle.do_annotate()} , html:'Annotate selected sequence' } ] } ) ;
+	//	this.setContextMenuItem ( { id:'selection_info' , items : [ { callback:function(sc){gentle.do_selection_info()} , html:'Selection info' } ] } ) ;
 
-	this.showMainDialog() ;
+	//this.showMainDialog() ;
+	this.resizeCanvas();
 	
 	this.setContextMenuItem ( { id:'edit_selection' , getItems : function ( sc ) {
 		var ret = [] ;
@@ -829,7 +977,7 @@ function SequenceCanvasPCR ( the_sequence , canvas_id ) {
 				var name = sc.sequence.getAnnotationName ( v ) ;
 				name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
 				ret.push ( { html : '<i class="icon-edit"></i> ' + name , callback : function () { gentle.main_sequence_canvas.editFeature(k) } , title : 'Edit annotation' } ) ;
-//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
+				//	h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
 			} ) ;
 		}
 		return ret ;

@@ -49,13 +49,32 @@ var gentle = {
 			gentle.is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
 			
 			window.onorientationchange = gentle.on_resize_event ;
-	
+			
+
+
+			$(window).bind('beforeunload', function(){
+				var confirmationMessage = "Did you mean to close this page? Files are saved locally automatically, but may not be stored in the cloud!";
+				//this Firefox trick only works for redirects, not for actual page closes.
+				/*if(/Firefox[\/\s](\d+)/.test(navigator.userAgent) && new Number(RegExp.$1) >= 4) {
+					if(confirm(confirmationMessage)) {
+						history.go();
+					} else {
+						window.setTimeout(function() {
+							window.stop();
+						}, 1);
+					}
+				} else {*/
+					return confirmationMessage;
+				//}
+			});
+
 			gentle.setMenuState ( 'edit_menu_undo' , false ) ;
 			gentle.setMenuState ( 'edit_menu_redo' , false ) ;
 			gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 			gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 			gentle.setMenuState ( 'edit_menu_paste' , false ) ;
 			gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+			gentle.setMenuState ( 'edit_menu_selection_info' , false ) ;
 			
 			$('#toolbar_ul li.dropdown').each ( function ( k , v ) {
 				var id = $(v).attr('id') ;
@@ -108,6 +127,10 @@ var gentle = {
 				
 				if ( gentle.url_vars.newsequence !== undefined ) gentle.startNewSequenceDialog() ;
 			} ) ;
+
+			$('#plasmidbox').hide();
+			gentle.topdisplaystyle = 'linear';
+
 		} ) ;
 	} ,
 
@@ -248,10 +271,10 @@ var gentle = {
 	setMenuState : function ( id , state ) {
 		if ( state ) {
 			$('#'+id).removeClass ( 'disabled btn-disabled' ) ;
-			$('#'+id).show() ;
+			//$('#'+id).show() ;
 		} else {
 			$('#'+id).addClass ( 'disabled btn-disabled' ) ;
-			$('#'+id).hide() ;
+			//$('#'+id).hide() ;
 		}
 		
 		// Show/hide entire edit menu
@@ -293,7 +316,7 @@ var gentle = {
 			sc.recalc() ;
 			sc.show () ;
 			top_display.init() ;
-			if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+			if (gentle.main_sequence_canvas.plasmid_map){ gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ; 	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 			
 			$('#aad_annotation_dialog').modal('hide');
 			$('#aad_annotation_dialog').remove();
@@ -313,13 +336,28 @@ var gentle = {
 			
 			$('#aad_from').text ( sc.selections[0].from+1 ) ;
 			$('#aad_to').text ( sc.selections[0].to+1 ) ;
-			
+
+			var s = '';
+			var lastcat = '';
 			$.each ( gentle.features , function ( k , v ) {
-				var s = "<option value='"+k+"'" ;
+				var thiscat = cd.feature_types[k].category;
+				if(thiscat!= lastcat){
+					if (lastcat != ''){
+						s += "</optgroup>" ;
+						$('#aad_type').append ( s ) ;
+						s = '';
+					}
+					s += "<optgroup label="+thiscat+">" ;
+
+					lastcat = thiscat;
+				}
+				s += "<option value='"+k+"'" ;
 				if ( k == 'note' ) s += " selected" ;
 				s += ">"+v+"</option>" ;
-				$('#aad_type').append ( s ) ;
 			} ) ;
+			
+			s += "</optgroup>" ;
+			$('#aad_type').append ( s ) ;																			
 			
 			$('#aad_name').focus() ;
 			
@@ -406,19 +444,11 @@ var gentle = {
 			}
 			h += '</tr>';
 
-			var colors = {
-				A: 'red',
-				C: 'green',
-				G: 'blue',
-				T: 'yellow'
-			};
-window.zcol = colors;
-
 			var plot_height = 250;
 			h += '<tr valign=bottom><th></th>';
 			for (var i in syms) {
 				var height = Math.floor(plot_height * (tallies[syms[i]] / s.length));
-				var color = colors[syms[i]] || 'black';
+				var color = gentle_config.colors.DRuMS[syms[i]] || 'black';
 				h += '<td><div style="background-color:' + color + '; width: 50px; height: ' + height + 'px"></span></td>';
 			}
 			h += '</tr>';
@@ -505,7 +535,28 @@ window.zcol = colors;
 
 		return false ;
 	} ,
+
+	startAddSequenceDialog : function () {
+	  $('#addSequenceDialog').remove() ;
 	
+	  var dialogContainer = $("<div/>");
+	  dialogContainer.load("public/templates/add_sequence_dialog.html", function(){
+
+		var sc = gentle.main_sequence_canvas ;
+		if ( sc ) {
+			if ( sc.edit.editing ) {
+				sc.setEditMode ( false ) ;
+				sc.show() ;
+			}
+			sc.unbindKeyboard() ;
+		}
+	  	
+		dialogContainer.appendTo("#all");
+		$('#addSequenceDialog').modal();
+
+	  });
+	} ,
+
 	startNewSequenceDialog : function () {
 	  $('#newSequenceDialog').remove() ;
 	
@@ -524,11 +575,16 @@ window.zcol = colors;
 		dialogContainer.appendTo("#all");
 		$('#newSequenceDialog').modal();
 		$('#new_sequence_entry').focus() ;
+
+		$('#new_sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
+		    console.log("you changed names:", val);
+		}});
 	  });
 	} ,
 	
 	createNewSequenceFromDialog : function () {
 		var text = $("#new_sequence_entry").val() ;
+		var title = $('#new_sequence_name').text() ;
 		
 		if ( text == '' ) {
 			alert ( "In Soviet Russia, empty text parses YOU!" ) ;
@@ -547,6 +603,10 @@ window.zcol = colors;
 		
 		if ( found ) {
 			$("#newSequenceDialog").modal("hide").remove();
+			if (title != "Unnamed sequence" && gentle.main_sequence_canvas.sequence.name == "Unnamed sequence"){
+				gentle.main_sequence_canvas.sequence.name = title;
+				gentle.main_sequence_canvas.updateTitleBar() ;
+			}
 		} else {
 			alert ( "File type not recognised" ) ;
 		}
@@ -590,7 +650,7 @@ window.zcol = colors;
 			$('#sb_display_options').html ( '' ) ;
 			$('#position').html ( '&nbsp;' ) ;
 			$('#sequence_canvas_title_bar').html ( '' ) ;
-//			$('#right').html ( '' ) ;
+			// $('#right').html ( '' ) ;
 			$('#toolbar_ul .toolbar_plugin').remove() ;
 			gentle.showDefaultBlurb() ;
 			return ;
@@ -621,7 +681,9 @@ window.zcol = colors;
 	handleSelectSequenceEntry : function ( entry ) {
 		gentle.updateCurrentSequenceSettings () ;
 		$('#close_sequence').show() ;
-		
+		if ( gentle.current_sequence_entry !== undefined ){
+			gentle.main_sequence_canvas.onClose();
+		}
 		var sc = gentle.sequences[entry] ;
 		if ( sc === undefined ) return ; // Paranoia
 		
@@ -652,10 +714,11 @@ window.zcol = colors;
 		
 		var html = "<div id='canvas_wrapper'>" ;
 		html += "<canvas id='sequence_canvas'></canvas>" ;
+		html += "<canvas id='sequence_canvas_overlay'></canvas>" ;
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
-		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		//if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
 		
 		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		
@@ -673,21 +736,27 @@ window.zcol = colors;
 		
 		var html = "<div id='canvas_wrapper'>" ;
 		html += "<canvas id='sequence_canvas'></canvas>" ;
+		html += "<canvas id='sequence_canvas_overlay'></canvas>" ;
 		html += "<div id='main_slider'></div>" ;
 		html += "</div>" ;
 		$('#main').html ( html ) ;
-		if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
+		//if ( !gentle.is_mobile && !gentle.is_chrome ) $('#canvas_wrapper').attr ( 'contenteditable' , 'true' ) ;
 		
 		$('#canvas_wrapper').height ( $('#main').height() - 20 ) ;
 		
 		// Set up new top display
 		top_display = new TopDisplayDNA ( true ) ;
 		top_display.init() ;
+
+
 		
 		// Set up new sequence canvas
 
 		gentle.main_sequence_canvas = new SequenceCanvasDNA ( gentle.sequences[entry] , 'sequence_canvas' ) ;
-	
+		
+		// Set up new plasmid map
+		gentle.main_sequence_canvas.plasmid_map = new PlasmidMapDialog ( true ) ;
+		gentle.main_sequence_canvas.plasmid_map.initMap() ;
 	} ,
 
 	getUrlVars : function ( def ) {
@@ -774,18 +843,32 @@ window.zcol = colors;
 	
 	toggle_right_sidebar : function () {
 		var sc = gentle.main_sequence_canvas ;
-		if ( $('#topbox').is(':visible') ) {
-			$('#topbox').hide() ;
+
+		if (gentle.topdisplaystyle == 'linear'){
+			$('#topbox').hide() ;	
+			$('#plasmidbox').show() ;	
+			$('#right_sidebar_icon').toggleClass('icon-asterisk').toggleClass('icon-chevron-right').attr('title', 'Hide Sidebar') ;
+			gentle.topdisplaystyle = 'circular' ;
+			console.log ("was linear, is circular") ;
+		}else if(gentle.topdisplaystyle == 'circular'){
 			sc.tbw = $('#canvas_wrapper').css('right');
 			$('#canvas_wrapper').css ( { right : 0 } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : 0 } ) ;
-		} else {
+			$('#plasmidbox').hide() ;
+			$('#right_sidebar_icon').toggleClass('icon-chevron-right').toggleClass('icon-chevron-left').attr('title', 'Show Linear Map') ;
+			gentle.topdisplaystyle = 'none' ;
+			console.log ("was circular, is none") ;
+		}else{
 			$('#canvas_wrapper').css ( { right : sc.tbw } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : sc.tbw } ) ;
 			$('#topbox').show() ;
+			$('#right_sidebar_icon').toggleClass('icon-chevron-left').toggleClass('icon-asterisk').attr('title', 'Show Circular Map') ;
+			gentle.topdisplaystyle = 'linear' ;		
+			console.log ("was none, is linear")	;
 		}
+
 		gentle.on_resize_event() ;
-		$('#right_sidebar_icon').toggleClass('icon-chevron-right').toggleClass('icon-chevron-left') ;
+		
 		$('#zoombox').toggle ( $('#topbox').is(':visible') ) ;
 	} ,
 	
@@ -881,6 +964,7 @@ window.zcol = colors;
 		var stop = sc.selections[0].to ;
 		
 		var pcr = new SequencePCR ( template_sequence.name , template_sequence.seq ) ;
+		console.log("sequencePCR");
 		pcr.is_circular = template_sequence.is_circular ;
 		$.each ( (template_sequence.features||[]) , function ( k , v ) {
 			var o = clone ( v ) ;
@@ -891,11 +975,13 @@ window.zcol = colors;
 			pcr.features.push ( o ) ;
 		} ) ;
 		pcr.undo.setSequence ( pcr ) ;
-		
+		console.log("pcr.undo.setSequence (pcr)");
 		gentle.addSequence ( pcr , true ) ;
-
+		console.log("gentle.addSequence (pcr , true)");
 		pcr.addPrimer ( start , start+25 , false ) ;
+		console.log("pcr.addPrimer ( start , start+25 , false ) ;");
 		pcr.addPrimer ( stop-24 , stop , true ) ;
+		console.log("pcr.addPrimer ( stop-24 , stop , true ) ;");
 
 		return false ;
 	} ,
@@ -936,7 +1022,7 @@ window.zcol = colors;
 		} ) ;
 	} ,
 	
-	plasmidMap : function ( show ) {
+	/*plasmidMap : function ( show ) {
 		if ( show ) {
 			//console.log("gentle.plasmidMap(show = true)")
 			$('#plasmid_map_icon').remove() ;
@@ -948,14 +1034,15 @@ window.zcol = colors;
 
 			$('#plasmid_map_icon').remove() ; //HACK removes plasmid_map_icon if it already exists... 
 			if ( true ) { // we don't care if it's linear anymore... //gentle.main_sequence_canvas.sequence.is_circular ) {
-				$('#toolbar-right').append ( '<li title="Plasmid map" id="plasmid_map_icon"><a href="#" onclick="gentle.plasmidMap(true);return false" class="btn-inverse"><i id="right_sidebar_icon" class="icon-time icon-white"></i></a></li>' ) ;
+				$('#toolbar-right').append ( '<li title="Plasmid map" id="plasmid_map_icon"><a href="#" onclick="gentle.plasmidMap(true);return false" class=""><i id="right_sidebar_icon" class="icon-time"></i></a></li>' ) ;
 			}
 		}
-	} ,
+	} ,*/
 	
 	on_resize_event : function () {
 		gentle.resizeMainDiv();
 		gentle.main_sequence_canvas.resizeCanvas() ;
+		gentle.main_sequence_canvas.show() ;
 	}
 
 } ;

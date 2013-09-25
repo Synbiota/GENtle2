@@ -121,7 +121,12 @@ function loadBaseData () {
   $.each ( cd.feature_types , function ( k , v ) {
     gentle.features[k] = v.name || ucFirst ( k ) ;
     if ( $('#dummy_feature_'+k).length == 0 ) $('body').append("<div id='dummy_feature_"+k+"' class='feat_"+k+"' style='display:none'></div>") ;
-    cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' ) || '#DDDDDD' ;
+
+    if ($('#dummy_feature_'+k).css ( 'background-color' ) != 'rgba(0, 0, 0, 0)' ){
+      cd.feature_types[k].col = $('#dummy_feature_'+k).css ( 'background-color' )
+    } else { 
+      cd.feature_types[k].col = '#888888' ;
+    }
   } ) ;
 
 }
@@ -180,3 +185,30 @@ $.fn.copyCSSProperties = function (source, properties_array) {
   }
   return this;
 }
+
+/* Paul Irish Animation shim: 
+   http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/ */
+(function() {
+    var lastTime = 0;
+    var vendors = ['webkit', 'moz'];
+    for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+        window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
+        window.cancelAnimationFrame =
+          window[vendors[x]+'CancelAnimationFrame'] || window[vendors[x]+'CancelRequestAnimationFrame'];
+    }
+
+    if (!window.requestAnimationFrame)
+        window.requestAnimationFrame = function(callback, element) {
+            var currTime = new Date().getTime();
+            var timeToCall = Math.max(0, 16 - (currTime - lastTime));
+            var id = window.setTimeout(function() { callback(currTime + timeToCall); },
+              timeToCall);
+            lastTime = currTime + timeToCall;
+            return id;
+        };
+
+    if (!window.cancelAnimationFrame)
+        window.cancelAnimationFrame = function(id) {
+            clearTimeout(id);
+        };
+}());

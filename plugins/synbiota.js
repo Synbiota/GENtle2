@@ -1,5 +1,5 @@
 // An external tool that can help in the initial phase with feedback.
-var use_bugmuncher = true ;
+var use_bugmuncher = false ;
 
 var bugmuncher_options = {
 	language:'en',
@@ -291,7 +291,7 @@ synbiota.prototype.global_init = function () {
 	if ( undefined === gentle.url_vars.ro || gentle.url_vars.ro == "") gentle.url_vars.ro = -1 ;
 
 	if (gentle.url_vars.id == -1 && gentle.url_vars.ro == -1) {
-		gentle.startNewSequenceDialog();
+		gentle.startAddSequenceDialog();
 	} else {
 		while ( gentle.sequences.length > 0 ) gentle.closeCurrentSequence() ;
 		if ( gentle.url_vars.id != -1 ) {

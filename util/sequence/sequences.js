@@ -307,7 +307,7 @@ SequencePCR.prototype.addPrimer = function ( start , stop , is_rc ) {
 
 SequencePCR.prototype.getEditingSeq = function () {
 	if ( gentle.main_sequence_canvas.edit.editing ) {
-		var linetype = gentle.main_sequence_canvas.edit.line.type ;
+		var linetype = gentle.main_sequence_canvas.selectionCursor.line.type ;
 		if ( linetype == 'primer1' ) return this.primer_sequence_1 ;
 		if ( linetype == 'primer2' ) return this.primer_sequence_2 ;
 	}
@@ -316,7 +316,7 @@ SequencePCR.prototype.getEditingSeq = function () {
 
 SequencePCR.prototype.setEditingSeq = function (s) {
 	if ( gentle.main_sequence_canvas.edit.editing ) {
-		var linetype = gentle.main_sequence_canvas.edit.line.type ;
+		var linetype = gentle.main_sequence_canvas.selectionCursor.line.type ;
 		if ( linetype == 'primer1' ) this.primer_sequence_1 = s ;
 		else if ( linetype == 'primer2' ) this.primer_sequence_2 = s ;
 		else this.seq = s ;

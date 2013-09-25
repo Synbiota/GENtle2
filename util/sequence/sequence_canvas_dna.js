@@ -3,37 +3,10 @@
 SequenceCanvasDNA.prototype = new SequenceCanvas() ;
 SequenceCanvasDNA.prototype.constructor = SequenceCanvasDNA ;
 
-/*
-SequenceCanvasDNA.prototype.addSelectionMarker = function ( x , y ) {
-	var h = '' ;
-	h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-
-	h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'cut\');return false">Cut</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_edit(\'copy\');return false">Copy</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.delete_selection();return false">Remove selected sequence</a></li>' ;
-	h += '<li><a id="edit_menu_cut" href="#" onclick="gentle.do_annotate();return false">Annotate selected sequence</a></li>' ;
-
-	var sc = gentle.main_sequence_canvas ;
-	if ( sc !== undefined && sc.selections.length > 0 ) {
-		var feats = sc.sequence.getFeaturesInRange ( sc.selections[0].from , sc.selections[0].to ) ;
-		$.each ( feats , function ( k , v ) {
-			if ( v['_type'] == 'source' ) return ;
-			var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
-			var name = sc.sequence.getAnnotationName ( v ) ;
-			name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
-			h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
-		} ) ;
-	}
-
-	h += '</ul></div>' ;
-
-	h += "</div>" ;
-	
-	$('#selection_context_marker').remove() ;
-	$('#canvas_wrapper').prepend ( h ) ;
+SequenceCanvasDNA.prototype.onClose = function () {
+	//console.log("on close dna");
+	this.selectionCursor.setVisible(false);
 }
-*/
 
 SequenceCanvasDNA.prototype.select = function ( from , to , col ) {
 	if ( col === undefined ) col = '#CCCCCC' ;
@@ -49,6 +22,7 @@ SequenceCanvasDNA.prototype.deselect = function () {
 }
 
 SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
+	console.log("cut_copy") ;
 	var sc = this ;
 	if ( sc.selections.length == 0 ) return ;
 	var from = sc.selections[0].from ;
@@ -64,6 +38,10 @@ SequenceCanvasDNA.prototype.cut_copy = function ( do_cut ) {
 	if ( !do_cut ) return s ;
 	sc.sequence.undo.addAction ( 'editRemove' , { label : 'cut (-' + len + ')'  , editing : true , action : 'removeText' , base : from , len : len , seq : s } ) ;
 	sc.deselect () ;
+
+	sc.selectionCursor.setStart(from) ;
+	sc.selectionCursor.setEnd(from) ;
+	sc.edit.base = from ;
 	sc.sequence.remove ( from , len ) ;
 	sc.show () ;
 	top_display.init() ;
@@ -91,7 +69,132 @@ SequenceCanvasDNA.prototype.absorb_event = function (event) {
 	return false;
 }
 
+SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	
+	var target = sc.isOver ( x , y ) ;
+
+	if (target === null){
+		return ; //sc.absorb_event(e) ;
+	}
+
+	sc.selectionCursor.setEnd(target.base) ;
+	sc.selectionCursor.line = target.line ;
+	if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+
+	sc.selecting = true;
+	sc.selections = sc.selectionCursor.getSelection();
+	sc.edit.base = sc.selectionCursor.getBase() ;
+	sc.setEditMode ( true ) ;
+	sc.show() ;
+
+	return ; //sc.absorb_event(e) ;
+
+	/*
+	if ( target === null ) {
+		sc.deselect() ;
+		return true ;
+	}
+
+	$('#selection_context_marker').remove() ;
+	sc.last_target = target ;
+	if ( sc.edit.editing ) { sc.edit = { line : target.line , base : target.base } ; sc.setEditMode ( true ) ;  }
+	
+	sc.selecting = true ;
+	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
+	sc.show() ;
+	//	$('#sequence_canvas').click().focus();
+	return sc.absorb_event(e) ;
+	*/
+}
+
+SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; }// no right clicks
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+
+
+	if ( target === null ){ // && !sc.selecting ) {
+		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ; // this.getHoverName()
+		sc.position_is_blank = true ;
+		$('.temporary_popover_source').popover('hide');
+		return ;
+	}
+	
+	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
+	else gentle.set_hover ( target.text ) ;
+	sc.position_is_blank = false ;
+
+	
+	
+	if ( undefined !== target.onHover ) target.onHover ( target ) ;
+	
+
+	if ( !sc.selecting ) return ;
+
+	sc.selectionCursor.setEnd (target.base) ;
+	sc.selections = sc.selectionCursor.getSelection() ;
+	sc.edit.base = sc.selectionCursor.getBase() ;
+
+	sc.setEditMode ( true ) ;
+	sc.show() ;
+	return ;// sc.absorb_event(e) ;
+	
+}
+
 SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
+	if (e.button == 2) { e.preventDefault() ; return; } // no right clicks
+	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
+	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	var target = sc.isOver ( x , y ) ;
+
+	sc.selecting = false ;
+
+
+	// Add selection marker
+	if ( undefined !== sc.selectionCursor.x && sc.selections.length == 1) {
+	//	console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+		sc.addSelectionMarker ( sc.selectionCursor.x , sc.selectionCursor.y + 14 + $('#canvas_wrapper').scrollTop() ) ;
+	}
+	sc.selection_end_pos = undefined ;
+	
+	// Selection copy/paste hack for non-Chrome desktop browsers
+	if ( !gentle.is_chrome && !gentle.is_mobile ) {
+		var from = sc.selections[0].from ;
+		var to = sc.selections[0].to ;
+		if ( from > to ) {
+			var i = from ; 
+			from = to ;
+			to = i ;
+		}
+		var len = to - from + 1 ;
+		var s = sc.sequence.seq.substr ( from , len ) ;
+		$('#tmp1').remove() ;
+		$('#all').append ( "<textarea style='width:1px;height:1px;position:fixed;bottom:0px;left:-100px;z-index:-50' id='tmp1'>" + s + "</textarea>" ) ;
+		$('#tmp1').focus();
+		$('#tmp1').select();
+	}
+	if ( sc.selections.length == 1) {
+		gentle.setMenuState ( 'edit_menu_cut' , true ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , true ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_selection_info', true) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , true ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , true ) ;
+	} else {
+		gentle.setMenuState ( 'edit_menu_cut' , false ) ;
+		gentle.setMenuState ( 'edit_menu_copy' , false ) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;	
+		gentle.setMenuState ( 'edit_menu_selection_info', false) ;
+		gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
+		gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
+	}
+	return ; //sc.absorb_event(e) ; 
+
+	/*
 	if ( gentle.is_mobile ) { // DoubleTap
 		var t = new Date().getTime();
 		if ( sc.last_mouse_down !== undefined && t - sc.last_mouse_down < 500 ) { // 500ms since last touch = double-touch
@@ -124,7 +227,7 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 	
 	// Add selection marker
 	if ( undefined !== sc.selection_end_pos && !sc.edit.editing ) {
-//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
+	//		console.log ( sc.selection_end_pos.x + " / " + sc.selection_end_pos.y ) ;
 		sc.addSelectionMarker ( sc.selection_end_pos.x , sc.selection_end_pos.y + $('#canvas_wrapper').scrollTop() ) ;
 	}
 	sc.selection_end_pos = undefined ;
@@ -146,55 +249,12 @@ SequenceCanvasDNA.prototype.on_mouse_up = function ( sc , e ) {
 		$('#tmp1').select();
 	}
 	
-	return sc.absorb_event(e) ;
-}
-
-SequenceCanvasDNA.prototype.on_mouse_down = function ( sc , e ) {
-	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
-	var target = sc.isOver ( x , y ) ;
-	if ( target === null ) {
-		sc.deselect() ;
-		return true ;
-	}
-
-	$('#selection_context_marker').remove() ;
-	sc.last_target = target ;
-	if ( sc.edit.editing ) return sc.absorb_event(e) ;
-	sc.selecting = true ;
-	sc.selections = [ { from : target.base , to : target.base , fcol : '#CCCCCC' , tcol : 'black' } ] ;
-	sc.show() ;
-//	$('#sequence_canvas').click().focus();
-	return sc.absorb_event(e) ;
-}
-
-
-SequenceCanvasDNA.prototype.on_mouse_move = function ( sc , e ) {
-	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-	var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
-	var target = sc.isOver ( x , y ) ;
-	if ( target === null ) {
-		if ( !sc.position_is_blank ) gentle.set_hover ( '' ) ; // this.getHoverName()
-		sc.position_is_blank = true ;
-		$('.temporary_popover_source').popover('hide');
-		return ;
-	}
-	if ( undefined === target.text ) gentle.set_hover ( "Position : " + addCommas(target.base+1) ) ;
-	else gentle.set_hover ( target.text ) ;
-	sc.position_is_blank = false ;
-	
-	
-	if ( undefined !== target.onHover ) target.onHover ( target ) ;
-	
-	if ( !sc.selecting ) return ;
-
-	if ( sc.selections[0].to == target.base ) return ;
-	sc.selections[0].to = target.base ;
-	sc.show() ;
-	return sc.absorb_event(e) ;
+	return sc.absorb_event(e) ; 
+	*/
 }
 
 SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
+	/*
 	sc.selecting = false ;
 	sc.selections = [] ;
 	var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
@@ -259,21 +319,23 @@ SequenceCanvasDNA.prototype.on_double_click = function ( sc , e ) {
 		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
 		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
 		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
-//		$('#soft_keyboard .ui-dialog-titlebar').hide();
+	//		$('#soft_keyboard .ui-dialog-titlebar').hide();
 
 		return false ;
+
 	}
 	
 	
-/*	if ( gentle.is_mobile ) { // An attempt to invoke the soft keyboard and redirect keystrokes from an input box to the canvas; failed for now
-		var h = "<input type='text' id='tmp' style='position:fixed;right:0px;top:0px;' />" ;
-		$('#tmp').remove();
-		$('#all').append(h) ;
-		$('#tmp').focus() ;
-		$('#tmp').keydown ( sc.keyhandler ) ;
-	}*/
+	//	if ( gentle.is_mobile ) { // An attempt to invoke the soft keyboard and redirect keystrokes from an input box to the canvas; failed for now
+	//	var h = "<input type='text' id='tmp' style='position:fixed;right:0px;top:0px;' />" ;
+	//	$('#tmp').remove();
+	//	$('#all').append(h) ;
+	//	$('#tmp').focus() ;
+	//	$('#tmp').keydown ( sc.keyhandler ) ;
+	//}
 	
 	return sc.absorb_event(e) ;
+	*/
 }
 
 SequenceCanvasDNA.prototype.sim_key = function ( s , mk ) {
@@ -290,45 +352,97 @@ SequenceCanvasDNA.prototype.init = function () {
 	var sc = this ;
 
 	sc.updateTitleBar() ;
-	sc.resize();
+	sc.resizeCanvas();
 	
 	// Select
 	sc.selecting = false ;
 	sc.selections = [] ;
+
+	sc.selectionCursor = new SelectionCursor();
+
 	
 	if ( gentle.is_mobile ) {
-		$('#sequence_canvas').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ;
-		$('#sequence_canvas').bind ( 'touchcancel' , sc.absorb_event ) ;
+		var h = "<div id='soft_keyboard' title='Keyboard'>" ;
+
+		//h += "<div style='font-size:20pt'>" ;
+		h += '<div class="btn-group">' ;
+		h += "<button class='btn first-btn' id='skbd_a'>&nbsp;A&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_c'>&nbsp;C&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_g'>&nbsp;G&nbsp;</button>" ;
+		h += "<button class='btn' id='skbd_t'>&nbsp;T&nbsp;</button>" ;
+
+		h += "<button class='btn first-btn' id='skbd_left'>&larr;</button>" ;
+		h += "<button class='btn' id='skbd_backspace'>⌫</button>" ;
+		h += "<button class='btn' id='skbd_delete'>⌦</button>" ;
+		h += "<button class='btn' id='skbd_right'>&rarr;</button>" ;
+		h += "</div>" ;
+		//h += "</div>" ;
+		//h += "<span id='mobile_debug'>nadap</span>" ;
+		h += "</div>" ;
+		
+		$('#soft_keyboard').remove() ;
+		$('#all').append(h) ;
+		// $('#soft_keyboard').dialog ( { 
+		// 	modal : false , 
+		// 	autoOpen : true , 
+		// 	resizable : false ,
+		// 	draggable : true,
+		// 	position : ['center','bottom'] , 
+		// 	width : 'auto' ,
+		// 	height : 80 ,
+		// 	beforeClose: function(event, ui) {
+		// 		if ( sc.edit.editing ) { // Turn off editing
+		// 			sc.setEditMode ( false ) ;
+		// 			sc.show() ;
+		// 		}
+		// 	}
+		// } ) ;
+		$('#skbd_a').click(function(e){sc.sim_key('A',false)});
+		$('#skbd_c').click(function(e){sc.sim_key('C',false)});
+		$('#skbd_g').click(function(e){sc.sim_key('G',false)});
+		$('#skbd_t').click(function(e){sc.sim_key('T',false)});
+		$('#skbd_backspace').click(function(e){sc.sim_key(String.fromCharCode(8),false)});
+		$('#skbd_delete').click(function(e){sc.sim_key(String.fromCharCode(46),false)});
+		$('#skbd_left').click(function(e){sc.sim_key(String.fromCharCode(37),false)});
+		$('#skbd_right').click(function(e){sc.sim_key(String.fromCharCode(39),false)});
+		//$('#soft_keyboard .ui-dialog-titlebar').hide();
+
+	}
+
+	
+	if ( gentle.is_mobile ) {
+		$('#sequence_canvas_overlay').bind ( 'touchstart' , function(e){return sc.on_mouse_down(sc,sc.fix_touch_event(e))} ) ; //$("#mobile_debug").text("down"); 
+		$('#sequence_canvas_overlay').bind ( 'touchend' , function(e){return sc.on_mouse_up(sc,sc.fix_touch_event(e))} ) ; //$("#mobile_debug").text("up"); 
+		$('#sequence_canvas_overlay').bind ( 'touchmove' , function(e){return sc.on_mouse_move(sc,sc.fix_touch_event(e))} ) ; //$("#mobile_debug").text("move"); 
+		$('#sequence_canvas_overlay').bind ( 'touchcancel' , sc.absorb_event ) ;
 	} else {
-		$('#sequence_canvas').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
-		$('#sequence_canvas').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
-		$('#sequence_canvas').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousedown ( function(e){return sc.on_mouse_down(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mouseup ( function(e){return sc.on_mouse_up(sc,e)} ) ;
+		$('#sequence_canvas_overlay').mousemove ( function(e){return sc.on_mouse_move(sc,e)} ) ;
 	}
 	
 	// Double-click for editing
-	$('#sequence_canvas').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
+	$('#sequence_canvas_overlay').dblclick ( function(e){return sc.on_double_click(sc,e)} ) ;
 	
 	
 	// Keys
 	sc.bindKeyboard() ;
 	
 	// Sequence hover event
-	$('#sequence_canvas').mousemove ( function ( e ) {
-		var x = e.pageX - parseInt($('#sequence_canvas').offset().left,10) ;
-		var y = e.pageY - parseInt($('#sequence_canvas').offset().top,10) ;
+	$('#sequence_canvas_overlay').mousemove ( function ( e ) {
+		var x = e.pageX - parseInt($('#sequence_canvas_overlay').offset().left,10) ;
+		var y = e.pageY - parseInt($('#sequence_canvas_overlay').offset().top,10) ;
 		var target = sc.isOver ( x , y ) ;
 		sc.last_target = target ;
 		if ( target === null ) return ;
-//		console.log ( target.base + 1 ) ;
+	//		console.log ( target.base + 1 ) ;
 	} ) ;
 
 	// Window resize event
-	$(window).resize ( function() { gentle.on_resize_event(); sc.resize(); } ) ;
+	$(window).resize ( function() { gentle.on_resize_event(); sc.resizeCanvas();} ) ; // sc.show(); } ) ;
 	
 	// Attach mouse wheel event to canvas
-	$('#sequence_canvas').mousewheel(function(event, delta, deltaX, deltaY) {
+	$('#sequence_canvas_overlay').mousewheel(function(event, delta, deltaX, deltaY) {
 		var cur = $('#canvas_wrapper').scrollTop() ;
 		var max = $('#canvas_wrapper').height() ;
 		$('#canvas_wrapper').scrollTop ( cur - max * deltaY ) ;
@@ -341,23 +455,31 @@ SequenceCanvasDNA.prototype.init = function () {
 	$('#canvas_wrapper').scroll ( function ( o ) {
 		if ( gentle.is_mobile && sc.selecting ) {
 			sc.on_mouse_move ( sc , sc.fix_touch_event(o) ) ;
-//			o.preventDefault();
+	//			o.preventDefault();
 			return true ;
 		}
 		var oy = $('#canvas_wrapper').scrollTop() ;
 		sc.yoff = oy ;
 		sc.show() ;
 	} ) ;
+
+	sc.show();
 }
 
-SequenceCanvasDNA.prototype.resize = function() {
+/*SequenceCanvasDNA.prototype.resize = function() {
 	var cw = $('#canvas_wrapper').offset() ;
 	var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
 	var h = $('#canvas_wrapper').height() ;
+
+	if(gentle.is_mobile){
+		$("#soft_keyboard").css( {width:w} ) ; 
+		h -= $("#soft_keyboard").height() ;
+	}
 	$('#sequence_canvas').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
+	$('#sequence_canvas_overlay').css ( { top:cw.top , left:cw.left , width:w , height:h } ) ;
 	$('#canvas_wrapper').css ( { 'max-height' : h } ) ;
 	$('#sequence_canvas_title_bar').css ( { width:w } ) ;
-}
+}*/
 
 SequenceCanvasDNA.prototype.recalc = function () {
 	$.each ( this.lines , function ( k , v ) {
@@ -398,6 +520,15 @@ SequenceCanvasDNA.prototype.show = function () {
 	ctx.canvas.width = w ;
 	ctx.canvas.height = h ;
 	
+	//Get overlay context
+	var octx = $('#sequence_canvas_overlay').get(0).getContext('2d');
+	octx.canvas.width = w ;
+	octx.canvas.height = h ;
+
+
+
+	ctx.overlay = octx ;
+
     this.bases_per_row = 0 ;
 	var sc = this ;
 	
@@ -426,7 +557,20 @@ SequenceCanvasDNA.prototype.show = function () {
 		line.line_number = line_id ;
 		line.show ( ctx ) ;
 	} ) ;
+
+
+	//update the selectionCursor!
+	this.selectionCursor.setContext ( octx );
+	var is_editing_this = this.edit.editing;
+	if (this.edit.editing && this.start_base <= this.selectionCursor.end && this.selectionCursor.end <= this.end_base+1 ){
+		//calculate cursor location:
+		this.selectionCursor.setVisible(true);
+	}else {
+		//hide the cursor
+		this.selectionCursor.setVisible(false);
+	}
 	
+
 	pixel_height = Math.floor ( ( this.sequence.seq.length + this.bases_per_row ) / this.bases_per_row ) * pixel_height ;
 	if ( $('#main_slider').height() != pixel_height ) $('#main_slider').height ( pixel_height ) ;
 	
@@ -434,7 +578,7 @@ SequenceCanvasDNA.prototype.show = function () {
 	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateSelection() ; }
 
 	var unixtime_ms2 = new Date().getTime();
-//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
+	//	console.log ( "Time : " + ( unixtime_ms2 - unixtime_ms ) + " ms" ) ;
 }
 
 SequenceCanvasDNA.prototype.getLineIndex = function ( type ) {
@@ -601,7 +745,6 @@ SequenceCanvasDNA.prototype.update_display_res = function () {
 	}
 }
 
-
 SequenceCanvasDNA.prototype.getSettings = function () {
 	var me = this ;
 	var settings = {} ;
@@ -619,7 +762,6 @@ SequenceCanvasDNA.prototype.getSettings = function () {
 	
 	return settings ;
 }
-
 
 SequenceCanvasDNA.prototype.applySettings = function ( settings ) {
 	me = this ;
@@ -737,7 +879,6 @@ SequenceCanvasDNA.prototype.getHoverName = function () {
 	return ( this.sequence.name || '' ) ;
 }
 
-
 function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	gentle.main_sequence_canvas = this ; // Ugly but necessary
 	this.tools = {} ;
@@ -772,11 +913,12 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	this.update_display_aa() ;
 	this.update_display_res() ;
 	
-	the_sequence.undo.updateEditMenu() ;
+	//the_sequence.undo.updateEditMenu() ;
 	gentle.setMenuState ( 'edit_menu_cut' , false ) ;
 	gentle.setMenuState ( 'edit_menu_copy' , false ) ;
 	gentle.setMenuState ( 'edit_menu_annotate' , false ) ;
-	gentle.setMenuState ( 'edit_menu_paste' , false ) ;
+	gentle.setMenuState ( 'edit_menu_paste' , true ) ;
+	gentle.setMenuState ( 'edit_menu_remove_selection' , false ) ;
 	
 	this.setContextMenuItem ( { id:'cut' , items : [ { callback:function(sc){gentle.do_edit('cut')} , html:'Cut' } ] } ) ;
 	this.setContextMenuItem ( { id:'copy' , items : [ { callback:function(sc){gentle.do_edit('copy')} , html:'Copy' } ] } ) ;
@@ -795,7 +937,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 				var name = sc.sequence.getAnnotationName ( v ) ;
 				name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
 				ret.push ( { html : '<i class="icon-edit"></i> ' + name , callback : function () { gentle.main_sequence_canvas.editFeature(k) } , title : 'Edit annotation' } ) ;
-//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
+	//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;
 			} ) ;
 		}
 		return ret ;
@@ -814,9 +956,10 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 	
 	gentle.set_hover ( '' ) ; // this.getHoverName()
 	
+	/*  Now the plasmid map is being loaded somewhere else...
 	if ( this.show_plasmid_map ) { // we don't care if it's circular anymore }  && gentle.main_sequence_canvas.sequence.is_circular ) {
 		gentle.plasmidMap ( true ) ;
 	} else {
 		gentle.plasmidMap ( false ) ;
-	}
+	}*/
 }

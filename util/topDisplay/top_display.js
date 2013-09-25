@@ -47,7 +47,7 @@ TopDisplayDNA.prototype.pos2y = function ( pos ) {
 TopDisplayDNA.prototype.y2pos = function ( y ) {
 	var h = parseInt ( $('#top_zone').css('max-height') ) ;
 	var pos = Math.floor ( this.zoom_equivalent * y / h ) ;
-	console.log(h,y,pos);
+	//console.log(h,y,pos);
 	return pos ;
 }
 
@@ -126,7 +126,7 @@ TopDisplayDNA.prototype.get_top_zone = function () {
 
 	// Position indicators
 	var maxpos = me.y2pos ( $('#topbox').height() ) ; //len * ( $('#topbox').height() - 30 ) / ( tw - bw*2 ) ;
-	console.log(maxpos);
+	//console.log(maxpos);
 	var every = 1000 ;
 	while ( maxpos / ( every * 10 ) > 20 ) every *= 10 ;
 	for ( var i = 1 ; i <= sequence.seq.length ; i += every ) {

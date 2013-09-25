@@ -1,27 +1,21 @@
 function PlasmidMapDialog () {
 	var self = this ;
-	
-	$("#plasmid_map_dialog").remove() ;
-	$('#main').append ( '<div id="plasmid_map_dialog" title="Plasmid map">' ) ;
-	$('#plasmid_map_dialog').load ( "public/templates/plasmid_map.html" , function () {
-		$('#plasmid_map_dialog').dialog ( {
-			create: function( event, ui ) { self.initMap() ; } ,
-			position: { my: "right center", at: "right center", of: $('#main') } ,
-			close: function( event, ui ) {
-				gentle.main_sequence_canvas.show_plasmid_map = false ; // Someone clicked on 'close'
-				gentle.plasmidMap ( false ) ;
-			} ,
-			width:700 ,
-			height:550
-		} ) ;
-		$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
-		$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
-	} ) ;
 
+	var html = ""; 
+	html += "<div id='plasmid_map' style='position:relative;left:5px;top:5px;width:500px;height:500px;border:1px solid #DDDDDD'>" ;
+	html += "<canvas id='plasmid_map_canvas' style='width:500;height:500'></canvas></div> </div>" ;
+	//html += "<div style='position:absolute;left:510px;top:5px;'>" ;
+	//html += "<div><b>Options</b></div>" ;
+	//html += "<div><a class='btn' onclick='gentle.main_sequence_canvas.plasmid_map.exportToPNG(); return false'>Export as Image</a></div> </div>" ;
+	
+	$("#plasmidbox").html ( html ) ;
+
+	$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mousemove ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mouseover ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').mouseout ( function(e){ return self.mouseEvent(self, e)} ) ;
+	$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
 }
 
 PlasmidMapDialog.prototype.initMap = function () {
@@ -87,6 +81,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	self.seqLength = len;
 
 	//init Annotations
+	self.recalcAnnotations();
 	self.updateAnnotations();
 
 	//init gcat angular graph
@@ -98,7 +93,7 @@ PlasmidMapDialog.prototype.initMap = function () {
 	var to = sc.end_base * Math.PI * 2 / len;
 	self.currentSelection = new WasherSegment(0,0,self.radii.currentSelection.r,self.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 
-	self.zoom(50);
+	self.zoom(10);
 	self.drawMap();
 }
 
@@ -125,13 +120,20 @@ PlasmidMapDialog.prototype.updateMap = function () {
 	self.drawMap();
 }
 
-PlasmidMapDialog.prototype.updateAnnotations = function(){
+PlasmidMapDialog.prototype.recalcAnnotations = function(){
 	var self = this ;
 	var sc = gentle.main_sequence_canvas ;
 	var len = sc.sequence.seq.length ;
 	self.seqLength = len;
 
 	self.annotations = [] ;
+
+	var secret_div = $('<div>' + '</div>')
+	        .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': '12px Arial'})
+        	.appendTo($('body')) ;
+    
+    
+
 	$.each ( sc.sequence.features , function ( k , v ) {
 		if ( v['_type'] == 'source' ) return ;
 		var min = self.radii.annotations.r1 ;
@@ -148,17 +150,58 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 		else if ( v['name'] !== undefined ) name = v['name'] ;
 		name = name.replace(/^"/,'').replace(/"$/,'') ;
 
+		var wh =  stringWidthHeight(name, "12px Arial", secret_div);
+
 		$.each( v['_range'] , function ( k2 , v2 ) {
 			var f = v2.from * Math.PI * 2 / len ;
 			var t = v2.to * Math.PI * 2 / len ;
-			self.annotations.push ( { start:f , end:t , colour:col , min:min , max:max, name:name } ) ;
+			self.annotations.push ( { start:f , end:t , colour:col , min:min , max:max, name:name, rc:v2.rc, textWidth:wh } ) ;
 		} ) ;
 	} ) ;	
+
+	secret_div.remove();
+
+	self.featureStack = [];
+
+	self.annotations.sort(function (a,b){return a.start - b.start});
+
+	for (var i = 0; i < self.annotations.length; i++){
+		var newAnn = self.annotations[i] ;
+		var c = 0;
+		var foundPlace = false;
+		while (!foundPlace){
+			if (c < self.featureStack.length){
+				if (self.featureStack[c][self.featureStack[c].length-1].end < newAnn.start){
+					self.featureStack[c].push(newAnn);
+					foundPlace = true;
+				}
+				c+=1;
+			}else{
+				self.featureStack.push([newAnn]) ;
+				foundPlace = true;
+			}
+		}
+	}
+
+	//console.log(self.featureStack);
+}
+
+PlasmidMapDialog.prototype.updateAnnotations = function(){
+	var self = this;
+	var radiusDiffTotal = self.radii.annotations.r4 - self.radii.annotations.r1; 
+	$.each ( self.featureStack , function ( k , v ) {
+		var min = k*radiusDiffTotal/self.featureStack.length + self.radii.annotations.r1 + 1;
+		var max = (k+1)*radiusDiffTotal/self.featureStack.length + self.radii.annotations.r1 -1;
+		$.each ( v , function ( k2 , v2 ) {
+			v2.min = min;
+			v2.max = max;
+		});
+	});
 
 	//re-init segments for annotation
 	for (var i = 0; i < self.annotations.length; i++){
 		var ann = self.annotations[i];
-		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black',false);
+		self.annotations[i].canvasShape = new WasherSegment(0,0,ann.min,ann.max,ann.start,ann.end, ann.colour, 'black', false, ann.rc?'back':'front');
 	}	
 }
 
@@ -240,20 +283,33 @@ PlasmidMapDialog.prototype.drawMap = function () {
 	*/
 	self.context.lineWidth = 5;
 
+	var annLength = self.annotations.length ;
+
 	//draw annotations
-	for (var i = 0; i < self.annotations.length; i++){
+	for (var i = 0; i < annLength; i++){
 		self.annotations[i].canvasShape.draw( self.context );
+	}
+
+	if(annLength < 1000){
 		self.context.save();
 		self.context.fillStyle = "white";
 		self.context.textAlign = 'center';
 		self.context.font = "12px Arial";
+		for (var i = 0; i < annLength; i++){
+			var wh = self.annotations[i].textWidth; 
 
-		var midAngle = (self.annotations[i].start + self.annotations[i].end)/2;
-		var midR = (self.annotations[i].min + self.annotations[i].max*4)/5;
-		drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle)
-
+			var midAngle = (self.annotations[i].start + self.annotations[i].end)/2;
+			var midR = (self.annotations[i].min + self.annotations[i].max*4)/5;
+			var arcLength = (self.annotations[i].end - self.annotations[i].start)*midR;
+			//console.log(arcLength , wh);
+			if (arcLength > wh.width){
+				drawTextAlongArc(self.context, self.annotations[i].name, 0, 0, midR, midAngle,"12px Arial", wh)
+			}
+		}
 		self.context.restore();
+		
 	}
+
 	self.linegraph.draw(self.context);
 }
 
@@ -458,7 +514,7 @@ function normaliseAngle(angle){
 	return angle ;
 }
 
-function WasherSegment(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, fill, stroke, counterClockwise){
+function WasherSegment(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, fill, stroke, counterClockwise, arrowHead){
 	this.centreX = centreX || 0;
 	this.centreY = centreY || 0;
 	this.innerRadius = innerRadius || 0;
@@ -469,17 +525,45 @@ function WasherSegment(centreX, centreY, innerRadius, outerRadius, startAngle, e
 	this.fill = fill || '#FF0000';
 	this.stroke = stroke || '#00FF00';
 	this.highlight = false;
+	this.arrowHead = arrowHead || false;
 }
 
 WasherSegment.prototype.draw = function(ctx){
 	//draws the washer segment on the canvas context provided.
 	ctx.beginPath();
-	ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle, this.counterClockwise);
-	ctx.lineTo(this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
-	var temp = !this.counterClockwise;
-	ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle, this.startAngle, temp);
+	
+	if (this.arrowHead){
+		var angOffset = 5/this.innerRadius;
+	
+		if (angOffset > this.endAngle - this.startAngle){
+			angOffset = this.endAngle - this.startAngle;
+		}
+
+		if (this.arrowHead == 'front'){
+			var midRad = (this.innerRadius + this.outerRadius)/2 ;
+			ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle - angOffset, this.counterClockwise);
+			ctx.lineTo(midRad*Math.cos(this.endAngle), midRad*Math.sin(this.endAngle));
+			ctx.lineTo(this.outerRadius*Math.cos(this.endAngle - angOffset), this.outerRadius*Math.sin(this.endAngle - angOffset));
+			var temp = !this.counterClockwise;
+			ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle - angOffset, this.startAngle, temp);
+		}else {
+			var midRad = (this.innerRadius + this.outerRadius)/2 ;
+			ctx.arc(this.centreX, this.centreY, this.innerRadius, this.endAngle, this.startAngle + angOffset, !this.counterClockwise);
+			ctx.lineTo(midRad*Math.cos(this.startAngle), midRad*Math.sin(this.startAngle));
+			ctx.lineTo(this.outerRadius*Math.cos(this.startAngle + angOffset), this.outerRadius*Math.sin(this.startAngle + angOffset));
+			var temp = !this.counterClockwise;
+			ctx.arc(this.centreX, this.centreY, this.outerRadius, this.startAngle + angOffset, this.endAngle, this.counterClockwise);			
+		}
+	}else{
+		ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle, this.counterClockwise);
+		ctx.lineTo(this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
+		var temp = !this.counterClockwise;
+		ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle, this.startAngle, temp);
+	}
+
 	ctx.closePath();
 	ctx.strokeStyle = this.stroke;
+	ctx.lineWidth = 2;
 	ctx.fillStyle = this.fill;
 	ctx.stroke();
 	ctx.fill();
@@ -566,14 +650,15 @@ RadialLineGraph.prototype.draw = function(ctx){
 	ctx.fill();
 }
 
-function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font) {
+function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font, width) {
 	// modified from
 	// http://www.html5canvastutorials.com/labs/html5-canvas-text-along-arc-path/
 	// so that it works with varying fonts...
 
     var s;
     var len = str.length;
-    var wh = stringWidthHeight(str, font); //gives a little breathing room
+
+    var wh = width; //gives a little breathing room
     var rad = radius-wh.height;
 
     var angularWidth = wh.width/rad;
@@ -592,17 +677,13 @@ function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font) {
     context.restore();
 }
 
-var stringWidthHeight = function(str, font) {
+var stringWidthHeight = function(str, font, secret_div) {
 	//copied from
 	//http://stackoverflow.com/questions/118241/calculate-text-width-with-javascript
 	  var f = font || '12px arial',
-	      o = $('<div>' + str + '</div>')
-	            .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': f})
-	            .appendTo($('body')),
+	      o = secret_div.html(str),
 	      w = o.width();
 	      h = o.height();
-
-	  o.remove();
 
 	  return {width:w,height:h};
 }

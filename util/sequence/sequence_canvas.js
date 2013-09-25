@@ -1,10 +1,10 @@
 //________________________________________________________________________________________
 // SequenceCanvas base class
-function SequenceCanvas () {
+function SequenceCanvas (base) {
   this.canvas_id = '' ;
   this.yoff = 0 ;
   this.sequence = {} ;
-  this.edit = { editing : false } ;
+  this.edit = { editing : true, base:base|0 } ;
   this.type = undefined ;
   this.metakeys = 0 ;
   this.selection_context_menu = [] ;
@@ -16,6 +16,7 @@ SequenceCanvas.prototype.show = function () {}
 SequenceCanvas.prototype.select = function ( from , to ) {}
 SequenceCanvas.prototype.deselect = function () {}
 SequenceCanvas.prototype.applySettings = function ( settings ) {}
+SequenceCanvas.prototype.onClose = function () {}
 
 /*
 data = {
@@ -39,12 +40,13 @@ SequenceCanvas.prototype.setContextMenuItem = function ( data ) {
 }
 
 
-
 SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
+
   var me = this ;
+
   var h = '' ;
   h += "<div id='selection_context_marker' style='left:"+x+"px;top:"+y+"px'>" ;
-  h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu">' ; // style="font-size:8pt"
+  h += '<div class="btn-group"><a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a><ul class="dropdown-menu" >' ; // style="font-size:8pt"
   h += '</ul></div>' ;
   h += "</div>" ;
   
@@ -65,18 +67,52 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
   $('#selection_context_marker').remove() ;
   if ( menu_item_count == 0 ) return ;
   $('#canvas_wrapper').prepend ( context_menu ) ;
+
+
+  var this_width = $("#selection_context_marker ul").width();
+  //make sure we don't go outside borders!
+  if (x + this_width> $('#sequence_canvas').width()){
+    $("#selection_context_marker ul").css("left", - this_width + 'px');
+  }
+
+  var approx_height = $("#selection_context_marker ul").height();
+  var sc = gentle.main_sequence_canvas
+  //console.log ($('#sequence_canvas').height(), y - (sc.start_base/sc.bases_per_row)*sc.block_height, approx_height);
+  if (y - (sc.start_base/sc.bases_per_row)*sc.block_height + approx_height > $('#sequence_canvas').height()){
+    $("#selection_context_marker ul").css("top",-approx_height-15+"px");
+  }
+
 }
 
 
 SequenceCanvas.prototype.resizeCanvas = function () {
-  var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+  //console.log("resize canvas");
+  /*var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
   var h = $('#canvas_wrapper').height() ;
   var new_h = $('#main').height() - 20;
+  if(gentle.is_mobile){
+    $("#soft_keyboard").css( {width:w} ) ; 
+    h -= $("#soft_keyboard").height() ;
+  }
   $('#sequence_canvas').css ( { width:w+'px' , height:h+'px' } ) ;
+  $('#sequence_canvas_overlay').css ( { width:w+'px' , height:h+'px' } ) ;
   $('#canvas_wrapper').css ( { 'max-height' : Math.max(h, new_h) } ) ;
   $('#canvas_wrapper').height ( new_h) ;
+  $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;*/
+  var cw = $('#canvas_wrapper').offset() ;
+  var w = $('#canvas_wrapper').width()-20 ; // A guess to scrollbar width
+  var h = $('#main').height() - 20 ;
+
+  if(gentle.is_mobile){
+    $("#soft_keyboard").css( {width:w} ) ; 
+    h -= $("#soft_keyboard").height() ;
+  }
+  $('#sequence_canvas').css ( { top:cw.top+'px' , left:cw.left+'px' , width:w+'px' , height:h+'px' } ) ;
+  $('#sequence_canvas_overlay').css ( { top:cw.top+'px' , left:cw.left+'px' , width:w+'px' , height:h+'px' } ) ;
+  $('#canvas_wrapper').css ( { 'max-height' : h+'px' } ) ;
+  $('#canvas_wrapper').height ( h) ;
   $('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
-  this.show() ;
+  
 }
 
 SequenceCanvas.prototype.initSidebar = function () {
@@ -150,7 +186,7 @@ SequenceCanvas.prototype.registerTool = function ( o ) {
   var x = new window[o.className]();
   this.tools[o.name] = x ;
   
-//  console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
+  //  console.log ( this.type + " / " + o.name + "." + o.call + " : " + o.linkTitle ) ;
   
   var id = 'toolbar_plugins_' + o.section ;
   var h = "<li class='canvas_tool'><a href='#' onclick='gentle.main_sequence_canvas.tools[\"" + o.name + "\"]." + o.call + "();return false'>" + o.linkTitle + "</a></li>" ;
@@ -214,7 +250,7 @@ SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
     if ( !sc.isCharAllowed ( c ) ) ok = false ;
   } ) ;
   if ( !ok ) {
-    alert ( "Text contains illegal characters, and was therefore not pasted" ) ;
+    alert ( "Text contains illegal characters, and was therefore not pasted" + parts ) ;
     return false ;
   }
   
@@ -222,11 +258,16 @@ SequenceCanvas.prototype.doCheckedPaste = function ( sc , pastedText ) {
 }
 
 SequenceCanvas.prototype.doPaste = function ( sc , pastedText ) {
-	sc.sequence.insert ( sc.edit.base , pastedText.toUpperCase() ) ;
-	sc.edit.base += pastedText.length ;
+  if (sc.selections.length == 1){
+    sc.deleteSelection() ;
+  }
+	sc.sequence.insert ( sc.selectionCursor.start, pastedText.toUpperCase() ) ;
+  sc.selectionCursor.start += pastedText.length ;
+  sc.selectionCursor.end = sc.selectionCursor.start ;
+	sc.edit.base = sc.selectionCursor.start ;
 	sc.recalc() ;
 	top_display.init() ;
-	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ;  gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	sc.ensureBaseIsVisible ( sc.edit.base ) ;
 	
 	return false; // Prevent the default handler from running.
@@ -237,9 +278,14 @@ SequenceCanvas.prototype.deleteSelection = function () {
 	if ( sc.selections.length != 1 ) return ;
 	var sel = sc.selections[0] ;
 	sc.sequence.remove ( sel.from , sel.to - sel.from + 1 ) ;
+
+  sc.selectionCursor.setStart(sel.from) ;
+  sc.selectionCursor.setEnd(sel.from) ;
+  sc.edit.base = sc.selectionCursor.start ;
+
 	sc.recalc() ;
 	top_display.init() ;
-	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+	if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ;  gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	sc.ensureBaseIsVisible ( sel.from ) ;
 	sc.deselect() ;
 }
@@ -287,30 +333,76 @@ SequenceCanvas.prototype.specialKeyEvent = function ( eventName , base ) {} // D
 
 SequenceCanvas.prototype.keyhandler = function ( e ) {
   if ( e.target.localName == "input" || ( e.target.localName == "textarea" && 'tmp1' != $(e.target).attr('id') ) ) return true ; // Don't touch that
-//    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
+  //    if ( e.target.localName != "body") return true; // if it's not the canvas, do default
     
   if ( gentle.is_in_dialog ) return false ;
   var sc = gentle.main_sequence_canvas ;
   var code = (e.keyCode ? e.keyCode : e.which);
-//  console.log ( code + "/" + e.metaKey ) ;
+  //  console.log ( code + "/" + e.metaKey ) ;
 
-  var overwrite = sc.overwrite_only ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
+  var overwrite = sc.selectionCursor.overwrite ; // Currently, only hardcoded for PCR; maybe can toggle later for DNA?
   
   var metakey = sc.modifierCode ( e ) ;
   if ( metakey !== 0 ) {
     sc.metakeys = sc.metakeys | metakey;
     return ;
   }
-  
-  var bpp = sc.end_base - sc.start_base + 1 ;
 
-  if ( code == 90 && e.metaKey ) { // Undo
-    e.preventDefault();
-    if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
-    else gentle.doUndo();
+  if ( 111 < code && code < 124 ) {  // skip f1 - f12
+    return ;
+  } else if (code == 45 ){ // insert mode!
+    sc.selectionCursor.toggleOverwrite() ;
     return ;
   }
 
+  var bpp = sc.end_base - sc.start_base + 1 ;
+
+  if ( code == 90 && sc.metakeys & cd.metakeys.CTRL ) { // Undo
+    console.log("undo");
+    e.preventDefault();
+    if ( sc.metakeys & cd.metakeys.SHIFT ) gentle.doRedo();
+    else gentle.doUndo();
+    console.log("ctrl + z")
+    return ;
+  }
+
+  if (sc.metakeys & cd.metakeys.CTRL ) {
+    if ( code == 86 ) {
+      console.log("ctrl + v")
+      
+      return ;
+    } else if (code == 90 ) {
+      console.log("ctrl + z")
+      e.preventDefault();
+      return ;
+    } else if (code == 89) {
+      console.log("ctrl + y")
+      e.preventDefault();
+      return ;
+    } else if (code == 88) {
+      console.log("ctrl + x")
+      return ;
+    } else if (code == 65) {
+      console.log("ctrl + a")
+      e.preventDefault();
+      return ;
+    }else if (code == 67) {
+      console.log("ctrl + c")
+      //sc.cut_copy(false);
+      //e.preventDefault();
+      return ;
+    }else if (code == 83) {
+      if (sc.metakeys & cd.metakeys.SHIFT ) {
+        console.log("ctrl + shft + s")
+      } else {  
+        console.log("ctrl + s")
+      }
+      e.preventDefault();
+      return ;
+    }
+  }
+
+ /* Add this back at some point!
   if ( !sc.edit.editing ) { // Keys for view mode
     if ( code == 36 ) { // Start
       sc.ensureBaseIsVisible ( 0 ) ;
@@ -338,7 +430,7 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
       sc.deleteSelection();
     }
     return ;
-  }
+  }*/
   
   var c = String.fromCharCode(code) ;
   if ( code == 190 ) c = '.' ;
@@ -349,36 +441,65 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 			return false ;
 		}
 		if ( overwrite ) {
-			sc.sequence.remove ( sc.edit.base , 1 ) ;
+			sc.sequence.remove ( sc.selectionCursor.start , 1 ) ;
 		}
-		sc.sequence.insert ( sc.edit.base , c ) ;
-		sc.edit.base++ ;
-		sc.specialKeyEvent ( c , sc.edit.base-1 ) ;
+    if (sc.selections.length > 0){
+      sc.sequence.remove (sc.selections[0].from,sc.selections[0].to - sc.selections[0].from + 1  ) ;
+      sc.selectionCursor.setStart(sc.selections[0].from) ;
+      sc.selectionCursor.setEnd(sc.selections[0].from) ;
+      sc.edit.base = sc.selectionCursor.start;
+      sc.selections = [] ;
+    }
+		sc.sequence.insert ( sc.selectionCursor.start , c ) ;
+
+    sc.selectionCursor.start ++ ;
+    sc.selectionCursor.end = sc.selectionCursor.start;
+    sc.edit.base = sc.selectionCursor.start;
+
+		sc.specialKeyEvent ( c , sc.selectionCursor.start-1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
-		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ; gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	} else if ( code == 8 ) { // Backspace
 		e.preventDefault();
 		e.stopPropagation();
-		if ( sc.edit.base == 0 ) return ;
-		sc.edit.base-- ;
-		sc.sequence.remove ( sc.edit.base , 1 ) ;
-		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
-		sc.specialKeyEvent ( 'backspace' , sc.edit.base-1 ) ;
+
+    if (sc.selections.length  == 1 ){
+      sc.deleteSelection();
+      return ;
+    }
+
+		if ( sc.selectionCursor.start  == 0 ) return ;
+    sc.selectionCursor.start -- ;
+    sc.selectionCursor.end = sc.selectionCursor.start ;
+		sc.edit.base = sc.selectionCursor.start ;
+		sc.sequence.remove ( sc.selectionCursor.start  , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.selectionCursor.start , ' ' ) ;
+		sc.specialKeyEvent ( 'backspace' , sc.selectionCursor.start -1 ) ;
 		sc.recalc() ;
 		top_display.init() ;
-		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ; gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	} else if ( code == 46 ) { // Delete
 		e.preventDefault();
 		e.stopPropagation();
-		if ( sc.edit.base == sc.sequence.seq.length ) return ;
-		sc.sequence.remove ( sc.edit.base , 1 ) ;
-		if ( overwrite ) sc.sequence.insert ( sc.edit.base , ' ' ) ;
-		sc.specialKeyEvent ( 'delete' , sc.edit.base ) ;
-		if ( overwrite ) sc.edit.base++ ;
+
+    if (sc.selections.length  == 1 ){
+      sc.deleteSelection();
+      return ;
+    }
+
+		if ( sc.selectionCursor.start == sc.sequence.seq.length ) return ;
+		sc.sequence.remove ( sc.selectionCursor.start , 1 ) ;
+		if ( overwrite ) sc.sequence.insert ( sc.selectionCursor.start , ' ' ) ;
+		sc.specialKeyEvent ( 'delete' , sc.selectionCursor.start ) ;
+		if ( overwrite ) {
+        sc.selectionCursor.start ++ ;
+        sc.selectionCursor.end = sc.selectionCursor.start ;
+        sc.edit.base = sc.selectionCursor.start ;
+      }
 		sc.recalc() ;
 		top_display.init() ;
-		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
+		if (gentle.main_sequence_canvas.plasmid_map){	gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ; gentle.main_sequence_canvas.plasmid_map.updateMap() ; }
 	} else if ( code == 27 ) { // Escape
 		sc.sequence.undo.cancelEditing() ;
 		sc.setEditMode ( false ) ;
@@ -387,57 +508,91 @@ SequenceCanvas.prototype.keyhandler = function ( e ) {
 		return ;
 	} else if ( code == 33 ) { // Page up
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base < bpp ) {
-			if ( sc.edit.base == 0 ) return ;
-			sc.edit.base = 0 ;
+		if ( sc.selectionCursor.start < bpp ) {
+			if ( sc.selectionCursor.start == 0 ) return ;
+      sc.selectionCursor.start = 0 ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+			sc.edit.base = sc.selectionCursor.start ;
 		} else {
-			sc.edit.base -= bpp ;
+      sc.selectionCursor.start -= bpp ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+      sc.edit.base = sc.selectionCursor.start ;
 		}
 	} else if ( code == 34 ) { // Page down
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base + bpp >= sc.sequence.seq.length ) {
-			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-			sc.edit.base = sc.sequence.seq.length-1 ;
+		if ( sc.selectionCursor.start + bpp >= sc.sequence.seq.length ) {
+			if ( sc.selectionCursor.start == sc.sequence.seq.length-1 ) return ;
+      sc.selectionCursor.start = sc.sequence.seq.length-1 ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+      sc.edit.base = sc.selectionCursor.start ;
 		} else {
-			sc.edit.base += bpp ;
+      sc.selectionCursor.start += bpp ;
+      sc.selectionCursor.end = sc.selectionCursor.start;
+      sc.edit.base = sc.selectionCursor.start ;
 		}
 	} else if ( code == 36 ) { // Start
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base == 0 ) return ;
-		sc.edit.base = 0 ;
+		if ( sc.selectionCursor.start  == 0 ) return ;
+    sc.selectionCursor.start = 0 ;
+    sc.selectionCursor.end = sc.selectionCursor.start;
+    sc.edit.base = sc.selectionCursor.start ;
 	} else if ( code == 35 ) { // End
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-		sc.edit.base = sc.sequence.seq.length-1 ;
+		if ( sc.selectionCursor.start == sc.sequence.seq.length-1 ) return ;
+    sc.selectionCursor.start = sc.sequence.seq.length-1 ;
+    sc.selectionCursor.end = sc.selectionCursor.start;
+    sc.edit.base = sc.selectionCursor.start ;
 	} else if ( code == 37 ) { // Cursor left
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base == 0 ) return ;
-		sc.edit.base-- ;
+
+    if ( sc.selectionCursor.end > 0 ) sc.selectionCursor.end-- ;
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+    
+    sc.edit.base = sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else if ( code == 38 ) { // Cursor up
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base < sc.bases_per_row ) {
-			if ( sc.edit.base == 0 ) return ;
-			sc.edit.base = 0 ;
+
+		if ( sc.selectionCursor.end < sc.bases_per_row ) {
+			sc.selectionCursor.end = 0 ;
 		} else {
-			sc.edit.base -= sc.bases_per_row ;
+			sc.selectionCursor.end -= sc.bases_per_row ;
 		}
+
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else if ( code == 39 ) { // Cursor right
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base > sc.sequence.seq.length ) return ;
-		sc.edit.base++ ;
+
+    if ( sc.selectionCursor.end < sc.sequence.seq.length ) sc.selectionCursor.end++ ;
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+    
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else if ( code == 40 ) { // Cursor down
 		sc.sequence.undo.cancelEditing() ;
-		if ( sc.edit.base + sc.bases_per_row >= sc.sequence.seq.length ) {
-			if ( sc.edit.base == sc.sequence.seq.length-1 ) return ;
-			sc.edit.base = sc.sequence.seq.length-1 ;
-		} else {
-			sc.edit.base += sc.bases_per_row ;
-		}
+
+    if ( sc.selectionCursor.end + sc.bases_per_row >= sc.sequence.seq.length ) {
+      sc.selectionCursor.end = sc.sequence.seq.length ;
+    } else {
+      sc.selectionCursor.end += sc.bases_per_row ;
+    }
+    
+    if ( ! (sc.metakeys & cd.metakeys.SHIFT)) sc.selectionCursor.start = sc.selectionCursor.end ;
+
+    sc.edit.base =sc.selectionCursor.getBase() ;
+    sc.selections = sc.selectionCursor.getSelection() ;
+
 	} else return ;
 	
 	e.preventDefault();
 
-  sc.ensureBaseIsVisible ( sc.edit.base ) ;
+  sc.ensureBaseIsVisible ( sc.selectionCursor.start ) ;
 }
 
 SequenceCanvas.prototype.setEditMode = function ( state ) {
@@ -455,10 +610,13 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
   if ( base >= sc.sequence.seq.length ) base = sc.sequence.seq.length-1 ;
   var again = true ;
   var last_try = -1000 ;
+  var howmany = 0;
   while ( again ) {
     sc.show() ;
     again = false ;
-//      console.log ( sc.end_base + " / " + sc.edit.base ) ;
+    howmany ++ ;
+    //console.log(howmany);
+    // console.log ( sc.end_base + " / " + sc.edit.base ) ;
     
     if ( sc.end_base < base ) {
       again = true ;
@@ -467,7 +625,7 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
       np += sc.block_height - np % sc.block_height ;
       if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
       last_try = np ;
-//        console.log ( "Scrolling from " + cur + " to " + np ) ;
+      //        console.log ( "Scrolling from " + cur + " to " + np ) ;
       $('#canvas_wrapper').scrollTop ( np ) ;
       $('#canvas_wrapper').scroll();
     } else if ( sc.start_base > base ) {
@@ -478,7 +636,7 @@ SequenceCanvas.prototype.ensureBaseIsVisible = function ( base ) { // Ensure new
       np -= np % sc.block_height ;
       if ( np == last_try ) return ; // Prevent eternal attempt to scroll...
       last_try = np ;
-//        console.log ( "Scrolling from " + cur + " to " + np ) ;
+      //        console.log ( "Scrolling from " + cur + " to " + np ) ;
       $('#canvas_wrapper').scrollTop ( np ) ;
       $('#canvas_wrapper').scroll();
     }
@@ -501,7 +659,7 @@ SequenceCanvas.prototype.fixMenus = function () {
   $('.toolbar_plugin').each ( function () {
     if ( 0 < $(this).find('li').length ) $(this).show() ;
     else $(this).hide() ;
-//    console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
+    //    console.log ( $(this).attr('id') + " : " + $(this).find('li').length ) ;
   } ) ;
 }
 
@@ -541,11 +699,20 @@ SequenceCanvas.prototype.updateTitleBar = function () {
     }
   }
 
-  if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
-    var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
-    data.sequence.synbiota = {
-      lastSave: moment(sb.updated_at).calendar(),
-      readOnly: sb.read_only
+  if ("synbiota_data" in window){
+    if( undefined !== synbiota_data.token ){
+      if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
+        var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
+        data.sequence.synbiota = {
+          lastSave: moment(sb.updated_at).calendar(),
+          readOnly: sb.read_only
+        }
+      }else{ //synbiota token present, new sequence!
+        data.sequence.synbiota = {
+          lastSave: "Unsaved!",
+          readOnly: false
+        }
+      }
     }
   }
 
