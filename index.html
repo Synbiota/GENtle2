@@ -17,7 +17,10 @@
       type="image/png" 
       href="favicon.png">
 <script type="moustache/template" id="tpl-title_bar">
-  <ul class="nav nav-tabs small-tabs">
+
+  <ul class="nav nav-tabs small-tabs" style="
+    position: absolute;
+    width: 100%;">
   	{{#sequence}}{{#synbiota}}
   		<li class="pull-right disabled no-hover">
 				<a href="#">
