@@ -6,6 +6,7 @@ SequenceCanvasDNA.prototype.constructor = SequenceCanvasDNA ;
 SequenceCanvasDNA.prototype.onClose = function () {
 	//console.log("on close dna");
 	this.selectionCursor.setVisible(false);
+	this.plasmid_map.closeMap() ;
 }
 
 SequenceCanvasDNA.prototype.select = function ( from , to , col ) {

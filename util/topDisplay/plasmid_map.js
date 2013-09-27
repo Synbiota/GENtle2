@@ -18,6 +18,10 @@ function PlasmidMapDialog () {
 	$('#plasmid_map_canvas').bind ('mousewheel',  function(e, d, dX, dY){ var ev = e; ev.delta = d; ev.deltaX = dX; ev.deltaY = dY; return self.mouseEvent(self, ev)} ) ;
 }
 
+PlasmidMapDialog.prototype.closeMap = function() {
+	$("#plasmidbox").html ( '' ) ;
+}
+
 PlasmidMapDialog.prototype.initMap = function () {
 	var self = this ;
 	var sc = gentle.main_sequence_canvas ;

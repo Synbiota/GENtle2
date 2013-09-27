@@ -500,13 +500,15 @@ h1 {
 /* Top Display */
 #zoombox {
   position:fixed;
-  right:20px;
-  top:70px;
+  right:2px;
+  top:110px;
   z-index:99;
 }
 
 #topbox {
   width: 140px;
+  position: relative;
+  top: 30px;
 }
 #top_zone {
   position:relative;
@@ -538,6 +540,8 @@ h1 {
 
 #plasmidbox{
   width: 520px;
+  position: relative;
+  top: 30px;
 }
 
 
