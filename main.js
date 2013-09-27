@@ -638,6 +638,7 @@ var gentle = {
 	closeSequence : function ( entry ) {
 		if ( entry === undefined ) return ;
 		
+		gentle.main_sequence_canvas.onClose() ;
 		gentle.sequences.splice ( entry , 1 ) ;
 		gentle.updateSequenceList() ;
 
@@ -851,7 +852,7 @@ var gentle = {
 			gentle.topdisplaystyle = 'circular' ;
 			console.log ("was linear, is circular") ;
 		}else if(gentle.topdisplaystyle == 'circular'){
-			sc.tbw = $('#canvas_wrapper').css('right');
+			gentle.tbw = $('#canvas_wrapper').css('right');
 			$('#canvas_wrapper').css ( { right : 0 } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : 0 } ) ;
 			$('#plasmidbox').hide() ;
@@ -859,8 +860,8 @@ var gentle = {
 			gentle.topdisplaystyle = 'none' ;
 			console.log ("was circular, is none") ;
 		}else{
-			$('#canvas_wrapper').css ( { right : sc.tbw } ) ;
-			$('#sequence_canvas_title_bar').css ( { right : sc.tbw } ) ;
+			$('#canvas_wrapper').css ( { right : gentle.tbw } ) ;
+			$('#sequence_canvas_title_bar').css ( { right : gentle.tbw } ) ;
 			$('#topbox').show() ;
 			$('#right_sidebar_icon').toggleClass('icon-chevron-left').toggleClass('icon-asterisk').attr('title', 'Show Circular Map') ;
 			gentle.topdisplaystyle = 'linear' ;		
@@ -1041,8 +1042,10 @@ var gentle = {
 	
 	on_resize_event : function () {
 		gentle.resizeMainDiv();
-		gentle.main_sequence_canvas.resizeCanvas() ;
-		gentle.main_sequence_canvas.show() ;
+		if (gentle.main_sequence_canvas !== undefined && !gentle.main_sequence_canvas.invalidated) {
+			gentle.main_sequence_canvas.resizeCanvas() ;
+			gentle.main_sequence_canvas.show() ;
+		}
 	}
 
 } ;
