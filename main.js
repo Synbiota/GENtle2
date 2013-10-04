@@ -98,7 +98,7 @@ var gentle = {
 			} else if ( gentle.is_mobile ) {
 				// Ignore iOS restrictions
 			} else if ( undefined !== getBlobBuilder() ) { // Otherwise, we have already warned...
-				gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='http://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
+				gentle.addAlert ( 'error' , "This browser does not support reading local files. Try current <a href='https://www.mozilla.org/en-US/firefox/new/'>FireFox</a>, <a href='https://www.google.com/chrome/'>Google Chrome</a>, or similar." ) ;
 			}
 		
 			$(window).bind('beforeunload', function(){ gentle.saveLocally () ; });

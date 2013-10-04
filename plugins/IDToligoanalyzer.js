@@ -64,8 +64,8 @@ PluginBuySequence.prototype.BuySequence = function () {
         //Remove any whitespace
         var v=escape(seq.replace(/\s+/g, ''));
 	    // Call the webservice and populate the fields
-	    var analyze_sequence_wsurl = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Fwww.idtdna.com%2FAnalyzerService%2FAnalyzerService.asmx%2FAnalyze%3FSequence%3D"+v+"%26TargetType%3DDNA%26OligoConc%3D0.25%26NaConc%3D50%26MgConc%3D0%26dNTPsConc%3D0'&format=json&diagnostics=true&callback=?"
-        var self_dimer_wsurl = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Fwww.idtdna.com%2FAnalyzerService%2FAnalyzerService.asmx%2FSelfDimer%3FSequence%3D"+v+"'&format=json&diagnostics=true&callback=?"
+	    var analyze_sequence_wsurl = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Fwww.idtdna.com%2FAnalyzerService%2FAnalyzerService.asmx%2FAnalyze%3FSequence%3D"+v+"%26TargetType%3DDNA%26OligoConc%3D0.25%26NaConc%3D50%26MgConc%3D0%26dNTPsConc%3D0'&format=json&diagnostics=true&callback=?"
+        var self_dimer_wsurl = "https://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20xml%20where%20url%3D'http%3A%2F%2Fwww.idtdna.com%2FAnalyzerService%2FAnalyzerService.asmx%2FSelfDimer%3FSequence%3D"+v+"'&format=json&diagnostics=true&callback=?"
 		var result = null;
         var jqxhr = $.getJSON(analyze_sequence_wsurl)
             // Populate the fields
@@ -92,12 +92,12 @@ PluginBuySequence.prototype.BuySequence = function () {
     			
     			// Set the URLs for ordering and oligo analyzer
     		    $("#open-in-oligoanalyzer").attr({
-    		        'href':"http://www.idtdna.com/analyzer/Applications/OligoAnalyzer/?seq="+oligo_string,
+    		        'href':"https://www.idtdna.com/analyzer/Applications/OligoAnalyzer/?seq="+oligo_string,
     		        'target':"_blank"
     		    });
     		    
     		    $("#order-from-idt").attr({
-    		        'href':'http://www.idtdna.com/Order/OrderEntry.aspx?seq='+oligo_string,
+    		        'href':'https://www.idtdna.com/Order/OrderEntry.aspx?seq='+oligo_string,
     		        'target':"_blank"
     		    });
             })
@@ -168,7 +168,7 @@ function PluginBuySequence () {
 	var h = '<div class="modal hide" id="idt-oligoanalyzer">                            '
             + '     <div class="modal-header">                                               '
             + '       <button type="button" class="close" data-dismiss="modal">×</button>    '
-            + '       <h3>OligoAnalyzer&trade; <img src="http://www.idtdna.com/pages/docs/plugins-and-apps/159.gif" id="idt-ajax-throbber" style="margin-bottom:-5px;"/></h3>  '
+            + '       <h3>OligoAnalyzer&trade; <img src="https://www.idtdna.com/pages/docs/plugins-and-apps/159.gif" id="idt-ajax-throbber" style="margin-bottom:-5px;"/></h3>  '
             + '     </div>                                                                   '
             + '     <div class="modal-body">                                                 '
             + ' <div id="idt-messages" class="alert alert-block alert-error"></div>'
@@ -199,10 +199,10 @@ function PluginBuySequence () {
             + '</div>'
             + '</div>'
 			+ '<h4>Self Dimer Analysis</h4>  '
-			+ '<p> <img src="http://www.idtdna.com/pages/docs/plugins-and-apps/159.gif" id="idt-self-dimer-ajax-throbber" style="margin-bottom:-5px;"/> <span  id="idt-self-dimer-msg"><i class="icon-warning-sign"></i>  We found <strong>3 self-dimers</strong> with very strong ΔG (&gt; -9 kcal/mol). You may want to redesign this oligo.</span> </p>'
+			+ '<p> <img src="https://www.idtdna.com/pages/docs/plugins-and-apps/159.gif" id="idt-self-dimer-ajax-throbber" style="margin-bottom:-5px;"/> <span  id="idt-self-dimer-msg"><i class="icon-warning-sign"></i>  We found <strong>3 self-dimers</strong> with very strong ΔG (&gt; -9 kcal/mol). You may want to redesign this oligo.</span> </p>'
 			+ '<p><span class="label label-info">Note</span> Assumes 25 nm scale and 50mM Na<sup>+</sup>. View in OligoAnalyzer to customize parameters, view possible hairpins, and perform further analysis.</p> '
 			+ '</div>   '
-            + '     <div class="modal-footer" style="background:url(http://www.idtdna.com/pages/docs/plugins-and-apps/idtlogo.png) 15px 50% no-repeat;">  '
+            + '     <div class="modal-footer" style="background:url(https://www.idtdna.com/pages/docs/plugins-and-apps/idtlogo.png) 15px 50% no-repeat;">  '
             + '       <a id="open-in-oligoanalyzer" href="#" class="btn">View in OligoAnalyzer <i class="icon-share-alt" /></a> '
             + '       <a href="#" id="order-from-idt" class="btn btn-primary">Order Oligo <i class="icon-share-alt" /></a>                   '
             + '     </div>                                                                   '
