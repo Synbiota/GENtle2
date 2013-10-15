@@ -2,11 +2,18 @@ function PlasmidMapDialog () {
 	var self = this ;
 
 	var html = ""; 
-	html += "<div id='plasmid_map' style='position:relative;left:5px;top:5px;width:500px;height:500px;border:1px solid #DDDDDD'>" ;
+	html += "<div id='plasmid_map' style='position:relative;left:5px;top:5px;width:500px;height:500px;border:1px solid #DDDDDD; padding:0px'>" ;
 	html += "<canvas id='plasmid_map_canvas' style='width:500;height:500'></canvas></div> </div>" ;
 	//html += "<div style='position:absolute;left:510px;top:5px;'>" ;
 	//html += "<div><b>Options</b></div>" ;
-	//html += "<div><a class='btn' onclick='gentle.main_sequence_canvas.plasmid_map.exportToPNG(); return false'>Export as Image</a></div> </div>" ;
+	html += "<div id='plasmidMapUI'>";
+	html += "<div><i class='icon-resize-full' title='View All' onclick='gentle.main_sequence_canvas.plasmid_map.zoomAll(); return false'></i></div>";
+	html += "<div><i class='icon-minus' title='Zoom Out' onclick='gentle.main_sequence_canvas.plasmid_map.zoom(-5); return false'></i></div>";
+	html += "<div><i class='icon-plus' title='Zoom In' onclick='gentle.main_sequence_canvas.plasmid_map.zoom(5); return false'></i></div>";
+	html += "<div><i class='icon-resize-small' title='View Max Detail' onclick='gentle.main_sequence_canvas.plasmid_map.zoomMaxDetail(); return false'></i></div>";
+	html += "<div><i class='icon-camera' title='Export as PNG' onclick='gentle.main_sequence_canvas.plasmid_map.exportToPNG(); return false'></i></div>";
+
+	html += "</div>" ;
 	
 	$("#plasmidbox").html ( html ) ;
 
@@ -61,11 +68,6 @@ PlasmidMapDialog.prototype.initMap = function () {
                                     newt.m[5]
         )
     }
-
-
-	//centre the context, makes life easier!
-    //self.ctm.translate(self.canvasOffset.x, self.canvasOffset.y) ;
-   // self.ctm.rotate(Math.PI);
 	
 
 	self.radii = {
@@ -73,7 +75,8 @@ PlasmidMapDialog.prototype.initMap = function () {
 					plasmidCircle: {r:150},
 					annotations: {r1:125, r2:140, r3:160, r4:175 },
 					linegraph: {r:100},
-					lineNumbering: {r:180, R:240}
+					lineNumbering: {r:180, R:240},
+					title_width: 200*0.8660254 - 50
 	};
 
 
@@ -135,9 +138,10 @@ PlasmidMapDialog.prototype.recalcAnnotations = function(){
 	var secret_div = $('<div>' + '</div>')
 	        .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': '12px Arial'})
         	.appendTo($('body')) ;
-    
-    
 
+
+    self.context.save();
+    self.context.font = "12px Arial";
 	$.each ( sc.sequence.features , function ( k , v ) {
 		if ( v['_type'] == 'source' ) return ;
 		var min = self.radii.annotations.r1 ;
@@ -154,7 +158,8 @@ PlasmidMapDialog.prototype.recalcAnnotations = function(){
 		else if ( v['name'] !== undefined ) name = v['name'] ;
 		name = name.replace(/^"/,'').replace(/"$/,'') ;
 
-		var wh =  stringWidthHeight(name, "12px Arial", secret_div);
+		var metrics =  self.context.measureText(name);
+		var wh = {width:metrics.width, height:14};
 
 		$.each( v['_range'] , function ( k2 , v2 ) {
 			var f = v2.from * Math.PI * 2 / len ;
@@ -162,6 +167,8 @@ PlasmidMapDialog.prototype.recalcAnnotations = function(){
 			self.annotations.push ( { start:f , end:t , colour:col , min:min , max:max, name:name, rc:v2.rc, textWidth:wh } ) ;
 		} ) ;
 	} ) ;	
+	
+	self.context.restore();
 
 	secret_div.remove();
 
@@ -222,8 +229,8 @@ PlasmidMapDialog.prototype.updateSelection = function () {
 	}
 }
 
-PlasmidMapDialog.prototype.rotate = function (t) {
-    this.ctm.rotate(t) ;
+PlasmidMapDialog.prototype.rotate = function (delta) {
+    this.ctm.rotate(delta) ;
     this.drawMap();
 }
 
@@ -311,13 +318,58 @@ PlasmidMapDialog.prototype.drawMap = function () {
 			}
 		}
 		self.context.restore();
-		
 	}
 
 	self.linegraph.draw(self.context);
+
+
+	var secret_div = $('<div>' + '</div>')
+	        .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': '12px Arial'})
+        	.appendTo($('body')) ;
+	//Write the name in the centre
+
+ 	self.context.save();
+ 	var t = self.ctm.t.clone() ;
+ 	self.context.rotate(t.m[1] < 0 ? Math.acos(t.m[0]) : Math.PI + Math.acos( - t.m[0]) );
+	self.context.fillStyle = "white";
+	self.context.textAlign = 'center';
+	self.context.font = "bold 12px Arial";
+	self.context.fillStyle = "black";
+	var name_lines = wrapText(self.context, sc.sequence.name, self.radii.title_width);
+	var metrics = self.context.measureText(sc.sequence.name);
+	var line_height = 15;
+	for (var i = 0; i < name_lines.length; i++){
+
+		self.context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i));	
+
+	}
+	self.context.font = "italic 12px Arial";
+	self.context.fillText(""+len+" bp", 0,line_height*(name_lines.length*2/3));
+
+	self.context.restore();
+	secret_div.remove();
 }
 
+function wrapText(context, text, maxWidth) {
+	var words = text.split(' ');
+	var line = '';
+	var lines = [];
 
+	for(var n = 0; n < words.length; n++) {
+	  var testLine = line + words[n] + ' ';
+	  var metrics = context.measureText(testLine);
+	  var testWidth = metrics.width;
+	  if (testWidth > maxWidth && n > 0) {
+	    lines.push(line) ;
+	    line = words[n] + ' ';
+	  }
+	  else {
+	    line = testLine;
+	  }
+	}
+	lines.push(line);
+	return lines;
+}
 
 PlasmidMapDialog.prototype.exportToPNG = function(){
 	var canvas = document.getElementById("plasmid_map_canvas") ;
@@ -420,7 +472,45 @@ PlasmidMapDialog.prototype.absorb_event = function (event) {
 	e.returnValue = false;
 	return false;
 }
+
 PlasmidMapDialog.prototype.zoom = function(delta){
+	this.zoomShiftCentre(delta);
+	this.zoomUpdateRadii();
+	this.updateMap();
+	this.drawMap();
+} 
+
+PlasmidMapDialog.prototype.zoomAll = function(){
+	this.ctm.setTransform(new simple2d.Transform(this.ctm.t.m[0],this.ctm.t.m[1],this.ctm.t.m[2],this.ctm.t.m[3],this.context.canvas.width/2,this.context.canvas.height/2));
+	this.zoomUpdateRadii();
+	this.updateMap();
+	this.drawMap();
+} 
+
+PlasmidMapDialog.prototype.zoomMaxDetail = function(){
+	
+
+	var centre_of_context_in_terms_of_canvas = new simple2d.Point(this.ctm.t.m[4], this.ctm.t.m[5]);
+	
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
+
+	var max_radius = 1*len/Math.PI/2;
+
+	var delta = -(centre_of_context_in_terms_of_canvas.x - max_radius );
+	var canvas_vector = new simple2d.Point(delta,250);
+
+	console.log(len, max_radius, delta, centre_of_context_in_terms_of_canvas.x);
+
+	var translation_vector = this.ctm.t.invert().mult(canvas_vector).normalise().mult(delta);
+	this.ctm.translate(translation_vector.x, translation_vector.y);
+
+	this.zoomUpdateRadii();
+	this.updateMap();
+	this.drawMap();
+} 
+
+PlasmidMapDialog.prototype.zoomShiftCentre = function(delta){
 
 	//oh goodness this is odd...
 	
@@ -435,8 +525,10 @@ PlasmidMapDialog.prototype.zoom = function(delta){
 		var translation_vector = this.ctm.t.invert().mult(canvas_vector).normalise().mult(-delta*15);
 		this.ctm.translate(translation_vector.x, translation_vector.y);
 	}
+}
 
-	centre_of_canvas_in_terms_of_context = this.ctm.t.invert().mult(new simple2d.Point( this.context.canvas.width/2 - 2, this.context.canvas.height/2)) ;
+PlasmidMapDialog.prototype.zoomUpdateRadii = function(){
+	var centre_of_canvas_in_terms_of_context = this.ctm.t.invert().mult(new simple2d.Point( this.context.canvas.width/2 - 2, this.context.canvas.height/2)) ;
 
 	var distance_to_centre = centre_of_canvas_in_terms_of_context.magnitude();
 	var min_r = 30;
@@ -454,11 +546,9 @@ PlasmidMapDialog.prototype.zoom = function(delta){
 					plasmidCircle: {r:min_r + del_r*0.65},
 					annotations: {r1:min_r + del_r*0.54, r2:min_r + del_r*0.60, r3:min_r + del_r*0.7, r4:min_r + del_r*0.76 },
 					linegraph: {r:min_r + del_r*0.43},
-					lineNumbering: {r:min_r + del_r*0.78, R:max_r}
+					lineNumbering: {r:min_r + del_r*0.78, R:max_r},
+					title_width: (min_r + del_r*0.43)*2*0.8660254 - 50
 	};
-
-	this.updateMap();
-	this.drawMap();
 }
 
 function PlasmidMap(dna,res){
@@ -536,7 +626,7 @@ WasherSegment.prototype.draw = function(ctx){
 	//draws the washer segment on the canvas context provided.
 	ctx.beginPath();
 	
-	if (this.arrowHead){
+	if (false){//this.arrowHead){
 		var angOffset = 5/this.innerRadius;
 	
 		if (angOffset > this.endAngle - this.startAngle){
@@ -561,6 +651,11 @@ WasherSegment.prototype.draw = function(ctx){
 	}else{
 		ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle, this.counterClockwise);
 		ctx.lineTo(this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
+		console.log(" ");
+		console.log("angle", this.endAngle);
+		console.log("outer",this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
+		console.log("inner",this.innerRadius*Math.cos(this.endAngle), this.innerRadius*Math.sin(this.endAngle));
+		console.log(" ");
 		var temp = !this.counterClockwise;
 		ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle, this.startAngle, temp);
 	}
