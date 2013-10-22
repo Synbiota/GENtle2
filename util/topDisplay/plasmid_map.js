@@ -4,18 +4,27 @@ function PlasmidMapDialog () {
 	var html = ""; 
 	html += "<div id='plasmid_map' style='position:relative;left:5px;top:5px;width:500px;height:500px;border:1px solid #DDDDDD; padding:0px'>" ;
 	html += "<canvas id='plasmid_map_canvas' style='width:500;height:500'></canvas></div> </div>" ;
-	//html += "<div style='position:absolute;left:510px;top:5px;'>" ;
-	//html += "<div><b>Options</b></div>" ;
 	html += "<div id='plasmidMapUI'>";
 	html += "<div><i class='icon-resize-full' title='View All' onclick='gentle.main_sequence_canvas.plasmid_map.zoomAll(); return false'></i></div>";
 	html += "<div><i class='icon-minus' title='Zoom Out' onclick='gentle.main_sequence_canvas.plasmid_map.zoom(-5); return false'></i></div>";
+	html += "<div><div id='slider-vertical' style='height: 110px;'></div></div>";
 	html += "<div><i class='icon-plus' title='Zoom In' onclick='gentle.main_sequence_canvas.plasmid_map.zoom(5); return false'></i></div>";
 	html += "<div><i class='icon-resize-small' title='View Max Detail' onclick='gentle.main_sequence_canvas.plasmid_map.zoomMaxDetail(); return false'></i></div>";
 	html += "<div><i class='icon-camera' title='Export as PNG' onclick='gentle.main_sequence_canvas.plasmid_map.exportToPNG(); return false'></i></div>";
-
 	html += "</div>" ;
 	
 	$("#plasmidbox").html ( html ) ;
+	$( "#slider-vertical" ).slider({
+      orientation: "vertical",
+      range: "min",
+      min: 0,
+      max: 100,
+      value: 100,
+      slide: function( event, ui ) {
+      	gentle.main_sequence_canvas.plasmid_map.zoom_level = 100 - ui.value;
+      	gentle.main_sequence_canvas.plasmid_map.zoomAbsolute(Math.pow(1-ui.value/100, 3));
+      }
+    });
 
 	$('#plasmid_map_canvas').mousedown ( function(e){ return self.mouseEvent(self, e)} ) ;
 	$('#plasmid_map_canvas').mouseup ( function(e){ return self.mouseEvent(self, e)} ) ;
@@ -100,7 +109,8 @@ PlasmidMapDialog.prototype.initMap = function () {
 	var to = sc.end_base * Math.PI * 2 / len;
 	self.currentSelection = new WasherSegment(0,0,self.radii.currentSelection.r,self.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 
-	self.zoom(10);
+	self.zoom_level = 0;
+	self.zoomAbsolute(0);
 	self.drawMap();
 }
 
@@ -207,6 +217,7 @@ PlasmidMapDialog.prototype.updateAnnotations = function(){
 			v2.min = min;
 			v2.max = max;
 		});
+		
 	});
 
 	//re-init segments for annotation
@@ -474,37 +485,45 @@ PlasmidMapDialog.prototype.absorb_event = function (event) {
 }
 
 PlasmidMapDialog.prototype.zoom = function(delta){
-	this.zoomShiftCentre(delta);
+	
+	if ((this.zoom_level+delta >= 0) && (this.zoom_level+delta <= 100)){
+		this.zoom_level += delta;
+	}
+	$("#slider-vertical").slider('value', 100 - this.zoom_level);
+	this.zoomAbsolute(Math.pow(this.zoom_level/100,3));
+	this.zoomUpdateRadii();
+	this.updateMap();
+	this.drawMap();
+}
+
+PlasmidMapDialog.prototype.zoomAbsolute = function(percentageZoom){
+
+	var sc = gentle.main_sequence_canvas ;
+	var len = sc.sequence.seq.length ;
+
+	var max_radius = len/Math.PI/2;
+	var absolute_radius = max_radius*percentageZoom;
+
+	this.ctm.setTransform(new simple2d.Transform(this.ctm.t.m[0],this.ctm.t.m[1],this.ctm.t.m[2],this.ctm.t.m[3],this.context.canvas.width/2,this.context.canvas.height/2+absolute_radius));
+
 	this.zoomUpdateRadii();
 	this.updateMap();
 	this.drawMap();
 } 
 
 PlasmidMapDialog.prototype.zoomAll = function(){
-	this.ctm.setTransform(new simple2d.Transform(this.ctm.t.m[0],this.ctm.t.m[1],this.ctm.t.m[2],this.ctm.t.m[3],this.context.canvas.width/2,this.context.canvas.height/2));
+	this.zoom_level = 0;
+	$("#slider-vertical").slider('value', 100 - this.zoom_level);
+	this.zoomAbsolute(Math.pow(this.zoom_level/100,3));
 	this.zoomUpdateRadii();
 	this.updateMap();
 	this.drawMap();
 } 
 
 PlasmidMapDialog.prototype.zoomMaxDetail = function(){
-	
-
-	var centre_of_context_in_terms_of_canvas = new simple2d.Point(this.ctm.t.m[4], this.ctm.t.m[5]);
-	
-	var sc = gentle.main_sequence_canvas ;
-	var len = sc.sequence.seq.length ;
-
-	var max_radius = 1*len/Math.PI/2;
-
-	var delta = -(centre_of_context_in_terms_of_canvas.x - max_radius );
-	var canvas_vector = new simple2d.Point(delta,250);
-
-	console.log(len, max_radius, delta, centre_of_context_in_terms_of_canvas.x);
-
-	var translation_vector = this.ctm.t.invert().mult(canvas_vector).normalise().mult(delta);
-	this.ctm.translate(translation_vector.x, translation_vector.y);
-
+	this.zoom_level = 100;
+	$("#slider-vertical").slider('value', 100 - this.zoom_level);
+	this.zoomAbsolute(Math.pow(this.zoom_level/100,3));
 	this.zoomUpdateRadii();
 	this.updateMap();
 	this.drawMap();
@@ -513,17 +532,15 @@ PlasmidMapDialog.prototype.zoomMaxDetail = function(){
 PlasmidMapDialog.prototype.zoomShiftCentre = function(delta){
 
 	//oh goodness this is odd...
-	
-	var canvas_vector = new simple2d.Point(delta,250);
+	var delta = -delta*15;
 	var centre_of_context_in_terms_of_canvas = new simple2d.Point(this.ctm.t.m[4], this.ctm.t.m[5]);
 
-	if (canvas_vector.x + centre_of_context_in_terms_of_canvas.x < this.context.canvas.width/2){
+	if (delta + centre_of_context_in_terms_of_canvas.y < this.context.canvas.height/2){
 		//trying to move further towards centre than we want to allow, thus move exactly to centre.
 		this.ctm.setTransform(new simple2d.Transform(this.ctm.t.m[0],this.ctm.t.m[1],this.ctm.t.m[2],this.ctm.t.m[3],this.context.canvas.width/2,this.context.canvas.height/2));
 	} else {
 		// shift context by canvas_vector... 
-		var translation_vector = this.ctm.t.invert().mult(canvas_vector).normalise().mult(-delta*15);
-		this.ctm.translate(translation_vector.x, translation_vector.y);
+		this.ctm.setTransform(new simple2d.Transform(this.ctm.t.m[0],this.ctm.t.m[1],this.ctm.t.m[2],this.ctm.t.m[3],this.context.canvas.width/2,this.context.canvas.height/2+delta));
 	}
 }
 
@@ -626,7 +643,7 @@ WasherSegment.prototype.draw = function(ctx){
 	//draws the washer segment on the canvas context provided.
 	ctx.beginPath();
 	
-	if (false){//this.arrowHead){
+	if (this.arrowHead){
 		var angOffset = 5/this.innerRadius;
 	
 		if (angOffset > this.endAngle - this.startAngle){
@@ -651,11 +668,6 @@ WasherSegment.prototype.draw = function(ctx){
 	}else{
 		ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle, this.counterClockwise);
 		ctx.lineTo(this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
-		console.log(" ");
-		console.log("angle", this.endAngle);
-		console.log("outer",this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
-		console.log("inner",this.innerRadius*Math.cos(this.endAngle), this.innerRadius*Math.sin(this.endAngle));
-		console.log(" ");
 		var temp = !this.counterClockwise;
 		ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle, this.startAngle, temp);
 	}
@@ -749,7 +761,7 @@ RadialLineGraph.prototype.draw = function(ctx){
 	ctx.fill();
 }
 
-function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font, width) {
+function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font, width, ccw) {
 	// modified from
 	// http://www.html5canvastutorials.com/labs/html5-canvas-text-along-arc-path/
 	// so that it works with varying fonts...
@@ -762,18 +774,34 @@ function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font, w
 
     var angularWidth = wh.width/rad;
 
+    
+    if (ccw){    
+    	//CCW
+    	context.save();
+		context.translate(centerX, centerY);
+		context.rotate(angle - Math.PI/2);
+		context.rotate(angularWidth / 2);
+		for(var n = 0; n < len; n++) {
+		  context.rotate(-angularWidth/len);
+		  s = str[n];
+		  context.fillText(s, 0, radius-wh.height/2);
+		}
+		context.restore();
+	}else{
+	    //CW
+	    context.save();
+	    context.translate(centerX, centerY);
+	    context.rotate(angle + Math.PI/2);
+	    context.rotate(-angularWidth / 2);
+	    for(var n = 0; n < len; n++) {
+	      context.rotate(angularWidth/len);
 
-    context.save();
-    context.translate(centerX, centerY);
-    context.rotate(angle - Math.PI/2);
-    context.rotate(angularWidth / 2);
-    for(var n = 0; n < len; n++) {
-      context.rotate(-angularWidth/len);
+	      s = str[n];
+	      context.fillText(s, 0, -radius+wh.height/2);
+	    }
+	    context.restore();
+	}
 
-      s = str[n];
-      context.fillText(s, 0, radius);
-    }
-    context.restore();
 }
 
 var stringWidthHeight = function(str, font, secret_div) {
