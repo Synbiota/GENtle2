@@ -1,0 +1,11 @@
+{
+  "name": "GENtle",
+  "description": "GENtle - The Browser Based, Open Source, DNA Assembly App",
+  "homepage": "http://gentledna.org/",
+  "version": "3.0.0-alpha.1",
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-watch": "~0.5.3",
+    "grunt-contrib-yuidoc": "~0.5.0"
+  }
+}
