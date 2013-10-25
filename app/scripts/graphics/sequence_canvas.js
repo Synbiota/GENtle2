@@ -14,9 +14,6 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
     @property {Artist} artist 
     **/
     this.artist = new Artist(this.$element[0]);
-    
-    //this should be handled somehow from the layout manager
-    this.artist.setDimensions(1138,448);
 
     /**
     @property visible
@@ -27,6 +24,7 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
 
     this.on('visible', function(){
       this_.visible = true;
+      this_.updateCanvasDims();
       this_.display();
     });
 
@@ -34,13 +32,22 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
       this_.visible = false;
     });
 
+    this.on('resize', function(){
+      this_.updateCanvasDims();
+    });
+
+    /**
+    @property layoutSettings
+    @type Object
+    @default false
+    **/
     this.layoutSettings = {
       canvasDims: {width:1138, height:448},
       pageMargins: {left:50,top:50,right:50,bottom:50},
       scrollPercentage: 1.0,
       gutterWidth: 10,
-      positionTextStyle: 'courier',
-      basePairTextStyle: 'courier',
+      positionText: {font: "10px Monospace", colour:"#005"},
+      basePairText: {font: "14px Monospace", colour:"#000"},
       basePairDims: {width:10, height:15},
       sequenceLength: 4000,
       lines: [
@@ -48,16 +55,35 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
         {type:'position', height:15},
         {type:'dna', height:25}]
     } ;
+    
 
     this.layoutHelpers = {};
 
     this.calculateLayoutSettings();
-    console.log(this.layoutSettings);
-    console.log(this.layoutHelpers);
+
   });
 
   /**
+    Updates Canvas Dims based on layout.
+    @method updateCanvasDims
+  **/
+  SequenceCanvas.prototype.updateCanvasDims = function() {
+      var width = this.$element[0].scrollWidth;
+      var height = this.$element[0].scrollHeight;
+
+      this.layoutSettings.canvasDims.width = width;
+      this.layoutSettings.canvasDims.height = height;
+
+      this.$element[0].width = width;
+      this.$element[0].height = height;
+
+      this.calculateLayoutSettings();
+  }
+
+
+  /**
     Calculate "helper" layout settings based on already set layout settings
+    @method calculateLayoutSettings
   **/
   SequenceCanvas.prototype.calculateLayoutSettings = function() {
     //line offsets
@@ -140,12 +166,13 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
           switch(ls.lines[j].type)
           {
             case "blank":
-              console.log("blank");
+              //do nothing!
               break;
             case "position":
-              ctx.fillStyle = "#009"
               // numbering for position
-              console.log("position");
+              ctx.fillStyle = ls.positionText.colour;
+              ctx.font = ls.positionText.font;
+              
               x = ls.pageMargins.left;
               pos = (lh.rows.first + i)*lh.basesPerRow + 1;
               for(k = 0; k < lh.basesPerRow; k+=10){
@@ -154,7 +181,10 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
               }
               break;
             case "dna":
-              ctx.fillStyle = "#000"
+              //draw the DNA text
+              ctx.fillStyle = ls.basePairText.colour;
+              ctx.font = ls.basePairText.font;
+
               x = ls.pageMargins.left;
               seq = gentle.currentSequence.get((lh.rows.first + i)*lh.basesPerRow,(lh.rows.first + i)*lh.basesPerRow+lh.basesPerRow)
               for(k = 0; k < lh.basesPerRow; k++){
@@ -162,7 +192,6 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
                 x += ls.basePairDims.width;
                 if ((k + 1) % 10 === 0) x += ls.gutterWidth;
               }
-              console.log("dna");
               break;
             default:
               //do nothing!
@@ -171,8 +200,6 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object',
         }
         y += lh.rows.height;
       }
-      //this.artist.text(gentle.currentSequence.get(0,5), 10, 10, "black");
-
     }
   };
 
