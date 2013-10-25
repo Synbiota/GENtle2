@@ -3,7 +3,7 @@
 
   @class SequenceCanvas
 **/ 
-define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object', 'graphics/sequence_canvas_rows'], function($, Artist, fun, EventedObject) {
+define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object'], function($, Artist, fun, EventedObject) {
 
   var SequenceCanvas = fun.extend(EventedObject, function() {
     var this_ = this;
