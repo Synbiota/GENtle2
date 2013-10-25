@@ -24,15 +24,26 @@ define(function() {
       this.sequenceBuffer = this.stringToArrayBuffer(sequence);
   }
 
-
+  /**
+  Utility method used to convert `String` into `ArrayBuffer`.
+  @method stringToArrayBuffer
+  @param {String} str
+  returns {ArrayBuffer}
+  **/
   Sequence.prototype.stringToArrayBuffer = function(str) {
     var buffer = new ArrayBuffer(str.length*2);
     var bufferView = new Uint16Array(buffer);
     for(var i = 0; i<str.length; i++)
       bufferView[i] = str.charCodeAt(i);
     return buffer;
-  } 
+  }
 
+  /**
+  Utility method used to convert `ArrayBuffer` into `String`
+  @method arrayBufferToString
+  @param {ArrayBuffer} buffer
+  @returns {String}
+  **/
   Sequence.prototype.ArrayBufferToString = function(buffer) {
     var bufferView = new Uint16Array(buffer);
     return String.fromCharCode.apply(null, bufferView);
@@ -64,14 +75,14 @@ define(function() {
       if(endBase === undefined) endBase = startBase;
       else endBase = Math.min(this.length()-1, endBase)
       startBase = Math.min(Math.max(0,startBase), this.length()-1);
-      return this.ArrayBufferToString(this.sequenceBuffer.slice(startBase*2, (endBase-startBase+1)*2));
+      return this.arrayBufferToString(this.sequenceBuffer.slice(startBase*2, (endBase-startBase+1)*2));
     } else {
       return this.getFromString(startBase, endBase);
     }
   };
 
   /**
-  Alias for {{#crossLink "Sequence/getFromBuffer:method"}}{{/crossLink}}
+  Alias for {{#crossLink "Sequence/getFromString:method"}}{{/crossLink}}
   @method get
   @param {Integer} startBase 
   @param {Integer} [endBase]

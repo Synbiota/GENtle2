@@ -18,13 +18,13 @@ function generateSuperLongString(block_size, block_nb) {
 }
 
 
-suite.add('Sequence#getFromBuffer', function(){
+suite.add('getFromBuffer', function(){
   var s = new Sequence(generateSuperLongString(100,1000))
     , c = s.length
     , start = (Math.random()*(s.length-1))|0
     , end = (Math.random()*(s.length-1-start)+start)|0;
   s.getFromBuffer(start, end);
-}).add('Sequence#getFromString', function(){
+}).add('getFromString', function(){
   var s = new Sequence(generateSuperLongString(100,1000))
     , c = s.length
     , start = (Math.random()*(s.length-1))|0
