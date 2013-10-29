@@ -539,11 +539,19 @@ h1 {
 /*Plasmid Map Display*/
 
 #plasmidbox{
-  width: 520px;
+  width: 514px;
+  height: 514px;
   position: relative;
   top: 30px;
+  padding:0px;
 }
 
+#plasmidMapUI {
+  position:absolute;
+  right:-18px;
+  top:0px;
+  z-index:99;
+}
 
 
 #sequence_canvas_title_bar {

@@ -1,2 +1,6 @@
 .DS_Store
 config.js
+node_modules
+docs
+*.sublime-workspace
+npm-debug.log
