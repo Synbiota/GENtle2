@@ -28,7 +28,8 @@ var plugins = {
 		dna : {
 			file : {} ,
 			sequence : {} ,
-			external : {}
+			external : {} ,
+			help : {}
 		} ,
 		pcr : {
 			file : {} ,

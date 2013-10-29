@@ -40,7 +40,7 @@ Walkthrough.prototype.setupTour = function() {
 
 Walkthrough.prototype.setupSteps = function() {
   this.tour.addStep({
-    element: "#help_menu_wrapper",
+    element: "#toolbar_plugins_help",
     title: "Help",
     content: "This is where help comes from. There's a menu with many options."
   });
@@ -58,19 +58,26 @@ Walkthrough.prototype.setupSteps = function() {
 }
 
 function Walkthrough() {
-  this.name = "walkthrough"
+  this.name = "walkthrough";
 }
 
 function showWalkthrough() {
-  wt = new Walkthrough()
-  wt.setupTour()
-  wt.setupSteps()
-  wt.tour.start(true)
+  wt = new Walkthrough();
+  wt.setupTour();
+  wt.setupSteps();
+  wt.tour.start(true);
 }
 
+Walkthrough.prototype.showWalkthrough = function() {
+  this.setupTour()
+  this.setupSteps()
+  this.tour.start(true)
+}
+
+
 if(plugins.registerPlugin({ className: 'Walkthrough' , url: 'plugins/walkthrough.js' , name: 'walkthrough'} )) {
-  plugins.addSection("dna","Walkthrough")
-  plugins.registerAsTool ( { className : 'Walkthrough' , module : 'dna' , section : 'Walkthrough' , call : 'sup' , linkTitle : 'Show Walkthrough' } ) ;
+  //plugins.addSection("dna","Walkthrough")
+  plugins.registerAsTool ( { className : 'Walkthrough' , module : 'dna' , section : 'help' , call : 'showWalkthrough' , linkTitle : 'Show DNA Walkthrough' } ) ;
   $("#show_walkthrough_link").click(function(e) {
     e.preventDefault();
     showWalkthrough();

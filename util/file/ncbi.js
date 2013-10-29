@@ -14,10 +14,11 @@ var ncbi = {
 
 			var sc = gentle.main_sequence_canvas ;
 			if ( sc ) {
+				/*  We no longer have a "not editing mode".
 				if ( sc.edit && sc.edit.editing ) {
 					sc.setEditMode ( false ) ;
 					sc.show() ;
-				}
+				}*/
 				sc.unbindKeyboard() ;
 			}
 
