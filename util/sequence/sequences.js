@@ -70,7 +70,8 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 	var me = this ;
 	var editseq = me.getEditingSeq() ;
 	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : editseq.substr ( base , len ) } ) ;
-	editseq = editseq.substr ( 0 , base ) + editseq.substr ( base + len , editseq.length - base - len ) ;
+	console.log(base, len, editseq, editseq.substr ( 0 , base-1 ), editseq.substr ( base-1 + len , editseq.length - (base-1) - len ))
+	editseq = editseq.substr ( 0 , base-1 ) + editseq.substr ( base-1 + len , editseq.length - (base-1) - len ) ;
 	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	var keepfeat = [] ;
@@ -85,9 +86,9 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 				return ;
 			}
 
-
+			console.log(v.from, v.to, v.from >= base, v.to+1 >= base);
 			if ( v.from >= base ) v.from -= len ;
-			if ( v.to+1 >= base ) v.to -= len ;
+			if ( v.to >= base ) v.to -= len ;
 			if ( v.from != ov.from || v.to != ov.to ) {
 				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : fid , range_id : k } ) ;
 			}

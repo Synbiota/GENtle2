@@ -231,7 +231,7 @@ SequenceCanvasDesigner.prototype.init = function () {
 				setTimeout ( function(){me.init()} , 1 ) ;
 			} else {
 				if ( target.hasClass('designer_trash') ) {
-					var oldfeat = gentle.sequences[seqnum].features[featnum] ;
+					var oldfeat = me.sequence.features[featnum] ;
 					var start = oldfeat['_range'][0].from ;
 					var stop = oldfeat['_range'][oldfeat['_range'].length-1].to ;
 					me.sequence.remove ( start , stop-start+1 ) ;
@@ -240,6 +240,7 @@ SequenceCanvasDesigner.prototype.init = function () {
 					alert ( "Drop-to-merge function not yet implemented" ) ;
 				}
 			}
+			console.log(me.sequence);
 		}
 	} ) ;
 	
