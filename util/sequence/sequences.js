@@ -70,7 +70,6 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 	var me = this ;
 	var editseq = me.getEditingSeq() ;
 	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : editseq.substr ( base , len ) } ) ;
-	console.log(base, len, editseq, editseq.substr ( 0 , base-1 ), editseq.substr ( base-1 + len , editseq.length - (base-1) - len ))
 	editseq = editseq.substr ( 0 , base-1 ) + editseq.substr ( base-1 + len , editseq.length - (base-1) - len ) ;
 	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
@@ -86,7 +85,7 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 				return ;
 			}
 
-			console.log(v.from, v.to, v.from >= base, v.to+1 >= base);
+
 			if ( v.from >= base ) v.from -= len ;
 			if ( v.to >= base ) v.to -= len ;
 			if ( v.from != ov.from || v.to != ov.to ) {
@@ -105,7 +104,7 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 	me.undo.addAction ( 'editInsert' , { label : 'typed ' + text , editing : true , action : 'insertText' , base : base , seq : text } ) ;
 	var l = text.length ;
 	var editseq = me.getEditingSeq() ;
-	editseq = editseq.substr ( 0 , base ) + text + editseq.substr ( base , editseq.length - base ) ;
+	editseq = editseq.substr ( 0 , base-1 ) + text + editseq.substr ( base-1 , editseq.length - base+1 ) ;
 	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {

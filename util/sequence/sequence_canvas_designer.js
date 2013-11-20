@@ -207,9 +207,10 @@ SequenceCanvasDesigner.prototype.init = function () {
 
 				if ( source.hasClass('designer_row_feature_all') ) {
 					
-					var start = 0 ;
+					var start = 1 ;
 					var stop = gentle.sequences[seqnum].seq.length ;
 					var newseq = gentle.sequences[seqnum].asNewSequenceDNA ( start , stop ) ;
+					var next_base = target.attr('nextbase') ;
 					if ( undefined === newseq ) return ; // Paranoia
 					me.sequence.insertSequenceDNA ( newseq , next_base ) ;
 					
@@ -240,7 +241,6 @@ SequenceCanvasDesigner.prototype.init = function () {
 					alert ( "Drop-to-merge function not yet implemented" ) ;
 				}
 			}
-			console.log(me.sequence);
 		}
 	} ) ;
 	
