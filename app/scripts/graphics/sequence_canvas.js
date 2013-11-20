@@ -3,9 +3,16 @@
 
   @class SequenceCanvas
 **/ 
-define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object'], function($, Artist, fun, EventedObject) {
+define([
+  'jquery', 
+  'graphics/artist', 
+  'utils/evented_object', 
+  'views/data_view',
+  'models/data_model',
+  'hbars!views/templates/sequence_canvas_settings'
+  ], function($, Artist, EventedObject, DataView, DataModel, settingsTemplate) {
 
-  var SequenceCanvas = fun.extend(EventedObject, function() {
+  var SequenceCanvas = EventedObject.extend(function() {
     var this_ = this;
     this.$element = $('<canvas></canvas>').attr('id', 'sequence_canvas_'+Date.now());
 
@@ -21,6 +28,8 @@ define(['jquery', 'graphics/artist', 'utils/functional', 'utils/evented_object']
     @default false
     **/
     this.visible = false;
+
+    this.settingsView = new DataView({model: new DataModel(), template: settingsTemplate});
 
     this.on('visible', function(){
       this_.visible = true;

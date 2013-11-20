@@ -3,10 +3,11 @@ Simple class with event pub/sub capabilities
 @class EventedObject
 @constructor
 **/
-define(['underscore'], function(_) {
+define(['underscore', 'utils/functional'], function(_, fun) {
   /**
   EventedObject class constructor
   @method EventedObject
+  @protected
   **/
   function EventedObject() {
     this.listeners = {};
@@ -121,6 +122,15 @@ define(['underscore'], function(_) {
     _.each(events.split(' '), function(event) { this_.triggerOnceSingle(event , data); });
     return this;
   };
+
+  /**
+  Creates new class extending this class
+  @method extend
+  @param {function} newConstructor
+  **/
+  EventedObject.extend = function(newConstructor) {
+    return fun.extend(this, newConstructor || function(){});
+  }
 
 
   return EventedObject;

@@ -9,8 +9,8 @@ Views modules are registered using {{#crossLink "Layout/registerModule:method"}}
 @extends EventedObject
 @constructor
 **/
-define(['jquery', 'handlebars', 'underscore', 'utils/functional', 'utils/evented_object'], function($, handlebars, _, fun, EventedObject) {
-  var Layout = fun.extend(EventedObject, function() {
+define(['jquery', 'underscore', 'utils/evented_object'], function($, _, EventedObject) {
+  var Layout = EventedObject.extend(function() {
     this.registeredModules = [];
   });
 

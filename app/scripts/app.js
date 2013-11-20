@@ -10,14 +10,11 @@ The app is stored in `window.gentle` for global access.
 **/
 
 require(
-    ['jquery', 'utils/evented_object', 'utils/functional', 'models/gentle', 'views/layout', 'models/sequence', 'graphics/sequence_canvas', 'domReady'], 
-    function($, EventedObject, fun, Gentle, Layout, Sequence, SequenceCanvas, domReady) {
-
-  // Defines the App class as an extension of EventedObject generic class and Gentle model)
-  App = fun.extend(Gentle);
-
-  // Creates a globally-accessible new instance of the App Class
-  window.gentle = new App({
+    ['jquery', 'models/gentle', 'views/layout', 'models/sequence', 'graphics/sequence_canvas', 'domReady'], 
+    function($, Gentle, Layout, Sequence, SequenceCanvas, domReady) {
+  
+  // Creates a globally-accessible new instance of the Gentle Class
+  window.gentle = new Gentle({
     layout: new Layout()
   });
 

@@ -4,9 +4,9 @@ Main gentle model
 @class Gentle
 @extends EventedObject
 **/
-define(['utils/functional', 'utils/evented_object'], function(fun, EventedObject) {
+define(['utils/evented_object'], function(EventedObject) {
   
-  var Gentle = fun.extend(EventedObject, function() {
+  var Gentle = EventedObject.extend(function() {
     opts = arguments[0] || {};
     this.layout = opts.layout;
     this.registeredModules = []
