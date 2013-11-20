@@ -94,6 +94,12 @@
   background-color:black;
   color:white;
 }
+.designer_row_feature_genomikon_part {
+  height:34px;
+  background-color:#FFFBD0;
+  color:#9C2A99;
+}
+
 
 
 
@@ -447,6 +453,11 @@ h1 {
 .feat_gene {
   background-color:#2F74D0;
   left:55px;
+}
+
+.feat_genomikon_part {
+  background-color:#FF4848;
+  left: 35px;
 }
 
 .feat_cds {

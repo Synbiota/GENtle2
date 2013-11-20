@@ -122,7 +122,8 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 
 SequenceDNA.prototype.asNewSequenceDNA = function ( start , stop ) {
 	var me = this ;
-	var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ;
+	//var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ; ALEX
+	var ret = new SequenceDNA ( me.name , me.seq.substr ( start-1 , stop-start+1 ) ) ;
 	$.each ( (me.features||[]) , function ( k , v ) {
 		if ( v['_range'][0].from > stop ) return ;
 		if ( v['_range'][v['_range'].length-1].to < start ) return ;
