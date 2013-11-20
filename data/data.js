@@ -452,6 +452,7 @@ var cd = { // Common data, filled by loadBaseData()
    	"feature_types" : { //colours determined in main.css, .feat_misc
 		'misc' : 			{ 'category':'General',					'annotation_row_offset':0 , 'name':'Misc' } ,
 		'note' : 			{ 'category':'General', 				'annotation_row_offset':0 , 'name':'Note' } ,
+		'genomicon_part' :	{ 'category':'General', 'is_main_type':1 ,	'annotation_row_offset':0 , 'name':'Genomikon Part' } ,
 
 		'alu_element' : 	{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Alu element' },
 		'cds' : 			{ 'category':'DNA', 'is_main_type':1 , 	'annotation_row_offset':1 , 'name':'Coding sequence' },
