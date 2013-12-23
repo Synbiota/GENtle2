@@ -27,15 +27,14 @@ define(['jquery', 'underscore', 'utils/evented_object'], function($, _, EventedO
   Layout.prototype.registerModule = function(module, displayType) {
     this.registeredModules.push(module);
 
-    var displayModule = function() {
+    gentle.ready().then(function() {
       switch(displayType) {
         case 'displayMode':
           $('#mainDisplay').html(module.$element);
           module.trigger('visible');
           break;
       }
-    }
-    gentle.on('ready', displayModule);
+    });
   };
 
   Layout.prototype.unregisterModule = function(module) {

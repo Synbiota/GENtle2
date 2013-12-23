@@ -5,8 +5,10 @@ require.config({
     'Handlebars': 'vendor/handlebars',
     'hbars': 'vendor/hbars',
     'domReady': 'vendor/domReady',
-    'text': 'vendor/text'
+    'text': 'vendor/text',
+    'promise': 'vendor/promise-0.1.1'
   },
+  deps: ['utils/polyfills'],
   hbars: {
     extension: '.hbs'
   },
