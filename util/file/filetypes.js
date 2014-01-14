@@ -246,6 +246,63 @@ function FT_fasta () {
 
 
 //________________________________________________________________________________________
+// SCF
+// See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
+
+FT_scf.prototype = new Filetype() ;
+
+/**
+	Implements a SCF file reader/writer.
+	@class FT_fasta
+	@extends Filetype
+*/
+FT_scf.prototype.constructor = FT_scf ;
+
+FT_scf.prototype.getLittleEndianUnsignedWord = function ( bytes , p ) {
+	var n1 = bytes[p+1] * 256 + bytes[p+0] ;
+	return n1 ;
+}
+
+FT_scf.prototype.getFileExtension = function () {
+	return 'scf' ;
+}
+
+FT_scf.prototype.getExportString = function ( sequence ) {
+	return 'NOT IMPLEMENTED YET';
+}
+
+FT_scf.prototype.parseFile = function () {
+	var ret = [] ;
+//	var tempseq = $.parseJSON(this.text);
+	// START PARSING HERE
+	
+console.log ( "!" ) ; return ;	
+
+	var seqtext = '';
+
+	for (i in tempseq) {
+		seqtext += tempseq[i]['base'];
+	}
+
+	var v = new SequenceDNA ( name , seqtext, tempseq ) ;
+	var seqid = gentle.addSequence ( v , true ) ;
+	ret.push ( seqid ) ;
+	return ret ;
+}
+
+FT_scf.prototype.textHeuristic = function () {
+	if ( this.text.match ( /^\.scf/ ) ) return true ;
+	return false ;
+}
+
+function FT_scf () {
+	this.typeName = 'SCF' ;
+}
+
+
+
+
+//________________________________________________________________________________________
 // SCF2JSON
 
 FT_scf2json.prototype = new Filetype() ;

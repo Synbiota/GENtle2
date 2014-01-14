@@ -20,7 +20,7 @@
 //________________________________________________________________________________________
 // 
 var gentle = {
-	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' , 'cm5' , 'cm5_text', 'scf2json' ] ,
+	fileTypeList : [ 'fasta' , 'genebank' , 'plaintext' , 'sybil' , 'cm5' , 'cm5_text', 'scf' , 'scf2json' ] ,
 	features : {} , //{ 'note':'Note' , 'gene':'Gene' , 'cds':'CDS' , 'promoter':'Promoter' , 'misc':'Misc' , 'protein_bind':'Protein binding site' } ,
 	sequences : [] ,
 	current_sequence_entry : undefined ,
