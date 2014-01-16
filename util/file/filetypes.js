@@ -277,6 +277,10 @@ FT_scf.prototype.getExportString = function ( sequence ) {
 	return 'NOT IMPLEMENTED YET';
 }
 
+FT_scf.prototype.us2s = function ( x ) { // Unsigned to signed byte
+	return x >= 128 ? x-256 : x ;
+}
+
 FT_scf.prototype.parseFile = function ( just_check_format ) {
 	var me = this ;
 
@@ -297,7 +301,7 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 	if ( scf.magic_number != '.scf' ) return false ;
 	if ( just_check_format ) return true ;
 
-	scf.samples = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.samples = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ; // This always appears to be 2. Why? Complement strand?
 	scf.samples_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	scf.bases = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	scf.bases_left_clip = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
@@ -321,13 +325,70 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 		var dummy = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	}
 	
-//	console.log ( scf ) ;
+	console.log ( scf ) ;
 	
+	
+	// Here, we boldly assume it's all of sample 0 data, followed by all of sample 1. Here's to hoping it's not interspersed.
 	
 	scf.max_data = 0 ; // Highest peak
 	if ( scf.num_version > 2 ) { // V 3.0 and above
 	
 		// TODO delta; see http://staden.sourceforge.net/manual/formats_unix_4.html
+		var bytesize = scf.num_version == 1 ? 1 : 2 ;
+		scf.data = [] ; // Raw point data
+		var p = scf.samples_offset ;
+		var chunksize = scf.sample_size * scf.samples ; // Offsets for C, G, T
+		for ( var sample = 0 ; sample < scf.sample_size ; sample++ ) {
+			scf.data[sample] = [] ;
+		}
+		for ( var sample = 0 ; sample < scf.sample_size ; sample++ ) {
+			for ( var point = 0 ; point < scf.samples ; point++ ) {
+				var o = {
+					A : me.us2s(bytes[p+chunksize*0]) ,
+					C : me.us2s(bytes[p+chunksize*1]) ,
+					G : me.us2s(bytes[p+chunksize*2]) ,
+					T : me.us2s(bytes[p+chunksize*3])
+				} ;
+				scf.data[sample][point] = o ;
+				p++ ;
+			}
+		}
+
+		// Applying diff
+		for ( var q = 0 ; q < 2 ; q++ ) { // Twice? Why??
+			for ( var point = 0 ; point < scf.samples ; point++ ) {
+				$.each ( ['A','C','G','T'] , function ( dummy , base ) {
+					var p_delta = 0 ;
+					for ( var i = 0 ; i < scf.sample_size ; i++ ) {
+						var p_sample = scf.data[i][point][base] ;
+						scf.data[i][point][base] = scf.data[i][point][base] - p_delta ;
+						p_delta = p_sample ;
+					}
+				} ) ;
+			}
+		}
+		
+		for ( var i = 0 ; i < scf.sample_size ; i++ ) {
+			for ( var point = 0 ; point < scf.samples ; point++ ) {
+				$.each ( ['A','C','G','T'] , function ( dummy , base ) {
+					if ( scf.max_data < scf.data[i][point][base] ) scf.max_data = scf.data[i][point][base] ;
+				} ) ;
+			}
+		}
+
+		// Bases
+		p = scf.bases_offset ;
+		scf.base_data = [] ;
+		for ( var base = 0 ; base < scf.bases ; base++ ) {
+			scf.base_data[base] = {
+				index : me.getBigEndianUnsignedLong ( bytes , p+base*4 ) ,
+				prob_A : bytes[p+scf.bases*4+base] ,
+				prob_C : bytes[p+scf.bases*5+base] ,
+				prob_G : bytes[p+scf.bases*6+base] ,
+				prob_T : bytes[p+scf.bases*7+base] ,
+				base : String.fromCharCode ( bytes[p+scf.bases*8+base] )
+			} ;
+		}
 	
 	} else { // V 1.0 or 2.0
 		
@@ -336,7 +397,10 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 		scf.data = [] ; // Raw point data
 		for ( var sample = 0 ; sample < scf.sample_size ; sample++ ) {
 			scf.data[sample] = [] ;
-			var p = scf.samples_offset + sample * scf.samples * bytesize ;
+		} ;
+		
+		var p = scf.samples_offset ;
+		for ( var sample = 0 ; sample < scf.sample_size ; sample++ ) {
 			for ( var point = 0 ; point < scf.samples ; point++ ) {
 				var o = {} ;
 				if ( bytesize == 1 ) { // V1
@@ -347,16 +411,16 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 						T : bytes[p+3]
 						} ;
 				} else { // V2
-					o.A = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
-					o.C = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
-					o.G = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
-					o.T = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
+					o.A = me.getBigEndianUnsignedWord ( bytes , p+0 ) ;
+					o.C = me.getBigEndianUnsignedWord ( bytes , p+2 ) ;
+					o.G = me.getBigEndianUnsignedWord ( bytes , p+4 ) ;
+					o.T = me.getBigEndianUnsignedWord ( bytes , p+6 ) ;
 				}
 				if ( o.A > scf.max_data ) scf.max_data = o.A ;
 				if ( o.C > scf.max_data ) scf.max_data = o.C ;
 				if ( o.G > scf.max_data ) scf.max_data = o.G ;
 				if ( o.T > scf.max_data ) scf.max_data = o.T ;
-				scf.data[sample].push ( o ) ;
+				scf.data[sample][point] = o ;
 				p += 4 * bytesize ;
 			}
 		}
@@ -378,7 +442,7 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 		
 	}
 	
-	// PARSING INCOMPLETE!
+	// PARSING INCOMPLETE! Private data, comments not parsed
 
 	
 
@@ -387,14 +451,20 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 	
 	// NOW TURNING SCF OBJECT INTO OVERSIMPLIFIED DISPLAY STRUCTURE
 	
+	var max = 1000 ; // scf.max_data
+	var n = 10 ;
 	var tempseq = [] ;
 	$.each ( scf.base_data , function ( k , v ) {
-		var d = scf.data[1][v.index] ; // Sample 0? Always? WTF?
+		var d = scf.data[0][v.index] ; // Sample 0? Always? WTF?
 		var o = {
-			A : Math.floor ( 100 * d.A / scf.max_data ) ,
+			A : (d.A > max ? max : d.A)/n ,
+			C : (d.C > max ? max : d.C)/n  ,
+			G : (d.G > max ? max : d.G)/n  ,
+			T : (d.T > max ? max : d.T)/n  ,
+/*			A : Math.floor ( 100 * d.A / scf.max_data ) ,
 			C : Math.floor ( 100 * d.C / scf.max_data )  ,
 			G : Math.floor ( 100 * d.G / scf.max_data )  ,
-			T : Math.floor ( 100 * d.T / scf.max_data )  ,
+			T : Math.floor ( 100 * d.T / scf.max_data )  ,*/
 			base : v.base
 		} ;
 		tempseq.push ( o ) ;
