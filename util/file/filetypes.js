@@ -248,6 +248,7 @@ function FT_fasta () {
 //________________________________________________________________________________________
 // SCF
 // See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
+// For V3.1 RfC, see http://staden.sourceforge.net/scf-rfc.html
 
 FT_scf.prototype = new Filetype() ;
 
@@ -258,8 +259,13 @@ FT_scf.prototype = new Filetype() ;
 */
 FT_scf.prototype.constructor = FT_scf ;
 
-FT_scf.prototype.getLittleEndianUnsignedWord = function ( bytes , p ) {
-	var n1 = bytes[p+1] * 256 + bytes[p+0] ;
+FT_scf.prototype.getBigEndianUnsignedWord = function ( bytes , p ) {
+	var n1 = bytes[p+0] * 256 + bytes[p+1] ;
+	return n1 ;
+}
+
+FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
+	var n1 = bytes[p+0] *256*256*256 + bytes[p+1] *256*256 + bytes[p+2] * 256 + bytes[p+3] ;
 	return n1 ;
 }
 
@@ -271,19 +277,139 @@ FT_scf.prototype.getExportString = function ( sequence ) {
 	return 'NOT IMPLEMENTED YET';
 }
 
-FT_scf.prototype.parseFile = function () {
-	var ret = [] ;
-//	var tempseq = $.parseJSON(this.text);
-	// START PARSING HERE
-	
-console.log ( "!" ) ; return ;	
+FT_scf.prototype.parseFile = function ( just_check_format ) {
+	var me = this ;
 
+	// START SCF PARSING HERE
+
+	var me_text = String.fromCharCode.apply(null, new Uint16Array(me.text)) ;
+	var bytes = new Uint8Array(me.text);
+	
+
+	// HEADER
+	var p = 0 ;
+	var scf = {} ;
+	scf.magic_number = String.fromCharCode ( bytes[p++] ) + 
+					String.fromCharCode ( bytes[p++] ) +
+					String.fromCharCode ( bytes[p++] ) +
+					String.fromCharCode ( bytes[p++] ) ;
+
+	if ( scf.magic_number != '.scf' ) return false ;
+	if ( just_check_format ) return true ;
+
+	scf.samples = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.samples_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.bases = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.bases_left_clip = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.bases_right_clip = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.bases_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.comments_size = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.comments_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	
+	scf.version = String.fromCharCode ( bytes[p++] ) + 
+					String.fromCharCode ( bytes[p++] ) +
+					String.fromCharCode ( bytes[p++] ) +
+					String.fromCharCode ( bytes[p++] ) ;
+	scf.num_version = scf.version * 1 ;
+	
+	scf.sample_size = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.code_set = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.private_size = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	scf.private_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	
+	for ( var i = 0 ; i < 18 ; i++ ) {
+		var dummy = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
+	}
+	
+//	console.log ( scf ) ;
+	
+	
+	scf.max_data = 0 ; // Highest peak
+	if ( scf.num_version > 2 ) { // V 3.0 and above
+	
+		// TODO delta; see http://staden.sourceforge.net/manual/formats_unix_4.html
+	
+	} else { // V 1.0 or 2.0
+		
+		// Points
+		var bytesize = scf.num_version == 1 ? 1 : 2 ;
+		scf.data = [] ; // Raw point data
+		for ( var sample = 0 ; sample < scf.sample_size ; sample++ ) {
+			scf.data[sample] = [] ;
+			var p = scf.samples_offset + sample * scf.samples * bytesize ;
+			for ( var point = 0 ; point < scf.samples ; point++ ) {
+				var o = {} ;
+				if ( bytesize == 1 ) { // V1
+					o =  {
+						A : bytes[p+0] ,
+						C : bytes[p+1] ,
+						G : bytes[p+2] ,
+						T : bytes[p+3]
+						} ;
+				} else { // V2
+					o.A = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
+					o.C = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
+					o.G = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
+					o.T = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
+				}
+				if ( o.A > scf.max_data ) scf.max_data = o.A ;
+				if ( o.C > scf.max_data ) scf.max_data = o.C ;
+				if ( o.G > scf.max_data ) scf.max_data = o.G ;
+				if ( o.T > scf.max_data ) scf.max_data = o.T ;
+				scf.data[sample].push ( o ) ;
+				p += 4 * bytesize ;
+			}
+		}
+		
+		// Bases
+		p = scf.bases_offset ;
+		scf.base_data = [] ;
+		for ( var base = 0 ; base < scf.bases ; base++ ) {
+			scf.base_data[base] = {
+				index : me.getBigEndianUnsignedLong ( bytes , p ) ,
+				prob_A : bytes[p+4] ,
+				prob_C : bytes[p+5] ,
+				prob_G : bytes[p+6] ,
+				prob_T : bytes[p+7] ,
+				base : String.fromCharCode ( bytes[p+8] ) // Plus 3 blank spare
+			} ;
+			p += 12 ;
+		}
+		
+	}
+	
+	// PARSING INCOMPLETE!
+
+	
+
+
+	// END SCF PARSING
+	
+	// NOW TURNING SCF OBJECT INTO OVERSIMPLIFIED DISPLAY STRUCTURE
+	
+	var tempseq = [] ;
+	$.each ( scf.base_data , function ( k , v ) {
+		var d = scf.data[1][v.index] ; // Sample 0? Always? WTF?
+		var o = {
+			A : Math.floor ( 100 * d.A / scf.max_data ) ,
+			C : Math.floor ( 100 * d.C / scf.max_data )  ,
+			G : Math.floor ( 100 * d.G / scf.max_data )  ,
+			T : Math.floor ( 100 * d.T / scf.max_data )  ,
+			base : v.base
+		} ;
+		tempseq.push ( o ) ;
+	} ) ;
+
+//	var tempseq = $.parseJSON(this.text);
+
+	var ret = [] ;
 	var seqtext = '';
 
 	for (i in tempseq) {
 		seqtext += tempseq[i]['base'];
 	}
 
+	var name = "Chromatogram" ;
 	var v = new SequenceDNA ( name , seqtext, tempseq ) ;
 	var seqid = gentle.addSequence ( v , true ) ;
 	ret.push ( seqid ) ;
@@ -291,12 +417,12 @@ console.log ( "!" ) ; return ;
 }
 
 FT_scf.prototype.textHeuristic = function () {
-	if ( this.text.match ( /^\.scf/ ) ) return true ;
-	return false ;
+	return this.parseFile ( true ) ;
 }
 
 function FT_scf () {
 	this.typeName = 'SCF' ;
+	this.read_binary = true ;
 }
 
 
