@@ -347,20 +347,23 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 				T : me.getBigEndianSignedWord ( bytes , p+chunksize*3 )
 			} ;
 			scf.data[point] = o ;
-			p += 2 ;
+			p += scf.sample_size ;
 		}
 
 		// Applying diff
-		for ( var q = 0 ; q < 1 ; q++ ) { // Twice? Why??
-			$.each ( ['A','C','G','T'] , function ( dummy , base ) {
-				var p_diff = 0 ;
-				for ( var point = 1 ; point < scf.samples ; point++ ) { // Note: start=1
-					var p_sample = scf.data[point][base] ;
-					scf.data[point][base] = scf.data[point][base] - p_diff ;
-					p_diff = p_sample ;
-				}
-			} ) ;
-		}
+		var num_samples = scf.samples ;
+		$.each ( ['A','C','G','T'] , function ( dummy , base ) {
+			var p_sample = 0 ;
+			for (var i=0;i<num_samples;i++) {
+				scf.data[i][base] += p_sample ;
+				p_sample = scf.data[i][base] ;
+			}
+			var p_sample = 0 ;
+			for (var i=0;i<num_samples;i++) {
+				scf.data[i][base] += p_sample ;
+				p_sample = scf.data[i][base] ;
+			}
+		} ) ;
 
 		// Bases
 		p = scf.bases_offset ;
@@ -437,7 +440,7 @@ FT_scf.prototype.parseFile = function ( just_check_format ) {
 	// NOW TURNING SCF OBJECT INTO OVERSIMPLIFIED DISPLAY STRUCTURE
 	
 	var max = 1000 ; // scf.max_data
-	var n = scf.num_version >= 3 ? 1 : 10 ;
+	var n = scf.num_version >= 3 ? 10 : 10 ;
 	var tempseq = [] ;
 	$.each ( scf.base_data , function ( k , v ) {
 		var d = scf.data[v.index] ;
