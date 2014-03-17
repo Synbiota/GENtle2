@@ -1,22 +1,23 @@
 /**
 Basic view-side of the two-way-bound data model
 @class DataView 
-@extends EventedObject
+@extends BaseClass
 **/
-define(['utils/evented_object'], function(EventedObject) {
+define(['utils/base_class'], function(BaseClass) {
 
   /**
   Constructor for {{#crossLink "DataView"}}{{/crossLink}} class.
   @method DataView
   @protected
   **/
-  var DataView = EventedObject.extend(function(args) {
+  var DataView = function(args) {
     if(args === undefined || args.model === undefined || args.template === undefined) return;
     this.$element = $('');
     this.model = args.model;
     this.model.on('updated', this.render);
     if(typeof args.template === 'function') this.template = args.template;
-  });
+  };
+  DataView.extend(BaseClass);
 
   /**
   Renders template using `this.model`'s data

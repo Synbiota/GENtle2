@@ -6,13 +6,13 @@
 define([
   'jquery', 
   'graphics/artist', 
-  'utils/evented_object', 
+  'utils/base_class', 
   'views/data_view',
   'models/data_model',
   'hbars!views/templates/sequence_canvas_settings'
-  ], function($, Artist, EventedObject, DataView, DataModel, settingsTemplate) {
+  ], function($, Artist, BaseClass, DataView, DataModel, settingsTemplate) {
 
-  var SequenceCanvas = EventedObject.extend(function() {
+  var SequenceCanvas = function() {
     var this_ = this;
     this.$element = $('<canvas></canvas>').attr('id', 'sequence_canvas_'+Date.now());
 
@@ -70,7 +70,9 @@ define([
 
     this.calculateLayoutSettings();
 
-  });
+  };
+
+  SequenceCanvas.extend(BaseClass);
 
   /**
     Updates Canvas Dims based on layout.

@@ -6,7 +6,7 @@ Modules are registered here, along with their positioning in the layout.
 The app is stored in `window.gentle` for global access.
 
 @class App
-@extends EventedObject, Gentle
+@extends EventEmitter, Gentle
 **/
 
 require(

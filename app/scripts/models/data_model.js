@@ -1,22 +1,24 @@
 /**
 Generic data model with getters/setters, events and two-way data binding with view
 @class Data
-@extends EventedObject
+@extends BaseClass
 **/
-define(['utils/evented_object'], function(EventedObject) {
+define(['utils/base_class'], function(BaseClass) {
 
   /**
   Constructor for {{#crossLink "Data"}}{{/crossLink}} class.
   @method Data
   **/
-  var DataModel = EventedObject.extend(function(args) {
+  var DataModel = function(args) {
     if(args === undefined) args = {};
     this.accessibleAttrs = args.accessibleAttrs || [];
     if(args.view) {
       this.view = args.view;
       this.view.on('binding:updated', this.set);
     }
-  });
+  };
+
+  DataModel.extend(BaseClass);
 
   /**
   Getter method

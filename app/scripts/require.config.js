@@ -6,7 +6,8 @@ require.config({
     'hbars': 'vendor/hbars',
     'domReady': 'vendor/domReady',
     'text': 'vendor/text',
-    'promise': 'vendor/promise-0.1.1'
+    'promise': 'vendor/promise-0.1.1',
+    'eventEmitter': 'vendor/EventEmitter'
   },
   deps: ['utils/polyfills'],
   hbars: {

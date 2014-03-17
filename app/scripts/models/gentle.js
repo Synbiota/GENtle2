@@ -2,16 +2,17 @@
 Main gentle model
 
 @class Gentle
-@extends EventedObject
+@extends BaseClass
 **/
-define(['utils/evented_object'], function(EventedObject) {
+define(['utils/base_class'], function(BaseClass) {
   
-  var Gentle = EventedObject.extend(function() {
+  var Gentle = function() {
     opts = arguments[0] || {};
     this.layout = opts.layout;
     this.registeredModules = [];
     this.isLoaded = false;
-  });
+  };
+  Gentle.extend(BaseClass);
 
   /**
   @method registerModuleInLayout
