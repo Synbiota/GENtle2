@@ -5,3 +5,4 @@ docs
 *.sublime-workspace
 npm-debug.log
 app/scripts/app.min.s
+*.orig

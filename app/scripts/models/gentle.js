@@ -4,7 +4,7 @@ Main gentle model
 @class Gentle
 @extends EventEmitter
 **/
-define(['eventEmitter'], function(EventEmitter) {
+define(['backbone'], function(Backbone) {
   
   var Gentle = function() {
     opts = arguments[0] || {};
@@ -12,7 +12,8 @@ define(['eventEmitter'], function(EventEmitter) {
     this.registeredModules = [];
     this.isLoaded = false;
   };
-  Gentle.extend(EventEmitter);
+
+  _.extend(Gentle.prototype, Backbone.Events);
 
   /**
   @method registerModuleInLayout

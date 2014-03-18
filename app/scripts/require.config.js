@@ -1,27 +1,35 @@
 require.config({
   paths: {
-    'jquery':       'vendor/jquery-1.10.2',
-    'underscore':   'vendor/underscore',
-    'Handlebars':   'vendor/handlebars',
-    'hbars':        'vendor/hbars',
-    'domReady':     'vendor/domReady',
-    'text':         'vendor/text',
-    'promise':      'vendor/promise-0.1.1',
-    'eventEmitter': 'vendor/EventEmitter'
+    'jquery':       'lib/vendor/jquery-1.10.2',
+    'underscore':   'lib/vendor/underscore',
+    'Handlebars':   'lib/vendor/handlebars',
+    'hbars':        'lib/vendor/hbars',
+    'domReady':     'lib/vendor/domReady',
+    'text':         'lib/vendor/text',
+    'promise':      'lib/vendor/promise-3.2.0',
+    'backbone':     'lib/vendor/backbone-1.1.2',
+    'layoutmanager':'lib/vendor/backbone.layoutmanager-0.9.5'
   },
   deps: [
-    'utils/polyfills',
-    'utils/inheritance'
+    'lib/utils/polyfills',
+    'lib/common'
   ],
   hbars: {
     extension: '.hbs'
   },
   shim: {
+    backbone: {
+      deps: ['underscore', 'jquery'],
+      exports: 'Backbone'
+    },
     underscore: {
       exports: '_'
     },
+    jquery: {
+      exports: '$'
+    },
     Handlebars: {
       exports: 'Handlebars'
-    }
+    },
   }
 });
