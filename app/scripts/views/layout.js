@@ -6,14 +6,14 @@ Views modules are registered using {{#crossLink "Layout/registerModule:method"}}
 `Layout` notifies modules when they become visible or hidden by triggering `visible` and `hidden` events directly on them
 
 @class Layout
-@extends BaseClass
+@extends EventEmitter
 @constructor
 **/
-define(['jquery', 'underscore', 'utils/base_class'], function($, _, BaseClass) {
+define(['jquery', 'underscore', 'eventEmitter'], function($, _, EventEmitter) {
   var Layout = function() {
     this.registeredModules = [];
   };
-  Layout.extend(BaseClass);
+  Layout.extend(EventEmitter);
 
   /**
   Registers a module in the layout.

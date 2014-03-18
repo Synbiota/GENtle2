@@ -2,9 +2,9 @@
 Main gentle model
 
 @class Gentle
-@extends BaseClass
+@extends EventEmitter
 **/
-define(['utils/base_class'], function(BaseClass) {
+define(['eventEmitter'], function(EventEmitter) {
   
   var Gentle = function() {
     opts = arguments[0] || {};
@@ -12,7 +12,7 @@ define(['utils/base_class'], function(BaseClass) {
     this.registeredModules = [];
     this.isLoaded = false;
   };
-  Gentle.extend(BaseClass);
+  Gentle.extend(EventEmitter);
 
   /**
   @method registerModuleInLayout

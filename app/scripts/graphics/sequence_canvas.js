@@ -6,11 +6,11 @@
 define([
   'jquery', 
   'graphics/artist', 
-  'utils/base_class', 
+  'eventEmitter', 
   'views/data_view',
   'models/data_model',
   'hbars!views/templates/sequence_canvas_settings'
-  ], function($, Artist, BaseClass, DataView, DataModel, settingsTemplate) {
+  ], function($, Artist, EventEmitter, DataView, DataModel, settingsTemplate) {
 
   var SequenceCanvas = function() {
     var this_ = this;
@@ -72,7 +72,7 @@ define([
 
   };
 
-  SequenceCanvas.extend(BaseClass);
+  SequenceCanvas.extend(EventEmitter);
 
   /**
     Updates Canvas Dims based on layout.

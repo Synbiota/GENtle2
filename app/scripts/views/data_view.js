@@ -1,9 +1,9 @@
 /**
 Basic view-side of the two-way-bound data model
 @class DataView 
-@extends BaseClass
+@extends EventEmitter
 **/
-define(['utils/base_class'], function(BaseClass) {
+define(['eventEmitter'], function(EventEmitter) {
 
   /**
   Constructor for {{#crossLink "DataView"}}{{/crossLink}} class.
@@ -17,7 +17,7 @@ define(['utils/base_class'], function(BaseClass) {
     this.model.on('updated', this.render);
     if(typeof args.template === 'function') this.template = args.template;
   };
-  DataView.extend(BaseClass);
+  DataView.extend(EventEmitter);
 
   /**
   Renders template using `this.model`'s data

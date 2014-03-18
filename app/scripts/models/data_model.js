@@ -1,9 +1,9 @@
 /**
 Generic data model with getters/setters, events and two-way data binding with view
 @class Data
-@extends BaseClass
+@extends EventEmitter
 **/
-define(['utils/base_class'], function(BaseClass) {
+define(['eventEmitter'], function(EventEmitter) {
 
   /**
   Constructor for {{#crossLink "Data"}}{{/crossLink}} class.
@@ -18,7 +18,7 @@ define(['utils/base_class'], function(BaseClass) {
     }
   };
 
-  DataModel.extend(BaseClass);
+  DataModel.extend(EventEmitter);
 
   /**
   Getter method

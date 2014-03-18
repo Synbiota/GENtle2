@@ -10,8 +10,8 @@ The app is stored in `window.gentle` for global access.
 **/
 
 require(
-    ['jquery', 'models/gentle', 'views/layout', 'models/sequence', 'graphics/sequence_canvas', 'domReady'], 
-    function($, Gentle, Layout, Sequence, SequenceCanvas, domReady) {
+    ['models/gentle', 'views/layout', 'models/sequence', 'graphics/sequence_canvas', 'domReady'], 
+    function(Gentle, Layout, Sequence, SequenceCanvas, domReady) {
   
   // Creates a globally-accessible new instance of the Gentle Class
   window.gentle = new Gentle({
