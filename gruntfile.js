@@ -28,6 +28,13 @@ module.exports = function(grunt) {
         }
       }
     }
+  , sass: {
+      dist: {
+        files: {
+          'app/stylesheets/app.css': 'app/stylesheets/app.scss'
+        }
+      }
+    }
   , watch: {
       docs: {
         files: ['app/scripts/**/*.js', '!app/scripts/app.min.js'],
@@ -35,7 +42,16 @@ module.exports = function(grunt) {
         options: {
           atBegin: true
         }
-      } //,
+      },
+      sass: {
+        files: ['app/stylesheets/**/*.{scss,sass}'],
+        tasks: ['sass'],
+        options: {
+          atBegin: true
+        }
+      }
+
+      //,
       // compile: {
       //   files: ['app/scripts/**/*.js', '!app/scripts/app.min.js'],
       //   tasks: 'requirejs',
@@ -47,7 +63,9 @@ module.exports = function(grunt) {
     }
   });
 
+  // grunt.loadNpmTasks('grunt-notify');
   grunt.loadNpmTasks('grunt-contrib-yuidoc');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-sass');
 }

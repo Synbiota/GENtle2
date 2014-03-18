@@ -8,6 +8,7 @@ define(function(require) {
   SequenceView = Backbone.View.extend({
     manage: true,
     template: template,
+    className: 'sequence-view',
 
     initialize: function() {
       var _this = this;

@@ -17,7 +17,11 @@ define(function(require) {
     this.visible = true;
 
     // Context binding (context is lost in Promises' `.then` and `.done`)
-    _.bindAll(this, 'calculateLayoutSettings', 'display', 'refresh');
+    _.bindAll(this, 'calculateLayoutSettings', 
+                    'display', 
+                    'refresh', 
+                    'handleScrolling'
+              );
 
     /**
         Instance of BackboneView in which the canvas lives
@@ -35,6 +39,25 @@ define(function(require) {
     this.$canvas = options.$canvas || this.view.$('canvas').first();
 
     /**
+        Invisible DIV used to handle scrolling. 
+        As high as the total virtual height of the sequence as displayed.
+        @property $scrollingChild
+        @type jQuery object
+        @default `.scrollingChild`
+    **/
+    this.$scrollingChild = options.$scrollingChild || this.view.$('.scrolling-child').first();
+
+    /**
+        Div in which `this.$scrollingChild` will scroll.
+        Same height as `this.$canvas`
+        @property $scrollingParent
+        @type jQuery object
+        @default jQuery `.scrollingParent`
+    **/
+    this.$scrollingParent = options.$scrollingParent || this.view.$('.scrolling-parent').first();
+    this.$scrollingParent.on('scroll', this.handleScrolling);
+
+    /**
         Sequence to be displayed
         @property sequence
         @type Sequence (Backbone.Model)
@@ -49,18 +72,25 @@ define(function(require) {
     **/
     this.layoutSettings = {
       canvasDims: {width:1138, height:448},
-      pageMargins: {left:50,top:50,right:50,bottom:50},
+      pageMargins: {left:20,top:20,right:20,bottom:20},
       scrollPercentage: 1.0,
       gutterWidth: 10,
       positionText: {font: "10px Monospace", colour:"#005"},
-      basePairText: {font: "14px Monospace", colour:"#000"},
-      basePairDims: {width:10, height:15},
+      basePairText: {font: "15px Monospace", colour:"#000"},
+      basePairDims: {width:13, height:15},
       sequenceLength: this.sequence.length(),
       lines: [
         {type:'blank', height:5},
         {type:'position', height:15},
         {type:'dna', height:25}]
-    } ;
+    };
+
+    // * 
+    // Current top virtual scrolling position inside the canvas.
+    // @property currentScroll
+    // @type integer
+    // *
+    // this.currentScroll = 0;
     
 
     this.layoutHelpers = {};
@@ -81,11 +111,15 @@ define(function(require) {
       @returns {Promise} a Promise finished when this and `this.calculateLayoutSettings` are finished
   **/
   SequenceCanvas.prototype.updateCanvasDims = function() {
-    var width   = this.$canvas[0].scrollWidth,
-        height  = this.$canvas[0].scrollHeight
-        _this   = this;
+    var _this = this;
 
     return new Promise(function(resolve, reject) {
+      // Updates width of $canvas to take scrollbar of $scrollingParent into account
+      _this.$canvas.width(_this.$scrollingChild.width());
+
+      var width   = _this.$canvas[0].scrollWidth,
+          height  = _this.$canvas[0].scrollHeight;
+
       _this.layoutSettings.canvasDims.width = width;
       _this.layoutSettings.canvasDims.height = height;
 
@@ -108,7 +142,8 @@ define(function(require) {
         i, 
         deca_bases_per_row,
         ls = this.layoutSettings,
-        lh = this.layoutHelpers;
+        lh = this.layoutHelpers
+        _this = this;
 
     return new Promise(function(resolve, reject) {
       lh.lineOffsets = [0];
@@ -152,13 +187,14 @@ define(function(require) {
       if (ls.canvasDims.height < lh.pageDims.height){
         lh.yOffset = (lh.pageDims.height - ls.canvasDims.height) * ls.scrollPercentage ;
       }
+      console.log(lh.yOffset);
 
       // first row (starting at which row do we need to actually display them)
       lh.rows.first = Math.floor((lh.yOffset - ls.pageMargins.top)/lh.rows.height);
       if (lh.rows.first < 0) lh.rows.first = 0;
 
-      // Always resolve the promise
-      resolve(); 
+      // We resize `this.$scrollingChild` and fullfills the Promise
+      _this.resizeScrollHelpers().done(resolve)
     });
   };
 
@@ -174,66 +210,98 @@ define(function(require) {
         ls = this.layoutSettings,
         lh = this.layoutHelpers,
         row,
+        _this = this,
         ctx = this.artist.context; //just doing a run without the artist...
 
-    //clear canvas
-    ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
-    
+    return new Promise(function(resolve, reject) {
+      //clear canvas
+      ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
+      
 
-    y = - lh.yOffset + ls.pageMargins.top + lh.rows.first*lh.rows.height;
+      y = - lh.yOffset + ls.pageMargins.top + lh.rows.first*lh.rows.height;
 
-    for(i = 0; i < lh.rows.visible; i++){
-      for(j = 0; j < ls.lines.length; j++){
-        switch(ls.lines[j].type)
-        {
-          case "blank":
-            //do nothing!
-            break;
-          case "position":
-            // numbering for position
-            ctx.fillStyle = ls.positionText.colour;
-            ctx.font = ls.positionText.font;
-            
-            x = ls.pageMargins.left;
-            pos = (lh.rows.first + i)*lh.basesPerRow + 1;
-            for(k = 0; k < lh.basesPerRow; k+=10){
-              ctx.fillText(pos+k, x, y);
-              x += 10*ls.basePairDims.width + ls.gutterWidth;
-            }
-            break;
-          case "dna":
-            //draw the DNA text
-            ctx.fillStyle = ls.basePairText.colour;
-            ctx.font = ls.basePairText.font;
-
-            x = ls.pageMargins.left;
-            seq = this.sequence.getSubSeq((lh.rows.first + i)*lh.basesPerRow,(lh.rows.first + i)*lh.basesPerRow+lh.basesPerRow)
-            if(seq) {
-              for(k = 0; k < lh.basesPerRow; k++){
-                if(!seq[k]) break;
-                ctx.fillText(seq[k], x, y);
-                x += ls.basePairDims.width;
-                if ((k + 1) % 10 === 0) x += ls.gutterWidth;
+      for(i = 0; i < lh.rows.visible; i++){
+        console.log(i);
+        for(j = 0; j < ls.lines.length; j++){
+          switch(ls.lines[j].type)
+          {
+            case "blank":
+              //do nothing!
+              break;
+            case "position":
+              // numbering for position
+              ctx.fillStyle = ls.positionText.colour;
+              ctx.font = ls.positionText.font;
+              
+              x = ls.pageMargins.left;
+              pos = (lh.rows.first + i)*lh.basesPerRow + 1;
+              for(k = 0; k < lh.basesPerRow; k+=10){
+                ctx.fillText(pos+k, x, y);
+                x += 10*ls.basePairDims.width + ls.gutterWidth;
               }
-            }
-            break;
-          default:
-            //do nothing!
+              break;
+            case "dna":
+              //draw the DNA text
+              ctx.fillStyle = ls.basePairText.colour;
+              ctx.font = ls.basePairText.font;
+
+              x = ls.pageMargins.left;
+              seq = _this.sequence.getSubSeq((lh.rows.first + i)*lh.basesPerRow,(lh.rows.first + i)*lh.basesPerRow+lh.basesPerRow)
+              if(seq) {
+                for(k = 0; k < lh.basesPerRow; k++){
+                  if(!seq[k]) break;
+                  ctx.fillText(seq[k], x, y);
+                  x += ls.basePairDims.width;
+                  if ((k + 1) % 10 === 0) x += ls.gutterWidth;
+                }
+              }
+              break;
+            default:
+              //do nothing!
+          }
+          y += ls.lines[j].height
         }
-        y += ls.lines[j].height
+        y += lh.rows.height;
       }
-      y += lh.rows.height;
-    }
+
+      // Always resolve.
+      resolve();
+
+    });
+    
   };
 
   /**
-  Updates layout settings and refreshes canvas
+  @method resizeScrollHelpers
+  @return {Promise}
+  **/
+  SequenceCanvas.prototype.resizeScrollHelpers = function() {
+    var _this = this;
+    return new Promise(function(resolve, reject) {
+      // _this.$scrollingParent.height(_this.$canvas[0].height);
+      _this.$scrollingChild.height(_this.layoutHelpers.pageDims.height);
+      resolve();
+    });
+  };
+
+  /**
+  Updates layout settings and redraws canvas
   @method refresh
+  @return {Promise}
   **/
   SequenceCanvas.prototype.refresh = function() {
     return this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
       .done(this.display);
+  };
+
+  /** 
+  Handles scrolling events
+  @method handleScrolling
+  **/
+  SequenceCanvas.prototype.handleScrolling = function() {
+    console.log('scrolly scrolly');
+    return;
   };
 
   

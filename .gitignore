@@ -6,3 +6,4 @@ docs
 npm-debug.log
 app/scripts/app.min.s
 *.orig
+stylesheets/app.css
