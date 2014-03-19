@@ -55,13 +55,12 @@ define(function(require) {
         @default jQuery `.scrollingParent`
     **/
     this.$scrollingParent = options.$scrollingParent || this.view.$('.scrolling-parent').first();
-    this.$scrollingParent.on('scroll', this.handleScrolling);
 
     /**
         Sequence to be displayed
         @property sequence
         @type Sequence (Backbone.Model)
-        @default `this.view.model
+        @default `this.view.model`
     **/
     this.sequence = options.sequence || this.view.model;
 
@@ -81,8 +80,9 @@ define(function(require) {
       sequenceLength: this.sequence.length(),
       lines: [
         {type:'blank', height:5},
-        {type:'position', height:15},
-        {type:'dna', height:25}]
+        {type:'position', height:15, baseLine: 15},
+        {type:'dna', height:25, baseLine: 17},
+        {type:'blank', height:10}]
     };
 
     // * 
@@ -97,7 +97,8 @@ define(function(require) {
     this.artist = new Artist(this.$canvas);
 
     // Events
-    this.view.on('resize', _.throttle(this.refresh, 150));
+    this.view.on('resize', this.refresh);
+    this.$scrollingParent.on('scroll', this.handleScrolling);
 
     // Kickstart rendering
     this.refresh();
@@ -142,7 +143,7 @@ define(function(require) {
         i, 
         deca_bases_per_row,
         ls = this.layoutSettings,
-        lh = this.layoutHelpers
+        lh = this.layoutHelpers,
         _this = this;
 
     return new Promise(function(resolve, reject) {
@@ -184,17 +185,16 @@ define(function(require) {
 
       // canvas y offset
       lh.yOffset = 0;
-      if (ls.canvasDims.height < lh.pageDims.height){
-        lh.yOffset = (lh.pageDims.height - ls.canvasDims.height) * ls.scrollPercentage ;
-      }
-      console.log(lh.yOffset);
+      // if (ls.canvasDims.height < lh.pageDims.height){
+      //   lh.yOffset = (lh.pageDims.height - ls.canvasDims.height) * ls.scrollPercentage ;
+      // }
 
       // first row (starting at which row do we need to actually display them)
       lh.rows.first = Math.floor((lh.yOffset - ls.pageMargins.top)/lh.rows.height);
       if (lh.rows.first < 0) lh.rows.first = 0;
 
       // We resize `this.$scrollingChild` and fullfills the Promise
-      _this.resizeScrollHelpers().done(resolve)
+      _this.resizeScrollHelpers().done(resolve);
     });
   };
 
@@ -203,82 +203,114 @@ define(function(require) {
       @method display
   **/
   SequenceCanvas.prototype.display = function() {
-    if(!this.visible) return;
+    if(this.visible) {
+      var context = this.artist.context,
+          ls      = this.layoutSettings,
+          lh      = this.layoutHelpers,
+          _this   = this,
+          i, k, pos, baseRange;
 
-    var i,j,k,x,y,
-        pos,
-        ls = this.layoutSettings,
-        lh = this.layoutHelpers,
-        row,
-        _this = this,
-        ctx = this.artist.context; //just doing a run without the artist...
+      return new Promise(function(resolve, reject){
+        //clear canvas
+        context.clearRect(0,0,context.canvas.width, context.canvas.height);
 
-    return new Promise(function(resolve, reject) {
-      //clear canvas
-      ctx.clearRect(0,0,ctx.canvas.width, ctx.canvas.height);
-      
-
-      y = - lh.yOffset + ls.pageMargins.top + lh.rows.first*lh.rows.height;
-
-      for(i = 0; i < lh.rows.visible; i++){
-        console.log(i);
-        for(j = 0; j < ls.lines.length; j++){
-          switch(ls.lines[j].type)
-          {
-            case "blank":
-              //do nothing!
-              break;
-            case "position":
-              // numbering for position
-              ctx.fillStyle = ls.positionText.colour;
-              ctx.font = ls.positionText.font;
-              
-              x = ls.pageMargins.left;
-              pos = (lh.rows.first + i)*lh.basesPerRow + 1;
-              for(k = 0; k < lh.basesPerRow; k+=10){
-                ctx.fillText(pos+k, x, y);
-                x += 10*ls.basePairDims.width + ls.gutterWidth;
-              }
-              break;
-            case "dna":
-              //draw the DNA text
-              ctx.fillStyle = ls.basePairText.colour;
-              ctx.font = ls.basePairText.font;
-
-              x = ls.pageMargins.left;
-              seq = _this.sequence.getSubSeq((lh.rows.first + i)*lh.basesPerRow,(lh.rows.first + i)*lh.basesPerRow+lh.basesPerRow)
-              if(seq) {
-                for(k = 0; k < lh.basesPerRow; k++){
-                  if(!seq[k]) break;
-                  ctx.fillText(seq[k], x, y);
-                  x += ls.basePairDims.width;
-                  if ((k + 1) % 10 === 0) x += ls.gutterWidth;
+        _this.forEachRow(0, ls.canvasDims.height, function(y) {
+          baseRange = _this.getBaseRangeFromYPos(y);
+          for(i = 0; i < ls.lines.length; i++) {
+            switch(ls.lines[i].type) {
+              case "position":
+                // numbering for position
+                context.fillStyle = ls.positionText.colour;
+                context.font = ls.positionText.font;
+                
+                x = ls.pageMargins.left;
+                for(k = baseRange[0]; k <= baseRange[1]; k+=10){
+                  context.fillText(k+1, x, y + (ls.lines[i].baseLine === undefined ? ls.lines[i].height : ls.lines[i].baseLine));
+                  x += 10*ls.basePairDims.width + ls.gutterWidth;
                 }
-              }
-              break;
-            default:
-              //do nothing!
+                break;
+              case "dna":
+                //draw the DNA text
+                context.fillStyle = ls.basePairText.colour;
+                context.font = ls.basePairText.font;
+
+                x = ls.pageMargins.left;
+                
+                seq = _this.sequence.getSubSeq(baseRange[0], baseRange[1]);
+                if(seq) {
+                  for(k = 0; k < lh.basesPerRow; k++){
+                    if(!seq[k]) break;
+                    context.fillText(seq[k], x, y + (ls.lines[i].baseLine === undefined ? ls.lines[i].height : ls.lines[i].baseLine));
+                    x += ls.basePairDims.width;
+                    if ((k + 1) % 10 === 0) x += ls.gutterWidth;
+                  }
+                }
+                break;
+              case "blank":
+                context.fillStyle = "red";
+                context.fillRect(0, y, ls.canvasDims.width, ls.lines[i].height);
+                break;
+              default:
+                //do nothing! (including blank)
+            }
+            y += ls.lines[i].height;
           }
-          y += ls.lines[j].height
-        }
-        y += lh.rows.height;
-      }
+        });
 
-      // Always resolve.
-      resolve();
+      });
+    } else{
+      return new Promise(function(resolve, reject) {
+        reject();
+      });
+    }
+  };
 
-    });
-    
+
+  /**
+  @method forEachRowInWindow
+  @param startY {integer} start of the visibility window
+  @param endY {integer} end of the visibility window
+  @param 
+    callback {function} function to execute for each row. 
+    Will be passed the y-offset in canvas.
+  */
+  SequenceCanvas.prototype.forEachRow = function(startY, endY, callback) {
+    var firstRowStartY  = this.getRowStartY(startY),
+        y;
+
+    for(y = firstRowStartY; y < endY; y += this.layoutHelpers.rows.height)
+      callback.call(this, y);
   };
 
   /**
+  @method getRowStartX
+  @param posY {integer} Y position in the row (relative to the canvas)
+  @return {integer} Y-start of the row (relative to canvas)
+  **/
+  SequenceCanvas.prototype.getRowStartY = function(posY) {
+    return posY - (posY + this.layoutHelpers.yOffset) % this.layoutHelpers.rows.height;
+  };
+
+  /**
+  @method getBaseRangeFromYPos
+  @param posY {integer} Y position in the canvas
+  @return {Array} First and last bases in the row at the y-pos
+  **/
+  SequenceCanvas.prototype.getBaseRangeFromYPos = function(posY) {
+    var rowNumber = Math.round((this.getRowStartY(posY) + this.layoutHelpers.yOffset) / this.layoutHelpers.rows.height),
+        firstBase = rowNumber * this.layoutHelpers.basesPerRow;
+    return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
+  };
+
+
+  /**
+  Resizes $scrollingChild after window/parent div has been resized
   @method resizeScrollHelpers
   @return {Promise}
   **/
   SequenceCanvas.prototype.resizeScrollHelpers = function() {
     var _this = this;
     return new Promise(function(resolve, reject) {
-      // _this.$scrollingParent.height(_this.$canvas[0].height);
       _this.$scrollingChild.height(_this.layoutHelpers.pageDims.height);
       resolve();
     });
@@ -290,18 +322,24 @@ define(function(require) {
   @return {Promise}
   **/
   SequenceCanvas.prototype.refresh = function() {
-    return this.updateCanvasDims()
-      .then(this.calculateLayoutSettings)
-      .done(this.display);
+    var _this = this;
+    return requestAnimationFrame(function() {
+      _this.updateCanvasDims()
+        .then(_this.calculateLayoutSettings)
+        .done(_this.display);
+    });
   };
 
   /** 
   Handles scrolling events
   @method handleScrolling
   **/
-  SequenceCanvas.prototype.handleScrolling = function() {
-    console.log('scrolly scrolly');
-    return;
+  SequenceCanvas.prototype.handleScrolling = function(event) {
+    var _this = this;
+    requestAnimationFrame(function() { 
+      _this.layoutHelpers.yOffset = $(event.delegateTarget).scrollTop();
+      _this.display();
+    });  
   };
 
   
