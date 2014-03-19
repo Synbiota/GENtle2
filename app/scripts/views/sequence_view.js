@@ -1,8 +1,8 @@
 define(function(require) {
   var Backbone        = require('backbone'),
-      template        = require('hbars!../../templates/sequence_view'),
+      template        = require('hbars!templates/sequence_view'),
       Sequence        = require('models/sequence'),
-      SequenceCanvas  = require('lib/graphics/sequence_canvas'),
+      SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       SequenceView;
   
   SequenceView = Backbone.View.extend({
@@ -11,19 +11,31 @@ define(function(require) {
     className: 'sequence-view',
 
     initialize: function() {
-      var _this = this;
       this.model = Gentle.currentSequence;
 
-      this.on('afterRender', function() {
-        _this.sequenceCanvas = new SequenceCanvas({
-          view: _this,
-          $canvas: _this.$('canvas').first()
-        });
-      });
+      this.on('afterRender', this.setupSequenceCanvas, this);
+
       
-      $(window).on('resize', function() { 
-        _this.trigger('resize'); 
+      this.handleResize = _.bind(this.handleResize, this);
+      $(window).on('resize', this.handleResize);
+      this.handleResize(false);
+    },
+
+    setupSequenceCanvas: function() {
+      this.sequenceCanvas = new SequenceCanvas({
+        view: this,
+        $canvas: this.$('canvas').first()
       });
+    },
+
+    handleResize: function(trigger) {
+      if(trigger !== false) this.trigger('resize');
+      // this.$el.height($(window).height() - $('#navbar .navbar').outerHeight()); 
+    },
+
+    remove: function() {
+      $(window).off('resize', this.handleResize);
+      Backbone.View.prototype.remove.apply(this, arguments);
     }
 
   });

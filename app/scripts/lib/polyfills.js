@@ -45,7 +45,7 @@ define(function() {
         window.cancelAnimationFrame = function(id) {
             clearTimeout(id);
         };
-}());
+    }());
 
 
   // Polyfills mutate the global state so we export nothing

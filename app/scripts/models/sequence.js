@@ -16,7 +16,13 @@ define(function(require){
       return this.attributes.sequence.substr(startBase, endBase-startBase+1);
     },
 
-    length: function() { return this.attributes.sequence.length; }
+    length: function() { return this.attributes.sequence.length; },
+
+    toJSON: function() {
+      return _.extend({
+        isCurrent: Gentle.currentSequence && Gentle.currentSequence.get('id') == this.get('id')
+      }, Backbone.Model.prototype.toJSON.apply(this));
+    }
 
   });
 

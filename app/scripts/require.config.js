@@ -1,17 +1,19 @@
 require.config({
+  baseUrl: './scripts/',
   paths: {
-    'jquery':       'lib/vendor/jquery-1.10.2',
-    'underscore':   'lib/vendor/underscore',
-    'Handlebars':   'lib/vendor/handlebars',
-    'hbars':        'lib/vendor/hbars',
-    'domReady':     'lib/vendor/domReady',
-    'text':         'lib/vendor/text',
-    'promise':      'lib/vendor/promise-3.2.0',
-    'backbone':     'lib/vendor/backbone-1.1.2',
-    'layoutmanager':'lib/vendor/backbone.layoutmanager-0.9.5'
+    'jquery':       '../vendor/scripts/jquery-1.10.2',
+    'underscore':   '../vendor/scripts/underscore',
+    'Handlebars':   '../vendor/scripts/handlebars',
+    'hbars':        '../vendor/scripts/hbars',
+    'domReady':     '../vendor/scripts/domReady',
+    'text':         '../vendor/scripts/text',
+    'promise':      '../vendor/scripts/promise-3.2.0',
+    'backbone':     '../vendor/scripts/backbone-1.1.2',
+    'layoutmanager':'../vendor/scripts/backbone.layoutmanager-0.9.5',
+    'bootstrap':    '../vendor/bootstrap/js/bootstrap.js'
   },
   deps: [
-    'lib/utils/polyfills',
+    'lib/polyfills',
     'lib/common'
   ],
   hbars: {

@@ -1,5 +1,41 @@
+@import '../vendor/bootstrap/css/bootstrap.css';
+@import 'sequence_view';
+
+
 body {
   margin: 0;
 }
 
-@import 'sequence_view';
+#navbar .navbar {
+  margin-bottom: 0;
+}
+
+#menu-button {
+  display: block;
+  float: left;
+  border: none;
+  border-right: 1px solid #ddd;
+  border-radius: 0;
+  margin: 0 10px 0 -15px;
+  height: 50px;
+  width: 50px;
+  padding: 14px;
+
+  &.active {
+    .icon-bar { background-color: white; }
+    &:hover { background-color: #3276b1; }
+  }
+}
+
+#sequence-tabs {
+  border: none;
+  margin-top: 9px;
+}
+
+#content {
+  position: absolute;
+  width: 100%;
+  top: 51px;
+  bottom: 0;
+}
+

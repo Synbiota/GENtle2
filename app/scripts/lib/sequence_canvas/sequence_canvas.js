@@ -71,12 +71,18 @@ define(function(require) {
     **/
     this.layoutSettings = {
       canvasDims: {width:1138, height:448},
-      pageMargins: {left:20,top:20,right:20,bottom:20},
+      pageMargins: {
+        left:20,
+        top:20, 
+        right:20,
+        bottom:20
+      },
       scrollPercentage: 1.0,
       gutterWidth: 10,
+      basesPerBlock: 10,
       positionText: {font: "10px Monospace", colour:"#005"},
       basePairText: {font: "15px Monospace", colour:"#000"},
-      basePairDims: {width:13, height:15},
+      basePairDims: {width:10, height:15},
       sequenceLength: this.sequence.length(),
       lines: [
         {type:'blank', height:5},
@@ -141,7 +147,7 @@ define(function(require) {
     //line offsets
     var line_offset = this.layoutSettings.lines[0].height,
         i, 
-        deca_bases_per_row,
+        blocks_per_row,
         ls = this.layoutSettings,
         lh = this.layoutHelpers,
         _this = this;
@@ -157,12 +163,12 @@ define(function(require) {
       lh.rows = {height:line_offset};
 
       //basesPerRow
-      deca_bases_per_row = Math.floor( (ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/(10 * ls.basePairDims.width + ls.gutterWidth) );
-      if (deca_bases_per_row !== 0){
-        lh.basesPerRow = 10*deca_bases_per_row;
+      blocks_per_row = Math.floor( (ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/(ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth) );
+      if (blocks_per_row !== 0){
+        lh.basesPerRow = ls.basesPerBlock*blocks_per_row;
       }else{
         lh.basesPerRow = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/ls.basePairDims.width);
-        //we want bases per row to be a multiple of 10
+        //we want bases per row to be a multiple of 10 (DOESNT WORK)
         if (lh.basesPerRow > 5){
           lh.basesPerRow = 5;
         }else if (lh.basesPerRow > 2){
@@ -224,9 +230,9 @@ define(function(require) {
                 context.font = ls.positionText.font;
                 
                 x = ls.pageMargins.left;
-                for(k = baseRange[0]; k <= baseRange[1]; k+=10){
+                for(k = baseRange[0]; k <= baseRange[1]; k+=ls.basesPerBlock){
                   context.fillText(k+1, x, y + (ls.lines[i].baseLine === undefined ? ls.lines[i].height : ls.lines[i].baseLine));
-                  x += 10*ls.basePairDims.width + ls.gutterWidth;
+                  x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
                 }
                 break;
               case "dna":
@@ -242,14 +248,14 @@ define(function(require) {
                     if(!seq[k]) break;
                     context.fillText(seq[k], x, y + (ls.lines[i].baseLine === undefined ? ls.lines[i].height : ls.lines[i].baseLine));
                     x += ls.basePairDims.width;
-                    if ((k + 1) % 10 === 0) x += ls.gutterWidth;
+                    if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
                   }
                 }
                 break;
-              case "blank":
-                context.fillStyle = "red";
-                context.fillRect(0, y, ls.canvasDims.width, ls.lines[i].height);
-                break;
+              // case "blank":
+              //   context.fillStyle = "red";
+              //   context.fillRect(0, y, ls.canvasDims.width, ls.lines[i].height);
+              //   break;
               default:
                 //do nothing! (including blank)
             }
@@ -278,7 +284,9 @@ define(function(require) {
     var firstRowStartY  = this.getRowStartY(startY),
         y;
 
-    for(y = firstRowStartY; y < endY; y += this.layoutHelpers.rows.height)
+    for(y = firstRowStartY; 
+        y < Math.min(endY, this.layoutSettings.canvasDims.height - this.layoutSettings.pageMargins.bottom); 
+        y += this.layoutHelpers.rows.height)
       callback.call(this, y);
   };
 
@@ -288,7 +296,12 @@ define(function(require) {
   @return {integer} Y-start of the row (relative to canvas)
   **/
   SequenceCanvas.prototype.getRowStartY = function(posY) {
-    return posY - (posY + this.layoutHelpers.yOffset) % this.layoutHelpers.rows.height;
+    return posY - 
+      (posY + 
+        this.layoutHelpers.yOffset - 
+        this.layoutSettings.pageMargins.top
+      ) % 
+      this.layoutHelpers.rows.height;
   };
 
   /**

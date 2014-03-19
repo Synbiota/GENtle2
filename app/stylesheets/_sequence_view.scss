@@ -1,16 +1,13 @@
-// .sequence-view {
-//   position: absolute;
-//   top: 0;
-//   left: 0;
-//   width: 100%;
-//   height: 100%;
-// }
+.sequence-view {
+  position: relative;
+  height: 100%;
+}
 
 .sequence-canvas-container {
   position: fixed;
   width: 100%;
-  height: 100%;
-  top: 0;
+  top: 51px;
+  bottom: 0;
 
   canvas.sequence-canvas {
     width: 100%;

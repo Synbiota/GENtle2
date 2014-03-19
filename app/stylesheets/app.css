@@ -1,11 +1,13 @@
-body {
-  margin: 0; }
+@import url('../vendor/bootstrap/css/bootstrap.css');
+.sequence-view {
+  position: relative;
+  height: 100%; }
 
 .sequence-canvas-container {
   position: fixed;
   width: 100%;
-  height: 100%;
-  top: 0; }
+  top: 51px;
+  bottom: 0; }
   .sequence-canvas-container canvas.sequence-canvas {
     width: 100%;
     height: 100%; }
@@ -18,3 +20,34 @@ body {
   overflow-y: scroll;
   background: transparent;
   cursor: text; }
+
+body {
+  margin: 0; }
+
+#navbar .navbar {
+  margin-bottom: 0; }
+
+#menu-button {
+  display: block;
+  float: left;
+  border: none;
+  border-right: 1px solid #ddd;
+  border-radius: 0;
+  margin: 0 10px 0 -15px;
+  height: 50px;
+  width: 50px;
+  padding: 14px; }
+  #menu-button.active .icon-bar {
+    background-color: white; }
+  #menu-button.active:hover {
+    background-color: #3276b1; }
+
+#sequence-tabs {
+  border: none;
+  margin-top: 9px; }
+
+#content {
+  position: absolute;
+  width: 100%;
+  top: 51px;
+  bottom: 0; }
