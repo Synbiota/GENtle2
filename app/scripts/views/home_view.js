@@ -22,7 +22,9 @@ define(function(require) {
           sequences = Filetypes.guessTypeAndParseFromText(text, name);
 
       if(sequences.length) {
-        sequences = Gentle.sequences.add(sequences);
+        sequences = _.map(sequences, function(sequence) {
+          return Gentle.sequences.create(sequence);
+        });
         Gentle.router.navigate('sequence/'+sequences[0].get('id'), {trigger: true});
       } else {
         alert('Could not parse the text.');

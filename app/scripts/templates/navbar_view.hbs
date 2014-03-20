@@ -8,7 +8,7 @@
     <ul class="nav nav-tabs" id="sequence-tabs">
       {{#each sequences}}
         <li {{#if isCurrent}}class='active'{{/if}}>
-          <a href='sequence/{{id}}'>{{name}}&nbsp;&nbsp;<small class="glyphicon glyphicon-remove"></small></a>
+          <a href='sequence/{{id}}' data-sequence-id='{{id}}'>{{name}}&nbsp;&nbsp;<small class="glyphicon glyphicon-remove close-sequence"></small></a>
         </li>
       {{/each}}
     </ul>

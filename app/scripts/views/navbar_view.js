@@ -9,7 +9,8 @@ define(function(require) {
     template: template,
     events: {
       'click #menu-button': 'navigateToHome',
-      'click #sequence-tabs li a': 'navigateToHref'
+      'click #sequence-tabs li a': 'navigateToHref',
+      'click #sequence-tabs .close-sequence': 'closeSequence'
     },
 
     initialize: function() {
@@ -18,13 +19,26 @@ define(function(require) {
     },
 
     navigateToHref: function(event) {
-      Gentle.router.navigate($(event.currentTarget).attr('href'), {trigger: true});
+      Gentle.router.sequence($(event.currentTarget).data('sequence-id'));
       event.preventDefault();
     },
 
     navigateToHome: function(event) {
-      Gentle.router.navigate('home', {trigger: true});
+      Gentle.router.home();
       event.preventDefault();
+    },
+
+    closeSequence: function(event) {
+      event.preventDefault();
+      var sequence = Gentle.sequences.get($(event.currentTarget).closest('a').data('sequence-id')),
+          nextSequence;
+      if(sequence) {
+        sequence.destroy();
+        if(nextSequence = Gentle.sequences.last())
+          Gentle.router.sequence(nextSequence.get('id'));
+        else
+          Gentle.router.home();
+      }
     },
 
     serialize: function() {

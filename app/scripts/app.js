@@ -25,6 +25,8 @@ require([
 
   Gentle.sequences = new Sequences();
 
+  Gentle.sequences.fetch();
+
   // Gentle.sequences.add({
   //   id: 1,
   //   name: 'blablabla',

@@ -20,29 +20,34 @@ define(function(require) {
       if(Gentle.sequences.length) {
         this.sequence(Gentle.sequences.last().get('id'));  
       } else {
-        this.navigate('home', {trigger: true});
+        this.home();
       }
     },
 
     home: function() {
-      Gentle.currentSequence = undefined;
-      Gentle.layout.setView('#content', new HomeView());
-      Gentle.layout.render();
-    },
-
-    sequence: function(id) {
-      Gentle.currentSequence = Gentle.sequences.get(id);
-      if(Gentle.currentSequence) {
-        Gentle.layout.setView('#content', new SequenceView());
+      if(Backbone.history.fragment != 'home') this.navigate('home', {trigger: true});
+      else {
+        Gentle.currentSequence = undefined;
+        Gentle.layout.setView('#content', new HomeView());
         Gentle.layout.render();
-      } else {
-        this.notFound();
       }
     },
 
-    notFound: function() {
-      this.navigate('home', {trigger: true});
-    } 
+    sequence: function(id) {
+      fragment = 'sequence/'+id;
+      if(Backbone.history.fragment != fragment) this.navigate(fragment, {trigger: true});
+      else {
+        Gentle.currentSequence = Gentle.sequences.get(id);
+        if(Gentle.currentSequence) {
+          Gentle.layout.setView('#content', new SequenceView());
+          Gentle.layout.render();
+        } else {
+          this.notFound();
+        }
+      }
+    },
+
+    notFound: function() { this.home(); }
   });
 
   return Router;
