@@ -1,37 +1,48 @@
 define(function(require) {
-  var backbone      = require('backbone'),
-      SequenceView  = require('views/sequence_view'),
-      HomeView      = require('views/home_view'),
+  var backbone        = require('backbone'),
+      SequenceView    = require('views/sequence_view'),
+      HomeView        = require('views/home_view'),
+      Gentle          = require('gentle'),
       Router;
 
+  Gentle = Gentle();
+
   Router = Backbone.Router.extend({
-    initialize: function(options) {
-      options = options || {};
-      this.app = options.app;
-    },
 
     routes: {
       '':               'index',
+      'home':           'home',
       'sequence/:id':   'sequence',
-      'home':           'home'
+      '*nomatch':       'notFound'
     },
 
     index: function() {
-      this.sequence(this.app.sequences.last().get('id'));
+      if(Gentle.sequences.length) {
+        this.sequence(Gentle.sequences.last().get('id'));  
+      } else {
+        this.navigate('home', {trigger: true});
+      }
     },
 
     home: function() {
-      console.log('prout')
-      this.app.currentSequence = undefined;
-      this.app.layout.setView('#content', new HomeView());
-      this.app.layout.render();
+      Gentle.currentSequence = undefined;
+      Gentle.layout.setView('#content', new HomeView());
+      Gentle.layout.render();
     },
 
     sequence: function(id) {
-      this.app.currentSequence = this.app.sequences.get(id);
-      this.app.layout.setView('#content', new SequenceView());
-      this.app.layout.render();
-    }
+      Gentle.currentSequence = Gentle.sequences.get(id);
+      if(Gentle.currentSequence) {
+        Gentle.layout.setView('#content', new SequenceView());
+        Gentle.layout.render();
+      } else {
+        this.notFound();
+      }
+    },
+
+    notFound: function() {
+      this.navigate('home', {trigger: true});
+    } 
   });
 
   return Router;

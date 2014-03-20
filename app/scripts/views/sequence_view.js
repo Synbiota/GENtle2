@@ -3,7 +3,10 @@ define(function(require) {
       template        = require('hbars!templates/sequence_view'),
       Sequence        = require('models/sequence'),
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
+      Gentle          = require('gentle'),
       SequenceView;
+
+  Gentle = Gentle();
   
   SequenceView = Backbone.View.extend({
     manage: true,

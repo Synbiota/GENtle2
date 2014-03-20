@@ -10,7 +10,8 @@ require.config({
     'promise':      '../vendor/scripts/promise-3.2.0',
     'backbone':     '../vendor/scripts/backbone-1.1.2',
     'layoutmanager':'../vendor/scripts/backbone.layoutmanager-0.9.5',
-    'bootstrap':    '../vendor/bootstrap/js/bootstrap.js'
+    'bootstrap':    '../vendor/bootstrap/js/bootstrap',
+    'gentle':       'models/gentle'
   },
   deps: [
     'lib/polyfills',
@@ -33,5 +34,8 @@ require.config({
     Handlebars: {
       exports: 'Handlebars'
     },
+    bootstrap: {
+      deps: ['jquery']
+    }
   }
 });

@@ -2,8 +2,7 @@ define(function(require) {
   var Backbone      = require('backbone'),
       LayoutMgr     = require('layoutmanager'),
       template      = require('hbars!templates/layout'),
-      // SequenceView  = require('views/sequence_view'),
-      NavbarView    = require('scripts/views/navbar_view.js'),
+      NavbarView    = require('views/navbar_view'),
       Layout;
       // Settings  = require('model/settings');
 

@@ -1,8 +1,17 @@
 define(function(require){
   var Backbone = require('backbone'),
+      Gentle   = require('gentle'),
       Sequence;
 
+  Gentle = Gentle();
+
   Sequence = Backbone.Model.extend({
+    defaults: function() {
+      return {
+        id: +(new Date()) + '-' + (Math.floor(Math.random()*10000)) 
+      };
+    },
+
     initialize: function() {},
 
     getSubSeq: function(startBase, endBase) {

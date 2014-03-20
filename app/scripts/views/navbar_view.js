@@ -1,6 +1,7 @@
 define(function(require) {
   var Backbone    = require('backbone'),
       template    = require('hbars!templates/navbar_view'),
+      Gentle      = require('gentle')(),
       NavbarView;
 
   NavbarView = Backbone.View.extend({
@@ -8,7 +9,7 @@ define(function(require) {
     template: template,
     events: {
       'click #menu-button': 'navigateToHome',
-      'click #sequence-tabs li a': 'navigateToSequence'
+      'click #sequence-tabs li a': 'navigateToHref'
     },
 
     initialize: function() {
@@ -16,8 +17,8 @@ define(function(require) {
       // Gentle.router.on('route', this.render, this);
     },
 
-    navigateToSequence: function(event) {
-      Gentle.router.navigate($(event.target).attr('href'), {trigger: true});
+    navigateToHref: function(event) {
+      Gentle.router.navigate($(event.currentTarget).attr('href'), {trigger: true});
       event.preventDefault();
     },
 
@@ -29,7 +30,7 @@ define(function(require) {
     serialize: function() {
       return {
         sequences: Gentle.sequences.toJSON(),
-        atHome: !Gentle.currentSequence
+        atHome: Backbone.history.fragment == 'home',
       };
     }
   });

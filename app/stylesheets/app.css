@@ -51,3 +51,7 @@ body {
   width: 100%;
   top: 51px;
   bottom: 0; }
+
+.container-special {
+  margin-left: 50px;
+  max-width: 1024px; }
