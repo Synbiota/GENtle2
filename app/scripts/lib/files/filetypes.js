@@ -1,10 +1,14 @@
 define(function(require) {
-  var FT_cm5          = require('lib/files/cm5'),
-      FT_cm5_text     = require('lib/files/cm5_text'),
-      FT_fasta        = require('lib/files/fasta'),
-      FT_genebank     = require('lib/files/genebank'),
-      FT_plaintext    = require('lib/files/plaintext'),
-      FT_scf2json     = require('lib/files/scf2json'),
+  // var FT_cm5          = require('lib/files/cm5'),
+  //     FT_cm5_text     = require('lib/files/cm5_text'),
+  //     FT_fasta        = require('lib/files/fasta'),
+  //     FT_genebank     = require('lib/files/genebank'),
+  //     FT_plaintext    = require('lib/files/plaintext'),
+  //     FT_scf2json     = require('lib/files/scf2json'),
+  //     FT_sybil        = require('lib/files/sybil'),
+  //     Filetype;
+
+  var FT_plaintext    = require('lib/files/plaintext'),
       FT_sybil        = require('lib/files/sybil'),
       Filetype;
 
@@ -15,13 +19,14 @@ define(function(require) {
     // cm5_text:   FT_cm5_text,
     // fasta:      FT_fasta,
     // genebank:   FT_genebank,
-    plaintext:  FT_plaintext //,
+    plaintext:  FT_plaintext,
     // scf2json:   FT_scf2json,
-    // sybil:      FT_sybil
+    sybil:      FT_sybil,
   };
 
   Filetypes.guessTypeAndParseFromText = function(text, name) {
     var sequences = [];
+    text = text.trim();
     for(var filetypeName in this.types) {
       var file = new this.types[filetypeName]();
       file.file = {name: name};

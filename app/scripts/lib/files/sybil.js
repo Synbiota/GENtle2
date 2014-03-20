@@ -1,4 +1,7 @@
 define(function(require) {
+  var $ = require('jquery'),
+      _ = require('underscore');
+
   //________________________________________________________________________________________
   // SYBIL - SYnthetic Biology Interchange Language
 
@@ -15,14 +18,19 @@ define(function(require) {
   /**
     Implements a SyBIL (SYnthetic Biology Interchange Language) format file reader/writer.
     @class FT_sybil
-    @extends Filetype
+    @extends FT_base
   */
   FT_sybil.prototype.constructor = FT_sybil ;
 
   FT_sybil.prototype.getFileExtension = function () {
     return 'sybil' ;
-  }
+  };
 
+  /**
+  @method getExportString
+  @param {Sequence} sequence
+  @returns {String} Sequence in SYBIL format
+  **/
   FT_sybil.prototype.getExportString = function ( sequence ) {
     var s = '' ;
     
@@ -86,7 +94,7 @@ define(function(require) {
       } ) ;
 
       o.attr ( { type:type , start:start , stop:stop } ) ;
-      if ( name != '' ) o.attr ( { name:name } ) ;
+      if ( name !== '' ) o.attr ( { name:name } ) ;
 
       s += o.outerHTML() + "\n" ;
 
@@ -105,64 +113,67 @@ define(function(require) {
     s = s.replace ( /\u0004/g , '' ) ;
 
     return s ;
-  }
+  };
 
+  /**
+  @method parseFile
+  @returns {Array} Array containing the sequence as an object
+  **/
   FT_sybil.prototype.parseFile = function () {
-    var ret = [] ;
     var sybil = $.parseXML(this.text) ;
     sybil = $(sybil) ;
     
-    var tempseq = [] ;
+    var sequences = [] ;
 
     sybil.find('session').each ( function ( k1 , v1 ) {
       $(v1).find('circuit').each ( function ( k2 , v2 ) {
         var s = $(v2).find('sequence').get(0) ;
         s = $(s) ;
-        var seq = new SequenceDNA ( s.attr('name') , s.text().toUpperCase() ) ;
+        var seq = { 
+          name: s.attr('name'), 
+          sequence: s.text().toUpperCase()
+        };
         seq.desc = $(v2).find('general_description').text() ;
         
         seq.features = [] ;
         $(v2).find('annotation').each ( function ( k3 , v3 ) {
-          var attrs = $(v3).listAttributes() ;
+          var attrs = _.pluck(objectToArray(v3.attributes), 'name');
           var start , stop , rc ;
           var feature = {} ;
-          feature['_range'] = [] ;
+          feature._range = [] ;
           feature.desc = $(v3).text() ; // TODO exons
           $.each ( attrs , function ( dummy , ak ) {
             var av = $(v3).attr(ak) ;
             if ( ak == 'start' ) start = av*1 ;
             else if ( ak == 'stop' ) stop = av*1 ;
             else if ( ak == 'rc' ) rc = ( av == 1 ) ;
-            else if ( ak == 'type' ) feature['_type'] = av ;
+            else if ( ak == 'type' ) feature._type = av ;
             else feature[ak] = av ;
           } ) ;
           
-          if ( feature['_range'].length == 0 ) {
-            feature['_range'] = [ { from:start , to:stop , rc:rc } ] ;
+          if ( feature._range.length === 0 ) {
+            feature._range = [ { from:start , to:stop , rc:rc } ] ;
           }
-          
-  //        console.log ( JSON.stringify ( feature ) ) ;
           
           seq.features.push ( feature ) ;
         } ) ;
         
-        tempseq.push ( seq ) ;
+        sequences.push ( seq ) ;
       } ) ;
     } ) ;
-    
-    
-    $.each ( tempseq , function ( k , v ) {
-      var seqid = gentle.addSequence ( v , true ) ;
-      ret.push ( seqid ) ;
-    } ) ;
 
-    return ret ;
-  }
+    return sequences;
+  };
 
+  /**
+  Checks if a given file matches the filetype.
+  @method textHeuristic
+  @returns {boolean} True if the file matches, false if not.
+  **/
   FT_sybil.prototype.textHeuristic = function () {
     if ( this.text.match ( /^<sybil\b/i ) ) return true ;
     return false ;
-  }
+  };
 
 
   return FT_sybil;

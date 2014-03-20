@@ -11,10 +11,10 @@ define(function(require) {
     manage: true,
     template: template,
     events: {
-      'submit #home-tab-new-form': 'createNewSequence'
+      'submit #home-tab-new-form': 'createNewSequenceFromText'
     },
 
-    createNewSequence: function(event) {
+    createNewSequenceFromText: function(event) {
       event.preventDefault();
       var $form     = $('#home-tab-new-form'),
           text      = $form.find('[name=sequence]').val(),
@@ -29,6 +29,12 @@ define(function(require) {
       } else {
         alert('Could not parse the text.');
       }
+    },
+
+    openSequenceFromFile: function(event) {
+      event.preventDefault();
+      var $form     = $('#home-tab-open-form');
+
       
     }
 

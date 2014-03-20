@@ -6,7 +6,7 @@
       <div class="row">
         <div class="col-md-2">
         <br/>
-          <ul class="nav nav-pills nav-stacked">
+          <ul class="nav nav-pills">
             <li class="active"><a href="#home-tab-new" data-toggle="pill">New sequence</a></li>
             <li><a href="#home-tab-open" data-toggle="pill">Open from disk</a></li>
           </ul>
@@ -21,7 +21,7 @@
                 <div>
                   <div class="row">
                     <div class="col-md-7">
-                      <input type="text" name="name" placeholder="Sequence name" class="form-control" required="required"/>
+                      <input type="text" name="name" placeholder="Sequence name" class="form-control"/>
                     </div>
                   </div>
                   <br/>
@@ -32,13 +32,13 @@
                     </div>
                     <div class="col-md-4">
                       <p class="help-block">
-                        You can enter or paste sequence data in plain text, FASTA, GenBank, or SYBIL format into the above box, or load a file from NCBI or your disk with the buttons below.
+                        You can enter or paste sequence data in plain text, FASTA, GenBank, or SYBIL format.
                       </p>
                     </div>
                   </div>
                   <div class="row">
                     <div class="col-md-7">
-                      <input type="submit" value="Create Sequence" class="btn btn-primary"/>
+                      <input type="submit" value="Create sequence" class="btn btn-primary"/>
                     </div>
                   </div>
                 </div>
@@ -46,18 +46,29 @@
             </div>
 
             <div class="tab-pane" id="home-tab-open">
-              <h3>Open an existing sequence from disk</h3>
-              <br/>
-              <div>
-                <div class="row">
-                  <div class="col-md-7">
-                    <input type="file" name="sequence[file]" class="form-control" require="required"/>
-                    <p class="help-block">
-                      Please select a plain text, FASTA, GenBank, or SYBIL file.
-                    </p>
+              <form id='home-tab-open-form'>
+                <h3>Open an existing sequence from disk</h3>
+                <br/>
+                <div>
+                  <div class="row">
+                    <div class="col-md-7">
+                      <input type="file" name="file" class="form-control" require="required"/>
+                    </div>
+                    <div class="col-md-4">
+                      <p class="help-block">
+                        You can select a file in plain text, FASTA, GenBank, or SYBIL format.
+                        <br/>
+                        The sequence name will be infered from the file name.
+                      </p>
+                    </div>
+                  </div>
+                  <div class="row">
+                    <div class="col-md-7">
+                      <input type="submit" value="Open sequence" class="btn btn-primary"/>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </form>
             </div>
 
 
