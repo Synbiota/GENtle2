@@ -37,7 +37,7 @@ define(function(require) {
     text = text.trim();
     for(var filetypeName in this.types) {
       var file = new this.types[filetypeName]();
-      file.file = {name: name};
+      file.file = {name: name || 'Unnamed'};
       sequences = file.checkAndParseText(text);
       if(sequences.length) break;
     }

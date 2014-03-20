@@ -27,6 +27,7 @@ define(function(require) {
     home: function() {
       if(Backbone.history.fragment != 'home') this.navigate('home', {trigger: true});
       else {
+        document.title = "Gentle home";
         Gentle.currentSequence = undefined;
         Gentle.layout.setView('#content', new HomeView());
         Gentle.layout.render();
@@ -39,6 +40,7 @@ define(function(require) {
       else {
         Gentle.currentSequence = Gentle.sequences.get(id);
         if(Gentle.currentSequence) {
+          document.title = Gentle.currentSequence.get('name') + ' / Gentle';
           Gentle.layout.setView('#content', new SequenceView());
           Gentle.layout.render();
         } else {
