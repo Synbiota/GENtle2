@@ -8,7 +8,8 @@ define(function(require){
   Sequence = Backbone.Model.extend({
     defaults: function() {
       return {
-        id: +(new Date()) + '-' + (Math.floor(Math.random()*10000)) 
+        id: +(new Date()) + '-' + (Math.floor(Math.random()*10000)),
+        displaySettings: {}
       };
     },
 

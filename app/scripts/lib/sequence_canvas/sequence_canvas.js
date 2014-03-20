@@ -1,14 +1,15 @@
 /**
-    Handles displaying the currentSequence sequence in a canvas
+    Handles displaying a sequence in a canvas
     Is instantiated inside a parent Backbone.View, and is automatically
     rendered.
 
     @class SequenceCanvas
 **/ 
 define(function(require) {
-  var Backbone  = require('backbone'),
-      Artist    = require('lib/graphics/artist'),
-      Promise   = require('promise'),
+  var Backbone      = require('backbone'),
+      Artist        = require('lib/graphics/artist'),
+      Promise       = require('promise'),
+      Lines         = require('lib/sequence_canvas/lines'),
       SequenceCanvas;
 
   SequenceCanvas = function(options) {
@@ -80,15 +81,14 @@ define(function(require) {
       scrollPercentage: 1.0,
       gutterWidth: 10,
       basesPerBlock: 10,
-      positionText: {font: "10px Monospace", colour:"#005"},
-      basePairText: {font: "15px Monospace", colour:"#000"},
       basePairDims: {width:10, height:15},
       sequenceLength: this.sequence.length(),
       lines: [
-        {type:'blank', height:5},
-        {type:'position', height:15, baseLine: 15},
-        {type:'dna', height:25, baseLine: 17},
-        {type:'blank', height:10}]
+        new Lines.Blank(this, {height: 5}),
+        new Lines.Position(this, {height: 15, baseLine: 15, textFont: "10px Monospace", textColour:"#005"}),
+        new Lines.DNA(this, {height: 25, baseLine: 17, textFont: "15px Monospace", textColour:"#000"}),
+        new Lines.Blank(this, {height: 10})
+      ]
     };
 
     // * 
@@ -220,45 +220,10 @@ define(function(require) {
         //clear canvas
         context.clearRect(0,0,context.canvas.width, context.canvas.height);
 
-        _this.forEachRow(0, ls.canvasDims.height, function(y) {
+        _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
           baseRange = _this.getBaseRangeFromYPos(y);
           for(i = 0; i < ls.lines.length; i++) {
-            switch(ls.lines[i].type) {
-              case "position":
-                // numbering for position
-                context.fillStyle = ls.positionText.colour;
-                context.font = ls.positionText.font;
-                
-                x = ls.pageMargins.left;
-                for(k = baseRange[0]; k <= baseRange[1]; k+=ls.basesPerBlock){
-                  context.fillText(k+1, x, y + (ls.lines[i].baseLine === undefined ? ls.lines[i].height : ls.lines[i].baseLine));
-                  x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
-                }
-                break;
-              case "dna":
-                //draw the DNA text
-                context.fillStyle = ls.basePairText.colour;
-                context.font = ls.basePairText.font;
-
-                x = ls.pageMargins.left;
-                
-                seq = _this.sequence.getSubSeq(baseRange[0], baseRange[1]);
-                if(seq) {
-                  for(k = 0; k < lh.basesPerRow; k++){
-                    if(!seq[k]) break;
-                    context.fillText(seq[k], x, y + (ls.lines[i].baseLine === undefined ? ls.lines[i].height : ls.lines[i].baseLine));
-                    x += ls.basePairDims.width;
-                    if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
-                  }
-                }
-                break;
-              // case "blank":
-              //   context.fillStyle = "red";
-              //   context.fillRect(0, y, ls.canvasDims.width, ls.lines[i].height);
-              //   break;
-              default:
-                //do nothing! (including blank)
-            }
+            ls.lines[i].draw(y, baseRange);
             y += ls.lines[i].height;
           }
         });
@@ -280,7 +245,7 @@ define(function(require) {
     callback {function} function to execute for each row. 
     Will be passed the y-offset in canvas.
   */
-  SequenceCanvas.prototype.forEachRow = function(startY, endY, callback) {
+  SequenceCanvas.prototype.forEachRowInRange = function(startY, endY, callback) {
     var firstRowStartY  = this.getRowStartY(startY),
         y;
 
