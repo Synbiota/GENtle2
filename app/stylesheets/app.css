@@ -45,6 +45,8 @@ body {
 #sequence-tabs {
   border: none;
   margin-top: 9px; }
+  #sequence-tabs .close-sequence {
+    cursor: pointer; }
 
 #content {
   position: absolute;

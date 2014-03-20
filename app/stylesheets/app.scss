@@ -30,6 +30,10 @@ body {
 #sequence-tabs {
   border: none;
   margin-top: 9px;
+
+  .close-sequence {
+    cursor: pointer;
+  }
 }
 
 #content {

@@ -10,6 +10,7 @@ define(function(require) {
 
   var FT_plaintext    = require('lib/files/plaintext'),
       FT_sybil        = require('lib/files/sybil'),
+      Promise         = require('promise'),
       Filetype;
 
   Filetypes = function() {};
@@ -24,6 +25,13 @@ define(function(require) {
     sybil:      FT_sybil,
   };
 
+  /**
+  Guesses filetype and parse sequence from string (Class method)
+  @method guessTypeAndParseFromText
+  @param {string} text sequence
+  @param {string optional} name
+  @return {array} Array of sequences as POJOs
+  **/
   Filetypes.guessTypeAndParseFromText = function(text, name) {
     var sequences = [];
     text = text.trim();
@@ -34,6 +42,34 @@ define(function(require) {
       if(sequences.length) break;
     }
     return sequences;
+  };
+
+  /**
+  Loads the file and returns the text content (Class method)
+  @method loadFile
+  @param {Blob} file
+  @param {Boolean} read_binary Read file as binary (default: false)
+  @returns {String} file content
+  **/
+  Filetypes.loadFile = function(file, read_binary) {
+    var reader  = new FileReader(),
+        promise;
+
+    // Promise resolving or rejecting based on response of FileReader uploading the file.
+    promise = new Promise(function(resolve, reject) {
+      reader.onload = function(event) {
+        resolve({name: file.name, content: event.target.result});
+      };
+      reader.onerror = function(event) {
+        reject(file.name);
+      };
+    });
+    
+    // Read in the image file as a data URL.
+    if ( read_binary === true ) reader.readAsArrayBuffer(file);
+    else reader.readAsText(file);
+
+    return promise;
   };
 
   return Filetypes;

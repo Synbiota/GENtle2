@@ -45,34 +45,33 @@ define(function(require) {
     return re;*/
   }
 
-  /**
-    Checks if a file matches this filetype, and then parses it. Does not return a result, but informs the gentle object that a match was found.
-    @method checkFile
-    @param {file} f The file.
+  // /**
+  //   Checks if a file matches this filetype, and then parses it. Does not return a result, but informs the gentle object that a match was found.
+  //   @method loadFile
+  //   @param {file} f The file.
+  // **/
+  // FT_base.prototype.loadFile = function ( f ) {
+  //   this.file = f ;
+  //   var reader = new FileReader();
+  //   var _this = this ;
     
-  **/
-  FT_base.prototype.checkFile = function ( f ) {
-    this.file = f ;
-    var reader = new FileReader();
-    var _this = this ;
+  //   // Closure to capture the file information.
+  //   reader.onload = (function(theFile) {
+  //     return function(e) {
+  //       if ( f.isIdentified ) return ;
+  //       _this.text = e.target.result ;
+  //       if ( !_this.textHeuristic() ) return ;
+  //       f.isIdentified = true ;
+  //       _this.fileTypeValidated = true ;
+  //       // gentle.fileLoaded ( _this ) ;
+  //       // _this.parseFile () ;
+  //     };
+  //   })(f);
     
-    // Closure to capture the file information.
-    reader.onload = (function(theFile) {
-      return function(e) {
-        if ( f.isIdentified ) return ;
-        _this.text = e.target.result ;
-        if ( !_this.textHeuristic() ) return ;
-        f.isIdentified = true ;
-        _this.fileTypeValidated = true ;
-        gentle.fileLoaded ( _this ) ;
-        _this.parseFile () ;
-      };
-    })(f);
-    
-    // Read in the image file as a data URL.
-    if ( this.read_binary ) reader.readAsArrayBuffer ( f ) ;
-    else reader.readAsText(f);
-  }
+  //   // Read in the image file as a data URL.
+  //   if ( this.read_binary ) reader.readAsArrayBuffer ( f ) ;
+  //   else reader.readAsText(f);
+  // }
 
   /**
     Returns a string for file export.
