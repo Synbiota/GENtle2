@@ -1,3 +1,10 @@
+/**
+Blank line for SequenceCanvas. Nothing is drawn.
+Options are: 
+
+- `this.height`: line height
+@class Lines.Blank
+**/
 define(function(require) {
   var Blank;
 

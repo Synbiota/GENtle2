@@ -1,3 +1,14 @@
+/**
+Line class for displaying base position on SequenceCanvas. 
+Options are: 
+
+- `this.height`: line height.
+- `this.baseLine`: text baseline.
+- `this.textColour`: colour of the text. can be a function taking the character as argument.
+- `this.textFont`: font style of the text. can be a function taking the character as argument.
+- `this.transform` _(optional)_: function tranforming the position text into another (e.g. number formatting)
+@class Lines.Position
+**/
 define(function(require) {
   var Position;
 
@@ -18,7 +29,8 @@ define(function(require) {
     
     x = ls.pageMargins.left;
     for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
-      context.fillText(k+1, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+      text = typeof this.transform == 'function' ? this.transform(k+1) : k+1;
+      context.fillText(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
       x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
     }
   };

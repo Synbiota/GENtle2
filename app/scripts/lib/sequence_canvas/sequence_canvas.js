@@ -85,8 +85,21 @@ define(function(require) {
       sequenceLength: this.sequence.length(),
       lines: [
         new Lines.Blank(this, {height: 5}),
-        new Lines.Position(this, {height: 15, baseLine: 15, textFont: "10px Monospace", textColour:"#005"}),
-        new Lines.DNA(this, {height: 25, baseLine: 17, textFont: "15px Monospace", textColour:"#000"}),
+        new Lines.Position(this, {height: 15, baseLine: 15, textFont: "10px Monospace", textColour:"#005",
+          transform: function(string) {
+            return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+          }}),
+        new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "13px Monospace", textColour:"#79B6F9",
+          getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'aa-long', {})
+        }),
+        new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", textColour:"#000"}),
+        // new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", 
+        //   textColour: function(char) {
+        //     return {'A': '#f00', 'C': '#0f0', 'T': '#00f', 'G': '#ff0'}[char] || '#000';
+        //   }}),
+        new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", textColour:"#bbb",
+          getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}) 
+        }),
         new Lines.Blank(this, {height: 10})
       ]
     };
