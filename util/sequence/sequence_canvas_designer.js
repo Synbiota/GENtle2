@@ -171,10 +171,10 @@ SequenceCanvasDesigner.prototype.init = function () {
 
 	$('.designer_row_feature_draggable').draggable ( {
 		revert:'invalid' , 
-		appendTo:'body', 
+		appendTo:'#canvas_wrapper', 
 		containment:'document' , 
 		helper:'clone' , 
-		scroll:false , 
+		scroll:true , 
 		opacity: 0.35 ,
 		zIndex:2700
 	} ) ;
