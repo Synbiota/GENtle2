@@ -631,7 +631,7 @@ function WasherSegment(centreX, centreY, innerRadius, outerRadius, startAngle, e
 	this.innerRadius = innerRadius || 0;
 	this.outerRadius = outerRadius || 100;
 	this.startAngle = normaliseAngle(startAngle) || 0;
-	this.endAngle = normaliseAngle(endAngle) || Math.PI;
+	this.endAngle = normaliseAngle(endAngle) || 2* Math.PI;
 	this.counterClockwise = counterClockwise != undefined? counterClockwise : true;
 	this.fill = fill || '#FF0000';
 	this.stroke = stroke || '#00FF00';
@@ -774,6 +774,7 @@ function drawTextAlongArc(context, str, centerX, centerY, radius, angle, font, w
 
     var angularWidth = wh.width/rad;
 
+    context.fillStyle = '#000';
     
     if (ccw){    
     	//CCW
