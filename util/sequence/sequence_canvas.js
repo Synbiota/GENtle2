@@ -116,14 +116,16 @@ SequenceCanvas.prototype.resizeCanvas = function () {
   $('#canvas_wrapper').height ( h) ;
   $('#zoombox').css({ top: $('.navbar').height() + 49 + 'px'});
   $('#top_zone').css({'max-height': h + 'px'});
-  if (! top_display.wait){
-    top_display.wait = true;
-    setTimeout(function(){
-                          top_display.do_zoom_top('1:1') ;
-                          top_display.wait=false
-                        },50);
-  }else{
-    top_display.one_more_time = true;
+  if( top_display !== undefined) {
+    if (! top_display.wait){
+      top_display.wait = true;
+      setTimeout(function(){
+                            top_display.do_zoom_top('1:1') ;
+                            top_display.wait=false
+                          },50);
+    }else{
+      top_display.one_more_time = true;
+    }
   }
   //$('#sequence_canvas_title_bar').css ( { width:w+'px' } ) ;
   
@@ -713,7 +715,7 @@ SequenceCanvas.prototype.updateTitleBar = function () {
     }
   }
 
-  if ("synbiota_data" in window){
+  if ("synbiota_data" in window && gentle.sequences[gentle.current_sequence_entry].typeName != 'designer'){
     if( undefined !== synbiota_data.token ){
       if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
         var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;

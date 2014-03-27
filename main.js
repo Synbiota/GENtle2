@@ -690,6 +690,11 @@ var gentle = {
 		}
 		var sc = gentle.sequences[entry] ;
 		if ( sc === undefined ) return ; // Paranoia
+
+		if(sc.typeName == 'designer') 
+			$('#toggle-sidebar-button').hide();
+		else
+			$('#toggle-sidebar-button').show();
 		
 		if ( sc.typeName == 'designer' ) gentle.handleSelectSequenceEntryDesigner ( entry ) ;
 		else if ( sc.typeName == 'pcr' ) gentle.handleSelectSequenceEntryPCR ( entry ) ;
@@ -710,7 +715,7 @@ var gentle = {
 		
 		// Set up new sequence canvas
 		gentle.main_sequence_canvas = new SequenceCanvasDesigner ( gentle.sequences[entry] , 'sequence_canvas' ) ;
-		if ( $('#topbox').is(':visible') ) gentle.toggle_right_sidebar();
+		if ( $('#topbox').is(':visible') ) gentle.toggle_right_sidebar('none');
 	} ,
 		
 	handleSelectSequenceEntryPCR : function ( entry ) {
@@ -732,6 +737,7 @@ var gentle = {
 		
 		// Set up new sequence canvas
 		gentle.main_sequence_canvas = new SequenceCanvasPCR ( gentle.sequences[entry] , 'sequence_canvas' ) ;
+		gentle.toggle_right_sidebar(gentle.sequences[entry].topdisplaystyle || 'linear');
 	
 	} ,
 
@@ -761,6 +767,8 @@ var gentle = {
 		// Set up new plasmid map
 		gentle.main_sequence_canvas.plasmid_map = new PlasmidMapDialog ( true ) ;
 		gentle.main_sequence_canvas.plasmid_map.initMap() ;
+
+		gentle.toggle_right_sidebar(gentle.sequences[entry].topdisplaystyle || 'linear');
 	} ,
 
 	getUrlVars : function ( def ) {
@@ -845,29 +853,31 @@ var gentle = {
 		}
 	} ,
 	
-	toggle_right_sidebar : function () {
+	toggle_right_sidebar : function (targetType) {
 		var sc = gentle.main_sequence_canvas ;
-
-		if (gentle.topdisplaystyle == 'linear'){
+		console.log('target', targetType);
+		if ((gentle.topdisplaystyle == 'linear' && targetType === undefined) || targetType == 'circular'){
 			$('#topbox').hide() ;	
 			$('#plasmidbox').show() ;	
-			$('#right_sidebar_icon').toggleClass('icon-asterisk').toggleClass('icon-chevron-right').attr('title', 'Hide Sidebar') ;
-			gentle.topdisplaystyle = 'circular' ;
+			$('#right_sidebar_icon').addClass('icon-chevron-right').removeClass('icon-asterisk icon-chevron-left').attr('title', 'Hide Sidebar') ;
+			gentle.topdisplaystyle = gentle.sequences[gentle.current_sequence_entry].topdisplaystyle = 'circular' ;
 			console.log ("was linear, is circular") ;
-		}else if(gentle.topdisplaystyle == 'circular'){
+		}else if((gentle.topdisplaystyle == 'circular' && targetType === undefined) || targetType == 'none'){
 			gentle.tbw = $('#canvas_wrapper').css('right');
 			$('#canvas_wrapper').css ( { right : 0 } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : 0 } ) ;
 			$('#plasmidbox').hide() ;
-			$('#right_sidebar_icon').toggleClass('icon-chevron-right').toggleClass('icon-chevron-left').attr('title', 'Show Linear Map') ;
-			gentle.topdisplaystyle = 'none' ;
+			$('#topbox').hide();
+			$('#right_sidebar_icon').addClass('icon-chevron-left').removeClass('icon-chevron-right icon-asterisk').attr('title', 'Show Linear Map') ;
+			gentle.topdisplaystyle = gentle.sequences[gentle.current_sequence_entry].topdisplaystyle = 'none' ;
 			console.log ("was circular, is none") ;
 		}else{
 			$('#canvas_wrapper').css ( { right : gentle.tbw } ) ;
 			$('#sequence_canvas_title_bar').css ( { right : gentle.tbw } ) ;
 			$('#topbox').show() ;
-			$('#right_sidebar_icon').toggleClass('icon-chevron-left').toggleClass('icon-asterisk').attr('title', 'Show Circular Map') ;
-			gentle.topdisplaystyle = 'linear' ;		
+			$('#plasmidbox').hide();
+			$('#right_sidebar_icon').addClass('icon-asterisk').toggleClass('icon-chevron-left icon-chevron-right').attr('title', 'Show Circular Map') ;
+			gentle.topdisplaystyle = gentle.sequences[gentle.current_sequence_entry].topdisplaystyle = 'linear' ;		
 			console.log ("was none, is linear")	;
 		}
 
