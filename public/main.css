@@ -777,3 +777,7 @@ ul.dropdown-menu > li.selected > a::before {
 table.table.no-border th, table.table.no-border td {
   border: 0;
 }
+
+#sequence_name {
+  cursor: text;
+}

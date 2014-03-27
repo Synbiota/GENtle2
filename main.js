@@ -990,11 +990,11 @@ var gentle = {
 		return false ;
 	} ,
 	
-	sequence_info : function () {
+	sequence_info : function (focus_on_name) {
 		var sc = gentle.main_sequence_canvas ;
 		if ( undefined === sc ) return ;
 		
-		gentle.sequence_info_dialog = new SequenceInfoDialogDNA ( sc ) ; // FIXME hardcoded for DNA
+		gentle.sequence_info_dialog = new SequenceInfoDialogDNA ( sc, focus_on_name ) ; // FIXME hardcoded for DNA
 	} ,
 	
 	set_hover : function ( html ) {

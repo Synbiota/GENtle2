@@ -18,7 +18,8 @@ SequenceInfoDialog.prototype.closeDialog = function () {
 SequenceInfoDialogDNA.prototype = new SequenceInfoDialog() ;
 SequenceInfoDialogDNA.prototype.constructor = SequenceInfoDialogDNA ;
 
-function SequenceInfoDialogDNA ( sc ) {
+function SequenceInfoDialogDNA ( sc, focus_on_name ) {
+	focus_on_name = !!focus_on_name;
 	this.sc = sc ;
 	this.sid = 'sequence_info_dialog_dna' ;
 	
@@ -46,6 +47,7 @@ function SequenceInfoDialogDNA ( sc ) {
 		
 		// TODO initialize display
 		$('#sid_name').val ( me.data.name ) ;
+		if(focus_on_name) $('#sid_name').focus();
 		$('#sid_desc').val ( me.data.desc ) ;
 		
 		var h = '' ;

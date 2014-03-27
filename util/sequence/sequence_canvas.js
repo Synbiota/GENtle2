@@ -741,10 +741,15 @@ SequenceCanvas.prototype.updateTitleBar = function () {
   $titleBar.find('.sequenceListItem').on('click', function(e) { gentle.showSequence($(this).data('seq-id')); });
 
   // Add mechanism for inline editing of sequence title 
-  $('#sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
-    gentle.main_sequence_canvas.sequence.name = val;
-    me.updateTitleBar();
-    me.plasmid_map.updateMap();
-  }});
+  // $('#sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
+  //   gentle.main_sequence_canvas.sequence.name = val;
+  //   me.updateTitleBar();
+  //   me.plasmid_map.updateMap();
+  // }});
+  $('#sequence_name').on('click', function(event) {
+    event.preventDefault();
+    gentle.sequence_info(true);
+  })
+
 
 }
