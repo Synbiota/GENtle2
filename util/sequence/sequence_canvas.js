@@ -72,7 +72,7 @@ SequenceCanvas.prototype.addSelectionMarker = function ( x , y ) {
   var this_width = $("#selection_context_marker ul").width();
   //make sure we don't go outside borders!
   if (x + this_width> $('#sequence_canvas').width()){
-    $("#selection_context_marker ul").css("left", - this_width + 'px');
+    $("#selection_context_marker ul").css("left", - this_width );
   }
 
   var approx_height = $("#selection_context_marker ul").height();
