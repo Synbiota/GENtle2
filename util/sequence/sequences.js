@@ -73,7 +73,7 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 	var me = this ;
 	var editseq = me.getEditingSeq() ;
 	me.undo.addAction ( 'editRemove' , { label : 'delete (-' + len + ')'  , editing : true , action : 'removeText' , base : base , len : len , seq : editseq.substr ( base , len ) } ) ;
-	editseq = editseq.substr ( 0 , base ) + editseq.substr ( base + len , editseq.length - base - len ) ;
+	editseq = editseq.substr ( 0 , base-1 ) + editseq.substr ( base-1 + len , editseq.length - (base-1) - len ) ;
 	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	var keepfeat = [] ;
@@ -90,7 +90,7 @@ SequenceDNA.prototype.remove = function ( base , len , skip_feature_adjustment )
 
 
 			if ( v.from >= base ) v.from -= len ;
-			if ( v.to+1 >= base ) v.to -= len ;
+			if ( v.to >= base ) v.to -= len ;
 			if ( v.from != ov.from || v.to != ov.to ) {
 				me.undo.addAction ( 'editRemove' , { editing : true , action : 'alterFeatureSize' , before : [ ov.from , ov.to ] , after : [ v.from , v.to ] , id : fid , range_id : k } ) ;
 			}
@@ -107,7 +107,7 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 	me.undo.addAction ( 'editInsert' , { label : 'typed ' + text , editing : true , action : 'insertText' , base : base , seq : text } ) ;
 	var l = text.length ;
 	var editseq = me.getEditingSeq() ;
-	editseq = editseq.substr ( 0 , base ) + text + editseq.substr ( base , editseq.length - base ) ;
+	editseq = editseq.substr ( 0 , base-1 ) + text + editseq.substr ( base-1 , editseq.length - base+1 ) ;
 	me.setEditingSeq ( editseq ) ;
 	if ( skip_feature_adjustment ) return ; // For undo/redo
 	$.each ( me.features , function ( fid , f ) {
@@ -125,7 +125,8 @@ SequenceDNA.prototype.insert = function ( base , text , skip_feature_adjustment 
 
 SequenceDNA.prototype.asNewSequenceDNA = function ( start , stop ) {
 	var me = this ;
-	var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ;
+	//var ret = new SequenceDNA ( me.name , me.seq.substr ( start , stop-start+1 ) ) ; ALEX
+	var ret = new SequenceDNA ( me.name , me.seq.substr ( start-1 , stop-start+1 ) ) ;
 	$.each ( (me.features||[]) , function ( k , v ) {
 		if ( v['_range'][0].from > stop ) return ;
 		if ( v['_range'][v['_range'].length-1].to < start ) return ;

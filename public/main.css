@@ -94,6 +94,12 @@
   background-color:black;
   color:white;
 }
+.designer_row_feature_genomikon_part {
+  height:34px;
+  background-color:#FFFBD0;
+  color:#9C2A99;
+}
+
 
 
 
@@ -449,6 +455,11 @@ h1 {
   left:55px;
 }
 
+.feat_genomikon_part {
+  background-color:#FF4848;
+  left: 35px;
+}
+
 .feat_cds {
   background-color:#FF4848;
   left:75px;
@@ -539,11 +550,19 @@ h1 {
 /*Plasmid Map Display*/
 
 #plasmidbox{
-  width: 520px;
+  width: 514px;
+  height: 514px;
   position: relative;
   top: 30px;
+  padding:0px;
 }
 
+#plasmidMapUI {
+  position:absolute;
+  right:-18px;
+  top:0px;
+  z-index:99;
+}
 
 
 #sequence_canvas_title_bar {

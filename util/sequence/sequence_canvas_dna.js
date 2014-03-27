@@ -900,7 +900,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			{type:"spectrum"},
 			{type:"blank"}
 		],
-		show_drums_colors:true
+		show_drums_colors:undefined
 	} ;
 	var settings = the_sequence.settings ;
 	if ( settings === undefined ) settings = {} ;

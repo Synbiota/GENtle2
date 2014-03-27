@@ -744,6 +744,7 @@ SequenceCanvas.prototype.updateTitleBar = function () {
   $('#sequence_name').inlineEditable({editingClass: 'inline-edited', onSaveCallback: function(val) {
     gentle.main_sequence_canvas.sequence.name = val;
     me.updateTitleBar();
+    me.plasmid_map.updateMap();
   }});
 
 }

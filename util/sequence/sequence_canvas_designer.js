@@ -207,9 +207,10 @@ SequenceCanvasDesigner.prototype.init = function () {
 
 				if ( source.hasClass('designer_row_feature_all') ) {
 					
-					var start = 0 ;
+					var start = 1 ;
 					var stop = gentle.sequences[seqnum].seq.length ;
 					var newseq = gentle.sequences[seqnum].asNewSequenceDNA ( start , stop ) ;
+					var next_base = target.attr('nextbase') ;
 					if ( undefined === newseq ) return ; // Paranoia
 					me.sequence.insertSequenceDNA ( newseq , next_base ) ;
 					
@@ -231,7 +232,7 @@ SequenceCanvasDesigner.prototype.init = function () {
 				setTimeout ( function(){me.init()} , 1 ) ;
 			} else {
 				if ( target.hasClass('designer_trash') ) {
-					var oldfeat = gentle.sequences[seqnum].features[featnum] ;
+					var oldfeat = me.sequence.features[featnum] ;
 					var start = oldfeat['_range'][0].from ;
 					var stop = oldfeat['_range'][oldfeat['_range'].length-1].to ;
 					me.sequence.remove ( start , stop-start+1 ) ;
