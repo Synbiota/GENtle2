@@ -31,7 +31,7 @@ function SequenceInfoDialogDNA ( sc ) {
 	
 	$('#'+this.sid).remove();
 	var dialogContainer = $("<div/>");
-	dialogContainer.load ( "public/templates/sequence_info_dialog_dna.html", function() {
+	dialogContainer.load ( "public/templates/sequence_info_dialog_dna.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function() {
 		var me = gentle.sequence_info_dialog ;
 		gentle.is_in_dialog = true ;
 		
@@ -70,7 +70,7 @@ function SequenceInfoDialogDNA ( sc ) {
 			h += "<td nowrap>" + type + "</td>" ;
 			h += "<td nowrap>" + from + " &ndash; " + to + " " + rc + "</td>" ;
 			h += "<td nowrap>" ;
-//			h += "<button class='btn btn-success' onclick='gentle.sequence_info_dialog.editAnnotation("+k+");return false'><i class='icon-edit icon-white'></i></button>&nbsp;" ;
+			h += "<button class='btn btn-success' onclick='gentle.main_sequence_canvas.editFeature("+k+");return false'><i class='icon-edit icon-white'></i>Edit</button>&nbsp;" ;
 			h += "<button class='btn btn-danger' onclick='gentle.sequence_info_dialog.deleteAnnotation("+k+");return false'><i class='icon-trash icon-white'></i></button>" ;
 			h += "</td>" ;
 			h += "</tr>" ;

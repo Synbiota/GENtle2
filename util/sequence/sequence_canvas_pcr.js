@@ -901,7 +901,7 @@ SequenceCanvasPCR.prototype.showMainDialog = function () {
 	me.selectedPrimer = -1 ;
 	$('#pcr_main_dialog_container').remove() ;
 	var dialogContainer = $("<div id='pcr_main_dialog_container'></div>");
-	$(dialogContainer).load('public/templates/pcr_main_dialog.html', function(){
+	$(dialogContainer).load('public/templates/pcr_main_dialog.html'+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 		dialogContainer.appendTo("#all");
 		$('#pcr_main_dialog').dialog ( {
 			modal:false , 

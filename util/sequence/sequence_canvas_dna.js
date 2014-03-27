@@ -935,7 +935,7 @@ function SequenceCanvasDNA ( the_sequence , canvas_id ) {
 			$.each ( feats , function ( k , v ) {
 				if ( v['_type'] == 'source' ) return ;
 				var col = cd.feature_types[gentle.getFeatureType(v['_type'])].col ;
-				var name = sc.sequence.getAnnotationName ( v ) ;
+				var name = 'Edit ' + '<em>' + sc.sequence.getAnnotationName ( v ) + '</em>' ;
 				name += ' [<span style="color:' + col + '">' + v['_type'] + '</span>]' ;
 				ret.push ( { html : '<i class="icon-edit"></i> ' + name , callback : function () { gentle.main_sequence_canvas.editFeature(k) } , title : 'Edit annotation' } ) ;
 	//				h += '<li><a href="#" onclick="gentle.main_sequence_canvas.editFeature('+k+');return false" title="Edit annotation"><i class="icon-edit"></i> ' + name + '</a></li>' ;

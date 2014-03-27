@@ -293,3 +293,7 @@ $.fn.copyCSSProperties = function (source, properties_array) {
     return out.join('');
   };
 }(this));
+
+//Bootstrap multimodal fix
+//https://stackoverflow.com/questions/13649459/twitter-bootstrap-multiple-modal-error
+$.fn.modal.Constructor.prototype.enforceFocus = function () {};

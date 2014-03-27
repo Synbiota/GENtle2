@@ -159,7 +159,7 @@ var gentle = {
 	} ,
 	
 	showDefaultBlurb : function () {
-		$("#main").load('public/templates/default_main.html', function(){
+		$("#main").load('public/templates/default_main.html'+ (gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 			$('#main_blurb').css ( { overflow:'auto' } ) ;
 //			$('#main_blurb').width ( $('#main').width()/2 ) ;
 			$('#main_blurb').height ( $('#main').height() ) ;
@@ -327,7 +327,7 @@ var gentle = {
 		
 		$('#aad_annotation_dialog').remove() ;
 		var dialogContainer = $("<div/>");
-		dialogContainer.load("public/templates/aad_annotation_dialog.html", function(){
+		dialogContainer.load("public/templates/aad_annotation_dialog.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 			gentle.is_in_dialog = true ;
 			sc.unbindKeyboard() ;
 			dialogContainer.appendTo("#all");
@@ -381,7 +381,7 @@ var gentle = {
 		
 		$('#selection_info_dialog').remove() ;
 		var dialogContainer = $("<div/>");
-		dialogContainer.load("public/templates/selection_info_dialog.html", function(){
+		dialogContainer.load("public/templates/selection_info_dialog.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 			gentle.is_in_dialog = true ;
 			sc.unbindKeyboard() ;
 			dialogContainer.appendTo("#all");
@@ -543,7 +543,7 @@ var gentle = {
 	  $('#addSequenceDialog').remove() ;
 	
 	  var dialogContainer = $("<div/>");
-	  dialogContainer.load("public/templates/add_sequence_dialog.html", function(){
+	  dialogContainer.load("public/templates/add_sequence_dialog.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 
 		var sc = gentle.main_sequence_canvas ;
 		if ( sc ) {
@@ -564,7 +564,7 @@ var gentle = {
 	  $('#newSequenceDialog').remove() ;
 	
 	  var dialogContainer = $("<div/>");
-	  dialogContainer.load("public/templates/new_sequence_dialog.html", function(){
+	  dialogContainer.load("public/templates/new_sequence_dialog.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 
 		var sc = gentle.main_sequence_canvas ;
 		if ( sc ) {
@@ -1020,7 +1020,7 @@ var gentle = {
 	help : function () {
 		$('#help_dialog').remove() ;
 		var dialogContainer = $("<div/>");
-		dialogContainer.load("public/templates/help_popup.html", function(){
+		dialogContainer.load("public/templates/help_popup.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 			dialogContainer.appendTo("#all");
 			$('#help_dialog').modal();
 		} ) ;

@@ -9,7 +9,7 @@
 <p>You can get more information <a target='_blank' href='public/templates/help.html'>here</a>.</p>
 
 <div id='video_tutorials_target'>
-<button class='btn' onclick='$("#video_tutorials_target").load("public/templates/video_tutorials.html"); return false'>Click here for video tutorials</button>
+<button class='btn' onclick='$("#video_tutorials_target").load("public/templates/video_tutorials.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : '')); return false'>Click here for video tutorials</button>
 </div>
 
 <br/>

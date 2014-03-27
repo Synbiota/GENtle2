@@ -34,7 +34,7 @@ function AnnotationEditorDialogDNA ( sc , fid ) {
 	
 	$('#'+this.sid).remove();
 	var dialogContainer = $("<div/>");
-	dialogContainer.load ( "public/templates/annotation_editor_dialog.html", function() {
+	dialogContainer.load ( "public/templates/annotation_editor_dialog.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function() {
 		gentle.is_in_dialog = true ;
 		
 		sc.unbindKeyboard() ;

@@ -10,7 +10,7 @@ var ncbi = {
 		$('#ncbi_dialog').remove() ;
 
 		var dialogContainer = $("<div/>");
-		dialogContainer.load("public/templates/ncbi_dialog.html", function(){
+		dialogContainer.load("public/templates/ncbi_dialog.html"+(gentle_config.plugin_timestamp ? '?'+gentle_config.plugin_timestamp : ''), function(){
 
 			var sc = gentle.main_sequence_canvas ;
 			if ( sc ) {
