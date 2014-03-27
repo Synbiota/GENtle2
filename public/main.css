@@ -240,6 +240,12 @@
   padding: 0;
   background-color: #edf6fb;
 }
+.open>.dropdown-menu li>a {
+  white-space: normal;
+  word-wrap: break-word;
+  text-indent: -20px;
+  margin-left: 20px;
+}
 .navbar .navbar-inner .nav>li .dropdown-menu:before, .navbar .navbar-inner .nav>li .dropdown-menu:after {
   border-bottom: 10px solid #2ea7de;
   top: -12px;
@@ -280,7 +286,8 @@
 
 .right {
     float:right;
-    width:120px;
+    width:250px;
+    word-wrap: break-word;
 }
 
 .fixed-fluid {
