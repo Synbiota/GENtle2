@@ -21,11 +21,14 @@ synbiota.prototype.saveToSynbiota = function () {
 	var sc = this.getCurrentSequenceCanvas() ;
 	console.log("sc: " + sc);
 	if ( sc === undefined ) return ; // Paranoia
-	if ( sc.sequence.synbiota === undefined ) sc.sequence.synbiota = {
-		project_id : synbiota_data.project_id ,
-		sequence_id : -1 ,
-		kind : 'Misc'
-	} ;
+	if ( sc.sequence.synbiota === undefined ) { 
+		sc.sequence.synbiota = {
+			project_id : synbiota_data.project_id ,
+			sequence_id : -1 ,
+			kind : 'Misc'
+		} ;
+		sc.sequence.data_keys.push('synbiota');
+	}
 
 	if (sc.sequence.synbiota.read_only==true)
 	{
@@ -86,6 +89,8 @@ synbiota.prototype.saveToSynbiota = function () {
 		}
 	}
 
+	$('#sequence_canvas_title_bar span.last-saved').removeClass('text-error muted').addClass('text-info').html('<strong>Saving...</strong>')
+
 	$.ajax({
 		url: url,
 		data: params,
@@ -110,13 +115,14 @@ synbiota.prototype.saveToSynbiota = function () {
 				sc.sequence.synbiota.updated_at = data.updated_at ;
 				sc.updateTitleBar() ;
 
-			}
+			}	
 			
 		} // success
 		,
 		error: function(jqXHR, textStatus, errorThrown) {
 				//update last saved notification.
-				sc.sequence.synbiota.updated_at = "save failed." ;
+				// sc.sequence.synbiota.updated_at = "save failed." ;
+				alert('Saving this sequence failed.')
 				sc.updateTitleBar() ;
 		}
 
@@ -244,7 +250,7 @@ synbiota.prototype.global_init = function () {
 	if ( undefined === gentle_config.synbiota ) gentle_config.synbiota = {} ;
 	//synbiota_data.use_proxy = ( gentle_config.synbiota.use_proxy || 1 ) > 0 ;
 
-	if(gentle_config.synbiota.use_proxy == 0)
+	if(gentle_config.synbiota.use_proxy === 0)
 	{
 		synbiota_data.use_proxy = false;
 	}
@@ -256,6 +262,10 @@ synbiota.prototype.global_init = function () {
 	console.log("proxy setting: " + gentle_config.synbiota.use_proxy + ", use proxy? " + synbiota_data.use_proxy)
 	synbiota_data.api_version = gentle_config.synbiota.api_version || 1 ;
 	synbiota_data.api_url = gentle_config.synbiota.api_url || 'https://synbiota-test.herokuapp.com' ;
+
+	if(gentle.url_vars.pn) {
+		synbiota_data.project_name = atob(gentle.url_vars.pn);
+	}
 	
 	
 	synbiota_data.token = gentle.url_vars.token ;
@@ -290,6 +300,7 @@ synbiota.prototype.global_init = function () {
 	if ( undefined === gentle.url_vars.id ) gentle.url_vars.id = -1 ;
 	if ( undefined === gentle.url_vars.ro || gentle.url_vars.ro == "") gentle.url_vars.ro = -1 ;
 
+	console.log(gentle.url_vars.id, typeof gentle.url_vars.id)
 	if (gentle.url_vars.id == -1 && gentle.url_vars.ro == -1) {
 		gentle.startAddSequenceDialog();
 	} else {

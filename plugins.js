@@ -216,6 +216,7 @@ var plugins = {
 	loadPluginFromURL : function ( url ) {
 		var fileref=document.createElement('script') ;
 		fileref.setAttribute("type","text/javascript") ;
+		if(gentle_config.plugin_timestamp) url += '?'+gentle_config.plugin_timestamp;
 		fileref.setAttribute("src", url) ;
 		var first = document.getElementsByTagName('script')[0];
 		first.parentNode.insertBefore(fileref, first);

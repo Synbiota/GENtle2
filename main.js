@@ -182,17 +182,18 @@ var gentle = {
 				var tmpseq = JSON.parse ( gi1 ) ;
 				gentle.sequences = [] ;
 				$.each ( tmpseq , function ( k , v ) {
+					var seq;
 					if ( v.typeName == 'dna' ) {
-						var seq = new SequenceDNA () ;
+						seq = new SequenceDNA () ;
 						seq.seedFrom ( v ) ;
 						gentle.sequences[k] = seq ;
 					} else if ( v.typeName == 'designer' ) {
-						var seq = new SequenceDesigner () ;
+						seq = new SequenceDesigner () ;
 						seq.seedFrom ( v ) ;
 						seq.typeName = 'designer' ;
 						gentle.sequences[k] = seq ;
 					} else if ( v.typeName == 'pcr' ) {
-						var seq = new SequencePCR () ;
+						seq = new SequencePCR () ;
 						seq.seedFrom ( v ) ;
 						seq.typeName = 'pcr' ;
 						gentle.sequences[k] = seq ;
@@ -241,6 +242,7 @@ var gentle = {
 	} ,
 
 	saveLocally : function () {
+
 		var me = this ;
 		gentle.updateCurrentSequenceSettings () ;
 		if ( gentle.sequences.length == 0 ) {
@@ -250,6 +252,7 @@ var gentle = {
 		
 		var tmp = [] ;
 		$.each ( gentle.sequences , function ( k , v ) {
+			if(v.synbiota !== undefined) return true;
 			tmp[k] = v.getStorageObject() ;
 		} ) ;
 

@@ -718,13 +718,17 @@ SequenceCanvas.prototype.updateTitleBar = function () {
       if(gentle.sequences[gentle.current_sequence_entry].data_keys.indexOf("synbiota")!=-1) {
         var sb = gentle.sequences[gentle.current_sequence_entry].synbiota;
         data.sequence.synbiota = {
-          lastSave: moment(sb.updated_at).calendar(),
-          readOnly: sb.read_only
+          lastSave: "Last saved: " + moment(sb.updated_at).calendar(),
+          unSaved: !!sb.unsaved,
+          readOnly: sb.read_only,
+          projectName: synbiota_data.project_name ? synbiota_data.project_name.substr(0,40) : undefined
         }
       }else{ //synbiota token present, new sequence!
         data.sequence.synbiota = {
           lastSave: "Unsaved!",
-          readOnly: false
+          unSaved: true,
+          readOnly: false,
+          projectName: synbiota_data.project_name ? synbiota_data.project_name.substr(0,40) : undefined
         }
       }
     }

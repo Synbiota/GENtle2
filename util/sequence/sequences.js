@@ -18,6 +18,8 @@ Sequence.prototype.seedFrom = function ( seq_obj ) {
 	var keys = clone ( seq_obj.data_keys ) ;
 	keys.push ( 'name' ) ;
 	keys.push ( 'seq' ) ;
+	keys.push ( 'data_keys' ) ;
+	keys.push ( 'synbiota' ) ;
 	$.each ( keys , function ( dummy , key ) {
 		me[key] = clone ( seq_obj[key] ) ;
 	} ) ;
@@ -29,6 +31,7 @@ Sequence.prototype.getStorageObject = function () {
 	keys.push ( 'name' ) ;
 	keys.push ( 'seq' ) ;
 	keys.push ( 'data_keys' ) ;
+	if(this.synbiota !== undefined) keys.push('synbiota');
 	var ret = {} ;
 	$.each ( keys , function ( dummy , key ) {
 		ret[key] = clone ( me[key] ) ;
