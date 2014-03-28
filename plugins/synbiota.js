@@ -62,7 +62,7 @@ synbiota.prototype.saveToSynbiota = function () {
 		var params = {
 			token : synbiota_data.token ,
 			'gentle_file[name]' : ( sc.sequence.name || '' ) ,
-			'gentle_file[kind]' : sc.sequence.synbiota.kind ,
+			'gentle_file[kind]' : sc.sequence.synbiota.kind || 'Misc',
 			'gentle_file[description]' : ( sc.sequence.desc || '' ) ,
 			'gentle_file[sybil]' : sybil
 		} ;
