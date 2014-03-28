@@ -721,7 +721,7 @@ var gentle = {
 			gentle.designed_sequence.seq = '';
 		}
 		gentle.main_sequence_canvas = new SequenceCanvasDesigner ( gentle.designed_sequence, 'sequence_canvas' ) ;
-		if ( $('#topbox').is(':visible') ) gentle.toggle_right_sidebar('none');
+		if ( $('#topbox').is(':visible') || $('#plasmidbox').is(':visible') ) gentle.toggle_right_sidebar('none');
 	} ,
 		
 	handleSelectSequenceEntryPCR : function ( entry ) {
