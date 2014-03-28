@@ -44,7 +44,7 @@
   		</li>
   		<li class="disabled no-hover">
   			<a href="#">
-  				{{#length}}<span class="text-info">{{length}} bp</span>{{/length}}{{#circularity}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="text-warning">{{circularity}}</span>{{/circularity}}{{#synbiota}}{{#projectName}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class='text-info'>Project: <strong><{{projectName}}</strong></span>{{/projectName}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="{{#unSaved?}}label-error{{/unSaved?}}{{^unSaved?}}muted{{/unSaved?}} last-saved">{{lastSave}}</span>{{#readOnly}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="label label-warning small-caps no-bold">read only</span>{{/readOnly}}{{/synbiota}}
+  				{{#length}}<span class="text-info">{{length}} bp</span>{{/length}}{{#circularity}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="text-warning">{{circularity}}</span>{{/circularity}}{{#synbiota}}{{#projectName}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class='text-info'>Project: <strong>{{projectName}}</strong></span>{{/projectName}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="{{#unSaved?}}label-error{{/unSaved?}}{{^unSaved?}}muted{{/unSaved?}} last-saved">{{lastSave}}</span>{{#readOnly}}&nbsp;<span class="muted">&middot;</span>&nbsp;<span class="label label-warning small-caps no-bold">read only</span>{{/readOnly}}{{/synbiota}}
   			</a>
   		</li>
   	{{/sequence}}
