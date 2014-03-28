@@ -39,23 +39,31 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 		me.list[o.row].push ( o ) ;
 	} ) ;
 	
-	if ( me.list.main.length == 0 ) return '' ; // No main elements, no point showing this
+	if ( me.list.main.length === 0 && !is_primary) return '' ; // No main elements, no point showing this (unless it's the designed sequence)
+
+	// Is this the designed sequence, and the first time it is opened?
+	if(me.list.main.length > 0 || !is_primary) {
 	
-	me.list.main = me.list.main.sort ( me.sortFeaturesByPosition ) ;
-	var m2 = [] ;
-	if ( me.list.main[0].start > 0 ) m2.push ( { start : 1 , stop : me.list.main[0].start-1 , type : 'space' } ) ;
-//	else if ( is_primary ) m2.push ( { start : 0 , stop :0 , type : 'space' } ) ;
-	$.each ( me.list.main , function ( k , v ) {
-		m2.push ( v ) ;
-		if ( k+1 == me.list.main.length ) return ;
-		m2.push ( { start : v.stop+1 , stop : me.list.main[k+1].start-1 , type : 'space' } ) ;
-	} ) ;
-	if ( me.list.main[me.list.main.length-1].stop < sequence.seq.length-1 ) m2.push ( { start : me.list.main[me.list.main.length-1].stop+1 , stop : sequence.seq.length , type : 'space' } ) ;
+		me.list.main = me.list.main.sort ( me.sortFeaturesByPosition ) ;
+		var m2 = [] ;
+		if ( me.list.main[0].start > 0 ) m2.push ( { start : 1 , stop : me.list.main[0].start-1 , type : 'space' } ) ;
+	//	else if ( is_primary ) m2.push ( { start : 0 , stop :0 , type : 'space' } ) ;
+		$.each ( me.list.main , function ( k , v ) {
+			m2.push ( v ) ;
+			if ( k+1 == me.list.main.length ) return ;
+			m2.push ( { start : v.stop+1 , stop : me.list.main[k+1].start-1 , type : 'space' } ) ;
+		} ) ;
+		if ( me.list.main[me.list.main.length-1].stop < sequence.seq.length-1 ) m2.push ( { start : me.list.main[me.list.main.length-1].stop+1 , stop : sequence.seq.length , type : 'space' } ) ;
+		
+		if ( is_primary ) m2.push ( { start : 1 , stop : sequence.seq.length , type : 'trash' } ) ;
+		else m2.push ( { start : 1 , stop : sequence.seq.length , type : 'all' } ) ;
+		
+		me.list.main = m2 ;
+
+	}
 	
-	if ( is_primary ) m2.push ( { start : 1 , stop : sequence.seq.length , type : 'trash' } ) ;
-	else m2.push ( { start : 1 , stop : sequence.seq.length , type : 'all' } ) ;
-	
-	me.list.main = m2 ;
+
+	// console.log('main_sequence?', me.sequence == sequence, me.list.main)
 	
 	// Generate HTML
 	var h = '' ;
@@ -65,20 +73,23 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 	
 	
 	h += "<div class='designer_row_header'>" ;
-	h += "<a href='#' id='designer_sequence_link" + seqnum + "'>" + ( sequence.name || "Unnamed" ) + "</a><br/>" ;
+	h += "<a href='#' id='designer_sequence_link" + (is_primary ? '_primary' : seqnum) + "'>" + ( sequence.name || "Unnamed" ) + "</a><br/>" ;
 	h += "<small>" + addCommas ( sequence.seq.length ) + "&nbsp;bp</small>" ;
 	h += "</div>" ;
 	
 	h += "<div class='designer_row_features'>" ;
 	
-	h += "<div class='designer_row_features_top'>" ;
-	h += "<span style='color:#DDDDDD;font-size:8pt'>This row is for annotating genes, not yet implemented</span>" ;
-	h += "</div>" ;
+	// h += "<div class='designer_row_features_top'>" ;
+	// h += "<span style='color:#DDDDDD;font-size:8pt'>This row is for annotating genes, not yet implemented</span>" ;
+	// h += "</div>" ;
 	
 	h += "<div class='designer_row_features_main'>" ;
 //	if ( h += "<div style='display:none' class='designer_row_feature_droppable designer_row_feature_droppable_space'></div>" ;
 	if ( is_primary ) {
 		h += "<div class='designer_row_feature_droppable designer_row_feature_dummy'></div>" ;
+	}
+	if(me.list.main.length === 0) {
+		h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space designer_row_feature_droppable_space_jumbo' nextbase='1'>DROP HERE</div>"
 	}
 	$.each ( me.list.main , function ( k , v ) {
 		var len = v.stop - v.start + 1 ;
@@ -86,7 +97,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 		len = addCommas ( len ) + "&nbsp;bp" ;
 		if ( v.type == 'space' ) {
 			h += "<div class='designer_row_feature_space" ;
-			if ( is_primary ) h += " designer_row_feature_droppable" ;
+			// if ( is_primary ) h += " designer_row_feature_droppable" ;
 			h += "' title='Un-annotated region, " + len + "'>" ;
 			h += "&nbsp;<br/>&nbsp;" ;
 			h += "</div>" ;
@@ -100,10 +111,11 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += "<b><i class='icon-trash' /></b><br/>Drop feature here to delete" ;
 			h += "</div>" ;
 		} else {
-			if ( is_primary ) h += " <div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + v.start + "'>&nbsp;<br/>&nbsp;</div>" ;
+			if ( is_primary ) h += " <div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + v.start + "'>D<br/>R<br/>O<br/>P</div>" ;
 			h += "<div class='designer_row_feature " ;
-			if ( is_primary ) h += "designer_row_feature_droppable" ;
+			// if ( is_primary ) h += "designer_row_feature_droppable" ;
 			h += " designer_row_feature_draggable" ;
+			if(is_primary) h += ' designer_row_feature_trashable';
 			h += " designer_row_feature_" + v.type + "' title='" + cd.feature_types[v.type].name + "'" ;
 			if ( undefined !== v.featnum ) h += " seqnum='" + seqnum + "' featnum='" + v.featnum + "'" ;
 			h += ">" ;
@@ -113,14 +125,14 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			}
 			h += "<br/>" + len ;
 			h += "</div>" ;
-			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + (v.stop+1) + "'>&nbsp;<br/>&nbsp;</div>" ;
+			if ( is_primary ) h += "<div class='designer_row_feature_droppable designer_row_feature_droppable_space' nextbase='" + (v.stop+1) + "'>D<br/>R<br/>O<br/>P</div>" ;
 		}
 	} ) ;
 	h += "</div>" ;
 	
-	h += "<div class='designer_row_features_bottom'>" ;
-	h += "<span style='color:#DDDDDD;font-size:8pt'>This row is for misc annotation, not yet implemented</span>" ;
-	h += "</div>" ;
+	// h += "<div class='designer_row_features_bottom'>" ;
+	// h += "<span style='color:#DDDDDD;font-size:8pt'>This row is for misc annotation, not yet implemented</span>" ;
+	// h += "</div>" ;
 	
 	h += "</div>" ;
 
@@ -132,13 +144,16 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 SequenceCanvasDesigner.prototype.init = function () {
 	var me = this ;
 	var h = '' ;
-	var cnt = 0 ;
-	$.each ( gentle.sequences , function ( k , v ) {
-		if ( v != me.sequence ) return ;
-		var nh = me.getSequenceSchemaHTML ( me.sequence , cnt , k ) ; // This happens only once...
-		if ( nh != '' ) cnt++ ;
-		h += nh ;
-	} ) ;
+	var cnt = 1;
+	// console.log('initing', gentle.sequences, me.sequence);
+	// $.each ( gentle.sequences , function ( k , v ) {
+	// 	if ( v != me.sequence ) return ;
+	// 	var nh = me.getSequenceSchemaHTML ( me.sequence , cnt , k ) ; // This happens only once...
+	// 	// if ( nh != '' ) cnt++ ;
+	// 	cnt++;
+	// 	h += nh ;
+	// } ) ;
+	h += me.getSequenceSchemaHTML(me.sequence, 0, 0);
 	$.each ( gentle.sequences , function ( k , v ) {
 		if ( v == me.sequence ) return ;
 		if ( v.typeName != 'dna' ) return ;
@@ -153,8 +168,14 @@ SequenceCanvasDesigner.prototype.init = function () {
 	
 	$('#canvas_wrapper').html ( h ) ;
 	
-	$('.designer_row_feature_droppable_space').hide();
+	$('.designer_row_feature_droppable_space:not(.designer_row_feature_droppable_space_jumbo)').hide();
 
+	$('#designer_sequence_link_primary').on('click', function() {
+		var seq = me.sequence.clone() ;
+		seq.typeName = 'dna' ;
+		// seq.name += " (designed)" ;
+		gentle.addSequence ( seq , true ) ;
+	})
 	$.each ( gentle.sequences , function ( k , v ) {
 		$('#designer_sequence_link'+k).click ( function () {
 			if ( v == me.sequence ) {
@@ -163,6 +184,7 @@ SequenceCanvasDesigner.prototype.init = function () {
 				seq.name += " (designed)" ;
 				gentle.addSequence ( seq , true ) ;
 			} else {
+				console.log(k);
 				gentle.handleSelectSequenceEntry ( k ) ;
 			}
 			return false ;
@@ -188,12 +210,12 @@ SequenceCanvasDesigner.prototype.init = function () {
 			$('.designer_row_feature_droppable_space').css({display:'inline-block'}); // Not very elegant, but $(this) doesn't work...
 			$('.designer_row_feature_dummy').hide() ;
 			var source = ui.draggable ;
-			if ( source.hasClass('designer_row_feature_droppable') ) $('.designer_trash').css({display:'inline-block'}) ;
+			if ( source.hasClass('designer_row_feature_trashable') ) $('.designer_trash').css({display:'block'}) ;
 		} ,
 		deactivate : function (event,ui) {
 			$('.designer_row_feature_dummy').show() ;
 			$('.designer_row_feature_droppable_active').removeClass('designer_row_feature_droppable_active');
-			$('.designer_row_feature_droppable_space').hide(); // Not very elegant, but $(this) doesn't work...
+			$('.designer_row_feature_droppable_space:not(.designer_row_feature_droppable_space_jumbo)').hide(); // Not very elegant, but $(this) doesn't work...
 			$('.designer_trash').hide() ;
 		} ,
 		drop : function ( event , ui ) {

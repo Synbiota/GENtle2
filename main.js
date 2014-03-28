@@ -641,6 +641,7 @@ var gentle = {
 	closeSequence : function ( entry ) {
 		if ( entry === undefined ) return ;
 		
+		if(gentle.sequences[entry].typeName == 'designer') gentle.designed_sequence = undefined;
 		gentle.main_sequence_canvas.onClose() ;
 		gentle.sequences.splice ( entry , 1 ) ;
 		gentle.updateSequenceList() ;
@@ -714,7 +715,12 @@ var gentle = {
 		top_display = undefined ;
 		
 		// Set up new sequence canvas
-		gentle.main_sequence_canvas = new SequenceCanvasDesigner ( gentle.sequences[entry] , 'sequence_canvas' ) ;
+		if(gentle.designed_sequence === undefined) {
+			gentle.designed_sequence = new SequenceDNA();
+			gentle.designed_sequence.name = 'New designed sequence';
+			gentle.designed_sequence.seq = '';
+		}
+		gentle.main_sequence_canvas = new SequenceCanvasDesigner ( gentle.designed_sequence, 'sequence_canvas' ) ;
 		if ( $('#topbox').is(':visible') ) gentle.toggle_right_sidebar('none');
 	} ,
 		
