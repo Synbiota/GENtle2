@@ -58,7 +58,7 @@ synbiota.prototype.saveToSynbiota = function () {
 
 	} else {
 		console.log ( "SAVE" ) ;
-		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + sc.sequence.synbiota.project_id + '/gentle_files' ;
+		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + (sc.sequence.synbiota.project_id || gentle.url_vars.project_id) + '/gentle_files' ;
 		var params = {
 			token : synbiota_data.token ,
 			'gentle_file[name]' : ( sc.sequence.name || '' ) ,
