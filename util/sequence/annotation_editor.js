@@ -112,6 +112,7 @@ AnnotationEditorDialogDNA.prototype.onCancelButton = function () {
 
 AnnotationEditorDialogDNA.prototype.onSaveButton = function () {
 	var me = gentle.annotation_editor_dialog ;
+	var has_info_dialog = $('#sequence_info_dialog_dna').length > 0;
 	var feat = me.sc.sequence.features[me.fid] ;
 	
 	if ( undefined !== me.name_key ) feat[me.name_key] = $('#aed_name').val() ;
@@ -141,5 +142,12 @@ AnnotationEditorDialogDNA.prototype.onSaveButton = function () {
 	top_display.init() ;
 	if (gentle.main_sequence_canvas.plasmid_map){gentle.main_sequence_canvas.plasmid_map.recalcAnnotations() ;	gentle.main_sequence_canvas.plasmid_map.updateMap() ;  }
 	
-	return me.closeDialog() ;
+	if(has_info_dialog) {
+		console.log(gentle.sequences[0].features)
+		gentle.sequence_info_dialog.closeDialog();
+		gentle.sequence_info_dialog = new SequenceInfoDialogDNA ( me.sc );
+		$('#sid_tab a:last').tab('show');
+	}
+	me.closeDialog()
+	return;
 }
