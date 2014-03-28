@@ -250,10 +250,12 @@ var gentle = {
 			return ;
 		}
 		
-		var tmp = [] ;
+		var tmp = [],
+				i = 0 ;
 		$.each ( gentle.sequences , function ( k , v ) {
 			if(v.synbiota !== undefined) return true;
-			tmp[k] = v.getStorageObject() ;
+			tmp[i] = v.getStorageObject() ;
+			i++;
 		} ) ;
 
 		var s = JSON.stringify ( tmp ) ; // gentle.sequences
