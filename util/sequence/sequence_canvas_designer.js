@@ -173,6 +173,7 @@ SequenceCanvasDesigner.prototype.init = function () {
 	$('#designer_sequence_link_primary').on('click', function() {
 		var seq = me.sequence.clone() ;
 		seq.typeName = 'dna' ;
+		if(synbiota_data !== undefined) seq.synbiota = {};
 		// seq.name += " (designed)" ;
 		gentle.addSequence ( seq , true ) ;
 	})

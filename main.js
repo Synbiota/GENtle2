@@ -253,7 +253,7 @@ var gentle = {
 		var tmp = [],
 				i = 0 ;
 		$.each ( gentle.sequences , function ( k , v ) {
-			if(v.synbiota !== undefined) return true;
+			if('synbiota' in v) return true;
 			tmp[i] = v.getStorageObject() ;
 			i++;
 		} ) ;
