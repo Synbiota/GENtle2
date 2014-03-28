@@ -287,8 +287,8 @@ synbiota.prototype.global_init = function () {
 		plugins.addSection ( 'dna' , 'synbiota' ) ;
 		plugins.addSection ( 'designer' , 'synbiota' ) ;
 		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'saveToSynbiota' , linkTitle : 'Save to Synbiota' } ) ;
-		plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
-		plugins.registerAsTool ( { className : 'synbiota' , module : 'designer' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
+		// plugins.registerAsTool ( { className : 'synbiota' , module : 'dna' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
+		// plugins.registerAsTool ( { className : 'synbiota' , module : 'designer' , section : 'synbiota' , call : 'findParts' , linkTitle : 'Find parts' } ) ;
 	} else {
 		console.log("Synbiota plugin couldn't load")
 		return ; // Plugin registry failed. Abort, abort!!
