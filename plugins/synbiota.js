@@ -114,7 +114,7 @@ synbiota.prototype.saveToSynbiota = function () {
 
 				//update last saved notification.
 				sc.sequence.synbiota.updated_at = data.updated_at || data.created_at ;
-				if(~sc.sequence.data_keys.indexOf('synbiota')) sc.sequence.data_keys.push('synbiota');
+				if(!~sc.sequence.data_keys.indexOf('synbiota')) sc.sequence.data_keys.push('synbiota');
 				console.log('saved: ', data, sc.sequence.synbiota);
 				sc.updateTitleBar() ;
 
