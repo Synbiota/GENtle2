@@ -154,6 +154,7 @@ SequenceCanvasDesigner.prototype.init = function () {
 	// 	h += nh ;
 	// } ) ;
 	h += me.getSequenceSchemaHTML(me.sequence, 0, 0);
+	h += "<div class='designer_scroller'>";
 	$.each ( gentle.sequences , function ( k , v ) {
 		if ( v == me.sequence ) return ;
 		if ( v.typeName != 'dna' ) return ;
@@ -161,12 +162,16 @@ SequenceCanvasDesigner.prototype.init = function () {
 		if ( nh != '' ) cnt++ ;
 		h += nh ;
 	} ) ;
+	h += "</div>";
 	
-	if ( cnt == 0 ) h = "<div style='color:black'><i>No suitable sequences loaded.</i></div>" ;
+	if ( cnt == 1 ) h = "<div style='color:black'><i>No suitable sequences loaded.</i></div>" ;
 
+	
 	me.updateTitleBar() ;
+
 	
 	$('#canvas_wrapper').html ( h ) ;
+	gentle.main_sequence_canvas.resizeCanvas();
 	
 	$('.designer_row_feature_droppable_space:not(.designer_row_feature_droppable_space_jumbo)').hide();
 

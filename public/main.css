@@ -223,6 +223,14 @@
   background-color:#EEEEEE;
 }
 
+.designer_scroller {
+  position: absolute;
+  overflow-y: auto;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+
 
 /* Other */
 #betatag {

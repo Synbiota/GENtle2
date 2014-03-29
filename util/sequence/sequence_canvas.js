@@ -114,6 +114,13 @@ SequenceCanvas.prototype.resizeCanvas = function () {
   $('#sequence_canvas_overlay').css ( { top:cw.top+'px' , left:cw.left+'px' , width:w+'px' , height:h+'px' } ) ;
   $('#canvas_wrapper').css ( { 'max-height' : h+'px' } ) ;
   $('#canvas_wrapper').height ( h) ;
+  if($('#canvas_wrapper .designer_scroller').length) {
+    $('#canvas_wrapper').height($(window).height() - $('#canvas_wrapper .designer_scroller').offset().top + $('.designer_row_primary:first').height());
+    $('#canvas_wrapper .designer_scroller').css({
+      top: $('.designer_row_primary:first').height(),
+      height: $('#canvas_wrapper').height() - $('.designer_row_primary:first').height()
+    });  
+  }
   $('#zoombox').css({ top: $('.navbar').height() + 49 + 'px'});
   $('#top_zone').css({'max-height': h + 'px'});
   if( top_display !== undefined) {
