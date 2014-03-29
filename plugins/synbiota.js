@@ -42,13 +42,13 @@ synbiota.prototype.saveToSynbiota = function () {
 
 	if ( sc.sequence.synbiota.sequence_id > -1 ) {
 		console.log ( "UPDATE" ) ;
-		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + sc.sequence.synbiota.project_id + '/gentle_files/' + sc.sequence.synbiota.sequence_id ;
+		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + (sc.sequence.synbiota.project_id || gentle.url_vars.project_id)  + '/gentle_files/' + sc.sequence.synbiota.sequence_id ;
 		
 		var params = {
 			token : synbiota_data.token ,
 			id : sc.sequence.synbiota.sequence_id ,
 			'gentle_file[name]' : ( sc.sequence.name || '' ) ,
-			'gentle_file[kind]' : sc.sequence.synbiota.kind ,
+			'gentle_file[kind]' : sc.sequence.synbiota.kind || 'Misc' ,
 			'gentle_file[description]' : ( sc.sequence.desc || '' ) ,
 			'gentle_file[sybil]' : sybil ,
 			
@@ -58,6 +58,7 @@ synbiota.prototype.saveToSynbiota = function () {
 
 	} else {
 		console.log ( "SAVE" ) ;
+
 		var url = synbiota_data.api_url + '/api/' + synbiota_data.api_version + '/projects/' + (sc.sequence.synbiota.project_id || gentle.url_vars.project_id) + '/gentle_files' ;
 		var params = {
 			token : synbiota_data.token ,
@@ -112,7 +113,8 @@ synbiota.prototype.saveToSynbiota = function () {
 				}
 
 				//update last saved notification.
-				sc.sequence.synbiota.updated_at = data.updated_at ;
+				sc.sequence.synbiota.updated_at = data.updated_at || data.created_at ;
+				console.log('saved: ', data, sc.sequence.synbiota);
 				sc.updateTitleBar() ;
 
 			}	
