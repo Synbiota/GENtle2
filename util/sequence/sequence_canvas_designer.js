@@ -103,7 +103,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += "</div>" ;
 		} else if ( v.type == 'all' ) {
 			h += "<div class='designer_row_feature designer_row_feature_draggable designer_row_feature_all' title='Drag entire construct'" ;
-			h += " seqnum='" + seqnum + "'" ;
+			h += " seqnum='" + (is_primary ? 'primary' : seqnum) + "'" ;
 			h += " nextbase='" + v.start + "'>Entire construct<br/>&Sigma;" ;
 			h += "</div>" ;
 		} else if ( v.type == 'trash' ) {
@@ -117,7 +117,7 @@ SequenceCanvasDesigner.prototype.getSequenceSchemaHTML = function ( sequence , r
 			h += " designer_row_feature_draggable" ;
 			if(is_primary) h += ' designer_row_feature_trashable';
 			h += " designer_row_feature_" + v.type + "' title='" + cd.feature_types[v.type].name + "'" ;
-			if ( undefined !== v.featnum ) h += " seqnum='" + seqnum + "' featnum='" + v.featnum + "'" ;
+			if ( undefined !== v.featnum ) h += " seqnum='" + (is_primary ? 'primary' : seqnum) + "' featnum='" + v.featnum + "'" ;
 			h += ">" ;
 			h += v.name ;
 			if ( v.type == 'cds' ) {
@@ -242,12 +242,15 @@ SequenceCanvasDesigner.prototype.init = function () {
 			
 					if ( undefined === featnum ) return ;
 					var next_base = target.attr('nextbase') ;
-					var oldfeat = gentle.sequences[seqnum].features[featnum] ;
+					var from_seq = seqnum == 'primary' ? me.sequence : gentle.sequences[seqnum];
+					console.log(from_seq);
+					var oldfeat = from_seq.features[featnum] ;
+					console.log(oldfeat, gentle.sequences, seqnum, featnum);
 					var start = oldfeat['_range'][0].from ;
 					var stop = oldfeat['_range'][oldfeat['_range'].length-1].to ;
 				
 				
-					var newseq = gentle.sequences[seqnum].asNewSequenceDNA ( start , stop ) ;
+					var newseq = from_seq.asNewSequenceDNA ( start , stop ) ;
 					if ( undefined === newseq ) return ; // Paranoia
 					me.sequence.insertSequenceDNA ( newseq , next_base ) ;
 				}
