@@ -107,13 +107,14 @@ synbiota.prototype.saveToSynbiota = function () {
 					data = $.parseJSON(data);
 				}
 				
-				if(sc.sequence.synbiota.sequence_id == -1)
+				if(sc.sequence.synbiota.sequence_id === undefined || sc.sequence.synbiota.sequence_id == -1)
 				{
 					sc.sequence.synbiota.sequence_id = data.id
 				}
 
 				//update last saved notification.
 				sc.sequence.synbiota.updated_at = data.updated_at || data.created_at ;
+				if(~sc.sequence.data_keys.indexOf('synbiota')) sc.sequence.data_keys.push('synbiota');
 				console.log('saved: ', data, sc.sequence.synbiota);
 				sc.updateTitleBar() ;
 
