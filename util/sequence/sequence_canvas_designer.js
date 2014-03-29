@@ -217,12 +217,14 @@ SequenceCanvasDesigner.prototype.init = function () {
 			$('.designer_row_feature_dummy').hide() ;
 			var source = ui.draggable ;
 			if ( source.hasClass('designer_row_feature_trashable') ) $('.designer_trash').css({display:'block'}) ;
+			gentle.main_sequence_canvas.resizeCanvas();
 		} ,
 		deactivate : function (event,ui) {
 			$('.designer_row_feature_dummy').show() ;
 			$('.designer_row_feature_droppable_active').removeClass('designer_row_feature_droppable_active');
 			$('.designer_row_feature_droppable_space:not(.designer_row_feature_droppable_space_jumbo)').hide(); // Not very elegant, but $(this) doesn't work...
 			$('.designer_trash').hide() ;
+			gentle.main_sequence_canvas.resizeCanvas();
 		} ,
 		drop : function ( event , ui ) {
 			var source = ui.draggable ;
