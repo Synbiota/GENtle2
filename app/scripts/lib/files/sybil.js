@@ -72,7 +72,7 @@ define(function(require) {
       else if ( v['product'] !== undefined ) desc = v['product'] ;
       else if ( v['bound_moiety'] !== undefined ) desc = v['bound_moiety'] ;
       desc = desc.replace(/^"/,'').replace(/"$/,'') ;
-      if ( desc != '' ) desc = "\n" + ucFirst ( desc ) ;
+      if ( desc != '' ) desc = "\n" + _.ucFirst ( desc ) ;
       desc = desc.trim() ;
       
       if ( 1 != v['_range'].length ) {
@@ -137,7 +137,7 @@ define(function(require) {
         
         seq.features = [] ;
         $(v2).find('annotation').each ( function ( k3 , v3 ) {
-          var attrs = _.pluck(objectToArray(v3.attributes), 'name');
+          var attrs = _(v3.attributes).objectToArray().pluck('name');
           var start , stop , rc ;
           var feature = {} ;
           feature._range = [] ;

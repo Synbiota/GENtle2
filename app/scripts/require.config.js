@@ -2,7 +2,7 @@ require.config({
   baseUrl: './scripts/',
   paths: {
     'jquery':       '../vendor/scripts/jquery-1.10.2',
-    'underscore':   '../vendor/scripts/underscore',
+    'underscore':   '../vendor/scripts/underscore-1.6.0',
     'Handlebars':   '../vendor/scripts/handlebars',
     'hbars':        '../vendor/scripts/hbars',
     'domReady':     '../vendor/scripts/domReady',
@@ -17,7 +17,7 @@ require.config({
   },
   deps: [
     'lib/polyfills',
-    'lib/common'
+    'lib/utilities'
   ],
   hbars: {
     extension: '.hbs'
