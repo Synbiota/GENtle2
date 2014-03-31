@@ -11,7 +11,8 @@ discussion
 
 define(function(require) {
   // var Backbone = require('backbone');
-  var _ = require('underscore');
+  var _           = require('underscore'),
+      keyPrefix   = +new Date() + '';
 
   _.mixin({
 
@@ -40,9 +41,6 @@ define(function(require) {
                 );
     },
 
-
-    keyPrefix: function() { return +new Date() + ''; },
-
     /**
     Derived from Lo-Dash 2.4.1's `memoize` function, which exposes the cache
     https://github.com/lodash/lodash/blob/2.4.1/dist/lodash.compat.js#L5909
@@ -64,7 +62,7 @@ define(function(require) {
       }
       var memoized = function() {
         var cache = memoized.cache,
-            key = resolver ? resolver.apply(this, arguments) : _.keyPrefix() + arguments[0];
+            key = resolver ? resolver.apply(this, arguments) : keyPrefix + arguments[0];
 
         return hasOwnProperty.call(cache, key)
           ? cache[key]

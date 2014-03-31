@@ -76,10 +76,11 @@
     &.active { display: block; }
     dl {
       dt {
-        width: 50px;
+        width: 85px;
+        text-align: left;
       }
       dd {
-        margin-left: 60px;
+        margin-left: 90px;
         .floating {
           float: left;
           margin-top: 0 !important;
@@ -89,6 +90,9 @@
           }
           &.floating-fifth {
             width: 20%;
+          }
+          &.floating-third {
+            width: 33%;
           }
         }
       }

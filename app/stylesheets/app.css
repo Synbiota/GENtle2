@@ -59,9 +59,10 @@
     .sequence-sidebar > div .sequence-settings-tab.active {
       display: block; }
     .sequence-sidebar > div .sequence-settings-tab dl dt {
-      width: 50px; }
+      width: 85px;
+      text-align: left; }
     .sequence-sidebar > div .sequence-settings-tab dl dd {
-      margin-left: 60px; }
+      margin-left: 90px; }
       .sequence-sidebar > div .sequence-settings-tab dl dd .floating {
         float: left;
         margin-top: 0 !important;
@@ -70,6 +71,8 @@
           width: 50%; }
         .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-fifth {
           width: 20%; }
+        .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-third {
+          width: 33%; }
   .sequence-sidebar > div.active {
     width: 350px; }
     .sequence-sidebar > div.active .sequence-settings-tab-link > span {

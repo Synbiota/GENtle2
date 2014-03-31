@@ -104,8 +104,13 @@ define(function(require) {
           height: 15, 
           baseLine: 15, 
           textFont: "13px Monospace", 
-          transform: _.partial(this.sequence.getAA, 'long'),
-          textColour: function(codon) { return {'STP': 'red', 'S  ': 'red '}[codon.sequence] || '#79B6F9'; }
+          transform: function(base) {
+            return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
+          },
+          visible: _.memoize2(function() {
+            return _this.sequence.get('displaySettings.rows.aa') != 'none';
+          }),
+          textColour: function(codon) { return {'STP': 'red', 'S  ': 'red'}[codon.sequence] || '#79B6F9'; }
         }),
         dna: new Lines.DNA(this, {
           height: 15, 

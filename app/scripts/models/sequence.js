@@ -18,7 +18,9 @@ define(function(require){
         displaySettings: {
           rows: {
             numbering: true,
-            complements: true
+            complements: true,
+            aa: 'none',
+            aaOffset: 0
           }
         }
       };
@@ -103,10 +105,17 @@ define(function(require){
       var subSeq;
       offset = offset || 0;
       subSeq = this.getPaddedSubSeq(base, base, 3, offset);
-      return {
-        sequence: subSeq.subSeq,
-        position: (base - offset) % 3
-      };
+      if(subSeq.startBase > base) {
+        return {
+          sequence: this.attributes.sequence[base],
+          position: 1
+        };
+      } else {
+        return {
+          sequence: subSeq.subSeq,
+          position: (base - offset) % 3
+        };
+      }
     },
 
     /**
@@ -114,9 +123,9 @@ define(function(require){
     **/
     getAA: function(variation, base, offset) {
       var codon = this.getCodon(base, offset || 0),
-          aa = SequenceTransforms[variation == 'short' ? 'codonToAAShort' : 'codonToAALong'](codon.sequence);
+          aa = SequenceTransforms[variation == 'short' ? 'codonToAAShort' : 'codonToAALong'](codon.sequence) || '';
       return {
-        sequence: aa,
+        sequence: aa || '   ',
         position: codon.position
       };
     },

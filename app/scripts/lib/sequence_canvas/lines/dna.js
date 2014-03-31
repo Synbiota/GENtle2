@@ -31,7 +31,7 @@ define(function(require) {
         k, x, subSequence, character;
 
     // Text colour is defined later if this.textColour is a function
-    if(_.isFunction(this.textColour)) context.fillStyle = this.textColour;
+    if(!_.isFunction(this.textColour)) context.fillStyle = this.textColour;
     context.font = this.textFont;
     x = ls.pageMargins.left;
     
