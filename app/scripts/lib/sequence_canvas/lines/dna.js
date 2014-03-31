@@ -8,18 +8,18 @@ Options are:
 - `this.textFont`: font style of the text. 
 - `this.transform` _(optional)_: function tranforming the character into another (e.g. complement..)
 @class Lines.DNA
+@extends Lines.Line
 **/
 define(function(require) {
-  var DNA;
+  var Line = require('lib/sequence_canvas/lines/line'),
+      DNA;
 
   DNA = function(sequenceCanvas, options) {
     this.type = 'dna';
-    this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };
-
-  DNA.prototype.clearCache = function() { this.cache = {}; };
+  _.extend(DNA.prototype, Line.prototype);
 
   DNA.prototype.draw = function(y, baseRange) {
     var ls          = this.sequenceCanvas.layoutSettings,

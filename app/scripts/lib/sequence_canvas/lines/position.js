@@ -8,9 +8,11 @@ Options are:
 - `this.textFont`: font style of the text. can be a function taking the character as argument.
 - `this.transform` _(optional)_: function tranforming the position text into another (e.g. number formatting)
 @class Lines.Position
+@extends Lines.Line
 **/
 define(function(require) {
-  var Position;
+  var Line = require('lib/sequence_canvas/lines/line'),
+      Position;
 
   Position = function(sequenceCanvas, options) {
     this.type = 'position';
@@ -18,8 +20,7 @@ define(function(require) {
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };
-
-  Position.prototype.clearCache = function() { this.cache = {}; };
+  _.extend(Position.prototype, Line.prototype);
 
   Position.prototype.draw = function(y, baseRange) {
     var ls          = this.sequenceCanvas.layoutSettings,

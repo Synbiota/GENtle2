@@ -96,11 +96,9 @@ define(function(require) {
           transform: function(string) {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
           },
-          visible: function() { 
-            return this.cache.visible !== undefined ? 
-              this.cache.visible :
-              this.cache.visible = _this.sequence.get('displaySettings.rows.numbering'); 
-          }
+          visible: _.memoize2(function() { 
+            return _this.sequence.get('displaySettings.rows.numbering'); 
+          })
         }),
         aa: new Lines.DNA(this, {
           height: 15, 
@@ -125,19 +123,15 @@ define(function(require) {
           textFont: "15px Monospace", 
           textColour:"#bbb",
           getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
-          visible: function() { 
-            return this.cache.visible !== undefined ? 
-              this.cache.visible :
-              this.cache.visible = _this.sequence.get('displaySettings.rows.complements'); 
-          }
+          visible: _.memoize2(function() { 
+            return _this.sequence.get('displaySettings.rows.complements'); 
+          })
         }),
         bottomSeparator: new Lines.Blank(this, {
           height: 10,
-          visible: function() { 
-            return this.cache.visible !== undefined ? 
-              this.cache.visible :
-              this.cache.visible = _this.sequence.get('displaySettings.rows.separators'); 
-          }
+          visible: _.memoize2(function() { 
+            return _this.sequence.get('displaySettings.rows.separators'); 
+          })
         })
       }
     };

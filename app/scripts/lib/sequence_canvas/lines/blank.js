@@ -4,9 +4,11 @@ Options are:
 
 - `this.height`: line height
 @class Lines.Blank
+@extends Lines.Line
 **/
 define(function(require) {
-  var Blank;
+  var Line = require('lib/sequence_canvas/lines/line'),
+      Blank;
 
   Blank = function(sequenceCanvas, options) {
     this.type = 'blank';
@@ -14,10 +16,7 @@ define(function(require) {
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };
-
-  Blank.prototype.clearCache = function() { this.cache = {}; };
-
-  Blank.prototype.draw = function() {};
+  _.extend(Blank.prototype, Line.prototype);
 
   return Blank;
 });
