@@ -59,7 +59,7 @@ define(function(require){
               offset;
           output = _.map(paddedSubSeq.subSeq.match(/.{1,3}/g) || [], function(codon) {
             if(options.complements === true) codon = SequenceTransforms.toComplements(codon);
-            return SequenceTransforms[variation == 'aa-long' ? 'codonsToAALong' : 'codonsToAAShort'](codon);
+            return SequenceTransforms[variation == 'aa-long' ? 'codonToAALong' : 'codonToAAShort'](codon);
           }).join('');
           offset = Math.max(0, paddedSubSeq.startBase - startBase);
           output = output.substr(Math.max(0,startBase - paddedSubSeq.startBase), endBase - startBase + 1 - offset);
@@ -102,12 +102,25 @@ define(function(require){
     getCodon: function(base, offset) {
       var subSeq;
       offset = offset || 0;
-      subSeq = getPaddedSubSeq(base, base, 3, offset);
+      subSeq = this.getPaddedSubSeq(base, base, 3, offset);
       return {
-        codon: subSeq.subSeq,
-        position: subSeq.startBase
+        sequence: subSeq.subSeq,
+        position: (base - offset) % 3
       };
     },
+
+    /**
+    @method codonToAA
+    **/
+    getAA: function(variation, base, offset) {
+      var codon = this.getCodon(base, offset || 0),
+          aa = SequenceTransforms[variation == 'short' ? 'codonToAAShort' : 'codonToAALong'](codon.sequence);
+      return {
+        sequence: aa,
+        position: codon.position
+      };
+    },
+
 
     length: function() { return this.attributes.sequence.length; },
 

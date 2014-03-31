@@ -6,12 +6,14 @@ Options are:
 - `this.baseLine`: text baseline.
 - `this.textColour`: colour of the text. can be a function taking the character as argument.
 - `this.textFont`: font style of the text. 
-- `this.transform` _(optional)_: function tranforming the character into another (e.g. complement..)
+- `this.transformUnit` _(optional, default: `base`)_: argument passed to the `transform` function. Either `base` or `codon`.  
+- `this.transform` _(optional)_: function transforming a `transformUnit` into another (e.g. complement..)
 @class Lines.DNA
 @extends Lines.Line
 **/
 define(function(require) {
   var Line = require('lib/sequence_canvas/lines/line'),
+      _    = require('underscore'),
       DNA;
 
   DNA = function(sequenceCanvas, options) {
@@ -29,20 +31,26 @@ define(function(require) {
         k, x, subSequence, character;
 
     // Text colour is defined later if this.textColour is a function
-    if(typeof this.textColour != 'function') context.fillStyle = this.textColour;
+    if(_.isFunction(this.textColour)) context.fillStyle = this.textColour;
     context.font = this.textFont;
     x = ls.pageMargins.left;
     
-    subSequence = (typeof this.getSubSeq == 'function' ? this.getSubSeq : sequence.getSubSeq).apply(sequence, baseRange); 
+    subSequence = (_.isFunction(this.getSubSeq) ? 
+      this.getSubSeq : 
+      sequence.getSubSeq
+    ).apply(sequence, baseRange); 
+
     if(subSequence) {
       for(k = 0; k < lh.basesPerRow; k++){
         if(!subSequence[k]) break;
 
-        // Applying transformations if necessary
-        character = typeof this.transform == 'function' ? this.transform(subSequence[k]) : subSequence[k];
-        if(typeof this.textColour == 'function') context.fillStyle = this.textColour(character);
+        character = _.isFunction(this.transform) ?
+          this.transform.call(sequence, k+baseRange[0]) :
+          subSequence[k];
 
-        context.fillText(character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+        if(_.isFunction(this.textColour)) context.fillStyle = this.textColour(character);
+
+        context.fillText(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
 
         x += ls.basePairDims.width;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;

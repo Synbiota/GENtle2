@@ -6,8 +6,8 @@ define(function(require) {
   SequenceTransforms = SequenceTransforms || {};
 
   return {
-    codonsToAALong: function(codon) {
-      var map = SequenceTransforms.codonsToAALong;
+    codonToAALong: function(codon) {
+      var map = SequenceTransforms.codonToAALong;
       if(map === undefined) {
         map = [];
         _.each(SynbioData.aa, function(aa) {
@@ -19,8 +19,8 @@ define(function(require) {
       return map[codon];
     },
 
-    codonsToAAShort: function(codon) {
-      var map = SequenceTransforms.codonsToAAShort;
+    codonToAAShort: function(codon) {
+      var map = SequenceTransforms.codonToAAShort;
       if(map === undefined) {
         map = [];
         _.each(SynbioData.aa, function(aa) {

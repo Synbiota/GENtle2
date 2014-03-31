@@ -104,8 +104,8 @@ define(function(require) {
           height: 15, 
           baseLine: 15, 
           textFont: "13px Monospace", 
-          textColour:"#79B6F9",
-          getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'aa-long', {})
+          transform: _.partial(this.sequence.getAA, 'long'),
+          textColour: function(codon) { return {'STP': 'red', 'S  ': 'red '}[codon.sequence] || '#79B6F9'; }
         }),
         dna: new Lines.DNA(this, {
           height: 15, 
@@ -113,10 +113,6 @@ define(function(require) {
           textFont: "15px Monospace", 
           textColour:"#000"
         }),
-        // new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", 
-        //   textColour: function(char) {
-        //     return {'A': '#f00', 'C': '#0f0', 'T': '#00f', 'G': '#ff0'}[char] || '#000';
-        //   }}),
         complements: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
