@@ -3,28 +3,105 @@
   height: 100%;
 }
 
-.sequence-canvas-container {
-  position: fixed;
-  width: 100%;
-  top: 51px;
-  bottom: 0;
+.sequence-canvas-wrapper {
+  .sequence-canvas-container {
+    position: fixed;
+    left: 50px;
+    right: 0;
+    top: 51px;
+    bottom: 0;
 
-  canvas.sequence-canvas {
-    width: 100%;
+    canvas.sequence-canvas {
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  .scrolling-parent {
+    position: absolute;
+    right: 0;
     height: 100%;
+    left: 50px;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background: transparent;
+    cursor: text;
   }
 }
 
 
 
 
-.scrolling-parent {
+
+.sequence-sidebar > div {
   position: absolute;
-  width: 100%;
-  height: 100%;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  border-right: 1px solid #ddd; 
   overflow-x: hidden;
   overflow-y: scroll;
-  background: transparent;
-  cursor: text;
+  background: #e5e5e5;
+
+  .sequence-settings-tab-link {
+    display: block;
+    color: #888;
+    padding: 5px 10px 5px 15px;
+    border-bottom: 1px solid #ddd;
+    text-decoration: none;
+    background: white;
+    & > i {
+      font-size: 1.3em;
+      float: left;
+    }
+    & > span {
+      display: none;
+    }
+    &:hover { background: #ddd; }
+    &.active {
+     background: #3276b1; 
+     color: white;
+     border-bottom-color: white;
+     & > span {
+      display: inline;
+      }
+    }
+  }
+
+  .sequence-settings-tab {
+    display: none;
+    border-bottom: 2px solid #ddd;
+    padding: 10px;
+    background: white;
+    &.active { display: block; }
+    dl {
+      dt {
+        width: 50px;
+      }
+      dd {
+        margin-left: 60px;
+        .floating {
+          float: left;
+          margin-top: 0 !important;
+          margin-bottom: 5px !important;
+          &.floating-half {
+            width: 50%;
+          }
+          &.floating-fifth {
+            width: 20%;
+          }
+        }
+      }
+    }
+  }
+
+  &.active {
+    width: 350px;
+    .sequence-settings-tab-link {
+      & > span {
+        display: inline;
+      }
+    }
+  }
 }
 

@@ -1,4 +1,4 @@
-define(function(require) {
+  define(function(require) {
   var Backbone    = require('backbone'),
       template    = require('hbars!templates/navbar_view'),
       Gentle      = require('gentle')(),
@@ -43,7 +43,7 @@ define(function(require) {
 
     serialize: function() {
       return {
-        sequences: Gentle.sequences.toJSON(),
+        sequences: Gentle.sequences.serialize(),
         atHome: Backbone.history.fragment == 'home',
       };
     }

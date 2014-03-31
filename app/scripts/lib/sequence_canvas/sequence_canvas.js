@@ -83,34 +83,64 @@ define(function(require) {
       basesPerBlock: 10,
       basePairDims: {width:10, height:15},
       sequenceLength: this.sequence.length(),
-      lines: [
-        new Lines.Blank(this, {height: 5}),
-        new Lines.Position(this, {height: 15, baseLine: 15, textFont: "10px Monospace", textColour:"#005",
+      lines: options.lines || {
+        topSeparator: new Lines.Blank(this, {
+          height: 5,
+          visible: function() { return _this.sequence.get('displaySettings.rows.separators'); }
+        }),
+        position: new Lines.Position(this, {
+          height: 15, 
+          baseLine: 15, 
+          textFont: "10px Monospace", 
+          textColour:"#005",
           transform: function(string) {
             return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          }}),
-        new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "13px Monospace", textColour:"#79B6F9",
+          },
+          visible: function() { 
+            return this.cache.visible !== undefined ? 
+              this.cache.visible :
+              this.cache.visible = _this.sequence.get('displaySettings.rows.numbering'); 
+          }
+        }),
+        aa: new Lines.DNA(this, {
+          height: 15, 
+          baseLine: 15, 
+          textFont: "13px Monospace", 
+          textColour:"#79B6F9",
           getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'aa-long', {})
         }),
-        new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", textColour:"#000"}),
+        dna: new Lines.DNA(this, {
+          height: 15, 
+          baseLine: 15, 
+          textFont: "15px Monospace", 
+          textColour:"#000"
+        }),
         // new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", 
         //   textColour: function(char) {
         //     return {'A': '#f00', 'C': '#0f0', 'T': '#00f', 'G': '#ff0'}[char] || '#000';
         //   }}),
-        new Lines.DNA(this, {height: 15, baseLine: 15, textFont: "15px Monospace", textColour:"#bbb",
-          getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}) 
+        complements: new Lines.DNA(this, {
+          height: 15, 
+          baseLine: 15, 
+          textFont: "15px Monospace", 
+          textColour:"#bbb",
+          getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
+          visible: function() { 
+            return this.cache.visible !== undefined ? 
+              this.cache.visible :
+              this.cache.visible = _this.sequence.get('displaySettings.rows.complements'); 
+          }
         }),
-        new Lines.Blank(this, {height: 10})
-      ]
+        bottomSeparator: new Lines.Blank(this, {
+          height: 10,
+          visible: function() { 
+            return this.cache.visible !== undefined ? 
+              this.cache.visible :
+              this.cache.visible = _this.sequence.get('displaySettings.rows.separators'); 
+          }
+        })
+      }
     };
-
-    // * 
-    // Current top virtual scrolling position inside the canvas.
-    // @property currentScroll
-    // @type integer
-    // *
-    // this.currentScroll = 0;
-    
 
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
@@ -118,6 +148,7 @@ define(function(require) {
     // Events
     this.view.on('resize', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
+    this.sequence.on('change', this.refresh);
 
     // Kickstart rendering
     this.refresh();
@@ -158,7 +189,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.calculateLayoutSettings = function() {
     //line offsets
-    var line_offset = this.layoutSettings.lines[0].height,
+    var line_offset = _.values(this.layoutSettings.lines)[0].height,
         i, 
         blocks_per_row,
         ls = this.layoutSettings,
@@ -167,10 +198,13 @@ define(function(require) {
 
     return new Promise(function(resolve, reject) {
       lh.lineOffsets = [0];
-      for (i = 1; i < ls.lines.length; i ++){
-        lh.lineOffsets.push(line_offset);
-        line_offset += ls.lines[i].height;
-      }
+      _.each(ls.lines, function(line) {
+        line.clearCache();
+        if(line.visible === undefined || line.visible()) {
+          lh.lineOffsets.push(line_offset);
+          line_offset += line.height;
+        }
+      });
 
       //row height
       lh.rows = {height:line_offset};
@@ -212,6 +246,10 @@ define(function(require) {
       lh.rows.first = Math.floor((lh.yOffset - ls.pageMargins.top)/lh.rows.height);
       if (lh.rows.first < 0) lh.rows.first = 0;
 
+      _this.$scrollingParent.scrollTop(
+        _this.yOffset = _this.sequence.get('displaySettings.yOffset') || 0
+      );
+
       // We resize `this.$scrollingChild` and fullfills the Promise
       _this.resizeScrollHelpers().done(resolve);
     });
@@ -227,7 +265,7 @@ define(function(require) {
           ls      = this.layoutSettings,
           lh      = this.layoutHelpers,
           _this   = this,
-          i, k, pos, baseRange;
+          i, k, pos, baseRange, y;
 
       return new Promise(function(resolve, reject){
         //clear canvas
@@ -235,10 +273,12 @@ define(function(require) {
 
         _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
           baseRange = _this.getBaseRangeFromYPos(y);
-          for(i = 0; i < ls.lines.length; i++) {
-            ls.lines[i].draw(y, baseRange);
-            y += ls.lines[i].height;
-          }
+          _.each(ls.lines, function(line, key) {
+            if(line.visible === undefined || line.visible()) {
+              line.draw(y, baseRange);
+              y += line.height;
+            }
+          });
         });
 
       });
@@ -328,7 +368,11 @@ define(function(require) {
   SequenceCanvas.prototype.handleScrolling = function(event) {
     var _this = this;
     requestAnimationFrame(function() { 
-      _this.layoutHelpers.yOffset = $(event.delegateTarget).scrollTop();
+      _this.sequence.set('displaySettings.yOffset', 
+        _this.layoutHelpers.yOffset = $(event.delegateTarget).scrollTop(),
+        { silent: true }
+      );
+      _this.sequence.throttledSave();
       _this.display();
     });  
   };

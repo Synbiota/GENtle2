@@ -10,9 +10,12 @@ define(function(require) {
 
   Blank = function(sequenceCanvas, options) {
     this.type = 'blank';
+    this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };
+
+  Blank.prototype.clearCache = function() { this.cache = {}; };
 
   Blank.prototype.draw = function() {};
 

@@ -42,12 +42,12 @@ define(function(require) {
           input     = $form.find('input[name=file]')[0],
           _this     = this;
 
-      onLoad = function(result) {
+      var onLoad = function(result) {
         var sequences = Filetypes.guessTypeAndParseFromText(result.content, result.name);
         _this.addSequencesAndNavigate(sequences);
       };
 
-      onError = function(filename) {
+      var onError = function(filename) {
         alert('Could not load file ' + filename);
       };
 

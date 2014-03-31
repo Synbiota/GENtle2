@@ -6,19 +6,23 @@ define(function(require){
   var Backbone            = require('backbone'),
       Gentle              = require('gentle'),
       SequenceTransforms  = require('lib/sequence_transforms'),
+      DeepModel = require('deepmodel'),
       Sequence;
 
   Gentle = Gentle();
 
-  Sequence = Backbone.Model.extend({
+  Sequence = Backbone.DeepModel.extend({
     defaults: function() {
       return {
         id: +(new Date()) + '-' + (Math.floor(Math.random()*10000)),
-        displaySettings: {}
+        displaySettings: {
+          rows: {
+            numbering: true,
+            complements: true
+          }
+        }
       };
     },
-
-    initialize: function() {},
 
     /**
     Returns the subsequence between the bases startBase and end Base
@@ -54,7 +58,7 @@ define(function(require){
           var paddedSubSeq = this.getPaddedSubSeq(startBase, endBase, 3, options.offset || 0),
               offset;
           output = _.map(paddedSubSeq.subSeq.match(/.{1,3}/g) || [], function(codon) {
-            if(options.complements == true) codon = SequenceTransforms.toComplements(codon);
+            if(options.complements === true) codon = SequenceTransforms.toComplements(codon);
             return SequenceTransforms[variation == 'aa-long' ? 'codonsToAALong' : 'codonsToAAShort'](codon);
           }).join('');
           offset = Math.max(0, paddedSubSeq.startBase - startBase);
@@ -69,13 +73,14 @@ define(function(require){
     },
 
     /**
-    Returns a subsequence including the subsequence between the bases startBase and end Base.
+    Returns a subsequence including the subsequence between the bases `startBase` and `endBase`.
     Ensures that blocks of size `padding` and starting from the base `offset` in the
     complete sequence are not broken by the beginning or the end of the subsequence.
     @method getPaddedSubSeq
     @param {String} variation name of the transformation
     @param {Integer} startBase start of the subsequence (indexed from 0)
     @param {Integer} endBase end of the subsequence (indexed from 0)
+    @param {Integer, optional} offset relative to the start of full sequence
     **/
     getPaddedSubSeq: function(startBase, endBase, padding, offset) {
       offset = offset || 0;
@@ -88,13 +93,31 @@ define(function(require){
       };
     },
 
+    /**
+    @method getCodon
+    @param {Integer} base
+    @param {Integer, optional} offset
+    @returns {Object} codon to which the base belongs and position of the base in the codon (from 0)
+    **/
+    getCodon: function(base, offset) {
+      var subSeq;
+      offset = offset || 0;
+      subSeq = getPaddedSubSeq(base, base, 3, offset);
+      return {
+        codon: subSeq.subSeq,
+        position: subSeq.startBase
+      };
+    },
+
     length: function() { return this.attributes.sequence.length; },
 
-    toJSON: function() {
-      return _.extend({
-        isCurrent: Gentle.currentSequence && Gentle.currentSequence.get('id') == this.get('id')
-      }, Backbone.Model.prototype.toJSON.apply(this));
-    }
+    serialize: function() {
+      return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
+        isCurrent: (Gentle.currentSequence && Gentle.currentSequence.get('id') == this.get('id'))
+      });
+    },
+
+    throttledSave: function() { return _.throttle(_.bind(this.save, this), 100)(); }
 
   });
 

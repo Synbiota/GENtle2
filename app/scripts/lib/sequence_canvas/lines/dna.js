@@ -14,9 +14,12 @@ define(function(require) {
 
   DNA = function(sequenceCanvas, options) {
     this.type = 'dna';
+    this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };
+
+  DNA.prototype.clearCache = function() { this.cache = {}; };
 
   DNA.prototype.draw = function(y, baseRange) {
     var ls          = this.sequenceCanvas.layoutSettings,

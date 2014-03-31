@@ -3,29 +3,84 @@
   position: relative;
   height: 100%; }
 
-.sequence-canvas-container {
+.sequence-canvas-wrapper .sequence-canvas-container {
   position: fixed;
-  width: 100%;
+  left: 50px;
+  right: 0;
   top: 51px;
   bottom: 0; }
-  .sequence-canvas-container canvas.sequence-canvas {
+  .sequence-canvas-wrapper .sequence-canvas-container canvas.sequence-canvas {
     width: 100%;
     height: 100%; }
-
-.scrolling-parent {
+.sequence-canvas-wrapper .scrolling-parent {
   position: absolute;
-  width: 100%;
+  right: 0;
   height: 100%;
+  left: 50px;
   overflow-x: hidden;
   overflow-y: scroll;
   background: transparent;
   cursor: text; }
 
+.sequence-sidebar > div {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50px;
+  border-right: 1px solid #ddd;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  background: #e5e5e5; }
+  .sequence-sidebar > div .sequence-settings-tab-link {
+    display: block;
+    color: #888;
+    padding: 5px 10px 5px 15px;
+    border-bottom: 1px solid #ddd;
+    text-decoration: none;
+    background: white; }
+    .sequence-sidebar > div .sequence-settings-tab-link > i {
+      font-size: 1.3em;
+      float: left; }
+    .sequence-sidebar > div .sequence-settings-tab-link > span {
+      display: none; }
+    .sequence-sidebar > div .sequence-settings-tab-link:hover {
+      background: #ddd; }
+    .sequence-sidebar > div .sequence-settings-tab-link.active {
+      background: #3276b1;
+      color: white;
+      border-bottom-color: white; }
+      .sequence-sidebar > div .sequence-settings-tab-link.active > span {
+        display: inline; }
+  .sequence-sidebar > div .sequence-settings-tab {
+    display: none;
+    border-bottom: 2px solid #ddd;
+    padding: 10px;
+    background: white; }
+    .sequence-sidebar > div .sequence-settings-tab.active {
+      display: block; }
+    .sequence-sidebar > div .sequence-settings-tab dl dt {
+      width: 50px; }
+    .sequence-sidebar > div .sequence-settings-tab dl dd {
+      margin-left: 60px; }
+      .sequence-sidebar > div .sequence-settings-tab dl dd .floating {
+        float: left;
+        margin-top: 0 !important;
+        margin-bottom: 5px !important; }
+        .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-half {
+          width: 50%; }
+        .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-fifth {
+          width: 20%; }
+  .sequence-sidebar > div.active {
+    width: 350px; }
+    .sequence-sidebar > div.active .sequence-settings-tab-link > span {
+      display: inline; }
+
 body {
   margin: 0; }
 
 #navbar .navbar {
-  margin-bottom: 0; }
+  margin-bottom: 0;
+  background: #e5e5e5; }
 
 #menu-button {
   display: block;
@@ -36,15 +91,22 @@ body {
   margin: 0 10px 0 -15px;
   height: 50px;
   width: 50px;
-  padding: 14px; }
-  #menu-button.active .icon-bar {
-    background-color: white; }
-  #menu-button.active:hover {
-    background-color: #3276b1; }
+  padding: 14px;
+  background: white; }
+  #menu-button:hover {
+    background-color: #ddd; }
+  #menu-button.active {
+    background: #3276b1; }
+    #menu-button.active .icon-bar {
+      background-color: white; }
+    #menu-button.active:hover {
+      background-color: #3276b1; }
 
 #sequence-tabs {
   border: none;
   margin-top: 9px; }
+  #sequence-tabs li a {
+    border-bottom: 1px solid #ddd; }
   #sequence-tabs .close-sequence {
     cursor: pointer; }
 

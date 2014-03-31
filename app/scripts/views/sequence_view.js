@@ -4,6 +4,7 @@ define(function(require) {
       Sequence        = require('models/sequence'),
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle'),
+      SequenceSettingsView = require('views/sequence_settings_view'),
       SequenceView;
 
   Gentle = Gentle();
@@ -14,10 +15,17 @@ define(function(require) {
     className: 'sequence-view',
 
     initialize: function() {
+      var _this = this;
       this.model = Gentle.currentSequence;
+      
+      this.sequence_settings_view = new SequenceSettingsView()
+      this.setView('.sequence-sidebar', this.sequence_settings_view);
+      this.sequence_settings_view.on('resize', function() { 
+        _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.sequence_settings_view.$el.width());
+        _this.trigger('resize');
+      });
 
       this.on('afterRender', this.setupSequenceCanvas, this);
-
       
       this.handleResize = _.bind(this.handleResize, this);
       $(window).on('resize', this.handleResize);

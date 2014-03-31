@@ -1,12 +1,5 @@
 /**
 Gentle app definition.
-
-Modules are registered here, along with their positioning in the layout.
-
-The app is stored in `window.gentle` for global access.
-
-@class App
-@extends EventEmitter, Gentle
 **/
 
 require([
@@ -18,7 +11,7 @@ require([
     'router',
     'backbone',
     'gentle',
-    'bootstrap',
+    'bootstrap'
   ], function(Layout, domReady, Sequence, Sequences, SequenceView, Router, Backbone, Gentle) {
 
   Gentle = Gentle();

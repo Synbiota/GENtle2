@@ -14,9 +14,12 @@ define(function(require) {
 
   Position = function(sequenceCanvas, options) {
     this.type = 'position';
+    this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };
+
+  Position.prototype.clearCache = function() { this.cache = {}; };
 
   Position.prototype.draw = function(y, baseRange) {
     var ls          = this.sequenceCanvas.layoutSettings,
