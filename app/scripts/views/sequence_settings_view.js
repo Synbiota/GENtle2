@@ -47,7 +47,6 @@ define(function(require) {
 
     updateDisplaySettings: function(event) {
       var $input = this.$(event.currentTarget);
-      console.log($input.attr('name'), $input.val())
       switch($input.attr('type')) {
         case 'checkbox':
           this.model.set($input.attr('name'), !!$input.is(':checked') && !$input.is(':disabled'));

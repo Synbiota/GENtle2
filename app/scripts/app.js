@@ -35,6 +35,7 @@ require([
   // Gentle.currentSequence = Gentle.sequences.last();
 
   Gentle.router = new Router();
+  window.gentle = Gentle;
 
   domReady(function() {
     Gentle.layout = new Layout();

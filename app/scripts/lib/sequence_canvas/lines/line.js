@@ -17,7 +17,6 @@ define(function(require) {
     var toClear = ['visible'],
         this_   = this;
     _(toClear).each(function(funcName) {
-      console.log(funcName, this_[funcName] && this_[funcName].cache, this_);
       if(this_[funcName] !== undefined && _.isFunction(this_[funcName].clearCache)) {
         this_[funcName].clearCache();
       }

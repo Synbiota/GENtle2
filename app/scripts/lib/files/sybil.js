@@ -137,7 +137,7 @@ define(function(require) {
         
         seq.features = [] ;
         $(v2).find('annotation').each ( function ( k3 , v3 ) {
-          var attrs = _(v3.attributes).objectToArray().pluck('name');
+          var attrs = _.pluck(_.objectToArray(v3.attributes), 'name');
           var start , stop , rc ;
           var feature = {} ;
           feature._range = [] ;

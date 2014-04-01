@@ -6,6 +6,7 @@
     @class SequenceCanvas
 **/ 
 define(function(require) {
+  'use strict';
   var Backbone      = require('backbone'),
       Artist        = require('lib/graphics/artist'),
       Promise       = require('promise'),
@@ -79,7 +80,7 @@ define(function(require) {
         bottom:20
       },
       scrollPercentage: 1.0,
-      gutterWidth: 10,
+      gutterWidth: 30,
       basesPerBlock: 10,
       basePairDims: {width:10, height:15},
       sequenceLength: this.sequence.length(),
@@ -126,6 +127,19 @@ define(function(require) {
           getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
           visible: _.memoize2(function() { 
             return _this.sequence.get('displaySettings.rows.complements'); 
+          })
+        }),
+        features: new Lines.Feature(this, {
+          unitHeight: 15,
+          baseLine: 10,
+          textFont: "11px Monospace", 
+          textColour: "white",
+          textPadding: 2,
+          margin: 2,
+          lineSize: 2,
+          colour: function(type) { return {'CDS': 'blue'}[type] || 'red';},
+          visible: _.memoize2(function() { 
+            return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features'); 
           })
         }),
         bottomSeparator: new Lines.Blank(this, {
@@ -192,17 +206,6 @@ define(function(require) {
         _this = this;
 
     return new Promise(function(resolve, reject) {
-      lh.lineOffsets = [0];
-      _.each(ls.lines, function(line) {
-        line.clearCache();
-        if(line.visible === undefined || line.visible()) {
-          lh.lineOffsets.push(line_offset);
-          line_offset += line.height;
-        }
-      });
-
-      //row height
-      lh.rows = {height:line_offset};
 
       //basesPerRow
       blocks_per_row = Math.floor( (ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/(ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth) );
@@ -219,6 +222,19 @@ define(function(require) {
           lh.basesPerRow = 1;
         }
       }
+
+      lh.lineOffsets = [0];
+      _.each(ls.lines, function(line) {
+        line.clearCache();
+        if(line.visible === undefined || line.visible()) {
+          lh.lineOffsets.push(line_offset);
+          if(_.isFunction(line.calculateHeight)) line.calculateHeight();
+          line_offset += line.height;
+        }
+      });
+
+      //row height
+      lh.rows = {height:line_offset};
 
       //total number of rows in sequence, 
       lh.rows.total = Math.ceil(ls.sequenceLength / lh.basesPerRow) ;
@@ -244,6 +260,8 @@ define(function(require) {
       _this.$scrollingParent.scrollTop(
         _this.yOffset = _this.sequence.get('displaySettings.yOffset') || 0
       );
+
+      _this.clearCache(); 
 
       // We resize `this.$scrollingChild` and fullfills the Promise
       _this.resizeScrollHelpers().done(resolve);
@@ -328,6 +346,21 @@ define(function(require) {
     return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
   };
 
+  /**
+  @method getXPosFromBase
+  **/
+  SequenceCanvas.prototype.getXPosFromBase = _.memoize2(function(base) {
+    var layoutSettings = this.layoutSettings,
+        layoutHelpers = this.layoutHelpers,
+        firstBaseInRange = base - base % layoutHelpers.basesPerRow,
+        deltaBase = base - firstBaseInRange,
+        nbGutters = (deltaBase - deltaBase % layoutSettings.basesPerBlock) / layoutSettings.basesPerBlock;
+
+    return layoutSettings.pageMargins.left + 
+      deltaBase * layoutSettings.basePairDims.width + 
+      nbGutters * layoutSettings.gutterWidth;
+  });
+
 
   /**
   Resizes $scrollingChild after window/parent div has been resized
@@ -370,6 +403,10 @@ define(function(require) {
       _this.sequence.throttledSave();
       _this.display();
     });  
+  };
+
+  SequenceCanvas.prototype.clearCache = function() {
+    this.getXPosFromBase.cache = {};
   };
 
   

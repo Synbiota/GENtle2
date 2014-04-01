@@ -18,13 +18,19 @@ define(function(require){
         displaySettings: {
           rows: {
             numbering: true,
-            complements: true,
+            features: true,
             aa: 'none',
             aaOffset: 0
           }
         }
       };
     },
+
+    // constructor: function() {
+    //   this.on('change:features', function() {
+    //     this.maxOverlappingFeatures.cache = {};
+    //   });
+    // },
 
     /**
     Returns the subsequence between the bases startBase and end Base
@@ -130,6 +136,55 @@ define(function(require){
       };
     },
 
+    /**
+    @method featuresInRange
+    @param {integer} startBase
+    @param {integer} endBase
+    @returns {array} all features present in the range
+    **/
+    featuresInRange: function(startBase, endBase) {
+      if(_.isArray(this.attributes.features)) {
+        return _(this.attributes.features).filter(function(feature) {
+          return !!~_.map(feature._range, function(range) {
+            return range.from <= endBase && range.to >= startBase;
+          }).indexOf(true);
+        });
+      } else {
+        return [];
+      }
+    },
+
+    /**
+    @method maxOverlappingFeatures
+    @returns {integer}
+    **/
+    maxOverlappingFeatures: _.memoize2(function() {
+      var ranges = _.flatten(_.pluck(this.attributes.features, '_range')),
+          previousRanges = [], i = 0;
+
+      while(ranges.length > 1 && _.difference(ranges, previousRanges).length && i < 100) {
+        previousRanges = _.clone(ranges);
+        ranges = _.filter(ranges, function(range) {
+          return _.some(ranges, function(testRange) {
+            return range != testRange && range.from <= testRange.to && range.to >= testRange.from;
+          });
+        });
+        i++;
+      }
+      return i+1;
+    }),
+
+    /**
+    @method featuresCountInRange
+    @returns {integer}
+    **/
+    nbFeaturesInRange: _.memoize2(function(startBase, endBase) {
+      return _.filter(this.attributes.features, function(feature) {
+        return _.some(feature._range, function(range) {
+          return range.from <= endBase && range.to >= startBase;
+        });
+      }).length;
+    }),
 
     length: function() { return this.attributes.sequence.length; },
 
