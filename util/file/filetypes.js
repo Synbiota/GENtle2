@@ -85,6 +85,7 @@ Filetype.prototype.getExportBlob = function ( sequence ) {
 	var ret = { error : false } ;
 	
 	var t = this.getExportString ( sequence ) ;
+
 	if ( t == '' ) {
 		ret.error = true ;
 		return ret ;
@@ -664,6 +665,66 @@ FT_genebank.prototype.parseFile = function () {
 	ret.push ( seqid ) ;
 	return ret ;
 }
+
+var ralign = function(str, length) {
+	return (new Array(length - str.length)).join(' ') + str;
+}
+
+var lalign = function(str, length) {
+	return str + (new Array(length - str.length)).join(' ') 
+}
+
+var splitEvery = function(str, length) {
+	var output = [];
+	for(var i = 0; i < str.length; i += length) {
+		var temp = str.substr(i, length).split("\n");
+		for(var j = 0; j < temp.length; j++) {
+			output.push(temp[j]);
+		}
+	}
+	return output
+}
+
+FT_genebank.prototype.getExportString = function ( sequence ) {
+	var output = '';
+
+
+	// Description
+
+	// output += lalign('DEFINITION', 12);
+
+	// console.log(sequence.desc)
+
+	// var splitDescription = splitEvery(sequence.desc, 56);
+	// output += splitDescription.shift();
+	// output += splitDescription.join("\n" + leftSpaces('', 12));
+	// output += "\n";
+
+
+	// Sequence
+
+	output += "ORIGIN\n";
+
+	for(var i = 0; i < sequence.seq.length; i += 60) {
+		var subseq = sequence.seq.substr(i, 60);
+
+		output += ralign((i+1).toString(), 9) + ' ';
+
+		for(var j = 0; j < 60; j += 10) {
+			output += subseq.substr(j, 10).toLowerCase() + ' ';
+		}
+
+		output += "\n"
+	}
+
+
+
+	// The End
+
+	output += '//';
+
+	return output;
+};
 
 
 function FT_genebank () {
