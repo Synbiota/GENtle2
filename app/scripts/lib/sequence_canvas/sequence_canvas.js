@@ -11,6 +11,7 @@ define(function(require) {
       Artist        = require('lib/graphics/artist'),
       Promise       = require('promise'),
       Lines         = require('lib/sequence_canvas/lines'),
+      Caret         = require('lib/sequence_canvas/caret'),
       SequenceCanvas;
 
   SequenceCanvas = function(options) {
@@ -22,7 +23,8 @@ define(function(require) {
     _.bindAll(this, 'calculateLayoutSettings', 
                     'display', 
                     'refresh', 
-                    'handleScrolling'
+                    'handleScrolling',
+                    'displayCaret'
               );
 
     /**
@@ -85,10 +87,14 @@ define(function(require) {
       basePairDims: {width:10, height:15},
       sequenceLength: this.sequence.length(),
       lines: options.lines || {
+
+        // Blank line
         topSeparator: new Lines.Blank(this, {
           height: 5,
           visible: function() { return _this.sequence.get('displaySettings.rows.separators'); }
         }),
+
+        // Position numbering
         position: new Lines.Position(this, {
           height: 15, 
           baseLine: 15, 
@@ -101,6 +107,8 @@ define(function(require) {
             return _this.sequence.get('displaySettings.rows.numbering'); 
           })
         }),
+
+        // Aminoacids
         aa: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
@@ -113,12 +121,16 @@ define(function(require) {
           }),
           textColour: function(codon) { return {'STP': 'red', 'S  ': 'red'}[codon.sequence] || '#79B6F9'; }
         }),
+
+        // DNA Bases
         dna: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
           textFont: "15px Monospace", 
           textColour:"#000"
         }),
+
+        // Complements
         complements: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
@@ -129,6 +141,8 @@ define(function(require) {
             return _this.sequence.get('displaySettings.rows.complements'); 
           })
         }),
+
+        // Annotations
         features: new Lines.Feature(this, {
           unitHeight: 15,
           baseLine: 10,
@@ -142,6 +156,8 @@ define(function(require) {
             return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features'); 
           })
         }),
+
+        // Blank line
         bottomSeparator: new Lines.Blank(this, {
           height: 10,
           visible: _.memoize2(function() { 
@@ -154,10 +170,13 @@ define(function(require) {
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
 
+    this.caret = new Caret(this);
+
     // Events
     this.view.on('resize', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
     this.sequence.on('change', this.refresh);
+    this.$scrollingParent.on('click', this.displayCaret);
 
     // Kickstart rendering
     this.refresh();
@@ -223,15 +242,16 @@ define(function(require) {
         }
       }
 
-      lh.lineOffsets = [0];
-      _.each(ls.lines, function(line) {
+      lh.lineOffsets = {};
+      _.each(ls.lines, function(line, lineName) {
         line.clearCache();
         if(line.visible === undefined || line.visible()) {
-          lh.lineOffsets.push(line_offset);
+          lh.lineOffsets[lineName] = line_offset;
           if(_.isFunction(line.calculateHeight)) line.calculateHeight();
           line_offset += line.height;
         }
       });
+      console.log(lh.lineOffsets)
 
       //row height
       lh.rows = {height:line_offset};
@@ -347,6 +367,24 @@ define(function(require) {
   };
 
   /**
+  @method getBaseFromXYPos
+  **/
+  SequenceCanvas.prototype.getBaseFromXYPos = function(posX, posY) {
+    var layoutSettings  = this.layoutSettings,
+        baseRange       = this.getBaseRangeFromYPos(posY),
+        baseWidth       = layoutSettings.basePairDims.width,
+        basesPerBlock   = layoutSettings.basesPerBlock,
+        blockSize       = baseWidth * basesPerBlock + layoutSettings.gutterWidth,
+        marginLeft      = layoutSettings.pageMargins.left,
+        block           = Math.floor((posX - marginLeft) / blockSize),
+        inBlockAbsPos   = (posX - marginLeft) % blockSize / baseWidth,
+        inBlockPos      = Math.floor(inBlockAbsPos),
+        nextBase        = + (inBlockAbsPos - inBlockPos > 0.5);
+
+    return baseRange[0] + block * basesPerBlock + inBlockPos + nextBase;
+  };
+
+  /**
   @method getXPosFromBase
   **/
   SequenceCanvas.prototype.getXPosFromBase = _.memoize2(function(base) {
@@ -408,6 +446,22 @@ define(function(require) {
   SequenceCanvas.prototype.clearCache = function() {
     this.getXPosFromBase.cache = {};
   };
+
+  /**
+  Displays the caret at the mouse click position
+  @method displayCaret
+  @param event [event] Click event
+  **/
+  SequenceCanvas.prototype.displayCaret = function(event) {
+    var mouseX = event.offsetX,
+        mouseY = event.offsetY - this.layoutHelpers.yOffset,
+        base = this.getBaseFromXYPos(mouseX, mouseY),
+        posX = this.getXPosFromBase(base),
+        posY = this.getRowStartY(mouseY) + this.layoutHelpers.lineOffsets.dna;
+
+    this.caret.move(posX, posY);
+  };
+
 
   
 

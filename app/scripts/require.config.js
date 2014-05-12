@@ -7,7 +7,7 @@ require.config({
     'hbars':        '../vendor/scripts/hbars',
     'domReady':     '../vendor/scripts/domReady',
     'text':         '../vendor/scripts/text',
-    'promise':      '../vendor/scripts/promise-3.2.0',
+    'promise':      '../vendor/scripts/promise-4.0.0',
     'backbone':     '../vendor/scripts/backbone-1.1.2',
     'layoutmanager':'../vendor/scripts/backbone.layoutmanager-0.9.5',
     'deepmodel':    '../vendor/scripts/backbone.deepmodel-0.10.4',
@@ -32,6 +32,9 @@ require.config({
     },
     jquery: {
       exports: '$'
+    },
+    promise: {
+      exports: 'Promise',
     },
     Handlebars: {
       exports: 'Handlebars'
