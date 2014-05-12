@@ -1,6 +1,5 @@
   define(function(require) {
-  var Backbone    = require('backbone'),
-      template    = require('hbars!templates/navbar_view'),
+  var template    = require('hbars!templates/navbar_view'),
       Gentle      = require('gentle')(),
       NavbarView;
 

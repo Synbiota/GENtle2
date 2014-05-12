@@ -10,7 +10,7 @@ define(function(require) {
 
   var FT_plaintext    = require('lib/files/plaintext'),
       FT_sybil        = require('lib/files/sybil'),
-      Promise         = require('promise'),
+      Q               = require('q'),
       Filetype;
 
   Filetypes = function() {};
@@ -56,7 +56,7 @@ define(function(require) {
         promise;
 
     // Promise resolving or rejecting based on response of FileReader uploading the file.
-    promise = new Promise(function(resolve, reject) {
+    promise = Q.promise(function(resolve, reject) {
       reader.onload = function(event) {
         resolve({name: file.name, content: event.target.result});
       };

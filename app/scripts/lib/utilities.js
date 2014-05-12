@@ -11,8 +11,7 @@ discussion
 
 define(function(require) {
   // var Backbone = require('backbone');
-  var _           = require('underscore'),
-      keyPrefix   = +new Date() + '';
+  var keyPrefix   = +new Date() + '';
 
   _.mixin({
 

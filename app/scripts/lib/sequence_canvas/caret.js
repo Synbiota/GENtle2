@@ -27,41 +27,49 @@ define(function(require) {
     this.display();
   };
 
+  Caret.prototype.remove = function() {
+    this.posX = this.posY = undefined;
+    this.hide();
+    this.caretId = this.buffer = undefined;
+  };
+
   Caret.prototype.display = function() {
-    var layoutSettings  = this.sequenceCanvas.layoutSettings,
-        layoutHelpers   = this.sequenceCanvas.layoutHelpers,
-        baseHeight      = layoutSettings.lines.dna.height,
-        context         = this.context,
-        caretX          = this.posX - 1,
-        caretY          = this.posY - this.paddingTop,
-        caretW          = 1,
-        caretH          = baseHeight + this.paddingBottom,
-        yOffset         = layoutHelpers.yOffset,
-        bufferPadding   = this.bufferPadding,
-        _this           = this;
+    if(this.posX && this.posY) {
+      var layoutSettings  = this.sequenceCanvas.layoutSettings,
+          layoutHelpers   = this.sequenceCanvas.layoutHelpers,
+          baseHeight      = layoutSettings.lines.dna.height,
+          context         = this.context,
+          caretX          = this.posX - 1,
+          caretY          = this.posY - this.paddingTop,
+          caretW          = 1,
+          caretH          = baseHeight + this.paddingBottom,
+          yOffset         = layoutHelpers.yOffset,
+          bufferPadding   = this.bufferPadding,
+          _this           = this;
 
-    if(!this.buffer) {
-      this.buffer = {
-        left: caretX - bufferPadding,
-        top: caretY - bufferPadding  ,
-        width: caretW + 2 * bufferPadding,
-        height: caretH + 2 * bufferPadding
-      };
+      if(!this.buffer) {
+        this.buffer = {
+          left: caretX - bufferPadding,
+          top: caretY - bufferPadding  ,
+          width: caretW + 2 * bufferPadding,
+          height: caretH + 2 * bufferPadding
+        };
 
-      this.buffer.imageData = context.getImageData( this.buffer.left,
-                                                    this.buffer.top - yOffset,
-                                                    this.buffer.width, 
-                                                    this.buffer.height);
+        this.buffer.imageData = context.getImageData( this.buffer.left,
+                                                      this.buffer.top - yOffset,
+                                                      this.buffer.width, 
+                                                      this.buffer.height);
+      }
+
+      context.fillStyle = '#000';
+      context.fillRect( caretX, 
+                        caretY - yOffset, 
+                        caretW, 
+                        caretH);
+      
+
+      this.enqueueHide(this.caretId);
     }
-
-    context.fillStyle = '#000';
-    context.fillRect( caretX, 
-                      caretY - yOffset, 
-                      caretW, 
-                      caretH);
-    
-
-    this.enqueueHide(this.caretId);
   };
 
   Caret.prototype.enqueueHide = function(enqueuedCaretId) {

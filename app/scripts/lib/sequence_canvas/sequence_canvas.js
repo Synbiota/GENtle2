@@ -7,11 +7,11 @@
 **/ 
 define(function(require) {
   'use strict';
-  var Backbone      = require('backbone'),
-      Artist        = require('lib/graphics/artist'),
-      Promise       = require('promise'),
+  var Artist        = require('lib/graphics/artist'),
       Lines         = require('lib/sequence_canvas/lines'),
       Caret         = require('lib/sequence_canvas/caret'),
+      Hotkeys       = require('lib/hotkeys'),
+      Q             = require('q'),
       SequenceCanvas;
 
   SequenceCanvas = function(options) {
@@ -23,8 +23,12 @@ define(function(require) {
     _.bindAll(this, 'calculateLayoutSettings', 
                     'display', 
                     'refresh', 
+                    'afterNextDisplay',
                     'handleScrolling',
-                    'displayCaret'
+                    'handleClick',
+                    'handleKeypress',
+                    'handleKeydown',
+                    'redraw'
               );
 
     /**
@@ -169,14 +173,17 @@ define(function(require) {
 
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
-
     this.caret = new Caret(this);
+    this.allowedInputChars = ['A', 'T', 'C', 'G'];
+    this.displayDeferred = Q.defer();
 
     // Events
     this.view.on('resize', this.refresh);
+    this.sequence.on('change', this.redraw);
     this.$scrollingParent.on('scroll', this.handleScrolling);
-    this.sequence.on('change', this.refresh);
-    this.$scrollingParent.on('click', this.displayCaret);
+    this.$scrollingParent.on('click', this.handleClick);
+    this.$scrollingParent.on('keypress', this.handleKeypress);
+    this.$scrollingParent.on('keydown', this.handleKeydown);
 
     // Kickstart rendering
     this.refresh();
@@ -192,7 +199,7 @@ define(function(require) {
   SequenceCanvas.prototype.updateCanvasDims = function() {
     var _this = this;
 
-    return new Promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       _this.$canvas.width(_this.$scrollingChild.width());
 
@@ -224,7 +231,7 @@ define(function(require) {
         lh = this.layoutHelpers,
         _this = this;
 
-    return new Promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
 
       //basesPerRow
       blocks_per_row = Math.floor( (ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/(ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth) );
@@ -251,7 +258,6 @@ define(function(require) {
           line_offset += line.height;
         }
       });
-      console.log(lh.lineOffsets)
 
       //row height
       lh.rows = {height:line_offset};
@@ -284,7 +290,7 @@ define(function(require) {
       _this.clearCache(); 
 
       // We resize `this.$scrollingChild` and fullfills the Promise
-      _this.resizeScrollHelpers().done(resolve);
+      _this.resizeScrollHelpers().then(resolve);
     });
   };
 
@@ -294,14 +300,14 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.display = function() {
     if(this.visible) {
-      var context = this.artist.context,
-          ls      = this.layoutSettings,
-          lh      = this.layoutHelpers,
-          _this   = this,
+      var context         = this.artist.context,
+          ls              = this.layoutSettings,
+          lh              = this.layoutHelpers,
+          _this           = this,
           i, k, pos, baseRange, y;
 
-      return new Promise(function(resolve, reject){
-        //clear canvas
+      return Q.promise(function(resolve, reject){
+        //clear canvasaa
         context.clearRect(0,0,context.canvas.width, context.canvas.height);
 
         _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
@@ -314,9 +320,13 @@ define(function(require) {
           });
         });
 
+        _this.displayDeferred.resolve();
+        _this.displayDeferred = Q.defer();
+        resolve();
+
       });
     } else{
-      return new Promise(function(resolve, reject) {
+      return Q.promise(function(resolve, reject) {
         reject();
       });
     }
@@ -399,6 +409,21 @@ define(function(require) {
       nbGutters * layoutSettings.gutterWidth;
   });
 
+  /**
+  @method getYPosFromBase
+  **/
+  SequenceCanvas.prototype.getYPosFromBase = _.memoize2(function(base) {
+    var layoutSettings = this.layoutSettings,
+        layoutHelpers = this.layoutHelpers,
+        rowNb = Math.floor(base / layoutHelpers.basesPerRow),
+        topMargin = layoutSettings.pageMargins.top,
+        yOffset = layoutHelpers.yOffset;
+
+    return layoutHelpers.rows.height * rowNb + topMargin - yOffset;
+  });
+
+
+
 
   /**
   Resizes $scrollingChild after window/parent div has been resized
@@ -416,15 +441,19 @@ define(function(require) {
   /**
   Updates layout settings and redraws canvas
   @method refresh
-  @return {Promise}
   **/
   SequenceCanvas.prototype.refresh = function() {
-    var _this = this;
-    return requestAnimationFrame(function() {
-      _this.updateCanvasDims()
-        .then(_this.calculateLayoutSettings)
-        .done(_this.display);
-    });
+    this.updateCanvasDims()
+      .then(this.calculateLayoutSettings)
+      .then(this.redraw);
+  };
+
+  /**
+  Redraws canvas on the next animation frame
+  @method redraw
+  **/
+  SequenceCanvas.prototype.redraw = function() {
+    return requestAnimationFrame(this.display);
   };
 
   /** 
@@ -445,21 +474,112 @@ define(function(require) {
 
   SequenceCanvas.prototype.clearCache = function() {
     this.getXPosFromBase.cache = {};
+    this.getYPosFromBase.cache = {};
+  };
+
+  SequenceCanvas.prototype.afterNextDisplay = function(resolve) {
+    var _this = this;
+    this.displayDeferred.promise.then(function() {
+      resolve.call(_this);
+    });
   };
 
   /**
   Displays the caret at the mouse click position
-  @method displayCaret
+  @method handleClick
   @param event [event] Click event
   **/
-  SequenceCanvas.prototype.displayCaret = function(event) {
+  SequenceCanvas.prototype.handleClick = function(event) {
     var mouseX = event.offsetX,
         mouseY = event.offsetY - this.layoutHelpers.yOffset,
-        base = this.getBaseFromXYPos(mouseX, mouseY),
+        base = this.getBaseFromXYPos(mouseX, mouseY);
+    
+    this.displayCaret(base);
+  };
+
+  /**
+  Displays the caret before a base
+  @method displayCaret
+  @param base [base] 
+  **/
+  SequenceCanvas.prototype.displayCaret = function(base) {
+    var lineOffsets = this.layoutHelpers.lineOffsets,
         posX = this.getXPosFromBase(base),
-        posY = this.getRowStartY(mouseY) + this.layoutHelpers.lineOffsets.dna;
+        posY = this.getYPosFromBase(base) + lineOffsets.dna;
 
     this.caret.move(posX, posY);
+    this.caretPosition = base;
+  };
+
+  /**
+  Handles keystrokes on keypress events
+  @method handleKey
+  @param event [event] Keypress event
+  **/
+  SequenceCanvas.prototype.handleKeypress = function(event) {
+    event.preventDefault();
+
+    if(!~_.values(Hotkeys).indexOf(event.keyCode)) {
+      var base = String.fromCharCode(event.which).toUpperCase();
+
+      if(~this.allowedInputChars.indexOf(base)) {
+        this.caret.remove();
+        this.sequence.insertBases(base, this.caretPosition);
+        this.afterNextDisplay(function() {
+          this.displayCaret(this.caretPosition + 1);
+        });
+      }
+    }
+  };
+
+  /**
+  Handles keystrokes on keydown events
+  @method handleKey
+  @param event [event] Keydown event
+  **/
+  SequenceCanvas.prototype.handleKeydown = function(event) {
+    var basesPerRow = this.layoutHelpers.basesPerRow;
+
+    if(~_.values(Hotkeys).indexOf(event.keyCode)) {
+      event.preventDefault();
+
+      switch(event.keyCode) {
+        case Hotkeys.BACKSPACE:
+          if(this.caretPosition > 0) {
+            this.caret.remove();
+            this.sequence.deleteBases(this.caretPosition - 1, 1);
+            this.afterNextDisplay(function() {
+              this.displayCaret(this.caretPosition - 1);
+            });
+          }
+          break;
+
+        case Hotkeys.LEFT:
+          if(this.caretPosition > 0) {
+            this.displayCaret(this.caretPosition - 1);
+          }
+          break;
+
+        case Hotkeys.RIGHT:
+          if(this.caretPosition < this.sequence.length() - 1) {
+            this.displayCaret(this.caretPosition + 1);
+          }
+          break;
+
+        case Hotkeys.UP:
+          if(this.caretPosition >= basesPerRow) {
+            this.displayCaret(this.caretPosition - basesPerRow);
+          }
+          break;
+
+        case Hotkeys.DOWN:
+          if(this.caretPosition + basesPerRow < this.sequence.length()) {
+            this.displayCaret(this.caretPosition + basesPerRow);  
+          }
+          break;
+
+      }
+    }
   };
 
 

@@ -1,13 +1,11 @@
 define(function(require) {
-  var Backbone      = require('backbone'),
-      LayoutMgr     = require('layoutmanager'),
-      template      = require('hbars!templates/layout'),
+  var template      = require('hbars!templates/layout'),
       NavbarView    = require('views/navbar_view'),
       Layout;
       // Settings  = require('model/settings');
 
 
-  Layout = LayoutMgr.extend({
+  Layout = Backbone.Layout.extend({
     el: '#wrapper',
     template: template,
 

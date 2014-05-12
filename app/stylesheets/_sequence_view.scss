@@ -26,6 +26,9 @@
     overflow-y: scroll;
     background: transparent;
     cursor: text;
+    &:focus {
+      outline: none;
+    }
   }
 }
 

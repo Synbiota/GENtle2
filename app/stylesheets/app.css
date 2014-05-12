@@ -21,6 +21,8 @@
   overflow-y: scroll;
   background: transparent;
   cursor: text; }
+  .sequence-canvas-wrapper .scrolling-parent:focus {
+    outline: none; }
 
 .sequence-sidebar > div {
   position: absolute;

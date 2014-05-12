@@ -1,6 +1,5 @@
 define(function(require) {
   var SynbioData = require('lib/synbio_data'),
-      _          = require('underscore'),
       SequenceTransforms;
 
   SequenceTransforms = SequenceTransforms || {};

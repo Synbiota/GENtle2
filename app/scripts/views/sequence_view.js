@@ -1,6 +1,5 @@
 define(function(require) {
-  var Backbone        = require('backbone'),
-      template        = require('hbars!templates/sequence_view'),
+  var template        = require('hbars!templates/sequence_view'),
       Sequence        = require('models/sequence'),
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle'),

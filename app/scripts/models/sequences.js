@@ -1,6 +1,5 @@
 define(function(require) {
-  var Backbone      = require('backbone'),
-      Sequence      = require('models/sequence'),
+  var Sequence      = require('models/sequence'),
       ls            = require('localstorage'),
       Sequences;
 

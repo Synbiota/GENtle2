@@ -3,10 +3,9 @@ Handling sequences
 @class Sequence
 **/
 define(function(require){
-  var Backbone            = require('backbone'),
-      Gentle              = require('gentle'),
+  var Gentle              = require('gentle'),
       SequenceTransforms  = require('lib/sequence_transforms'),
-      DeepModel = require('deepmodel'),
+      HistorySteps             = require ('models/history_steps'),
       Sequence;
 
   Gentle = Gentle();
@@ -26,11 +25,10 @@ define(function(require){
       };
     },
 
-    // constructor: function() {
-    //   this.on('change:features', function() {
-    //     this.maxOverlappingFeatures.cache = {};
-    //   });
-    // },
+    constructor: function() {
+      this.history = this.history || new HistorySteps();
+      Backbone.DeepModel.apply(this, arguments);
+    },
 
     /**
     Returns the subsequence between the bases startBase and end Base
@@ -185,6 +183,45 @@ define(function(require){
         });
       }).length;
     }),
+
+    insertBases: function(bases, beforeBase) {
+      var seq = this.get('sequence');
+
+      this.set('sequence', 
+        seq.substr(0, beforeBase) + 
+        bases + 
+        seq.substr(beforeBase, seq.length - beforeBase + 1)
+      );
+
+      this.history.add({
+        type: 'insert', 
+        value: bases,
+        operation: '@'+beforeBase+'+'+bases
+      });
+
+      this.throttledSave();
+    },
+
+    deleteBases: function(firstBase, length) {
+      var seq = this.get('sequence'),
+          subseq;
+
+      subseq = seq.substr(firstBase, length);
+
+      this.set('sequence',
+        seq.substr(0, firstBase) + 
+        seq.substr(firstBase + length, seq.length - (firstBase + length - 1))
+      );
+
+      this.history.add({
+        type: 'delete', 
+        value: subseq,
+        operation: '@'+firstBase+'-'+subseq
+      });
+
+      this.throttledSave();
+
+    },
 
     length: function() { return this.attributes.sequence.length; },
 
