@@ -62,11 +62,11 @@
     }
     &:hover { background: #ddd; }
     &.active {
-     background: #3276b1; 
-     color: white;
-     border-bottom-color: white;
-     & > span {
-      display: inline;
+      background: #3276b1; 
+      color: white;
+      border-bottom-color: white;
+      & > span {
+        display: inline;
       }
     }
   }
@@ -76,7 +76,11 @@
     border-bottom: 2px solid #ddd;
     padding: 10px;
     background: white;
-    &.active { display: block; }
+    &.active { 
+      display: block; 
+      max-height: 50%;
+      overflow-y: auto;
+    }
     dl {
       dt {
         width: 85px;

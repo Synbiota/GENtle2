@@ -10,8 +10,6 @@ require.config({
     'q':            '../vendor/scripts/q-1.0.1',
     'backbone':     '../vendor/scripts/backbone-1.1.2',
     'layoutmanager':'../vendor/scripts/backbone.layoutmanager-0.9.5',
-    'backbone-relational':
-                    '../vendor/scripts/backbone-relational-0.8.8',
     'deepmodel':    '../vendor/scripts/backbone.deepmodel-0.10.4',
     'localstorage': '../vendor/scripts/backbone.localStorage-1.1.7',
     'bootstrap':    '../vendor/bootstrap/js/bootstrap',

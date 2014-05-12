@@ -29,6 +29,7 @@ define(function(require) {
       this.handleResize = _.bind(this.handleResize, this);
       $(window).on('resize', this.handleResize);
       this.handleResize(false);
+
     },
 
     setupSequenceCanvas: function() {

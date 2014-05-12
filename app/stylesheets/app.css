@@ -59,7 +59,9 @@
     padding: 10px;
     background: white; }
     .sequence-sidebar > div .sequence-settings-tab.active {
-      display: block; }
+      display: block;
+      max-height: 50%;
+      overflow-y: auto; }
     .sequence-sidebar > div .sequence-settings-tab dl dt {
       width: 85px;
       text-align: left; }

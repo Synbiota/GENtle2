@@ -4,7 +4,12 @@ define(function(require) {
 
   HistorySteps = Backbone.Collection.extend({
     model: HistoryStep,
-    serialize: function() { return _.map(this.models, function(model) { return model.serialize(); }); }
+    comparator: function(historyStep) {
+      return - historyStep.get('timestamp');
+    },
+    serialize: function() { 
+      return _.map(this.models, function(model) { return model.serialize(); }); 
+    }
   });
 
   return HistorySteps;

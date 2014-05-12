@@ -7,7 +7,10 @@ define(function(require){
 
   HistoryStep = Backbone.Model.extend({
     serialize: function() {
-      Backbone.Model.prototype.toJSON.call(this);
+      return _.extend(Backbone.Model.prototype.toJSON.call(this), {
+        isInsertion: this.get('type') == 'insert',
+        isDeletion: this.get('type') == 'delete'
+      });
     }
   });
 

@@ -179,7 +179,8 @@ define(function(require) {
 
     // Events
     this.view.on('resize', this.refresh);
-    this.sequence.on('change', this.redraw);
+    this.sequence.on('change:sequence', this.redraw);
+    this.sequence.on('change:displaySettings.*', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
     this.$scrollingParent.on('click', this.handleClick);
     this.$scrollingParent.on('keypress', this.handleKeypress);
@@ -274,7 +275,7 @@ define(function(require) {
       };
 
       // canvas y offset
-      lh.yOffset = 0;
+      lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
       // if (ls.canvasDims.height < lh.pageDims.height){
       //   lh.yOffset = (lh.pageDims.height - ls.canvasDims.height) * ls.scrollPercentage ;
       // }
@@ -513,7 +514,7 @@ define(function(require) {
 
   /**
   Handles keystrokes on keypress events
-  @method handleKey
+  @method handleKeypress
   @param event [event] Keypress event
   **/
   SequenceCanvas.prototype.handleKeypress = function(event) {
@@ -534,7 +535,7 @@ define(function(require) {
 
   /**
   Handles keystrokes on keydown events
-  @method handleKey
+  @method handleKeydown
   @param event [event] Keydown event
   **/
   SequenceCanvas.prototype.handleKeydown = function(event) {
@@ -552,6 +553,11 @@ define(function(require) {
               this.displayCaret(this.caretPosition - 1);
             });
           }
+          break;
+
+        case Hotkeys.ESC: 
+          this.caret.remove();
+          this.caretPosition = undefined;
           break;
 
         case Hotkeys.LEFT:

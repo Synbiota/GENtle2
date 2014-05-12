@@ -5,7 +5,7 @@ Handling sequences
 define(function(require){
   var Gentle              = require('gentle'),
       SequenceTransforms  = require('lib/sequence_transforms'),
-      HistorySteps             = require ('models/history_steps'),
+      HistorySteps        = require ('models/history_steps'),
       Sequence;
 
   Gentle = Gentle();
@@ -21,12 +21,12 @@ define(function(require){
             aa: 'none',
             aaOffset: 0
           }
-        }
+        },
+        history: new HistorySteps()
       };
     },
 
     constructor: function() {
-      this.history = this.history || new HistorySteps();
       Backbone.DeepModel.apply(this, arguments);
     },
 
@@ -184,8 +184,10 @@ define(function(require){
       }).length;
     }),
 
-    insertBases: function(bases, beforeBase) {
+    insertBases: function(bases, beforeBase, updateHistory) {
       var seq = this.get('sequence');
+
+      if(updateHistory === undefined) updateHistory = true;
 
       this.set('sequence', 
         seq.substr(0, beforeBase) + 
@@ -193,18 +195,26 @@ define(function(require){
         seq.substr(beforeBase, seq.length - beforeBase + 1)
       );
 
-      this.history.add({
-        type: 'insert', 
-        value: bases,
-        operation: '@'+beforeBase+'+'+bases
-      });
+      this.moveFeatures(bases.length, beforeBase);
+
+      if(updateHistory) {
+        this.getHistory().add({
+          type: 'insert', 
+          position: beforeBase,
+          value: bases,
+          operation: '@'+beforeBase+'+'+bases,
+          timestamp: +(new Date())
+        });
+      }
 
       this.throttledSave();
     },
 
-    deleteBases: function(firstBase, length) {
+    deleteBases: function(firstBase, length, updateHistory) {
       var seq = this.get('sequence'),
           subseq;
+
+      if(updateHistory === undefined) updateHistory = true;
 
       subseq = seq.substr(firstBase, length);
 
@@ -213,14 +223,43 @@ define(function(require){
         seq.substr(firstBase + length, seq.length - (firstBase + length - 1))
       );
 
-      this.history.add({
-        type: 'delete', 
-        value: subseq,
-        operation: '@'+firstBase+'-'+subseq
-      });
+      this.moveFeatures(-length, firstBase);
+
+      if(updateHistory) {
+        this.getHistory().add({
+          type: 'delete', 
+          value: subseq,
+          position: firstBase,
+          operation: '@'+firstBase+'-'+subseq,
+          timestamp: +(new Date())
+        });
+      }
 
       this.throttledSave();
 
+    },
+
+    moveFeatures: function(offset, base) {
+      var features = this.attributes.features;
+      if(_.isArray(features)) {
+        for(var i = 0; i < features.length; i++) {
+          var feature = features[i];
+          for(var j=0; j < feature._range.length; j++) {
+            var range = feature._range[j];
+            if(range.from >= base) range.from += offset;
+            if(range.to >= base) range.to += offset;
+            if(range.from == range.to) feature._range.splice(j--, 1);
+          }
+          if(feature._range.length === 0) features.splice(i--, 1);
+        }
+      }
+    },
+
+    getHistory: function() {
+      if(this.attributes.history.toJSON === undefined) {
+        this.attributes.history = new HistorySteps(this.attributes.history);
+      }
+      return this.attributes.history;
     },
 
     length: function() { return this.attributes.sequence.length; },

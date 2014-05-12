@@ -18,8 +18,7 @@ define(function(require) {
 
     initialize: function() {
       this.model = Gentle.currentSequence;
-      _.bindAll(this, 'populate')
-      this.on('afterRender', this.populate);
+      this.listenTo(this.model.getHistory(), 'add remove', this.render, this);
     },
 
     toggleTabs: function(event) {
@@ -30,9 +29,11 @@ define(function(require) {
       if($link.hasClass('active')) {
         this.$('.active').removeClass('active');
         this.$el.removeClass('active');
+        this.openTab = undefined;
       } else {
         this.$('.active').removeClass('active');
         $($link.attr('href')).addClass('active');
+        this.openTab = $link.attr('href');
         if(!wasActive) {
           this.$el.addClass('active');
         }
@@ -81,6 +82,26 @@ define(function(require) {
     remove: function() {
       // $(window).off('resize', this.handleResize);
       Backbone.View.prototype.remove.apply(this, arguments);
+    },
+
+    serialize: function() {
+      return {
+        historySteps: this.model.getHistory().serialize(),
+        openTab: this.openTab
+      };
+    },
+
+    restoreOpenTab: function() {
+      if(this.openTab !== undefined) {
+        this.$el.addClass('active');
+        this.$('[href='+this.openTab+']').addClass('active');
+        $(this.openTab).addClass('active');
+      }
+    },
+
+    afterRender: function() {
+      this.populate();
+      this.restoreOpenTab();
     }
 
   });
