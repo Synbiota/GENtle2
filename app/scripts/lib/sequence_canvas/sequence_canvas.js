@@ -7,11 +7,12 @@
 **/ 
 define(function(require) {
   'use strict';
-  var Artist        = require('lib/graphics/artist'),
-      Lines         = require('lib/sequence_canvas/lines'),
-      Caret         = require('lib/sequence_canvas/caret'),
-      Hotkeys       = require('lib/hotkeys'),
-      Q             = require('q'),
+  var Artist            = require('lib/graphics/artist'),
+      Lines             = require('lib/sequence_canvas/lines'),
+      Caret             = require('lib/sequence_canvas/caret'),
+      Hotkeys           = require('lib/hotkeys'),
+      CopyPasteHandler  = require('lib/copy_paste_handler'),
+      Q                 = require('q'),
       SequenceCanvas;
 
   SequenceCanvas = function(options) {
@@ -181,6 +182,8 @@ define(function(require) {
     this.caret = new Caret(this);
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
     this.displayDeferred = Q.defer();
+    this.invertHotkeys = _.invert(Hotkeys);
+    this.copyPasteHandler = new CopyPasteHandler();
 
     // Events
     this.view.on('resize', this.refresh);
@@ -680,86 +683,149 @@ define(function(require) {
   @param event [event] Keydown event
   **/
   SequenceCanvas.prototype.handleKeydown = function(event) {
-    var basesPerRow = this.layoutHelpers.basesPerRow,
-        A = 'A'.charCodeAt(0);
+    var A = 'A'.charCodeAt(0),
+        C = 'C'.charCodeAt(0),
+        V = 'V'.charCodeAt(0);
 
-    if( ~_.values(Hotkeys).indexOf(event.keyCode) ||
-        (event.metaKey && event.keyCode == A)) {
+    if(~_.values(Hotkeys).indexOf(event.keyCode)) {
+
+      this.handleHotkey(event);
+
+    } else if(event.metaKey && event.keyCode == A) {
       event.preventDefault();
 
-      switch(event.keyCode) {
-        case Hotkeys.BACKSPACE:
+      this.select(0, this.sequence.length());
+
+    } else if(event.metaKey && event.keyCode == C) {
+
+      this.handleCopy();
+
+    } else if(event.metaKey && event.keyCode == V) {
+
+      this.handlePaste();
+
+    }
+
+  };
+
+  SequenceCanvas.prototype.handleHotkey = function(event) {
+    var keyName     = this.invertHotkeys[event.keyCode.toString()].toLowerCase(),
+        handlerName = 'handle' + 
+                      keyName.charAt(0).toUpperCase() + 
+                      keyName.slice(1) + 
+                      'Key';
+
+    if(this[handlerName]) {
+      event.preventDefault();
+      this[handlerName].call(this, event.shiftKey, event.metaKey);
+    }
+
+  };
+
+  SequenceCanvas.prototype.handleBackspaceKey = function(shift, meta) {
+    if(this.selection) {
+      var selection = this.selection;
+      this.selection = undefined;
+      this.sequence.deleteBases(
+        selection[0], 
+        selection[1] - selection[0] + 1
+      );
+      this.displayCaretAfterNextDisplay(selection[0]);
+    } else if(this.caretPosition > 0) {
+      this.caret.remove();
+      this.sequence.deleteBases(this.caretPosition - 1, 1);
+      this.displayCaretAfterNextDisplay(this.caretPosition - 1);
+    }
+  };
+
+  SequenceCanvas.prototype.handleEscKey = function(shift, meta) {
+    this.caret.remove();
+    this.caretPosition = undefined;
+  };
+
+  SequenceCanvas.prototype.handleLeftKey = function(shift, meta) {
+    if(meta) {
+      var basesPerRow = this.layoutHelpers.basesPerRow;
+      this.displayCaret(Math.floor(this.caretPosition / basesPerRow) * basesPerRow);
+    } else if(this.caretPosition && this.caretPosition > 0) {
+      if(shift) {
+        if(this.caretPosition > 0) {
           if(this.selection) {
-            var selection = this.selection;
-            this.selection = undefined;
-            this.sequence.deleteBases(
-              selection[0], 
-              selection[1] - selection[0] + 1
-            );
-            this.displayCaretAfterNextDisplay(selection[0]);
-          } else if(this.caretPosition > 0) {
-            this.caret.remove();
-            this.sequence.deleteBases(this.caretPosition - 1, 1);
-            this.displayCaretAfterNextDisplay(this.caretPosition - 1);
+            this.select(this.selection[0] -1 , this.selection[1]);
+          } else {
+            this.select(this.caretPosition - 1, this.caretPosition - 1);
           }
-          break;
-
-        case Hotkeys.ESC: 
-          this.caret.remove();
-          this.caretPosition = undefined;
-          break;
-
-        case Hotkeys.LEFT:
-          if(event.metaKey) {
-            this.displayCaret(Math.floor(this.caretPosition / basesPerRow) * basesPerRow);
-          } else if(this.caretPosition && this.caretPosition > 0) {
-            if(event.shiftKey) {
-              if(this.caretPosition > 0) {
-                if(this.selection) {
-                  this.select(this.selection[0] -1 , this.selection[1]);
-                } else {
-                  this.select(this.caretPosition - 1, this.caretPosition - 1);
-                }
-              }
-            } else {
-              this.displayCaret(this.caretPosition - 1);
-            }
-          }
-          break;
-
-        case Hotkeys.RIGHT:
-          if(event.metaKey) {
-            this.displayCaret((Math.floor(this.caretPosition / basesPerRow) + 1 )* basesPerRow);
-          } else if(this.caretPosition && this.caretPosition < this.sequence.length() - 1) {
-            this.displayCaret(this.caretPosition + 1);
-          }
-          break;
-
-        case Hotkeys.UP:
-          if(event.metaKey) {
-            this.displayCaret(0);
-          } else if(this.caretPosition >= basesPerRow) {
-            this.displayCaret(this.caretPosition - basesPerRow);
-          }
-          break;
-
-        case Hotkeys.DOWN:
-          if(event.metaKey) {
-            this.displayCaret(this.sequence.length());
-          } else if(this.caretPosition + basesPerRow < this.sequence.length()) {
-            this.displayCaret(this.caretPosition + basesPerRow);  
-          }
-          break;
-
-        case A:
-          if(event.metaKey) {
-            this.select(0, this.sequence.length());
-          }
-          break;
-
+        }
+      } else {
+        this.displayCaret(this.caretPosition - 1);
       }
     }
   };
+
+  SequenceCanvas.prototype.handleRightKey = function(shift, meta) {
+    if(meta) {
+      var basesPerRow = this.layoutHelpers.basesPerRow;
+      this.displayCaret((Math.floor(this.caretPosition / basesPerRow) + 1 )* basesPerRow);
+    } else if(this.caretPosition && this.caretPosition < this.sequence.length() - 1) {
+      this.displayCaret(this.caretPosition + 1);
+    }
+  };
+
+  SequenceCanvas.prototype.handleUpKey = function(shift, meta) {
+    var basesPerRow = this.layoutHelpers.basesPerRow;
+    if(meta) {
+      this.displayCaret(0);
+    } else if(this.caretPosition >= basesPerRow) {
+      this.displayCaret(this.caretPosition - basesPerRow);
+    }
+  };
+
+  SequenceCanvas.prototype.handleDownKey = function(shift, meta) {
+    var basesPerRow = this.layoutHelpers.basesPerRow;
+    if(meta) {
+      this.displayCaret(this.sequence.length());
+    } else if(this.caretPosition + basesPerRow < this.sequence.length()) {
+      this.displayCaret(this.caretPosition + basesPerRow);  
+    }
+  };
+
+  SequenceCanvas.prototype.handleCopy = function() {
+    var selection = this.selection;
+
+    if(selection) {
+      this.copyPasteHandler.copy(
+        this.sequence.getSubSeq(selection[0], selection[1])
+      );
+    }
+  };
+
+  SequenceCanvas.prototype.handlePaste = function() {
+    var _this         = this,
+        selection     = _this.selection,
+        caretPosition = _this.caretPosition;
+
+    this.copyPasteHandler.paste().then(function(text) {
+      if(caretPosition && !selection) {
+        text = _this.cleanPastedText(text);
+        _this.caret.remove();
+        _this.sequence.insertBases(text, caretPosition);
+        _this.displayCaretAfterNextDisplay(caretPosition + text.length);
+        _this.focus();
+      }
+
+    });
+  };
+
+  SequenceCanvas.prototype.cleanPastedText = function(text) {
+    var regexp = new RegExp('[^' + this.allowedInputChars.join('') + ']', 'g')
+    return text.toUpperCase().replace(regexp, '');
+  };
+
+  SequenceCanvas.prototype.focus = function() {
+    this.$scrollingParent.focus();
+  };
+
+
 
 
   
