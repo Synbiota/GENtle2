@@ -8,6 +8,13 @@
       <tbody>
         {{#each historySteps}}
           <tr>
+            <td style="width: 30px">
+              <button class="btn btn-default btn-xs undo-history-step" 
+                      title="Undo this and later operations"
+                      data-timestamp="{{timestamp}}">
+                <i class="glyphicon glyphicon-fast-backward"></i>
+              </button>
+            </td>
             <td style="width: 80px;">
               {{#if isInsertion}}
                 <span class='text-success'>Inserted</span>
@@ -20,13 +27,17 @@
               <kbd>@{{position}}</kbd>
             </td>
             <td>
-              <kbd>{{value}}</kbd> 
+              <kbd data-placement="bottom" title="{{value}}">
+                {{value}}
+                </kbd> 
             </td>
 
           </tr>
         {{/each}}
       </tbody>
     </table>
+  {{else}}
+    <p>This sequence has not been edited</p>
   {{/if}}
 </div>
 

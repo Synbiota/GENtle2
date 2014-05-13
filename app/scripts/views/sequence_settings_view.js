@@ -13,7 +13,8 @@ define(function(require) {
     template: template,
     events: {
       'click .sequence-settings-tab-link': 'toggleTabs',
-      'change #sequence-display-settings-tab input': 'updateDisplaySettings'
+      'change #sequence-display-settings-tab input': 'updateDisplaySettings',
+      'click .undo-history-step': 'undoAfter'
     },
 
     initialize: function() {
@@ -100,8 +101,14 @@ define(function(require) {
     },
 
     afterRender: function() {
+      var _this = this;
       this.populate();
       this.restoreOpenTab();
+    },
+
+    undoAfter: function(event) {
+      var timestamp = $(event.currentTarget).data('timestamp');
+      this.model.undoAfter(timestamp);
     }
 
   });

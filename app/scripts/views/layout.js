@@ -11,7 +11,7 @@ define(function(require) {
 
     initialize: function() {
       this.setView('#navbar', new NavbarView());
-    }
+    },
 
   });
 

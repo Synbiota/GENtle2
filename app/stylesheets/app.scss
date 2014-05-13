@@ -1,7 +1,8 @@
-@import '../vendor/bootstrap/css/bootstrap.css';
+$icon-font-path: '../vendor/bootstrap/fonts/';
+
+@import '../vendor/bootstrap/css/bootstrap.scss';
 @import 'sequence_view';
 @import 'sequence_settings_view';
-
 
 body {
   margin: 0;
@@ -34,7 +35,7 @@ body {
 
 #sequence-tabs {
   border: none;
-  margin-top: 9px;
+  margin-top: 10px;
 
   li a {
     border-bottom: 1px solid #ddd;
@@ -55,5 +56,9 @@ body {
 .container-special {
   margin-left: 50px;
   max-width: 1024px;
+}
+
+.tooltip {
+  word-break: break-word;
 }
 

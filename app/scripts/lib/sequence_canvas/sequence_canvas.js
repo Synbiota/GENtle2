@@ -182,8 +182,14 @@ define(function(require) {
     this.caret = new Caret(this);
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
     this.displayDeferred = Q.defer();
-    this.invertHotkeys = _.invert(Hotkeys);
     this.copyPasteHandler = new CopyPasteHandler();
+
+
+    this.invertHotkeys = _.invert(Hotkeys);
+    this.commandKeys = {};
+    _.each(['A', 'C', 'Z', 'V'], function(key) {
+      _this.commandKeys[key] = key.charCodeAt(0);
+    });
 
     // Events
     this.view.on('resize', this.refresh);
@@ -683,26 +689,27 @@ define(function(require) {
   @param event [event] Keydown event
   **/
   SequenceCanvas.prototype.handleKeydown = function(event) {
-    var A = 'A'.charCodeAt(0),
-        C = 'C'.charCodeAt(0),
-        V = 'V'.charCodeAt(0);
-
+    
     if(~_.values(Hotkeys).indexOf(event.keyCode)) {
 
       this.handleHotkey(event);
 
-    } else if(event.metaKey && event.keyCode == A) {
+    } else if(event.metaKey && event.keyCode == this.commandKeys.A) {
       event.preventDefault();
 
       this.select(0, this.sequence.length());
 
-    } else if(event.metaKey && event.keyCode == C) {
+    } else if(event.metaKey && event.keyCode == this.commandKeys.C) {
 
       this.handleCopy();
 
-    } else if(event.metaKey && event.keyCode == V) {
+    } else if(event.metaKey && event.keyCode == this.commandKeys.V) {
 
       this.handlePaste();
+
+    } else if(event.metaKey && event.keyCode == this.commandKeys.Z) {
+
+      this.handleUndo(event);
 
     }
 
@@ -814,6 +821,14 @@ define(function(require) {
       }
 
     });
+  };
+
+  SequenceCanvas.prototype.handleUndo = function(event) {
+    if(this.caretPosition) {
+      event.preventDefault();
+      this.caret.remove();
+      this.sequence.undo();
+    }
   };
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {

@@ -298,6 +298,60 @@ define(function(require){
       return this.attributes.history;
     },
 
+    undo: function() {
+      var history = this.getHistory(),
+          lastStep = history.first();
+
+      if(lastStep) {
+        this.revertHistoryStep(lastStep);
+        history.remove(lastStep);
+      }
+    },
+
+    undoAfter: function(timestamp) {
+      var _this       = this,
+          toBeDeleted = [];
+
+      this.getHistory().all(function(historyStep) {
+        console.log(historyStep.get('timestamp'), timestamp, historyStep.get('timestamp') >= timestamp)
+        if(historyStep.get('timestamp') >= timestamp) { 
+
+          toBeDeleted.push(historyStep);
+          _this.revertHistoryStep.call(_this, historyStep);
+          return true;
+
+        } else {
+          // the HistorySteps collection is sorted by DESC timestamp
+          // so we can break out of the loop.
+          return false; 
+        }
+      });
+
+      this.getHistory().remove(toBeDeleted);
+      this.save();
+
+    },
+
+    revertHistoryStep: function(historyStep) {
+      switch(historyStep.get('type')) {
+        case 'insert':
+          this.deleteBases(
+            historyStep.get('position'), 
+            historyStep.get('value').length,
+            false
+          );
+          break;
+
+        case 'delete':
+          this.insertBases(
+            historyStep.get('value'),
+            historyStep.get('position'),
+            false
+          );
+          break;
+      }
+    },
+
     length: function() { return this.attributes.sequence.length; },
 
     serialize: function() {

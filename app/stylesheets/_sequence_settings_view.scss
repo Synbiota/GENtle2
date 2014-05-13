@@ -69,6 +69,14 @@
     kbd {
       word-break: break-word;
       display: inline-block;
+      max-width: 150px;
+      @include text-overflow();
+      &[title] {
+        cursor: help;
+      }
+    }
+    td {
+      vertical-align: middle;
     }
   }
 
