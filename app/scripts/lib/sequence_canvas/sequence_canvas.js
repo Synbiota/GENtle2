@@ -25,6 +25,9 @@ define(function(require) {
                     'refresh', 
                     'afterNextDisplay',
                     'handleScrolling',
+                    'handleMousedown',
+                    'handleMousemove',
+                    'handleMouseup',
                     'handleClick',
                     'handleKeypress',
                     'handleKeydown',
@@ -131,7 +134,9 @@ define(function(require) {
           height: 15, 
           baseLine: 15, 
           textFont: "15px Monospace", 
-          textColour:"#000"
+          textColour:"#000",
+          selectionColour: "#1a1a63",
+          selectionTextColour: "#fff"
         }),
 
         // Complements
@@ -182,7 +187,7 @@ define(function(require) {
     this.sequence.on('change:sequence', this.redraw);
     this.sequence.on('change:displaySettings.*', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
-    this.$scrollingParent.on('click', this.handleClick);
+    this.$scrollingParent.on('mousedown', this.handleMousedown);
     this.$scrollingParent.on('keypress', this.handleKeypress);
     this.$scrollingParent.on('keydown', this.handleKeydown);
 
@@ -274,19 +279,9 @@ define(function(require) {
         height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total*lh.rows.height 
       };
 
-      // canvas y offset
+      // canvas y scrolling offset
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
-      // if (ls.canvasDims.height < lh.pageDims.height){
-      //   lh.yOffset = (lh.pageDims.height - ls.canvasDims.height) * ls.scrollPercentage ;
-      // }
-
-      // first row (starting at which row do we need to actually display them)
-      lh.rows.first = Math.floor((lh.yOffset - ls.pageMargins.top)/lh.rows.height);
-      if (lh.rows.first < 0) lh.rows.first = 0;
-
-      _this.$scrollingParent.scrollTop(
-        _this.yOffset = _this.sequence.get('displaySettings.yOffset') || 0
-      );
+      _this.$scrollingParent.scrollTop(lh.yOffset);
 
       _this.clearCache(); 
 
@@ -308,7 +303,7 @@ define(function(require) {
           i, k, pos, baseRange, y;
 
       return Q.promise(function(resolve, reject){
-        //clear canvasaa
+        //clear canvas
         context.clearRect(0,0,context.canvas.width, context.canvas.height);
 
         _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
@@ -432,9 +427,11 @@ define(function(require) {
   @return {Promise}
   **/
   SequenceCanvas.prototype.resizeScrollHelpers = function() {
-    var _this = this;
+    var _this = this,
+        layoutHelpers = _this.layoutHelpers;
     return new Promise(function(resolve, reject) {
-      _this.$scrollingChild.height(_this.layoutHelpers.pageDims.height);
+      _this.$scrollingChild.height(layoutHelpers.pageDims.height);
+      _this.scrollToYOffset();
       resolve();
     });
   };
@@ -444,6 +441,10 @@ define(function(require) {
   @method refresh
   **/
   SequenceCanvas.prototype.refresh = function() {
+    if(this.caretPosition) {
+      this.caret.remove();
+      this.caretPosition = undefined;
+    }
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
       .then(this.redraw);
@@ -455,6 +456,36 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.redraw = function() {
     return requestAnimationFrame(this.display);
+  };
+
+  /**
+  @method scrollToBase
+  **/
+  SequenceCanvas.prototype.scrollToBase = function(base) {
+    var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
+
+    if(distanceToVisibleCanvas !== 0) {
+      this.layoutHelpers.yOffset += distanceToVisibleCanvas;
+      this.scrollToYOffset();
+    }
+  };
+
+  SequenceCanvas.prototype.scrollToYOffset = function() {
+    this.$scrollingParent.scrollTop(this.layoutHelpers.yOffset);
+  };
+
+  SequenceCanvas.prototype.distanceToVisibleCanvas = function(base) {
+    var yPos = this.getYPosFromBase(base),
+        layoutHelpers = this.layoutHelpers,
+        layoutSettings = this.layoutSettings;
+
+    return  Math.max(0, yPos - this.$scrollingParent.height() - 
+              layoutSettings.pageMargins.bottom) + 
+            Math.min(0, yPos - layoutSettings.pageMargins.top);
+  };
+
+  SequenceCanvas.prototype.isBaseVisible = function(base) {
+    return this.distanceToVisibleCanvas(base) === 0;
   };
 
   /** 
@@ -478,12 +509,72 @@ define(function(require) {
     this.getYPosFromBase.cache = {};
   };
 
-  SequenceCanvas.prototype.afterNextDisplay = function(resolve) {
-    var _this = this;
+  SequenceCanvas.prototype.afterNextDisplay = function() {
+    var _this = this,
+        args = _.toArray(arguments),
+        func = args.shift();
+
     this.displayDeferred.promise.then(function() {
-      resolve.call(_this);
+      func.apply(_this, args);
     });
   };
+
+  /**
+  **/
+  SequenceCanvas.prototype.handleMousedown = function(event) {
+    var _this = this;
+    _this.dragStart = [event.offsetX, event.offsetY];
+
+    this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
+      if(event.type === 'mouseup') {
+        _this.handleMouseup(event);
+        _this.$scrollingParent.off('mouseup mousemove', mousedownHandler);
+      } else {
+        _this.handleMousemove(event);
+      }
+    });
+  };
+
+  /**
+  **/
+  SequenceCanvas.prototype.handleMousemove = function(event) {
+    var _this = this,
+        layoutHelpers = _this.layoutHelpers;
+
+    if( _this.dragStart &&
+        ( Math.abs(event.offsetX - _this.dragStart[0]) > 5 ||
+          Math.abs(event.offsetY - _this.dragStart[1]) >= layoutHelpers.rows.height)) {
+
+      var first = _this.getBaseFromXYPos(_this.dragStart[0], _this.dragStart[1] - this.layoutHelpers.yOffset),
+          last = _this.getBaseFromXYPos(event.offsetX, event.offsetY - this.layoutHelpers.yOffset);
+
+      if(!_this.selecting) {
+        _this.selecting = true;
+        _this.caret.remove();
+      }
+
+      if(first <= last) {
+        _this.selection = [first, last];
+      } else {
+        _this.selection = [last, first];
+      }
+    } else {
+      _this.selecting = false;
+      _this.selection = undefined;
+    }
+
+    _this.redraw();
+  };
+
+  /**
+  **/
+  SequenceCanvas.prototype.handleMouseup = function(event) {
+    if(!this.selection || !this.selecting) {
+      this.handleClick(event);
+    }
+    this.dragStart = undefined;
+    this.selecting = false;
+  };  
 
   /**
   Displays the caret at the mouse click position
@@ -493,9 +584,14 @@ define(function(require) {
   SequenceCanvas.prototype.handleClick = function(event) {
     var mouseX = event.offsetX,
         mouseY = event.offsetY - this.layoutHelpers.yOffset,
-        base = this.getBaseFromXYPos(mouseX, mouseY);
-    
-    this.displayCaret(base);
+        base = this.getBaseFromXYPos(mouseX, mouseY),
+        _this = this;
+
+    if(this.selection) {
+      this.select(undefined);
+    } else {
+      this.displayCaret(base);
+    }
   };
 
   /**
@@ -505,15 +601,46 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
     var lineOffsets = this.layoutHelpers.lineOffsets,
-        posX = this.getXPosFromBase(base),
-        posY = this.getYPosFromBase(base) + lineOffsets.dna;
+        posX, posY;
+
+    if(base > this.sequence.length()) {
+      base = this.sequence.length();
+    }
+
+    posX = this.getXPosFromBase(base);
+    posY = this.getYPosFromBase(base) + lineOffsets.dna;
 
     this.caret.move(posX, posY);
     this.caretPosition = base;
+    this.scrollToBase(base);
   };
 
   /**
-  Handles keystrokes on keypress events
+  @method select
+  **/
+  SequenceCanvas.prototype.select = function(start, end) {
+    this.caret.remove();
+    if(start !== undefined) {
+      if(start < end) {
+        this.selection = [start, end];
+      } else {
+        this.selection = [end, start];
+      }
+    } else {
+      this.selection = undefined;
+    }
+    this.redraw();
+  };
+
+
+  SequenceCanvas.prototype.displayCaretAfterNextDisplay = 
+    _.wrap(
+      SequenceCanvas.prototype.displayCaret,
+      SequenceCanvas.prototype.afterNextDisplay
+    );
+
+  /**
+  Handles keystrokes on keypress events (used for inputs)
   @method handleKeypress
   @param event [event] Keypress event
   **/
@@ -521,37 +648,59 @@ define(function(require) {
     event.preventDefault();
 
     if(!~_.values(Hotkeys).indexOf(event.keyCode)) {
-      var base = String.fromCharCode(event.which).toUpperCase();
+      var base = String.fromCharCode(event.which).toUpperCase(),
+          selection = this.selection;
 
       if(~this.allowedInputChars.indexOf(base)) {
-        this.caret.remove();
-        this.sequence.insertBases(base, this.caretPosition);
-        this.afterNextDisplay(function() {
-          this.displayCaret(this.caretPosition + 1);
-        });
+
+        if(!selection && this.caretPosition) {
+
+          this.caret.remove();
+          this.sequence.insertBases(base, this.caretPosition);
+          this.displayCaretAfterNextDisplay(this.caretPosition + 1);
+
+        } else if(selection) {
+
+          this.caret.remove();
+          this.selection = undefined;
+          this.sequence.deleteBases(
+            selection[0], 
+            selection[1] - selection[0] + 1
+          );
+          this.sequence.insertBases(base, selection[0]);
+          this.displayCaretAfterNextDisplay(selection[0] + 1);
+        }
       }
     }
   };
 
   /**
-  Handles keystrokes on keydown events
+  Handles keystrokes on keydown events (used for hotkeys)
   @method handleKeydown
   @param event [event] Keydown event
   **/
   SequenceCanvas.prototype.handleKeydown = function(event) {
-    var basesPerRow = this.layoutHelpers.basesPerRow;
+    var basesPerRow = this.layoutHelpers.basesPerRow,
+        A = 'A'.charCodeAt(0);
 
-    if(~_.values(Hotkeys).indexOf(event.keyCode)) {
+    if( ~_.values(Hotkeys).indexOf(event.keyCode) ||
+        (event.metaKey && event.keyCode == A)) {
       event.preventDefault();
 
       switch(event.keyCode) {
         case Hotkeys.BACKSPACE:
-          if(this.caretPosition > 0) {
+          if(this.selection) {
+            var selection = this.selection;
+            this.selection = undefined;
+            this.sequence.deleteBases(
+              selection[0], 
+              selection[1] - selection[0] + 1
+            );
+            this.displayCaretAfterNextDisplay(selection[0]);
+          } else if(this.caretPosition > 0) {
             this.caret.remove();
             this.sequence.deleteBases(this.caretPosition - 1, 1);
-            this.afterNextDisplay(function() {
-              this.displayCaret(this.caretPosition - 1);
-            });
+            this.displayCaretAfterNextDisplay(this.caretPosition - 1);
           }
           break;
 
@@ -561,26 +710,50 @@ define(function(require) {
           break;
 
         case Hotkeys.LEFT:
-          if(this.caretPosition > 0) {
-            this.displayCaret(this.caretPosition - 1);
+          if(event.metaKey) {
+            this.displayCaret(Math.floor(this.caretPosition / basesPerRow) * basesPerRow);
+          } else if(this.caretPosition && this.caretPosition > 0) {
+            if(event.shiftKey) {
+              if(this.caretPosition > 0) {
+                if(this.selection) {
+                  this.select(this.selection[0] -1 , this.selection[1]);
+                } else {
+                  this.select(this.caretPosition - 1, this.caretPosition - 1);
+                }
+              }
+            } else {
+              this.displayCaret(this.caretPosition - 1);
+            }
           }
           break;
 
         case Hotkeys.RIGHT:
-          if(this.caretPosition < this.sequence.length() - 1) {
+          if(event.metaKey) {
+            this.displayCaret((Math.floor(this.caretPosition / basesPerRow) + 1 )* basesPerRow);
+          } else if(this.caretPosition && this.caretPosition < this.sequence.length() - 1) {
             this.displayCaret(this.caretPosition + 1);
           }
           break;
 
         case Hotkeys.UP:
-          if(this.caretPosition >= basesPerRow) {
+          if(event.metaKey) {
+            this.displayCaret(0);
+          } else if(this.caretPosition >= basesPerRow) {
             this.displayCaret(this.caretPosition - basesPerRow);
           }
           break;
 
         case Hotkeys.DOWN:
-          if(this.caretPosition + basesPerRow < this.sequence.length()) {
+          if(event.metaKey) {
+            this.displayCaret(this.sequence.length());
+          } else if(this.caretPosition + basesPerRow < this.sequence.length()) {
             this.displayCaret(this.caretPosition + basesPerRow);  
+          }
+          break;
+
+        case A:
+          if(event.metaKey) {
+            this.select(0, this.sequence.length());
           }
           break;
 

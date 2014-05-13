@@ -77,6 +77,9 @@
           width: 20%; }
         .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-third {
           width: 33%; }
+    .sequence-sidebar > div .sequence-settings-tab kbd {
+      word-break: break-word;
+      display: inline-block; }
   .sequence-sidebar > div.active {
     width: 350px; }
     .sequence-sidebar > div.active .sequence-settings-tab-link > span {

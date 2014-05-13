@@ -189,13 +189,13 @@ define(function(require){
 
       if(updateHistory === undefined) updateHistory = true;
 
+      this.moveFeatures(bases.length, beforeBase);
+
       this.set('sequence', 
         seq.substr(0, beforeBase) + 
         bases + 
         seq.substr(beforeBase, seq.length - beforeBase + 1)
       );
-
-      this.moveFeatures(bases.length, beforeBase);
 
       if(updateHistory) {
         this.getHistory().add({
@@ -218,12 +218,12 @@ define(function(require){
 
       subseq = seq.substr(firstBase, length);
 
+      this.moveFeatures(-length, firstBase);
+
       this.set('sequence',
         seq.substr(0, firstBase) + 
         seq.substr(firstBase + length, seq.length - (firstBase + length - 1))
       );
-
-      this.moveFeatures(-length, firstBase);
 
       if(updateHistory) {
         this.getHistory().add({
@@ -240,19 +240,55 @@ define(function(require){
     },
 
     moveFeatures: function(offset, base) {
-      var features = this.attributes.features;
+      var features = this.get('features');
       if(_.isArray(features)) {
+
         for(var i = 0; i < features.length; i++) {
           var feature = features[i];
+
           for(var j=0; j < feature._range.length; j++) {
             var range = feature._range[j];
-            if(range.from >= base) range.from += offset;
-            if(range.to >= base) range.to += offset;
-            if(range.from == range.to) feature._range.splice(j--, 1);
+
+            if(offset > 0) {
+              if(range.from >= base) range.from += offset;
+              if(range.to >= base) range.to += offset;
+            } else {
+
+              if( base - offset - 1 < range.from ) {
+                range.from += offset;
+                range.to += offset;
+              } else {
+                if(range.to >= base){
+                  var boundMin = Math.max(range.from, base),
+                      boundMax = Math.min(range.to, base - offset - 1);
+
+                  range.to -= boundMax - boundMin + 1;
+                }
+                if(range.from > base) {
+                  range.from -= range.from - base;
+                }
+              }
+              
+            }
+            // If the range is collapsed, we remove it
+            if(range.from >= range.to) feature._range.splice(j--, 1);
           }
-          if(feature._range.length === 0) features.splice(i--, 1);
+          // If there are no more ranges, we remove the feature and
+          // record the operation in the history
+          if(feature._range.length === 0) {
+            features.splice(i--, 1);
+            // TODO record history
+          }
+
         }
+        this.clearFeatureCache();
+
       }
+    },
+
+    clearFeatureCache: function() {
+      this.nbFeaturesInRange.cache = {};
+      this.maxOverlappingFeatures.cache = {};
     },
 
     getHistory: function() {

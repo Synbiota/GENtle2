@@ -29,7 +29,9 @@ define(function(require) {
 
   Caret.prototype.remove = function() {
     this.posX = this.posY = undefined;
-    this.hide();
+    if(this.buffer) {
+      this.hide();
+    }
     this.caretId = this.buffer = undefined;
   };
 

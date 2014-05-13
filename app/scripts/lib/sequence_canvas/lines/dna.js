@@ -13,7 +13,6 @@ Options are:
 **/
 define(function(require) {
   var Line = require('lib/sequence_canvas/lines/line'),
-      _    = require('underscore'),
       DNA;
 
   DNA = function(sequenceCanvas, options) {
@@ -23,15 +22,24 @@ define(function(require) {
   };
   _.extend(DNA.prototype, Line.prototype);
 
+  DNA.prototype.setTextColour = function(base) {
+    var context = this.sequenceCanvas.artist.context;
+    if(_.isFunction(this.textColour)) {
+      context.fillStyle = this.textColour(base);
+    } else {
+      context.fillStyle = this.textColour;
+    }
+  };
+
   DNA.prototype.draw = function(y, baseRange) {
-    var ls          = this.sequenceCanvas.layoutSettings,
-        lh          = this.sequenceCanvas.layoutHelpers,
-        sequence    = this.sequenceCanvas.sequence,
-        context     = this.sequenceCanvas.artist.context,
+    var sequenceCanvas  = this.sequenceCanvas,
+        ls              = sequenceCanvas.layoutSettings,
+        lh              = sequenceCanvas.layoutHelpers,
+        sequence        = sequenceCanvas.sequence,
+        context         = sequenceCanvas.artist.context,
+        selection       = sequenceCanvas.selection,
         k, x, subSequence, character;
 
-    // Text colour is defined later if this.textColour is a function
-    if(!_.isFunction(this.textColour)) context.fillStyle = this.textColour;
     context.font = this.textFont;
     x = ls.pageMargins.left;
     
@@ -48,7 +56,22 @@ define(function(require) {
           this.transform.call(sequence, k+baseRange[0]) :
           subSequence[k];
 
-        if(_.isFunction(this.textColour)) context.fillStyle = this.textColour(character);
+        if( this.selectionColour && 
+            selection && 
+            k+baseRange[0] <= selection[1] && 
+            k+baseRange[0] >= selection[0]) {
+
+          context.fillStyle = this.selectionColour;
+          context.fillRect(x, y+3, ls.basePairDims.width, this.height);
+
+          if(this.selectionTextColour) {
+            context.fillStyle = this.selectionTextColour;
+          } else {
+            this.setTextColour(character);
+          }
+        } else {
+          this.setTextColour(character);
+        }
 
         context.fillText(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
 
