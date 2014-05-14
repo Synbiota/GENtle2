@@ -73,8 +73,8 @@ define(function(require) {
           if ( feature['_last'] ) seq.features.push ( $.extend(true, {}, feature) ) ;
           feature = {} ;
           feature['_type'] = m[1] ;
-          feature['_range'] = m[2] ;
-          feature['_last'] = '_range' ;
+          feature['ranges'] = m[2] ;
+          feature['_last'] = 'ranges' ;
           return ;
         }
         
@@ -109,31 +109,31 @@ define(function(require) {
     $.each ( seq.features , function ( k , v ) {
       delete v['_last'] ;
       var range = [] ; // Default : Unknown = empty TODO FIXME
-      var r = v['_range'] ;
+      var r = v['ranges'] ;
       
       var m = r.match ( /^\d+$/ ) ;
       if ( m ) {
         range.push ( { from : r*1 , to : r*1 , rc : false } ) ;
-        v['_range'] = range ;
+        v['ranges'] = range ;
         return ;
       }
       
       m = r.match ( /^(\d+)\.\.(\d+)$/ ) ;
       if ( m ) {
         range.push ( { from : m[1]*1 , to : m[2]*1 , rc : false } ) ;
-        v['_range'] = range ;
+        v['ranges'] = range ;
         return ;
       }
       
       m = r.match ( /^complement\((\d+)\.\.(\d+)\)$/i ) ;
       if ( m ) {
         range.push ( { from : m[1]*1 , to : m[2]*1 , rc : true } ) ;
-        v['_range'] = range ;
+        v['ranges'] = range ;
         return ;
       }
       
       console.log ( "Could not parse range " + r ) ;
-      v['_range'] = range ;
+      v['ranges'] = range ;
     } ) ;
     
   //  console.log ( JSON.stringify ( seq.features ) ) ;

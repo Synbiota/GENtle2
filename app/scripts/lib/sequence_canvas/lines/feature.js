@@ -35,7 +35,7 @@ define(function(require) {
   @returns {integer}
   **/
   Feature.prototype.featureSortedBy = function(feature) {
-    return _.min(_.pluck(feature._range, 'from'));
+    return _.min(_.pluck(feature.ranges, 'from'));
   };
 
   /**
@@ -50,8 +50,8 @@ define(function(require) {
   **/
   Feature.prototype.featuresOverlap = function(feature1, feature2) {
     if(feature1 == feature2) return false;
-    return _.some(feature1._range, function(range1) {
-      return _.some(feature2._range, function(range2) {
+    return _.some(feature1.ranges, function(range1) {
+      return _.some(feature2.ranges, function(range2) {
         return range2.to >= range1.from && range2.from <= range1.to;
       });
     });
@@ -69,7 +69,7 @@ define(function(require) {
   @returns {boolean}
   **/
   Feature.prototype.featureEndInRange = function(feature, startBase, endBase) {
-    return _.some(feature._range, function(range) {
+    return _.some(feature.ranges, function(range) {
       return range.from <= startBase && range.to <= endBase;
     });
 
@@ -134,8 +134,8 @@ define(function(require) {
           j = 0;
 
       // Features can have multiple ranges
-      for(j = 0; j < feature._range.length; j++) {
-        var range = feature._range[j];
+      for(j = 0; j < feature.ranges.length; j++) {
+        var range = feature.ranges[j];
         if(range.from > baseRange[1] || range.to < baseRange[0]) return;
 
         startX = sequenceCanvas.getXPosFromBase(Math.max(range.from, baseRange[0]));

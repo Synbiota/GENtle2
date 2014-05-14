@@ -17,7 +17,7 @@ define(function(require) {
       var _this = this;
       this.model = Gentle.currentSequence;
       
-      this.sequence_settings_view = new SequenceSettingsView()
+      this.sequence_settings_view = new SequenceSettingsView();
       this.setView('.sequence-sidebar', this.sequence_settings_view);
       this.sequence_settings_view.on('resize', function() { 
         _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.sequence_settings_view.$el.width());

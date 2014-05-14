@@ -38,11 +38,14 @@
     border-bottom: 2px solid #ddd;
     padding: 10px;
     background: white;
+    font-size: .9em;
+
     &.active { 
       display: block; 
       max-height: 50%;
       overflow-y: auto;
     }
+
     dl {
       dt {
         width: 85px;
@@ -54,6 +57,8 @@
           float: left;
           margin-top: 0 !important;
           margin-bottom: 5px !important;
+          min-height: 0;
+          height: 17px;
           &.floating-half {
             width: 50%;
           }
@@ -66,6 +71,7 @@
         }
       }
     }
+
     kbd {
       word-break: break-word;
       display: inline-block;
@@ -75,9 +81,32 @@
         cursor: help;
       }
     }
+
+    .table-less-borders tbody tr {
+      &:first-child td {
+        border-top: none;
+      }
+    }
+
     td {
       vertical-align: middle;
     }
+
+    .list-group-item {
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      &:first-child {
+        border-top: none;
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+      .list-group-item-heading {
+        word-break: break-word;
+      }
+    }
+
   }
 
   &.active {

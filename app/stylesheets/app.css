@@ -4572,7 +4572,8 @@ button.close {
     display: none;
     border-bottom: 2px solid #ddd;
     padding: 10px;
-    background: white; }
+    background: white;
+    font-size: 0.9em; }
     .sequence-sidebar > div .sequence-settings-tab.active {
       display: block;
       max-height: 50%;
@@ -4585,7 +4586,9 @@ button.close {
       .sequence-sidebar > div .sequence-settings-tab dl dd .floating {
         float: left;
         margin-top: 0 !important;
-        margin-bottom: 5px !important; }
+        margin-bottom: 5px !important;
+        min-height: 0;
+        height: 17px; }
         .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-half {
           width: 50%; }
         .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-fifth {
@@ -4601,8 +4604,20 @@ button.close {
       white-space: nowrap; }
       .sequence-sidebar > div .sequence-settings-tab kbd[title] {
         cursor: help; }
+    .sequence-sidebar > div .sequence-settings-tab .table-less-borders tbody tr:first-child td {
+      border-top: none; }
     .sequence-sidebar > div .sequence-settings-tab td {
       vertical-align: middle; }
+    .sequence-sidebar > div .sequence-settings-tab .list-group-item {
+      border-radius: 0;
+      border-left: none;
+      border-right: none; }
+      .sequence-sidebar > div .sequence-settings-tab .list-group-item:first-child {
+        border-top: none; }
+      .sequence-sidebar > div .sequence-settings-tab .list-group-item:last-child {
+        border-bottom: none; }
+      .sequence-sidebar > div .sequence-settings-tab .list-group-item .list-group-item-heading {
+        word-break: break-word; }
   .sequence-sidebar > div.active {
     width: 350px; }
     .sequence-sidebar > div.active .sequence-settings-tab-link > span {
@@ -4655,3 +4670,6 @@ body {
 
 .tooltip {
   word-break: break-word; }
+
+.no-margin {
+  margin: 0 !important; }

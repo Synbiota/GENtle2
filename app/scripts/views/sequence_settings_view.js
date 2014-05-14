@@ -3,7 +3,7 @@ define(function(require) {
       Sequence        = require('models/sequence'),
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle'),
-      _               = require('underscore'),
+      FeaturesView    = require('views/features_view'),
       SequenceSettingsView;
 
   Gentle = Gentle();
@@ -20,6 +20,7 @@ define(function(require) {
     initialize: function() {
       this.model = Gentle.currentSequence;
       this.listenTo(this.model.getHistory(), 'add remove', this.render, this);
+      this.reinsertViews();
     },
 
     toggleTabs: function(event) {
@@ -88,7 +89,8 @@ define(function(require) {
     serialize: function() {
       return {
         historySteps: this.model.getHistory().serialize(),
-        openTab: this.openTab
+        openTab: this.openTab,
+        features: this.model.get('features')
       };
     },
 
@@ -101,9 +103,13 @@ define(function(require) {
     },
 
     afterRender: function() {
-      var _this = this;
       this.populate();
       this.restoreOpenTab();
+      this.reinsertViews();
+    },
+
+    reinsertViews: function() {
+      this.insertView('#sequence-features-outlet', new FeaturesView());
     },
 
     undoAfter: function(event) {

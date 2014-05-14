@@ -1,0 +1,128 @@
+<a href='#sequence-features-tab' class='sequence-settings-tab-link'>
+  <i class="glyphicon glyphicon-edit"></i>&nbsp;
+  <span>Annotations</span>
+</a>
+<div id='sequence-features-tab' class='sequence-settings-tab'>
+  {{#if editedFeature}}
+    <h4>
+      {{#if creating}}
+        Annotation creation
+      {{else}}
+        Annotation edition
+      {{/if}}
+    </h4>
+    <form>
+      <div class="form-group{{#if errors.name}} has-error{{/if}}">
+        <label class="control-label" for="edited-feature-name">Name</label>
+        <input type="text" class="form-control" value="{{editedFeature.name}}" name="name" id="edited-feature-name">  
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="edited-feature-type">Type</label>
+        {{{select featureTypes name="type" id="edited-feature-type" selected=editedFeature._type class="form-control"}}}
+      </div>
+
+      <div class="form-group">
+        <label class="control-label" for="edited-feature-desc">Description</label>
+        <textarea class="form-control" name="desc" id="edited-feature-desc">{{editedFeature.desc}}</textarea>
+      </div>
+
+      <fieldset>
+        <label>Ranges</label>
+        <table class="table table-condensed sequence-feature-edit-ranges-list">
+          <thead>
+            <tr>
+              <th>From</th>
+              <th>To</th>
+              <th></th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each editedFeature.ranges}}
+              <tr>
+                <td>
+                  <div class="form-group no-margin{{#if ../errors.ranges}} has-error{{/if}}">
+                    <input type="number" class="form-control input-sm" value="{{from}}" name="from">
+                  </div>
+                </td>
+                <td>
+                  <div class="form-group no-margin{{#if ../errors.ranges}} has-error{{/if}}">
+                    <input type="number" class="form-control input-sm" value="{{to}}" name="to">
+                  </div>
+                </td>
+                <td>
+                  {{#if _canDelete}}
+                    <a href="#" class="btn btn-warning btn-xs sequence-feature-edit-ranges-delete-button" data-range-id="{{_id}}">
+                      <i class="glyphicon glyphicon-minus"></i>
+                    </a>
+                  {{/if}}
+                </td>
+                <td>
+                  {{#if _canAdd}}
+                    <a href="#" class="btn btn-primary btn-xs sequence-feature-edit-ranges-add-button" data-range-id="{{_id}}">
+                      <i class="glyphicon glyphicon-plus"></i>
+                    </a>
+                  {{/if}}
+                </td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </fieldset>
+    </form>
+    <div class="pull-right">
+      {{#unless creating}}
+        <button class="btn btn-danger sequence-feature-delete-button" data-feature-id="{{editedFeature._id}}">
+          <i class="glyphicon glyphicon-trash"></i>
+        </button>
+      {{/unless}}
+      <button class="btn btn-default  sequence-feature-edit-cancel-button">
+        Cancel
+      </button>
+    </div>
+    <button class="btn btn-primary sequence-feature-edit-save-button">
+      {{#if creating}}
+        Create
+      {{else}}
+        Update
+      {{/if}}
+    </button>
+
+  {{else}}
+    <div class="list-group" id="sequence-features-list">
+      <div class="list-group-item">
+        <button class="btn btn-default btn-xs pull-right sequence-feature-create-button">
+          Create annotation
+        </button>
+        <div class="clearfix"></div>
+      </div>
+      {{#each features}}
+        <a href="#" class="list-group-item sequence-feature-link" data-feature-id="{{_id}}">
+          <div class="media">
+            <button class="pull-left btn btn-default btn-sm sequence-feature-edit-button" data-feature-id="{{_id}}">
+              <i class="media-object glyphicon glyphicon-pencil"></i>
+            </button>
+            <div class="media-body">
+              <div class="pull-right">
+                {{#each ranges}}
+                  <code>@{{from}}-{{to}}</code>
+                {{/each}}
+                <code>{{_type}}</code>
+              </div>
+              <h5 class="list-group-item-heading">
+                {{name}}
+              </h5>
+              <div class="list-group-item-text">
+                {{#if desc}}
+                  {{desc}}
+                {{/if}}
+              </div>
+            </div>
+          </div> 
+        </a>
+      {{/each}}
+    </div>
+
+  {{/if}}
+  
+</div>

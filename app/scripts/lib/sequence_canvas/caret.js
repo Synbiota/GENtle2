@@ -16,7 +16,7 @@ define(function(require) {
 
   Caret.prototype.move = function(posX, posY) {
     this.posX = posX;
-    this.posY = posY + this.sequenceCanvas.layoutHelpers.yOffset;
+    this.posY = posY;
 
     if(this.caretId) {
       this.hide();
@@ -46,8 +46,7 @@ define(function(require) {
           caretW          = 1,
           caretH          = baseHeight + this.paddingBottom,
           yOffset         = layoutHelpers.yOffset,
-          bufferPadding   = this.bufferPadding,
-          _this           = this;
+          bufferPadding   = this.bufferPadding;
 
       if(!this.buffer) {
         this.buffer = {
@@ -61,7 +60,7 @@ define(function(require) {
                                                       this.buffer.top - yOffset,
                                                       this.buffer.width, 
                                                       this.buffer.height);
-      }
+      };
 
       context.fillStyle = '#000';
       context.fillRect( caretX, 

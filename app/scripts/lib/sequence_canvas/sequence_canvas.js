@@ -10,8 +10,10 @@ define(function(require) {
   var Artist            = require('lib/graphics/artist'),
       Lines             = require('lib/sequence_canvas/lines'),
       Caret             = require('lib/sequence_canvas/caret'),
-      Hotkeys           = require('lib/hotkeys'),
       CopyPasteHandler  = require('lib/copy_paste_handler'),
+      _Handlers         = require('lib/sequence_canvas/_sequence_canvas_handlers'),
+      _Utilities        = require('lib/sequence_canvas/_sequence_canvas_utilities'),
+      Hotkeys           = require('lib/hotkeys'),
       Q                 = require('q'),
       SequenceCanvas;
 
@@ -194,7 +196,7 @@ define(function(require) {
     // Events
     this.view.on('resize', this.refresh);
     this.sequence.on('change:sequence', this.redraw);
-    this.sequence.on('change:displaySettings.*', this.refresh);
+    this.sequence.on('change:displaySettings.* change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
     this.$scrollingParent.on('keypress', this.handleKeypress);
@@ -204,7 +206,8 @@ define(function(require) {
     this.refresh();
   };
 
-  // _.extend(SequenceCanvas.prototype, Backbone.Events);
+  _.extend(SequenceCanvas.prototype, _Handlers.prototype);
+  _.extend(SequenceCanvas.prototype, _Utilities.prototype);
 
   /**
       Updates Canvas Dimemnsions based on viewport.
@@ -224,8 +227,10 @@ define(function(require) {
       _this.layoutSettings.canvasDims.width = width;
       _this.layoutSettings.canvasDims.height = height;
 
-      _this.$canvas[0].width = width;
-      _this.$canvas[0].height = height;
+      if(_this.$canvas[0].width != width || _this.$canvas[0].height != height) {
+        _this.$canvas[0].width = width;
+        _this.$canvas[0].height = height;
+      }
 
       resolve();
     });
@@ -337,99 +342,6 @@ define(function(require) {
     }
   };
 
-
-  /**
-  @method forEachRowInWindow
-  @param startY {integer} start of the visibility window
-  @param endY {integer} end of the visibility window
-  @param 
-    callback {function} function to execute for each row. 
-    Will be passed the y-offset in canvas.
-  */
-  SequenceCanvas.prototype.forEachRowInRange = function(startY, endY, callback) {
-    var firstRowStartY  = this.getRowStartY(startY),
-        y;
-
-    for(y = firstRowStartY; 
-        y < Math.min(endY, this.layoutSettings.canvasDims.height - this.layoutSettings.pageMargins.bottom); 
-        y += this.layoutHelpers.rows.height)
-      callback.call(this, y);
-  };
-
-  /**
-  @method getRowStartX
-  @param posY {integer} Y position in the row (relative to the canvas)
-  @return {integer} Y-start of the row (relative to canvas)
-  **/
-  SequenceCanvas.prototype.getRowStartY = function(posY) {
-    return posY - 
-      (posY + 
-        this.layoutHelpers.yOffset - 
-        this.layoutSettings.pageMargins.top
-      ) % 
-      this.layoutHelpers.rows.height;
-  };
-
-  /**
-  @method getBaseRangeFromYPos
-  @param posY {integer} Y position in the canvas
-  @return {Array} First and last bases in the row at the y-pos
-  **/
-  SequenceCanvas.prototype.getBaseRangeFromYPos = function(posY) {
-    var rowNumber = Math.round((this.getRowStartY(posY) + this.layoutHelpers.yOffset) / this.layoutHelpers.rows.height),
-        firstBase = rowNumber * this.layoutHelpers.basesPerRow;
-    return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
-  };
-
-  /**
-  @method getBaseFromXYPos
-  **/
-  SequenceCanvas.prototype.getBaseFromXYPos = function(posX, posY) {
-    var layoutSettings  = this.layoutSettings,
-        baseRange       = this.getBaseRangeFromYPos(posY),
-        baseWidth       = layoutSettings.basePairDims.width,
-        basesPerBlock   = layoutSettings.basesPerBlock,
-        blockSize       = baseWidth * basesPerBlock + layoutSettings.gutterWidth,
-        marginLeft      = layoutSettings.pageMargins.left,
-        block           = Math.floor((posX - marginLeft) / blockSize),
-        inBlockAbsPos   = (posX - marginLeft) % blockSize / baseWidth,
-        inBlockPos      = Math.floor(inBlockAbsPos),
-        nextBase        = + (inBlockAbsPos - inBlockPos > 0.5);
-
-    return baseRange[0] + block * basesPerBlock + inBlockPos + nextBase;
-  };
-
-  /**
-  @method getXPosFromBase
-  **/
-  SequenceCanvas.prototype.getXPosFromBase = _.memoize2(function(base) {
-    var layoutSettings = this.layoutSettings,
-        layoutHelpers = this.layoutHelpers,
-        firstBaseInRange = base - base % layoutHelpers.basesPerRow,
-        deltaBase = base - firstBaseInRange,
-        nbGutters = (deltaBase - deltaBase % layoutSettings.basesPerBlock) / layoutSettings.basesPerBlock;
-
-    return layoutSettings.pageMargins.left + 
-      deltaBase * layoutSettings.basePairDims.width + 
-      nbGutters * layoutSettings.gutterWidth;
-  });
-
-  /**
-  @method getYPosFromBase
-  **/
-  SequenceCanvas.prototype.getYPosFromBase = _.memoize2(function(base) {
-    var layoutSettings = this.layoutSettings,
-        layoutHelpers = this.layoutHelpers,
-        rowNb = Math.floor(base / layoutHelpers.basesPerRow),
-        topMargin = layoutSettings.pageMargins.top,
-        yOffset = layoutHelpers.yOffset;
-
-    return layoutHelpers.rows.height * rowNb + topMargin - yOffset;
-  });
-
-
-
-
   /**
   Resizes $scrollingChild after window/parent div has been resized
   @method resizeScrollHelpers
@@ -438,9 +350,9 @@ define(function(require) {
   SequenceCanvas.prototype.resizeScrollHelpers = function() {
     var _this = this,
         layoutHelpers = _this.layoutHelpers;
-    return new Promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
       _this.$scrollingChild.height(layoutHelpers.pageDims.height);
-      _this.scrollToYOffset();
+      _this.scrollTo();
       resolve();
     });
   };
@@ -467,55 +379,54 @@ define(function(require) {
     return requestAnimationFrame(this.display);
   };
 
+  SequenceCanvas.prototype.scrollTo = function(yOffset) {
+    var deferred = Q.defer();
+
+    if(yOffset !== undefined) {
+      this.sequence.set('displaySettings.yOffset', 
+        this.layoutHelpers.yOffset = yOffset,
+        { silent: true }
+      );
+      this.sequence.throttledSave();
+    }
+
+    this.$scrollingParent.scrollTop(this.layoutHelpers.yOffset);
+
+    this.afterNextDisplay(deferred.resolve);
+
+    this.redraw();
+
+    return deferred.promise;
+  };
+
   /**
-  @method scrollToBase
+  Make base visible (if it is below the visible part of the canvas,
+  will just scroll down one row)
+  @method scrollBaseToVisibility
   **/
-  SequenceCanvas.prototype.scrollToBase = function(base) {
+  SequenceCanvas.prototype.scrollBaseToVisibility = function(base) {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
 
     if(distanceToVisibleCanvas !== 0) {
-      this.layoutHelpers.yOffset += distanceToVisibleCanvas;
-      this.scrollToYOffset();
+      return this.scrollTo(this.layoutHelpers.yOffset + distanceToVisibleCanvas);
+    } else {
+      return Q.resolve();
     }
   };
 
-  SequenceCanvas.prototype.scrollToYOffset = function() {
-    this.$scrollingParent.scrollTop(this.layoutHelpers.yOffset);
-  };
-
-  SequenceCanvas.prototype.distanceToVisibleCanvas = function(base) {
-    var yPos = this.getYPosFromBase(base),
-        layoutHelpers = this.layoutHelpers,
-        layoutSettings = this.layoutSettings;
-
-    return  Math.max(0, yPos - this.$scrollingParent.height() - 
-              layoutSettings.pageMargins.bottom) + 
-            Math.min(0, yPos - layoutSettings.pageMargins.top);
-  };
-
-  SequenceCanvas.prototype.isBaseVisible = function(base) {
-    return this.distanceToVisibleCanvas(base) === 0;
-  };
-
-  /** 
-  Handles scrolling events
-  @method handleScrolling
-  **/
-  SequenceCanvas.prototype.handleScrolling = function(event) {
-    var _this = this;
-    requestAnimationFrame(function() { 
-      _this.sequence.set('displaySettings.yOffset', 
-        _this.layoutHelpers.yOffset = $(event.delegateTarget).scrollTop(),
-        { silent: true }
-      );
-      _this.sequence.throttledSave();
-      _this.display();
-    });  
+  SequenceCanvas.prototype.scrollToBase = function(base) {
+    if(!this.isBaseVisible(base)) {
+      var yPos = this.getYPosFromBase(base),
+          maxY = this.$scrollingChild.height() - this.$scrollingParent.height();
+      return this.scrollTo(Math.min(yPos, maxY));
+    } else {
+      return Q.resolve();
+    }
   };
 
   SequenceCanvas.prototype.clearCache = function() {
     this.getXPosFromBase.cache = {};
-    this.getYPosFromBase.cache = {};
+    // this.getYPosFromBase.cache = {};
   };
 
   SequenceCanvas.prototype.afterNextDisplay = function() {
@@ -529,100 +440,38 @@ define(function(require) {
   };
 
   /**
-  **/
-  SequenceCanvas.prototype.handleMousedown = function(event) {
-    var _this = this;
-    _this.dragStart = [event.offsetX, event.offsetY];
-
-    this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
-      if(event.type === 'mouseup') {
-        _this.handleMouseup(event);
-        _this.$scrollingParent.off('mouseup mousemove', mousedownHandler);
-      } else {
-        _this.handleMousemove(event);
-      }
-    });
-  };
-
-  /**
-  **/
-  SequenceCanvas.prototype.handleMousemove = function(event) {
-    var _this = this,
-        layoutHelpers = _this.layoutHelpers;
-
-    if( _this.dragStart &&
-        ( Math.abs(event.offsetX - _this.dragStart[0]) > 5 ||
-          Math.abs(event.offsetY - _this.dragStart[1]) >= layoutHelpers.rows.height)) {
-
-      var first = _this.getBaseFromXYPos(_this.dragStart[0], _this.dragStart[1] - this.layoutHelpers.yOffset),
-          last = _this.getBaseFromXYPos(event.offsetX, event.offsetY - this.layoutHelpers.yOffset);
-
-      if(!_this.selecting) {
-        _this.selecting = true;
-        _this.caret.remove();
-      }
-
-      if(first <= last) {
-        _this.selection = [first, last];
-      } else {
-        _this.selection = [last, first];
-      }
-    } else {
-      _this.selecting = false;
-      _this.selection = undefined;
-    }
-
-    _this.redraw();
-  };
-
-  /**
-  **/
-  SequenceCanvas.prototype.handleMouseup = function(event) {
-    if(!this.selection || !this.selecting) {
-      this.handleClick(event);
-    }
-    this.dragStart = undefined;
-    this.selecting = false;
-  };  
-
-  /**
-  Displays the caret at the mouse click position
-  @method handleClick
-  @param event [event] Click event
-  **/
-  SequenceCanvas.prototype.handleClick = function(event) {
-    var mouseX = event.offsetX,
-        mouseY = event.offsetY - this.layoutHelpers.yOffset,
-        base = this.getBaseFromXYPos(mouseX, mouseY),
-        _this = this;
-
-    if(this.selection) {
-      this.select(undefined);
-    } else {
-      this.displayCaret(base);
-    }
-  };
-
-  /**
   Displays the caret before a base
   @method displayCaret
   @param base [base] 
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
-    var lineOffsets = this.layoutHelpers.lineOffsets,
+    var layoutHelpers = this.layoutHelpers,
+        lineOffsets   = layoutHelpers.lineOffsets,
+        yOffset       = layoutHelpers.yOffset,
+        _this         = this,
         posX, posY;
 
     if(base > this.sequence.length()) {
       base = this.sequence.length();
     }
 
-    posX = this.getXPosFromBase(base);
-    posY = this.getYPosFromBase(base) + lineOffsets.dna;
+    this.scrollBaseToVisibility(base).then(function() {
 
-    this.caret.move(posX, posY);
-    this.caretPosition = base;
-    this.scrollToBase(base);
+      posX = _this.getXPosFromBase(base);
+      posY = _this.getYPosFromBase(base) + lineOffsets.dna;
+
+      _this.caret.move(posX, posY);
+      _this.caretPosition = base;
+
+    });
+  
   };
+
+  SequenceCanvas.prototype.displayCaretAfterNextDisplay = 
+    _.wrap(
+      SequenceCanvas.prototype.displayCaret,
+      SequenceCanvas.prototype.afterNextDisplay
+    );
 
   /**
   @method select
@@ -639,196 +488,6 @@ define(function(require) {
       this.selection = undefined;
     }
     this.redraw();
-  };
-
-
-  SequenceCanvas.prototype.displayCaretAfterNextDisplay = 
-    _.wrap(
-      SequenceCanvas.prototype.displayCaret,
-      SequenceCanvas.prototype.afterNextDisplay
-    );
-
-  /**
-  Handles keystrokes on keypress events (used for inputs)
-  @method handleKeypress
-  @param event [event] Keypress event
-  **/
-  SequenceCanvas.prototype.handleKeypress = function(event) {
-    event.preventDefault();
-
-    if(!~_.values(Hotkeys).indexOf(event.keyCode)) {
-      var base = String.fromCharCode(event.which).toUpperCase(),
-          selection = this.selection;
-
-      if(~this.allowedInputChars.indexOf(base)) {
-
-        if(!selection && this.caretPosition) {
-
-          this.caret.remove();
-          this.sequence.insertBases(base, this.caretPosition);
-          this.displayCaretAfterNextDisplay(this.caretPosition + 1);
-
-        } else if(selection) {
-
-          this.caret.remove();
-          this.selection = undefined;
-          this.sequence.deleteBases(
-            selection[0], 
-            selection[1] - selection[0] + 1
-          );
-          this.sequence.insertBases(base, selection[0]);
-          this.displayCaretAfterNextDisplay(selection[0] + 1);
-        }
-      }
-    }
-  };
-
-  /**
-  Handles keystrokes on keydown events (used for hotkeys)
-  @method handleKeydown
-  @param event [event] Keydown event
-  **/
-  SequenceCanvas.prototype.handleKeydown = function(event) {
-    
-    if(~_.values(Hotkeys).indexOf(event.keyCode)) {
-
-      this.handleHotkey(event);
-
-    } else if(event.metaKey && event.keyCode == this.commandKeys.A) {
-      event.preventDefault();
-
-      this.select(0, this.sequence.length());
-
-    } else if(event.metaKey && event.keyCode == this.commandKeys.C) {
-
-      this.handleCopy();
-
-    } else if(event.metaKey && event.keyCode == this.commandKeys.V) {
-
-      this.handlePaste();
-
-    } else if(event.metaKey && event.keyCode == this.commandKeys.Z) {
-
-      this.handleUndo(event);
-
-    }
-
-  };
-
-  SequenceCanvas.prototype.handleHotkey = function(event) {
-    var keyName     = this.invertHotkeys[event.keyCode.toString()].toLowerCase(),
-        handlerName = 'handle' + 
-                      keyName.charAt(0).toUpperCase() + 
-                      keyName.slice(1) + 
-                      'Key';
-
-    if(this[handlerName]) {
-      event.preventDefault();
-      this[handlerName].call(this, event.shiftKey, event.metaKey);
-    }
-
-  };
-
-  SequenceCanvas.prototype.handleBackspaceKey = function(shift, meta) {
-    if(this.selection) {
-      var selection = this.selection;
-      this.selection = undefined;
-      this.sequence.deleteBases(
-        selection[0], 
-        selection[1] - selection[0] + 1
-      );
-      this.displayCaretAfterNextDisplay(selection[0]);
-    } else if(this.caretPosition > 0) {
-      this.caret.remove();
-      this.sequence.deleteBases(this.caretPosition - 1, 1);
-      this.displayCaretAfterNextDisplay(this.caretPosition - 1);
-    }
-  };
-
-  SequenceCanvas.prototype.handleEscKey = function(shift, meta) {
-    this.caret.remove();
-    this.caretPosition = undefined;
-  };
-
-  SequenceCanvas.prototype.handleLeftKey = function(shift, meta) {
-    if(meta) {
-      var basesPerRow = this.layoutHelpers.basesPerRow;
-      this.displayCaret(Math.floor(this.caretPosition / basesPerRow) * basesPerRow);
-    } else if(this.caretPosition && this.caretPosition > 0) {
-      if(shift) {
-        if(this.caretPosition > 0) {
-          if(this.selection) {
-            this.select(this.selection[0] -1 , this.selection[1]);
-          } else {
-            this.select(this.caretPosition - 1, this.caretPosition - 1);
-          }
-        }
-      } else {
-        this.displayCaret(this.caretPosition - 1);
-      }
-    }
-  };
-
-  SequenceCanvas.prototype.handleRightKey = function(shift, meta) {
-    if(meta) {
-      var basesPerRow = this.layoutHelpers.basesPerRow;
-      this.displayCaret((Math.floor(this.caretPosition / basesPerRow) + 1 )* basesPerRow);
-    } else if(this.caretPosition && this.caretPosition < this.sequence.length() - 1) {
-      this.displayCaret(this.caretPosition + 1);
-    }
-  };
-
-  SequenceCanvas.prototype.handleUpKey = function(shift, meta) {
-    var basesPerRow = this.layoutHelpers.basesPerRow;
-    if(meta) {
-      this.displayCaret(0);
-    } else if(this.caretPosition >= basesPerRow) {
-      this.displayCaret(this.caretPosition - basesPerRow);
-    }
-  };
-
-  SequenceCanvas.prototype.handleDownKey = function(shift, meta) {
-    var basesPerRow = this.layoutHelpers.basesPerRow;
-    if(meta) {
-      this.displayCaret(this.sequence.length());
-    } else if(this.caretPosition + basesPerRow < this.sequence.length()) {
-      this.displayCaret(this.caretPosition + basesPerRow);  
-    }
-  };
-
-  SequenceCanvas.prototype.handleCopy = function() {
-    var selection = this.selection;
-
-    if(selection) {
-      this.copyPasteHandler.copy(
-        this.sequence.getSubSeq(selection[0], selection[1])
-      );
-    }
-  };
-
-  SequenceCanvas.prototype.handlePaste = function() {
-    var _this         = this,
-        selection     = _this.selection,
-        caretPosition = _this.caretPosition;
-
-    this.copyPasteHandler.paste().then(function(text) {
-      if(caretPosition && !selection) {
-        text = _this.cleanPastedText(text);
-        _this.caret.remove();
-        _this.sequence.insertBases(text, caretPosition);
-        _this.displayCaretAfterNextDisplay(caretPosition + text.length);
-        _this.focus();
-      }
-
-    });
-  };
-
-  SequenceCanvas.prototype.handleUndo = function(event) {
-    if(this.caretPosition) {
-      event.preventDefault();
-      this.caret.remove();
-      this.sequence.undo();
-    }
   };
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {

@@ -28,6 +28,7 @@ define(function(require){
 
     constructor: function() {
       Backbone.DeepModel.apply(this, arguments);
+      this.sortFeatures();
     },
 
     /**
@@ -143,7 +144,7 @@ define(function(require){
     featuresInRange: function(startBase, endBase) {
       if(_.isArray(this.attributes.features)) {
         return _(this.attributes.features).filter(function(feature) {
-          return !!~_.map(feature._range, function(range) {
+          return !!~_.map(feature.ranges, function(range) {
             return range.from <= endBase && range.to >= startBase;
           }).indexOf(true);
         });
@@ -157,7 +158,7 @@ define(function(require){
     @returns {integer}
     **/
     maxOverlappingFeatures: _.memoize2(function() {
-      var ranges = _.flatten(_.pluck(this.attributes.features, '_range')),
+      var ranges = _.flatten(_.pluck(this.attributes.features, 'ranges')),
           previousRanges = [], i = 0;
 
       while(ranges.length > 1 && _.difference(ranges, previousRanges).length && i < 100) {
@@ -178,7 +179,7 @@ define(function(require){
     **/
     nbFeaturesInRange: _.memoize2(function(startBase, endBase) {
       return _.filter(this.attributes.features, function(feature) {
-        return _.some(feature._range, function(range) {
+        return _.some(feature.ranges, function(range) {
           return range.from <= endBase && range.to >= startBase;
         });
       }).length;
@@ -246,8 +247,8 @@ define(function(require){
         for(var i = 0; i < features.length; i++) {
           var feature = features[i];
 
-          for(var j=0; j < feature._range.length; j++) {
-            var range = feature._range[j];
+          for(var j=0; j < feature.ranges.length; j++) {
+            var range = feature.ranges[j];
 
             if(offset > 0) {
               if(range.from >= base) range.from += offset;
@@ -271,11 +272,11 @@ define(function(require){
               
             }
             // If the range is collapsed, we remove it
-            if(range.from >= range.to) feature._range.splice(j--, 1);
+            if(range.from >= range.to) feature.ranges.splice(j--, 1);
           }
           // If there are no more ranges, we remove the feature and
           // record the operation in the history
-          if(feature._range.length === 0) {
+          if(feature.ranges.length === 0) {
             features.splice(i--, 1);
             // TODO record history
           }
@@ -313,7 +314,6 @@ define(function(require){
           toBeDeleted = [];
 
       this.getHistory().all(function(historyStep) {
-        console.log(historyStep.get('timestamp'), timestamp, historyStep.get('timestamp') >= timestamp)
         if(historyStep.get('timestamp') >= timestamp) { 
 
           toBeDeleted.push(historyStep);
@@ -350,6 +350,50 @@ define(function(require){
           );
           break;
       }
+    },
+
+    updateFeature: function(editedFeature) {
+      var oldFeature = _.indexBy(this.get('features'), '_id')[editedFeature._id],
+          id = this.get('features').indexOf(oldFeature);
+
+      this.set('features.'+id, editedFeature);
+      this.sortFeatures();
+      this.save();
+    },
+
+    createFeature: function(newFeature) {
+      var id = this.get('features').length;
+
+      if(id === 0) {
+        newFeature._id = 0;
+      } else {
+        newFeature._id = _.max(_.pluck(this.get('features'), '_id')) + 1;
+      }
+
+      this.set('features.'+id, newFeature);
+      this.sortFeatures();
+      this.save();
+    },
+
+    deleteFeature: function(featureId) {
+      this.set('features', _.reject(this.get('features'), function(feature) {
+        return feature._id == featureId;
+      }));
+      this.sortFeatures();
+      this.save();
+    },
+
+    sortFeatures: function() {
+      this.set('features', 
+        _.sortBy(
+          _.map(this.get('features'), function(feature) {
+            feature.ranges = _.sortBy(feature.ranges, function(range) {
+              return range.from;
+            });
+            return feature;
+        }), function(feature) {
+          return feature.ranges[0].from;
+      }), {silent: true});
     },
 
     length: function() { return this.attributes.sequence.length; },

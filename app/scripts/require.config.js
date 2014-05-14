@@ -13,7 +13,9 @@ require.config({
     'deepmodel':    '../vendor/scripts/backbone.deepmodel-0.10.4',
     'localstorage': '../vendor/scripts/backbone.localStorage-1.1.7',
     'bootstrap':    '../vendor/bootstrap/js/bootstrap',
-    'gentle':       'models/gentle'
+    'gentle':       'models/gentle',
+    'bootstrap-confirmation':
+                    '../vendor/scripts/bootstrap-confirmation-fork'
   },
   deps: [
     'lib/polyfills',
@@ -22,7 +24,9 @@ require.config({
     'deepmodel',
     'layoutmanager',
     'deepmodel',
-    'lib/utilities'
+    'lib/utilities',
+    'bootstrap-confirmation',
+    'templates/_handlebars_helpers'
   ],
   hbars: {
     extension: '.hbs'
@@ -52,6 +56,9 @@ require.config({
     },
     'lib/utilities': {
       deps: ['underscore']
+    },
+    'bootstrap-confirmation': {
+      deps: ['jquery', 'bootstrap']
     }
   }
 });

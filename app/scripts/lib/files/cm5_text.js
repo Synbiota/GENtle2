@@ -62,7 +62,7 @@ define(function(require) {
       
       feature['name'] = m[1] || '' ;
       feature['desc'] = m[2] || '' ;
-      feature['_range'] = [] ;
+      feature['ranges'] = [] ;
       if ( feature['desc'].match(/\bterminator\b/i) ) feature['_type'] = 'terminator' ;
       else if ( feature['desc'].match(/\bpromoter\b/i) ) feature['_type'] = 'promoter' ;
       else if ( feature['desc'].match(/\bcds\b/i) ) feature['_type'] = 'cds' ;
@@ -77,7 +77,7 @@ define(function(require) {
       var stop = lines.shift() * 1 ;
       var dir = lines.shift() ;
       var rc = (dir=='ccw') ;
-      feature['_range'].push ( { from:(rc?stop:start) , to:(rc?start:stop) , rc:rc } ) ;
+      feature['ranges'].push ( { from:(rc?stop:start) , to:(rc?start:stop) , rc:rc } ) ;
       
       lines.shift() ; // TODO unknown row, seems to be always "N"
       seq.features.push ( feature ) ;

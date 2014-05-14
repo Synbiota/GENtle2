@@ -50,13 +50,13 @@ define(function(require) {
     
     $.each ( sequence.features , function ( k , v ) {
       if ( v['_type'].match(/^source$/i) ) return ;
-      if ( undefined === v['_range'] ) return ;
-      if ( 0 == v['_range'].length ) return ;
+      if ( undefined === v['ranges'] ) return ;
+      if ( 0 == v['ranges'].length ) return ;
       
       // Misc
       var type = v['_type'] ;
-      var start = v['_range'][0].from ;
-      var stop = v['_range'][v['_range'].length-1].to ;
+      var start = v['ranges'][0].from ;
+      var stop = v['ranges'][v['ranges'].length-1].to ;
 
       // Name
       var name = '' ;
@@ -75,15 +75,15 @@ define(function(require) {
       if ( desc != '' ) desc = "\n" + _.ucFirst ( desc ) ;
       desc = desc.trim() ;
       
-      if ( 1 != v['_range'].length ) {
-        $.each ( v['_range'] , function ( k2 , v2 ) {
+      if ( 1 != v['ranges'].length ) {
+        $.each ( v['ranges'] , function ( k2 , v2 ) {
           desc += "<exon start='" + v2.from + "' to='" + v2.to + "' />\n" ;
         } ) ;
       }
       
       var o = $('<annotation></annotation>') ;
       o.text ( desc ) ;
-      o.attr ( 'rc' , v['_range'][0].rc ? 1 : 0 ) ;
+      o.attr ( 'rc' , v['ranges'][0].rc ? 1 : 0 ) ;
 
       $.each ( v , function ( k2 , v2 ) {
         if ( k2.substr ( 0 , 1 ) == '_' ) return ;
@@ -120,10 +120,9 @@ define(function(require) {
   @returns {Array} Array containing the sequence as an object
   **/
   FT_sybil.prototype.parseFile = function () {
-    var sybil = $.parseXML(this.text) ;
-    sybil = $(sybil) ;
-    
-    var sequences = [] ;
+    var sybil           = $($.parseXML(this.text)),
+        sequences       = [],
+        lastFeatureId   = -1;
 
     sybil.find('session').each ( function ( k1 , v1 ) {
       $(v1).find('circuit').each ( function ( k2 , v2 ) {
@@ -140,8 +139,9 @@ define(function(require) {
           var attrs = _.pluck(_.objectToArray(v3.attributes), 'name');
           var start , stop , rc ;
           var feature = {} ;
-          feature._range = [] ;
+          feature.ranges = [] ;
           feature.desc = $(v3).text() ; // TODO exons
+          feature._id = ++lastFeatureId;
           $.each ( attrs , function ( dummy , ak ) {
             var av = $(v3).attr(ak) ;
             if ( ak == 'start' ) start = av*1 ;
@@ -151,8 +151,8 @@ define(function(require) {
             else feature[ak] = av ;
           } ) ;
           
-          if ( feature._range.length === 0 ) {
-            feature._range = [ { from:start , to:stop , rc:rc } ] ;
+          if ( feature.ranges.length === 0 ) {
+            feature.ranges = [ { from:start , to:stop , rc:rc } ] ;
           }
           
           seq.features.push ( feature ) ;

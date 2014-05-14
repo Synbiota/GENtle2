@@ -91,7 +91,7 @@ define(function(require) {
       var feature = {} ;
       feature.name = shortname ;
       feature.desc = name ;
-      feature['_range'] = [ { from:from , to:to , rc:rc } ] ;
+      feature['ranges'] = [ { from:from , to:to , rc:rc } ] ;
       feature['_type'] = gentle.getFeatureType ( type ) ;
       seq.features.push ( feature ) ;
       
