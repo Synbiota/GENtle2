@@ -16,7 +16,7 @@ define(function(require) {
   Handlers.prototype.handleKeypress = function(event) {
     event.preventDefault();
 
-    if(!~_.values(Hotkeys).indexOf(event.keyCode)) {
+    if(!~_.values(Hotkeys).indexOf(event.which)) {
       var base = String.fromCharCode(event.which).toUpperCase(),
           selection = this.selection;
 
@@ -50,24 +50,24 @@ define(function(require) {
   **/
   Handlers.prototype.handleKeydown = function(event) {
     
-    if(~_.values(Hotkeys).indexOf(event.keyCode)) {
+    if(~_.values(Hotkeys).indexOf(event.which)) {
 
       this.handleHotkey(event);
 
-    } else if(event.metaKey && event.keyCode == this.commandKeys.A) {
+    } else if(event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
 
       this.select(0, this.sequence.length());
 
-    } else if(event.metaKey && event.keyCode == this.commandKeys.C) {
+    } else if(event.metaKey && event.which == this.commandKeys.C) {
 
       this.handleCopy();
 
-    } else if(event.metaKey && event.keyCode == this.commandKeys.V) {
+    } else if(event.metaKey && event.which == this.commandKeys.V) {
 
       this.handlePaste();
 
-    } else if(event.metaKey && event.keyCode == this.commandKeys.Z) {
+    } else if(event.metaKey && event.which == this.commandKeys.Z) {
 
       this.handleUndo(event);
 
@@ -76,7 +76,7 @@ define(function(require) {
   };
 
   Handlers.prototype.handleHotkey = function(event) {
-    var keyName     = this.invertHotkeys[event.keyCode.toString()].toLowerCase(),
+    var keyName     = this.invertHotkeys[event.which.toString()].toLowerCase(),
         handlerName = 'handle' + 
                       keyName.charAt(0).toUpperCase() + 
                       keyName.slice(1) + 
@@ -253,8 +253,10 @@ define(function(require) {
   /**
   **/
   Handlers.prototype.handleMousedown = function(event) {
-    var _this = this;
-    _this.dragStart = [event.offsetX, event.offsetY];
+    var _this = this,
+        mouse = this.normalizeMousePosition(event);
+
+    _this.dragStart = [mouse.left, mouse.top];
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
       if(event.type === 'mouseup') {
@@ -272,14 +274,15 @@ define(function(require) {
     var _this = this,
         layoutHelpers = _this.layoutHelpers,
         caretPosition = _this.caretPosition,
-        selection = _this.selection;
+        selection = _this.selection,
+        mouse = _this.normalizeMousePosition(event);
 
     if( _this.dragStart &&
-        ( Math.abs(event.offsetX - _this.dragStart[0]) > 5 ||
-          Math.abs(event.offsetY - _this.dragStart[1]) >= layoutHelpers.rows.height)) {
+        ( Math.abs(mouse.left - _this.dragStart[0]) > 5 ||
+          Math.abs(mouse.top - _this.dragStart[1]) >= layoutHelpers.rows.height)) {
 
-      var first = _this.getBaseFromXYPos(_this.dragStart[0], _this.dragStart[1] - this.layoutHelpers.yOffset),
-          last = _this.getBaseFromXYPos(event.offsetX, event.offsetY - this.layoutHelpers.yOffset);
+      var first = _this.getBaseFromXYPos(_this.dragStart[0], _this.dragStart[1]),
+          last = _this.getBaseFromXYPos(mouse.left, mouse.top);
 
       if(!_this.selecting) {
         _this.selecting = true;
@@ -321,9 +324,8 @@ define(function(require) {
   @param event [event] Click event
   **/
   Handlers.prototype.handleClick = function(event) {
-    var mouseX = event.offsetX,
-        mouseY = event.offsetY - this.layoutHelpers.yOffset,
-        base = this.getBaseFromXYPos(mouseX, mouseY),
+    var mouse = this.normalizeMousePosition(event),
+        base = this.getBaseFromXYPos(mouse.left, mouse.top),
         _this = this;
 
     if(this.selection) {
@@ -349,6 +351,15 @@ define(function(require) {
     if(this.caretPosition) {
       this.hideCaret(false);
     }
+  };
+
+  Handlers.prototype.normalizeMousePosition = function(event) {
+    var scrollingParentPosition = this.$scrollingParent.position();
+
+    return {
+      left: event.pageX - scrollingParentPosition.left,
+      top: event.pageY - scrollingParentPosition.top
+    };
   };
 
   return Handlers;
