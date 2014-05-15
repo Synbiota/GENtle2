@@ -1,9 +1,14 @@
 /**
-    Handles displaying a sequence in a canvas
-    Is instantiated inside a parent Backbone.View, and is automatically
-    rendered.
+Handles displaying a sequence in a canvas.
 
-    @class SequenceCanvas
+Is instantiated inside a parent Backbone.View, and is automatically
+rendered.
+
+@class SequenceCanvas
+@constructor
+@uses SequenceCanvasContextMenu
+@uses SequenceCanvasHandlers
+@uses SequenceCanvasUtilities
 **/ 
 define(function(require) {
   'use strict';
@@ -13,6 +18,7 @@ define(function(require) {
       CopyPasteHandler  = require('lib/copy_paste_handler'),
       _Handlers         = require('lib/sequence_canvas/_sequence_canvas_handlers'),
       _Utilities        = require('lib/sequence_canvas/_sequence_canvas_utilities'),
+      _ContextMenu      = require('lib/sequence_canvas/_sequence_canvas_context_menu'),
       Hotkeys           = require('lib/hotkeys'),
       Q                 = require('q'),
       SequenceCanvas;
@@ -26,6 +32,7 @@ define(function(require) {
     _.bindAll(this, 'calculateLayoutSettings', 
                     'display', 
                     'refresh', 
+                    'redraw',
                     'afterNextDisplay',
                     'handleScrolling',
                     'handleMousedown',
@@ -34,7 +41,7 @@ define(function(require) {
                     'handleClick',
                     'handleKeypress',
                     'handleKeydown',
-                    'redraw'
+                    'handleBlur'
               );
 
     /**
@@ -186,6 +193,7 @@ define(function(require) {
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
+    this.contextMenu = this.view.getView('#sequence-canvas-context-menu-outlet');
 
     this.invertHotkeys = _.invert(Hotkeys);
     this.commandKeys = {};
@@ -197,10 +205,11 @@ define(function(require) {
     this.view.on('resize', this.refresh);
     this.sequence.on('change:sequence', this.redraw);
     this.sequence.on('change:displaySettings.* change:features.* change:features', this.refresh);
-    this.$scrollingParent.on('scroll', this.handleScrolling);
+    this.$scrollingParent.on('scroll',    this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
-    this.$scrollingParent.on('keypress', this.handleKeypress);
-    this.$scrollingParent.on('keydown', this.handleKeydown);
+    this.$scrollingParent.on('keypress',  this.handleKeypress);
+    this.$scrollingParent.on('keydown',   this.handleKeydown);
+    this.$scrollingParent.on('blur',      this.handleBlur);
 
     // Kickstart rendering
     this.refresh();
@@ -208,6 +217,7 @@ define(function(require) {
 
   _.extend(SequenceCanvas.prototype, _Handlers.prototype);
   _.extend(SequenceCanvas.prototype, _Utilities.prototype);
+  _.extend(SequenceCanvas.prototype, _ContextMenu.prototype);
 
   /**
       Updates Canvas Dimemnsions based on viewport.
@@ -363,7 +373,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.refresh = function() {
     if(this.caretPosition) {
-      this.caret.remove();
+      this.hideCaret();
       this.caretPosition = undefined;
     }
     this.updateCanvasDims()
@@ -395,6 +405,8 @@ define(function(require) {
     this.afterNextDisplay(deferred.resolve);
 
     this.redraw();
+
+    this.restoreContextMenuYPosition();
 
     return deferred.promise;
   };
@@ -462,6 +474,7 @@ define(function(require) {
 
       _this.caret.move(posX, posY);
       _this.caretPosition = base;
+      _this.showContextMenuButton(posX, posY + 20);
 
     });
   
@@ -473,21 +486,58 @@ define(function(require) {
       SequenceCanvas.prototype.afterNextDisplay
     );
 
+  SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
+    this.caret.remove();
+    if(hideContextMenu === true) {
+      this.hideContextMenuButton();
+    }
+  };
+
   /**
   @method select
   **/
   SequenceCanvas.prototype.select = function(start, end) {
-    this.caret.remove();
+    this.hideCaret();
     if(start !== undefined) {
       if(start < end) {
         this.selection = [start, end];
+        this.caretPosition = end + 1;
       } else {
         this.selection = [end, start];
+        this.caretPosition = start + 1;
       }
     } else {
       this.selection = undefined;
+      this.caretPosition = undefined;
     }
     this.redraw();
+  };
+
+  SequenceCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
+    var selection = this.selection,
+        previousCaret = this.caretPosition;
+
+    if(selection[0] == selection[1] && (
+        (previousCaret > selection[0] && newCaret == selection[0]) ||
+        (previousCaret == selection[0] && newCaret == selection[0] + 1)
+      )) {
+      this.select(undefined);
+    } else {
+      if(newCaret > selection[0]) {
+        if(previousCaret <= selection[0]) {
+          this.select(newCaret, selection[1]);
+        } else {
+          this.select(selection[0], newCaret - 1);
+        }
+      } else {
+        if(previousCaret <= selection[1] && newCaret < selection[1]) {
+          this.select(newCaret, selection[1]);
+        } else {
+          this.select(newCaret, selection[0] - 1);
+        }
+      }
+    }
+    this.displayCaretAfterNextDisplay(newCaret);
   };
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {

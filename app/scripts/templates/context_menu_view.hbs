@@ -1,0 +1,19 @@
+{{#if display}}
+  <div class="btn-group context-menu {{#unless dropup}}no-{{/unless}}dropup" style="position: absolute; top: {{posY}}px; left: {{posX}}px; z-index: 9999;">
+    <a href="#" data-toggle="dropdown" class="btn btn-default btn-sm dropdown-toggle">
+      <i class="glyphicon glyphicon-pencil"></i>
+    </a>
+    <ul class="dropdown-menu {{#unless pullRight}}no-{{/unless}}pull-right" role="menu">
+      {{#each menuItems}}
+        <li>
+          <a href="#" class="menu-item" data-menu-item-id="{{id}}">
+            {{#if icon}}
+              <i class="glyphicon glyphicon-{{icon}}"></i>
+            {{/if}}
+            {{label}}
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  </div>
+{{/if}}

@@ -11,6 +11,6 @@
     "grunt-sass": "~0.11.0",
     "benchmark": "~1.0.0",
     "amdefine": "~0.1.0",
-    "grunt-notify": "0.2.20"
+    "grunt-notify": "0.2.20" 
   }
 }

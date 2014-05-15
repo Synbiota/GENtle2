@@ -3,7 +3,7 @@ define(function(require) {
       CopyPasteHandler;
 
   CopyPasteHandler = function() {
-
+    this.copiedValue = undefined;
   };
 
   CopyPasteHandler.prototype.createBufferElement = function(callback) {
@@ -41,7 +41,12 @@ define(function(require) {
 
   };
 
+  CopyPasteHandler.prototype.fakeCopy = function(text) {
+    this.copiedValue = text;
+  };
+
   CopyPasteHandler.prototype.copy = function(text) {
+    this.fakeCopy(text);
     this.createBufferElement().text(text).select();
   };
 

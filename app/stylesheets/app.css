@@ -4623,6 +4623,33 @@ button.close {
     .sequence-sidebar > div.active .sequence-settings-tab-link > span {
       display: inline; }
 
+.context-menu.open.no-dropup > .btn {
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0; }
+.context-menu.open.no-dropup > .dropdown-menu {
+  border-color: #adadad;
+  margin-top: -1px; }
+  .context-menu.open.no-dropup > .dropdown-menu.no-pull-right {
+    border-top-left-radius: 0; }
+  .context-menu.open.no-dropup > .dropdown-menu.pull-right {
+    border-top-right-radius: 0; }
+.context-menu.open.dropup > .btn {
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0; }
+.context-menu.open.dropup > .dropdown-menu {
+  border-color: #adadad;
+  margin-bottom: -1px; }
+  .context-menu.open.dropup > .dropdown-menu.no-pull-right {
+    border-bottom-left-radius: 0; }
+  .context-menu.open.dropup > .dropdown-menu.pull-right {
+    border-bottom-right-radius: 0; }
+.context-menu > .dropdown-menu {
+  width: 220; }
+
 body {
   margin: 0; }
 

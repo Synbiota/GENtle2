@@ -1,6 +1,6 @@
 /**
 Utility methods for SequenceCanvas
-@class Utilities
+@class SequenceCanvasUtilities
 **/
 define(function(require) {
   var Utilities;
@@ -52,8 +52,8 @@ define(function(require) {
 
   /**
   @method getBaseFromXYPos
-  @param posX [integer]
-  @param posY [integer] relative y-position (in visible part of canvas)
+  @param posX {integer}
+  @param posY {integer} relative y-position (in visible part of canvas)
   **/
   Utilities.prototype.getBaseFromXYPos = function(posX, posY) {
     var layoutSettings  = this.layoutSettings,
@@ -87,7 +87,7 @@ define(function(require) {
 
   /**
   @method getYPosFromBase
-  @method posY [integer] ABSOLUTE y-position of the ROW (regardless of yOffset of canvas)
+  @returns posY {integer} ABSOLUTE y-position of the ROW (regardless of yOffset of canvas)
   **/
   Utilities.prototype.getYPosFromBase = function(base) {
     var layoutSettings = this.layoutSettings,

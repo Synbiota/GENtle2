@@ -1,7 +1,7 @@
 module.exports = function(grunt) {
   grunt.initConfig({
-    pkg: grunt.file.readJSON('package.json')
-  , yuidoc: {
+    pkg: grunt.file.readJSON('package.json'), 
+    yuidoc: {
       compile: {
         name: '<%= pkg.name %>',
         description: '<%= pkg.description %>',
@@ -13,8 +13,8 @@ module.exports = function(grunt) {
           outdir: 'docs/'
         }
       }
-    }
-  , requirejs: {
+    }, 
+    requirejs: {
       compile: {
         options: {
           name: "app",
@@ -27,15 +27,18 @@ module.exports = function(grunt) {
           }
         }
       }
-    }
-  , sass: {
+    }, 
+    sass: {
       dist: {
+        options: {
+          sourcemap: true
+        },
         files: {
           'app/stylesheets/app.css': 'app/stylesheets/app.scss'
         }
       }
-    }
-  , watch: {
+    }, 
+    watch: {
       docs: {
         files: ['app/scripts/**/*.js', '!app/scripts/app.min.js'],
         tasks: 'yuidoc',

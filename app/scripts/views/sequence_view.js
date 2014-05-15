@@ -4,6 +4,7 @@ define(function(require) {
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle'),
       SequenceSettingsView = require('views/sequence_settings_view'),
+      ContextMenuView = require('views/context_menu_view'),
       SequenceView;
 
   Gentle = Gentle();
@@ -15,6 +16,7 @@ define(function(require) {
 
     initialize: function() {
       var _this = this;
+
       this.model = Gentle.currentSequence;
       
       this.sequence_settings_view = new SequenceSettingsView();
@@ -23,20 +25,24 @@ define(function(require) {
         _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.sequence_settings_view.$el.width());
         _this.trigger('resize');
       });
-
-      this.on('afterRender', this.setupSequenceCanvas, this);
       
       this.handleResize = _.bind(this.handleResize, this);
       $(window).on('resize', this.handleResize);
       this.handleResize(false);
 
+      this.contextMenuView = new ContextMenuView();
+      this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
+
     },
 
-    setupSequenceCanvas: function() {
+    afterRender: function() {
       this.sequenceCanvas = new SequenceCanvas({
         view: this,
         $canvas: this.$('canvas').first()
       });
+
+      this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();
+      this.contextMenuView.boundTo = this.sequenceCanvas;
     },
 
     handleResize: function(trigger) {
