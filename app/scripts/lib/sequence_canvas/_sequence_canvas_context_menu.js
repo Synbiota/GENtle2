@@ -40,14 +40,17 @@ define(function(require) {
   };
 
   SequenceCanvasContextMenu.prototype.restoreContextMenuYPosition = function() {
-    this.contextMenu.move(
-      this.contextMenuXPos,
-      this.contextMenuYpos - this.layoutHelpers.yOffset
-    );
+    if(this.contextMenuXPos && this.contextMenuYPos) {
+      this.contextMenu.move(
+        this.contextMenuXPos,
+        this.contextMenuYPos - this.layoutHelpers.yOffset
+      ).show();
+    }
   };
 
   SequenceCanvasContextMenu.prototype.hideContextMenuButton = function() {
     this.contextMenu.hide();
+    this.contextMenuXPos = this.contextMenuYPos = undefined;
   };
 
   /**

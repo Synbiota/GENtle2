@@ -4623,32 +4623,34 @@ button.close {
     .sequence-sidebar > div.active .sequence-settings-tab-link > span {
       display: inline; }
 
-.context-menu.open.no-dropup > .btn {
-  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  border-bottom-left-radius: 0;
-  border-bottom-right-radius: 0; }
-.context-menu.open.no-dropup > .dropdown-menu {
-  border-color: #adadad;
-  margin-top: -1px; }
-  .context-menu.open.no-dropup > .dropdown-menu.no-pull-right {
-    border-top-left-radius: 0; }
-  .context-menu.open.no-dropup > .dropdown-menu.pull-right {
-    border-top-right-radius: 0; }
-.context-menu.open.dropup > .btn {
-  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-  border-top-left-radius: 0;
-  border-top-right-radius: 0; }
-.context-menu.open.dropup > .dropdown-menu {
-  border-color: #adadad;
-  margin-bottom: -1px; }
-  .context-menu.open.dropup > .dropdown-menu.no-pull-right {
-    border-bottom-left-radius: 0; }
-  .context-menu.open.dropup > .dropdown-menu.pull-right {
+.context-menu {
+  position: absolute;
+  z-index: 1000; }
+  .context-menu > .btn {
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }
+  .context-menu > .dropdown-menu {
+    width: 220px; }
+  .context-menu.open.no-dropup > .btn {
+    border-bottom-left-radius: 0;
     border-bottom-right-radius: 0; }
-.context-menu > .dropdown-menu {
-  width: 220; }
+  .context-menu.open.no-dropup > .dropdown-menu {
+    border-color: #adadad;
+    margin-top: -1px; }
+    .context-menu.open.no-dropup > .dropdown-menu.no-pull-right {
+      border-top-left-radius: 0; }
+    .context-menu.open.no-dropup > .dropdown-menu.pull-right {
+      border-top-right-radius: 0; }
+  .context-menu.open.dropup > .btn {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0; }
+  .context-menu.open.dropup > .dropdown-menu {
+    border-color: #adadad;
+    margin-bottom: -1px; }
+    .context-menu.open.dropup > .dropdown-menu.no-pull-right {
+      border-bottom-left-radius: 0; }
+    .context-menu.open.dropup > .dropdown-menu.pull-right {
+      border-bottom-right-radius: 0; }
 
 body {
   margin: 0; }
@@ -4689,7 +4691,8 @@ body {
   position: absolute;
   width: 100%;
   top: 51px;
-  bottom: 0; }
+  bottom: 0;
+  overflow: hidden; }
 
 .container-special {
   margin-left: 50px;

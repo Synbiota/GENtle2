@@ -1,9 +1,19 @@
 .context-menu {
+  position: absolute; 
+  z-index: 1000;
+
+  & > .btn {
+    @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
+  }
+
+  & > .dropdown-menu {
+    width: 220px;
+  }
+
   &.open {
 
     &.no-dropup {
-      & > .btn {
-        @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
+      & > .btn { 
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
@@ -24,7 +34,6 @@
 
      &.dropup {
       & > .btn {
-        @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
         border-top-left-radius: 0;
         border-top-right-radius: 0;
       }
@@ -42,9 +51,5 @@
         }
       } 
     }
-  }
-
-  & > .dropdown-menu {
-    width: 220;
   }
 }

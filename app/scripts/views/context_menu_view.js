@@ -9,7 +9,7 @@ define(function(require) {
 
     events: {
       'click .menu-item': 'handleClick',
-      'click .btn': 'stopPropagation'
+      'click .btn': 'toggleMenu'
     },
 
     initialize: function() {
@@ -52,16 +52,19 @@ define(function(require) {
     },
 
     show: function() {
-      var $parent = this.$assumedParent,
-          parentWidth = $parent.width(),
-          parentHeight = $parent.height();
+      var itemNb = this.menuItems.length;
+      if(itemNb > 0) {
+        var $parent = this.$assumedParent,
+            parentWidth = $parent.width(),
+            parentHeight = $parent.height();
 
-      this.display = true;
-      this.pullRight = this.posX + this.width >= parentWidth;
-      this.dropup = this.posY + this.menuItemHeight * this.menuItems.length + 40 >= parentHeight;
+        this.display = true;
+        this.pullRight = this.posX + this.width >= parentWidth;
+        this.dropup = this.posY + this.menuItemHeight * itemNb + 40 >= parentHeight;
 
-      this.render();
-      $parent.focus();
+        this.render();
+        $parent.focus();
+      }
       return this;
     },
 
@@ -81,7 +84,7 @@ define(function(require) {
       menuItem.callback.call(this.boundTo);
     },
 
-    stopPropagation: function(event) {
+    toggleMenu: function(event) {
       event.stopPropagation();
       event.preventDefault();
       $(event.currentTarget).dropdown('toggle');
