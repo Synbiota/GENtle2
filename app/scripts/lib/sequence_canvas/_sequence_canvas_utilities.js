@@ -57,13 +57,19 @@ define(function(require) {
   **/
   Utilities.prototype.getBaseFromXYPos = function(posX, posY) {
     var layoutSettings  = this.layoutSettings,
+        gutterWidth     = layoutSettings.gutterWidth,
         baseRange       = this.getBaseRangeFromYPos(posY),
         baseWidth       = layoutSettings.basePairDims.width,
         basesPerBlock   = layoutSettings.basesPerBlock,
-        blockSize       = baseWidth * basesPerBlock + layoutSettings.gutterWidth,
+        blockSize       = baseWidth * basesPerBlock + gutterWidth,
         marginLeft      = layoutSettings.pageMargins.left,
-        block           = Math.floor((posX - marginLeft) / blockSize),
-        inBlockAbsPos   = (posX - marginLeft) % blockSize / baseWidth,
+        block           = Math.min(
+                            this.layoutHelpers.basesPerRow/layoutSettings.basesPerBlock - 1,
+                            Math.floor((posX - marginLeft) / blockSize)),
+        adjustedPosX    = Math.min(
+                            posX - marginLeft, 
+                            (block + 1) * blockSize - gutterWidth);
+        inBlockAbsPos   = (adjustedPosX - block * blockSize) / baseWidth,
         inBlockPos      = Math.floor(inBlockAbsPos),
         nextBase        = + (inBlockAbsPos - inBlockPos > 0.5);
 

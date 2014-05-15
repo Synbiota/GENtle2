@@ -2,9 +2,8 @@
   position: absolute; 
   z-index: 1000;
 
-  & > .btn {
-    @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
-  }
+  border-radius: 3px;
+  @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
 
   & > .dropdown-menu {
     width: 220px;

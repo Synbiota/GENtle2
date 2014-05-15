@@ -32,9 +32,13 @@ define(function(require) {
 
     // We wait for the value to be pasted in the buffer
     if(callback !== undefined) {
-      setTimeout(function() {
-        callback.call(_this, $element.val());
-      }, 20);
+      if(this.copiedValue === undefined) {
+        setTimeout(function() {
+          callback.call(_this, $element.val());
+        }, 20);
+      } else {
+        callback.call(_this, this.copiedValue);
+      }
     }
 
     return $element;

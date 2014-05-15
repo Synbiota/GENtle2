@@ -61,14 +61,27 @@ define(function(require) {
     },
 
     startCreating: function(event) {
-      event.preventDefault();
-      this.editedFeature = {
+      if(event) event.preventDefault();
+
+      this.editedFeature = this.editedFeature || {
         ranges: [{}],
         _type: 'note'
       };
+
       this.creating = true;
       this.setupRanges();
       this.refresh();
+    },
+
+    createOnRange: function(firstBase, lastBase) {
+      this.editedFeature = {
+        ranges: [{
+          from: firstBase,
+          to: lastBase
+        }],
+        _type: 'noe'
+      };
+      this.startCreating();
     },
 
     setupRanges: function() {

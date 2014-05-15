@@ -20,6 +20,7 @@ define(function(require) {
     initialize: function() {
       this.model = Gentle.currentSequence;
       this.listenTo(this.model.getHistory(), 'add remove', this.render, this);
+      this.featuresView = new FeaturesView();
       this.reinsertViews();
     },
 
@@ -109,7 +110,7 @@ define(function(require) {
     },
 
     reinsertViews: function() {
-      this.insertView('#sequence-features-outlet', new FeaturesView());
+      this.insertView('#sequence-features-outlet', this.featuresView);
     },
 
     undoAfter: function(event) {

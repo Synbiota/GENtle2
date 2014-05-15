@@ -8,8 +8,8 @@ define(function(require) {
     template: template,
 
     events: {
-      'click .menu-item': 'handleClick',
-      'click .btn': 'toggleMenu'
+      'click .menu-item, .menu-icon': 'handleClick',
+      'click .dropdown-toggle': 'toggleMenu'
     },
 
     initialize: function() {
@@ -18,26 +18,45 @@ define(function(require) {
       this.posY = 0;
       this.width = 240;
       this.menuItemHeight = 25;
+      this.menuIconWidth = 34;
+      this.reset();
       $('body').on('click', _.bind(this.hide, this));
     },
 
     reset: function() {
       this.menuItems = [];
+      this.menuIcons = [];
       return this;
     },
 
     add: function(label, icon, callback) {
+      var $assumedParent = this.$assumedParent;
+
       if(callback === undefined) {
         callback = icon;
         icon = undefined;
       }
 
-      this.menuItems.push({
-        label: label,
-        callback: callback,
-        icons: icon,
-        id: this.menuItems.length
-      });
+      if(icon) {
+        this.menuIcons.push({
+          label: label, 
+          icon: icon, 
+          callback: callback,
+          id: this.menuItems.length + this.menuIcons.length
+        });
+      } else {
+        this.menuItems.push({
+          label: label,
+          callback: callback,
+          id: this.menuItems.length + this.menuIcons.length
+        });
+      }
+
+      this.posX = Math.min(
+        this.posX, 
+        $assumedParent.width() + $assumedParent.position().left - 
+          ((this.menuIcons.length + 1) * this.menuIconWidth + 20)
+      );
 
       return this;
     },
@@ -59,7 +78,7 @@ define(function(require) {
             parentHeight = $parent.height();
 
         this.display = true;
-        this.pullRight = this.posX + this.width >= parentWidth;
+        this.pullRight = this.posX - $parent.position().left - this.width > 0;
         this.dropup = this.posY + this.menuItemHeight * itemNb + 40 >= parentHeight;
 
         this.render();
@@ -76,8 +95,9 @@ define(function(require) {
     },
 
     handleClick: function(event) {
-      var $element = $(event.currentTarget),
-          menuItem = _.findWhere(this.menuItems, {id: $element.data('menu-item-id')});
+      var id = $(event.currentTarget).data('id'),
+          menuItem =  _.findWhere(this.menuItems, {id: id}) ||
+                      _.findWhere(this.menuIcons, {id: id});
 
       event.preventDefault();
 
@@ -94,6 +114,7 @@ define(function(require) {
       return {
         display: this.display,
         menuItems: this.menuItems,
+        menuIcons: this.menuIcons,
         posX: this.posX,
         posY: this.posY,
         pullRight: this.pullRight,

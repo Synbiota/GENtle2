@@ -31,6 +31,7 @@ define(function(require) {
 
     if(this.selection) {
       menu.add('Copy', this.copyFromMenu);
+      menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
     }
 
     if(menu.menuItems.length) {
@@ -94,6 +95,15 @@ define(function(require) {
       this.displayCaretAfterNextDisplay(caretPosition + text.length);
       this.focus();
     }
+  };
+
+  SequenceCanvasContextMenu.prototype.addAnnotationFromMenu = function() {
+    var selection = this.selection;
+
+    if(selection) {
+      this.view.sequenceSettingsView.featuresView.createOnRange(selection[0], selection[1]);
+    }
+
   };
 
   return SequenceCanvasContextMenu;

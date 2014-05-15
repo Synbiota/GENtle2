@@ -4625,10 +4625,10 @@ button.close {
 
 .context-menu {
   position: absolute;
-  z-index: 1000; }
-  .context-menu > .btn {
-    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }
+  z-index: 1000;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175); }
   .context-menu > .dropdown-menu {
     width: 220px; }
   .context-menu.open.no-dropup > .btn {
