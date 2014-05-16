@@ -14,13 +14,13 @@ require.config({
     'localstorage':           '../vendor/scripts/backbone.localStorage-1.1.7',
     'bootstrap':              '../vendor/bootstrap/js/bootstrap',
     'bootstrap-confirmation': '../vendor/scripts/bootstrap-confirmation-fork',
-    'gentle':                 'models/gentle',
-    'backbone.mixed':         'lib/backbone.mixed',
-    'underscore.mixed':       'lib/underscore.mixed',
-    'Handlebars':             'lib/handlebars.mixed'
+    'gentle':                 'common/models/gentle',
+    'backbone.mixed':         'common/lib/backbone.mixed',
+    'underscore.mixed':       'common/lib/underscore.mixed',
+    'Handlebars':             'common/lib/handlebars.mixed'
   },
   deps: [
-    'lib/polyfills',
+    'common/lib/polyfills',
   ],
   hbars: {
     extension: '.hbs'
@@ -38,9 +38,6 @@ require.config({
     },
     bootstrap: {
       deps: ['jquery']
-    },
-    'lib/utilities': {
-      deps: ['underscore']
     },
     'bootstrap-confirmation': {
       deps: ['jquery', 'bootstrap']
