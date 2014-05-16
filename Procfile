@@ -1,1 +1,1 @@
-web: PORT=8081 node --harmony server.js
+web: node --harmony server.js
