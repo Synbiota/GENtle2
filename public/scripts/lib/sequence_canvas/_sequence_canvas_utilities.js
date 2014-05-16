@@ -3,7 +3,8 @@ Utility methods for SequenceCanvas
 @class SequenceCanvasUtilities
 **/
 define(function(require) {
-  var Utilities;
+  var _     = require('underscore.mixed'),
+      Utilities;
 
   Utilities = function() {};
 

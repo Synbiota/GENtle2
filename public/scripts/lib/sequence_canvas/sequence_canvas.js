@@ -463,6 +463,10 @@ define(function(require) {
         _this         = this,
         posX, posY;
 
+    if(base === undefined && this.caretPosition) {
+      base = this.caretPosition;
+    }
+
     if(base > this.sequence.length()) {
       base = this.sequence.length();
     }

@@ -4,6 +4,7 @@ define(function(require) {
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle'),
       FeaturesView    = require('views/features_view'),
+      HistoryView     = require('views/history_view'),
       Backbone        = require('backbone.mixed'),
       SequenceSettingsView;
 
@@ -14,15 +15,14 @@ define(function(require) {
     template: template,
     events: {
       'click .sequence-settings-tab-link': 'toggleTabs',
-      'change #sequence-display-settings-tab input': 'updateDisplaySettings',
-      'click .undo-history-step': 'undoAfter'
+      'change #sequence-display-settings-tab input': 'updateDisplaySettings'
     },
 
     initialize: function() {
       this.model = Gentle.currentSequence;
-      this.listenTo(this.model.getHistory(), 'add remove', this.render, this);
       this.featuresView = new FeaturesView();
-      this.reinsertViews();
+      this.historyView = new HistoryView();
+      this.insertViews();
     },
 
     toggleTabs: function(event) {
@@ -90,9 +90,7 @@ define(function(require) {
 
     serialize: function() {
       return {
-        historySteps: this.model.getHistory().serialize(),
         openTab: this.openTab,
-        features: this.model.get('features')
       };
     },
 
@@ -105,18 +103,14 @@ define(function(require) {
     },
 
     afterRender: function() {
+      console.log('rerenderd')
       this.populate();
       this.restoreOpenTab();
-      this.reinsertViews();
     },
 
-    reinsertViews: function() {
+    insertViews: function() {
       this.insertView('#sequence-features-outlet', this.featuresView);
-    },
-
-    undoAfter: function(event) {
-      var timestamp = $(event.currentTarget).data('timestamp');
-      this.model.undoAfter(timestamp);
+      this.insertView('#sequence-history-outlet', this.historyView);
     }
 
   });

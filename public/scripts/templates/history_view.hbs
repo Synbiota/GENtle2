@@ -1,0 +1,42 @@
+<a href='#sequence-history-tab' class='sequence-settings-tab-link'>
+  <i class="glyphicon glyphicon glyphicon-time"></i>&nbsp;
+  <span>Sequence history</span>
+</a>
+<div id='sequence-history-tab' class='sequence-settings-tab max-heighted'>
+  {{#if historySteps}}
+    <table class='table table-condensed table-hover table-less-borders'>
+      <tbody>
+        {{#each historySteps}}
+          <tr>
+            <td style="width: 30px">
+              <button class="btn btn-default btn-xs undo-history-step" 
+                      title="Undo this and later operations"
+                      data-timestamp="{{timestamp}}">
+                <i class="glyphicon glyphicon-fast-backward"></i>
+              </button>
+            </td>
+            <td style="width: 80px;">
+              {{#if isInsertion}}
+                <span class='text-success'>Inserted</span>
+              {{/if}}
+              {{#if isDeletion}}
+                <span class='text-danger'>Deleted</span>
+              {{/if}}
+            </td>
+            <td style="width: 60px;">
+              <kbd>@{{position}}</kbd>
+            </td>
+            <td>
+              <kbd data-placement="bottom" title="{{value}}">
+                {{value}}
+                </kbd> 
+            </td>
+
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  {{else}}
+    <p>This sequence has not been edited</p>
+  {{/if}}
+</div>

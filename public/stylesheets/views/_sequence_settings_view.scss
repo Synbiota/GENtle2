@@ -42,8 +42,11 @@
 
     &.active { 
       display: block; 
-      max-height: 50%;
       overflow-y: auto;
+      
+      &.max-heighted {
+        max-height: 300px;
+      }
     }
 
     dl {

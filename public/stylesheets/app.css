@@ -4576,8 +4576,9 @@ button.close {
     font-size: 0.9em; }
     .sequence-sidebar > div .sequence-settings-tab.active {
       display: block;
-      max-height: 50%;
       overflow-y: auto; }
+      .sequence-sidebar > div .sequence-settings-tab.active.max-heighted {
+        max-height: 300px; }
     .sequence-sidebar > div .sequence-settings-tab dl dt {
       width: 85px;
       text-align: left; }

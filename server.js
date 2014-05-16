@@ -1,7 +1,7 @@
 var // Core
     path        = require('path'),
 
-    // Koa and middleware
+    // Koa and middlewares
     koa         = require('koa'),
     favicon     = require('koa-favicon'),
     route       = require('koa-route'),

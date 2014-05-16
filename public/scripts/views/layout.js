@@ -4,9 +4,6 @@ define(function(require) {
       Backbone      = require('backbone.mixed'),
       Layout;
 
-  console.log(Backbone)
-
-
   Layout = Backbone.Layout.extend({
     el: '#wrapper',
     template: template,

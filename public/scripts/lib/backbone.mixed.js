@@ -3,7 +3,5 @@ define(function(require) {
       DeepModel = require('deepmodel'),
       LayoutMgr = require('layoutmanager');
 
-  console.log('backbonemixed', Backbone)
-
   return Backbone;
 });

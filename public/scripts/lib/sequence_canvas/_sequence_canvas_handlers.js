@@ -18,15 +18,17 @@ define(function(require) {
 
     if(!~_.values(Hotkeys).indexOf(event.which)) {
       var base = String.fromCharCode(event.which).toUpperCase(),
-          selection = this.selection;
+          selection = this.selection,
+          caretPosition = this.caretPosition;
 
       if(~this.allowedInputChars.indexOf(base)) {
 
-        if(!selection && this.caretPosition) {
+        if(!selection && caretPosition) {
 
           this.hideCaret();
-          this.sequence.insertBases(base, this.caretPosition);
-          this.displayCaretAfterNextDisplay(this.caretPosition + 1);
+          this.sequence.insertBases(base, caretPosition);
+          this.caretPosition = ++caretPosition;
+          this.displayCaretAfterNextDisplay();
 
         } else if(selection) {
 
@@ -37,6 +39,7 @@ define(function(require) {
             selection[1] - selection[0] + 1
           );
           this.sequence.insertBases(base, selection[0]);
+          this.caretPosition = selection[0] + 1;
           this.displayCaretAfterNextDisplay(selection[0] + 1);
         }
       }
