@@ -82,6 +82,7 @@ define(function(require) {
         }],
         _type: 'noe'
       };
+      if(!this.isOpen) this.$toggleButton.click();
       this.startCreating();
     },
 
@@ -195,18 +196,22 @@ define(function(require) {
     },
 
     serialize: function() {
-      if(this.editedFeature) {
-        return {
-          creating: this.creating,
-          editedFeature: this.editedFeature,
-          errors: this.errors || {},
-          featureTypes: this.featureTypes
-        };
-      } else {
-        return {
-          features: this.model.get('features')
-        };
-      }
+      if(this.isOpen) {
+        if(this.editedFeature) {
+          return {
+            isOpen: true,
+            creating: this.creating,
+            editedFeature: this.editedFeature,
+            errors: this.errors || {},
+            featureTypes: this.featureTypes
+          };
+        } else {
+          return {
+            isOpen: true,
+            features: this.model.get('features')
+          };
+        }
+      } else return {};
     },
 
     afterRender: function() {

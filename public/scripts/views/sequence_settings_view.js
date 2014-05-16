@@ -1,116 +1,17 @@
 define(function(require) {
-  var template        = require('hbars!templates/sequence_settings_view'),
-      Sequence        = require('models/sequence'),
-      SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
-      Gentle          = require('gentle'),
-      FeaturesView    = require('views/features_view'),
+  var FeaturesView    = require('views/features_view'),
       HistoryView     = require('views/history_view'),
-      Backbone        = require('backbone.mixed'),
+      DisplaySettingsView = require('views/sequence_display_settings_view'),
+      SidebarView     = require('views/sidebar_view'),
       SequenceSettingsView;
-
-  Gentle = Gentle();
   
-  SequenceSettingsView = Backbone.View.extend({
-    manage: true,
-    template: template,
-    events: {
-      'click .sequence-settings-tab-link': 'toggleTabs',
-      'change #sequence-display-settings-tab input': 'updateDisplaySettings'
-    },
+  SequenceSettingsView = SidebarView.extend({
 
     initialize: function() {
-      this.model = Gentle.currentSequence;
-      this.featuresView = new FeaturesView();
-      this.historyView = new HistoryView();
-      this.insertViews();
-    },
-
-    toggleTabs: function(event) {
-      event.preventDefault();
-      var $link = this.$(event.currentTarget),
-          wasActive = this.$el.hasClass('active');
-
-      if($link.hasClass('active')) {
-        this.$('.active').removeClass('active');
-        this.$el.removeClass('active');
-        this.openTab = undefined;
-      } else {
-        this.$('.active').removeClass('active');
-        $($link.attr('href')).addClass('active');
-        this.openTab = $link.attr('href');
-        if(!wasActive) {
-          this.$el.addClass('active');
-        }
-        $link.addClass('active');
-      }
-
-      if((wasActive && !this.$el.hasClass('active')) ||
-        !wasActive && this.$el.hasClass('active')) 
-          this.trigger('resize');
-    },
-
-    updateDisplaySettings: function(event) {
-      var $input = this.$(event.currentTarget);
-      switch($input.attr('type')) {
-        case 'checkbox':
-          this.model.set($input.attr('name'), !!$input.is(':checked') && !$input.is(':disabled'));
-          break;
-        case 'radio':
-          if(!!$input.is(':checked') && !$input.is(':disabled'))
-            this.model.set($input.attr('name'), $input.val());
-          break;
-      }
-      this.model.throttledSave();
-    },
-
-    populate: function() {
-      var _this = this;
-      this.$('input').each(function(i, element){
-        var $element = $(element),
-            modelValue = _this.model.get($element.attr('name'));
-        switch($element.attr('type')) {
-          case 'checkbox':
-            if(!!modelValue) $element.attr('checked', 'checked');
-            break;
-          case 'radio':
-            if($element.val() == modelValue) $element.attr('checked', 'checked');
-            else $element.removeAttr('checked');
-            break;
-          case 'text':
-            $element.val(modelValue);
-            break;
-        }
-      }); 
-    },
-
-    remove: function() {
-      // $(window).off('resize', this.handleResize);
-      Backbone.View.prototype.remove.apply(this, arguments);
-    },
-
-    serialize: function() {
-      return {
-        openTab: this.openTab,
-      };
-    },
-
-    restoreOpenTab: function() {
-      if(this.openTab !== undefined) {
-        this.$el.addClass('active');
-        this.$('[href='+this.openTab+']').addClass('active');
-        $(this.openTab).addClass('active');
-      }
-    },
-
-    afterRender: function() {
-      console.log('rerenderd')
-      this.populate();
-      this.restoreOpenTab();
-    },
-
-    insertViews: function() {
-      this.insertView('#sequence-features-outlet', this.featuresView);
-      this.insertView('#sequence-history-outlet', this.historyView);
+      this.sidebarName = 'sequence';
+      this.addTab('history', 'Sequence history', 'time', new HistoryView(), true);
+      this.addTab('features', 'Annotations', 'edit', new FeaturesView());
+      this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView());
     }
 
   });

@@ -8,7 +8,7 @@
   overflow-y: scroll;
   background: #e5e5e5;
 
-  .sequence-settings-tab-link {
+  .sidebar-tab-link {
     display: block;
     color: #888;
     padding: 5px 10px 5px 15px;
@@ -33,7 +33,7 @@
     }
   }
 
-  .sequence-settings-tab {
+  .sidebar-tab {
     display: none;
     border-bottom: 2px solid #ddd;
     padding: 10px;
@@ -43,7 +43,7 @@
     &.active { 
       display: block; 
       overflow-y: auto;
-      
+
       &.max-heighted {
         max-height: 300px;
       }
@@ -114,7 +114,7 @@
 
   &.active {
     width: 350px;
-    .sequence-settings-tab-link {
+    .sidebar-tab-link {
       & > span {
         display: inline;
       }

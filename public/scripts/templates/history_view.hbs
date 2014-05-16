@@ -1,8 +1,4 @@
-<a href='#sequence-history-tab' class='sequence-settings-tab-link'>
-  <i class="glyphicon glyphicon glyphicon-time"></i>&nbsp;
-  <span>Sequence history</span>
-</a>
-<div id='sequence-history-tab' class='sequence-settings-tab max-heighted'>
+{{#if isOpen}}
   {{#if historySteps}}
     <table class='table table-condensed table-hover table-less-borders'>
       <tbody>
@@ -39,4 +35,4 @@
   {{else}}
     <p>This sequence has not been edited</p>
   {{/if}}
-</div>
+{{/if}}

@@ -4548,80 +4548,80 @@ button.close {
   overflow-x: hidden;
   overflow-y: scroll;
   background: #e5e5e5; }
-  .sequence-sidebar > div .sequence-settings-tab-link {
+  .sequence-sidebar > div .sidebar-tab-link {
     display: block;
     color: #888;
     padding: 5px 10px 5px 15px;
     border-bottom: 1px solid #ddd;
     text-decoration: none;
     background: white; }
-    .sequence-sidebar > div .sequence-settings-tab-link > i {
+    .sequence-sidebar > div .sidebar-tab-link > i {
       font-size: 1.3em;
       float: left; }
-    .sequence-sidebar > div .sequence-settings-tab-link > span {
+    .sequence-sidebar > div .sidebar-tab-link > span {
       display: none; }
-    .sequence-sidebar > div .sequence-settings-tab-link:hover {
+    .sequence-sidebar > div .sidebar-tab-link:hover {
       background: #ddd; }
-    .sequence-sidebar > div .sequence-settings-tab-link.active {
+    .sequence-sidebar > div .sidebar-tab-link.active {
       background: #3276b1;
       color: white;
       border-bottom-color: white; }
-      .sequence-sidebar > div .sequence-settings-tab-link.active > span {
+      .sequence-sidebar > div .sidebar-tab-link.active > span {
         display: inline; }
-  .sequence-sidebar > div .sequence-settings-tab {
+  .sequence-sidebar > div .sidebar-tab {
     display: none;
     border-bottom: 2px solid #ddd;
     padding: 10px;
     background: white;
     font-size: 0.9em; }
-    .sequence-sidebar > div .sequence-settings-tab.active {
+    .sequence-sidebar > div .sidebar-tab.active {
       display: block;
       overflow-y: auto; }
-      .sequence-sidebar > div .sequence-settings-tab.active.max-heighted {
+      .sequence-sidebar > div .sidebar-tab.active.max-heighted {
         max-height: 300px; }
-    .sequence-sidebar > div .sequence-settings-tab dl dt {
+    .sequence-sidebar > div .sidebar-tab dl dt {
       width: 85px;
       text-align: left; }
-    .sequence-sidebar > div .sequence-settings-tab dl dd {
+    .sequence-sidebar > div .sidebar-tab dl dd {
       margin-left: 90px; }
-      .sequence-sidebar > div .sequence-settings-tab dl dd .floating {
+      .sequence-sidebar > div .sidebar-tab dl dd .floating {
         float: left;
         margin-top: 0 !important;
         margin-bottom: 5px !important;
         min-height: 0;
         height: 17px; }
-        .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-half {
+        .sequence-sidebar > div .sidebar-tab dl dd .floating.floating-half {
           width: 50%; }
-        .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-fifth {
+        .sequence-sidebar > div .sidebar-tab dl dd .floating.floating-fifth {
           width: 20%; }
-        .sequence-sidebar > div .sequence-settings-tab dl dd .floating.floating-third {
+        .sequence-sidebar > div .sidebar-tab dl dd .floating.floating-third {
           width: 33%; }
-    .sequence-sidebar > div .sequence-settings-tab kbd {
+    .sequence-sidebar > div .sidebar-tab kbd {
       word-break: break-word;
       display: inline-block;
       max-width: 150px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap; }
-      .sequence-sidebar > div .sequence-settings-tab kbd[title] {
+      .sequence-sidebar > div .sidebar-tab kbd[title] {
         cursor: help; }
-    .sequence-sidebar > div .sequence-settings-tab .table-less-borders tbody tr:first-child td {
+    .sequence-sidebar > div .sidebar-tab .table-less-borders tbody tr:first-child td {
       border-top: none; }
-    .sequence-sidebar > div .sequence-settings-tab td {
+    .sequence-sidebar > div .sidebar-tab td {
       vertical-align: middle; }
-    .sequence-sidebar > div .sequence-settings-tab .list-group-item {
+    .sequence-sidebar > div .sidebar-tab .list-group-item {
       border-radius: 0;
       border-left: none;
       border-right: none; }
-      .sequence-sidebar > div .sequence-settings-tab .list-group-item:first-child {
+      .sequence-sidebar > div .sidebar-tab .list-group-item:first-child {
         border-top: none; }
-      .sequence-sidebar > div .sequence-settings-tab .list-group-item:last-child {
+      .sequence-sidebar > div .sidebar-tab .list-group-item:last-child {
         border-bottom: none; }
-      .sequence-sidebar > div .sequence-settings-tab .list-group-item .list-group-item-heading {
+      .sequence-sidebar > div .sidebar-tab .list-group-item .list-group-item-heading {
         word-break: break-word; }
   .sequence-sidebar > div.active {
     width: 350px; }
-    .sequence-sidebar > div.active .sequence-settings-tab-link > span {
+    .sequence-sidebar > div.active .sidebar-tab-link > span {
       display: inline; }
 
 .context-menu {

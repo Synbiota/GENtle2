@@ -1,8 +1,4 @@
-<a href='#sequence-features-tab' class='sequence-settings-tab-link'>
-  <i class="glyphicon glyphicon-edit"></i>&nbsp;
-  <span>Annotations</span>
-</a>
-<div id='sequence-features-tab' class='sequence-settings-tab'>
+{{#if isOpen}}
   {{#if editedFeature}}
     <h4>
       {{#if creating}}
@@ -124,5 +120,4 @@
     </div>
 
   {{/if}}
-  
-</div>
+{{/if}}

@@ -33,9 +33,12 @@ define(function(require) {
     },
 
     serialize: function() {
-      return {
-        historySteps: this.model.getHistory().serialize(),
-      };
+      if(this.isOpen) {
+        return {
+          isOpen: true,
+          historySteps: this.model.getHistory().serialize(),
+        };
+      } else return {};
     },
 
     afterRender: function() {
