@@ -1,0 +1,16 @@
+doctype html
+html(lang="en")
+  head
+    link(rel="stylesheet" media="all" href="stylesheets/app.css")
+    title GENtle 3
+  body#wrapper
+    #intro-loader
+      p.lead.text-muted
+        span Loading...
+        i.glyphicon.glyphicon-refresh
+
+    if env == 'development'
+      script(data-main="scripts/app" src="vendor/scripts/require.js")
+      script(type="text/javascript" src="scripts/require.config.js")
+    else
+      script(data-main="scripts/app.min" src="vendor/scripts/require.js")

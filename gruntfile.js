@@ -8,7 +8,7 @@ module.exports = function(grunt) {
         version: '<%= pkg.version %>',
         url: '<%= pkg.homepage %>',
         options: {
-          paths: ['./app/scripts'],
+          paths: ['./public/scripts'],
           exclude: 'app.min.js',
           outdir: 'docs/'
         }
@@ -18,10 +18,11 @@ module.exports = function(grunt) {
       compile: {
         options: {
           name: "app",
-          baseUrl: "app/scripts/",
-          mainConfigFile: 'app/scripts/require.config.js',
-          out: "app/scripts/app.min.js",
+          baseUrl: "public/scripts/",
+          mainConfigFile: 'public/scripts/require.config.js',
+          out: "public/scripts/app.min.js",
           optimize: 'uglify2',
+          findNestedDependencies: true,
           uglify: {
             mangle: 'true'
           }
@@ -31,38 +32,38 @@ module.exports = function(grunt) {
     sass: {
       dist: {
         options: {
-          sourcemap: true
+          sourcemap: true,
+          includePaths: require('node-bourbon').includePaths
         },
         files: {
-          'app/stylesheets/app.css': 'app/stylesheets/app.scss'
+          'public/stylesheets/app.css': 'public/stylesheets/app.scss'
         }
       }
     }, 
+
     watch: {
       docs: {
-        files: ['app/scripts/**/*.js', '!app/scripts/app.min.js'],
+        files: ['public/scripts/**/*.js', '!public/scripts/app.min.js'],
         tasks: 'yuidoc',
         options: {
           atBegin: true
         }
       },
       sass: {
-        files: ['app/stylesheets/**/*.{scss,sass}'],
+        files: ['public/stylesheets/**/*.{scss,sass}'],
         tasks: ['sass'],
         options: {
           atBegin: true
         }
+      },
+      compile: {
+        files: ['public/scripts/**/*.js', '!public/scripts/app.min.js'],
+        tasks: 'requirejs',
+        options: {
+          atBegin: true,
+          debounceDelay: 10000
+        }
       }
-
-      //,
-      // compile: {
-      //   files: ['app/scripts/**/*.js', '!app/scripts/app.min.js'],
-      //   tasks: 'requirejs',
-      //   options: {
-      //     atBegin: true,
-      //     debounceDelay: 10000
-      //   }
-      // }
     }
   });
 

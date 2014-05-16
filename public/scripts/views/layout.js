@@ -1,8 +1,10 @@
 define(function(require) {
   var template      = require('hbars!templates/layout'),
       NavbarView    = require('views/navbar_view'),
+      Backbone      = require('backbone.mixed'),
       Layout;
-      // Settings  = require('model/settings');
+
+  console.log(Backbone)
 
 
   Layout = Backbone.Layout.extend({

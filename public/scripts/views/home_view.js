@@ -1,6 +1,7 @@
 define(function(require) {
   var template    = require('hbars!templates/home_view'),
       Filetypes   = require('lib/files/filetypes'),
+      Backbone    = require('backbone.mixed'),
       Gentle      = require('gentle'),
       HomeView;
 

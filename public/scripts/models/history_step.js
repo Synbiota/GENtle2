@@ -3,7 +3,8 @@ Handling history steps
 @class HistoryStep
 **/
 define(function(require){
-  var HistoryStep;
+  var Backbone = require('backbone.mixed'),
+      HistoryStep;
 
   HistoryStep = Backbone.Model.extend({
     serialize: function() {

@@ -5,7 +5,9 @@ Handling sequences
 define(function(require){
   var Gentle              = require('gentle'),
       SequenceTransforms  = require('lib/sequence_transforms'),
-      HistorySteps        = require ('models/history_steps'),
+      HistorySteps        = require('models/history_steps'),
+      Backbone            = require('backbone.mixed'),
+      _                   = require('underscore.mixed'),
       Sequence;
 
   Gentle = Gentle();

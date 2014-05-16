@@ -3,6 +3,17 @@
   "description": "GENtle - The Browser Based, Open Source, DNA Assembly App",
   "homepage": "http://gentledna.org/",
   "version": "3.0.0-alpha.1",
+  "engines": {
+    "node": "^0.11"
+  },
+  "dependencies": {
+    "koa-favicon": "^1.1.0",
+    "koa": "^0.6.1",
+    "koa-route": "^1.1.4",
+    "koa-views": "^2.0.3",
+    "then-jade": "^2.0.0",
+    "koa-static": "^1.4.5"
+  },
   "devDependencies": {
     "grunt": "~0.4.1",
     "grunt-contrib-watch": "~0.5.3",
@@ -11,6 +22,10 @@
     "grunt-sass": "~0.11.0",
     "benchmark": "~1.0.0",
     "amdefine": "~0.1.0",
-    "grunt-notify": "0.2.20" 
+    "grunt-notify": "0.2.20",
+    "node-bourbon": "^1.2.3"
+  },
+  "scripts": {
+    "start": "PORT=8081 DEBUG=koa-views nodemon --harmony server.js"
   }
 }

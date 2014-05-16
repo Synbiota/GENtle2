@@ -4,6 +4,7 @@ define(function(require) {
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle'),
       FeaturesView    = require('views/features_view'),
+      Backbone        = require('backbone.mixed'),
       SequenceSettingsView;
 
   Gentle = Gentle();

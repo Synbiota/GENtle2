@@ -4,8 +4,9 @@ define(function(require) {
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
       Gentle          = require('gentle')(),
       SynbioData      = require('lib/synbio_data'),
+      Backbone        = require('backbone.mixed'),
+      BSConfirmation  = require('bootstrap-confirmation'),
       FeaturesView;
-
   
   FeaturesView = Backbone.View.extend({
     manage: true,

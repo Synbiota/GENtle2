@@ -1,6 +1,7 @@
   define(function(require) {
   var template    = require('hbars!templates/navbar_view'),
       Gentle      = require('gentle')(),
+      Backbone    = require('backbone.mixed'),
       NavbarView;
 
   NavbarView = Backbone.View.extend({

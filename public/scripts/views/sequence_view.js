@@ -2,12 +2,11 @@ define(function(require) {
   var template        = require('hbars!templates/sequence_view'),
       Sequence        = require('models/sequence'),
       SequenceCanvas  = require('lib/sequence_canvas/sequence_canvas'),
-      Gentle          = require('gentle'),
+      Gentle          = require('gentle')(),
       SequenceSettingsView = require('views/sequence_settings_view'),
       ContextMenuView = require('views/context_menu_view'),
+      Backbone        = require('backbone.mixed'),
       SequenceView;
-
-  Gentle = Gentle();
   
   SequenceView = Backbone.View.extend({
     manage: true,

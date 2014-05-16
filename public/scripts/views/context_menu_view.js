@@ -1,6 +1,7 @@
 define(function(require) {
   var Gentle          = require('gentle')(),
       template        = require('hbars!templates/context_menu_view'),
+      Backbone        = require('backbone.mixed'),
       ContextMenuView;
 
   ContextMenuView = Backbone.View.extend({

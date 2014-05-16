@@ -10,8 +10,8 @@ discussion
 **/
 
 define(function(require) {
-  // var Backbone = require('backbone');
-  var keyPrefix   = +new Date() + '';
+  var _           = require('underscore'),
+      keyPrefix   = +new Date() + '';
 
   _.mixin({
 
@@ -78,5 +78,5 @@ define(function(require) {
 
   });
 
-  return;
+  return _;
 });

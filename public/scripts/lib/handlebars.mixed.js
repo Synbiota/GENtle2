@@ -1,5 +1,5 @@
 define(function(require) {
-  var Handlebars = require('Handlebars');
+  var Handlebars = require('Handlebars.base');
 
   Handlebars.registerHelper('select', function(context, options) {
     var addOption, addOptions,
