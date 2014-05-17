@@ -1,17 +1,15 @@
 module.exports = function(grunt) {
+  var yuidocjson = grunt.file.readJSON('yuidoc.json');
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'), 
     yuidoc: {
       compile: {
-        name: '<%= pkg.name %>',
-        description: '<%= pkg.description %>',
-        version: '<%= pkg.version %>',
-        url: '<%= pkg.homepage %>',
-        options: {
-          paths: ['./public/scripts'],
-          exclude: 'app.min.js',
-          outdir: 'docs/'
-        }
+        name: yuidocjson.name,
+        description: yuidocjson.description,
+        version: yuidocjson.version,
+        url: yuidocjson.url,
+        options: yuidocjson.options
       }
     }, 
     requirejs: {
@@ -42,13 +40,13 @@ module.exports = function(grunt) {
     }, 
 
     watch: {
-      docs: {
-        files: ['public/scripts/**/*.js', '!public/scripts/app.min.js'],
-        tasks: 'yuidoc',
-        options: {
-          atBegin: true
-        }
-      },
+      // docs: {
+      //   files: ['public/scripts/**/*.js', '!public/scripts/app.min.js'],
+      //   tasks: 'yuidoc',
+      //   options: {
+      //     atBegin: true
+      //   }
+      // },
       sass: {
         files: ['public/stylesheets/**/*.{scss,sass}'],
         tasks: ['sass'],
@@ -72,4 +70,4 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-sass');
-}
+};

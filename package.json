@@ -26,6 +26,6 @@
     "node-bourbon": "^1.2.3"
   },
   "scripts": {
-    "start": "PORT=8081 DEBUG=koa-views nodemon --harmony server.js"
+    "start": "nf start webdev,doc"
   }
 }

@@ -1,6 +1,5 @@
 define(function(require) {
-  var Gentle          = require('gentle')(),
-      template        = require('hbars!common/templates/context_menu_view'),
+  var template        = require('hbars!common/templates/context_menu_view'),
       Backbone        = require('backbone.mixed'),
       ContextMenuView;
 
@@ -21,7 +20,8 @@ define(function(require) {
       this.menuItemHeight = 25;
       this.menuIconWidth = 34;
       this.reset();
-      $('body').on('click', _.bind(this.hide, this));
+      _.bindAll(this, 'hide');
+      $('body').on('click', this.hide);
     },
 
     reset: function() {
@@ -122,6 +122,11 @@ define(function(require) {
         dropup: this.dropup
       };
     },
+
+    remove: function() {
+      $('body').off('click', this.hide);
+      Backbone.View.prototype.remove.apply(this, arguments);
+    }
 
 
     

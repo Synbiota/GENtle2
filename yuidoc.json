@@ -1,0 +1,11 @@
+{ 
+  "name": "GENtle",
+  "description": "GENtle - The Browser Based, Open Source, DNA Assembly App",
+  "version": "3.0.0-alpha.1",
+  "url": "http://gentledna.org",
+  "options": {
+    "paths": ["./public/scripts"],
+    "exclude": "app.min.js",
+    "outdir": "docs/"
+  }
+}
