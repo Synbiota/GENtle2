@@ -102,7 +102,6 @@ define(function(require) {
       gutterWidth: 30,
       basesPerBlock: 10,
       basePairDims: {width:10, height:15},
-      sequenceLength: this.sequence.length(),
       lines: options.lines || {
 
         // Blank line
@@ -203,7 +202,7 @@ define(function(require) {
 
     // Events
     this.view.on('resize', this.refresh);
-    this.sequence.on('change:sequence', this.redraw);
+    this.sequence.on('change:sequence', this.refresh);
     this.sequence.on('change:displaySettings.* change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll',    this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
@@ -293,7 +292,7 @@ define(function(require) {
       lh.rows = {height:line_offset};
 
       //total number of rows in sequence, 
-      lh.rows.total = Math.ceil(ls.sequenceLength / lh.basesPerRow) ;
+      lh.rows.total = Math.ceil(_this.sequence.length() / lh.basesPerRow) ;
       // number of visible rows in canvas
       lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height) ;
 
