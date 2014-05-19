@@ -133,8 +133,7 @@ define(function(require) {
       }
       this.caretPosition = nextCaret;
     } else {
-      this.selection = undefined;
-      this.displayCaret(nextCaret);
+      this.moveCaret(nextCaret);
     }
 
   };
@@ -159,8 +158,7 @@ define(function(require) {
         this.caretPosition = nextCaret;
       }
     } else {
-      this.selection = undefined;
-      this.displayCaret(nextCaret);
+      this.moveCaret(nextCaret);
     }
 
   };
@@ -173,7 +171,7 @@ define(function(require) {
 
     if(previousCaret === undefined) return;
 
-    nextCaret = meta ? 0 : this.caretPosition - basesPerRow;
+    nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
 
     if(shift) {
       if(selection) {
@@ -186,8 +184,7 @@ define(function(require) {
         this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret; 
       }
     } else {
-      this.selection = undefined;
-      this.displayCaret(nextCaret);
+      this.moveCaret(nextCaret);
     }
   };
 
@@ -199,7 +196,9 @@ define(function(require) {
 
     if(previousCaret === undefined) return;
 
-    nextCaret = meta ? this.sequence.length() : this.caretPosition + basesPerRow;
+    nextCaret = meta ? 
+      this.sequence.length() : 
+      Math.min(this.caretPosition + basesPerRow, this.sequence.length());
 
     if(shift) {
       if(selection) {
@@ -212,8 +211,7 @@ define(function(require) {
         this.caretPosition = nextCaret; 
       }
     } else {
-      this.selection = undefined;
-      this.displayCaret(nextCaret);
+      this.moveCaret(nextCaret);
     }
     
   };
@@ -259,7 +257,8 @@ define(function(require) {
     var _this = this,
         mouse = this.normalizeMousePosition(event);
 
-    _this.dragStart = [mouse.left, mouse.top];
+    _this.dragStartPos = [mouse.left, mouse.top];
+    _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
       if(event.type === 'mouseup') {
@@ -280,16 +279,15 @@ define(function(require) {
         selection = _this.selection,
         mouse = _this.normalizeMousePosition(event);
 
-    if( _this.dragStart &&
-        ( Math.abs(mouse.left - _this.dragStart[0]) > 5 ||
-          Math.abs(mouse.top - _this.dragStart[1]) >= layoutHelpers.rows.height)) {
+    if( _this.dragStartPos &&
+        ( Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
+          Math.abs(mouse.top - _this.dragStartPos[1]) >= layoutHelpers.rows.height)) {
 
-      var first = _this.getBaseFromXYPos(_this.dragStart[0], _this.dragStart[1]),
+      var first = _this.dragStartBase,
           last = _this.getBaseFromXYPos(mouse.left, mouse.top);
 
       if(!_this.selecting) {
         _this.selecting = true;
-        _this.hideCaret();
       }
 
       if(first <= last) {
@@ -314,7 +312,7 @@ define(function(require) {
     if(!this.selection || !this.selecting) {
       this.handleClick(event);
     }
-    this.dragStart = undefined;
+    this.dragStartPos = this.dragStartBase = undefined;
     if(this.selection) {
       this.displayCaret(this.caretPosition);
     }

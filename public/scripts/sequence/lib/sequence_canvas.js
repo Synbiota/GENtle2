@@ -553,6 +553,13 @@ define(function(require) {
     this.$scrollingParent.focus();
   };
 
+  SequenceCanvas.prototype.moveCaret = function(newPosition) {
+    this.selection = undefined;
+    this.caret.hide();
+    this.redraw();
+    this.displayCaretAfterNextDisplay(newPosition);
+  };
+
 
 
 

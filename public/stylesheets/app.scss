@@ -77,3 +77,7 @@ body {
   margin: 0 !important;
 }
 
+.navbar[unselectable] {
+  @include user-select(none);
+}
+
