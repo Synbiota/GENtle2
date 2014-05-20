@@ -33,7 +33,7 @@ define(function(require) {
                     'display', 
                     'refresh', 
                     'redraw',
-                    'afterNextDisplay',
+                    'afterNextRedraw',
                     'handleScrolling',
                     'handleMousedown',
                     'handleMousemove',
@@ -202,8 +202,7 @@ define(function(require) {
 
     // Events
     this.view.on('resize', this.refresh);
-    this.sequence.on('change:sequence', this.refresh);
-    this.sequence.on('change:displaySettings.* change:features.* change:features', this.refresh);
+    this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll',    this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
     this.$scrollingParent.on('keypress',  this.handleKeypress);
@@ -214,6 +213,7 @@ define(function(require) {
     this.refresh();
   };
 
+  _.extend(SequenceCanvas.prototype, Backbone.Events);
   _.extend(SequenceCanvas.prototype, _Handlers.prototype);
   _.extend(SequenceCanvas.prototype, _Utilities.prototype);
   _.extend(SequenceCanvas.prototype, _ContextMenu.prototype);
@@ -388,7 +388,7 @@ define(function(require) {
     return requestAnimationFrame(this.display);
   };
 
-  SequenceCanvas.prototype.scrollTo = function(yOffset) {
+  SequenceCanvas.prototype.scrollTo = function(yOffset, triggerEvent) {
     var deferred = Q.defer();
 
     if(yOffset !== undefined) {
@@ -401,11 +401,15 @@ define(function(require) {
 
     this.$scrollingParent.scrollTop(this.layoutHelpers.yOffset);
 
-    this.afterNextDisplay(deferred.resolve);
+    this.afterNextRedraw(deferred.resolve);
 
     this.redraw();
 
     this.restoreContextMenuYPosition();
+
+    if(triggerEvent !== false) {
+      this.trigger('scroll');
+    }
 
     return deferred.promise;
   };
@@ -440,7 +444,7 @@ define(function(require) {
     // this.getYPosFromBase.cache = {};
   };
 
-  SequenceCanvas.prototype.afterNextDisplay = function() {
+  SequenceCanvas.prototype.afterNextRedraw = function() {
     var _this = this,
         args = _.toArray(arguments),
         func = args.shift();
@@ -483,10 +487,10 @@ define(function(require) {
   
   };
 
-  SequenceCanvas.prototype.displayCaretAfterNextDisplay = 
+  SequenceCanvas.prototype.displayCaretAfterNextRedraw = 
     _.wrap(
       SequenceCanvas.prototype.displayCaret,
-      SequenceCanvas.prototype.afterNextDisplay
+      SequenceCanvas.prototype.afterNextRedraw
     );
 
   SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
@@ -540,7 +544,7 @@ define(function(require) {
         }
       }
     }
-    this.displayCaretAfterNextDisplay(newCaret);
+    this.displayCaretAfterNextRedraw(newCaret);
   };
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {
@@ -556,7 +560,7 @@ define(function(require) {
     this.selection = undefined;
     this.caret.hide();
     this.redraw();
-    this.displayCaretAfterNextDisplay(newPosition);
+    this.displayCaretAfterNextRedraw(newPosition);
   };
 
 

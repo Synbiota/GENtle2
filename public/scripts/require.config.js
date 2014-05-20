@@ -2,6 +2,7 @@ require.config({
   baseUrl: './scripts/',
   paths: {
     'jquery':                 '../vendor/scripts/jquery-1.10.2',
+    'jquery.ui':              '../vendor/scripts/jquery-ui-1.10.4.custom',
     'underscore':             '../vendor/scripts/underscore-1.6.0',
     'Handlebars.base':        '../vendor/scripts/handlebars',
     'hbars':                  '../vendor/scripts/hbars',
@@ -19,9 +20,6 @@ require.config({
     'underscore.mixed':       'common/lib/underscore.mixed',
     'Handlebars':             'common/lib/handlebars.mixed'
   },
-  deps: [
-    'common/lib/polyfills',
-  ],
   hbars: {
     extension: '.hbs'
   },
@@ -32,6 +30,9 @@ require.config({
     },
     jquery: {
       exports: '$'
+    },
+    'jquery.ui': {
+      deps: ['jquery']
     },
     'Handlebars.base': {
       exports: 'Handlebars'

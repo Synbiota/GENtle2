@@ -28,7 +28,7 @@ define(function(require) {
           this.hideCaret();
           this.sequence.insertBases(base, caretPosition);
           this.caretPosition = ++caretPosition;
-          this.displayCaretAfterNextDisplay();
+          this.displayCaretAfterNextRedraw();
 
         } else if(selection) {
 
@@ -40,7 +40,7 @@ define(function(require) {
           );
           this.sequence.insertBases(base, selection[0]);
           this.caretPosition = selection[0] + 1;
-          this.displayCaretAfterNextDisplay(selection[0] + 1);
+          this.displayCaretAfterNextRedraw(selection[0] + 1);
         }
       }
     }
@@ -100,11 +100,11 @@ define(function(require) {
         selection[0], 
         selection[1] - selection[0] + 1
       );
-      this.displayCaretAfterNextDisplay(selection[0]);
+      this.displayCaretAfterNextRedraw(selection[0]);
     } else if(this.caretPosition > 0) {
       this.hideCaret();
       this.sequence.deleteBases(this.caretPosition - 1, 1);
-      this.displayCaretAfterNextDisplay(this.caretPosition - 1);
+      this.displayCaretAfterNextRedraw(this.caretPosition - 1);
     }
   };
 
@@ -236,7 +236,7 @@ define(function(require) {
         text = _this.cleanPastedText(text);
         _this.hideCaret();
         _this.sequence.insertBases(text, caretPosition);
-        _this.displayCaretAfterNextDisplay(caretPosition + text.length);
+        _this.displayCaretAfterNextRedraw(caretPosition + text.length);
         _this.focus();
       }
 

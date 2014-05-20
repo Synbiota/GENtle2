@@ -1,0 +1,9 @@
+<canvas class="linear-map-canvas"></canvas>
+<div class="linear-map-visible-range"></div>
+<div class="linear-map-features">
+  {{#each features}}
+    <a href="#" class="linear-map-feature linear-map-feature-{{type}}" data-feature-id="{{id}}">
+      {{name}}
+    </a>
+  {{/each}} 
+</div>

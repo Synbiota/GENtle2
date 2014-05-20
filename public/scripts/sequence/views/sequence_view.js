@@ -5,6 +5,7 @@ define(function(require) {
       Gentle          = require('gentle')(),
       SequenceSettingsView = require('sequence/views/settings_view'),
       ContextMenuView = require('common/views/context_menu_view'),
+      LinearMapView   = require('linear_map/views/linear_map_view'),
       Backbone        = require('backbone.mixed'),
       SequenceView;
   
@@ -32,9 +33,16 @@ define(function(require) {
       this.contextMenuView = new ContextMenuView();
       this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
 
+      this.secondaryView = new LinearMapView();
+      this.insertView('#sequence-canvas-secondary-view-outlet', this.secondaryView);
+
     },
 
     afterRender: function() {
+      this.$('.sequence-canvas-container, .scrolling-parent').css('right',
+        this.secondaryView.$el.width()
+      );
+
       this.sequenceCanvas = new SequenceCanvas({
         view: this,
         $canvas: this.$('canvas').first()

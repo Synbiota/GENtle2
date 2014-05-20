@@ -4673,6 +4673,54 @@ button.close {
     -o-animation: full-rotation ease-in-out 1s infinite;
     animation: full-rotation ease-in-out 1s infinite; }
 
+.linear-map {
+  position: fixed;
+  top: 51px;
+  right: 0;
+  bottom: 0;
+  width: 150px; }
+  .linear-map .linear-map-canvas {
+    height: 100%;
+    position: absolute; }
+  .linear-map .linear-map-visible-range {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: rgba(20, 20, 20, 0.1);
+    cursor: move; }
+  .linear-map .linear-map-features {
+    position: absolute;
+    right: 0; }
+    .linear-map .linear-map-features .linear-map-feature {
+      font-size: 10px;
+      box-sizing: border-box;
+      padding: 1px 2px;
+      position: absolute;
+      overflow: hidden;
+      background: red;
+      color: white;
+      text-align: center;
+      text-transform: uppercase;
+      -webkit-transform: rotate(-90deg);
+      -moz-transform: rotate(-90deg);
+      -ms-transform: rotate(-90deg);
+      -o-transform: rotate(-90deg);
+      transform: rotate(-90deg);
+      -webkit-transform-origin: bottom right;
+      -moz-transform-origin: bottom right;
+      -ms-transform-origin: bottom right;
+      transform-origin: bottom right; }
+      .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-0 {
+        right: 10px; }
+      .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-1 {
+        right: 27px; }
+      .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-2 {
+        right: 44px; }
+      .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-3 {
+        right: 61px; }
+      .linear-map .linear-map-features .linear-map-feature:hover {
+        text-decoration: none; }
+
 @-webkit-keyframes full-rotation {
   from {
     -webkit-transform: rotate(0deg); }

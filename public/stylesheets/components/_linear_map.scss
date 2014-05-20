@@ -1,0 +1,51 @@
+.linear-map {
+  position: fixed;
+  top: 51px;
+  right: 0;
+  bottom: 0;
+  width: 150px;
+
+  .linear-map-canvas {
+    height: 100%;
+    position: absolute;
+  }
+
+  .linear-map-visible-range {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    background: rgba(20,20,20, .1);
+    cursor: move;
+  }
+
+  .linear-map-features {
+    position: absolute;
+    right: 0;
+
+    .linear-map-feature {
+      font-size: 10px;
+      box-sizing: border-box;
+      padding: 1px 2px;
+      position: absolute;
+      // @include text-overflow();
+      overflow: hidden;
+      background: red;
+      color: white;
+      text-align: center;
+      text-transform: uppercase;
+      @include transform(rotate(-90deg));
+      @include transform-origin(bottom right);
+      // TODO: IE8 vertical text
+
+      @for $i from 0 to 4 {
+        &.linear-map-feature-stacked-#{$i} {
+          right: 10px + 17px * $i;
+        }
+      }
+
+      &:hover {
+        text-decoration: none;
+      }
+    }
+  }
+}

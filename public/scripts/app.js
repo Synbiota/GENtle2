@@ -9,7 +9,9 @@ require([
     'sequence/models/sequences',
     'backbone.mixed',
     'gentle',
-    'bootstrap'
+    'bootstrap',
+    'jquery.ui',
+    'common/lib/polyfills'
   ], function(Layout, domReady, Router, Sequences, Backbone, Gentle) {
 
   Gentle = Gentle();

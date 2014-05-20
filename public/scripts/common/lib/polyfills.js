@@ -1,4 +1,5 @@
-define(function() {
+define(function(require) {
+  var _ = require('underscore.mixed');
 
   // Object.create polyfill (ES5)
   // from MDN
@@ -45,6 +46,17 @@ define(function() {
             clearTimeout(id);
         };
     }());
+
+
+
+  // Math.log10
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/log10
+
+  if(!_.isFunction(Math.log10)) {
+    Math.log10 = function(x) {
+      return Math.log(x) / Math.LN10;
+    };
+  }
 
 
   // Polyfills mutate the global state so we export nothing
