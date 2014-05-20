@@ -1,6 +1,6 @@
 {
   "watch": ["server.js", "routes"],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "development"
   }
 }
