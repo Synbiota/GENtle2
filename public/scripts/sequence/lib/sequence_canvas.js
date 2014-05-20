@@ -326,6 +326,7 @@ define(function(require) {
           i, k, pos, baseRange, y;
 
       return Q.promise(function(resolve, reject){
+
         //clear canvas
         context.clearRect(0,0,context.canvas.width, context.canvas.height);
 

@@ -92,7 +92,7 @@ define(function(require) {
       for(var i = 0; i < Math.floor(sequence.length() / _basesPerRow); i++) {
         nbFeatures.push(sequence.nbFeaturesInRange(i * _basesPerRow, (i+1) * _basesPerRow - 1));
       }
-      return _.max(nbFeatures);
+      return nbFeatures.length ? _.max(nbFeatures) : 0;
     };
 
     if(this._maxNbFeaturesPerRow === undefined) {
