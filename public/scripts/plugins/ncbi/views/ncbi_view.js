@@ -107,7 +107,6 @@ define(function(require) {
       var $response;
 
       $response = $($.parseXML(response));
-      console.log(response)
       this.results = _.map($response.find('DocSum'), function(result) {
         var output = {},
             attributes = ['Caption', 'Title', 'Length'];

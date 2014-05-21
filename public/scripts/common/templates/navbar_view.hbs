@@ -6,11 +6,30 @@
       <span class="icon-bar"></span>
     </button>
     <ul class="nav nav-tabs" id="sequence-tabs">
-      {{#each sequences}}
-        <li {{#if isCurrent}}class='active'{{/if}}>
-          <a href='sequence/{{id}}' data-sequence-id='{{id}}'>{{name}}&nbsp;&nbsp;<small class="glyphicon glyphicon-remove close-sequence"></small></a>
+      {{#each visibleTabs}}
+        <li {{#if isCurrent}}class='active'{{/if}} style="max-width: {{../calculatedMaxTabWidth}}px">
+          <a href='sequence/{{id}}' data-sequence-id='{{id}}' title="{{name}}" tabindex="-1">
+            <small class="glyphicon glyphicon-remove close-sequence"></small>
+            {{name}}
+          </a>
         </li>
       {{/each}}
+      {{#if hiddenTabs}}
+        <li class="dropdown hidden-tabs-dropdown pull-right">
+          <a href="#" data-toggle="dropdown">
+            <i class="glyphicon glyphicon-chevron-down"></i>
+          </a>
+          <ul class="dropdown-menu" role="menu" style="max-width: {{maxDropdownWidth}}px">
+            {{#each hiddenTabs}}
+              <li>
+                <a tabindex="-1" href='sequence/{{id}}' data-sequence-id='{{id}}'>
+                  {{name}}
+                </a>
+              </li>
+            {{/each}}
+          </ul>
+        </li>
+      {{/if}}
     </ul>
   </div>
 </div>

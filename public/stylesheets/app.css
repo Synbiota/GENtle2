@@ -4628,6 +4628,57 @@ button.close {
     .sidebar > div.active .sidebar-tab-link > span {
       display: inline; }
 
+#navbar .navbar {
+  margin-bottom: 0;
+  background: #e5e5e5;
+  border-bottom: 1px solid #ddd; }
+
+#menu-button {
+  display: block;
+  float: left;
+  border: none;
+  border-right: 1px solid #ddd;
+  border-radius: 0;
+  margin: 0 10px 0 -15px;
+  height: 50px;
+  width: 50px;
+  padding: 14px;
+  background: white; }
+  #menu-button:hover {
+    background-color: #ddd; }
+  #menu-button.active {
+    background: #3276b1; }
+    #menu-button.active .icon-bar {
+      background-color: white; }
+    #menu-button.active:hover {
+      background-color: #3276b1; }
+
+#sequence-tabs {
+  border: none;
+  margin-top: 10px; }
+  #sequence-tabs > li {
+    min-width: 150px; }
+    #sequence-tabs > li > a {
+      border-bottom: 1px solid #ddd;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap; }
+    #sequence-tabs > li.hidden-tabs-dropdown {
+      min-width: 0; }
+    #sequence-tabs > li.dropdown ul {
+      max-width: 300px; }
+      #sequence-tabs > li.dropdown ul li a {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap; }
+  #sequence-tabs .close-sequence {
+    float: right;
+    cursor: pointer;
+    margin-right: -6px;
+    margin-left: 5px;
+    margin-top: 2px; }
+
 .context-menu {
   position: absolute;
   z-index: 1000;
@@ -4755,38 +4806,6 @@ button.close {
 
 body {
   margin: 0; }
-
-#navbar .navbar {
-  margin-bottom: 0;
-  background: #e5e5e5; }
-
-#menu-button {
-  display: block;
-  float: left;
-  border: none;
-  border-right: 1px solid #ddd;
-  border-radius: 0;
-  margin: 0 10px 0 -15px;
-  height: 50px;
-  width: 50px;
-  padding: 14px;
-  background: white; }
-  #menu-button:hover {
-    background-color: #ddd; }
-  #menu-button.active {
-    background: #3276b1; }
-    #menu-button.active .icon-bar {
-      background-color: white; }
-    #menu-button.active:hover {
-      background-color: #3276b1; }
-
-#sequence-tabs {
-  border: none;
-  margin-top: 10px; }
-  #sequence-tabs li a {
-    border-bottom: 1px solid #ddd; }
-  #sequence-tabs .close-sequence {
-    cursor: pointer; }
 
 #content {
   position: absolute;

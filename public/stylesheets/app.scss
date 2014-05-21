@@ -7,6 +7,7 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 // Views
 @import 'views/_sequence_view';
 @import 'views/_sidebar_view';
+@import 'views/_navbar_view';
 
 // Components
 @import 'components/_context_menu';
@@ -18,44 +19,6 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 
 body {
   margin: 0;
-}
-
-#navbar .navbar {
-  margin-bottom: 0;
-  background: #e5e5e5;
-}
-
-#menu-button {
-  display: block;
-  float: left;
-  border: none;
-  border-right: 1px solid #ddd;
-  border-radius: 0;
-  margin: 0 10px 0 -15px;
-  height: 50px;
-  width: 50px;
-  padding: 14px;
-  background: white;
-
-  &:hover { background-color: #ddd; }
-  &.active {
-    background: #3276b1;
-    .icon-bar { background-color: white; }
-    &:hover { background-color: #3276b1; }
-  }
-}
-
-#sequence-tabs {
-  border: none;
-  margin-top: 10px;
-
-  li a {
-    border-bottom: 1px solid #ddd;
-  }
-
-  .close-sequence {
-    cursor: pointer;
-  }
 }
 
 #content {

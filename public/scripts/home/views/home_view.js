@@ -38,7 +38,6 @@ define(function(require) {
     },
 
     addSequencesAndNavigate: function(sequences) {
-      console.log('sequences', sequences)
       if(sequences.length) {
         sequences = _.map(sequences, function(sequence) {
           return Gentle.sequences.create(sequence);
