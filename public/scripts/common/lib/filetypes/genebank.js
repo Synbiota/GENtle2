@@ -2,7 +2,8 @@ define(function(require) {
   //________________________________________________________________________________________
   // GeneBank
 
-  var FT_base = require('lib/files/base'),
+  var FT_base = require('common/lib/filetypes/base'),
+      _       = require('underscore.mixed'),
       FT_genebank;
 
   FT_genebank = function() {
@@ -36,7 +37,7 @@ define(function(require) {
     var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
 
     var mode = '' ;
-    var seq = new SequenceDNA ( '' , '' ) ;
+    var seq = {features: [], sequence: ''} ;
     seq.desc = '' ;
     var feature = {} ;
     $.each ( lines , function ( k , v ) {
@@ -71,7 +72,7 @@ define(function(require) {
         var m = v.match ( /^\s{1,8}(\w+)\s+(.+)$/ ) ;
         if ( m ) { // Begin feature
           if ( feature['_last'] ) seq.features.push ( $.extend(true, {}, feature) ) ;
-          feature = {} ;
+          feature = { importData: {} } ;
           feature['_type'] = m[1] ;
           feature['ranges'] = m[2] ;
           feature['_last'] = 'ranges' ;
@@ -82,7 +83,7 @@ define(function(require) {
         if ( m ) { // Begin new tag
           m[1] = m[1].replace ( /^"/ , '' ) ;
           feature['_last'] = m[1] 
-          feature[m[1]] = m[2] ;
+          feature.importData[m[1]] = m[2].replace(/^"/, '').replace(/"$/, '') ;
           return ;
         }
         
@@ -90,8 +91,8 @@ define(function(require) {
         if ( m ) { // Extend tag
           //if ( null !== feature[feature['_last']].match(/^[A-Z]+$/) )
           m[1] = m[1].replace ( /"$/ , '' ) ;
-          if ( m[1].match(/^[A-Z]+$/) === null ) feature[feature['_last']] += " " ;
-          feature[feature['_last']] += m[1] ;
+          if ( m[1].match(/^[A-Z]+$/) === null ) feature.importData[feature['_last']] += " " ;
+          feature.importData[feature['_last']] += m[1] ;
         }
       
       } else if ( mode == 'REFERENCE' ) {
@@ -100,47 +101,50 @@ define(function(require) {
       } else if ( mode == 'ORIGIN' ) {
       
         if ( v.match(/^\/\//) ) return false ; // The absolute end
-        seq.seq += v.replace ( /[ 0-9]/g , '' ).toUpperCase() ;
+        seq.sequence += v.replace ( /[ 0-9]/g , '' ).toUpperCase() ;
         
       }
     } ) ;
     
     // Cleanup features
-    $.each ( seq.features , function ( k , v ) {
+    seq.features = _.map(_.reject(seq.features, function(feature) {
+      return feature._type == 'source';
+    }), function ( v, k ) {
       delete v['_last'] ;
       var range = [] ; // Default : Unknown = empty TODO FIXME
       var r = v['ranges'] ;
+      v.name = v.importData.product || v.importData.gene || 'Unnamed';
+      v.desc = v.importData.note || '';
       
       var m = r.match ( /^\d+$/ ) ;
       if ( m ) {
-        range.push ( { from : r*1 , to : r*1 , rc : false } ) ;
+        range.push ( { from : r*1 -1, to : r*1 -1, rc : false } ) ;
         v['ranges'] = range ;
-        return ;
+        return v;
       }
       
-      m = r.match ( /^(\d+)\.\.(\d+)$/ ) ;
+      m = r.match ( /^[<>]?(\d+)\.\.[<>]?(\d+)$/ ) ;
       if ( m ) {
-        range.push ( { from : m[1]*1 , to : m[2]*1 , rc : false } ) ;
+        range.push ( { from : m[1]*1 -1, to : m[2]*1 -1, rc : false } ) ;
         v['ranges'] = range ;
-        return ;
+        return v;
       }
       
-      m = r.match ( /^complement\((\d+)\.\.(\d+)\)$/i ) ;
+      m = r.match ( /^complement\([<>]?(\d+)\.\.[<>]?(\d+)\)$/i ) ;
       if ( m ) {
-        range.push ( { from : m[1]*1 , to : m[2]*1 , rc : true } ) ;
+        range.push ( { from : m[1]*1 -1, to : m[2]*1 -1, rc : true } ) ;
         v['ranges'] = range ;
-        return ;
+        return v;
       }
       
       console.log ( "Could not parse range " + r ) ;
       v['ranges'] = range ;
+      return v;
     } ) ;
     
   //  console.log ( JSON.stringify ( seq.features ) ) ;
     
-    var seqid = gentle.addSequence ( seq , true ) ;
-    ret.push ( seqid ) ;
-    return ret ;
+    return [seq];
   }
 
   return FT_genebank;

@@ -10,6 +10,7 @@ define(function(require) {
 
   var FT_plaintext    = require('common/lib/filetypes/plaintext'),
       FT_sybil        = require('common/lib/filetypes/sybil'),
+      FT_genebank     = require('common/lib/filetypes/genebank'),
       Q               = require('q'),
       Filetype;
 
@@ -19,7 +20,7 @@ define(function(require) {
     // cm5:        FT_cm5,
     // cm5_text:   FT_cm5_text,
     // fasta:      FT_fasta,
-    // genebank:   FT_genebank,
+    genebank:   FT_genebank,
     plaintext:  FT_plaintext,
     // scf2json:   FT_scf2json,
     sybil:      FT_sybil,
@@ -34,14 +35,19 @@ define(function(require) {
   **/
   Filetypes.guessTypeAndParseFromText = function(text, name) {
     var sequences = [];
-    text = text.trim();
-    for(var filetypeName in this.types) {
-      var file = new this.types[filetypeName]();
-      file.file = {name: name || 'Unnamed'};
-      sequences = file.checkAndParseText(text);
-      if(sequences.length) break;
-    }
-    return sequences;
+
+    return Q.promise(function(resolve, reject) {
+      text = text.trim();
+      for(var filetypeName in Filetypes.types) {
+        var file = new Filetypes.types[filetypeName]();
+        file.file = {name: name || 'Unnamed'};
+        sequences = file.checkAndParseText(text);
+        if(sequences.length) break;
+      }
+      
+      resolve(sequences);
+    });
+    
   };
 
   /**

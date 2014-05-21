@@ -33,6 +33,7 @@
       color: white;
       text-align: center;
       text-transform: uppercase;
+      white-space: nowrap;
       @include transform(rotate(-90deg));
       @include transform-origin(bottom right);
       // TODO: IE8 vertical text

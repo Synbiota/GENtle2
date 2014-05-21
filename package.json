@@ -9,10 +9,12 @@
   "dependencies": {
     "koa-favicon": "^1.1.0",
     "koa": "^0.6.1",
-    "koa-route": "^1.1.4",
     "koa-views": "^2.0.3",
     "then-jade": "^2.0.0",
-    "koa-static": "^1.4.5"
+    "koa-static": "^1.4.5",
+    "koa-router": "^3.1.4",
+    "underscore": "^1.6.0",
+    "koa-request": "^1.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

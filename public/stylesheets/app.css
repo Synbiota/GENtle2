@@ -4664,9 +4664,11 @@ button.close {
   left: 0;
   right: 0;
   bottom: 0;
-  margin: auto;
+  margin: auto; }
+
+.loader {
   text-align: center; }
-  #intro-loader i {
+  .loader i {
     margin-left: 20px;
     vertical-align: -10%;
     -webkit-animation: full-rotation ease-in-out 1s infinite;
@@ -4701,6 +4703,7 @@ button.close {
       color: white;
       text-align: center;
       text-transform: uppercase;
+      white-space: nowrap;
       -webkit-transform: rotate(-90deg);
       -moz-transform: rotate(-90deg);
       -ms-transform: rotate(-90deg);
@@ -4789,12 +4792,14 @@ body {
   position: absolute;
   width: 100%;
   top: 51px;
-  bottom: 0;
-  overflow: hidden; }
+  bottom: 0; }
 
 .container-special {
   margin-left: 50px;
   max-width: 1024px; }
+
+.noscroll {
+  overflow: hidden; }
 
 .tooltip {
   word-break: break-word; }

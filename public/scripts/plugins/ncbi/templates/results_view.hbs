@@ -1,0 +1,27 @@
+{{#if results}}
+  <br>
+  <table class="table" style="vertical-align: middle;">
+    <thead>
+      <tr>
+        <th>Caption</th>
+        <th>Title</th>
+        <th>Length</th>
+        <th></th>
+      </re>
+    </thead>
+    <tbody>
+      {{#each results}}
+        <tr>
+          <td><small><code>{{caption}}</code></small></td>
+          <td><small>{{title}}</small</td>
+          <td><small>{{length}}</small></td>
+          <td><a href="#" class="open-ncbi-sequence btn btn-default btn-xs" data-ncbi-id="{{caption}}">Open</a></td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <br><br>
+{{else}}
+  <br><br>
+  <p class="text-danger">No results</p>
+{{/if}}

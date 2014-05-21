@@ -3,28 +3,45 @@ Gentle app definition.
 **/
 
 require([
+    'require',
+    'text!config.json',
     'common/views/layout',
     'domReady',
     'router',
     'sequence/models/sequences',
+    'underscore.mixed',
     'backbone.mixed',
     'gentle',
     'bootstrap',
     'jquery.ui',
-    'common/lib/polyfills'
-  ], function(Layout, domReady, Router, Sequences, Backbone, Gentle) {
+    'common/lib/polyfills',
+  ], function(require, config, Layout, domReady, Router, Sequences, _, Backbone, Gentle) {
 
-  Gentle = Gentle();
+  var plugins = [];
 
-  Gentle.sequences = new Sequences();
+  config = JSON.parse(config);
 
-  Gentle.sequences.fetch();
-  
-  Gentle.router = new Router();
-  window.gentle = Gentle;
+  if(_.isArray(config.plugins)) {
+    plugins = _.map(config.plugins, function(plugin) {
+      return 'plugins/' + plugin + '/plugin';
+    });
+  }
 
-  domReady(function() {
-    Gentle.layout = new Layout();
-    Backbone.history.start();
+  require(plugins, function() {
+
+    Gentle = Gentle();
+
+    Gentle.sequences = new Sequences();
+
+    Gentle.sequences.fetch();
+    
+    Gentle.router = new Router();
+    window.gentle = Gentle;
+
+    domReady(function() {
+      Gentle.layout = new Layout();
+      Backbone.history.start();
+    });
   });
+
 });

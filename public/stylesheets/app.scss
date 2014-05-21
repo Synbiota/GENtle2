@@ -63,11 +63,14 @@ body {
   width: 100%;
   top: 51px;
   bottom: 0;
-  overflow: hidden;
 }
 .container-special {
   margin-left: 50px;
   max-width: 1024px;
+}
+
+.noscroll {
+  overflow: hidden;
 }
 
 .tooltip {

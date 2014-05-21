@@ -1,0 +1,31 @@
+<div class="container-fluid container-special">
+  <div class="row">
+    <div class="col-md-12">
+    <br/>
+
+      <div class="row">
+        <div class="col-md-2">
+        <br/>
+          <ul class="nav nav-pills">
+            {{#each tabs}}
+              <li class="{{#if active}}active{{/if}}">
+                <a href="#home-tab-{{name}}" data-toggle="pill">
+                  {{#if icon}}<i class="glyphicon glyphicon-{{icon}}"></i>{{/if}}
+                  {{title}}
+                </a>
+              </li>  
+            {{/each}}
+          </ul>
+        </div>
+
+        <div class="col-md-10">
+          <div class="tab-content">
+            {{#each tabs}}
+              <div class="tab-pane{{#if active}} active{{/if}}" id="home-tab-{{name}}"></div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,58 @@
+<div class="row">
+  <div class="col-md-12">
+    <h3>Open from NCBI</h3>
+    <br/>
+    <div>
+      <form>
+        <div class="row">
+          <div class="col-xs-7">
+            <form>
+            <input type="text" name="search" placeholder="Search terms or NCBI ID (e.g. JQ033384.1)" class="form-control" required="required" value="{{searchTerm}}"/>
+          </div>
+           <div class="col-xs-3">
+            <input type="submit" value="Search NCBI" class="btn btn-default pull-right"/>
+          </div>
+          <br/><br>
+        </div>
+        <div class="row">
+          <div class="col-xs-2">
+            <strong>Search in</strong>
+          </div>
+          <div class="col-xs-2">
+            <label class="radio-inline">
+              <input type="radio" value="nuccore" name="dbname"> Nucleotides
+            </label>
+          </div>
+          <div class="col-xs-2">
+            <label class="radio-inline">
+              <input type="radio" value="genbank" name="dbname"> GenBank
+            </label>
+          </div>
+        </div>
+      </form>
+      <div class="row loading-from-id" style="display: none;">
+        <div class="loader col-xs-7">
+          <p class="text-muted">
+            <br><br>
+            <span>Loading from NCBI ID...</span>
+            <i class="glyphicon glyphicon-refresh"></i>
+          </p>
+        </div>
+      </div>
+      <div class="row searching-ncbi" style="display: none;">
+        <div class="loader col-xs-7">
+          <p class="text-muted">
+            <br><br>
+            <span>Searching the NCBI database...</span>
+            <i class="glyphicon glyphicon-refresh"></i>
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-md-10">
+          <div class="ncbi-search-results-outlet"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
