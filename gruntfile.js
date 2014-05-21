@@ -1,5 +1,6 @@
 module.exports = function(grunt) {
-  var yuidocjson = grunt.file.readJSON('yuidoc.json');
+  var yuidocjson  = grunt.file.readJSON('yuidoc.json'),
+      appConfig   = grunt.file.readJSON('public/scripts/config.json');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'), 
@@ -21,6 +22,9 @@ module.exports = function(grunt) {
           out: "public/scripts/app.min.js",
           optimize: 'uglify2',
           findNestedDependencies: true,
+          include: (appConfig.plugins || []).map(function(plugin) {
+            return 'plugins/' + plugin + '/plugin';
+          }),
           uglify: {
             mangle: 'true'
           }
