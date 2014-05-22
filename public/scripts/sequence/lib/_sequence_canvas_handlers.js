@@ -102,9 +102,10 @@ define(function(require) {
       );
       this.displayCaretAfterNextRedraw(selection[0]);
     } else if(this.caretPosition > 0) {
+      var previousCaret = this.caretPosition;
       this.hideCaret();
-      this.sequence.deleteBases(this.caretPosition - 1, 1);
-      this.displayCaretAfterNextRedraw(this.caretPosition - 1);
+      this.sequence.deleteBases(previousCaret - 1, 1);
+      this.displayCaretAfterNextRedraw(previousCaret - 1);
     }
   };
 
