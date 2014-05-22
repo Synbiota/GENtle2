@@ -1,6 +1,32 @@
-define(function(require) {
-  var Handlebars = require('Handlebars.base');
+/**
+Handlebars helpers.
 
+Hashes in arguments refer Handlebars' Hashes, e.g.:
+
+```hbs
+{{helperName context option1="1" option2="2"}}
+                 ^^^^^^^^^^^ ^^^^^^^^^^^
+```
+@class Handlebars helpers
+**/
+define(function(require) {
+  var Handlebars  = require('Handlebars.base'),
+      _           = require('underscore.mixed');
+
+  /**
+  Displays select tag with options (and optional optgroups)
+  @method select
+  @param {Array or Object} context Array or Object of select options. Select options
+    are objects with a `name` and `value` property. If passed an Object, keys
+    are used as `optgroup` labels and values should be arrays of select options.
+  @param {Hash} options Possible options:
+
+    * `id`
+    * `name`
+    * `class`
+    * `selected`
+
+  **/
   Handlebars.registerHelper('select', function(context, options) {
     var addOption, addOptions,
         output = '';
@@ -34,6 +60,10 @@ define(function(require) {
 
     return output;
   });
+
+Handlebars.registerHelper('formatThousands', function(context, offset) {
+  return _.formatThousands(context + (offset || 0));
+});
 
   return Handlebars;
 });

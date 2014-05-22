@@ -40,6 +40,7 @@ define(function(require) {
     var seq = {features: [], sequence: ''} ;
     seq.desc = '' ;
     var feature = {} ;
+    var lastFeatureId = -1;
     $.each ( lines , function ( k , v ) {
 
       if ( v.match(/^LOCUS/i) ) {
@@ -72,7 +73,7 @@ define(function(require) {
         var m = v.match ( /^\s{1,8}(\w+)\s+(.+)$/ ) ;
         if ( m ) { // Begin feature
           if ( feature['_last'] ) seq.features.push ( $.extend(true, {}, feature) ) ;
-          feature = { importData: {} } ;
+          feature = { _importData: {}, _id: ++lastFeatureId } ;
           feature['_type'] = m[1] ;
           feature['ranges'] = m[2] ;
           feature['_last'] = 'ranges' ;
@@ -83,7 +84,7 @@ define(function(require) {
         if ( m ) { // Begin new tag
           m[1] = m[1].replace ( /^"/ , '' ) ;
           feature['_last'] = m[1] 
-          feature.importData[m[1]] = m[2].replace(/^"/, '').replace(/"$/, '') ;
+          feature._importData[m[1]] = m[2].replace(/^"/, '').replace(/"$/, '') ;
           return ;
         }
         
@@ -91,8 +92,8 @@ define(function(require) {
         if ( m ) { // Extend tag
           //if ( null !== feature[feature['_last']].match(/^[A-Z]+$/) )
           m[1] = m[1].replace ( /"$/ , '' ) ;
-          if ( m[1].match(/^[A-Z]+$/) === null ) feature.importData[feature['_last']] += " " ;
-          feature.importData[feature['_last']] += m[1] ;
+          if ( m[1].match(/^[A-Z]+$/) === null ) feature._importData[feature['_last']] += " " ;
+          feature._importData[feature['_last']] += m[1] ;
         }
       
       } else if ( mode == 'REFERENCE' ) {
@@ -113,8 +114,8 @@ define(function(require) {
       delete v['_last'] ;
       var range = [] ; // Default : Unknown = empty TODO FIXME
       var r = v['ranges'] ;
-      v.name = v.importData.product || v.importData.gene || 'Unnamed';
-      v.desc = v.importData.note || '';
+      v.name = v._importData.product || v._importData.gene || 'Unnamed';
+      v.desc = v._importData.note || '';
       
       var m = r.match ( /^\d+$/ ) ;
       if ( m ) {

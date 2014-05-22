@@ -43,9 +43,6 @@ require.config({
     'bootstrap-confirmation': {
       deps: ['jquery', 'bootstrap']
     },
-    'underscore.mixed': {
-      exports: '_',
-    },
     'deepmodel': {
       deps: ['underscore.mixed']
     }

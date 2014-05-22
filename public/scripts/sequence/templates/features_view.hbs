@@ -101,7 +101,7 @@
             <div class="media-body">
               <div class="pull-right">
                 {{#each ranges}}
-                  <code>@{{from}}-{{to}}</code>
+                  <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
                 {{/each}}
                 <code>{{_type}}</code>
               </div>

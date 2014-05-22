@@ -90,6 +90,8 @@ define(function(require) {
         return _.extend(range, {
           _id: i,
           _canDelete: ranges.length > 1,
+          from: range.from == -1 ? '' : range.from + 1,
+          to: range.to == -1 ? '' : range.to + 1,
           _canAdd: i == ranges.length - 1
         });
       });
@@ -130,12 +132,12 @@ define(function(require) {
     readRanges: function() {
      return  _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function(row) {
         var $row = $(row),
-            from = $row.find('[name="from"]').val(),
-            to = $row.find('[name="to"]').val();
+            from = $row.find('[name="from"]').val()*1 - 1,
+            to = $row.find('[name="to"]').val() * 1 - 1;
 
         return {
-          from: from !== '' ? Number(from) : from,
-          to: to !== '' ? Number(to) : to
+          from: from,
+          to: to
         };
       });
     },
@@ -147,8 +149,8 @@ define(function(require) {
       this.errors = {};
 
       ranges = _.map(_.reject(this.editedFeature.ranges, function(range) {
-        return  range.from === '' || range.from === 0 ||
-                range.to   === '' || range.to   === 0;
+        return  range.from === '' || range.from < 0 ||
+                range.to   === '' || range.to   < 0;
       }), function(range) {
         delete range._canDelete;
         delete range._canAdd;

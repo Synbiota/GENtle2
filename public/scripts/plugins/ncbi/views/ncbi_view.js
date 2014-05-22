@@ -68,6 +68,7 @@ define(function(require) {
         })
         .then(Gentle.addSequencesAndNavigate, function() {
           alert('The sequence could not be parsed.');
+          console.log(arguments[0])
         });
         
     },
