@@ -18,8 +18,11 @@
     visibleTabIds: [],
 
     initialize: function() {
+      _.bindAll(this, 'render');
+      this.debouncedRender = _.debounce(this.render, 200);
       Gentle.sequences.on('add reset sort', this.render, this);
-      $(window).on('resize', _.debounce(_.bind(this.render, this), 200));
+      Gentle.sequences.on('change', this.debouncedRender, this);
+      $(window).on('resize', this.debouncedRender);
     },
 
     navigateToSequence: function(event) {

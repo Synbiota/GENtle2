@@ -4655,15 +4655,20 @@ button.close {
 
 #sequence-tabs {
   border: none;
-  margin-top: 10px; }
+  margin-top: 6px; }
   #sequence-tabs > li {
     min-width: 150px; }
     #sequence-tabs > li > a {
+      height: 45px;
+      padding-top: 9px;
       border-bottom: 1px solid #ddd;
       white-space: nowrap;
+      line-height: 1em;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap; }
+      #sequence-tabs > li > a > small.details {
+        font-size: 10px; }
     #sequence-tabs > li.hidden-tabs-dropdown {
       min-width: 0; }
     #sequence-tabs > li.dropdown ul {

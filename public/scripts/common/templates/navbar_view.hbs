@@ -10,7 +10,12 @@
         <li {{#if isCurrent}}class='active'{{/if}} style="max-width: {{../calculatedMaxTabWidth}}px">
           <a href='sequence/{{id}}' data-sequence-id='{{id}}' title="{{name}}" tabindex="-1">
             <small class="glyphicon glyphicon-remove close-sequence"></small>
-            {{name}}
+            {{name}} <br>
+            <small class="details">
+              <span class="text-muted">{{formattedLength}}bp</span>
+              &middot;
+              <span class="text-success">DNA</span>
+            </small>
           </a>
         </li>
       {{/each}}

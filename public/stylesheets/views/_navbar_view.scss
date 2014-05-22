@@ -26,14 +26,21 @@
 
 #sequence-tabs {
   border: none;
-  margin-top: 10px;
+  margin-top: 6px;
 
   & > li {
     min-width: 150px;
     &>a {
+      height: 45px;
+      padding-top: 9px;
       border-bottom: 1px solid #ddd;
       white-space: nowrap;
+      line-height: 1em;
       @include text-overflow();
+
+      & > small.details {
+        font-size: 10px;
+      }
     }
 
     &.hidden-tabs-dropdown {
