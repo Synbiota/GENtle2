@@ -116,9 +116,7 @@ define(function(require) {
           baseLine: 15, 
           textFont: "10px Monospace", 
           textColour:"#005",
-          transform: function(string) {
-            return string.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-          },
+          transform: _.formatThousands,
           visible: _.memoize2(function() { 
             return _this.sequence.get('displaySettings.rows.numbering'); 
           })

@@ -53,7 +53,7 @@ define(function(require) {
     ```
     @method _.memoize2
     @param {function} func function to memoize
-    @param {function, optional} resolver
+    @param {function} [resolver]
     **/
     memoize2: function(func, resolver) {
       if (!_.isFunction(func)) {
@@ -70,6 +70,21 @@ define(function(require) {
       memoized.cache = {};
       memoized.clearCache = function() { memoized.cache = {}; };
       return memoized;
+    },
+
+    /**
+    Format an integer, separating thousands
+
+    ```js
+    _.formatThousands(14342534) // => "14,342,534"
+    ``
+
+    @method _.formatThousands
+    @param {Integer} number
+    @returns {String} formatted number
+    **/
+    formatThousands: function(number) {
+      return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     }
 
 

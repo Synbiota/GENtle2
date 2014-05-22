@@ -63,7 +63,7 @@ define(function(require) {
 
       context.font = options.textFont;
       context.fillStyle = options.textColour;
-      text = (i+1).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+      text = _.formatThousands(i+1);
       context.fillText(text, x, y + 12);
     }
   };
