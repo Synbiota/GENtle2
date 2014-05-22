@@ -12,8 +12,8 @@
       'click #sequence-tabs li a': 'navigateToSequence',
       'click #sequence-tabs .close-sequence': 'closeSequence'
     },
-    leftMargin: 120,    // Hardcoding is ugly but to get CSS value
-    minTabWidth: 150,   // would need rendering first
+    leftMargin: 90,    // Hardcoding is ugly but to get CSS value
+    minTabWidth: 30,   // would need rendering first
     tabPadding: 10,     //
     visibleTabIds: [],
 
@@ -102,6 +102,18 @@
         hiddenTabs: hiddenTabs,
         atHome: Backbone.history.fragment == 'home',
       };
+    },
+
+    afterRender: function() {
+      var $tabsElements = this.$('#sequence-tabs li a');
+      $tabsElements.each(function(i, element) {
+        var $element = $(element);
+        if($element.find('span.name').width() > $element.width()) {
+          $element.tooltip({
+            placement: 'bottom'
+          });
+        }
+      });
     }
   });
 

@@ -465,8 +465,6 @@ define(function(require) {
         _this         = this,
         posX, posY;
 
-    console.log(base)
-
     if(base === undefined && this.caretPosition) {
       base = this.caretPosition;
     }

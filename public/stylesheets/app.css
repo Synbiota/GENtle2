@@ -4657,10 +4657,11 @@ button.close {
   border: none;
   margin-top: 6px; }
   #sequence-tabs > li {
-    min-width: 150px; }
+    min-width: 30px; }
     #sequence-tabs > li > a {
       height: 45px;
       padding-top: 9px;
+      padding-right: 25px;
       border-bottom: 1px solid #ddd;
       white-space: nowrap;
       line-height: 1em;
@@ -4680,9 +4681,9 @@ button.close {
   #sequence-tabs .close-sequence {
     float: right;
     cursor: pointer;
-    margin-right: -6px;
+    margin-right: -16px;
     margin-left: 5px;
-    margin-top: 2px; }
+    margin-top: 1px; }
 
 .context-menu {
   position: absolute;

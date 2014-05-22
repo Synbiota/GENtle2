@@ -51,6 +51,8 @@ define(function(require) {
         options = this.options,
         x, y, text;
 
+    context.clearRect(0,0,context.canvas.width, context.canvas.height);
+
     x = 10;
 
     for(var i = 0; i < this.maxBase; i += this.interval) {
