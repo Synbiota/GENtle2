@@ -29,23 +29,23 @@ define(function(require) {
         _this = this,
         k;
 
-    group = svg.group().y(innerYOffset).x(ls.pageMargins.left);
+    // group = svg.group().y(innerYOffset).x(ls.pageMargins.left);
 
-    group.text(function(text) {
-      var position, tspan;
-      for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
-        position = typeof _this.transform == 'function' ? _this.transform(k+1) : k+1;
-        tspan = text.tspan(position).x(x);
-        if(k == baseRange[0]) tspan.newLine();
-        x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
-      }
-      // _.each(subSequence.match(/.{1,10}/g), function(chunk, i) {
-      //   var tspan = text.tspan(chunk).dx((i > 0) * ls.gutterWidth);
-      //   if(i === 0) tspan.newLine();
-      // });
-    }).attr({
-      class: this.className
-    }).leading(this.leading);
+    // group.text(function(text) {
+    //   var position, tspan;
+    //   for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
+    //     position = typeof _this.transform == 'function' ? _this.transform(k+1) : k+1;
+    //     tspan = text.tspan(position).x(x);
+    //     if(k == baseRange[0]) tspan.newLine();
+    //     x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
+    //   }
+    //   // _.each(subSequence.match(/.{1,10}/g), function(chunk, i) {
+    //   //   var tspan = text.tspan(chunk).dx((i > 0) * ls.gutterWidth);
+    //   //   if(i === 0) tspan.newLine();
+    //   // });
+    // }).attr({
+    //   class: this.className
+    // }).leading(this.leading);
 
     // context.fillStyle = this.textColour;
     // context.font = this.textFont;

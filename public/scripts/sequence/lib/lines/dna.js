@@ -39,6 +39,9 @@ define(function(require) {
         selection       = sequenceCanvas.selection,
         basesPerBlock   = ls.basesPerBlock,
         chunkRegexp     = new RegExp('.{1,'+basesPerBlock+'}', 'g'),
+        x               = ls.pageMargins.left,
+        y               = innerYOffset + this.height * this.leading,
+        chunkOffset     = (ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth),
         _this           = this,
         subSequence, character, group;
 
@@ -47,34 +50,58 @@ define(function(require) {
       sequence.getSubSeq
     ).apply(sequence, baseRange);
 
-    group = svg.group().y(innerYOffset).x(ls.pageMargins.left);
+    _.each(subSequence.match(chunkRegexp), function(chunk, i) {
 
-    group.text(function(text) {
-
-      _.each(subSequence.match(chunkRegexp), function(chunk, i) {
-        var tspan;
-
-        if(_.isFunction(_this.transform)) {
-          tspan = text.tspan(function(_tspan) {
-            for(var j = 0; j < ls.basesPerBlock; j++) {
-              var codon = _this.transform.call(sequence, i * basesPerBlock + j + baseRange[0]),
-                  character = codon.sequence[codon.position].replace(' ', "\u00A0");
-              _tspan.tspan(character).attr({
-                class: _this.transformedClassName(codon)
-              });
-            }
-          }).dx((i > 0) * ls.gutterWidth);
-        } else {
-          tspan = text.tspan(chunk).dx((i > 0) * ls.gutterWidth);
+      if(_.isFunction(_this.transform)) {
+        var transformedChunk = '';
+        for(var j = 0; j < ls.basesPerBlock; j++) {
+          var codon = _this.transform.call(sequence, i * basesPerBlock + j + baseRange[0]),
+              character = codon.sequence[codon.position].replace(' ', "\u00A0");
+          transformedChunk += characted;
         }
-        
-        if(i === 0) tspan.newLine();
+        svg.text(x + i * chunkOffset, y, transformedChunk).attr({
+          class: _this.className
+        });
+      } else {
+        svg.text(x + i * chunkOffset, y, chunk).attr({
+          class: _this.className
+        });
+      }
+
+      svg.text(x + i * chunkOffset, y, chunk).attr({
+        class: _this.className
       });
 
+    });
 
-    }).attr({
-      class: this.className
-    }).leading(this.leading);
+    // group = svg.group().y(innerYOffset).x(ls.pageMargins.left);
+
+    // group.text(function(text) {
+
+    //   _.each(subSequence.match(chunkRegexp), function(chunk, i) {
+    //     var tspan;
+
+    //     if(_.isFunction(_this.transform)) {
+    //       tspan = text.tspan(function(_tspan) {
+    //         for(var j = 0; j < ls.basesPerBlock; j++) {
+    //           var codon = _this.transform.call(sequence, i * basesPerBlock + j + baseRange[0]),
+    //               character = codon.sequence[codon.position].replace(' ', "\u00A0");
+    //           _tspan.tspan(character).attr({
+    //             class: _this.transformedClassName(codon)
+    //           });
+    //         }
+    //       }).dx((i > 0) * ls.gutterWidth);
+    //     } else {
+    //       tspan = text.tspan(chunk).dx((i > 0) * ls.gutterWidth);
+    //     }
+        
+    //     if(i === 0) tspan.newLine();
+    //   });
+
+
+    // }).attr({
+    //   class: this.className
+    // }).leading(this.leading);
             
   };
 

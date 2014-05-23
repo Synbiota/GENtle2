@@ -20,7 +20,7 @@ define(function(require) {
       _Handlers         = require('sequence/lib/_sequence_canvas_handlers'),
       _Utilities        = require('sequence/lib/_sequence_canvas_utilities'),
       _ContextMenu      = require('sequence/lib/_sequence_canvas_context_menu'),
-      SVG               = require('svg'),
+      Snap              = require('snap'),
       Q                 = require('q'),
       SequenceCanvas;
 
@@ -114,31 +114,31 @@ define(function(require) {
         }),
 
         // Position numbering
-        position: new Lines.Position(this, {
-          height: 15, 
-          leading: 0.9, 
-          className: 'position',
-          transform: _.formatThousands,
-          visible: _.memoize2(function() { 
-            return _this.sequence.get('displaySettings.rows.numbering'); 
-          })
-        }),
+        // position: new Lines.Position(this, {
+        //   height: 15, 
+        //   leading: 0.9, 
+        //   className: 'position',
+        //   transform: _.formatThousands,
+        //   visible: _.memoize2(function() { 
+        //     return _this.sequence.get('displaySettings.rows.numbering'); 
+        //   })
+        // }),
 
         // Aminoacids
-        aa: new Lines.DNA(this, {
-          height: 15, 
-          leading: 0.9, 
-          className: 'aa',
-          transform: function(base) {
-            return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
-          },
-          transformedClassName: function(codon) { 
-            return {'STP': 'stop', 'S  ': 'stop'}[codon.sequence] || ''; 
-          },
-          visible: _.memoize2(function() {
-            return _this.sequence.get('displaySettings.rows.aa') != 'none';
-          })
-        }),
+        // aa: new Lines.DNA(this, {
+        //   height: 15, 
+        //   leading: 0.9, 
+        //   className: 'aa',
+        //   transform: function(base) {
+        //     return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
+        //   },
+        //   transformedClassName: function(codon) { 
+        //     return {'STP': 'stop', 'S  ': 'stop'}[codon.sequence] || ''; 
+        //   },
+        //   visible: _.memoize2(function() {
+        //     return _this.sequence.get('displaySettings.rows.aa') != 'none';
+        //   })
+        // }),
 
         // DNA Bases
         dna: new Lines.DNA(this, {
@@ -468,9 +468,9 @@ define(function(require) {
             position: 'absolute',
             top: posY + this.layoutSettings.pageMargins.top
           }),
-        svg = SVG($row[0]).size('100%', height);
+        svg = Snap('100%', height);
 
-    $container.prepend($row);
+    $container.prepend($row.prepend(svg.node));
 
     return svg;
   };
