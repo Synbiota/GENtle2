@@ -383,7 +383,7 @@ define(function(require) {
   //   this.rowsToBeRemoved = _.without(this.rowsToBeRemoved, rows);
   // };
 
-  SequenceCanvas.prototype.deferredRemoveInvisibleRows = _.afterLastCall(function(){
+  SequenceCanvas.prototype.deferredRemoveInvisibleRows = _.debounce(function(){
     var _this = this,
         rowsHeight = this.layoutHelpers.rows.height,
         visibleRows = this.getRowRangeFromYRange(
@@ -401,7 +401,7 @@ define(function(require) {
       });
     });
     
-  }, 300);
+  }, 100);
 
   SequenceCanvas.prototype.drawRow = function(y) {
     var baseRange = this.getBaseRangeFromYPos(y),
