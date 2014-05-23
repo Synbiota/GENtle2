@@ -23,6 +23,18 @@ define(function(require) {
       Q                 = require('q'),
       SequenceCanvas;
 
+  var PIXEL_RATIO = (function () {
+    var ctx = document.createElement("canvas").getContext("2d"),
+        dpr = window.devicePixelRatio || 1,
+        bsr = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+    return dpr / bsr;
+})();
+
   SequenceCanvas = function(options) {
     var _this = this;
     options = options || {};
@@ -231,13 +243,15 @@ define(function(require) {
       var width   = _this.$canvas[0].scrollWidth,
           height  = _this.$canvas[0].scrollHeight;
 
-      _this.layoutSettings.canvasDims.width = width;
-      _this.layoutSettings.canvasDims.height = height;
+      _this.layoutSettings.canvasDims.width = width * PIXEL_RATIO;
+      _this.layoutSettings.canvasDims.height = height * PIXEL_RATIO;
 
       if(_this.$canvas[0].width != width || _this.$canvas[0].height != height) {
         _this.$canvas[0].width = width;
         _this.$canvas[0].height = height;
       }
+      console.log('PIXEL_RATIO', PIXEL_RATIO)
+      _this.$canvas[0].getContext("2d").setTransform(PIXEL_RATIO, 0, 0, PIXEL_RATIO, 0, 0);
 
       resolve();
     });
