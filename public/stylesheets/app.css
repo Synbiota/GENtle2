@@ -4538,6 +4538,12 @@ button.close {
   cursor: text; }
   .sequence-canvas-wrapper .scrolling-parent:focus {
     outline: none; }
+  .sequence-canvas-wrapper .scrolling-parent .scrolling-child {
+    overflow: hidden;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; }
 
 .sidebar > div {
   position: absolute;
@@ -4809,6 +4815,24 @@ button.close {
     -ms-transform: rotate(360deg);
     -o-transform: rotate(360deg);
     transform: rotate(360deg); } }
+
+svg text.dna, svg text.aa {
+  font-family: Monospace;
+  font-size: 15px;
+  letter-spacing: 1px;
+  fill: black;
+  stroke: none; }
+svg text.dna.complement {
+  fill: #bbb; }
+svg text.aa {
+  fill: #79B6F9; }
+  svg text.aa tspan.stop {
+    fill: red; }
+
+svg text.position {
+  font-family: Monospace;
+  font-size: 10px;
+  fill: #428bca; }
 
 body {
   margin: 0; }

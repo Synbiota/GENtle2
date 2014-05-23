@@ -22,21 +22,40 @@ define(function(require) {
   };
   _.extend(Position.prototype, Line.prototype);
 
-  Position.prototype.draw = function(y, baseRange) {
+  Position.prototype.draw = function(svg, innerYOffset, baseRange) {
     var ls          = this.sequenceCanvas.layoutSettings,
         sequence    = this.sequenceCanvas.sequence,
-        context     = this.sequenceCanvas.artist.context,
-        k, x;
+        x = 0,
+        _this = this,
+        k;
 
-    context.fillStyle = this.textColour;
-    context.font = this.textFont;
+    group = svg.group().y(innerYOffset).x(ls.pageMargins.left);
+
+    group.text(function(text) {
+      var position, tspan;
+      for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
+        position = typeof _this.transform == 'function' ? _this.transform(k+1) : k+1;
+        tspan = text.tspan(position).x(x);
+        if(k == baseRange[0]) tspan.newLine();
+        x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
+      }
+      // _.each(subSequence.match(/.{1,10}/g), function(chunk, i) {
+      //   var tspan = text.tspan(chunk).dx((i > 0) * ls.gutterWidth);
+      //   if(i === 0) tspan.newLine();
+      // });
+    }).attr({
+      class: this.className
+    }).leading(this.leading);
+
+    // context.fillStyle = this.textColour;
+    // context.font = this.textFont;
     
-    x = ls.pageMargins.left;
-    for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
-      text = typeof this.transform == 'function' ? this.transform(k+1) : k+1;
-      context.fillText(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
-      x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
-    }
+    // x = ls.pageMargins.left;
+    // for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
+    //   text = typeof this.transform == 'function' ? this.transform(k+1) : k+1;
+    //   context.fillText(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+    //   x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
+    // }
   };
 
   return Position;

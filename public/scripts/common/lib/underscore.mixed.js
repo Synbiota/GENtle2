@@ -85,6 +85,32 @@ define(function(require) {
     **/
     formatThousands: function(number) {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+
+    /**
+    Calls the function `func` `wait` milliseconds after its own last call.
+
+    @method _.afterLastCall
+    @param {Function} func
+    @returns {Integer} wait millisons
+    **/
+    afterLastCall: function(func, wait) {
+      var timeoutId, args, thisArg, delayed;
+
+      delayed = function() {
+        func.apply(thisArg, args);
+      };
+
+      return function() {
+        args = arguments;
+        thisArg = this;
+
+        if(timeoutId) {
+          timeoutId = clearTimeout(timeoutId);
+        }
+
+        timeoutId = setTimeout(delayed, wait);
+      };
     }
 
 

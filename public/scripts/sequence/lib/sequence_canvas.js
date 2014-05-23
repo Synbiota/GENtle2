@@ -20,6 +20,7 @@ define(function(require) {
       _Handlers         = require('sequence/lib/_sequence_canvas_handlers'),
       _Utilities        = require('sequence/lib/_sequence_canvas_utilities'),
       _ContextMenu      = require('sequence/lib/_sequence_canvas_context_menu'),
+      SVG               = require('svg'),
       Q                 = require('q'),
       SequenceCanvas;
 
@@ -85,6 +86,8 @@ define(function(require) {
     **/
     this.sequence = options.sequence || this.view.model;
 
+    this.$rowsContainer = this.view.$('.sequence-canvas-container').first();
+
     /**
         @property layoutSettings
         @type Object
@@ -113,9 +116,8 @@ define(function(require) {
         // Position numbering
         position: new Lines.Position(this, {
           height: 15, 
-          baseLine: 15, 
-          textFont: "10px Monospace", 
-          textColour:"#005",
+          leading: 0.9, 
+          className: 'position',
           transform: _.formatThousands,
           visible: _.memoize2(function() { 
             return _this.sequence.get('displaySettings.rows.numbering'); 
@@ -125,53 +127,53 @@ define(function(require) {
         // Aminoacids
         aa: new Lines.DNA(this, {
           height: 15, 
-          baseLine: 15, 
-          textFont: "13px Monospace", 
+          leading: 0.9, 
+          className: 'aa',
           transform: function(base) {
             return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
           },
+          transformedClassName: function(codon) { 
+            return {'STP': 'stop', 'S  ': 'stop'}[codon.sequence] || ''; 
+          },
           visible: _.memoize2(function() {
             return _this.sequence.get('displaySettings.rows.aa') != 'none';
-          }),
-          textColour: function(codon) { return {'STP': 'red', 'S  ': 'red'}[codon.sequence] || '#79B6F9'; }
+          })
         }),
 
         // DNA Bases
         dna: new Lines.DNA(this, {
           height: 15, 
-          baseLine: 15, 
-          textFont: "15px Monospace", 
-          textColour:"#000",
-          selectionColour: "#1a1a63",
-          selectionTextColour: "#fff"
+          leading: 0.9, 
+          className: 'dna',
+          // selectionColour: "#1a1a63",
+          // selectionTextColour: "#fff"
         }),
 
         // Complements
         complements: new Lines.DNA(this, {
           height: 15, 
-          baseLine: 15, 
-          textFont: "15px Monospace", 
-          textColour:"#bbb",
+          leading: 0.9, 
+          className: 'dna complement',
           getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
           visible: _.memoize2(function() { 
             return _this.sequence.get('displaySettings.rows.complements'); 
           })
         }),
 
-        // Annotations
-        features: new Lines.Feature(this, {
-          unitHeight: 15,
-          baseLine: 10,
-          textFont: "11px Monospace", 
-          textColour: "white",
-          textPadding: 2,
-          margin: 2,
-          lineSize: 2,
-          colour: function(type) { return {'CDS': 'blue'}[type] || 'red';},
-          visible: _.memoize2(function() { 
-            return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features'); 
-          })
-        }),
+        // // Annotations
+        // features: new Lines.Feature(this, {
+        //   unitHeight: 15,
+        //   baseLine: 10,
+        //   textFont: "11px Monospace", 
+        //   textColour: "white",
+        //   textPadding: 2,
+        //   margin: 2,
+        //   lineSize: 2,
+        //   colour: function(type) { return {'CDS': 'blue'}[type] || 'red';},
+        //   visible: _.memoize2(function() { 
+        //     return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features'); 
+        //   })
+        // }),
 
         // Blank line
         bottomSeparator: new Lines.Blank(this, {
@@ -189,6 +191,7 @@ define(function(require) {
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
+    this.rowsToBeRemoved = [];
 
     this.contextMenu = this.view.getView('#sequence-canvas-context-menu-outlet');
 
@@ -201,7 +204,7 @@ define(function(require) {
     // Events
     this.view.on('resize', this.refresh);
     this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
-    this.$scrollingParent.on('scroll',    this.handleScrolling);
+    this.$scrollingParent.on('scroll',    _.throttle(this.handleScrolling, 50));
     this.$scrollingParent.on('mousedown', this.handleMousedown);
     this.$scrollingParent.on('keypress',  this.handleKeypress);
     this.$scrollingParent.on('keydown',   this.handleKeydown);
@@ -317,26 +320,15 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.display = function() {
     if(this.visible) {
-      var context         = this.artist.context,
-          ls              = this.layoutSettings,
+      var ls              = this.layoutSettings,
           lh              = this.layoutHelpers,
-          _this           = this,
-          i, k, pos, baseRange, y;
+          _this           = this;
 
       return Q.promise(function(resolve, reject){
 
-        //clear canvas
-        context.clearRect(0,0,context.canvas.width, context.canvas.height);
+        _this.$scrollingChild.html('');
 
-        _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
-          baseRange = _this.getBaseRangeFromYPos(y);
-          _.each(ls.lines, function(line, key) {
-            if(line.visible === undefined || line.visible()) {
-              line.draw(y, baseRange);
-              y += line.height;
-            }
-          });
-        });
+        _this.forEachRowInRange(0, ls.canvasDims.height, _this.drawRow);
 
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
@@ -346,6 +338,90 @@ define(function(require) {
     } else{
       return Q.promise(function(resolve, reject) {
         reject();
+      });
+    }
+  };
+
+  SequenceCanvas.prototype.diffDraw = function(deltaYOffset) {
+    var layoutSettings = this.layoutSettings,
+        canvasHeight = layoutSettings.canvasDims.height,
+        rowsHeight = this.layoutHelpers.rows.height,
+        rowsToBeRemoved, drawStart, drawEnd,
+        _this = this;
+
+    return Q.promise(function(resolve, reject){
+
+      if(deltaYOffset > 0) {
+        drawStart = canvasHeight - deltaYOffset;
+        drawEnd = canvasHeight + rowsHeight * 2;
+        // rowsToBeRemoved = _this.getRowRangeFromYRange(- deltaYOffset + rowsHeight, - rowsHeight);
+      } else {
+        drawStart = - rowsHeight * 2;
+        drawEnd = - deltaYOffset;
+        // rowsToBeRemoved = _this.getRowRangeFromYRange(canvasHeight + rowsHeight * 2, canvasHeight - deltaYOffset);
+      }
+
+      _this.deferredRemoveInvisibleRows();
+
+      _this.forEachRowInRange(drawStart, drawEnd, _this.drawRow);
+
+      _this.displayDeferred.resolve();
+      _this.displayDeferred = Q.defer();
+      resolve();
+
+    });
+
+  };
+
+  // SequenceCanvas.prototype.enqueueRemoveRows = function(additionalRows) {
+  //   this.rowsToBeRemoved = _.union(this.rowsToBeRemoved, additionalRows);
+  //   this.deferredRemoveRows();
+  // };
+
+  // SequenceCanvas.prototype.dequeueRemoveRows = function(rows) {
+  //   if(!_.isArray(rows)) rows = [rows];
+  //   this.rowsToBeRemoved = _.without(this.rowsToBeRemoved, rows);
+  // };
+
+  SequenceCanvas.prototype.deferredRemoveInvisibleRows = _.afterLastCall(function(){
+    var _this = this,
+        rowsHeight = this.layoutHelpers.rows.height,
+        visibleRows = this.getRowRangeFromYRange(
+          - rowsHeight * 2, 
+          this.layoutSettings.canvasDims.height + rowsHeight * 2
+        );
+
+    _.defer(function() {
+      _.each(_this.$scrollingChild.find('.sequence-row'), function(row) {
+        var $row = $(row),
+            id = $row.data('rowId');
+        if(id < visibleRows[0] || id > _.last(visibleRows)) {
+          $row.remove();
+        }
+      });
+    });
+    
+  }, 300);
+
+  SequenceCanvas.prototype.drawRow = function(y) {
+    var baseRange = this.getBaseRangeFromYPos(y),
+        layoutSettings = this.layoutSettings,
+        layoutHelpers = this.layoutHelpers,
+        rowIndex  = baseRange[0] / layoutHelpers.basesPerRow,
+        rowsHeight = layoutHelpers.rows.height,
+        innerYOffset = 0,
+        _this = this,
+        svg;
+
+    // this.dequeueRemoveRows(rowIndex);
+
+    if(this.$scrollingChild.find('.sequence-row-'+rowIndex).length === 0) {
+      svg = _this.insertRowContainer(y + layoutHelpers.yOffset, rowsHeight, rowIndex);
+      _.each(layoutSettings.lines, function(line) {
+        if(line.visible === undefined || line.visible()) {
+          line.draw(svg, innerYOffset, baseRange);
+          innerYOffset += line.height;
+        }
       });
     }
   };
@@ -376,7 +452,27 @@ define(function(require) {
     }
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
-      .then(this.redraw);
+      .then(this.redraw)
+      .catch(function(err) {
+        console.error(err)
+      });
+  };
+
+  SequenceCanvas.prototype.insertRowContainer = function(posY, height, rowIndex) {
+    var $container = this.$scrollingChild,
+        $row = $('<div/>')
+          .addClass('sequence-row sequence-row-'+rowIndex)
+          .data('rowId', rowIndex)
+          .css({
+            width: '100%',
+            position: 'absolute',
+            top: posY + this.layoutSettings.pageMargins.top
+          }),
+        svg = SVG($row[0]).size('100%', height);
+
+    $container.prepend($row);
+
+    return svg;
   };
 
   /**
@@ -388,9 +484,11 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.scrollTo = function(yOffset, triggerEvent) {
-    var deferred = Q.defer();
+    var deferred = Q.defer(),
+        deltaYOffset;
 
     if(yOffset !== undefined) {
+      deltaYOffset = yOffset - this.layoutHelpers.yOffset;
       this.sequence.set('displaySettings.yOffset', 
         this.layoutHelpers.yOffset = yOffset,
         { silent: true }
@@ -402,7 +500,11 @@ define(function(require) {
 
     this.afterNextRedraw(deferred.resolve);
 
-    this.redraw();
+    if(deltaYOffset === undefined) {
+      this.redraw();
+    } else {
+      this.diffDraw(deltaYOffset);
+    }
 
     this.restoreContextMenuYPosition();
 

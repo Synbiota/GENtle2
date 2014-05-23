@@ -15,10 +15,11 @@ require.config({
     'localstorage':           '../vendor/scripts/backbone.localStorage-1.1.7',
     'bootstrap':              '../vendor/bootstrap/js/bootstrap',
     'bootstrap-confirmation': '../vendor/scripts/bootstrap-confirmation-fork',
+    'svg':                    '../vendor/scripts/svg-1.0.0.rc.6',
     'gentle':                 'common/models/gentle',
     'backbone.mixed':         'common/lib/backbone.mixed',
     'underscore.mixed':       'common/lib/underscore.mixed',
-    'Handlebars':             'common/lib/handlebars.mixed'
+    'Handlebars':             'common/lib/handlebars.mixed',
   },
   hbars: {
     extension: '.hbs'

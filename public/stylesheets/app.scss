@@ -17,6 +17,10 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 // Animations
 @import 'animations/_full_rotation';
 
+// SVG styling
+@import 'svg/sequence/_dna';
+@import 'svg/sequence/_position';
+
 body {
   margin: 0;
 }

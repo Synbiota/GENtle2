@@ -1,0 +1,20 @@
+svg {
+  text.dna, text.aa {
+    font-family: Monospace;
+    font-size: 15px;
+    letter-spacing: 1px;
+    fill: black;
+    stroke: none;
+  }
+
+  text.dna.complement {
+    fill: #bbb;
+  }
+
+  text.aa {
+    fill: #79B6F9;
+    tspan.stop {
+      fill: red;
+    }
+  }
+}

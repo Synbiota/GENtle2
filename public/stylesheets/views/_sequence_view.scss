@@ -29,6 +29,10 @@
     &:focus {
       outline: none;
     }
+    .scrolling-child {
+      overflow: hidden;
+      @include user-select(none);
+    }
   }
 }
 

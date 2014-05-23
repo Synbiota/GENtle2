@@ -31,54 +31,50 @@ define(function(require) {
     }
   };
 
-  DNA.prototype.draw = function(y, baseRange) {
+  DNA.prototype.draw = function(svg, innerYOffset, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
         sequence        = sequenceCanvas.sequence,
-        context         = sequenceCanvas.artist.context,
         selection       = sequenceCanvas.selection,
-        k, x, subSequence, character;
+        basesPerBlock   = ls.basesPerBlock,
+        chunkRegexp     = new RegExp('.{1,'+basesPerBlock+'}', 'g'),
+        _this           = this,
+        subSequence, character, group;
 
-    context.font = this.textFont;
-    x = ls.pageMargins.left;
-    
     subSequence = (_.isFunction(this.getSubSeq) ? 
       this.getSubSeq : 
       sequence.getSubSeq
-    ).apply(sequence, baseRange); 
+    ).apply(sequence, baseRange);
 
-    if(subSequence) {
-      for(k = 0; k < lh.basesPerRow; k++){
-        if(!subSequence[k]) break;
+    group = svg.group().y(innerYOffset).x(ls.pageMargins.left);
 
-        character = _.isFunction(this.transform) ?
-          this.transform.call(sequence, k+baseRange[0]) :
-          subSequence[k];
+    group.text(function(text) {
 
-        if( this.selectionColour && 
-            selection && 
-            k+baseRange[0] <= selection[1] && 
-            k+baseRange[0] >= selection[0]) {
+      _.each(subSequence.match(chunkRegexp), function(chunk, i) {
+        var tspan;
 
-          context.fillStyle = this.selectionColour;
-          context.fillRect(x, y+3, ls.basePairDims.width, this.height);
-
-          if(this.selectionTextColour) {
-            context.fillStyle = this.selectionTextColour;
-          } else {
-            this.setTextColour(character);
-          }
+        if(_.isFunction(_this.transform)) {
+          tspan = text.tspan(function(_tspan) {
+            for(var j = 0; j < ls.basesPerBlock; j++) {
+              var codon = _this.transform.call(sequence, i * basesPerBlock + j + baseRange[0]),
+                  character = codon.sequence[codon.position].replace(' ', "\u00A0");
+              _tspan.tspan(character).attr({
+                class: _this.transformedClassName(codon)
+              });
+            }
+          }).dx((i > 0) * ls.gutterWidth);
         } else {
-          this.setTextColour(character);
+          tspan = text.tspan(chunk).dx((i > 0) * ls.gutterWidth);
         }
+        
+        if(i === 0) tspan.newLine();
+      });
 
-        context.fillText(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
 
-        x += ls.basePairDims.width;
-        if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
-      }
-    }
+    }).attr({
+      class: this.className
+    }).leading(this.leading);
             
   };
 

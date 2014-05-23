@@ -21,7 +21,7 @@ define(function(require) {
         y;
 
     for(y = firstRowStartY; 
-        y < Math.min(endY, this.layoutSettings.canvasDims.height - this.layoutSettings.pageMargins.bottom); 
+        y < Math.min(endY, this.layoutHelpers.pageDims.height); 
         y += this.layoutHelpers.rows.height)
       callback.call(this, y);
   };
@@ -40,15 +40,40 @@ define(function(require) {
       this.layoutHelpers.rows.height;
   };
 
+  Utilities.prototype.getRowIndexFromYPos = function(posY) {
+    return Math.round(
+      (this.getRowStartY(posY) + this.layoutHelpers.yOffset) / 
+      this.layoutHelpers.rows.height
+    );
+  };
+
   /**
   @method getBaseRangeFromYPos
   @param posY {integer} Y position in the canvas
   @return {Array} First and last bases in the row at the y-pos
   **/
   Utilities.prototype.getBaseRangeFromYPos = function(posY) {
-    var rowNumber = Math.round((this.getRowStartY(posY) + this.layoutHelpers.yOffset) / this.layoutHelpers.rows.height),
-        firstBase = rowNumber * this.layoutHelpers.basesPerRow;
+    var rowIndex = this.getRowIndexFromYPos(posY),
+        basesPerRow = this.layoutHelpers.basesPerRow,
+        firstBase = Math.min(
+          rowIndex * basesPerRow,
+          Math.floor(this.sequence.length() / basesPerRow) * basesPerRow 
+        );
+
     return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
+  };
+
+  /**
+  @method getBaseRangeFromYRange
+  @param YRangeStart {integer} start Y position in the canvas
+  @param YRangeEnd {integer} start Y position in the canvas
+  @return {Array} First and last bases in the rows at covered by the range
+  **/
+  Utilities.prototype.getRowRangeFromYRange = function(YRangeStart, YRangeEnd) {
+    var firstRow = this.getRowIndexFromYPos(YRangeStart),
+        lastRow = this.getRowIndexFromYPos(YRangeEnd);
+
+    return _.range(firstRow, lastRow+1);
   };
 
   /**
