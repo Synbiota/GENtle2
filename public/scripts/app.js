@@ -15,6 +15,7 @@ require([
     'bootstrap',
     'jquery.ui',
     'common/lib/polyfills',
+    'jquery.ui.touch-punch'
   ], function(require, config, Layout, domReady, Router, Sequences, _, Backbone, Gentle) {
 
   var plugins = [];

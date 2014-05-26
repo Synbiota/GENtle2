@@ -3,6 +3,7 @@ require.config({
   paths: {
     'jquery':                 '../vendor/scripts/jquery-1.10.2',
     'jquery.ui':              '../vendor/scripts/jquery-ui-1.10.4.custom',
+    'jquery.ui.touch-punch':  '../vendor/scripts/jquery.ui.touch-punch-0.2.3',
     'underscore':             '../vendor/scripts/underscore-1.6.0',
     'Handlebars.base':        '../vendor/scripts/handlebars',
     'hbars':                  '../vendor/scripts/hbars',
@@ -18,7 +19,7 @@ require.config({
     'gentle':                 'common/models/gentle',
     'backbone.mixed':         'common/lib/backbone.mixed',
     'underscore.mixed':       'common/lib/underscore.mixed',
-    'Handlebars':             'common/lib/handlebars.mixed'
+    'Handlebars':             'common/lib/handlebars.mixed',
   },
   hbars: {
     extension: '.hbs'
