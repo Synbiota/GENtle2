@@ -123,8 +123,8 @@
 
       // First render requires container width in order to properly space tabs.
       if (this.initialRender){
-        this.initialRender = false
-        this.render()
+        this.initialRender = false;
+        this.render();
       }
       else {
 
@@ -133,12 +133,13 @@
           var $element = $(element);
           if($element.find('span.name').width() > $element.width()) {
             $element.tooltip({
-              placement: 'bottom'
+              placement: 'bottom',
+              container: 'body'
             });
           }
         });
 
-        this.initialRender = true
+        this.initialRender = true;
 
       }
     }
