@@ -46,6 +46,9 @@ require.config({
     },
     'deepmodel': {
       deps: ['underscore.mixed']
+    },
+    'jquery.ui.touch-punch': {
+      deps: ['jquery']
     }
   }
 });
