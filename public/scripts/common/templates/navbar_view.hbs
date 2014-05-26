@@ -5,10 +5,26 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
+    {{#if hiddenTabs}}
+      <div class="dropdown hidden-tabs-dropdown pull-right">
+        <a href="#" data-toggle="dropdown">
+          <i class="glyphicon glyphicon-chevron-down"></i>
+        </a>
+        <ul class="dropdown-menu" role="menu" style="max-width: {{maxDropdownWidth}}px">
+          {{#each hiddenTabs}}
+            <li>
+              <a tabindex="-1" class='sequence-tab' href='sequence/{{id}}' data-sequence-id='{{id}}'>
+                {{name}}
+              </a>
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+    {{/if}}
     <ul class="nav nav-tabs" id="sequence-tabs">
       {{#each visibleTabs}}
         <li {{#if isCurrent}}class='active'{{/if}} style="max-width: {{../calculatedMaxTabWidth}}px">
-          <a href='sequence/{{id}}' data-sequence-id='{{id}}' title="{{name}}" tabindex="-1">
+          <a href='sequence/{{id}}' class='sequence-tab' data-sequence-id='{{id}}' title="{{name}}" tabindex="-1">
             <small class="glyphicon glyphicon-remove close-sequence"></small>
             <span class="name">{{name}}</span> <br>
             <small class="details">
@@ -19,22 +35,6 @@
           </a>
         </li>
       {{/each}}
-      {{#if hiddenTabs}}
-        <li class="dropdown hidden-tabs-dropdown pull-right">
-          <a href="#" data-toggle="dropdown">
-            <i class="glyphicon glyphicon-chevron-down"></i>
-          </a>
-          <ul class="dropdown-menu" role="menu" style="max-width: {{maxDropdownWidth}}px">
-            {{#each hiddenTabs}}
-              <li>
-                <a tabindex="-1" href='sequence/{{id}}' data-sequence-id='{{id}}'>
-                  {{name}}
-                </a>
-              </li>
-            {{/each}}
-          </ul>
-        </li>
-      {{/if}}
     </ul>
   </div>
 </div>

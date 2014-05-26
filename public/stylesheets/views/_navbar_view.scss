@@ -2,6 +2,29 @@
   margin-bottom: 0;
   background: #e5e5e5;
   border-bottom: 1px solid #ddd;
+
+  .container-fluid {
+
+    padding-left: 0;
+    padding-right: 0;
+
+      .dropdown {
+        width: 50px;
+        & > a {
+          display: block;
+          height: 50px;
+          padding: 15px;
+        }
+
+        & > ul {
+          max-width: 300px;
+          li a {
+            @include text-overflow();
+          }
+        }
+      }
+  }
+
 }
 
 #menu-button {
@@ -10,7 +33,7 @@
   border: none;
   border-right: 1px solid #ddd;
   border-radius: 0;
-  margin: 0 10px 0 -15px;
+  margin: 0 10px 0 0;
   height: 50px;
   width: 50px;
   padding: 14px;
@@ -27,6 +50,7 @@
 #sequence-tabs {
   border: none;
   margin-top: 6px;
+  overflow: hidden;
 
   & > li {
     min-width: 30px;
@@ -46,13 +70,6 @@
 
     &.hidden-tabs-dropdown {
       min-width: 0;
-    }
-
-    &.dropdown ul {
-      max-width: 300px;
-      li a {
-        @include text-overflow();
-      }
     }
     
   }
