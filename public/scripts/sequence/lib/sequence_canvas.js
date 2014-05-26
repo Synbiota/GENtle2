@@ -23,6 +23,19 @@ define(function(require) {
       Q                 = require('q'),
       SequenceCanvas;
 
+  var PIXEL_RATIO = (function () {
+    var ctx = document.createElement("canvas").getContext("2d"),
+        dpr = window.devicePixelRatio || 1,
+        bsr = ctx.webkitBackingStorePixelRatio ||
+              ctx.mozBackingStorePixelRatio ||
+              ctx.msBackingStorePixelRatio ||
+              ctx.oBackingStorePixelRatio ||
+              ctx.backingStorePixelRatio || 1;
+
+    // return dpr / bsr;
+    return 2;
+})();
+
   SequenceCanvas = function(options) {
     var _this = this;
     options = options || {};
@@ -126,7 +139,7 @@ define(function(require) {
         aa: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
-          textFont: "13px Monospace", 
+          textFont: "15px Monospace", 
           transform: function(base) {
             return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
           },
@@ -227,17 +240,21 @@ define(function(require) {
     return Q.promise(function(resolve, reject) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       _this.$canvas.width(_this.$scrollingChild.width());
+      // _this.$canvas.height(_this.$scrollingChild.height());
 
       var width   = _this.$canvas[0].scrollWidth,
           height  = _this.$canvas[0].scrollHeight;
 
-      _this.layoutSettings.canvasDims.width = width;
-      _this.layoutSettings.canvasDims.height = height;
+      _this.layoutSettings.canvasDims.width = width ;
+      _this.layoutSettings.canvasDims.height = height ;
 
       if(_this.$canvas[0].width != width || _this.$canvas[0].height != height) {
-        _this.$canvas[0].width = width;
-        _this.$canvas[0].height = height;
+        _this.$canvas[0].width = width * PIXEL_RATIO;
+        _this.$canvas[0].height = height* PIXEL_RATIO;
       }
+      console.log('PIXEL_RATIO', PIXEL_RATIO)
+      // _this.$canvas[0].getContext("2d").translate(0.5,0.5)
+      _this.$canvas[0].getContext("2d").setTransform(PIXEL_RATIO, 0, 0, PIXEL_RATIO, 0, 0);
 
       resolve();
     });
