@@ -9,13 +9,14 @@
     template: template,
     events: {
       'click #menu-button': 'navigateToHome',
-      'click #sequence-tabs li a': 'navigateToSequence',
-      'click #sequence-tabs .close-sequence': 'closeSequence'
+      'click .sequence-tab': 'navigateToSequence',
+      'click #sequence-tabs .close-sequence': 'closeSequence',
     },
     leftMargin: 90,    // Hardcoding is ugly but to get CSS value
-    minTabWidth: 30,   // would need rendering first
+    minTabWidth: 100,   // would need rendering first
     tabPadding: 10,     //
     visibleTabIds: [],
+    initialRender: true,
 
     initialize: function() {
       _.bindAll(this, 'render');
@@ -58,7 +59,9 @@
     },
 
     serialize: function() {
-      var availableWidth = $(window).width() - this.leftMargin,
+
+      var dropdownWidth = this.$el.find('.dropdown').width() || 0,
+          availableWidth = this.$el.find('#sequence-tabs').width() + dropdownWidth,
           sequences = Gentle.sequences.serialize(),
           currentSequenceId = Gentle.currentSequence && Gentle.currentSequence.get('id'),
           calculatedMaxTabWidth,
@@ -68,52 +71,78 @@
           maxDropdownWidth,
           _this = this;
 
-      calculatedMaxTabWidth = Math.max(
-        Math.floor(availableWidth / Gentle.sequences.models.length) - this.tabPadding,
-        this.minTabWidth
-      );
-      nbVisibleTabs = Math.floor(availableWidth / calculatedMaxTabWidth);
+      // In order to properly determine tab spacing, we need to allow the view to render, and grab width data.
+      // So we do nothing on initial render, and only display tabs once we have that initial data.
+      if (!this.initialRender){
 
-      if(this.visibleTabIds.length <= nbVisibleTabs) {
-        this.visibleTabIds = _.initial(_.pluck(sequences, 'id'), sequences.length - nbVisibleTabs);
-      } else {
-        this.visibleTabIds = _.initial(this.visibleTabIds, this.visibleTabIds.length - nbVisibleTabs);
+        calculatedMaxTabWidth = Math.max(
+          Math.floor(availableWidth / Gentle.sequences.models.length),
+          this.minTabWidth
+        );
+
+        nbVisibleTabs = Math.floor(availableWidth / calculatedMaxTabWidth);
+
+        console.log(nbVisibleTabs, Gentle.sequences.models.length, availableWidth, nbVisibleTabs*calculatedMaxTabWidth)
+
+        // If the dropdown tab is visible, we need to factor for its width.
+        if (nbVisibleTabs < Gentle.sequences.models.length)
+          nbVisibleTabs = Math.floor( (availableWidth-dropdownWidth) /calculatedMaxTabWidth)
+
+        if(this.visibleTabIds.length <= nbVisibleTabs) {
+          this.visibleTabIds = _.initial(_.pluck(sequences, 'id'), sequences.length - nbVisibleTabs);
+        } else {
+          this.visibleTabIds = _.initial(this.visibleTabIds, this.visibleTabIds.length - nbVisibleTabs);
+        }
+
+        if(currentSequenceId && !~this.visibleTabIds.indexOf(currentSequenceId)) {
+          this.visibleTabIds.pop();
+          this.visibleTabIds.unshift(currentSequenceId);
+        }
+
+        visibleTabs = _.map(this.visibleTabIds, function(id) {
+          return _.findWhere(sequences, {id: id});
+        });
+
+        hiddenTabs = _.filter(sequences, function(sequence) {
+          return !~_this.visibleTabIds.indexOf(sequence.id);
+        });
+
+        maxDropdownWidth = Math.floor($(window).width() * 0.75);
+
       }
-
-      if(currentSequenceId && !~this.visibleTabIds.indexOf(currentSequenceId)) {
-        this.visibleTabIds.pop();
-        this.visibleTabIds.unshift(currentSequenceId);
-      }
-
-      visibleTabs = _.map(this.visibleTabIds, function(id) {
-        return _.findWhere(sequences, {id: id});
-      });
-      
-      hiddenTabs = _.filter(sequences, function(sequence) {
-        return !~_this.visibleTabIds.indexOf(sequence.id);
-      });
-
-      maxDropdownWidth = Math.floor($(window).width() * 0.75);
 
       return {
         calculatedMaxTabWidth: calculatedMaxTabWidth,
         maxDropdownWidth: maxDropdownWidth,
         visibleTabs: visibleTabs,
-        hiddenTabs: hiddenTabs,
+        //We need to make sure the dropdown tab is visible for first render to get its dimensions.
+        hiddenTabs: hiddenTabs || this.initialRender, 
         atHome: Backbone.history.fragment == 'home',
       };
     },
 
     afterRender: function() {
-      var $tabsElements = this.$('#sequence-tabs li a');
-      $tabsElements.each(function(i, element) {
-        var $element = $(element);
-        if($element.find('span.name').width() > $element.width()) {
-          $element.tooltip({
-            placement: 'bottom'
-          });
-        }
-      });
+
+      // First render requires container width in order to properly space tabs.
+      if (this.initialRender){
+        this.initialRender = false
+        this.render()
+      }
+      else {
+
+        var $tabsElements = this.$('#sequence-tabs li a');
+        $tabsElements.each(function(i, element) {
+          var $element = $(element);
+          if($element.find('span.name').width() > $element.width()) {
+            $element.tooltip({
+              placement: 'bottom'
+            });
+          }
+        });
+
+        this.initialRender = true
+
+      }
     }
   });
 

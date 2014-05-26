@@ -4632,6 +4632,21 @@ button.close {
   margin-bottom: 0;
   background: #e5e5e5;
   border-bottom: 1px solid #ddd; }
+  #navbar .navbar .container-fluid {
+    padding-left: 0;
+    padding-right: 0; }
+    #navbar .navbar .container-fluid .dropdown {
+      width: 50px; }
+      #navbar .navbar .container-fluid .dropdown > a {
+        display: block;
+        height: 50px;
+        padding: 15px; }
+      #navbar .navbar .container-fluid .dropdown > ul {
+        max-width: 300px; }
+        #navbar .navbar .container-fluid .dropdown > ul li a {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap; }
 
 #menu-button {
   display: block;
@@ -4639,7 +4654,7 @@ button.close {
   border: none;
   border-right: 1px solid #ddd;
   border-radius: 0;
-  margin: 0 10px 0 -15px;
+  margin: 0 10px 0 0;
   height: 50px;
   width: 50px;
   padding: 14px;
@@ -4655,7 +4670,8 @@ button.close {
 
 #sequence-tabs {
   border: none;
-  margin-top: 6px; }
+  margin-top: 6px;
+  overflow: hidden; }
   #sequence-tabs > li {
     min-width: 30px; }
     #sequence-tabs > li > a {
@@ -4672,12 +4688,6 @@ button.close {
         font-size: 10px; }
     #sequence-tabs > li.hidden-tabs-dropdown {
       min-width: 0; }
-    #sequence-tabs > li.dropdown ul {
-      max-width: 300px; }
-      #sequence-tabs > li.dropdown ul li a {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap; }
   #sequence-tabs .close-sequence {
     float: right;
     cursor: pointer;
