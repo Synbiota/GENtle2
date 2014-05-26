@@ -82,8 +82,6 @@
 
         nbVisibleTabs = Math.floor(availableWidth / calculatedMaxTabWidth);
 
-        console.log(nbVisibleTabs, Gentle.sequences.models.length, availableWidth, nbVisibleTabs*calculatedMaxTabWidth)
-
         // If the dropdown tab is visible, we need to factor for its width.
         if (nbVisibleTabs < Gentle.sequences.models.length)
           nbVisibleTabs = Math.floor( (availableWidth-dropdownWidth) /calculatedMaxTabWidth)
