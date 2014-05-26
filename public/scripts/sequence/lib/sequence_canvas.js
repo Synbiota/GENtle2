@@ -23,19 +23,6 @@ define(function(require) {
       Q                 = require('q'),
       SequenceCanvas;
 
-  var PIXEL_RATIO = (function () {
-    var ctx = document.createElement("canvas").getContext("2d"),
-        dpr = window.devicePixelRatio || 1,
-        bsr = ctx.webkitBackingStorePixelRatio ||
-              ctx.mozBackingStorePixelRatio ||
-              ctx.msBackingStorePixelRatio ||
-              ctx.oBackingStorePixelRatio ||
-              ctx.backingStorePixelRatio || 1;
-
-    // return dpr / bsr;
-    return 2;
-})();
-
   SequenceCanvas = function(options) {
     var _this = this;
     options = options || {};
@@ -176,7 +163,7 @@ define(function(require) {
           unitHeight: 15,
           baseLine: 10,
           textFont: "11px Monospace", 
-          textColour: "white",
+          textColour: "#fff",
           textPadding: 2,
           margin: 2,
           lineSize: 2,
@@ -240,21 +227,14 @@ define(function(require) {
     return Q.promise(function(resolve, reject) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       _this.$canvas.width(_this.$scrollingChild.width());
-      // _this.$canvas.height(_this.$scrollingChild.height());
 
       var width   = _this.$canvas[0].scrollWidth,
           height  = _this.$canvas[0].scrollHeight;
 
-      _this.layoutSettings.canvasDims.width = width ;
-      _this.layoutSettings.canvasDims.height = height ;
+      _this.layoutSettings.canvasDims.width = width;
+      _this.layoutSettings.canvasDims.height = height;
 
-      if(_this.$canvas[0].width != width || _this.$canvas[0].height != height) {
-        _this.$canvas[0].width = width * PIXEL_RATIO;
-        _this.$canvas[0].height = height* PIXEL_RATIO;
-      }
-      console.log('PIXEL_RATIO', PIXEL_RATIO)
-      // _this.$canvas[0].getContext("2d").translate(0.5,0.5)
-      _this.$canvas[0].getContext("2d").setTransform(PIXEL_RATIO, 0, 0, PIXEL_RATIO, 0, 0);
+      _this.artist.setDimensions(width, height);
 
       resolve();
     });
@@ -334,7 +314,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.display = function() {
     if(this.visible) {
-      var context         = this.artist.context,
+      var artist          = this.artist,
           ls              = this.layoutSettings,
           lh              = this.layoutHelpers,
           _this           = this,
@@ -343,7 +323,7 @@ define(function(require) {
       return Q.promise(function(resolve, reject){
 
         //clear canvas
-        context.clearRect(0,0,context.canvas.width, context.canvas.height);
+        artist.clear();
 
         _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
           baseRange = _this.getBaseRangeFromYPos(y);

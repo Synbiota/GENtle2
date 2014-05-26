@@ -25,16 +25,16 @@ define(function(require) {
   Position.prototype.draw = function(y, baseRange) {
     var ls          = this.sequenceCanvas.layoutSettings,
         sequence    = this.sequenceCanvas.sequence,
-        context     = this.sequenceCanvas.artist.context,
+        artist      = this.sequenceCanvas.artist,
         k, x;
-
-    context.fillStyle = this.textColour;
-    context.font = this.textFont;
     
     x = ls.pageMargins.left;
     for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
       text = typeof this.transform == 'function' ? this.transform(k+1) : k+1;
-      context.fillText(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+      artist.text(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine), {
+        fillStyle: this.textColour,
+        font: this.textFont
+      });
       x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
     }
   };

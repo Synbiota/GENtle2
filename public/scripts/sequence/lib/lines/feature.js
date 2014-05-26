@@ -122,11 +122,11 @@ define(function(require) {
         layoutSettings  = sequenceCanvas.layoutSettings,
         layoutHelpers   = sequenceCanvas.layoutHelpers,
         sequence        = sequenceCanvas.sequence,
-        context         = sequenceCanvas.artist.context,
+        artist          = sequenceCanvas.artist,
         basesPerBlock   = layoutSettings.basesPerBlock,
         baseWidth       = layoutSettings.basePairDims.width,
         gutterWidth     = layoutSettings.gutterWidth,
-        features, startX, endX, deltaX, textWidth;
+        features, startX, endX, deltaX, textWidth, backgroundFillStyle;
 
     features = _(sequence.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     for(var i = 0; i < features.length; i++) {
@@ -142,17 +142,27 @@ define(function(require) {
         endX   = sequenceCanvas.getXPosFromBase(Math.min(range.to, baseRange[1]));
         deltaX = endX - startX + 1 + baseWidth;
 
-        context.font = this.textFont;
-        textWidth = Math.min(context.measureText(feature.name).width + 2 * this.textPadding, deltaX);
+        backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
 
-        context.fillStyle = _.isFunction(this.colour) ? 
-          this.colour(feature._type) : 
-          this.colour;
-        context.fillRect(startX, y + this.margin + i*this.unitHeight, textWidth, this.unitHeight - this.margin);
-        context.fillRect(startX, y + this.margin + i*this.unitHeight, deltaX, this.lineSize);
+        artist.rect(startX, 
+                    y + this.margin + i*this.unitHeight, 
+                    deltaX, 
+                    this.lineSize, 
+                    {
+                      fillStyle: backgroundFillStyle
+                    });
 
-        context.fillStyle = this.textColour;
-        context.fillText(feature.name, startX + this.textPadding, y + (this.baseLine === undefined ? this.height : this.baseLine) + this.margin + i*this.unitHeight);
+        artist.text(feature.name, 
+                    startX, 
+                    y + this.margin + i * this.unitHeight,
+                    {
+                      font: this.textFont,
+                      fillStyle: this.textColour,
+                      lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
+                      height: this.unitHeight - this.margin,
+                      textPadding: this.textPadding,
+                      backgroundFillStyle: backgroundFillStyle
+                    });
         
       }
 

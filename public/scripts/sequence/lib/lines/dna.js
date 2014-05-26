@@ -23,11 +23,11 @@ define(function(require) {
   _.extend(DNA.prototype, Line.prototype);
 
   DNA.prototype.setTextColour = function(base) {
-    var context = this.sequenceCanvas.artist.context;
+    var artist = this.sequenceCanvas.artist;
     if(_.isFunction(this.textColour)) {
-      context.fillStyle = this.textColour(base);
+      artist.updateStyle({fillStyle: this.textColour(base)});
     } else {
-      context.fillStyle = this.textColour;
+      artist.updateStyle({fillStyle: this.textColour});
     }
   };
 
@@ -36,11 +36,11 @@ define(function(require) {
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
         sequence        = sequenceCanvas.sequence,
-        context         = sequenceCanvas.artist.context,
+        artist          = sequenceCanvas.artist,
         selection       = sequenceCanvas.selection,
         k, x, subSequence, character;
 
-    context.font = this.textFont;
+    artist.updateStyle({font: this.textFont});
     x = ls.pageMargins.left;
     
     subSequence = (_.isFunction(this.getSubSeq) ? 
@@ -61,11 +61,12 @@ define(function(require) {
             k+baseRange[0] <= selection[1] && 
             k+baseRange[0] >= selection[0]) {
 
-          context.fillStyle = this.selectionColour;
-          context.fillRect(x, y+3, ls.basePairDims.width, this.height);
+          artist.rect(x, y+3, ls.basePairDims.width, this.height, {
+            fillStyle: this.selectionColour
+          });
 
           if(this.selectionTextColour) {
-            context.fillStyle = this.selectionTextColour;
+            artist.updateStyle({fillStyle: this.selectionTextColour});
           } else {
             this.setTextColour(character);
           }
@@ -73,7 +74,7 @@ define(function(require) {
           this.setTextColour(character);
         }
 
-        context.fillText(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
 
         x += ls.basePairDims.width;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
