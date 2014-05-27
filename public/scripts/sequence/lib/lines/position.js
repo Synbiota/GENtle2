@@ -9,6 +9,8 @@ Options are:
 - `this.transform` _(optional)_: function tranforming the position text into another (e.g. number formatting)
 @class Lines.Position
 @extends Lines.Line
+@module Sequence
+@submodule SequenceCanvas
 **/
 define(function(require) {
   var Line = require('sequence/lib/lines/line'),

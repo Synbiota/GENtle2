@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Models
+@class HistorySteps
+**/
 define(function(require) {
   var HistoryStep   = require('sequence/models/history_step'),
       History;

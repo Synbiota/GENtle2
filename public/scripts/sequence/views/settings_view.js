@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Views
+@class SettingsView
+**/
 define(function(require) {
   var FeaturesView        = require('sequence/views/features_view'),
       HistoryView         = require('sequence/views/history_view'),

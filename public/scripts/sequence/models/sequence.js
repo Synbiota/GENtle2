@@ -1,6 +1,9 @@
 /**
 Handling sequences
 @class Sequence
+@module Sequence
+@submodule Models
+@main Models
 **/
 define(function(require){
   var Gentle              = require('gentle'),

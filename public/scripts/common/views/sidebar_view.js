@@ -1,3 +1,8 @@
+/**
+@module Common
+@submodule Views
+@class SidebarView
+**/
 define(function(require) {
   var Backbone      = require('backbone.mixed'),
       template      = require('hbars!common/templates/sidebar_view'),

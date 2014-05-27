@@ -1,3 +1,9 @@
+/**
+@class SequenceTransform
+@module Sequence
+@submodule SequenceCanvas
+@static
+**/
 define(function(require) {
   var SynbioData = require('common/lib/synbio_data'),
       SequenceTransforms;
@@ -5,6 +11,11 @@ define(function(require) {
   SequenceTransforms = SequenceTransforms || {};
 
   return {
+    /**
+    @method codonToAALong
+    @params {String} codon
+    @returns {String} long-form amino acid
+    **/
     codonToAALong: function(codon) {
       var map = SequenceTransforms.codonToAALong;
       if(map === undefined) {
@@ -18,6 +29,11 @@ define(function(require) {
       return map[codon];
     },
 
+    /**
+    @method codonToAAShort
+    @params {String} codon
+    @returns {String} short-form amino acid
+    **/
     codonToAAShort: function(codon) {
       var map = SequenceTransforms.codonToAAShort;
       if(map === undefined) {
@@ -30,6 +46,12 @@ define(function(require) {
       }
       return map[codon];
     },
+
+    /**
+    @method toComplements
+    @params {String} sequence
+    @returns {String} sequence complement
+    **/
     toComplements: function(sequence) {
       var map = SequenceTransforms.toComplements;
       map = map || {'A': 'T', 'C': 'G', 'T': 'A', 'G': 'C'};

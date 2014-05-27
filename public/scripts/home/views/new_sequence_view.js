@@ -1,3 +1,8 @@
+/**
+@module Home
+@submodule Views
+@class NewSequenceView
+**/
 define(function(require) {
   var Backbone    = require('backbone.mixed'),
       template    = require('hbars!home/templates/new_sequence_view'),

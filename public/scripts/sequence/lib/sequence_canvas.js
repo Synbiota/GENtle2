@@ -9,6 +9,7 @@ rendered.
 @uses SequenceCanvasContextMenu
 @uses SequenceCanvasHandlers
 @uses SequenceCanvasUtilities
+@module SequenceCanvas
 **/ 
 define(function(require) {
   'use strict';

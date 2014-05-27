@@ -1,6 +1,7 @@
 /**
     Filetype base class
     @class FT_base
+    @module Filetypes
 **/
 define(function(require) {
   function FT_base () {

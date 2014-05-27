@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Views
+@class FeaturesView
+**/
 define(function(require) {
   var template        = require('hbars!sequence/templates/features_view'),
       Gentle          = require('gentle')(),

@@ -1,4 +1,9 @@
-  define(function(require) {
+/** 
+@module Common
+@submodule Views
+@class NavbarView
+**/
+define(function(require) {
   var template    = require('hbars!common/templates/navbar_view'),
       Gentle      = require('gentle')(),
       Backbone    = require('backbone.mixed'),

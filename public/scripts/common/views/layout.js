@@ -1,3 +1,7 @@
+/**
+@module Common
+@submodule Views
+**/
 define(function(require) {
   var template      = require('hbars!common/templates/layout'),
       NavbarView    = require('common/views/navbar_view'),

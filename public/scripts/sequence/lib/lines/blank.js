@@ -5,6 +5,8 @@ Options are:
 - `this.height`: line height
 @class Lines.Blank
 @extends Lines.Line
+@module Sequence
+@submodule SequenceCanvas
 **/
 define(function(require) {
   var Line = require('sequence/lib/lines/line'),

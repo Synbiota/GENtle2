@@ -1,3 +1,10 @@
+/**
+@class Caret
+@module Sequence
+@submodule SequenceCanvas
+@constructor
+@params {SequenceCanvas} sequenceCanvas
+**/
 define(function(require) {
   var Caret;
 

@@ -1,3 +1,6 @@
+/**
+@module Utilities
+**/
 define(function(require) {
   var _ = require('underscore.mixed');
 

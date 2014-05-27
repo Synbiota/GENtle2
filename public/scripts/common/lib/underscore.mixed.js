@@ -6,7 +6,8 @@ to the global namespace. This lets us use underscore's chaining.
 See https://gist.github.com/HenrikJoreteg/641397 for
 discussion
 
-@class Utilities
+@module Utilities
+@class _
 **/
 
 define(function(require) {

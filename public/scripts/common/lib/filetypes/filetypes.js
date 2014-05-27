@@ -1,3 +1,8 @@
+/**
+@module Filetypes
+@class Filetypes
+@main Filetypes
+**/
 define(function(require) {
   // var FT_cm5          = require('lib/files/cm5'),
   //     FT_cm5_text     = require('lib/files/cm5_text'),

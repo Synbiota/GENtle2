@@ -11,6 +11,8 @@ Options are:
 - `this.margin`
 - `this.lineSize`
 @class Lines.DNA
+@module Sequence
+@submodule SequenceCanvas
 @extends Lines.Line
 **/
 define(function(require) {

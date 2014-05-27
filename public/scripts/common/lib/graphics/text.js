@@ -1,3 +1,7 @@
+/**
+@class Text
+@extends Shape
+**/
 define(function(require) {
   var Shape = require('./shape'),
       Text;

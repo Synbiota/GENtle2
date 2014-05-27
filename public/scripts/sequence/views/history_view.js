@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Views
+@class HistoryView
+**/
 define(function(require) {
   var template        = require('hbars!sequence/templates/history_view'),
       Gentle          = require('gentle')(),

@@ -2,6 +2,8 @@
 Base Line class from which to extend. 
 
 @class Lines.Line
+@module Sequence
+@submodule SequenceCanvas
 **/
 define(function(require) {
   var _ = require('underscore.mixed'),

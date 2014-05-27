@@ -1,6 +1,8 @@
 /**
 Handling history steps
 @class HistoryStep
+@module Sequence
+@submodule Models
 **/
 define(function(require){
   var Backbone = require('backbone.mixed'),

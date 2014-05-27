@@ -1,3 +1,8 @@
+/**
+@module Home
+@submodule Views
+@class HomeView
+**/
 define(function(require) {
   var template        = require('hbars!home/templates/home_view'),
       Backbone        = require('backbone.mixed'),

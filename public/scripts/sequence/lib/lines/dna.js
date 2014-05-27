@@ -9,6 +9,8 @@ Options are:
 - `this.transformUnit` _(optional, default: `base`)_: argument passed to the `transform` function. Either `base` or `codon`.  
 - `this.transform` _(optional)_: function transforming a `transformUnit` into another (e.g. complement..)
 @class Lines.DNA
+@module Sequence
+@submodule SequenceCanvas
 @extends Lines.Line
 **/
 define(function(require) {

@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Views
+@class DisplaySettingsView
+**/
 define(function(require) {
   var template        = require('hbars!sequence/templates/display_settings_view'),
       Gentle          = require('gentle')(),

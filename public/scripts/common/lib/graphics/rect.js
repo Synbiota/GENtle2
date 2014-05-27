@@ -1,3 +1,8 @@
+/**
+@class Rect
+@extends Shape
+@module Graphics
+**/
 define(function(require) {
   var Shape = require('./shape'),
       Rect;

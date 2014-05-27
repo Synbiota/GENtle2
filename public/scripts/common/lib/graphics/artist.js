@@ -1,8 +1,12 @@
 /**
   
-Provides tools for drawing handling canvasses
+Provides tools for drawing on canvas
+
+Includes Shape system for handling mouse events.
 
 @class Artist
+@module Graphics
+@main Graphics
 @constructor
 **/
 define(function(require){
@@ -11,6 +15,12 @@ define(function(require){
       Text = require('./text'),
       Artist;
 
+  /**
+  @method Artist
+  @constructor
+  @param canvas
+  @returns instance of self
+  **/
   Artist = function Artist(canvas) {
     canvas = canvas instanceof $ ? canvas[0] : canvas;
     this.canvas = canvas;
@@ -18,12 +28,14 @@ define(function(require){
     this.shapes = [];
     this.minPixelRatio = 2;
     this.setPixelRatio();
+    return this;
   };
 
   /**
-  @method set canvas dimensions
-  @param {Integer} Width
-  @param {Integer} Height
+  Set canvas dimensions if they have changed (will flick canvas)
+  @method setDimensions
+  @param {Integer} width
+  @param {Integer} height
   **/
   Artist.prototype.setDimensions = function(width, height) {
     var canvas = this.canvas;
@@ -34,6 +46,8 @@ define(function(require){
   };
 
   /**
+  Clears entire canvas
+
   @method clear
   **/
   Artist.prototype.clear = function() {
@@ -45,14 +59,24 @@ define(function(require){
   };
 
   /**
-  @method fillRect
+  Draw a filled rectangle. Adds it to `this.shapes`.
+  @method rect
   @param {Integer} x
   @param {Integer} y
   @param {Integer} width
   @param {Integer} height
+  @param {Object} [options] Available options are the same as for 
+    {{#crossLink "Artist/updateStyle"}}{{/crossLink}}
+  @returns {Rect} instance of {{#crossLink "Rect"}}{{/crossLink}}
   **/
-  Artist.prototype.rect = function(x, y, width, height, options) {
-    var rect = new Rect(this, x, y, width, height);
+  Artist.prototype.rect = function() {
+    var x       = arguments[0],
+        y       = arguments[1],
+        width   = arguments[2],
+        height  = arguments[3],
+        options = arguments[4] || {},
+        rect = new Rect(this, x, y, width, height);
+
     this.shapes.push(rect);
     rect.draw(options);
     return rect;
@@ -63,10 +87,15 @@ define(function(require){
   @param {String} text
   @param {Integer} x
   @param {Integer} y
-  @param {Object} styleOptions
+  @param {Object} [options]
+  @returns {Text} instance of {{#crossLink "Text"}}{{/crossLink}}
   **/
-  Artist.prototype.text = function(text, x, y, styleOptions) {
-    var textShape = new Text(this, text, x, y, styleOptions);
+  Artist.prototype.text = function() {
+    var text      = arguments[0],
+        x         = arguments[1],
+        y         = arguments[2],
+        options   = arguments[3] || {},
+        textShape = new Text(this, text, x, y, options);
 
     this.shapes.push(textShape);
     textShape.draw();

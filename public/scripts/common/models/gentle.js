@@ -1,3 +1,6 @@
+/**
+@module Model
+**/
 define(function(require) {
   var Backbone  = require('backbone.mixed'),
       Gentle;

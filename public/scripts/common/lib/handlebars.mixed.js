@@ -8,6 +8,7 @@ Hashes in arguments refer Handlebars' Hashes, e.g.:
                  ^^^^^^^^^^^ ^^^^^^^^^^^
 ```
 @class Handlebars helpers
+@module Utilities
 **/
 define(function(require) {
   var Handlebars  = require('Handlebars.base'),

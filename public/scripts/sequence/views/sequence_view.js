@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Views
+@class SequenceView
+**/
 define(function(require) {
   var template        = require('hbars!sequence/templates/sequence_view'),
       Sequence        = require('sequence/models/sequence'),

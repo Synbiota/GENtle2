@@ -1,3 +1,8 @@
+/**
+@module Sequence
+@submodule Models
+@class Sequences
+**/
 define(function(require) {
   var Sequence      = require('sequence/models/sequence'),
       ls            = require('localstorage'),

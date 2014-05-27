@@ -1,11 +1,16 @@
+/**
+@module Home
+@submodule Views
+@class OpenFileView
+**/
 define(function(require) {
   var Backbone    = require('backbone.mixed'),
       template    = require('hbars!home/templates/open_file_view'),
       Filetypes   = require('common/lib/filetypes/filetypes'),
       Gentle      = require('gentle')(),
-      NewSequenceView;
+      OpenFileView;
 
-  NewSequenceView = Backbone.View.extend({
+  OpenFileView = Backbone.View.extend({
     manage: true,
     template: template,
     className: 'home-open-file',
@@ -42,5 +47,5 @@ define(function(require) {
 
   });
 
-  return NewSequenceView;
+  return OpenFileView;
 });
