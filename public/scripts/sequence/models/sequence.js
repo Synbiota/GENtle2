@@ -363,6 +363,7 @@ define(function(require){
       var oldFeature = _.indexBy(this.get('features'), '_id')[editedFeature._id],
           id = this.get('features').indexOf(oldFeature);
 
+      this.clearFeatureCache();
       this.set('features.'+id, editedFeature);
       this.sortFeatures();
       this.save();
@@ -377,12 +378,14 @@ define(function(require){
         newFeature._id = _.max(_.pluck(this.get('features'), '_id')) + 1;
       }
 
+      this.clearFeatureCache();
       this.set('features.'+id, newFeature);
       this.sortFeatures();
       this.save();
     },
 
     deleteFeature: function(featureId) {
+      this.clearFeatureCache();
       this.set('features', _.reject(this.get('features'), function(feature) {
         return feature._id == featureId;
       }));

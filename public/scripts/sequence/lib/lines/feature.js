@@ -92,7 +92,7 @@ define(function(require) {
         basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow,
         _maxNb;
 
-    for(var i = 0; i < Math.floor(sequence.length() / basesPerRow); i++) {
+    for(var i = 0; i <= Math.max(0, Math.floor(sequence.length() / basesPerRow)-1); i++) {
       nbFeatures.push(sequence.nbFeaturesInRange(i * basesPerRow, (i+1) * basesPerRow - 1));
     }
     return nbFeatures.length ? _.max(nbFeatures) : 0;

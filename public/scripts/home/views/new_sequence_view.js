@@ -23,10 +23,9 @@ define(function(require) {
       event.preventDefault();
       var $form     = $('.home-new-sequence-form').first(),
           text      = $form.find('[name=sequence]').val(),
-          name      = $form.find('[name=name]').val() || 'Unnamed',
-          sequences = Filetypes.guessTypeAndParseFromText(text, name);
+          name      = $form.find('[name=name]').val() || 'Unnamed';
 
-      Gentle.addSequencesAndNavigate(sequences);
+      Filetypes.guessTypeAndParseFromText(text, name).then(Gentle.addSequencesAndNavigate);
     }
   });
 

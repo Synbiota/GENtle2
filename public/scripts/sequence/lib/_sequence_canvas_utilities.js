@@ -19,7 +19,6 @@ define(function(require) {
   Utilities.prototype.forEachRowInRange = function(startY, endY, callback) {
     var firstRowStartY  = this.getRowStartY(startY),
         y;
-
     for(y = firstRowStartY; 
         y < Math.min(endY, this.layoutSettings.canvasDims.height - this.layoutSettings.pageMargins.bottom); 
         y += this.layoutHelpers.rows.height)
@@ -46,7 +45,7 @@ define(function(require) {
   @return {Array} First and last bases in the row at the y-pos
   **/
   Utilities.prototype.getBaseRangeFromYPos = function(posY) {
-    var rowNumber = Math.round((this.getRowStartY(posY) + this.layoutHelpers.yOffset) / this.layoutHelpers.rows.height),
+    var rowNumber = Math.floor((this.getRowStartY(posY) + this.layoutHelpers.yOffset) / this.layoutHelpers.rows.height),
         firstBase = rowNumber * this.layoutHelpers.basesPerRow;
     return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
   };

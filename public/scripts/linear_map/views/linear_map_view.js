@@ -53,7 +53,7 @@ define(function(require) {
     },
 
     positionFeatures: function() {
-      var maxBase = this.maxBase || this.model.length(),
+      var maxBase = this.maxBaseForCalc || this.model.length(),
           viewHeight = this.$el.height(),
           $featureElement, feature, featureWidth,
           overlapStack = [], overlapIndex;
@@ -120,7 +120,8 @@ define(function(require) {
           divider = Math.pow(10, magnitudeOrder - 1),
           maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
 
-      this.positionMarksInterval = Math.max(1, maxBaseForCalc / 10);
+      this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
+      this.maxBaseForCalc = maxBaseForCalc;
 
       while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
         this.positionMarksInterval = Math.floor(this.positionMarksInterval * 2);
