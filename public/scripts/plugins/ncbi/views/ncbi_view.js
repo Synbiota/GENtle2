@@ -5,6 +5,7 @@ define(function(require) {
       Gentle      = require('gentle')(),
       Proxy       = require('common/lib/proxy'),
       ResultsView = require('./results_view'),
+      Q           = require('q'),
       NCBIUrls,
       NCBIView;
 
@@ -55,21 +56,25 @@ define(function(require) {
     },
 
     openFromId: function(id) {
-      var url = NCBIUrls.loadId
-        .replace('{{dbName}}', this.dbName)
-        .replace('{{id}}', id);
+      var navigate = arguments[1] === undefined || arguments[1],
+          _this = this,
+          url = NCBIUrls.loadId
+            .replace('{{dbName}}', this.dbName)
+            .replace('{{id}}', id);
 
-      this.$('.loading-from-id').show();
-      this.$('.ncbi-search-results-outlet').html('');
+      
+      if(navigate) {
+        this.$('.ncbi-search-results-outlet').html('');
+        this.$('.loading-from-id').show();
+      }
 
-      Proxy.get(url)
+      return Q(Proxy.get(url)
         .then(Filetypes.guessTypeAndParseFromText, function() {
           alert('There was an issue accessing the NCBI database.');
         })
-        .then(Gentle.addSequencesAndNavigate, function() {
+        .then(navigate ? Gentle.addSequencesAndNavigate : Gentle.addSequences, function() {
           alert('The sequence could not be parsed.');
-          console.log(arguments[0])
-        });
+        }));
         
     },
 

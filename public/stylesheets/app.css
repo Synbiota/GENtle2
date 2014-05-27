@@ -4741,6 +4741,8 @@ button.close {
     -webkit-animation: full-rotation ease-in-out 1s infinite;
     -o-animation: full-rotation ease-in-out 1s infinite;
     animation: full-rotation ease-in-out 1s infinite; }
+    .loader i.no-margin {
+      margin-left: 0; }
 
 .linear-map {
   position: fixed;

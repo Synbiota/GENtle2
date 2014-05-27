@@ -11,9 +11,22 @@ define(function(require) {
     },
 
     openSequence: function(event) {
-      var id = $(event.currentTarget).data('ncbiId');
+      var $element = $(event.currentTarget),
+          id = $element.data('ncbiId');
+
       event.preventDefault();
-      this.parentView.openFromId.call(this.parentView, id);
+      $element.find('.open-label').hide();
+      $element.find('.loading-label').show();
+      $element.addClass('disabled');
+      this.parentView.openFromId.call(this.parentView, id, false).then(function() {
+        $element.find('.success-label').show();
+        $element.find('.loading-label').hide();
+        $element.addClass('btn-success')
+      }, function() {
+        $element.find('.loading-label').hide();
+        $element.find('.open-label').show();
+        $element.removeClass('disabled');
+      });
     },
 
     serialize: function() {

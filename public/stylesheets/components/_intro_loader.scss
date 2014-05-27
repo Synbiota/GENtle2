@@ -14,6 +14,9 @@
   i {
     margin-left: 20px;
     vertical-align: -10%;
-    @include animation(full-rotation ease-in-out 1s infinite)
+    @include animation(full-rotation ease-in-out 1s infinite);
+    &.no-margin {
+      margin-left: 0;
+    }
   }
 }

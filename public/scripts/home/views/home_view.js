@@ -30,8 +30,6 @@ define(function(require) {
         view: new OpenFileView()
       }];
 
-      Gentle.addSequencesAndNavigate = this.addSequencesAndNavigate;
-
       tabsFromPlugins = _.pluck(_.where(Gentle.plugins, {type: 'home'}), 'data');
 
       this.tabs = [];
@@ -40,17 +38,6 @@ define(function(require) {
 
     addTab: function(tab) {
       this.tabs.push(tab);
-    },
-
-    addSequencesAndNavigate: function(sequences) {
-      if(sequences.length) {
-        sequences = _.map(sequences, function(sequence) {
-          return Gentle.sequences.create(sequence);
-        });
-        Gentle.router.sequence(sequences[0].get('id'));
-      } else {
-        alert('Could not parse the sequence.');
-      }
     },
 
     afterRender: function() {

@@ -15,7 +15,21 @@
           <td><small><code>{{caption}}</code></small></td>
           <td><small>{{title}}</small</td>
           <td><small>{{shortFormNumber length}}bp</small></td>
-          <td><a href="#" class="open-ncbi-sequence btn btn-default btn-xs" data-ncbi-id="{{caption}}">Open</a></td>
+          <td class="text-right">
+            <a href="#" class="open-ncbi-sequence btn btn-default btn-xs" data-ncbi-id="{{caption}}">
+              <span class="open-label">
+                Open
+                <i class="glyphicon glyphicon-open"></i>
+              </span>
+              <span class="loading-label loader" style="display: none;">
+                Loading
+                <i class="glyphicon glyphicon-refresh no-margin"></i>
+              </span>
+              <span class="success-label" style="display: none;">
+                <i class="glyphicon glyphicon-ok"></i>
+              </span>
+            </a>
+          </td>
         </tr>
       {{/each}}
     </tbody>
