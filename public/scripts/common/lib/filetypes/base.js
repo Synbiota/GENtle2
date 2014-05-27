@@ -97,9 +97,8 @@ define(function(require) {
       var dt = [ t ] ;
       ret.blob = new Blob ( dt , { type:"text/plain;charset=utf-8" } ) ;
     } catch ( e ) {
-      var b = getBlobBuilder() ;
-      b.append ( t ) ;
-      ret.blob = b.getBlob ( ret.filetype ) ;
+      alert('Could not export file');
+      ret.error = true;
     }
 
     if ( undefined === ret.blob ) return { error : true } ; // Paranoia

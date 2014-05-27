@@ -41,7 +41,7 @@ define(function(require) {
   **/
   FT_plaintext.prototype.getExportString = function ( sequence ) {
     var ret = '' ;
-    var s = sequence.get('sequence') ;
+    var s = sequence.sequence ;
     while ( s !== '' ) {
       ret += s.substr ( 0 , 60 ) + "\n" ;
       s = s.substr ( 60 , s.length-60 ) ;

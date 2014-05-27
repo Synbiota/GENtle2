@@ -17,6 +17,7 @@ define(function(require) {
       FT_sybil        = require('common/lib/filetypes/sybil'),
       FT_genebank     = require('common/lib/filetypes/genebank'),
       Q               = require('q'),
+      saveAs          = require('saveAs'),
       Filetype;
 
   Filetypes = function() {};
@@ -53,6 +54,19 @@ define(function(require) {
       resolve(sequences);
     });
     
+  };
+
+  /**
+  @method exportToFile
+  **/
+  Filetypes.exportToFile = function(format, sequence)  {
+    var FileType = Filetypes.types[format],
+        file;
+    if(FileType === undefined) {
+      throw new TypeError();
+    }
+    file = new FileType();
+    saveAs(file.getExportBlob(sequence).blob, sequence.name + '.' + file.getFileExtension());
   };
 
   /**

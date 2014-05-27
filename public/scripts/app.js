@@ -12,10 +12,12 @@ require([
     'underscore.mixed',
     'backbone.mixed',
     'gentle',
+    // Just loading libraries, no object created
     'bootstrap',
     'jquery.ui',
     'common/lib/polyfills',
-    'jquery.ui.touch-punch'
+    'jquery.ui.touch-punch',
+    'Blob'
   ], function(require, config, Layout, domReady, Router, Sequences, _, Backbone, Gentle) {
 
   var plugins = [];

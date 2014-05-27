@@ -16,6 +16,8 @@ require.config({
     'localstorage':           '../vendor/scripts/backbone.localStorage-1.1.7',
     'bootstrap':              '../vendor/bootstrap/js/bootstrap',
     'bootstrap-confirmation': '../vendor/scripts/bootstrap-confirmation-fork',
+    'Blob':                   '../vendor/scripts/blob',
+    'saveAs':                 '../vendor/scripts/filesaver',
     'gentle':                 'common/models/gentle',
     'backbone.mixed':         'common/lib/backbone.mixed',
     'underscore.mixed':       'common/lib/underscore.mixed',

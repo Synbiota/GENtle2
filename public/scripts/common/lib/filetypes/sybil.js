@@ -45,7 +45,8 @@ define(function(require) {
     if ( '' != ( sequence.desc || '' ) ) {
       var o = $('<general_description></general_description>') ;
       o.text ( sequence.desc ) ;
-      s += o.outerHTML() + "\n" ;
+      console.log('prout' + o[0])
+      s += o[0].outerHTML + "\n" ;
     }
     
     $.each ( sequence.features , function ( k , v ) {
@@ -56,7 +57,7 @@ define(function(require) {
       // Misc
       var type = v['_type'] ;
       var start = v['ranges'][0].from ;
-      var stop = v['ranges'][v['ranges'].length-1].to ;
+      var stop = v['ranges'][v['ranges'].length-1].to;
 
       // Name
       var name = '' ;
@@ -77,7 +78,7 @@ define(function(require) {
       
       if ( 1 != v['ranges'].length ) {
         $.each ( v['ranges'] , function ( k2 , v2 ) {
-          desc += "<exon start='" + v2.from + "' to='" + v2.to + "' />\n" ;
+          desc += "<exon start='" + (v2.from+1) + "' to='" + (v2.to+1) + "' />\n" ;
         } ) ;
       }
       
@@ -89,21 +90,22 @@ define(function(require) {
         if ( k2.substr ( 0 , 1 ) == '_' ) return ;
         var k3 = k2.toLowerCase() ;
         if ( k3 == 'translation' ) return ;
+        if ( k3 == 'ranges' ) return ;
         var v3 = v2.replace ( /\"/g , '' ) ;
         o.attr ( k2 , v3 ) ;
       } ) ;
 
-      o.attr ( { type:type , start:start , stop:stop } ) ;
+      o.attr ( { type:type , start:start+1 , stop:stop+1 } ) ;
       if ( name !== '' ) o.attr ( { name:name } ) ;
 
-      s += o.outerHTML() + "\n" ;
+      s += o[0].outerHTML + "\n" ;
 
     } ) ;
     
     var o = $("<sequence></sequence>") ;
-    o.text ( sequence.seq ) ;
+    o.text ( sequence.sequence ) ;
     o.attr( { type:'dna' , name:sequence.name } ) ;
-    s += o.outerHTML() + "\n" ;
+    s += o[0].outerHTML + "\n" ;
     
     s += "</circuit>\n" ;
     s += "</session>\n" ;
