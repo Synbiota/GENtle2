@@ -304,6 +304,8 @@ define(function(require) {
 
       _this.clearCache(); 
 
+      _this.trigger('change change:layoutHelpers', lh);
+
       // We resize `this.$scrollingChild` and fullfills the Promise
       _this.resizeScrollHelpers().then(resolve);
     });

@@ -117,5 +117,10 @@ define(function(require) {
     return this.distanceToVisibleCanvas(base) === 0;
   };
 
+  Utilities.prototype.maxVisibleBase = function() {
+    var layoutHelpers = this.layoutHelpers;
+    return layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
+  };
+
   return Utilities;
 });

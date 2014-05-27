@@ -4763,6 +4763,7 @@ button.close {
     position: absolute;
     right: 0; }
     .linear-map .linear-map-features .linear-map-feature {
+      cursor: pointer;
       font-size: 10px;
       box-sizing: border-box;
       padding: 1px 2px;
@@ -4792,6 +4793,20 @@ button.close {
         right: 61px; }
       .linear-map .linear-map-features .linear-map-feature:hover {
         text-decoration: none; }
+  .linear-map .linear-map-position-marks {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: default; }
+    .linear-map .linear-map-position-marks .linear-map-position-mark {
+      position: absolute;
+      font-family: Monospace;
+      font-size: 10px;
+      color: #005;
+      border-top: 1px solid #888; }
+      .linear-map .linear-map-position-marks .linear-map-position-mark:first-child {
+        border-top: none; }
 
 @-webkit-keyframes full-rotation {
   from {

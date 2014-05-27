@@ -2,13 +2,14 @@ define(function(require) {
   var Backbone        = require('backbone.mixed'),
       Gentle          = require('gentle')(),
       template        = require('hbars!linear_map/templates/linear_map_view'),
-      LinearMapCanvas = require('linear_map/lib/linear_map_canvas'),
       LinearMapView;
 
   LinearMapView = Backbone.View.extend({
     manage: true,
     template: template,
     className: 'linear-map',
+    minPositionMarkInterval: 60,
+    initialRender: true,
 
     events: {
       'click .linear-map-feature': 'goToFeature'
@@ -18,7 +19,7 @@ define(function(require) {
       this.model = Gentle.currentSequence;
       this.minFeatureWidth = 4;
       this.topFeatureOffset = -16;
-      _.bindAll(this, 'scrollSequenceCanvas')
+      _.bindAll(this, 'scrollSequenceCanvas');
 
       this.listenTo(
         this.model, 
@@ -27,7 +28,7 @@ define(function(require) {
         this
       );
 
-      this.refresh(false);
+      // this.refresh(false);
 
     },
 
@@ -98,16 +99,59 @@ define(function(require) {
     },
 
     serialize: function() {
-      return {
-        features: this.features
-      };
+      if(this.initialRender) {
+        return {};
+      } else {
+        return {
+          features: this.features,
+          positionMarks: this.positionMarks
+        };
+      }
     },
 
     refresh: function(render) {
       this.processFeatures();
-      if(this.linearMapCanvas) this.linearMapCanvas.unbind();
+      this.processPositionMarks();
       if(render !== false) this.render();
     },
+
+    processPositionMarks: function(layoutHelpers) {
+      var sequenceCanvas = this.sequenceCanvas,
+          height = this.$el.height(),
+          maxBase = sequenceCanvas.maxVisibleBase(),
+          magnitudeOrder = Math.floor(Math.log10(maxBase)),
+          divider = Math.pow(10, magnitudeOrder - 1),
+          maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
+
+      console.log('height', height);
+      this.positionMarksInterval = Math.max(1, maxBaseForCalc / 10);
+
+      while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
+        this.positionMarksInterval = Math.floor(this.positionMarksInterval * 2);
+      }
+
+      this.positionMarks = [];
+      for(var i = 0; i < maxBase; i += this.positionMarksInterval) {
+        console.log(i)
+        this.positionMarks.push({
+          base: i,
+          label: _.formatThousands(i+1),
+          top: Math.floor(i / maxBase * height)
+        });
+      }
+
+
+    },
+
+    // positionPositionMarks: function() {
+    //   var _this = this;
+    //   this.$('linar-map-position-mark').each(function(i, element) {
+    //     var $mark = $(element);
+    //     $mark.css({
+    //       top: Math.floor($mark.data('base') / _this.maxBase * canvasHeight)
+    //     });
+    //   });
+    // },
 
     setupScrollHelper: function() {
       var sequenceCanvas = this.sequenceCanvas,
@@ -155,36 +199,42 @@ define(function(require) {
     },
 
     afterRender: function() {
-      var _this = this,
-          sequenceCanvas = Gentle.layout.getView('#content').sequenceCanvas;
+      if(this.initialRender) {
+        var sequenceCanvas = Gentle.layout.getView('#content').sequenceCanvas;
+        this.initialRender = false;
+        this.sequenceCanvas = sequenceCanvas;
 
-      if(this.sequenceCanvas === undefined) {
         this.listenTo(
           sequenceCanvas, 
           'scroll', 
-          this.updateScrollHelperPosition, 50, 
+          this.updateScrollHelperPosition, 
           this
         );
+
+        this.listenTo(
+          sequenceCanvas,
+          'change:layoutHelpers',
+          this.refresh,
+          this
+        );
+
+      } else {
+
+        this.setupScrollHelper();
+        this.positionFeatures();
+
+        // When SequenceCanvas' layoutHelpers are calculated, we fetch the
+        // max base number (>= sequence length)
+        // sequenceCanvas.redraw();
+        // sequenceCanvas.afterNextRedraw(function() {
+        //   var layoutHelpers = sequenceCanvas.layoutHelpers;
+        //   _this.maxBase = layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
+
+        //   _this.setupScrollHelper();
+
+        //   _this.positionFeatures();
+        // });
       }
-      this.sequenceCanvas = sequenceCanvas;
-
-      // When SequenceCanvas' layoutHelpers are calculated, we fetch the
-      // max base number (>= sequence length)
-      sequenceCanvas.redraw();
-      sequenceCanvas.afterNextRedraw(function() {
-        var layoutHelpers = sequenceCanvas.layoutHelpers;
-        _this.maxBase = layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
-
-        _this.setupScrollHelper();
-
-        _this.linearMapCanvas = new LinearMapCanvas({
-          maxBase: _this.maxBase,
-          $canvas: _this.$('canvas')
-        });
-
-        _this.positionFeatures();
-      });
-      
     },
 
   });

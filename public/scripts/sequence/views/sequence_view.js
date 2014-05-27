@@ -38,20 +38,23 @@ define(function(require) {
       this.contextMenuView = new ContextMenuView();
       this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
 
-      this.secondaryView = new LinearMapView();
-      this.insertView('#sequence-canvas-secondary-view-outlet', this.secondaryView);
-
     },
 
     afterRender: function() {
-      this.$('.sequence-canvas-container, .scrolling-parent').css('right',
-        this.secondaryView.$el.width()
-      );
 
       this.sequenceCanvas = new SequenceCanvas({
         view: this,
         $canvas: this.$('canvas').first()
       });
+
+      this.secondaryView = new LinearMapView();
+      this.insertView('#sequence-canvas-secondary-view-outlet', this.secondaryView)
+        .render();
+
+      this.$('.sequence-canvas-container, .scrolling-parent').css('right',
+        this.secondaryView.$el.width()
+      );
+      this.sequenceCanvas.refresh();
 
       this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();
       this.contextMenuView.boundTo = this.sequenceCanvas;

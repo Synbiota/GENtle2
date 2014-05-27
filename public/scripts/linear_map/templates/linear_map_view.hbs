@@ -1,9 +1,15 @@
-<canvas class="linear-map-canvas"></canvas>
 <div class="linear-map-visible-range"></div>
+<div class="linear-map-position-marks">
+  {{#each positionMarks}}
+    <div class="linear-map-position-mark" data-base="{{base}}" style="top: {{top}}px;">
+      {{label}}
+    </div>
+  {{/each}}
+</div>
 <div class="linear-map-features">
   {{#each features}}
-    <a href="#" class="linear-map-feature linear-map-feature-{{type}}" data-feature-id="{{id}}">
+    <div href="#" class="linear-map-feature linear-map-feature-{{type}}" data-feature-id="{{id}}">
       {{name}}
-    </a>
+    </div>
   {{/each}} 
 </div>
