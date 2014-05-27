@@ -27,9 +27,6 @@ define(function(require) {
         _.debounce(this.refresh, 500),
         this
       );
-
-      // this.refresh(false);
-
     },
 
     processFeatures: function() {
@@ -123,7 +120,6 @@ define(function(require) {
           divider = Math.pow(10, magnitudeOrder - 1),
           maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
 
-      console.log('height', height);
       this.positionMarksInterval = Math.max(1, maxBaseForCalc / 10);
 
       while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
@@ -132,7 +128,6 @@ define(function(require) {
 
       this.positionMarks = [];
       for(var i = 0; i < maxBase; i += this.positionMarksInterval) {
-        console.log(i)
         this.positionMarks.push({
           base: i,
           label: _.formatThousands(i+1),

@@ -20,6 +20,7 @@ define(function(require) {
     this.type = 'position';
     this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
+    this.cachedProperties = ['visible'];
     _.extend(this, options);
   };
   _.extend(Position.prototype, Line.prototype);

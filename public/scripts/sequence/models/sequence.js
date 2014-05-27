@@ -34,6 +34,8 @@ define(function(require){
     constructor: function() {
       Backbone.DeepModel.apply(this, arguments);
       this.sortFeatures();
+      this.maxOverlappingFeatures = _.memoize2(this._maxOverlappingFeatures);
+      this.nbFeaturesInRange = _.memoize2(this._nbFeaturesInRange);
     },
 
     /**
@@ -162,7 +164,7 @@ define(function(require){
     @method maxOverlappingFeatures
     @returns {integer}
     **/
-    maxOverlappingFeatures: _.memoize2(function() {
+    _maxOverlappingFeatures: function() {
       var ranges = _.flatten(_.pluck(this.attributes.features, 'ranges')),
           previousRanges = [], i = 0;
 
@@ -176,19 +178,19 @@ define(function(require){
         i++;
       }
       return i+1;
-    }),
+    },
 
     /**
     @method featuresCountInRange
     @returns {integer}
     **/
-    nbFeaturesInRange: _.memoize2(function(startBase, endBase) {
+    _nbFeaturesInRange: function(startBase, endBase) {
       return _.filter(this.attributes.features, function(feature) {
         return _.some(feature.ranges, function(range) {
           return range.from <= endBase && range.to >= startBase;
         });
       }).length;
-    }),
+    },
 
     insertBases: function(bases, beforeBase, updateHistory) {
       var seq = this.get('sequence');
@@ -293,8 +295,8 @@ define(function(require){
     },
 
     clearFeatureCache: function() {
-      this.nbFeaturesInRange.cache = {};
-      this.maxOverlappingFeatures.cache = {};
+      this.nbFeaturesInRange.clearCache();
+      this.maxOverlappingFeatures.clearCache();
     },
 
     getHistory: function() {

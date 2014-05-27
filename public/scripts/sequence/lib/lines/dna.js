@@ -20,6 +20,7 @@ define(function(require) {
   DNA = function(sequenceCanvas, options) {
     this.type = 'dna';
     this.sequenceCanvas = sequenceCanvas;
+    this.cachedProperties = ['visible'];
     _.extend(this, options);
   };
   _.extend(DNA.prototype, Line.prototype);

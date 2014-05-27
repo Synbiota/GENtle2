@@ -24,8 +24,10 @@ define(function(require) {
     var _this = this;
     this.type = 'Feature';
     this.sequenceCanvas = sequenceCanvas;
+    this.sequenceCanvas.sequence.on('change:features', this.clearCache, this);
     _.extend(this, options);
     this.featureStack = [];
+    this.cachedProperties = ['visible', 'maxNbFeaturesPerRow'];
   };
   _.extend(Feature.prototype, Line.prototype);
 
@@ -83,27 +85,19 @@ define(function(require) {
   @method maxNbFeaturesPerRange
   @returns {integer}
   **/
-  Feature.prototype.maxNbFeaturesPerRow = function() {
+  Feature.prototype.maxNbFeaturesPerRow = _.memoize2(function() {
     var nbFeatures      = [],
         sequenceCanvas  = this.sequenceCanvas,
         sequence        = sequenceCanvas.sequence,
         basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow,
         _maxNb;
 
-    _maxNb = function(_basesPerRow) {
-      for(var i = 0; i < Math.floor(sequence.length() / _basesPerRow); i++) {
-        nbFeatures.push(sequence.nbFeaturesInRange(i * _basesPerRow, (i+1) * _basesPerRow - 1));
-      }
-      return nbFeatures.length ? _.max(nbFeatures) : 0;
-    };
-
-    if(this._maxNbFeaturesPerRow === undefined) {
-      this._maxNbFeaturesPerRow = _.memoize2(_maxNb);
-      sequence.on('change:features', this._maxNbFeaturesPerRow.clearCache);
+    for(var i = 0; i < Math.floor(sequence.length() / basesPerRow); i++) {
+      nbFeatures.push(sequence.nbFeaturesInRange(i * basesPerRow, (i+1) * basesPerRow - 1));
     }
+    return nbFeatures.length ? _.max(nbFeatures) : 0;
 
-    return this._maxNbFeaturesPerRow(basesPerRow);
-  },
+  }),
 
   /**
   Sets the `this.height` attribute based on the max nb of features pe row

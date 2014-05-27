@@ -15,6 +15,7 @@ define(function(require) {
   Blank = function(sequenceCanvas, options) {
     this.type = 'blank';
     this.cache = {};
+    this.cachedProperties = ['visible'];
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options);
   };

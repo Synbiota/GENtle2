@@ -16,11 +16,12 @@ define(function(require) {
   @method clearCache
   **/
   Line.prototype.clearCache = function() {
-    var toClear = ['visible'],
-        this_   = this;
-    _(toClear).each(function(funcName) {
-      if(this_[funcName] !== undefined && _.isFunction(this_[funcName].clearCache)) {
-        this_[funcName].clearCache();
+    var toClear = this.cachedProperties,
+        _this   = this;
+
+    _.each(toClear, function(funcName) {
+      if(_this[funcName] !== undefined && _.isFunction(_this[funcName].clearCache)) {
+        _this[funcName].clearCache();
       }
     });
   };
