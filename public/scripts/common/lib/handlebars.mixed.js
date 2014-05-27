@@ -62,9 +62,15 @@ define(function(require) {
     return output;
   });
 
-Handlebars.registerHelper('formatThousands', function(context, offset) {
-  return _.formatThousands(context + (offset || 0));
-});
+  Handlebars.registerHelper('formatThousands', function(context, offset) {
+    return _.formatThousands(context + (offset || 0));
+  });
+
+  Handlebars.registerHelper('shortFormNumber', function(context) {
+    return _.shortFormNumber(context);
+  });
+
+
 
   return Handlebars;
 });

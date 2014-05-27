@@ -406,7 +406,7 @@ define(function(require){
     serialize: function() {
       return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
         isCurrent: (Gentle.currentSequence && Gentle.currentSequence.get('id') == this.get('id')),
-        formattedLength: _.formatThousands(this.length())
+        length: this.length()
       });
     },
 

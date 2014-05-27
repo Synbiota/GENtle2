@@ -86,6 +86,24 @@ define(function(require) {
     **/
     formatThousands: function(number) {
       return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    },
+
+    /**
+    Converts an integer in short form depending on order of magnitude
+
+    ```js
+    _.shortFormNumber(124) // => "124"
+    _.shortFormNumber(1240) // => "1.24K"
+    _.shortFormNumber(124023) // => "124K"
+    _.shortFormNumber(1240234) // => "1.24M"
+    _.shortFormNumber(1240234000) // => "1.24G"
+    ```
+    **/
+    shortFormNumber: function(number) {
+      var suffixes = ['', 'K', 'M', 'G'],
+          magOrder = Math.round(Math.log10(number) / 3),
+          roundedNumber = Math.round(number / Math.pow(10, magOrder * 3) * 100) / 100;
+      return roundedNumber.toString() + suffixes[magOrder];
     }
 
 
