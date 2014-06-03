@@ -10,6 +10,9 @@
       - [Stylesheets](#stylesheets)
       - [Javascripts](#javascripts)
       - [Continuous compilation](#continuous-compilation)
+    - [Running specs](#running-specs)
+      - [Installation](#installation-1)
+      - [Running the server](#running-the-server)
   - [Server](#server)
   - [App](#app)
     - [Directory structure and primary files](#directory-structure-and-primary-files)
@@ -98,6 +101,22 @@ grunt watch:sass
 grunt watch:compile 
 ```
 
+### Running specs
+
+We use [Karma](https://karma-runner.github.io) to run specs written using
+[Jasmine](https://jasmine.github.io/2.0/introduction.html).
+
+Specs are run in PhantomJS so all happens in the CLI.
+
+#### Installation
+
+1. Install `karma` and dependencies globally `npm install -g karma karma-phantomjs-launcher karma-requirejs karma-cli karma-jasmine`
+2. Install `phantomjs` globally `npm install -g phantomjs`
+
+#### Running the server
+
+1. Run `karma start` once to start the server
+2. Run `karma run` to run the specs. 
 
 ## Server
 
