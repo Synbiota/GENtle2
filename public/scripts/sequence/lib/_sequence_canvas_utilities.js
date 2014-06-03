@@ -17,27 +17,47 @@ define(function(require) {
     Will be passed the y-offset in canvas.
   */
   Utilities.prototype.forEachRowInRange = function(startY, endY, callback) {
-    var firstRowStartY  = this.getRowStartY(startY),
-        y;
-    for(y = firstRowStartY; 
-        y < Math.min(endY, this.layoutSettings.canvasDims.height - this.layoutSettings.pageMargins.bottom); 
+    var layoutSettings = this.layoutSettings,
+        layoutHelpers = this.layoutHelpers,
+        pageMargins = layoutSettings.pageMargins,
+        firstRowStartY  = this.getRowStartY(Math.max(startY - layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
+        lastRowY = Math.min(endY, layoutSettings.canvasDims.height - layoutSettings.pageMargins.bottom);
+
+    for(var y = firstRowStartY; 
+        y < lastRowY; 
         y += this.layoutHelpers.rows.height)
       callback.call(this, y);
   };
 
   /**
   @method getRowStartX
-  @param posY {integer} Y position in the row (relative to the canvas)
-  @return {integer} Y-start of the row (relative to canvas)
+  @param posY {integer} Y position (relative to sequence)
+  @return {integer} Y-start of the row (relative to sequence)
   **/
   Utilities.prototype.getRowStartY = function(posY) {
-    return posY - 
-      (posY + 
-        this.layoutHelpers.yOffset - 
-        this.layoutSettings.pageMargins.top
-      ) % 
-      this.layoutHelpers.rows.height;
+    var layoutHelpers = this.layoutHelpers,
+        rowsHeight = layoutHelpers.rows.height,
+        marginTop = this.layoutSettings.pageMargins.top;
+
+    return this.getRowFromYPos(posY) * rowsHeight + marginTop;
   };
+
+  /**
+  @method getRowFromYPos
+  @param posY {integer} (relative to sequence)
+  **/
+  Utilities.prototype.getRowFromYPos = function(posY) {
+    var layoutHelpers = this.layoutHelpers,
+        yOffset = layoutHelpers.yOffset,
+        rowsHeight = layoutHelpers.rows.height,
+        marginTop = this.layoutSettings.pageMargins.top;
+
+    return Math.floor(
+      (posY - marginTop) / 
+      rowsHeight
+    );
+  };
+
 
   /**
   @method getBaseRangeFromYPos
@@ -45,7 +65,7 @@ define(function(require) {
   @return {Array} First and last bases in the row at the y-pos
   **/
   Utilities.prototype.getBaseRangeFromYPos = function(posY) {
-    var rowNumber = Math.floor((this.getRowStartY(posY) + this.layoutHelpers.yOffset) / this.layoutHelpers.rows.height),
+    var rowNumber = this.getRowFromYPos(posY),
         firstBase = rowNumber * this.layoutHelpers.basesPerRow;
     return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
   };
@@ -53,7 +73,7 @@ define(function(require) {
   /**
   @method getBaseFromXYPos
   @param posX {integer}
-  @param posY {integer} relative y-position (in visible part of canvas)
+  @param posY {integer} (relative to sequence)
   **/
   Utilities.prototype.getBaseFromXYPos = function(posX, posY) {
     var layoutSettings  = this.layoutSettings,

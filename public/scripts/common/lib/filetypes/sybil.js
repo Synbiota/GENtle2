@@ -45,7 +45,6 @@ define(function(require) {
     if ( '' != ( sequence.desc || '' ) ) {
       var o = $('<general_description></general_description>') ;
       o.text ( sequence.desc ) ;
-      console.log('prout' + o[0])
       s += o[0].outerHTML + "\n" ;
     }
     

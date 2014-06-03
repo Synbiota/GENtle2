@@ -320,6 +320,7 @@ define(function(require) {
       var artist          = this.artist,
           ls              = this.layoutSettings,
           lh              = this.layoutHelpers,
+          yOffset         = lh.yOffset,
           _this           = this,
           i, k, pos, baseRange, y;
 
@@ -329,7 +330,7 @@ define(function(require) {
         artist.clear();
 
         _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
-          baseRange = _this.getBaseRangeFromYPos(y);
+          baseRange = _this.getBaseRangeFromYPos(y + yOffset);
           _.each(ls.lines, function(line, key) {
             if(line.visible === undefined || line.visible()) {
               line.draw(y, baseRange);

@@ -258,7 +258,7 @@ define(function(require) {
     var _this = this,
         mouse = this.normalizeMousePosition(event);
 
-    _this.dragStartPos = [mouse.left, mouse.top];
+    _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
@@ -279,6 +279,8 @@ define(function(require) {
         caretPosition = _this.caretPosition,
         selection = _this.selection,
         mouse = _this.normalizeMousePosition(event);
+
+    mouse.top += layoutHelpers.yOffset;
 
     if( _this.dragStartPos &&
         ( Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
@@ -327,7 +329,7 @@ define(function(require) {
   **/
   Handlers.prototype.handleClick = function(event) {
     var mouse = this.normalizeMousePosition(event),
-        base = this.getBaseFromXYPos(mouse.left, mouse.top),
+        base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset),
         _this = this;
 
     if(this.selection) {
@@ -356,7 +358,7 @@ define(function(require) {
   };
 
   Handlers.prototype.normalizeMousePosition = function(event) {
-    var scrollingParentPosition = this.$scrollingParent.position();
+    var scrollingParentPosition = this.$scrollingParent.offset();
 
     return {
       left: event.pageX - scrollingParentPosition.left,

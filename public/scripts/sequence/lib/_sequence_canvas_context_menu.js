@@ -23,7 +23,7 @@ define(function(require) {
     
     this.contextMenuXPos = posX;
     this.contextMenuYPos = posY;
-    menu.reset().move(this.contextMenuXPos, this.contextMenuYPos - this.layoutHelpers.yOffset);
+    menu.reset().move(posX, posY - this.layoutHelpers.yOffset);
 
     if(this.copyPasteHandler.copiedValue) {
       menu.add('Paste', this.pasteFromMenu);
