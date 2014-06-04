@@ -23,7 +23,7 @@ define(function(require) {
 
       if(~this.allowedInputChars.indexOf(base)) {
 
-        if(!selection && caretPosition) {
+        if(!selection && caretPosition !== undefined) {
 
           this.hideCaret();
           this.sequence.insertBases(base, caretPosition);
@@ -233,7 +233,7 @@ define(function(require) {
         caretPosition = _this.caretPosition;
 
     this.copyPasteHandler.paste().then(function(text) {
-      if(caretPosition && !selection) {
+      if(caretPosition !== undefined && !selection) {
         text = _this.cleanPastedText(text);
         _this.hideCaret();
         _this.sequence.insertBases(text, caretPosition);
@@ -245,7 +245,7 @@ define(function(require) {
   };
 
   Handlers.prototype.handleUndo = function(event) {
-    if(this.caretPosition) {
+    if(this.caretPosition !== undefined) {
       event.preventDefault();
       this.hideCaret();
       this.sequence.undo();
@@ -353,7 +353,7 @@ define(function(require) {
   @method handleBlur
   **/
   Handlers.prototype.handleBlur = function(event) {
-    if(this.caretPosition) {
+    if(this.caretPosition !== undefined) {
       this.hideCaret(false);
     }
   };

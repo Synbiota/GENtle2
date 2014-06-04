@@ -375,7 +375,7 @@ define(function(require) {
   @method refresh
   **/
   SequenceCanvas.prototype.refresh = function() {
-    if(this.caretPosition) {
+    if(this.caretPosition !== undefined) {
       this.hideCaret();
       this.caretPosition = undefined;
     }
@@ -470,7 +470,7 @@ define(function(require) {
         _this         = this,
         posX, posY;
 
-    if(base === undefined && this.caretPosition) {
+    if(base === undefined && this.caretPosition !== undefined) {
       base = this.caretPosition;
     }
 
