@@ -4808,6 +4808,32 @@ button.close {
       .linear-map .linear-map-position-marks .linear-map-position-mark:first-child {
         border-top: none; }
 
+.caret {
+  position: absolute;
+  margin-top: -6px;
+  margin-left: -6px; }
+  .caret .caret-caret {
+    width: 3px;
+    height: 15px;
+    background: black;
+    border: 1px solid white; }
+    .caret .caret-caret.caret-blinking {
+      -webkit-animation: blink 1s linear infinite;
+      -o-animation: blink 1s linear infinite;
+      animation: blink 1s linear infinite; }
+  .caret .caret-info {
+    background: black;
+    color: white;
+    padding: 2px;
+    left: -3px;
+    right: auto;
+    position: absolute;
+    font-size: 9px;
+    border-radius: 3px;
+    top: -16px;
+    border: 1px solid white;
+    border-bottom: none; }
+
 @-webkit-keyframes full-rotation {
   from {
     -webkit-transform: rotate(0deg); }
@@ -4836,6 +4862,36 @@ button.close {
     -ms-transform: rotate(360deg);
     -o-transform: rotate(360deg);
     transform: rotate(360deg); } }
+
+@-webkit-keyframes blink {
+  0%, 35% {
+    opacity: 1; }
+
+  50%, 96% {
+    opacity: 0; }
+
+  99% {
+    opacity: 1; } }
+
+@-moz-keyframes blink {
+  0%, 35% {
+    opacity: 1; }
+
+  50%, 96% {
+    opacity: 0; }
+
+  99% {
+    opacity: 1; } }
+
+@keyframes blink {
+  0%, 35% {
+    opacity: 1; }
+
+  50%, 96% {
+    opacity: 0; }
+
+  99% {
+    opacity: 1; } }
 
 body {
   margin: 0; }

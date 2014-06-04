@@ -1,0 +1,12 @@
+@include keyframes(blink) {
+  0%, 35% {
+    opacity: 1;
+  }
+  50%, 96% {
+    opacity: 0;
+  }
+  99% {
+    opacity: 1;
+  }
+
+}

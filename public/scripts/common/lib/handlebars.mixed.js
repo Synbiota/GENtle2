@@ -63,7 +63,7 @@ define(function(require) {
   });
 
   Handlebars.registerHelper('formatThousands', function(context, offset) {
-    return _.formatThousands(context + (offset || 0));
+    return _.formatThousands(context + (_.isObject(offset) ? 0 : offset));
   });
 
   Handlebars.registerHelper('shortFormNumber', function(context) {

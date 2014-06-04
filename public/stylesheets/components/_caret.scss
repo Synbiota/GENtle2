@@ -1,0 +1,30 @@
+.caret {
+  position: absolute;
+  margin-top: -6px;
+  margin-left: -6px;
+
+  .caret-caret {
+    width: 3px;
+    height: 15px;
+    background: black;
+    border: 1px solid white;
+
+    &.caret-blinking {
+      @include animation(blink 1s linear infinite);
+    }
+  }
+
+  .caret-info {
+    background: black;
+    color: white;
+    padding: 2px;
+    left: -3px;
+    right: auto;
+    position: absolute;
+    font-size: 9px;
+    border-radius: 3px;
+    top: -16px;
+    border: 1px solid white;
+    border-bottom: none;
+  }
+}

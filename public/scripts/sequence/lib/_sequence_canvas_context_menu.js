@@ -92,7 +92,7 @@ define(function(require) {
         );
       }
       this.sequence.insertBases(text, caretPosition);
-      this.displayCaretAfterNextRedraw(caretPosition + text.length);
+      this.displayCaret(caretPosition + text.length);
       this.focus();
     }
   };

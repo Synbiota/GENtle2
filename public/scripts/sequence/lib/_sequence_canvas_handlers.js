@@ -28,7 +28,7 @@ define(function(require) {
           this.hideCaret();
           this.sequence.insertBases(base, caretPosition);
           this.caretPosition = ++caretPosition;
-          this.displayCaretAfterNextRedraw();
+          this.displayCaret();
 
         } else if(selection) {
 
@@ -40,7 +40,7 @@ define(function(require) {
           );
           this.sequence.insertBases(base, selection[0]);
           this.caretPosition = selection[0] + 1;
-          this.displayCaretAfterNextRedraw(selection[0] + 1);
+          this.displayCaret(selection[0] + 1);
         }
       }
     }
@@ -100,12 +100,12 @@ define(function(require) {
         selection[0], 
         selection[1] - selection[0] + 1
       );
-      this.displayCaretAfterNextRedraw(selection[0]);
+      this.displayCaret(selection[0]);
     } else if(this.caretPosition > 0) {
       var previousCaret = this.caretPosition;
       this.hideCaret();
       this.sequence.deleteBases(previousCaret - 1, 1);
-      this.displayCaretAfterNextRedraw(previousCaret - 1);
+      this.displayCaret(previousCaret - 1);
     }
   };
 
@@ -237,7 +237,7 @@ define(function(require) {
         text = _this.cleanPastedText(text);
         _this.hideCaret();
         _this.sequence.insertBases(text, caretPosition);
-        _this.displayCaretAfterNextRedraw(caretPosition + text.length);
+        _this.displayCaret(caretPosition + text.length);
         _this.focus();
       }
 
@@ -258,6 +258,7 @@ define(function(require) {
     var _this = this,
         mouse = this.normalizeMousePosition(event);
 
+    _this.hideCaret();
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
 

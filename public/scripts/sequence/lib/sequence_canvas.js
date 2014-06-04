@@ -17,7 +17,7 @@ define(function(require) {
       Hotkeys           = require('common/lib/hotkeys'),
       CopyPasteHandler  = require('common/lib/copy_paste_handler'),
       Lines             = require('sequence/lib/lines'),
-      Caret             = require('sequence/lib/caret'),
+      Caret             = require('common/lib/caret'),
       _Handlers         = require('sequence/lib/_sequence_canvas_handlers'),
       _Utilities        = require('sequence/lib/_sequence_canvas_utilities'),
       _ContextMenu      = require('sequence/lib/_sequence_canvas_context_menu'),
@@ -186,7 +186,11 @@ define(function(require) {
 
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
-    this.caret = new Caret(this);
+    this.caret = new Caret({
+      $container: this.$scrollingChild,
+      className: 'sequence-canvas-caret',
+      blinking: true
+    });
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
@@ -479,7 +483,7 @@ define(function(require) {
       posX = _this.getXPosFromBase(base);
       posY = _this.getYPosFromBase(base) + lineOffsets.dna;
 
-      _this.caret.move(posX, posY);
+      _this.caret.move(posX, posY, base);
       _this.caretPosition = base;
       _this.showContextMenuButton(posX, posY + 20);
 
@@ -487,11 +491,13 @@ define(function(require) {
   
   };
 
-  SequenceCanvas.prototype.displayCaretAfterNextRedraw = 
-    _.wrap(
-      SequenceCanvas.prototype.displayCaret,
-      SequenceCanvas.prototype.afterNextRedraw
-    );
+  SequenceCanvas.prototype.moveCaret = function(newPosition) {
+    if(this.selection) {
+      this.selection = undefined;
+      this.redraw();
+    }
+    this.displayCaret(newPosition);
+  };
 
   SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
     this.caret.remove();
@@ -544,7 +550,7 @@ define(function(require) {
         }
       }
     }
-    this.displayCaretAfterNextRedraw(newCaret);
+    this.displayCaret(newCaret);
   };
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {
@@ -554,13 +560,6 @@ define(function(require) {
 
   SequenceCanvas.prototype.focus = function() {
     this.$scrollingParent.focus();
-  };
-
-  SequenceCanvas.prototype.moveCaret = function(newPosition) {
-    this.selection = undefined;
-    this.caret.hide();
-    this.redraw();
-    this.displayCaretAfterNextRedraw(newPosition);
   };
 
 

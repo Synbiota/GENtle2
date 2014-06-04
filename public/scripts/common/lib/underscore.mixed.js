@@ -78,7 +78,7 @@ define(function(require) {
 
     ```js
     _.formatThousands(14342534) // => "14,342,534"
-    ``
+    ```
 
     @method _.formatThousands
     @param {Integer} number
