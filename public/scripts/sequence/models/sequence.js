@@ -166,15 +166,18 @@ define(function(require){
     **/
     _maxOverlappingFeatures: function() {
       var ranges = _.flatten(_.pluck(this.attributes.features, 'ranges')),
-          previousRanges = [], i = 0;
+          previousRanges = [], i = 0,
+          filterOverlappingRanges = function(ranges) {
+            return _.filter(ranges, function(range) {
+              return _.some(ranges, function(testRange) {
+                return range != testRange && range.from <= testRange.to && range.to >= testRange.from;
+              });
+            });
+          };
 
       while(ranges.length > 1 && _.difference(ranges, previousRanges).length && i < 100) {
         previousRanges = _.clone(ranges);
-        ranges = _.filter(ranges, function(range) {
-          return _.some(ranges, function(testRange) {
-            return range != testRange && range.from <= testRange.to && range.to >= testRange.from;
-          });
-        });
+        ranges = filterOverlappingRanges(ranges);
         i++;
       }
       return i+1;
@@ -197,7 +200,7 @@ define(function(require){
 
       if(updateHistory === undefined) updateHistory = true;
 
-      this.moveFeatures(bases.length, beforeBase);
+      this.moveFeatures(beforeBase, bases.length);
 
       this.set('sequence', 
         seq.substr(0, beforeBase) + 
@@ -226,7 +229,7 @@ define(function(require){
 
       subseq = seq.substr(firstBase, length);
 
-      this.moveFeatures(-length, firstBase);
+      this.moveFeatures(firstBase, -length);
 
       this.set('sequence',
         seq.substr(0, firstBase) + 
@@ -247,8 +250,9 @@ define(function(require){
 
     },
 
-    moveFeatures: function(offset, base) {
-      var features = this.get('features');
+    moveFeatures: function(base, offset) {
+      var features = this.get('features'),
+          firstBase, lastBase;
       if(_.isArray(features)) {
 
         for(var i = 0; i < features.length; i++) {
@@ -258,28 +262,27 @@ define(function(require){
             var range = feature.ranges[j];
 
             if(offset > 0) {
+
               if(range.from >= base) range.from += offset;
               if(range.to >= base) range.to += offset;
+
             } else {
 
-              if( base - offset - 1 < range.from ) {
-                range.from += offset;
-                range.to += offset;
-              } else {
-                if(range.to >= base){
-                  var boundMin = Math.max(range.from, base),
-                      boundMax = Math.min(range.to, base - offset - 1);
+              firstBase = base;
+              lastBase = base - offset - 1;
 
-                  range.to -= boundMax - boundMin + 1;
+              if(firstBase <= range.from) {
+                if(lastBase >= range.to) {
+                  feature.ranges.splice(j--, 1);
+                } else {
+                  range.from -= lastBase < range.from ? - offset : range.from - firstBase; 
+                  range.to += offset;
                 }
-                if(range.from > base) {
-                  range.from -= range.from - base;
-                }
+              } else if(firstBase <= range.to) {
+                range.to = Math.max(firstBase - 1, - offset);
               }
               
             }
-            // If the range is collapsed, we remove it
-            if(range.from >= range.to) feature.ranges.splice(j--, 1);
           }
           // If there are no more ranges, we remove the feature and
           // record the operation in the history

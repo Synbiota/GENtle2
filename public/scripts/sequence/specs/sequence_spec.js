@@ -72,9 +72,13 @@ define(function(require) {
       expect(sequence.save).toHaveBeenCalled();
     });
 
-    it('should move the features', function() {
+    it('should move the beginning of the features', function() {
       var featureRange = sequence.get('features.0.ranges.0');
       expect(featureRange.from).toEqual(2);
+    });
+
+    it('should move the end of the features', function() {
+      var featureRange = sequence.get('features.0.ranges.0');
       expect(featureRange.to).toEqual(2);
     });
   });
@@ -92,8 +96,8 @@ define(function(require) {
     });
 
     it('should delete the feature', function() {
-      var featureRange = sequence.get('features');
-      expect(featureRange.length).toEqual(0);
+      var features = sequence.get('features');
+      expect(features.length).toEqual(0);
     });
   });
 });
