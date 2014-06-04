@@ -101,7 +101,10 @@ define(function(require) {
     var selection = this.selection;
 
     if(selection) {
-      this.view.sequenceSettingsView.tabs.features.view.createOnRange(selection[0], selection[1]);
+      this.view.sequenceSettingsView.tabs.features.view.createOnRange(
+        selection[0], 
+        Math.min(this.sequence.length(), selection[1])
+      );
     }
 
   };
