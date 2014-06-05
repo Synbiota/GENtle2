@@ -49,12 +49,16 @@ define(function(require){
   Clears entire canvas
 
   @method clear
+  @param {integer} [posY] 
+  @param {integer} [height]
   **/
   Artist.prototype.clear = function() {
     var canvas = this.canvas, 
-        context = this.context;
+        context = this.context,
+        posY = arguments[0],
+        height = arguments[1];
 
-    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
     this.shapes = [];
   };
 
@@ -128,13 +132,13 @@ define(function(require){
     device pixel ratio and backing store pixel ratio)
   **/
   Artist.prototype.getPixelRatio = function() {
-    var ctx = this.context,
+    var context = this.context,
         dpr = window.devicePixelRatio           || 1,
-        bsr = ctx.webkitBackingStorePixelRatio  ||
-              ctx.mozBackingStorePixelRatio     ||
-              ctx.msBackingStorePixelRatio      ||
-              ctx.oBackingStorePixelRatio       ||
-              ctx.backingStorePixelRatio        || 1;
+        bsr = context.webkitBackingStorePixelRatio  ||
+              context.mozBackingStorePixelRatio     ||
+              context.msBackingStorePixelRatio      ||
+              context.oBackingStorePixelRatio       ||
+              context.backingStorePixelRatio        || 1;
 
     return Math.max(this.minPixelRatio, dpr / bsr);
   };
@@ -146,6 +150,21 @@ define(function(require){
   Artist.prototype.setPixelRatio = function() {
     var pixelRatio = this.getPixelRatio();
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  };
+
+  /**
+  Moves canvas vertically by a given offset without recalculation
+  @method scroll
+  @param {integer} offset
+  **/
+  Artist.prototype.scroll = function(offset) {
+    var canvas = this.canvas,
+        context = this.context,
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    
+    this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
+    context.putImageData(imageData, 0, offset);
+
   };
 
   return Artist;

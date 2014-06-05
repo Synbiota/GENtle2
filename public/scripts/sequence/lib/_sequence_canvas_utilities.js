@@ -9,19 +9,19 @@ define(function(require) {
   Utilities = function() {};
 
   /**
-  @method forEachRowInWindow
+  @method forEachRowInPosYRange
   @param startY {integer} start of the visibility window
   @param endY {integer} end of the visibility window
   @param 
     callback {function} function to execute for each row. 
     Will be passed the y-offset in canvas.
   */
-  Utilities.prototype.forEachRowInRange = function(startY, endY, callback) {
+  Utilities.prototype.forEachRowInPosYRange = function(startY, endY, callback) {
     var layoutSettings = this.layoutSettings,
         layoutHelpers = this.layoutHelpers,
         pageMargins = layoutSettings.pageMargins,
-        firstRowStartY  = this.getRowStartY(Math.max(startY - layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
-        lastRowY = Math.min(endY, layoutSettings.canvasDims.height - layoutSettings.pageMargins.bottom);
+        firstRowStartY  = this.getRowStartY(Math.max(startY + layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
+        lastRowY = Math.min(endY, layoutSettings.canvasDims.height);
 
     for(var y = firstRowStartY; 
         y < lastRowY; 

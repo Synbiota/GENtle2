@@ -326,22 +326,34 @@ define(function(require) {
           lh              = this.layoutHelpers,
           yOffset         = lh.yOffset,
           _this           = this,
-          i, k, pos, baseRange, y;
+          canvasHeight    = ls.canvasDims.height,
+          drawStart, drawEnd, moveOffset;
 
-      return Q.promise(function(resolve, reject){
+      return Q.promise(function(resolve, reject) {
 
-        //clear canvas
-        artist.clear();
+        // Check if we have a previousYOffset reference, in which case
+        // we will only redraw the missing part
+        moveOffset = lh.previousYOffset !== undefined ? 
+          - lh.previousYOffset + yOffset :
+          0;
 
-        _this.forEachRowInRange(0, ls.canvasDims.height, function(y) {
-          baseRange = _this.getBaseRangeFromYPos(y + yOffset);
-          _.each(ls.lines, function(line, key) {
-            if(line.visible === undefined || line.visible()) {
-              line.draw(y, baseRange);
-              y += line.height;
-            }
-          });
-        });
+        if(moveOffset !== 0) {
+          artist.scroll(- moveOffset);
+
+          drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
+          drawEnd = moveOffset > 0 ? canvasHeight : - moveOffset;
+
+          lh.previousYOffset = undefined;
+
+        } else {
+
+          artist.clear();
+          drawStart = 0;
+          drawEnd = canvasHeight;
+
+        }
+
+        _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
 
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
@@ -351,6 +363,32 @@ define(function(require) {
     } else{
       return Q.promise(function(resolve, reject) {
         reject();
+      });
+    }
+  };
+
+  /** 
+  Draw row at position posY in the canvas
+  @method drawRow
+  @param {integer} posY
+  **/
+  SequenceCanvas.prototype.drawRow = function(posY) {
+    var layoutSettings = this.layoutSettings,
+        lines = layoutSettings.lines,
+        layoutHelpers = this.layoutHelpers,
+        yOffset = layoutHelpers.yOffset,
+        rowsHeight = layoutHelpers.rows.height,
+        canvasHeight  = layoutSettings.canvasDims.height,
+        bottomMargin  = layoutSettings.pageMargins.bottom,
+        baseRange = this.getBaseRangeFromYPos(posY + yOffset);
+
+    this.artist.clear(posY, rowsHeight);
+    if(baseRange[0] < this.sequence.length()) {
+      _.each(lines, function(line, key) {
+        if(line.visible === undefined || line.visible()) {
+          line.draw(posY, baseRange);
+          posY += line.height;
+        }
       });
     }
   };
@@ -393,17 +431,20 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.scrollTo = function(yOffset, triggerEvent) {
-    var deferred = Q.defer();
+    var deferred = Q.defer(),
+        layoutHelpers = this.layoutHelpers;
+
+    layoutHelpers.previousYOffset = layoutHelpers.yOffset;
 
     if(yOffset !== undefined) {
       this.sequence.set('displaySettings.yOffset', 
-        this.layoutHelpers.yOffset = yOffset,
+        layoutHelpers.yOffset = yOffset,
         { silent: true }
       );
       this.sequence.throttledSave();
     }
 
-    this.$scrollingParent.scrollTop(this.layoutHelpers.yOffset);
+    this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
 
     this.afterNextRedraw(deferred.resolve);
 
