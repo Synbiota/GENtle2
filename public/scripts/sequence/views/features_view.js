@@ -9,8 +9,8 @@ define(function(require) {
       SynbioData      = require('common/lib/synbio_data'),
       Backbone        = require('backbone.mixed'),
       BSConfirmation  = require('bootstrap-confirmation'),
-      historySteps    = require('sequence/models/history_steps'),
-      historyStep     = require('sequence/models/history_steps'),
+      HistorySteps        = require('sequence/models/history_steps'),
+      HistoryStep     = require('sequence/models/history_steps'),
 
       FeaturesView;
   
@@ -26,20 +26,14 @@ define(function(require) {
       'click .sequence-feature-edit-ranges-add-button': 'addRange',
       'click .sequence-feature-edit-save-button': 'saveFeature',
     },
-
+     
     initialize: function() {
       this.model = Gentle.currentSequence;
-
       this.featureTypes = _.chain(SynbioData.featureTypes).clone()
         .forEach(function(type, typeId) { type.value = typeId; })
         .values()
         .groupBy('category')
         .value();
-
-      this.historysteps = historySteps;
-      this.historyStep = historyStep;
-      this.historyStep.set('type','annotate');
-
     },
 
     getFeatureFromElement: function(element) {
@@ -181,6 +175,7 @@ define(function(require) {
         this.editedFeature.ranges = ranges;
         if(this.creating) {
           this.model.createFeature(this.editedFeature);
+          this.historySteps.comparator(historyStep);
         } else {
           this.model.updateFeature(this.editedFeature);
         }

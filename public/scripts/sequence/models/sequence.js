@@ -374,6 +374,7 @@ define(function(require){
 
     createFeature: function(newFeature) {
       var id = this.get('features').length;
+      var Feature = newFeature;
 
       if(id === 0) {
         newFeature._id = 0;
@@ -385,6 +386,14 @@ define(function(require){
       this.set('features.'+id, newFeature);
       this.sortFeatures();
       this.save();
+
+      this.getHistory().add({
+          type:'annotatein',
+          name: Feature.name,
+          annType: Feature._type, 
+          range: Feature.ranges,
+          timestamp: +(new Date())
+        });
     },
 
     deleteFeature: function(featureId) {

@@ -13,7 +13,9 @@ define(function(require){
       return _.extend(Backbone.Model.prototype.toJSON.call(this), {
         isInsertion: this.get('type') == 'insert',
         isDeletion: this.get('type') == 'delete',
-        isAnnotation: this.get('type') == 'annotate',
+        isAnnotationInsertion: this.get('type') == 'annotatein',
+        isAnnotationDelete: this.get('type') == 'annotatedel',
+
       });
     }
   });

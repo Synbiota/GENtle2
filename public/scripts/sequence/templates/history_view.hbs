@@ -15,22 +15,49 @@
               {{#if isInsertion}}
                 <span class='text-success'>Inserted</span>
               {{/if}}
-               {{#if isAnnotation}}
-                <span class='text-success'>Annotated</span>
-              {{/if}}
               {{#if isDeletion}}
                 <span class='text-danger'>Deleted</span>
               {{/if}}
+              {{#if isAnnotationInsertion}}
+                <span class='text-success'>Annotated</span>
+              {{/if}}
+              {{#if isAnnotationDeletion}}
+                <span class='text-danger'>Annotated</span>
+              {{/if}}
             </td>
+
+            {{#if position}}
             <td style="width: 60px;">
               <kbd>@{{position}}</kbd>
             </td>
+            {{/if}}
+
+            {{#if name}}
+            <td style="width: 60px;">
+              <kbd>{{name}}</kbd>
+            </td>
+            {{/if}}
+
+            {{#if annType}}
+            <td style="width: 60px;">
+              <kbd>{{annType}}</kbd>
+            </td>
+            {{/if}}  
+
+            {{#if range}}
+            {{#each range}}
+            <td style="width: 60px;">
+            <kbd>From:{{from}} To:{{to}}</kbd>
+            </td>
+            {{/each}}
+            {{/if}} 
+            {{#if value}}
             <td>
               <kbd data-placement="bottom" title="{{value}}">
                 {{value}}
                 </kbd> 
             </td>
-
+            {{/if}}
           </tr>
         {{/each}}
       </tbody>
