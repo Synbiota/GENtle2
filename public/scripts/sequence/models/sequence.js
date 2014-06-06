@@ -168,14 +168,18 @@ define(function(require) {
     @param {String} text
     @returns {String} replaces the form feild text
     **/
-    valid: function(text,id) {
+    valid: function(text,id,sequence) {
       var string = text;
+      var replace = sequence.get('name');
       if (id == "name") {
-        if (!string.replace(/\s/g, '').length) {
+        sequence.set('name',string);
+        if (!sequence.get('name').replace(/\s/g, '').length) {
           string = 'Unnamed';
+          sequence.set('name',replace);
         }
       } else if (id == "desc") {
-        if (string.replace(/\s/g, '').length) {
+        sequence.set('description',string);
+        if (!sequence.get('description').replace(/\s/g, '').length) {
           string = 'No Description';
         }
       }
