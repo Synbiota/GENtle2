@@ -19,13 +19,12 @@
                 <span class='text-danger'>Deleted</span>
               {{/if}}
               {{#if isAnnotationInsertion}}
-                <span class='text-success'>Annotated</span>
+                <span class='text-success'>Annotation</span>
               {{/if}}
               {{#if isAnnotationDelete}}
-                <span class='text-danger'>Annotated</span>
+                <span class='text-danger'>Annotation</span>
               {{/if}}
             </td>
-
             {{#if position}}
             <td style="width: 60px;">
               <kbd>@{{position}}</kbd>
@@ -43,11 +42,10 @@
               <kbd>{{annType}}</kbd>
             </td>
             {{/if}}  
-
             {{#if range}}
             {{#each range}}
             <td style="width: 60px;">
-            <kbd>From:{{from}} To:{{to}}</kbd>
+            <kbd>@{{from}}-{{to}}</kbd>
             </td>
             {{/each}}
             {{/if}} 

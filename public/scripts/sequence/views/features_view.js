@@ -9,9 +9,6 @@ define(function(require) {
       SynbioData      = require('common/lib/synbio_data'),
       Backbone        = require('backbone.mixed'),
       BSConfirmation  = require('bootstrap-confirmation'),
-      HistorySteps        = require('sequence/models/history_steps'),
-      HistoryStep     = require('sequence/models/history_steps'),
-
       FeaturesView;
   
   FeaturesView = Backbone.View.extend({
@@ -175,7 +172,6 @@ define(function(require) {
         this.editedFeature.ranges = ranges;
         if(this.creating) {
           this.model.createFeature(this.editedFeature);
-          this.historySteps.comparator(historyStep);
         } else {
           this.model.updateFeature(this.editedFeature);
         }
