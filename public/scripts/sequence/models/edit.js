@@ -11,15 +11,13 @@ define(function(require) {
 
   Edit = Backbone.Model.extend({
 
-    valid: function(string,id) {
+    valid: function(string, id) {
 
-      if (!string.replace(/\s/g, '').length && id=="name") {
+      if (!string.replace(/\s/g, '').length && id == "name") {
         return 'Unnamed';
-      }
-      else if (!string.replace(/\s/g, '').length && id=="desc") {
+      } else if (!string.replace(/\s/g, '').length && id == "desc") {
         return 'No Description';
-      }
-       else {
+      } else {
         return string;
       }
     }

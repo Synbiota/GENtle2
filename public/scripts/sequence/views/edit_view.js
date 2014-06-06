@@ -16,8 +16,8 @@ define(function(require) {
         template: template,
 
         initialize: function() {
-        this.model = Gentle.currentSequence;
-        Edit = new Edit();
+            this.model = Gentle.currentSequence;
+            Edit = new Edit();
         },
 
         events: {
@@ -25,8 +25,8 @@ define(function(require) {
         },
 
         updateNameDescription: function(event) {
-            this.model.set('name', Edit.valid(this.$('#name').val(),'name'));
-            this.model.set('description', Edit.valid(this.$('#desc').val(),'desc'));
+            this.model.set('name', Edit.valid(this.$('#name').val(), 'name'));
+            this.model.set('description', Edit.valid(this.$('#desc').val(), 'desc'));
             this.model.sync('update', this.model);
             document.title = this.model.get('name');
         },
