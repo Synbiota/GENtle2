@@ -188,7 +188,7 @@ define(function(require) {
 
     deleteFeature: function(event) {
       event.preventDefault();
-      this.model.deleteFeature(this.editedFeature._id);
+      this.model.deleteFeature(this.editedFeature);
       this.cancelEditing();
     },
 

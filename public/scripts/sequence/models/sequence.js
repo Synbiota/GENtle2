@@ -370,6 +370,14 @@ define(function(require){
       this.set('features.'+id, editedFeature);
       this.sortFeatures();
       this.save();
+
+       this.getHistory().add({
+          type:'annotatein',
+          name: Feature.name,
+          annType: Feature._type, 
+          range: Feature.ranges,
+          timestamp: +(new Date())
+        });
     },
 
     createFeature: function(newFeature) {
@@ -396,13 +404,21 @@ define(function(require){
         });
     },
 
-    deleteFeature: function(featureId) {
+    deleteFeature: function(Feature) {
       this.clearFeatureCache();
       this.set('features', _.reject(this.get('features'), function(feature) {
-        return feature._id == featureId;
+        return feature._id == Feature._id;
       }));
       this.sortFeatures();
       this.save();
+
+       this.getHistory().add({
+          type:'annotatedel',
+          name: Feature.name,
+          annType: Feature._type, 
+          range: Feature.ranges,
+          timestamp: +(new Date())
+        });
     },
 
     sortFeatures: function() {
