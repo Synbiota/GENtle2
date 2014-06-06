@@ -31,6 +31,16 @@ define(function(require) {
       };
     },
 
+    valid: function(){
+      if (!string.replace(/\s/g, '').length && id == "name") {
+        return 'Unnamed';
+      } else if (!string.replace(/\s/g, '').length && id == "desc") {
+        return 'No Description';
+      } else {
+        return string;
+      }
+    },
+
     constructor: function() {
       Backbone.DeepModel.apply(this, arguments);
       this.sortFeatures();
@@ -269,16 +279,18 @@ define(function(require) {
 
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
+                  console.log('deleted');
+                  console.log('added');
 
-             this.getHistory().add({
-             type: 'annotatein',
-             name: feature.name,
-             annType: feature._type,
-             range: feature.ranges,
-             timestamp: +(new Date())
-             });
+              this.getHistory().add({
+                type: 'annotatein',
+                name: feature.name,
+                annType: feature._type,
+                range: feature.ranges,
+                timestamp: +(new Date())
+              });
 
-             } else {
+            } else {
 
               firstBase = base;
               lastBase = base - offset - 1;
@@ -286,21 +298,39 @@ define(function(require) {
               if (firstBase <= range.from) {
                 if (lastBase >= range.to) {
                   feature.ranges.splice(j--, 1);
-
-             this.getHistory().add({
-             type: 'annotatein',
-             name: feature.name,
-             annType: feature._type,
-             range: feature.ranges,
-             timestamp: +(new Date())
-             });
+                  console.log('deleted1');
+                  this.getHistory().add({
+                    type: 'annotatein',
+                    name: feature.name,
+                    annType: feature._type,
+                    range: feature.ranges,
+                    timestamp: +(new Date())
+                  });
 
                 } else {
                   range.from -= lastBase < range.from ? -offset : range.from - firstBase;
                   range.to += offset;
+
+                  console.log('deleted2');
+                  this.getHistory().add({
+                    type: 'annotatein',
+                    name: feature.name,
+                    annType: feature._type,
+                    range: feature.ranges,
+                    timestamp: +(new Date())
+                  });
                 }
               } else if (firstBase <= range.to) {
                 range.to = Math.max(firstBase - 1, -offset);
+
+                  console.log('deleted3');
+                  this.getHistory().add({
+                    type: 'annotatein',
+                    name: feature.name,
+                    annType: feature._type,
+                    range: feature.ranges,
+                    timestamp: +(new Date())
+                  });
               }
 
             }
@@ -308,9 +338,18 @@ define(function(require) {
           // If there are no more ranges, we remove the feature and
           // record the operation in the history
           if (feature.ranges.length === 0) {
-        features.splice(i--, 1);
-       
-        }
+            features.splice(i--, 1);
+            feature.ranges[0].from=0;
+            feature.ranges[0].to=0;
+            console.log('deleted4');
+                  this.getHistory().add({
+                    type: 'annotatedel',
+                    name: feature.name,
+                    annType: feature._type,
+                    range: feature.ranges,
+                    timestamp: +(new Date())
+                  });
+          }
         }
         this.clearFeatureCache();
 
@@ -392,8 +431,8 @@ define(function(require) {
       this.sortFeatures();
       this.save();
 
-      Feature.ranges[0].from+=1;
-      Feature.ranges[0].to+=1;
+      Feature.ranges[0].from += 1;
+      Feature.ranges[0].to += 1;
 
       this.getHistory().add({
         type: 'annotatein',
@@ -422,8 +461,8 @@ define(function(require) {
       this.sortFeatures();
       this.save();
 
-      Feature.ranges[0].from+=1;
-      Feature.ranges[0].to+=1;
+      Feature.ranges[0].from += 1;
+      Feature.ranges[0].to += 1;
 
       this.getHistory().add({
         type: 'annotatein',
@@ -443,8 +482,8 @@ define(function(require) {
       this.sortFeatures();
       this.save();
 
-      Feature.ranges[0].from+=1;
-      Feature.ranges[0].to+=1;
+      Feature.ranges[0].from += 1;
+      Feature.ranges[0].to += 1;
 
       this.getHistory().add({
         type: 'annotatedel',
