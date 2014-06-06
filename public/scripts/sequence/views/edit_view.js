@@ -24,23 +24,21 @@ define(function(require) {
             'click input[type=submit]': 'updateNameDescription',
         },
 
-        updateNameDescription: function(event) {
-            this.model.set('name', Edit.valid(this.$('#name').val(), 'name'));
+        updateNameDescription: function() {
+            this.model.set('name',Edit.valid(this.$('#name').val(),'name'));
             this.model.set('description', Edit.valid(this.$('#desc').val(), 'desc'));
             this.model.sync('update', this.model);
             document.title = this.model.get('name')+' / Gentle';
         },
-
-        serialize: function() {
-
+    
+    serialize: function() {
             return {
-
                 Name: this.model.get('name'),
-                Desc: this.model.get('description')
-            };
-
-        }
+                Desc: this.model.get('description'),
+                };
+        },
     });
+
     return EditView;
 
 });

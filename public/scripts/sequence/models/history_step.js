@@ -12,7 +12,8 @@ define(function(require){
     serialize: function() {
       return _.extend(Backbone.Model.prototype.toJSON.call(this), {
         isInsertion: this.get('type') == 'insert',
-        isDeletion: this.get('type') == 'delete'
+        isDeletion: this.get('type') == 'delete',
+        isAnnotation: this.get('type') == 'annotate',
       });
     }
   });

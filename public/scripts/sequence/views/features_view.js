@@ -9,6 +9,9 @@ define(function(require) {
       SynbioData      = require('common/lib/synbio_data'),
       Backbone        = require('backbone.mixed'),
       BSConfirmation  = require('bootstrap-confirmation'),
+      historySteps    = require('sequence/models/history_steps'),
+      historyStep     = require('sequence/models/history_steps'),
+
       FeaturesView;
   
   FeaturesView = Backbone.View.extend({
@@ -32,6 +35,10 @@ define(function(require) {
         .values()
         .groupBy('category')
         .value();
+
+      this.historysteps = historySteps;
+      this.historyStep = historyStep;
+      this.historyStep.set('type','annotate');
 
     },
 
