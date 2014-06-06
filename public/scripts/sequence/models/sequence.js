@@ -175,7 +175,7 @@ define(function(require) {
           string = 'Unnamed';
         }
       } else if (id == "desc") {
-        if (!string.replace(/\s/g, '').length) {
+        if (string.replace(/\s/g, '').length) {
           string = 'No Description';
         }
       }
