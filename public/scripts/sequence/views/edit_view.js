@@ -8,7 +8,6 @@ define(function(require) {
         Backbone = require('backbone.mixed'),
         Gentle = require('gentle')(),
         Sequences = require('sequence/models/sequences'),
-        Edit = require('sequence/models/edit'),
         EditView;
 
     EditView = Backbone.View.extend({
@@ -17,7 +16,6 @@ define(function(require) {
 
         initialize: function() {
             this.model = Gentle.currentSequence;
-            Edit = new Edit();
         },
 
         events: {
@@ -26,7 +24,7 @@ define(function(require) {
 
         readinfo: function(event) {
             this.error = '';
-            if (Edit.valid(this.$('#name').val(), 'name') == 'Unnamed') {
+            if (this.model.valid(this.$('#name').val(), 'name') == 'Unnamed') {
                 this.error = true;
                 this.render();
             } else {
@@ -37,7 +35,7 @@ define(function(require) {
 
         updateNameDescription: function() {
             this.model.set('name', this.$('#name').val());
-            this.model.set('description', Edit.valid(this.$('#desc').val(), 'desc'));
+            this.model.set('description', this.model.valid(this.$('#desc').val(), 'desc'));
             this.model.sync('update', this.model);
             document.title = this.model.get('name') + ' / Gentle';
             this.render();

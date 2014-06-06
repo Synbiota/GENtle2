@@ -31,16 +31,6 @@ define(function(require) {
       };
     },
 
-    valid: function() {
-      if (!string.replace(/\s/g, '').length && id == "name") {
-        return 'Unnamed';
-      } else if (!string.replace(/\s/g, '').length && id == "desc") {
-        return 'No Description';
-      } else {
-        return string;
-      }
-    },
-
     constructor: function() {
       Backbone.DeepModel.apply(this, arguments);
       this.sortFeatures();
@@ -170,6 +160,26 @@ define(function(require) {
       } else {
         return [];
       }
+    },
+
+   /**
+    @method valid
+    @param {String} id
+    @param {String} text
+    @returns {String} replaces the form feild text
+    **/
+    valid: function(text,id) {
+      var string = text;
+      if (id == "name") {
+        if (!string.replace(/\s/g, '').length) {
+          string = 'Unnamed';
+        }
+      } else if (id == "desc") {
+        if (!string.replace(/\s/g, '').length) {
+          string = 'No Description';
+        }
+      }
+      return string;
     },
 
     /**
@@ -344,7 +354,10 @@ define(function(require) {
               type: 'annotatedel',
               name: feature.name,
               annType: feature._type,
-              range: [{from:0,to:0}],
+              range: [{
+                from: 0,
+                to: 0
+              }],
               timestamp: +(new Date())
             });
           }
