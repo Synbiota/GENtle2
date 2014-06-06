@@ -24,32 +24,31 @@ define(function(require) {
             'click input[type=submit]': 'readinfo',
         },
 
-        readinfo: function(event){
-              this.error ='';
-             if(Edit.valid(this.$('#name').val(),'name')=='Unnamed'){
+        readinfo: function(event) {
+            this.error = '';
+            if (Edit.valid(this.$('#name').val(), 'name') == 'Unnamed') {
                 this.error = true;
                 this.render();
-             }
-        else{
-            this.updateNameDescription();
-            this.error =false;
-        }
+            } else {
+                this.updateNameDescription();
+                this.error = false;
+            }
         },
 
         updateNameDescription: function() {
-            this.model.set('name',this.$('#name').val());
+            this.model.set('name', this.$('#name').val());
             this.model.set('description', Edit.valid(this.$('#desc').val(), 'desc'));
             this.model.sync('update', this.model);
-            document.title = this.model.get('name')+' / Gentle';
+            document.title = this.model.get('name') + ' / Gentle';
             this.render();
         },
-    
-    serialize: function() {
+
+        serialize: function() {
             return {
                 Name: this.model.get('name'),
                 Desc: this.model.get('description'),
-                error: this.error 
-                };
+                error: this.error
+            };
 
         },
     });

@@ -31,7 +31,7 @@ define(function(require) {
       };
     },
 
-    valid: function(){
+    valid: function() {
       if (!string.replace(/\s/g, '').length && id == "name") {
         return 'Unnamed';
       } else if (!string.replace(/\s/g, '').length && id == "desc") {
@@ -279,8 +279,8 @@ define(function(require) {
 
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
-                  console.log('deleted');
-                  console.log('added');
+              console.log('deleted');
+              console.log('added');
 
               this.getHistory().add({
                 type: 'annotatein',
@@ -323,14 +323,14 @@ define(function(require) {
               } else if (firstBase <= range.to) {
                 range.to = Math.max(firstBase - 1, -offset);
 
-                  console.log('deleted3');
-                  this.getHistory().add({
-                    type: 'annotatein',
-                    name: feature.name,
-                    annType: feature._type,
-                    range: feature.ranges,
-                    timestamp: +(new Date())
-                  });
+                console.log('deleted3');
+                this.getHistory().add({
+                  type: 'annotatein',
+                  name: feature.name,
+                  annType: feature._type,
+                  range: feature.ranges,
+                  timestamp: +(new Date())
+                });
               }
 
             }
@@ -339,16 +339,14 @@ define(function(require) {
           // record the operation in the history
           if (feature.ranges.length === 0) {
             features.splice(i--, 1);
-            feature.ranges[0].from=0;
-            feature.ranges[0].to=0;
             console.log('deleted4');
-                  this.getHistory().add({
-                    type: 'annotatedel',
-                    name: feature.name,
-                    annType: feature._type,
-                    range: feature.ranges,
-                    timestamp: +(new Date())
-                  });
+            this.getHistory().add({
+              type: 'annotatedel',
+              name: feature.name,
+              annType: feature._type,
+              range: [{from:0,to:0}],
+              timestamp: +(new Date())
+            });
           }
         }
         this.clearFeatureCache();
