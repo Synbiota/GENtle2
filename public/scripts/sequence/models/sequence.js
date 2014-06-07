@@ -162,23 +162,23 @@ define(function(require) {
       }
     },
 
-   /**
+    /**
     @method valid
     @param {String} id
     @param {String} text
     @returns {String} replaces the form feild text
     **/
-    valid: function(text,id,sequence) {
+    valid: function(text, id, sequence) {
       var string = text;
       var replace = sequence.get('name');
       if (id == "name") {
-        sequence.set('name',string);
+        sequence.set('name', string);
         if (!sequence.get('name').replace(/\s/g, '').length) {
           string = 'Unnamed';
-          sequence.set('name',replace);
+          sequence.set('name', replace);
         }
       } else if (id == "desc") {
-        sequence.set('description',string);
+        sequence.set('description', string);
         if (!sequence.get('description').replace(/\s/g, '').length) {
           string = 'No Description';
         }
@@ -264,6 +264,8 @@ define(function(require) {
       );
 
       if (updateHistory) {
+        console.log(firstBase);
+        console.log(subseq);
         this.getHistory().add({
           type: 'delete',
           value: subseq,
@@ -271,6 +273,8 @@ define(function(require) {
           operation: '@' + firstBase + '-' + subseq,
           timestamp: +(new Date())
         });
+        console.log(firstBase);
+        console.log(subseq);
       }
 
       this.throttledSave();
@@ -293,16 +297,10 @@ define(function(require) {
 
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
-              console.log('deleted');
-              console.log('added');
+              console.log('moved1');
 
-              this.getHistory().add({
-                type: 'annotatein',
-                name: feature.name,
-                annType: feature._type,
-                range: feature.ranges,
-                timestamp: +(new Date())
-              });
+              this.recordFeatureHistoryIn(feature,false,false);
+
 
             } else {
 
@@ -313,38 +311,22 @@ define(function(require) {
                 if (lastBase >= range.to) {
                   feature.ranges.splice(j--, 1);
                   console.log('deleted1');
-                  this.getHistory().add({
-                    type: 'annotatein',
-                    name: feature.name,
-                    annType: feature._type,
-                    range: feature.ranges,
-                    timestamp: +(new Date())
-                  });
-
+                  this.recordFeatureHistoryIn(feature,range.from,range.to);
                 } else {
                   range.from -= lastBase < range.from ? -offset : range.from - firstBase;
                   range.to += offset;
 
                   console.log('deleted2');
-                  this.getHistory().add({
-                    type: 'annotatein',
-                    name: feature.name,
-                    annType: feature._type,
-                    range: feature.ranges,
-                    timestamp: +(new Date())
-                  });
+                  this.recordFeatureHistoryIn(feature,false,false);
+
                 }
               } else if (firstBase <= range.to) {
                 range.to = Math.max(firstBase - 1, -offset);
 
                 console.log('deleted3');
-                this.getHistory().add({
-                  type: 'annotatein',
-                  name: feature.name,
-                  annType: feature._type,
-                  range: feature.ranges,
-                  timestamp: +(new Date())
-                });
+
+                this.recordFeatureHistoryIn(feature,false,false);
+
               }
 
             }
@@ -354,16 +336,8 @@ define(function(require) {
           if (feature.ranges.length === 0) {
             features.splice(i--, 1);
             console.log('deleted4');
-            this.getHistory().add({
-              type: 'annotatedel',
-              name: feature.name,
-              annType: feature._type,
-              range: [{
-                from: 0,
-                to: 0
-              }],
-              timestamp: +(new Date())
-            });
+            this.recordFeatureHistoryDel(feature,range.from,range.to);
+
           }
         }
         this.clearFeatureCache();
@@ -445,17 +419,8 @@ define(function(require) {
       this.set('features.' + id, editedFeature);
       this.sortFeatures();
       this.save();
-
-      Feature.ranges[0].from += 1;
-      Feature.ranges[0].to += 1;
-
-      this.getHistory().add({
-        type: 'annotatein',
-        name: Feature.name,
-        annType: Feature._type,
-        range: Feature.ranges,
-        timestamp: +(new Date())
-      });
+      console.log('updated');
+      this.recordFeatureHistoryIn(Feature,false,false);
       this.throttledSave();
     },
 
@@ -475,17 +440,9 @@ define(function(require) {
       this.set('features.' + id, newFeature);
       this.sortFeatures();
       this.save();
+      console.log('createdFeature');
+      this.recordFeatureHistoryIn(Feature,false,false);
 
-      Feature.ranges[0].from += 1;
-      Feature.ranges[0].to += 1;
-
-      this.getHistory().add({
-        type: 'annotatein',
-        name: Feature.name,
-        annType: Feature._type,
-        range: Feature.ranges,
-        timestamp: +(new Date())
-      });
       this.throttledSave();
     },
 
@@ -496,18 +453,64 @@ define(function(require) {
       }));
       this.sortFeatures();
       this.save();
+      this.recordFeatureHistoryDel(Feature,false,false);
+      this.throttledSave();
+    },
 
-      Feature.ranges[0].from += 1;
-      Feature.ranges[0].to += 1;
+    recordFeatureHistoryIn: function(feature,fromVal,toVal) {
+      var fromN;
+      var toN;
+      if(fromVal==false){
+        fromN = feature.ranges[0].from + 1;
+      }
+      else{
+        fromN=fromVal+1;
+      }
+      if(toVal==false){
+        toN = (feature.ranges[0].to + 1);
+      }
+      else{
+        toN=toVal+1;
+      }
+      console.log((fromN) +'to'+ (toN));
+      this.getHistory().add({
+        type: 'annotatein',
+        name: feature.name,
+        annType: feature._type,
+        range: [{
+          from: fromN,
+          to: toN
+        }],
+        timestamp: +(new Date())
+      });
+    },
 
+    recordFeatureHistoryDel:function(feature,fromVal,toVal) {
+      var fromN;
+      var toN;
+      if(fromVal==false){
+        fromN = feature.ranges[0].from + 1;
+      }
+      else{
+        fromN=fromVal+1;
+      }
+      if(toVal==false){
+        toN = (feature.ranges[0].to + 1);
+      }
+      else{
+        toN=toVal+1;
+      }
+      console.log((fromN) +'to'+ (toN));
       this.getHistory().add({
         type: 'annotatedel',
-        name: Feature.name,
-        annType: Feature._type,
-        range: Feature.ranges,
+        name: feature.name,
+        annType: feature._type,
+        range: [{
+          from: fromN,
+          to: toN
+        }],
         timestamp: +(new Date())
-      })
-      this.throttledSave();
+      });
     },
 
     sortFeatures: function() {

@@ -25,12 +25,16 @@
                 <span class='text-danger'>Annotation</span>
               {{/if}}
             </td>
-            {{#if position}}
+            {{#if isInsertion}}
             <td style="width: 60px;">
               <kbd>@{{position}}</kbd>
             </td>
             {{/if}}
-
+             {{#if isDeletion}}
+            <td style="width: 60px;">
+              <kbd>@{{position}}</kbd>
+            </td>
+            {{/if}}
             {{#if name}}
             <td style="width: 60px;">
               <kbd>{{name}}</kbd>
