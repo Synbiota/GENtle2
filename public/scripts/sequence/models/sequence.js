@@ -223,17 +223,19 @@ define(function(require) {
     },
 
     insertBases: function(bases, beforeBase, updateHistory) {
+
+
       var seq = this.get('sequence');
 
       if (updateHistory === undefined) updateHistory = true;
-
-      this.moveFeatures(beforeBase, bases.length);
 
       this.set('sequence',
         seq.substr(0, beforeBase) +
         bases +
         seq.substr(beforeBase, seq.length - beforeBase + 1)
       );
+
+      this.moveFeatures(beforeBase, bases.length);
 
       if (updateHistory) {
         this.getHistory().add({
@@ -251,17 +253,17 @@ define(function(require) {
     deleteBases: function(firstBase, length, updateHistory) {
       var seq = this.get('sequence'),
         subseq;
-
       if (updateHistory === undefined) updateHistory = true;
 
-      subseq = seq.substr(firstBase, length);
 
-      this.moveFeatures(firstBase, -length);
+      subseq = seq.substr(firstBase, length);
 
       this.set('sequence',
         seq.substr(0, firstBase) +
         seq.substr(firstBase + length, seq.length - (firstBase + length - 1))
       );
+
+      this.moveFeatures(firstBase, -length);
 
       if (updateHistory) {
         console.log(firstBase);
@@ -441,6 +443,7 @@ define(function(require) {
       this.sortFeatures();
       this.save();
       console.log('createdFeature');
+
       this.recordFeatureHistoryIn(Feature,false,false);
 
       this.throttledSave();
@@ -460,6 +463,8 @@ define(function(require) {
     recordFeatureHistoryIn: function(feature,fromVal,toVal) {
       var fromN;
       var toN;
+      var susbseq;
+      var seqmem;
       if(fromVal==false){
         fromN = feature.ranges[0].from + 1;
       }
@@ -472,9 +477,15 @@ define(function(require) {
       else{
         toN=toVal+1;
       }
+
+      subseq = this.get('sequence').substring(fromN, Math.min(toN,this.length()));
+
+      console.log(subseq);
+
       console.log((fromN) +'to'+ (toN));
       this.getHistory().add({
         type: 'annotatein',
+        seqBind: seqmem,
         name: feature.name,
         annType: feature._type,
         range: [{

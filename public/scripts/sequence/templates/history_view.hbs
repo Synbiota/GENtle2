@@ -39,13 +39,10 @@
             <td style="width: 60px;">
               <kbd>{{name}}</kbd>
             </td>
-            {{/if}}
-
             {{#if annType}}
             <td style="width: 60px;">
               <kbd>{{annType}}</kbd>
             </td>
-            {{/if}}  
             {{#if range}}
             {{#each range}}
             <td style="width: 60px;">
@@ -53,6 +50,8 @@
             </td>
             {{/each}}
             {{/if}} 
+            {{/if}}  
+            {{/if}}  
             {{#if value}}
             <td>
               <kbd data-placement="bottom" title="{{value}}">
