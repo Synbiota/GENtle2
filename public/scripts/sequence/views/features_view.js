@@ -4,13 +4,13 @@
 @class FeaturesView
 **/
 define(function(require) {
-  var template        = require('hbars!sequence/templates/features_view'),
-      Gentle          = require('gentle')(),
-      SynbioData      = require('common/lib/synbio_data'),
-      Backbone        = require('backbone.mixed'),
-      BSConfirmation  = require('bootstrap-confirmation'),
-      FeaturesView;
-  
+  var template = require('hbars!sequence/templates/features_view'),
+    Gentle = require('gentle')(),
+    SynbioData = require('common/lib/synbio_data'),
+    Backbone = require('backbone.mixed'),
+    BSConfirmation = require('bootstrap-confirmation'),
+    FeaturesView;
+
   FeaturesView = Backbone.View.extend({
     manage: true,
     template: template,
@@ -23,11 +23,13 @@ define(function(require) {
       'click .sequence-feature-edit-ranges-add-button': 'addRange',
       'click .sequence-feature-edit-save-button': 'saveFeature',
     },
-     
+
     initialize: function() {
       this.model = Gentle.currentSequence;
       this.featureTypes = _.chain(SynbioData.featureTypes).clone()
-        .forEach(function(type, typeId) { type.value = typeId; })
+        .forEach(function(type, typeId) {
+          type.value = typeId;
+        })
         .values()
         .groupBy('category')
         .value();
@@ -35,7 +37,7 @@ define(function(require) {
 
     getFeatureFromElement: function(element) {
       var $element = $(element),
-          featureId = $element.data('featureId');
+        featureId = $element.data('featureId');
 
       return _.find(this.model.get('features'), function(_feature) {
         return _feature._id == featureId;
@@ -52,7 +54,7 @@ define(function(require) {
 
     startEditing: function(event) {
       var feature = this.getFeatureFromElement(event.currentTarget),
-          ranges = feature.ranges;
+        ranges = feature.ranges;
 
       event.preventDefault();
 
@@ -63,7 +65,7 @@ define(function(require) {
     },
 
     startCreating: function(event) {
-      if(event) event.preventDefault();
+      if (event) event.preventDefault();
 
       this.editedFeature = this.editedFeature || {
         ranges: [{}],
@@ -83,7 +85,7 @@ define(function(require) {
         }],
         _type: 'noe'
       };
-      if(!this.isOpen) this.$toggleButton.click();
+      if (!this.isOpen) this.$toggleButton.click();
       this.startCreating();
     },
 
@@ -110,7 +112,7 @@ define(function(require) {
 
     deleteRange: function(event) {
       var $element = $(event.currentTarget),
-          rangeId = $element.data('rangeId');
+        rangeId = $element.data('rangeId');
 
       event.preventDefault();
 
@@ -129,14 +131,14 @@ define(function(require) {
       this.editedFeature.name = $form.find('[name="name"]').val();
       this.editedFeature.desc = $form.find('[name="desc"]').val();
       this.editedFeature._type = $form.find('[name="type"]').val();
-      this.editedFeature.ranges =  this.readRanges();
+      this.editedFeature.ranges = this.readRanges();
     },
 
     readRanges: function() {
-     return  _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function(row) {
+      return _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function(row) {
         var $row = $(row),
-            from = $row.find('[name="from"]').val()*1 - 1,
-            to = $row.find('[name="to"]').val() * 1 - 1;
+          from = $row.find('[name="from"]').val() * 1 - 1,
+          to = $row.find('[name="to"]').val() * 1 - 1;
 
         return {
           from: from,
@@ -147,31 +149,31 @@ define(function(require) {
 
     saveFeature: function() {
       var ranges;
-      
+
       this.readValues();
       this.errors = {};
 
       ranges = _.map(_.reject(this.editedFeature.ranges, function(range) {
-        return  range.from === '' || range.from < 0 ||
-                range.to   === '' || range.to   < 0;
+        return range.from === '' || range.from < 0 ||
+          range.to === '' || range.to < 0;
       }), function(range) {
         delete range._canDelete;
         delete range._canAdd;
         return range;
       });
 
-      if(this.editedFeature.name === undefined || this.editedFeature.name === '') {
+      if (this.editedFeature.name === undefined || this.editedFeature.name === '') {
         this.errors.name = true;
       }
 
-      if(!ranges.length) {
+      if (!ranges.length) {
         this.errors.ranges = true;
       }
 
-      if(!_.keys(this.errors).length) {
+      if (!_.keys(this.errors).length) {
         this.editedFeature.ranges = ranges;
-        if(this.creating) {
-          this.model.createFeature(this.editedFeature,true);
+        if (this.creating) {
+          this.model.createFeature(this.editedFeature, true);
         } else {
           this.model.updateFeature(this.editedFeature);
         }
@@ -184,7 +186,7 @@ define(function(require) {
 
     deleteFeature: function(event) {
       event.preventDefault();
-      this.model.deleteFeature(this.editedFeature,true);
+      this.model.deleteFeature(this.editedFeature, true);
       this.cancelEditing();
     },
 
@@ -199,8 +201,8 @@ define(function(require) {
     },
 
     serialize: function() {
-      if(this.isOpen) {
-        if(this.editedFeature) {
+      if (this.isOpen) {
+        if (this.editedFeature) {
           return {
             isOpen: true,
             creating: this.creating,

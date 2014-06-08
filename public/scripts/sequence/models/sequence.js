@@ -296,7 +296,7 @@ define(function(require) {
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
 
-              this.recordFeatureHistoryIn(feature,false,false);
+              this.recordFeatureHistoryIn(feature, false, false);
 
 
             } else {
@@ -306,19 +306,19 @@ define(function(require) {
 
               if (firstBase <= range.from) {
                 if (lastBase >= range.to) {
-                this.recordFeatureHistoryIn(feature,range.from,range.to);
+                  this.recordFeatureHistoryIn(feature, range.from, range.to);
                   feature.ranges.splice(j--, 1);
                 } else {
                   range.from -= lastBase < range.from ? -offset : range.from - firstBase;
                   range.to += offset;
 
-                  this.recordFeatureHistoryIn(feature,false,false);
+                  this.recordFeatureHistoryIn(feature, false, false);
 
                 }
               } else if (firstBase <= range.to) {
                 range.to = Math.max(firstBase - 1, -offset);
 
-                this.recordFeatureHistoryIn(feature,false,false);
+                this.recordFeatureHistoryIn(feature, false, false);
 
               }
 
@@ -327,7 +327,7 @@ define(function(require) {
           // If there are no more ranges, we remove the feature and
           // record the operation in the history
           if (feature.ranges.length === 0) {
-            this.recordFeatureHistoryDel(feature,range.from,range.to);
+            this.recordFeatureHistoryDel(feature, range.from, range.to);
             features.splice(i--, 1);
           }
         }
@@ -401,8 +401,8 @@ define(function(require) {
       }
     },
 
-    setupRanges: function() {
-      var ranges = this.editedFeature.ranges;
+    setupRanges: function(feature) {
+      var ranges = feature.ranges;
       this.editedFeature.ranges = _.map(ranges, function(range, i) {
         return _.extend(range, {
           _id: i,
@@ -414,15 +414,21 @@ define(function(require) {
       });
     },
 
-    undoFeature: function(timestamp){
+    undoFeature: function(timestamp) {
       var annHistoryIn,
-          annHistoryDel;
-      annHistoryIn = this.getHistory().where({timestamp:timestamp,type: 'annotatein'});
-      annHistoryDel = this.getHistory().where({timestamp:timestamp,type: 'annotatedel'});
-      if(annHistoryIn[0]!=undefined)
-      this.deleteFeature(annHistoryIn[0].attributes.feature,false);
-      if(annHistoryDel[0]!=undefined){
-      this.createFeature(annHistoryDel[0].attributes.feature,false,timestamp);
+        annHistoryDel;
+      annHistoryIn = this.getHistory().where({
+        timestamp: timestamp,
+        type: 'annotatein'
+      });
+      annHistoryDel = this.getHistory().where({
+        timestamp: timestamp,
+        type: 'annotatedel'
+      });
+      if (annHistoryIn[0] != undefined)
+        this.deleteFeature(annHistoryIn[0].attributes.feature, false);
+      if (annHistoryDel[0] != undefined) {
+        this.createFeature(annHistoryDel[0].attributes.feature, false);
       }
 
     },
@@ -436,87 +442,107 @@ define(function(require) {
       this.set('features.' + id, editedFeature);
       this.sortFeatures();
       this.save();
-      this.recordFeatureHistoryIn(Feature,false,false);
+      this.recordFeatureHistoryIn(Feature, false, false);
       this.throttledSave();
     },
 
-    createFeature: function(newFeature,record,timeStamp) {
+    createFeature: function(newFeature, record) {
       var id = this.get('features').length;
+      var fromN, toN;
+      var seqmem;
       var Feature = newFeature;
+      if (record) {
 
+        this.recordFeatureHistoryIn(Feature, false, false);
+
+      } else if (record == false) {
+        if (Feature.ranges[0] == undefined) {
+
+          seqmem = this.getHistory().where({
+            type: 'memoryVar'
+          });
+          fromN = seqmem[0].attributes.range[0].from;
+          toN = seqmem[0].attributes.range[0].to;
+          Feature.ranges[0] = {
+            from: fromN,
+            to: toN
+          };
+
+        }
+      }
       if (id === 0) {
         newFeature._id = 0;
       } else {
         newFeature._id = _.max(_.pluck(this.get('features'), '_id')) + 1;
       }
 
-
       this.clearFeatureCache();
       this.set('features.' + id, newFeature);
       this.sortFeatures();
       this.save();
-      if(record){
-
-      this.recordFeatureHistoryIn(Feature,false,false);
-
-      }
       this.throttledSave();
     },
 
-    deleteFeature: function(Feature,record) {
+    deleteFeature: function(Feature, record) {
       this.clearFeatureCache();
+      if (record) {
+        this.recordFeatureHistoryDel(Feature, false, false);
+      }
       this.set('features', _.reject(this.get('features'), function(feature) {
         return feature._id == Feature._id;
       }));
       this.sortFeatures();
       this.save();
-      if(record){
-      this.recordFeatureHistoryDel(Feature,false,false);
-      }
       this.throttledSave();
     },
 
-    recordFeatureHistoryIn: function(feature,fromVal,toVal,timeStamp) {
+    recordFeatureHistoryIn: function(feature, fromVal, toVal) {
       var fromN;
       var toN;
       var susbseq;
       var seqmem;
 
-      if(feature.ranges[0]==undefined){
-       
-      seqmem = this.model.getHistory().where({type: 'memoryVar'});
-      fromN = seqmem[0].attributes.range[0].from;      
-      toN = seqmem[0].attributes.range[0].to;
+      if (feature.ranges[0] == undefined) {
 
-      }
-      else{
 
-      if(fromVal==false){
-        fromN = feature.ranges[0].from + 1;
-      }
-      else{
-        fromN=fromVal+1;
-      }
-      if(toVal==false){
-        toN = (feature.ranges[0].to + 1);
-      }
-      else{
-        toN=toVal+1;
-      }
-      }
+        seqmem = this.model.getHistory().where({
+          type: 'memoryVar'
+        });
 
-      if(fromN-toN ==1){
-       this.getHistory.add({
-        type: 'memoryVar',
-        feature: feature,
-        name: feature.name,
-        annType: feature._type,
-        range: [{
+        fromN = seqmem[0].attributes.range[0].from;
+        toN = seqmem[0].attributes.range[0].to;
+
+        feature.ranges[0] = {
           from: fromN,
           to: toN
-        }],
-        timestamp: +(new Date())
-      });}
+        };
+      } else {
+
+        if (fromVal == false) {
+          fromN = feature.ranges[0].from + 1;
+        } else {
+          fromN = fromVal + 1;
+        }
+        if (toVal == false) {
+          toN = (feature.ranges[0].to + 1);
+        } else {
+          toN = toVal + 1;
+        }
+      }
+
+      if (toN - fromN == 1) {
+        this.getHistory().add({
+          type: 'memoryVar',
+          feature: feature,
+          name: feature.name,
+          annType: feature._type,
+          range: [{
+            from: fromN,
+            to: toN
+          }],
+          timestamp: +(new Date())
+        });
+      }
 
       this.getHistory().add({
         type: 'annotatein',
@@ -532,22 +558,20 @@ define(function(require) {
 
     },
 
-    recordFeatureHistoryDel:function(feature,fromVal,toVal) {
+    recordFeatureHistoryDel: function(feature, fromVal, toVal) {
       var fromN;
       var toN;
-      if(fromVal==false){
+      if (fromVal == false) {
         fromN = feature.ranges[0].from + 1;
+      } else {
+        fromN = fromVal + 1;
       }
-      else{
-        fromN=fromVal+1;
-      }
-      if(toVal==false){
+      if (toVal == false) {
         toN = (feature.ranges[0].to + 1);
+      } else {
+        toN = toVal + 1;
       }
-      else{
-        toN=toVal+1;
-      }
-        this.getHistory().add({
+      this.getHistory().add({
         type: 'annotatedel',
         name: feature.name,
         feature: feature,
