@@ -485,6 +485,7 @@ define(function(require) {
 
     deleteFeature: function(Feature, record) {
       this.clearFeatureCache();
+      console.log(Feature);
       if (record) {
         this.recordFeatureHistoryDel(Feature, false, false);
       }
