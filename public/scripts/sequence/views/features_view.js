@@ -173,8 +173,10 @@ define(function(require) {
       if (!_.keys(this.errors).length) {
         this.editedFeature.ranges = ranges;
         if (this.creating) {
+          console.log('this was hollard');
           this.model.createFeature(this.editedFeature, true);
         } else {
+          console.log('this was hacked');
           this.model.updateFeature(this.editedFeature);
         }
         this.cancelEditing();

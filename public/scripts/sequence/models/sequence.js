@@ -296,6 +296,8 @@ define(function(require) {
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
 
+              console.log('This is 1 :'+feature.ranges);
+
               this.recordFeatureHistoryIn(feature, false, false);
 
 
@@ -311,12 +313,15 @@ define(function(require) {
                 } else {
                   range.from -= lastBase < range.from ? -offset : range.from - firstBase;
                   range.to += offset;
-
+                  console.log('This is 2 :'+feature);
                   this.recordFeatureHistoryIn(feature, false, false);
 
                 }
               } else if (firstBase <= range.to) {
                 range.to = Math.max(firstBase - 1, -offset);
+
+                              console.log('This is 3 :'+feature);
+
 
                 this.recordFeatureHistoryIn(feature, false, false);
 
@@ -327,7 +332,8 @@ define(function(require) {
           // If there are no more ranges, we remove the feature and
           // record the operation in the history
           if (feature.ranges.length === 0) {
-            this.recordFeatureHistoryDel(feature, range.from, range.to);
+            console.log('This is 4');
+            this.recordFeatureHistoryDel(feature, range.from, range.to,false);
             features.splice(i--, 1);
           }
         }
@@ -383,6 +389,17 @@ define(function(require) {
 
     revertHistoryStep: function(historyStep) {
       switch (historyStep.get('type')) {
+        
+        case 'annotatein':
+          console.log('thishappend' + historyStep.get('timestamp'));
+          this.undoFeature(historyStep.get('timestamp'));
+          break;
+
+        case 'annotatedel':
+          console.log('thathappend' + historyStep.get('timestamp'));
+          this.undoFeature(historyStep.get('timestamp'));
+          break;
+
         case 'insert':
           this.deleteBases(
             historyStep.get('position'),
@@ -425,9 +442,12 @@ define(function(require) {
         timestamp: timestamp,
         type: 'annotatedel'
       });
-      if (annHistoryIn[0] != undefined)
-        this.deleteFeature(annHistoryIn[0].attributes.feature, false);
+      if (annHistoryIn[0] != undefined){               
+        console.log('this also happend delete');
+        this.deleteFeature(annHistoryIn[0].attributes.feature, false);}
       if (annHistoryDel[0] != undefined) {
+        console.log('this was created');
+
         this.createFeature(annHistoryDel[0].attributes.feature, false);
       }
 
@@ -452,14 +472,14 @@ define(function(require) {
       var seqmem;
       var Feature = newFeature;
       if (record) {
-
+        console.log('this should not happen ');
         this.recordFeatureHistoryIn(Feature, false, false);
 
       } else if (record == false) {
         if (Feature.ranges[0] == undefined) {
 
           seqmem = this.getHistory().where({
-            type: 'memoryVar'
+            extension: 'memoryVar'
           });
           fromN = seqmem[0].attributes.range[0].from;
           toN = seqmem[0].attributes.range[0].to;
@@ -485,7 +505,6 @@ define(function(require) {
 
     deleteFeature: function(Feature, record) {
       this.clearFeatureCache();
-      console.log(Feature);
       if (record) {
         this.recordFeatureHistoryDel(Feature, false, false);
       }
@@ -498,16 +517,13 @@ define(function(require) {
     },
 
     recordFeatureHistoryIn: function(feature, fromVal, toVal) {
-      var fromN;
-      var toN;
-      var susbseq;
-      var seqmem;
+      var fromN, toN, susbseq, seqmem, extensionMem;
 
       if (feature.ranges[0] == undefined) {
 
 
         seqmem = this.model.getHistory().where({
-          type: 'memoryVar'
+          extension: 'memoryVar'
         });
 
         fromN = seqmem[0].attributes.range[0].from;
@@ -532,17 +548,11 @@ define(function(require) {
       }
 
       if (toN - fromN == 1) {
-        this.getHistory().add({
-          type: 'memoryVar',
-          feature: feature,
-          name: feature.name,
-          annType: feature._type,
-          range: [{
-            from: fromN,
-            to: toN
-          }],
-          timestamp: +(new Date())
-        });
+        console.log('this was ola');
+       extensionMem = "memoryVar";
+      }
+      else{
+       extensionMem = '';
       }
 
       this.getHistory().add({
@@ -554,6 +564,7 @@ define(function(require) {
           from: fromN,
           to: toN
         }],
+        extension: extensionMem,
         timestamp: +(new Date())
       });
 

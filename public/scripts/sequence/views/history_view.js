@@ -24,7 +24,6 @@ define(function(require) {
 
     undoAfter: function(event, element) {
       var timestamp = $(element).data('timestamp');
-      this.model.undoFeature(timestamp);
       this.model.undoAfter(timestamp);
     },
 
