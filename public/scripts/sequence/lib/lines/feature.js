@@ -139,6 +139,7 @@ define(function(require) {
         deltaX = endX - startX + 1 + baseWidth;
 
         backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
+        textColour  = _.isFunction(this.textColour) ? this.textColour(feature._type) : this.textColour;
 
         artist.rect(startX, 
                     y + this.margin + i*this.unitHeight, 
@@ -153,7 +154,7 @@ define(function(require) {
                     y + this.margin + i * this.unitHeight,
                     {
                       font: this.textFont,
-                      fillStyle: this.textColour,
+                      fillStyle: textColour,
                       lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
                       height: this.unitHeight - this.margin,
                       textPadding: this.textPadding,
