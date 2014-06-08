@@ -9,19 +9,17 @@ define(function(require) {
     _ = require('underscore.mixed'),
     Edit;
 
-  Edit = Backbone.Model.extend({
+  Edit = function() {};
 
-    valid: function(string, id) {
-
-      if (!string.replace(/\s/g, '').length && id == "name") {
-        return 'Unnamed';
-      } else if (!string.replace(/\s/g, '').length && id == "desc") {
-        return 'No Description';
-      } else {
-        return string;
-      }
+  Edit.prototype.valid = function(string, id) {
+    if (!string.replace(/\s/g, '').length && id == "name") {
+      return 'Unnamed';
+    } else if (!string.replace(/\s/g, '').length && id == "desc") {
+      return 'No Description';
+    } else {
+      return string;
     }
-  });
+  };
 
   return Edit;
 });

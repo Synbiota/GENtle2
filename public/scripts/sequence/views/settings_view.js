@@ -19,7 +19,7 @@ define(function(require) {
       this.addTab('history', 'Sequence history', 'time', new HistoryView(), true);
       this.addTab('features', 'Annotations', 'edit', new FeaturesView());
       this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView());
-      this.addTab('edit', 'Edit', 'book', new EditView());
+      this.addTab('edit', 'Sequence details', 'book', new EditView());
       this.addTab('export', 'Export sequence', 'floppy-save', new ExportView());
     }
 

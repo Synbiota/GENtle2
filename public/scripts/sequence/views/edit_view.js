@@ -4,43 +4,48 @@
 @submodule Views
 **/
 define(function(require) {
-    var template = require('hbars!sequence/templates/edit_view'),
-        Backbone = require('backbone.mixed'),
-        Gentle = require('gentle')(),
-        Sequences = require('sequence/models/sequences'),
-        Edit = require('sequence/models/edit'),
-        EditView;
+  var template = require('hbars!sequence/templates/edit_view'),
+    Backbone = require('backbone.mixed'),
+    Gentle = require('gentle')(),
+    Sequences = require('sequence/models/sequences'),
+    Edit = require('sequence/models/edit'),
+    EditView;
 
-    EditView = Backbone.View.extend({
-        manage: true,
-        template: template,
+  EditView = Backbone.View.extend({
+    manage: true,
+    template: template,
 
-        initialize: function() {
-            this.model = Gentle.currentSequence;
-            Edit = new Edit();
-        },
+    initialize: function() {
+      this.model = Gentle.currentSequence;
+      this.validation = new Edit();
+    },
 
-        events: {
-            'click input[type=submit]': 'updateNameDescription',
-        },
+    events: {
+      'click input[type=submit]': 'updateNameDescription',
+    },
 
-        updateNameDescription: function(event) {
-            this.model.set('name', Edit.valid(this.$('#name').val(), 'name'));
-            this.model.set('description', Edit.valid(this.$('#desc').val(), 'desc'));
-            this.model.sync('update', this.model);
-            document.title = this.model.get('name');
-        },
+    updateNameDescription: function(event) {
+      var validation = this.validation,
+          model = this.model;
 
-        serialize: function() {
+      event.preventDefault();
 
-            return {
+      model.set('name', validation.valid(this.$('#name').val(), 'name'));
+      model.set('description', validation.valid(this.$('#desc').val(), 'desc'));
+      model.save();
+      document.title = this.model.get('name');
+    },
 
-                Name: this.model.get('name'),
-                Desc: this.model.get('description')
-            };
+    serialize: function() {
 
-        }
-    });
-    return EditView;
+      return {
+
+        Name: this.model.get('name'),
+        Desc: this.model.get('description')
+      };
+
+    }
+  });
+  return EditView;
 
 });
