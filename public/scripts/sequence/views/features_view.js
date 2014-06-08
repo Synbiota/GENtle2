@@ -177,7 +177,7 @@ define(function(require) {
           this.model.createFeature(this.editedFeature, true);
         } else {
           console.log('this was hacked');
-          this.model.updateFeature(this.editedFeature);
+          this.model.updateFeature(this.editedFeature,true);
         }
         this.cancelEditing();
       } else {

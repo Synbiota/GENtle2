@@ -296,7 +296,7 @@ define(function(require) {
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
 
-              console.log('This is 1 :'+feature.ranges);
+              console.log('This is 1 :');
 
               this.recordFeatureHistoryIn(feature, false, false);
 
@@ -308,19 +308,20 @@ define(function(require) {
 
               if (firstBase <= range.from) {
                 if (lastBase >= range.to) {
+                  console.log("This might be it");
                   this.recordFeatureHistoryIn(feature, range.from, range.to);
                   feature.ranges.splice(j--, 1);
                 } else {
                   range.from -= lastBase < range.from ? -offset : range.from - firstBase;
                   range.to += offset;
-                  console.log('This is 2 :'+feature);
+                  console.log('This is 2 :');
                   this.recordFeatureHistoryIn(feature, false, false);
 
                 }
               } else if (firstBase <= range.to) {
                 range.to = Math.max(firstBase - 1, -offset);
 
-                              console.log('This is 3 :'+feature);
+                              console.log('This is 3 :');
 
 
                 this.recordFeatureHistoryIn(feature, false, false);
@@ -391,12 +392,12 @@ define(function(require) {
       switch (historyStep.get('type')) {
         
         case 'annotatein':
-          console.log('thishappend' + historyStep.get('timestamp'));
+          console.log('thishappend in' + historyStep.get('timestamp'));
           this.undoFeature(historyStep.get('timestamp'));
           break;
 
         case 'annotatedel':
-          console.log('thathappend' + historyStep.get('timestamp'));
+          console.log('thathappend del' + historyStep.get('timestamp'));
           this.undoFeature(historyStep.get('timestamp'));
           break;
 
@@ -444,16 +445,16 @@ define(function(require) {
       });
       if (annHistoryIn[0] != undefined){               
         console.log('this also happend delete');
-        this.deleteFeature(annHistoryIn[0].attributes.feature, false);}
+        this.deleteFeature(annHistoryIn[0].attributes.feature, false);
+      }
       if (annHistoryDel[0] != undefined) {
         console.log('this was created');
-
         this.createFeature(annHistoryDel[0].attributes.feature, false);
       }
 
     },
 
-    updateFeature: function(editedFeature) {
+    updateFeature: function(editedFeature,record) {
       var oldFeature = _.indexBy(this.get('features'), '_id')[editedFeature._id],
         id = this.get('features').indexOf(oldFeature),
         Feature = editedFeature;
@@ -462,6 +463,8 @@ define(function(require) {
       this.set('features.' + id, editedFeature);
       this.sortFeatures();
       this.save();
+      console.log("this should also not happen");
+      if(record)
       this.recordFeatureHistoryIn(Feature, false, false);
       this.throttledSave();
     },
@@ -471,6 +474,7 @@ define(function(require) {
       var fromN, toN;
       var seqmem;
       var Feature = newFeature;
+      console.log(record);
       if (record) {
         console.log('this should not happen ');
         this.recordFeatureHistoryIn(Feature, false, false);
@@ -517,6 +521,8 @@ define(function(require) {
     },
 
     recordFeatureHistoryIn: function(feature, fromVal, toVal) {
+
+      console.log('this was fired by someone');
       var fromN, toN, susbseq, seqmem, extensionMem;
 
       if (feature.ranges[0] == undefined) {
