@@ -26,7 +26,6 @@ define(function(require) {
 
     initialize: function() {
       this.model = Gentle.currentSequence;
-      this.model.bind('change', _.bind(this.render, this));
       this.featureTypes = _.chain(SynbioData.featureTypes).clone()
         .forEach(function(type, typeId) {
           type.value = typeId;
@@ -34,6 +33,8 @@ define(function(require) {
         .values()
         .groupBy('category')
         .value();
+        this.model.bind('change', _.bind(this.render, this));
+
     },
 
     getFeatureFromElement: function(element) {
