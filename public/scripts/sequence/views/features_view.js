@@ -171,7 +171,7 @@ define(function(require) {
       if(!_.keys(this.errors).length) {
         this.editedFeature.ranges = ranges;
         if(this.creating) {
-          this.model.createFeature(this.editedFeature);
+          this.model.createFeature(this.editedFeature,true);
         } else {
           this.model.updateFeature(this.editedFeature);
         }
@@ -184,7 +184,7 @@ define(function(require) {
 
     deleteFeature: function(event) {
       event.preventDefault();
-      this.model.deleteFeature(this.editedFeature);
+      this.model.deleteFeature(this.editedFeature,true);
       this.cancelEditing();
     },
 
