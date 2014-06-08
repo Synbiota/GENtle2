@@ -9,6 +9,7 @@ define(function(require) {
       DisplaySettingsView = require('./display_settings_view'),
       ExportView          = require('./export_view'),
       SidebarView         = require('common/views/sidebar_view'),
+      EditView            = require('./edit_view'),
       SettingsView;
   
   SettingsView = SidebarView.extend({
@@ -18,6 +19,7 @@ define(function(require) {
       this.addTab('history', 'Sequence history', 'time', new HistoryView(), true);
       this.addTab('features', 'Annotations', 'edit', new FeaturesView());
       this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView());
+      this.addTab('edit', 'Edit', 'book', new EditView());
       this.addTab('export', 'Export sequence', 'floppy-save', new ExportView());
     }
 
