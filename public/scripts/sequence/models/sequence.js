@@ -474,7 +474,9 @@ define(function(require) {
                         extension: 'memoryVar'
                     });
                     fromN = seqmem[0].attributes.range[0].from;
-                    toN = seqmem[0].attributes.range[0].to;
+                    if (fromN != 0)
+                        fromN -= 1;
+                    toN = seqmem[0].attributes.range[0].to - 1;
                     Feature.ranges[0] = {
                         from: fromN,
                         to: toN
@@ -565,12 +567,18 @@ define(function(require) {
             var fromN;
             var toN;
             if (fromVal == false) {
-                fromN = feature.ranges[0].from + 1;
+                if (feature.ranges[0] == undefined)
+                    fromN = 1;
+                else
+                    fromN = feature.ranges[0].from + 1;
             } else {
                 fromN = fromVal + 1;
             }
             if (toVal == false) {
-                toN = (feature.ranges[0].to + 1);
+                if (feature.ranges[0] == undefined)
+                    toN = 1;
+                else
+                    toN = feature.ranges[0].to + 1;
             } else {
                 toN = toVal + 1;
             }
