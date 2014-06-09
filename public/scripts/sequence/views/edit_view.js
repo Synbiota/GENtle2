@@ -16,8 +16,6 @@ define(function(require) {
 
         initialize: function() {
             this.model = Gentle.currentSequence;
-            this.model.nameBefore = this.model.get('name');
-
         },
 
         events: {
@@ -25,28 +23,41 @@ define(function(require) {
         },
 
         readAndUpdate: function(event) {
-
             var descript = 'No Description';
-            this.model.isError=false;
-            this.model.set({
-            name: this.$('#name').val(),
-            description: this.$('#desc').val(),
-            }, {validate: true});
+            this.model.nameBefore = this.model.get('name');
+            this.errorVal = false;
 
-            if(!this.model.validationError[0].name || !this.model.validationError[0].description){ 
-            if(this.model.validationError[0].name){
-            this.model.isError = true;
-            }else{
-            this.model.set('name', this.$('#name').val());
-            document.title = this.$('#name').val() + ' / Gentle';
+            this.model.set({
+                name: this.$('#name').val(),
+                description: this.$('#desc').val(),
+            }, {
+                validate: true
+            });
+
+            if (this.model.validationError != null) {
+                if (this.model.validationError[0] == 'name') {
+                    this.errorVal = true;
+                    this.model.set('name', this.model.nameBefore);
+                    document.title = this.model.nameBefore + " / Gentle";
+                    this.model.set('description', this.$('#desc').val());
+                }
+                if (this.model.validationError[0] == 'description') {
+                    this.model.set('description', descript);
+                    this.model.set('name', this.$('#name').val());
+                    document.title = this.$('#name').val() + " / Gentle";
+                }
+                if (this.model.validationError.length == 2) {
+                    this.model.set('name', this.model.nameBefore);
+                    this.model.set('description', descript);
+                    document.title = this.model.nameBefore + " / Gentle";
+                }
+            } else {
+                this.model.set('name', this.$('#name').val());
+                this.model.set('description', this.$('#desc').val());
+                document.title = this.$('#name').val() + " / Gentle";
             }
-            if(this.model.validationError[0].description){
-            this.model.set('description',descript);
-            }else{
-            this.model.set('description', this.$('#desc').val());
-            }
-            }
-            this.model.save(); 
+
+            this.model.save();
             this.render();
         },
 
@@ -54,7 +65,7 @@ define(function(require) {
             return {
                 Name: this.model.get('name'),
                 Desc: this.model.get('description'),
-                error: this.model.isError
+                error: this.errorVal
             };
 
         },

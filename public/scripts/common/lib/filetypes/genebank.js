@@ -83,6 +83,7 @@ define(function(require) {
         m = v.match ( /^\s{8,21}\/(\w+)\s*=\s*(.+)\s*$/ ) ;
         if ( m ) { // Begin new tag
           m[1] = m[1].replace ( /^"/ , '' ) ;
+
           feature['_last'] = m[1] 
           feature._importData[m[1]] = m[2].replace(/^"/, '').replace(/"$/, '') ;
           return ;
@@ -114,6 +115,9 @@ define(function(require) {
       delete v['_last'] ;
       var range = [] ; // Default : Unknown = empty TODO FIXME
       var r = v['ranges'] ;
+      console.log(v._importData.product);
+      console.log(v._importData.gene);
+
       v.name = v._importData.product || v._importData.gene || 'Unnamed';
       v.desc = v._importData.note || '';
       

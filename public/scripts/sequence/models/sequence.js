@@ -168,18 +168,17 @@ define(function(require) {
     @param {String} text
     @returns {String} replaces the form feild text
     **/
+
+
         validate: function(attrs, options) {
         errors = [];
         if(!attrs.name.replace(/\s/g, '').length) 
         {
-        errors.push({name : true, description : false});
+        errors.push('name');
         }
         if(!attrs.description.replace(/\s/g, '').length && attrs.description!='No Description') 
         {
-        errors.push({name : false, description : true});
-        }
-        else{
-        errors.push({name : false, description : false});  
+        errors.push('description');
         }
         return errors.length ? errors : undefined;
         },
