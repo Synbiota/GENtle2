@@ -26,14 +26,14 @@
               {{/if}}
             </td>
             {{#if isInsertion}}
-            <td style="width: 60px;">
-              <kbd>@{{position}}</kbd>
-            </td>
+            {{#increment position}}
+            {{position}}
+            {{/increment}}
             {{/if}}
-             {{#if isDeletion}}
-            <td style="width: 60px;">
-              <kbd>@{{position}}</kbd>
-            </td>
+            {{#if isDeletion}}
+            {{#increment position}}
+            {{position}}
+            {{/increment}}
             {{/if}}
             {{#if name}}
             <td style="width: 60px;">
@@ -57,6 +57,8 @@
               <kbd data-placement="bottom" title="{{value}}">
                 {{value}}
                 </kbd> 
+            </td>
+            <td style="width: 60px;">
             </td>
             {{/if}}
           </tr>
