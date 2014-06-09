@@ -16,28 +16,37 @@ define(function(require) {
 
         initialize: function() {
             this.model = Gentle.currentSequence;
+            this.model.nameBefore = this.model.get('name');
+
         },
 
         events: {
-            'click input[type=submit]': 'readinfo',
+            'click input[type=button]': 'readAndUpdate',
         },
 
-        readinfo: function(event) {
-            this.error = '';
-            if (this.model.valid(this.$('#name').val(), 'name',this.model) == 'Unnamed') {
-                this.error = true;
-                this.render();
-            } else {
-                this.updateNameDescription();
-                this.error = false;
-            }
-        },
+        readAndUpdate: function(event) {
 
-        updateNameDescription: function() {
+            var descript = 'No Description';
+            this.model.isError=false;
+            this.model.set({
+            name: this.$('#name').val(),
+            description: this.$('#desc').val(),
+            }, {validate: true});
+
+            if(!this.model.validationError[0].name || !this.model.validationError[0].description){ 
+            if(this.model.validationError[0].name){
+            this.model.isError = true;
+            }else{
             this.model.set('name', this.$('#name').val());
-            this.model.set('description', this.model.valid(this.$('#desc').val(), 'desc',this.model));
-            this.model.sync('update', this.model);
-            document.title = this.model.get('name') + ' / Gentle';
+            document.title = this.$('#name').val() + ' / Gentle';
+            }
+            if(this.model.validationError[0].description){
+            this.model.set('description',descript);
+            }else{
+            this.model.set('description', this.$('#desc').val());
+            }
+            }
+            this.model.save(); 
             this.render();
         },
 
@@ -45,7 +54,7 @@ define(function(require) {
             return {
                 Name: this.model.get('name'),
                 Desc: this.model.get('description'),
-                error: this.error
+                error: this.model.isError
             };
 
         },

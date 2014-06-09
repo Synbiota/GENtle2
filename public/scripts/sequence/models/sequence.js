@@ -162,29 +162,28 @@ define(function(require) {
             }
         },
 
-        /**
-    @method valid
+     /**
+    @method validate
     @param {String} id
     @param {String} text
     @returns {String} replaces the form feild text
     **/
-        valid: function(text, id, sequence) {
-            var string = text;
-            var replace = sequence.get('name');
-            if (id == "name") {
-                sequence.set('name', string);
-                if (!sequence.get('name').replace(/\s/g, '').length) {
-                    string = 'Unnamed';
-                    sequence.set('name', replace);
-                }
-            } else if (id == "desc") {
-                sequence.set('description', string);
-                if (!sequence.get('description').replace(/\s/g, '').length) {
-                    string = 'No Description';
-                }
-            }
-            return string;
+        validate: function(attrs, options) {
+        errors = [];
+        if(!attrs.name.replace(/\s/g, '').length) 
+        {
+        errors.push({name : true, description : false});
+        }
+        if(!attrs.description.replace(/\s/g, '').length && attrs.description!='No Description') 
+        {
+        errors.push({name : false, description : true});
+        }
+        else{
+        errors.push({name : false, description : false});  
+        }
+        return errors.length ? errors : undefined;
         },
+
 
         /**
     @method maxOverlappingFeatures
@@ -454,8 +453,9 @@ define(function(require) {
             this.set('features.' + id, editedFeature);
             this.sortFeatures();
             this.save();
-            if (record)
+            if (record){
                 this.recordFeatureHistoryIn(Feature, false, false);
+            }
             this.throttledSave();
         },
 
