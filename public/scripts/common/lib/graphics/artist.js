@@ -13,6 +13,7 @@ define(function(require){
   var $ = require('jquery'),
       Rect = require('./rect'),
       Text = require('./text'),
+      // BrowserDetect = require('BrowserDetect'),
       Artist;
 
   /**
@@ -26,8 +27,13 @@ define(function(require){
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     this.shapes = [];
-    this.minPixelRatio = 2;
-    this.setPixelRatio();
+    //// This fixes anti-alising in Firefox for non-HiDPI screens
+    //// But also slows down scrolling.. Need more testing.
+    // if(BrowserDetect.browser == 'Firefox') {
+    //   this.minPixelRatio = 2;
+    // } else {
+    //   this.minPixelRatio = 1;
+    // }
     return this;
   };
 
@@ -38,11 +44,15 @@ define(function(require){
   @param {Integer} height
   **/
   Artist.prototype.setDimensions = function(width, height) {
-    var canvas = this.canvas;
+    var canvas = this.canvas,
+        pixelRatio = this.getPixelRatio();
+
     if(canvas.width != width || canvas.height != height) {
-      canvas.width = width;
-      canvas.height = height;
+      canvas.width = width * pixelRatio;
+      canvas.height = height * pixelRatio;
     }
+    
+    this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   };
 
   /**
@@ -132,24 +142,21 @@ define(function(require){
     device pixel ratio and backing store pixel ratio)
   **/
   Artist.prototype.getPixelRatio = function() {
-    var context = this.context,
-        dpr = window.devicePixelRatio           || 1,
-        bsr = context.webkitBackingStorePixelRatio  ||
-              context.mozBackingStorePixelRatio     ||
-              context.msBackingStorePixelRatio      ||
-              context.oBackingStorePixelRatio       ||
-              context.backingStorePixelRatio        || 1;
+    this.pixelRatio = this.pixelRatio || (function(_this) {
 
-    return Math.max(this.minPixelRatio, dpr / bsr);
-  };
+      var context = _this.context,
+          dpr = window.devicePixelRatio               || 1,
+          bsr = context.webkitBackingStorePixelRatio  ||
+                context.mozBackingStorePixelRatio     ||
+                context.msBackingStorePixelRatio      ||
+                context.oBackingStorePixelRatio       ||
+                context.backingStorePixelRatio        || 1;
 
-  /**
-  Gets pixel ratio and enforces it on canvas
-  @method setPixelRatio
-  **/
-  Artist.prototype.setPixelRatio = function() {
-    var pixelRatio = this.getPixelRatio();
-    this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+      return Math.max(_this.minPixelRatio || 1, dpr / bsr);
+
+    })(this);
+
+    return this.pixelRatio;
   };
 
   /**
@@ -160,10 +167,11 @@ define(function(require){
   Artist.prototype.scroll = function(offset) {
     var canvas = this.canvas,
         context = this.context,
+        pixelRatio = this.getPixelRatio(),
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);
     
     this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-    context.putImageData(imageData, 0, offset);
+    context.putImageData(imageData, 0, offset * pixelRatio);
 
   };
 

@@ -52,5 +52,4 @@ define(function(require) {
     });
 
     return EditView;
-
 });

@@ -18,6 +18,7 @@ require.config({
     'bootstrap-confirmation': '../vendor/scripts/bootstrap-confirmation-fork',
     'Blob':                   '../vendor/scripts/blob',
     'saveAs':                 '../vendor/scripts/filesaver',
+    'BrowserDetect':          '../vendor/scripts/browserdetect',
     'gentle':                 'common/models/gentle',
     'backbone.mixed':         'common/lib/backbone.mixed',
     'underscore.mixed':       'common/lib/underscore.mixed',
