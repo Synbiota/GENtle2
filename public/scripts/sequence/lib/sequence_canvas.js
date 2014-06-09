@@ -22,8 +22,13 @@ define(function(require) {
       _Utilities        = require('sequence/lib/_sequence_canvas_utilities'),
       _ContextMenu      = require('sequence/lib/_sequence_canvas_context_menu'),
       Backbone          = require('backbone.mixed'),
+      Styles            = require('text!styles.json'),
       Q                 = require('q'),
-      SequenceCanvas;
+      LineStyles, SequenceCanvas;
+
+  Styles = JSON.parse(Styles);
+  LineStyles = Styles.sequences.lines;
+
 
   SequenceCanvas = function(options) {
     var _this = this;
@@ -116,8 +121,8 @@ define(function(require) {
         position: new Lines.Position(this, {
           height: 15, 
           baseLine: 15, 
-          textFont: "10px Monospace", 
-          textColour:"#005",
+          textFont: LineStyles.position.text.font, 
+          textColour: LineStyles.position.text.color,
           transform: _.formatThousands,
           visible: _.memoize2(function() { 
             return _this.sequence.get('displaySettings.rows.numbering'); 
@@ -128,32 +133,35 @@ define(function(require) {
         aa: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
-          textFont: "15px Monospace", 
+          textFont: LineStyles.aa.text.font, 
           transform: function(base) {
             return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
           },
           visible: _.memoize2(function() {
             return _this.sequence.get('displaySettings.rows.aa') != 'none';
           }),
-          textColour: function(codon) { return {'STP': 'red', 'S  ': 'red'}[codon.sequence] || '#79B6F9'; }
+          textColour: function(codon) { 
+            var colors = LineStyles.aa.text.color;
+            return colors[codon.sequence] || colors._default; 
+          }
         }),
 
         // DNA Bases
         dna: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
-          textFont: "15px Monospace", 
-          textColour:"#000",
-          selectionColour: "#1a1a63",
-          selectionTextColour: "#fff"
+          textFont: LineStyles.dna.text.font, 
+          textColour: LineStyles.dna.text.color,
+          selectionColour: LineStyles.dna.selection.fill,
+          selectionTextColour: LineStyles.dna.selection.color
         }),
 
         // Complements
         complements: new Lines.DNA(this, {
           height: 15, 
           baseLine: 15, 
-          textFont: "15px Monospace", 
-          textColour:"#bbb",
+          textFont: LineStyles.complements.text.font, 
+          textColour: LineStyles.complements.text.color,
           getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
           visible: _.memoize2(function() { 
             return _this.sequence.get('displaySettings.rows.complements'); 
@@ -164,12 +172,20 @@ define(function(require) {
         features: new Lines.Feature(this, {
           unitHeight: 15,
           baseLine: 10,
-          textFont: "11px Monospace", 
-          textColour: "#fff",
+          textFont: LineStyles.features.font, 
+          textColour: function(type) { 
+            var colors = LineStyles.features.color;
+            type = type.toLowerCase();
+            return (colors[type] && colors[type].color) || colors._default.color;
+          },
           textPadding: 2,
           margin: 2,
           lineSize: 2,
-          colour: function(type) { return {'CDS': 'blue'}[type] || 'red';},
+          colour: function(type) { 
+            var colors = LineStyles.features.color;
+            type = type.toLowerCase();
+            return (colors[type] && colors[type].fill) || colors._default.fill;
+          },
           visible: _.memoize2(function() { 
             return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features'); 
           })

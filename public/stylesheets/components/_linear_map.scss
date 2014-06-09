@@ -21,6 +21,7 @@
   .linear-map-features {
     position: absolute;
     right: 0;
+    $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"), "features"), "color");
 
     .linear-map-feature {
       cursor: pointer;
@@ -30,8 +31,8 @@
       position: absolute;
       // @include text-overflow();
       overflow: hidden;
-      background: red;
-      color: white;
+      background: map_get(map_get($__colors, '_default'), 'fill');
+      color: map_get(map_get($__colors, '_default'), 'color');
       text-align: center;
       text-transform: uppercase;
       white-space: nowrap;
@@ -42,6 +43,15 @@
       @for $i from 0 to 4 {
         &.linear-map-feature-stacked-#{$i} {
           right: 10px + 17px * $i;
+        }
+      }
+
+      @each $feature_type, $v in $__colors {
+        @if $feature_type != '_default' {
+          &.linear-map-feature-#{$feature_type} {
+            color: map_get($v, 'color');
+            background: map_get($v, 'fill');
+          }
         }
       }
 

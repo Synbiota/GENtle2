@@ -47,6 +47,17 @@ steps:
     npm install
     ```
 
+1. Install rubygems dependencies* (you'll need Ruby installed locally,
+preferrably using `rbenv`)
+
+    ```shell
+    bundle install
+    ```
+
+_*While unfortunate, the ruby dependencies lets us import JSON files in SCSS
+stylesheets using [SassyJSON](https://github.com/HugoGiraudel/SassyJSON)._
+
+
 ### Running the servers
 
 Run both the GENtle server and the documentation server
@@ -71,7 +82,7 @@ Stylesheets are writen in [SCSS](http://sass-lang.com). To compile new changes,
 run:
 
 ```shell
-grunt sass
+grunt css
 ```
 
 #### Javascripts
@@ -83,7 +94,7 @@ In production, the server uses a minified single-file version of the app. To com
 run:
 
 ```shell
-grunt requirejs
+grunt js
 ```
 
 __Always recompile the app before pushing__
@@ -96,9 +107,9 @@ To automatically recompile assets when sources change, run:
 # Watch and recompile everything
 grunt watch 
 # Watch and recompile stylesheets
-grunt watch:sass 
+grunt watch:css 
 # Watch and recompile javascripts
-grunt watch:compile 
+grunt watch:js 
 ```
 
 ### Running specs

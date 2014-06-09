@@ -1,18 +1,10 @@
 module.exports = function(grunt) {
   var yuidocjson  = grunt.file.readJSON('yuidoc.json'),
-      appConfig   = grunt.file.readJSON('public/scripts/config.json');
+      appConfig   = grunt.file.readJSON('public/scripts/config.json'),
+      _           = require('underscore');
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'), 
-    yuidoc: {
-      compile: {
-        name: yuidocjson.name,
-        description: yuidocjson.description,
-        version: yuidocjson.version,
-        url: yuidocjson.url,
-        options: yuidocjson.options
-      }
-    }, 
     requirejs: {
       compile: {
         options: {
@@ -31,34 +23,26 @@ module.exports = function(grunt) {
         }
       }
     }, 
-    sass: {
+    compass: {
       dist: {
         options: {
-          sourcemap: true,
-          includePaths: require('node-bourbon').includePaths
-        },
-        files: {
-          'public/stylesheets/app.css': 'public/stylesheets/app.scss'
+          sassDir: 'public/stylesheets',
+          cssDir: 'public/stylesheets',
+          specify: 'public/stylesheets/app.scss',
+          require: ['bourbon', 'SassyJSON', 'sass-globbing']
         }
       }
-    }, 
+    },
 
     watch: {
-      // docs: {
-      //   files: ['public/scripts/**/*.js', '!public/scripts/app.min.js'],
-      //   tasks: 'yuidoc',
-      //   options: {
-      //     atBegin: true
-      //   }
-      // },
-      sass: {
+      css: {
         files: ['public/stylesheets/**/*.{scss,sass}'],
-        tasks: ['sass'],
+        tasks: ['compass'],
         options: {
           atBegin: true
         }
       },
-      compile: {
+      js: {
         files: ['public/scripts/**/*.js', '!public/scripts/app.min.js'],
         tasks: 'requirejs',
         options: {
@@ -73,5 +57,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-yuidoc');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-requirejs');
-  grunt.loadNpmTasks('grunt-sass');
+  grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-contrib-compass');
+
+  // Task aliases
+  grunt.registerTask('css', ['compass']);
+  grunt.registerTask('js', ['requirejs']);
 };

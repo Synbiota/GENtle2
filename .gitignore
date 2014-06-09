@@ -8,3 +8,4 @@ app/scripts/app.min.s
 *.orig
 stylesheets/app.css
 npm-debug.log
+.sass-cache

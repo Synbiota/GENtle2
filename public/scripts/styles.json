@@ -1,0 +1,75 @@
+{
+  "sequences": {
+    "lines": {
+      "position": {
+        "text": {
+          "font": "10px Monospace",
+          "color": "#005"
+        }
+      },
+      "aa": {
+        "text": {
+          "font": "15px Monospace",
+          "color": {
+            "_default": "#79B6F9",
+            "STP": "red",
+            "S  ": "red"
+          }
+        }
+      },
+      "dna": {
+        "text": {
+          "font": "15px Monospace",
+          "color": "black"
+        },
+        "selection": {
+          "color": "white",
+          "fill": "#1a1a63"
+        }
+      },
+      "complements": {
+        "text": {
+          "font": "15px Monospace",
+          "color": "#bbb"
+        }
+      },
+      "features": {
+        "font": "11px Monospace",
+        "color": {
+          "_default": {
+            "fill": "#a12e29",
+            "color": "white"
+          },
+          "cds": {
+            "fill": "#3c4589",
+            "color": "white"
+          },
+          "terminator": {
+            "fill": "#1c1c25",
+            "color": "white"
+          },
+          "ori": {
+            "fill": "#d5cb4a",
+            "color": "#3e0208"
+          },
+          "promoter": { 
+            "fill": "#a12e29",
+            "color": "white"
+          },
+          "rbs": {
+            "fill": "#a12e29",
+            "color": "white"
+          },
+          "protein_bind": {
+            "fill": "#a12e29",
+            "color": "white"
+          },
+          "note": {
+            "fill": "#3c6e39",
+            "color": "white"
+          } 
+        }
+      }
+    }
+  }
+}
