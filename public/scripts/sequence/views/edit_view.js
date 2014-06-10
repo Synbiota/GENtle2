@@ -25,7 +25,9 @@ define(function(require) {
         readAndUpdate: function(event) {
             var descript = 'No Description';
             this.model.nameBefore = this.model.get('name');
-            this.model.errorVal = false;
+            this.model.errors= {};
+
+            event.preventDefault();
 
             this.model.set({
                 name: this.$('#name').val(),
@@ -36,7 +38,7 @@ define(function(require) {
 
             if (this.model.validationError != null) {
                 if (this.model.validationError[0] == 'name') {
-                    this.model.errorVal = true;
+                    this.model.errors.name = true;
                     this.model.set('name', this.model.nameBefore);
                     document.title = this.model.nameBefore + " / Gentle";
                     this.model.set('description', this.$('#desc').val());
@@ -65,7 +67,7 @@ define(function(require) {
             return {
                 Name: this.model.get('name'),
                 Desc: this.model.get('description'),
-                error: this.model.errorVal
+                error: this.model.errors || {}
             };
 
         },
