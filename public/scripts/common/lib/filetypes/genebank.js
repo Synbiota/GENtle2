@@ -40,7 +40,6 @@ define(function(require) {
     var seq = {features: [], sequence: ''} ;
     seq.desc = '' ;
     var feature = {} ;
-    var lastFeatureId = -1;
     $.each ( lines , function ( k , v ) {
 
       if ( v.match(/^LOCUS/i) ) {
@@ -73,7 +72,7 @@ define(function(require) {
         var m = v.match ( /^\s{1,8}(\w+)\s+(.+)$/ ) ;
         if ( m ) { // Begin feature
           if ( feature['_last'] ) seq.features.push ( $.extend(true, {}, feature) ) ;
-          feature = { _importData: {}, _id: ++lastFeatureId } ;
+          feature = { _importData: {}, _id: _.uniqueId() } ;
           feature['_type'] = m[1] ;
           feature['ranges'] = m[2] ;
           feature['_last'] = 'ranges' ;

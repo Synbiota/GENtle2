@@ -104,6 +104,17 @@ define(function(require) {
           magOrder = Math.round(Math.log10(number) / 3),
           roundedNumber = Math.round(number / Math.pow(10, magOrder * 3) * 100) / 100;
       return roundedNumber.toString() + suffixes[magOrder];
+    },
+
+    /**
+    Returns a randomized unique ID
+
+    Inspired by http://stackoverflow.com/a/6860916/916312
+  
+    @method uniqueId
+    **/
+    uniqueId: function() {
+      return +(new Date()) + '-' + (((1+Math.random())*0x10000)|0).toString(16);
     }
 
 

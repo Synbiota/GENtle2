@@ -18,7 +18,7 @@ define(function(require) {
   Sequence = Backbone.DeepModel.extend({
     defaults: function() {
       return {
-        id: +(new Date()) + '-' + (Math.floor(Math.random() * 10000)),
+        id: _.uniqueId(),
         displaySettings: {
           rows: {
             numbering: true,
@@ -163,20 +163,13 @@ define(function(require) {
     },
 
     /**
+    Validates that a sequence name is present
     @method validate
-    @param {String} id
-    @param {String} text
-    @returns {String} replaces the form feild text
     **/
-
-
     validate: function(attrs, options) {
       errors = [];
       if (!attrs.name.replace(/\s/g, '').length) {
         errors.push('name');
-      }
-      if (!attrs.description.replace(/\s/g, '').length && attrs.description != 'No Description') {
-        errors.push('description');
       }
       return errors.length ? errors : undefined;
     },
@@ -383,11 +376,11 @@ define(function(require) {
       switch (historyStep.get('type')) {
 
         case 'annotatein':
-          this.undoFeature(historyStep.get('timestamp'));
+          this.deleteFeature(historyStep.get('feature'), false);
           break;
 
         case 'annotatedel':
-          this.undoFeature(historyStep.get('timestamp'));
+          this.createFeature(historyStep.get('feature'), false);
           break;
 
         case 'insert':
@@ -406,19 +399,6 @@ define(function(require) {
           );
           break;
       }
-    },
-
-    setupRanges: function(feature) {
-      var ranges = feature.ranges;
-      this.editedFeature.ranges = _.map(ranges, function(range, i) {
-        return _.extend(range, {
-          _id: i,
-          _canDelete: ranges.length > 1,
-          from: range.from == -1 ? '' : range.from + 1,
-          to: range.to == -1 ? '' : range.to + 1,
-          _canAdd: i == ranges.length - 1
-        });
-      });
     },
 
     undoFeature: function(timestamp) {
