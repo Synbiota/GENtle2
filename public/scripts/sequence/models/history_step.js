@@ -12,7 +12,10 @@ define(function(require){
     serialize: function() {
       return _.extend(Backbone.Model.prototype.toJSON.call(this), {
         isInsertion: this.get('type') == 'insert',
-        isDeletion: this.get('type') == 'delete'
+        isDeletion: this.get('type') == 'delete',
+        isAnnotationInsertion: this.get('type') == 'annotatein',
+        isAnnotationDelete: this.get('type') == 'annotatedel',
+
       });
     }
   });

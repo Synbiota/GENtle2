@@ -18,16 +18,49 @@
               {{#if isDeletion}}
                 <span class='text-danger'>Deleted</span>
               {{/if}}
+              {{#if isAnnotationInsertion}}
+                <span class='text-success'>Annotation</span>
+              {{/if}}
+              {{#if isAnnotationDelete}}
+                <span class='text-danger'>Annotation</span>
+              {{/if}}
             </td>
+            {{#if isInsertion}}
+            {{#increment position}}
+            {{position}}
+            {{/increment}}
+            {{/if}}
+            {{#if isDeletion}}
+            {{#increment position}}
+            {{position}}
+            {{/increment}}
+            {{/if}}
+            {{#if name}}
             <td style="width: 60px;">
-              <kbd>@{{position}}</kbd>
+              <kbd>{{name}}</kbd>
             </td>
+            {{#if annType}}
+            <td style="width: 60px;">
+              <kbd>{{annType}}</kbd>
+            </td>
+            {{#if range}}
+            {{#each range}}
+            <td style="width: 60px;">
+            <kbd>@{{from}}-{{to}}</kbd>
+            </td>
+            {{/each}}
+            {{/if}} 
+            {{/if}}  
+            {{/if}}  
+            {{#if value}}
             <td>
               <kbd data-placement="bottom" title="{{value}}">
                 {{value}}
                 </kbd> 
             </td>
-
+            <td style="width: 60px;">
+            </td>
+            {{/if}}
           </tr>
         {{/each}}
       </tbody>
