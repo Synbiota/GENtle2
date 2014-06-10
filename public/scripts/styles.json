@@ -40,7 +40,7 @@
             "fill": "#a12e29",
             "color": "white"
           },
-          "cds": {
+          "CDS": {
             "fill": "#3c4589",
             "color": "white"
           },
@@ -48,7 +48,7 @@
             "fill": "#1c1c25",
             "color": "white"
           },
-          "ori": {
+          "oriT": {
             "fill": "#d5cb4a",
             "color": "#3e0208"
           },
