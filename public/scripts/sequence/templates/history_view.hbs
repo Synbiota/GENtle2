@@ -3,65 +3,52 @@
     <table class='table table-condensed table-hover table-less-borders'>
       <tbody>
         {{#each historySteps}}
-          <tr>
-            <td style="width: 30px">
-              <button class="btn btn-default btn-xs undo-history-step" 
-                      title="Undo this and later operations"
-                      data-timestamp="{{timestamp}}">
-                <i class="glyphicon glyphicon-fast-backward"></i>
-              </button>
-            </td>
-            <td style="width: 80px;">
-              {{#if isInsertion}}
-                <span class='text-success'>Inserted</span>
+          {{#unless hidden}}
+            <tr>
+              <td style="width: 30px">
+                <button class="btn btn-default btn-xs undo-history-step" 
+                        title="Undo this and later operations"
+                        data-timestamp="{{timestamp}}">
+                  <i class="glyphicon glyphicon-fast-backward"></i>
+                </button>
+              </td>
+              <td style="width: 80px;">
+                {{#if isInsertion}}
+                  <span class='text-success'>Inserted</span>
+                {{/if}}
+                {{#if isDeletion}}
+                  <span class='text-danger'>Deleted</span>
+                {{/if}}
+                {{#if isFeatureInsertion}}
+                  <span class='text-success'>New annotation</span>
+                {{/if}}
+                {{#if isFeatureDeletion}}
+                  <span class='text-danger'>Deleted annotation</span>
+                {{/if}}
+                {{#if isFeatureEdition}}
+                  <span class="text-warning">Edited annotation</span>
+                {{/if}}
+              </td>
+              {{#ifOr isInsertion isDeletion}}
+                <td style="width: 60px;">
+                  <kbd>{{formatThousands position 1}}</kbd>
+                </td>
+                <td>
+                  <kbd data-placement="bottom" title="{{value}}">
+                    {{value}}
+                    </kbd> 
+                </td>
+              {{/ifOr}}
+              {{#if isFeature}}
+                <td style="width: 60px;">
+                  <kbd>{{featureType}}</kbd>
+                </td> 
+                <td>
+                  <kbd>{{name}}</kbd>
+                </td>
               {{/if}}
-              {{#if isDeletion}}
-                <span class='text-danger'>Deleted</span>
-              {{/if}}
-              {{#if isAnnotationInsertion}}
-                <span class='text-success'>Annotation</span>
-              {{/if}}
-              {{#if isAnnotationDelete}}
-                <span class='text-danger'>Annotation</span>
-              {{/if}}
-            </td>
-            {{#if isInsertion}}
-            {{#increment position}}
-            {{position}}
-            {{/increment}}
-            {{/if}}
-            {{#if isDeletion}}
-            {{#increment position}}
-            {{position}}
-            {{/increment}}
-            {{/if}}
-            {{#if name}}
-            <td style="width: 60px;">
-              <kbd>{{name}}</kbd>
-            </td>
-            {{#if annType}}
-            <td style="width: 60px;">
-              <kbd>{{annType}}</kbd>
-            </td>
-            {{#if range}}
-            {{#each range}}
-            <td style="width: 60px;">
-            <kbd>@{{from}}-{{to}}</kbd>
-            </td>
-            {{/each}}
-            {{/if}} 
-            {{/if}}  
-            {{/if}}  
-            {{#if value}}
-            <td>
-              <kbd data-placement="bottom" title="{{value}}">
-                {{value}}
-                </kbd> 
-            </td>
-            <td style="width: 60px;">
-            </td>
-            {{/if}}
-          </tr>
+            </tr>
+          {{/unless}}
         {{/each}}
       </tbody>
     </table>

@@ -3,19 +3,47 @@ Handling history steps
 @class HistoryStep
 @module Sequence
 @submodule Models
+@constructor
+@param {string} model.type instance type (any of `insert`, `delete`, `featureIns`,
+  `featureDel`, `featureEdit`)
+@param {string} [model.name] if feature
+@param {string} [model.featureType] if feature
+@param {array<integer>} [model.linked] array of the timestamps of other {HistoryStep}
+  instances to undo at the same time. Defaults to `[]`;
+@param {integer} model.timestamp unique identifier for the {HistoryStep} instance
+  used for sorting.
+@param {boolean} model.hidden if true, will not display in {HistoryView} and will not
+  undo automatically when calling {{#crossLink "Sequence/undo"}}Sequence#undo{{/crossLink}} 
+  or {{#crossLink "Sequence/undoAfter"}}Sequence#undoAfter{{/crossLink}}
+@param {string} [operation] when `model.type` is `insert` or `delete`, 
+  summarizes the operation
+@param {integer} [base] when `model.type` is `insert` or `delete`, position
+  in the sequence when the operation occurred
+@param {string} [values] when `model.type` is `insert` or `delete`, bases
+  which have been inserted or deleted
 **/
 define(function(require){
   var Backbone = require('backbone.mixed'),
       HistoryStep;
 
   HistoryStep = Backbone.Model.extend({
-    serialize: function() {
-      return _.extend(Backbone.Model.prototype.toJSON.call(this), {
-        isInsertion: this.get('type') == 'insert',
-        isDeletion: this.get('type') == 'delete',
-        isAnnotationInsertion: this.get('type') == 'annotatein',
-        isAnnotationDelete: this.get('type') == 'annotatedel',
+    defaults: function() {
+      return {
+        timestamp: +(new Date()),
+        hidden: false,
+        linked: []
+      };
+    },
 
+    serialize: function() {
+      var type = this.get('type');
+      return _.extend(Backbone.Model.prototype.toJSON.call(this), {
+        isInsertion: type == 'insert',
+        isDeletion: type == 'delete',
+        isFeatureInsertion: type == 'featureIns',
+        isFeatureEdition: type == 'featureEdit', 
+        isFeatureDeletion: type == 'featureDel',
+        isFeature: /^feature/.test(type)
       });
     }
   });

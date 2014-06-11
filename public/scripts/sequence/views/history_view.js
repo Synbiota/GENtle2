@@ -35,11 +35,15 @@ define(function(require) {
       if (isOpen) this.$('.sequence-settings-tab-link').click(); // Meh..
     },
 
+    getHistorySteps: function() {
+      return this.model.getHistory();
+    },
+
     serialize: function() {
       if (this.isOpen) {
         return {
           isOpen: true,
-          historySteps: this.model.getHistory().serialize(),
+          historySteps: this.getHistorySteps().serialize(),
         };
       } else return {};
     },

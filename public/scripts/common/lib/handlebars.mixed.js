@@ -69,15 +69,28 @@ define(function(require) {
   Handlebars.registerHelper('shortFormNumber', function(context) {
     return _.shortFormNumber(context);
   });
- Handlebars.registerHelper('shortFormNumber', function(context) {
-    return _.shortFormNumber(context);
-  });
 
- Handlebars.registerHelper('increment', function(context) {
-    context = context +1;
-    return '<td style="width: 60px;">'+
-            '<kbd>'+'@'+context+'</kbd>'+
-            '</td>';
+  /**
+  If conditionals with union
+  @method Handlebars##ifOr
+  **/
+  Handlebars.registerHelper('ifOr', function() {
+    var args = _.toArray(arguments),
+        options = args.pop(),
+        isTrue;
+
+    isTrue =  _.some(
+                _.map(args, function(arg) { 
+                  return _.isFunction(arg) ? arg.call(this) : arg; 
+                })
+              );
+
+    if (!isTrue) {
+      return options.inverse(this);
+    } else {
+      return options.fn(this);
+    }
+
   });
 
   return Handlebars;
