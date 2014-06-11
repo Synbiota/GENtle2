@@ -269,8 +269,13 @@ define(function(require) {
     moveFeatures: function(base, offset) {
       var features = this.get('features'),
           featurePreviousState,
+          storePreviousState,
           firstBase, lastBase,
           historyTimestamps = [];
+
+      storePreviousState = function(feature) {
+        featurePreviousState = featurePreviousState || _.deepClone(feature);
+      };
 
       if (_.isArray(features)) {
 
@@ -282,7 +287,7 @@ define(function(require) {
             var range = feature.ranges[j];
 
             if (offset > 0) {
-
+              
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
 
@@ -292,14 +297,15 @@ define(function(require) {
               lastBase = base - offset - 1;
 
               if (firstBase <= range.from) {
+                storePreviousState(feature);
                 if (lastBase >= range.to) {
-                  featurePreviousState = featurePreviousState || _.deepClone(feature);
                   feature.ranges.splice(j--, 1);
                 } else {
                   range.from -= lastBase < range.from ? -offset : range.from - firstBase;
                   range.to += offset;
                 }
               } else if (firstBase <= range.to) {
+                storePreviousState(feature);
                 range.to = Math.max(firstBase - 1, -offset);
               }
 
@@ -311,7 +317,7 @@ define(function(require) {
             historyTimestamps.push(this.recordFeatureHistoryDel(featurePreviousState, true));
             features.splice(i--, 1);
           } else if (featurePreviousState !== undefined) {
-            historyTimestamps.push(this.recordFeaturesHistoryEdit(featurePreviousState, true));
+            historyTimestamps.push(this.recordFeatureHistoryEdit(featurePreviousState, true));
           }
         }
         this.clearFeatureCache();
