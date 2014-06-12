@@ -3,14 +3,15 @@
     <table class='table table-condensed table-hover table-less-borders'>
       <tbody>
         {{#each historySteps}}
-          {{#unless hidden}}
             <tr>
               <td style="width: 30px">
+                {{#unless hidden}}
                 <button class="btn btn-default btn-xs undo-history-step" 
                         title="Undo this and later operations"
                         data-timestamp="{{timestamp}}">
                   <i class="glyphicon glyphicon-fast-backward"></i>
                 </button>
+                {{/unless}}
               </td>
               <td style="width: 80px;">
                 {{#if isInsertion}}
@@ -48,7 +49,6 @@
                 </td>
               {{/if}}
             </tr>
-          {{/unless}}
         {{/each}}
       </tbody>
     </table>
