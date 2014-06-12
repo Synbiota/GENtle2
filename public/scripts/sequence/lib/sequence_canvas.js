@@ -209,6 +209,7 @@ define(function(require) {
       blinking: true
     });
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
+    this.sequence.set('sequence',this.cleanPastedText(this.sequence.get('sequence')));
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
@@ -613,7 +614,7 @@ define(function(require) {
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {
     var regexp = new RegExp('[^' + this.allowedInputChars.join('') + ']', 'g')
-    return text.toUpperCase().replace(regexp, '');
+    return text.toUpperCase().replace(regexp, '^@');
   };
 
   SequenceCanvas.prototype.focus = function() {
