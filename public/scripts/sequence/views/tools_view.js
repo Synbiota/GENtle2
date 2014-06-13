@@ -15,10 +15,6 @@ define(function(require) {
       'click .radio': 'changePrimaryView',
     },
 
-    initialize: function() {
-
-    },
-
     changePrimaryView: function(event) {
       var $element = this.$(event.currentTarget).find('input');
       this.parentView.parentView.changePrimaryView($element.val());

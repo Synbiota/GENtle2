@@ -1,8 +1,12 @@
 {{#each tabs}}
-  <a href='#{{../sidebarName}}-{{name}}' class='sidebar-tab-link'>
-    <i class="glyphicon glyphicon-{{icon}}"></i>&nbsp;
-    <span>{{title}}</span>
-  </a>
-  <div id='{{../sidebarName}}-{{name}}-tab' class='sidebar-tab{{#if maxHeighted}} max-heighted{{/if}}'>
+  <div>
+    <a href='#{{../sidebarName}}-{{name}}' class='sidebar-tab-link'>
+      <i class="glyphicon glyphicon-{{icon}}"></i>&nbsp;
+      <span>{{title}}</span>
+    </a>
+    <div id='{{../sidebarName}}-{{name}}-tab' class='sidebar-tab{{#if maxHeighted}} max-heighted{{/if}}'>
+      <span class="sidebar-popout-title">{{title}}</span>
+      <div class="sidebar-tab-outlet"></div>
+    </div>
   </div>
 {{/each}}

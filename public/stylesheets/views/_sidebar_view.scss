@@ -6,6 +6,10 @@
   border-right: 1px solid #ddd; 
   overflow-x: hidden;
   overflow-y: scroll;
+  &.hovered {
+    overflow-x: visible;
+    overflow-y: inherit;
+  }
   background: #e5e5e5;
   @include user-select(none);
 
@@ -23,7 +27,7 @@
     & > span {
       display: none;
     }
-    &:hover { background: #ddd; }
+    &:hover, &.hovered { background: #ddd; }
     &.active {
       background: #3276b1; 
       color: white;
@@ -34,6 +38,10 @@
     }
   }
 
+  & > div {
+    position: relative;
+  }
+
   .sidebar-tab {
     display: none;
     border-bottom: 2px solid #ddd;
@@ -41,12 +49,35 @@
     background: white;
     font-size: .9em;
 
-    &.active { 
+    .sidebar-popout-title {
+      font-size: 15px;
+      color: #888;
+      display: none;
+      margin-top: -5px;
+      margin-bottom: 10px;
+    }
+
+    &.active, &.hovered { 
       display: block; 
       overflow-y: auto;
 
       &.max-heighted {
         max-height: 300px;
+      }
+    }
+
+    &.hovered {
+      display: block;
+      position: absolute;
+      width: 330px;
+      top: -1px;
+      left: 50px;
+      z-index: 10000;
+      border-top: 1px solid #ddd;
+      border-right: 1px solid #ddd;
+      overflow-x: hidden;
+      .sidebar-popout-title {
+        display: block;
       }
     }
 

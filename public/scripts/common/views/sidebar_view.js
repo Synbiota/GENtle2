@@ -15,16 +15,28 @@ define(function(require) {
 
     events: {
       'click .sidebar-tab-link': 'toggleTabs',
+      'mouseover .sidebar-tab-link': 'mouseoverTabLink',
+      'mouseout .sidebar-tab-link': 'mouseoutTabLink',
+      'mouseover .sidebar-tab': 'mouseoverTab',
+      'mouseout .sidebar-tab': 'mouseoutTab'
     },
 
-    addTab: function(name, title, icon, view, maxHeighted) {
+    addTab: function() {
+      var name = arguments[0],
+          title = arguments[1],
+          icon = arguments[2],
+          view = arguments[3],
+          maxHeighted = !!arguments[4],
+          hoverable = !!arguments[5];
+
       view.parentView = this;
       this.tabs[name] = {
         name: name, 
         title: title, 
         icon: icon,
         view: view,
-        maxHeighted: !!maxHeighted
+        maxHeighted: maxHeighted,
+        hoverable: hoverable
       };
     },
 
@@ -41,12 +53,14 @@ define(function(require) {
           wasActive = this.$el.hasClass('active'),
           view;
 
+      this.$('.hovered').removeClass('hovered');
+
       if($link.hasClass('active')) {
         this.$el.removeClass('active');
         this.openTab = undefined;
         this.closeOpenTabs();
       } else {
-        view = this.tabs[$link.attr('href').replace('#' + this.sidebarName + '-', '')].view;
+        view = this.getTabFromLinkHref($link.attr('href')).view;
         this.closeOpenTabs();
         $($link.attr('href') + '-tab').addClass('active');
         this.openTab = $link.attr('href');
@@ -61,6 +75,74 @@ define(function(require) {
       if((wasActive && !this.$el.hasClass('active')) ||
         !wasActive && this.$el.hasClass('active')) 
           this.trigger('resize');
+    },
+
+    mouseoverTabLink: function(event) {
+      var $link = this.$(event.currentTarget),
+          tab = this.getTabFromLinkHref($link.attr('href'));
+
+      if(!this.$el.hasClass('active')) {
+
+        if(this.closingTabName == tab.name) {
+          this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
+        } 
+
+        if(!$link.hasClass('hovered')) {
+          this.$('.hovered').removeClass('hovered');
+          if(tab.hoverable) {
+            console.log('opening', tab.name)
+            tab.view.isOpen = true;
+            tab.view.$el.parent().parent().addClass('hovered');
+            tab.view.render();
+            this.$el.addClass('hovered');
+            $link.addClass('hovered');
+          }
+        }
+      }
+    },
+
+    mouseoutTabLink: function(event) {
+      var _this = this,
+          tab = this.getTabFromLinkHref($(event.currentTarget).attr('href'));
+
+      event.preventDefault();
+      this.closingTabName = tab.name;
+      this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
+    },
+
+    mouseoverTab: function(event) {
+      var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
+      console.log(tabName)
+      if(this.closingTabName == tabName) {
+        this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
+      }
+    },
+
+    mouseoutTab: function(event) {
+      var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
+      console.log('mousout tab', tabName)
+      this.closingTabName = tabName;
+      this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
+    },
+
+    deferredClosePopoutTab: function() {
+      var name = this.closingTabName;
+      if(name) {
+        this.$getTabLink(name).removeClass('hovered');
+        this.$getTab(name).removeClass('hovered');
+      }
+    },
+
+    getTabFromLinkHref: function(href) {
+      return this.tabs[href.replace('#' + this.sidebarName + '-', '')];
+    },
+
+    $getTabLink: function(name) {
+      return this.$('[href="#'+this.sidebarName + '-' + name +'"]');
+    },
+
+    $getTab: function(name) {
+      return this.$('#' + this.sidebarName + '-' + name + '-tab');
     },
 
     serialize: function() {
@@ -85,7 +167,7 @@ define(function(require) {
 
       _.each(this.tabs, function(tab) {
         name = '#' + _this.sidebarName + '-' + tab.name ;
-        _this.setView(name+ '-tab', tab.view).render();
+        _this.setView(name+ '-tab .sidebar-tab-outlet', tab.view).render();
         tab.view.$toggleButton = this.$('[href="' + name + '"]');
       });
     },

@@ -17,12 +17,12 @@ define(function(require) {
 
     initialize: function() {
       this.sidebarName = 'sequence';
-      this.addTab('tools', 'Tools', 'wrench', new ToolsView(), true);
+      this.addTab('tools', 'Mode', 'wrench', new ToolsView(), false, true);
+      this.addTab('edit', 'Sequence details', 'book', new EditView(), false, true);
+      this.addTab('export', 'Export sequence', 'floppy-save', new ExportView(), false, true);
+      this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView(), false, true);
       this.addTab('history', 'Sequence history', 'time', new HistoryView(), true);
       this.addTab('features', 'Annotations', 'edit', new FeaturesView());
-      this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView());
-      this.addTab('edit', 'Sequence details', 'book', new EditView());
-      this.addTab('export', 'Export sequence', 'floppy-save', new ExportView());
     }
 
   });
