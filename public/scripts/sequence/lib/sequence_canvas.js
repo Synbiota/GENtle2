@@ -436,7 +436,10 @@ define(function(require) {
     }
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
-      .then(this.redraw);
+      .then(this.redraw)
+      .catch(function(err) {
+        console.log('ERROR', err);
+      });
   };
 
   /**

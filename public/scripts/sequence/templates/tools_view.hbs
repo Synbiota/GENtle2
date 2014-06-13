@@ -1,0 +1,10 @@
+<form>
+  {{#each tools}}
+    <div class="radio">
+      <label>
+        <input type="radio" value="{{name}}"{{#if active}} checked="checked"{{/if}}>
+        {{title}}
+      </label>
+    </div>
+  {{/each}}
+</form>

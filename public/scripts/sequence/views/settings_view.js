@@ -9,6 +9,7 @@ define(function(require) {
       DisplaySettingsView = require('./display_settings_view'),
       ExportView          = require('./export_view'),
       SidebarView         = require('common/views/sidebar_view'),
+      ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
       SettingsView;
   
@@ -16,6 +17,7 @@ define(function(require) {
 
     initialize: function() {
       this.sidebarName = 'sequence';
+      this.addTab('tools', 'Tools', 'wrench', new ToolsView(), true);
       this.addTab('history', 'Sequence history', 'time', new HistoryView(), true);
       this.addTab('features', 'Annotations', 'edit', new FeaturesView());
       this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView());

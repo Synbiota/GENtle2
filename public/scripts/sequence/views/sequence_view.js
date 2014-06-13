@@ -4,14 +4,11 @@
 @class SequenceView
 **/
 define(function(require) {
-  var template        = require('hbars!sequence/templates/sequence_view'),
-      Sequence        = require('sequence/models/sequence'),
-      SequenceCanvas  = require('sequence/lib/sequence_canvas'),
-      Gentle          = require('gentle')(),
-      SequenceSettingsView = require('sequence/views/settings_view'),
-      ContextMenuView = require('common/views/context_menu_view'),
-      LinearMapView   = require('linear_map/views/linear_map_view'),
-      Backbone        = require('backbone.mixed'),
+  var template                = require('hbars!../templates/sequence_view'),
+      Gentle                  = require('gentle')(),
+      SequenceSettingsView    = require('./settings_view'),
+      SequenceEditionView     = require('./sequence_edition_view'),
+      Backbone                = require('backbone.mixed'),
       SequenceView;
   
   SequenceView = Backbone.View.extend({
@@ -25,44 +22,62 @@ define(function(require) {
       this.model = Gentle.currentSequence;
       
       this.sequenceSettingsView = new SequenceSettingsView();
+      this.sequenceSettingsView.parentView = this;
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
-      this.sequenceSettingsView.on('resize', function() { 
-        _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.sequenceSettingsView.$el.width());
-        _this.trigger('resize');
-      });
-      
+
+      // this.primaryViewSwitcherView = new PrimaryViewSwitcherView();
+      // this.primaryViewSwitcherView.parentView = this;
+      // this.setView('#sequence-primary-view-switcher-outlet', this.primaryViewSwitcherView);
+
       this.handleResize = _.bind(this.handleResize, this);
+      this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);
       $(window).on('resize', this.handleResize);
-      this.handleResize(false);
 
-      this.contextMenuView = new ContextMenuView();
-      this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
-
+      this.initPrimaryViews();
     },
 
-    afterRender: function() {
+    initPrimaryViews: function(trigger) {
+      var primaryViews,
+          currentView;
 
-      this.sequenceCanvas = new SequenceCanvas({
-        view: this,
-        $canvas: this.$('canvas').first()
+      primaryViews = _.chain(Gentle.plugins)
+        .where({type: 'sequence-primary-view'})
+        .pluck('data')
+        .value();
+
+      primaryViews.push({
+        name: 'edition',
+        title: 'Edition',
+        view: SequenceEditionView
       });
 
-      this.secondaryView = new LinearMapView();
-      this.insertView('#sequence-canvas-secondary-view-outlet', this.secondaryView)
-        .render();
+      currentView = this.model.get('displaySettings.primaryView');
+      if(!~_.pluck(primaryViews, 'name').indexOf(currentView))
+        currentView = 'edition';
 
-      this.$('.sequence-canvas-container, .scrolling-parent').css('right',
-        this.secondaryView.$el.width()
-      );
-      this.sequenceCanvas.refresh();
+      this.primaryViews = primaryViews;
+      this.changePrimaryView(currentView);
+    },
 
-      this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();
-      this.contextMenuView.boundTo = this.sequenceCanvas;
+    changePrimaryView: function(viewName) {
+      var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
+          actualView = new primaryView.view();
+
+      this.primaryView = primaryView;
+      this.actualPrimaryView = actualView;
+      this.model.set('displaySettings.primaryView', viewName).throttledSave();
+      this.setView('#sequence-primary-view-outlet', actualView);
+      actualView.parentView = this;
+      actualView.render();
     },
 
     handleResize: function(trigger) {
-      if(trigger !== false) this.trigger('resize');
-      // this.$el.height($(window).height() - $('#navbar .navbar').outerHeight()); 
+      this.trigger('resize');
+      this.actualPrimaryView.trigger('resize');
+    },
+
+    primaryViewLeftPos: function() {
+      return this.sequenceSettingsView.$el.width();
     },
 
     remove: function() {

@@ -196,7 +196,7 @@ define(function(require) {
 
     afterRender: function() {
       if(this.initialRender) {
-        var sequenceCanvas = Gentle.layout.getView('#content').sequenceCanvas;
+        var sequenceCanvas = this.parentView.sequenceCanvas;
         this.initialRender = false;
         this.sequenceCanvas = sequenceCanvas;
 

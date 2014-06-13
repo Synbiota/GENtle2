@@ -18,6 +18,7 @@ define(function(require) {
     },
 
     addTab: function(name, title, icon, view, maxHeighted) {
+      view.parentView = this;
       this.tabs[name] = {
         name: name, 
         title: title, 
