@@ -340,7 +340,6 @@ define(function(require) {
         _this.layoutHelpers.BaseRow = lh.basesPerRow;
 
       if (_this.layoutHelpers.BaseRow > lh.basesPerRow) {
-        console.log('1');
         _this.layoutHelpers.yOffsetPrevious = lh.yOffset;
         lh.yOffset = _this.getYPosFromBase(_this.layoutHelpers.BasePosition);
       } else {
