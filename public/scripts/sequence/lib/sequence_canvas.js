@@ -10,21 +10,21 @@ rendered.
 @uses SequenceCanvasHandlers
 @uses SequenceCanvasUtilities
 @module SequenceCanvas
-**/ 
+**/
 define(function(require) {
   'use strict';
-  var Artist            = require('common/lib/graphics/artist'),
-      Hotkeys           = require('common/lib/hotkeys'),
-      CopyPasteHandler  = require('common/lib/copy_paste_handler'),
-      Lines             = require('sequence/lib/lines'),
-      Caret             = require('common/lib/caret'),
-      _Handlers         = require('sequence/lib/_sequence_canvas_handlers'),
-      _Utilities        = require('sequence/lib/_sequence_canvas_utilities'),
-      _ContextMenu      = require('sequence/lib/_sequence_canvas_context_menu'),
-      Backbone          = require('backbone.mixed'),
-      Styles            = require('text!styles.json'),
-      Q                 = require('q'),
-      LineStyles, SequenceCanvas;
+  var Artist = require('common/lib/graphics/artist'),
+    Hotkeys = require('common/lib/hotkeys'),
+    CopyPasteHandler = require('common/lib/copy_paste_handler'),
+    Lines = require('sequence/lib/lines'),
+    Caret = require('common/lib/caret'),
+    _Handlers = require('sequence/lib/_sequence_canvas_handlers'),
+    _Utilities = require('sequence/lib/_sequence_canvas_utilities'),
+    _ContextMenu = require('sequence/lib/_sequence_canvas_context_menu'),
+    Backbone = require('backbone.mixed'),
+    Styles = require('text!styles.json'),
+    Q = require('q'),
+    LineStyles, SequenceCanvas;
 
   Styles = JSON.parse(Styles);
   LineStyles = Styles.sequences.lines;
@@ -36,20 +36,20 @@ define(function(require) {
     this.visible = true;
 
     // Context binding (context is lost in Promises' `.then` and `.done`)
-    _.bindAll(this, 'calculateLayoutSettings', 
-                    'display', 
-                    'refresh', 
-                    'redraw',
-                    'afterNextRedraw',
-                    'handleScrolling',
-                    'handleMousedown',
-                    'handleMousemove',
-                    'handleMouseup',
-                    'handleClick',
-                    'handleKeypress',
-                    'handleKeydown',
-                    'handleBlur'
-              );
+    _.bindAll(this, 'calculateLayoutSettings',
+      'display',
+      'refresh',
+      'redraw',
+      'afterNextRedraw',
+      'handleScrolling',
+      'handleMousedown',
+      'handleMousemove',
+      'handleMouseup',
+      'handleClick',
+      'handleKeypress',
+      'handleKeydown',
+      'handleBlur'
+    );
 
     /**
         Instance of BackboneView in which the canvas lives
@@ -98,59 +98,67 @@ define(function(require) {
         @default false
     **/
     this.layoutSettings = {
-      canvasDims: {width:1138, height:448},
+      canvasDims: {
+        width: 1138,
+        height: 448
+      },
       pageMargins: {
-        left:20,
-        top:20, 
-        right:20,
-        bottom:20
+        left: 20,
+        top: 20,
+        right: 20,
+        bottom: 20
       },
       scrollPercentage: 1.0,
       gutterWidth: 30,
       basesPerBlock: 10,
-      basePairDims: {width:10, height:15},
+      basePairDims: {
+        width: 10,
+        height: 15
+      },
       lines: options.lines || {
 
         // Blank line
         topSeparator: new Lines.Blank(this, {
           height: 5,
-          visible: function() { return _this.sequence.get('displaySettings.rows.separators'); }
+          visible: function() {
+            return _this.sequence.get('displaySettings.rows.separators');
+          }
         }),
 
         // Position numbering
         position: new Lines.Position(this, {
-          height: 15, 
-          baseLine: 15, 
-          textFont: LineStyles.position.text.font, 
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.position.text.font,
           textColour: LineStyles.position.text.color,
           transform: _.formatThousands,
-          visible: _.memoize2(function() { 
-            return _this.sequence.get('displaySettings.rows.numbering'); 
+          visible: _.memoize2(function() {
+            return _this.sequence.get('displaySettings.rows.numbering');
           })
         }),
 
         // Aminoacids
         aa: new Lines.DNA(this, {
-          height: 15, 
-          baseLine: 15, 
-          textFont: LineStyles.aa.text.font, 
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.aa.text.font,
           transform: function(base) {
             return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
           },
           visible: _.memoize2(function() {
             return _this.sequence.get('displaySettings.rows.aa') != 'none';
           }),
-          textColour: function(codon) { 
+          textColour: function(codon) {
             var colors = LineStyles.aa.text.color;
-            return colors[codon.sequence] || colors._default; 
+            return colors[codon.sequence] || colors._default;
           }
         }),
 
         // DNA Bases
         dna: new Lines.DNA(this, {
-          height: 15, 
-          baseLine: 15, 
-          textFont: LineStyles.dna.text.font, 
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.dna.text.font,
           textColour: LineStyles.dna.text.color,
           selectionColour: LineStyles.dna.selection.fill,
           selectionTextColour: LineStyles.dna.selection.color
@@ -158,13 +166,13 @@ define(function(require) {
 
         // Complements
         complements: new Lines.DNA(this, {
-          height: 15, 
-          baseLine: 15, 
-          textFont: LineStyles.complements.text.font, 
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.complements.text.font,
           textColour: LineStyles.complements.text.color,
           getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
-          visible: _.memoize2(function() { 
-            return _this.sequence.get('displaySettings.rows.complements'); 
+          visible: _.memoize2(function() {
+            return _this.sequence.get('displaySettings.rows.complements');
           })
         }),
 
@@ -172,8 +180,8 @@ define(function(require) {
         features: new Lines.Feature(this, {
           unitHeight: 15,
           baseLine: 10,
-          textFont: LineStyles.features.font, 
-          textColour: function(type) { 
+          textFont: LineStyles.features.font,
+          textColour: function(type) {
             var colors = LineStyles.features.color;
             type = type.toLowerCase();
             return (colors[type] && colors[type].color) || colors._default.color;
@@ -181,21 +189,21 @@ define(function(require) {
           textPadding: 2,
           margin: 2,
           lineSize: 2,
-          colour: function(type) { 
+          colour: function(type) {
             var colors = LineStyles.features.color;
             type = type.toLowerCase();
             return (colors[type] && colors[type].fill) || colors._default.fill;
           },
-          visible: _.memoize2(function() { 
-            return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features'); 
+          visible: _.memoize2(function() {
+            return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
           })
         }),
 
         // Blank line
         bottomSeparator: new Lines.Blank(this, {
           height: 10,
-          visible: _.memoize2(function() { 
-            return _this.sequence.get('displaySettings.rows.separators'); 
+          visible: _.memoize2(function() {
+            return _this.sequence.get('displaySettings.rows.separators');
           })
         })
       }
@@ -223,11 +231,11 @@ define(function(require) {
     // Events
     this.view.on('resize', this.refresh);
     this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
-    this.$scrollingParent.on('scroll',    this.handleScrolling);
+    this.$scrollingParent.on('scroll', this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
-    this.$scrollingParent.on('keypress',  this.handleKeypress);
-    this.$scrollingParent.on('keydown',   this.handleKeydown);
-    this.$scrollingParent.on('blur',      this.handleBlur);
+    this.$scrollingParent.on('keypress', this.handleKeypress);
+    this.$scrollingParent.on('keydown', this.handleKeydown);
+    this.$scrollingParent.on('blur', this.handleBlur);
 
     // Kickstart rendering
     this.refresh();
@@ -250,8 +258,8 @@ define(function(require) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       _this.$canvas.width(_this.$scrollingChild.width());
 
-      var width   = _this.$canvas[0].scrollWidth,
-          height  = _this.$canvas[0].scrollHeight;
+      var width = _this.$canvas[0].scrollWidth,
+        height = _this.$canvas[0].scrollHeight;
 
       _this.layoutSettings.canvasDims.width = width;
       _this.layoutSettings.canvasDims.height = height;
@@ -271,26 +279,26 @@ define(function(require) {
   SequenceCanvas.prototype.calculateLayoutSettings = function() {
     //line offsets
     var line_offset = _.values(this.layoutSettings.lines)[0].height,
-        i, 
-        blocks_per_row,
-        ls = this.layoutSettings,
-        lh = this.layoutHelpers,
-        _this = this;
+      i,
+      blocks_per_row,
+      ls = this.layoutSettings,
+      lh = this.layoutHelpers,
+      _this = this;
 
     return Q.promise(function(resolve, reject) {
 
       //basesPerRow
-      blocks_per_row = Math.floor( (ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/(ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth) );
-      if (blocks_per_row !== 0){
-        lh.basesPerRow = ls.basesPerBlock*blocks_per_row;
-      }else{
-        lh.basesPerRow = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right))/ls.basePairDims.width);
+      blocks_per_row = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / (ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth));
+      if (blocks_per_row !== 0) {
+        lh.basesPerRow = ls.basesPerBlock * blocks_per_row;
+      } else {
+        lh.basesPerRow = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / ls.basePairDims.width);
         //we want bases per row to be a multiple of 10 (DOESNT WORK)
-        if (lh.basesPerRow > 5){
+        if (lh.basesPerRow > 5) {
           lh.basesPerRow = 5;
-        }else if (lh.basesPerRow > 2){
+        } else if (lh.basesPerRow > 2) {
           lh.basesPerRow = 2;
-        }else{
+        } else {
           lh.basesPerRow = 1;
         }
       }
@@ -298,32 +306,34 @@ define(function(require) {
       lh.lineOffsets = {};
       _.each(ls.lines, function(line, lineName) {
         line.clearCache();
-        if(line.visible === undefined || line.visible()) {
+        if (line.visible === undefined || line.visible()) {
           lh.lineOffsets[lineName] = line_offset;
-          if(_.isFunction(line.calculateHeight)) line.calculateHeight();
+          if (_.isFunction(line.calculateHeight)) line.calculateHeight();
           line_offset += line.height;
         }
       });
 
       //row height
-      lh.rows = {height:line_offset};
+      lh.rows = {
+        height: line_offset
+      };
 
       //total number of rows in sequence, 
-      lh.rows.total = Math.ceil(_this.sequence.length() / lh.basesPerRow) ;
+      lh.rows.total = Math.ceil(_this.sequence.length() / lh.basesPerRow);
       // number of visible rows in canvas
-      lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height) ;
+      lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height);
 
       //page dims
       lh.pageDims = {
-        width:ls.canvasDims.width, 
-        height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total*lh.rows.height 
+        width: ls.canvasDims.width,
+        height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
       };
 
       // canvas y scrolling offset
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
       _this.$scrollingParent.scrollTop(lh.yOffset);
 
-      _this.clearCache(); 
+      _this.clearCache();
 
       _this.trigger('change change:layoutHelpers', lh);
 
@@ -337,28 +347,28 @@ define(function(require) {
       @method display
   **/
   SequenceCanvas.prototype.display = function() {
-    if(this.visible) {
-      var artist          = this.artist,
-          ls              = this.layoutSettings,
-          lh              = this.layoutHelpers,
-          yOffset         = lh.yOffset,
-          _this           = this,
-          canvasHeight    = ls.canvasDims.height,
-          drawStart, drawEnd, moveOffset;
+    if (this.visible) {
+      var artist = this.artist,
+        ls = this.layoutSettings,
+        lh = this.layoutHelpers,
+        yOffset = lh.yOffset,
+        _this = this,
+        canvasHeight = ls.canvasDims.height,
+        drawStart, drawEnd, moveOffset;
 
       return Q.promise(function(resolve, reject) {
 
         // Check if we have a previousYOffset reference, in which case
         // we will only redraw the missing part
-        moveOffset = lh.previousYOffset !== undefined ? 
-          - lh.previousYOffset + yOffset :
+        moveOffset = lh.previousYOffset !== undefined ?
+          -lh.previousYOffset + yOffset :
           0;
 
-        if(moveOffset !== 0) {
-          artist.scroll(- moveOffset);
+        if (moveOffset !== 0) {
+          artist.scroll(-moveOffset);
 
           drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
-          drawEnd = moveOffset > 0 ? canvasHeight : - moveOffset;
+          drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 
           lh.previousYOffset = undefined;
 
@@ -377,7 +387,7 @@ define(function(require) {
         resolve();
 
       });
-    } else{
+    } else {
       return Q.promise(function(resolve, reject) {
         reject();
       });
@@ -391,18 +401,18 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.drawRow = function(posY) {
     var layoutSettings = this.layoutSettings,
-        lines = layoutSettings.lines,
-        layoutHelpers = this.layoutHelpers,
-        yOffset = layoutHelpers.yOffset,
-        rowsHeight = layoutHelpers.rows.height,
-        canvasHeight  = layoutSettings.canvasDims.height,
-        bottomMargin  = layoutSettings.pageMargins.bottom,
-        baseRange = this.getBaseRangeFromYPos(posY + yOffset);
+      lines = layoutSettings.lines,
+      layoutHelpers = this.layoutHelpers,
+      yOffset = layoutHelpers.yOffset,
+      rowsHeight = layoutHelpers.rows.height,
+      canvasHeight = layoutSettings.canvasDims.height,
+      bottomMargin = layoutSettings.pageMargins.bottom,
+      baseRange = this.getBaseRangeFromYPos(posY + yOffset);
 
     this.artist.clear(posY, rowsHeight);
-    if(baseRange[0] < this.sequence.length()) {
+    if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
-        if(line.visible === undefined || line.visible()) {
+        if (line.visible === undefined || line.visible()) {
           line.draw(posY, baseRange);
           posY += line.height;
         }
@@ -417,7 +427,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.resizeScrollHelpers = function() {
     var _this = this,
-        layoutHelpers = _this.layoutHelpers;
+      layoutHelpers = _this.layoutHelpers;
     return Q.promise(function(resolve, reject) {
       _this.$scrollingChild.height(layoutHelpers.pageDims.height);
       _this.scrollTo();
@@ -430,7 +440,7 @@ define(function(require) {
   @method refresh
   **/
   SequenceCanvas.prototype.refresh = function() {
-    if(this.caretPosition !== undefined) {
+    if (this.caretPosition !== undefined) {
       this.hideCaret();
       this.caretPosition = undefined;
     }
@@ -449,14 +459,15 @@ define(function(require) {
 
   SequenceCanvas.prototype.scrollTo = function(yOffset, triggerEvent) {
     var deferred = Q.defer(),
-        layoutHelpers = this.layoutHelpers;
+      layoutHelpers = this.layoutHelpers;
 
     layoutHelpers.previousYOffset = layoutHelpers.yOffset;
 
-    if(yOffset !== undefined) {
-      this.sequence.set('displaySettings.yOffset', 
-        layoutHelpers.yOffset = yOffset,
-        { silent: true }
+    if (yOffset !== undefined) {
+      this.sequence.set('displaySettings.yOffset',
+        layoutHelpers.yOffset = yOffset, {
+          silent: true
+        }
       );
       this.sequence.throttledSave();
     }
@@ -469,7 +480,7 @@ define(function(require) {
 
     this.restoreContextMenuYPosition();
 
-    if(triggerEvent !== false) {
+    if (triggerEvent !== false) {
       this.trigger('scroll');
     }
 
@@ -484,7 +495,7 @@ define(function(require) {
   SequenceCanvas.prototype.scrollBaseToVisibility = function(base) {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
 
-    if(distanceToVisibleCanvas !== 0) {
+    if (distanceToVisibleCanvas !== 0) {
       return this.scrollTo(this.layoutHelpers.yOffset + distanceToVisibleCanvas);
     } else {
       return Q.resolve();
@@ -492,9 +503,9 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.scrollToBase = function(base) {
-    if(!this.isBaseVisible(base)) {
+    if (!this.isBaseVisible(base)) {
       var yPos = this.getYPosFromBase(base),
-          maxY = this.$scrollingChild.height() - this.$scrollingParent.height();
+        maxY = this.$scrollingChild.height() - this.$scrollingParent.height();
       return this.scrollTo(Math.min(yPos, maxY));
     } else {
       return Q.resolve();
@@ -508,8 +519,8 @@ define(function(require) {
 
   SequenceCanvas.prototype.afterNextRedraw = function() {
     var _this = this,
-        args = _.toArray(arguments),
-        func = args.shift();
+      args = _.toArray(arguments),
+      func = args.shift();
 
     this.displayDeferred.promise.then(function() {
       func.apply(_this, args);
@@ -523,16 +534,16 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
     var layoutHelpers = this.layoutHelpers,
-        lineOffsets   = layoutHelpers.lineOffsets,
-        yOffset       = layoutHelpers.yOffset,
-        _this         = this,
-        posX, posY;
+      lineOffsets = layoutHelpers.lineOffsets,
+      yOffset = layoutHelpers.yOffset,
+      _this = this,
+      posX, posY;
 
-    if(base === undefined && this.caretPosition !== undefined) {
+    if (base === undefined && this.caretPosition !== undefined) {
       base = this.caretPosition;
     }
 
-    if(base > this.sequence.length()) {
+    if (base > this.sequence.length()) {
       base = this.sequence.length();
     }
 
@@ -546,11 +557,11 @@ define(function(require) {
       _this.showContextMenuButton(posX, posY + 20);
 
     });
-  
+
   };
 
   SequenceCanvas.prototype.moveCaret = function(newPosition) {
-    if(this.selection) {
+    if (this.selection) {
       this.selection = undefined;
       this.redraw();
     }
@@ -559,7 +570,7 @@ define(function(require) {
 
   SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
     this.caret.remove();
-    if(hideContextMenu === true) {
+    if (hideContextMenu === true) {
       this.hideContextMenuButton();
     }
   };
@@ -570,17 +581,16 @@ define(function(require) {
   SequenceCanvas.prototype.select = function(start, end) {
     var positionCheck;
     this.hideCaret();
-    if(start !== undefined) {
-      if(start < end) {
+    if (start !== undefined) {
+      if (start < end) {
         this.selection = [start, end];
         this.caretPosition = end + 1;
         positionCheck = this.caretPosition;
-        if(positionCheck>this.layoutHelpers.caretPositionBefore){
-        this.caretPosition = this.layoutHelpers.caretPositionBefore;
-        positionCheck = this.caretPosition;
-        }
-        else{
-        this.layoutHelpers.caretPositionBefore = this.caretPosition;     
+        if (positionCheck > this.layoutHelpers.caretPositionBefore) {
+          this.caretPosition = this.layoutHelpers.caretPositionBefore;
+          positionCheck = this.caretPosition;
+        } else {
+          this.layoutHelpers.caretPositionBefore = this.caretPosition;
         }
 
       } else {
@@ -596,23 +606,23 @@ define(function(require) {
 
   SequenceCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
     var selection = this.selection,
-        previousCaret = this.caretPosition;
-        this.layoutHelpers.caretPositionBefore = previousCaret;
+      previousCaret = this.caretPosition;
+    this.layoutHelpers.caretPositionBefore = previousCaret;
 
-    if(selection[0] == selection[1] && (
-        (previousCaret > selection[0] && newCaret == selection[0]) ||
-        (previousCaret == selection[0] && newCaret == selection[0] + 1)
-      )) {
+    if (selection[0] == selection[1] && (
+      (previousCaret > selection[0] && newCaret == selection[0]) ||
+      (previousCaret == selection[0] && newCaret == selection[0] + 1)
+    )) {
       this.select(undefined);
     } else {
-      if(newCaret > selection[0]) {
-        if(previousCaret <= selection[0]) {
+      if (newCaret > selection[0]) {
+        if (previousCaret <= selection[0]) {
           this.select(newCaret, selection[1]);
         } else {
           this.select(selection[0], newCaret - 1);
         }
       } else {
-        if(previousCaret <= selection[1] && newCaret < selection[1]) {
+        if (previousCaret <= selection[1] && newCaret < selection[1]) {
           this.select(newCaret, selection[1]);
         } else {
           this.select(newCaret, selection[0] - 1);
@@ -632,9 +642,6 @@ define(function(require) {
   };
 
 
-
-
-  
 
   return SequenceCanvas;
 });
