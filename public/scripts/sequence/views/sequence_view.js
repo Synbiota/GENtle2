@@ -32,6 +32,7 @@ define(function(require) {
       this.handleResize = _.bind(this.handleResize, this);
       this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);
       $(window).on('resize', this.handleResize);
+      this.handleResize(false);
 
       this.initPrimaryViews();
     },
@@ -72,8 +73,12 @@ define(function(require) {
     },
 
     handleResize: function(trigger) {
-      this.trigger('resize');
-      this.actualPrimaryView.trigger('resize');
+      if(trigger !== false) {
+        this.trigger('resize');
+        this.actualPrimaryView.trigger('resize');
+      }
+      console.log(this.primaryViewLeftPos())
+      this.$('#sequence-primary-view-outlet').css('left', this.primaryViewLeftPos());
     },
 
     primaryViewLeftPos: function() {
