@@ -568,11 +568,21 @@ define(function(require) {
   @method select
   **/
   SequenceCanvas.prototype.select = function(start, end) {
+    var positionCheck;
     this.hideCaret();
     if(start !== undefined) {
       if(start < end) {
         this.selection = [start, end];
         this.caretPosition = end + 1;
+        positionCheck = this.caretPosition;
+        if(positionCheck>this.layoutHelpers.caretPositionBefore){
+        this.caretPosition = this.layoutHelpers.caretPositionBefore;
+        positionCheck = this.caretPosition;
+        }
+        else{
+        this.layoutHelpers.caretPositionBefore = this.caretPosition;     
+        }
+
       } else {
         this.selection = [end, start];
         this.caretPosition = start + 1;
@@ -587,6 +597,7 @@ define(function(require) {
   SequenceCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
     var selection = this.selection,
         previousCaret = this.caretPosition;
+        this.layoutHelpers.caretPositionBefore = previousCaret;
 
     if(selection[0] == selection[1] && (
         (previousCaret > selection[0] && newCaret == selection[0]) ||
