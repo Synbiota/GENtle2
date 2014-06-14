@@ -379,9 +379,14 @@ define(function(require) {
           drawEnd = canvasHeight;
 
         }
+        if(_this.selection){
+          console.log(lh.onSelection);
+        _this.forEachRowInPosYRange(_this.getYPosFromBase(lh.onSelection[1]),_this.getYPosFromBase(lh.onSelection[0]), _this.drawRow);
 
+        }
+        else{
         _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
-
+        }
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
         resolve();
@@ -601,6 +606,7 @@ define(function(require) {
       this.selection = undefined;
       this.caretPosition = undefined;
     }
+    this.layoutHelpers.onSelection = this.selection;
     this.redraw();
   };
 
