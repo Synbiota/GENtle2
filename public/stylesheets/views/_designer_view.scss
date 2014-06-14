@@ -1,0 +1,122 @@
+.designer {
+  height: 100%;
+}
+
+.designer-designed-sequence-outlet {
+  padding: 10px 20px;
+  border-bottom: 2px solid #ddd;
+  @include gradient-striped(rgba(255,255,255,.3)); // Bootstrap mixin
+  background-size: 40px 40px;
+  background-color: transparentize(#ddd, .5);
+
+  .designer-designed-sequence-chunk {
+    float: left;
+    position: relative;
+    background: red;
+    color: white;
+    box-sizing: border-box;
+    font-size: 10px;
+    text-align: center;
+    border: 1px solid red;
+
+    .designer-designed-sequence-chunk-title {
+      padding: 5px 10px;
+    }
+
+    .designer-designed-sequence-chunk-droppable {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 50%;
+      height: 100%;
+      &.active {
+        @include linear-gradient(-90deg, transparent, rgba(255,255,255,.7));
+        &::before {
+          content: "Insert before";
+          display: block;
+          position: absolute;
+          top: 0;
+          margin-top: -25px;
+          left: 0;
+          margin-left: -25px;
+          background: white;
+          color: #888;
+          padding: 3px 6px;
+          border: 1px dashed #888;
+          border-radius: 7px;
+        }
+      }
+    }
+    .designer-designed-sequence-chunk-droppable-after {
+      left: auto;
+      right: 0;
+      &.active {
+        @include linear-gradient(90deg, transparent, rgba(255,255,255,.7));
+        &::before {
+          left: auto;
+          right: 0;
+          margin-right: -25px;
+          content: "Insert after"
+        }
+      }
+    }
+
+    &.designer-designed-sequence-chunk-empty {
+      background: #ddd;
+      color: #888;
+      border: 1px solid #888;
+    }
+  }
+}
+
+.designer-available-sequences {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.designer-available-sequence-outlet {
+  padding: 10px 20px;
+  border-bottom: 1px solid #ddd;
+
+  .designer-available-sequence {
+    position: relative;
+  }
+
+  .designer-available-sequence-features {
+    position: relative;
+    border-left: 1px dashed #444;
+    border-right: 1px dashed #444;
+    margin-top: 10px;
+
+    @for $i from 0 to 10 {
+      &.designer-available-sequence-features-max-overlap-#{$i} {
+        height: 16px + 27px * $i;
+      }
+    }
+  }
+
+  .designer-available-sequence-feature {
+    position: absolute;
+    background: #333;
+    color: white;
+    font-size: 10px;
+    box-sizing: border-box;
+    padding: 5px 3px;
+    cursor: move;
+    text-align: center;
+
+    &.ui-draggable-dragging {
+      padding: 5px 10px;
+      background: #ddd;
+      color: black;
+      width: 100px !important;
+      box-shadow: 0 0 3px transparentize(#222, .5);
+    }
+
+    @for $i from 0 to 10 {
+      &.designer-available-sequence-feature-stacked-#{$i} {
+        top: 10px + 27px * $i;
+      }
+    }
+  }
+}

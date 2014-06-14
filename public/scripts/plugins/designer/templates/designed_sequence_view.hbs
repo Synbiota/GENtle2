@@ -1,0 +1,37 @@
+<h5>{{sequence.name}} ({{formatThousands sequence.length}}bp)</h5>
+
+{{#if disabled}}
+
+  <div class="alert alert-warning no-margin media">
+    <h4 class="media-object pull-left">
+      <i class="glyphicon glyphicon-exclamation-sign"></i>
+    </h4>
+    <div class="media-content">
+      This sequence has overlapping annotations.
+      <br>
+      Try deleting some annotations or creating a new sequence to design.
+    </div>
+  </div>
+
+{{else}}
+
+  <div class="designer-designed-sequence-chunks">
+    {{#each chunks}}
+      <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
+        <div class="designer-designed-sequence-chunk-title">
+          {{#if empty}}
+            Unannotated
+          {{else}}
+            {{#with feature}}{{name}}{{/with}}
+          {{/if}}
+          <br>
+          <em>({{formatThousands length}}bp)</em>
+        </div>
+        <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-before">&nbsp;</div>
+        <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-after">&nbsp;</div>
+      </div>
+    {{/each}}
+    <div class="clearfix"></div>
+  </div>
+
+{{/if}}

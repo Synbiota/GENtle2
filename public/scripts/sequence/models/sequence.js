@@ -176,11 +176,11 @@ define(function(require){
           };
 
       while(ranges.length > 1 && _.difference(ranges, previousRanges).length && i < 100) {
-        previousRanges = _.clone(ranges);
+        previousRanges = _.deepClone(ranges);
         ranges = filterOverlappingRanges(ranges);
         i++;
       }
-      return i+1;
+      return i;
     },
 
     /**
@@ -219,6 +219,16 @@ define(function(require){
       }
 
       this.throttledSave();
+    },
+
+    insertBasesAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
+      var newFeature = _.deepClone(feature);
+      newFeature.ranges = [{
+        from: beforeBase,
+        to: beforeBase + bases.length - 1
+      }];
+      this.insertBases(bases, beforeBase, updateHistory);
+      this.createFeature(newFeature);
     },
 
     deleteBases: function(firstBase, length, updateHistory) {

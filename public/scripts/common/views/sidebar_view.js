@@ -90,7 +90,6 @@ define(function(require) {
         if(!$link.hasClass('hovered')) {
           this.$('.hovered').removeClass('hovered');
           if(tab.hoverable) {
-            console.log('opening', tab.name)
             tab.view.isOpen = true;
             tab.view.$el.parent().parent().addClass('hovered');
             tab.view.render();
@@ -112,7 +111,6 @@ define(function(require) {
 
     mouseoverTab: function(event) {
       var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
-      console.log(tabName)
       if(this.closingTabName == tabName) {
         this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
       }
@@ -120,7 +118,6 @@ define(function(require) {
 
     mouseoutTab: function(event) {
       var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
-      console.log('mousout tab', tabName)
       this.closingTabName = tabName;
       this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
     },

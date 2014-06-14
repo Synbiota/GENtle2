@@ -32,7 +32,6 @@ define(function(require) {
       this.handleResize = _.bind(this.handleResize, this);
       this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);
       $(window).on('resize', this.handleResize);
-      this.handleResize(false);
 
       this.initPrimaryViews();
     },
@@ -70,6 +69,10 @@ define(function(require) {
       this.setView('#sequence-primary-view-outlet', actualView);
       actualView.parentView = this;
       actualView.render();
+    },
+
+    afterRender: function() {
+      this.handleResize(false);
     },
 
     handleResize: function(trigger) {
