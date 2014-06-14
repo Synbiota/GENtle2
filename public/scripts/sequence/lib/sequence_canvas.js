@@ -372,8 +372,8 @@ define(function(require) {
 
           lh.previousYOffset = undefined;
 
-        } else {
-
+        } else if(!_this.selection){
+          console.log('This should not happen');
           artist.clear();
           drawStart = 0;
           drawEnd = canvasHeight;
@@ -385,6 +385,8 @@ define(function(require) {
 
         }
         else{
+                console.log('This should also not happen');
+
         _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
         }
         _this.displayDeferred.resolve();
