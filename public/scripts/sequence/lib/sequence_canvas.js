@@ -612,10 +612,9 @@ define(function(require) {
       this.layoutHelpers.selectionPreviousB = selection[1];
       }
 
-      console.log('[ Sec1 '+selection[1]+', PrevA'+this.layoutHelpers.selectionPreviousA+']');
 
       if(this.layoutHelpers.selectionPreviousA!==selection[1] || this.layoutHelpers.selectionPreviousB!==selection[0]){
-
+      console.log('Selection   [ Sec1 '+selection[1]+', PrevA'+this.layoutHelpers.selectionPreviousA+']');
 
       if(this.layoutHelpers.selectionPreviousA===selection[1]-1 || this.layoutHelpers.selectionPreviousA===selection[1]+1)
       {
@@ -681,13 +680,13 @@ define(function(require) {
         positionCheck = this.caretPosition;
         if (positionCheck > this.layoutHelpers.caretPositionBefore) {
           this.caretPosition = this.layoutHelpers.caretPositionBefore;
-          if(start!=this.layoutHelpers.selectionPreviousB-1 && start!=this.layoutHelpers.selectionPreviousB+1)
+          if(start!=this.layoutHelpers.selectionPreviousB-1 && start!=this.layoutHelpers.selectionPreviousB+1 && start!=this.layoutHelpers.selectionPreviousB)
           this.layoutHelpers.selectionPreviousB = this.caretPosition;
-          console.log('Before'+end+'        '+this.layoutHelpers.selectionPreviousA);
-          if(end!=this.layoutHelpers.selectionPreviousA-1 && end!=this.layoutHelpers.selectionPreviousA+1)
+          console.log('Select   Before End'+end+'        Before Helper '+this.layoutHelpers.selectionPreviousA);
+          if(end!=this.layoutHelpers.selectionPreviousA-1 && end!=this.layoutHelpers.selectionPreviousA+1 && end!=this.layoutHelpers.selectionPreviousA)
           this.layoutHelpers.selectionPreviousA = this.caretPosition;
-                  console.log('After'+end+'        '+this.layoutHelpers.selectionPreviousA);
-
+                  console.log('Select   After End'+end+'       After helper '+this.layoutHelpers.selectionPreviousA);
+          console.log(this.selection);
           positionCheck = this.caretPosition;
         } else {
           this.layoutHelpers.caretPositionBefore = this.caretPosition;
