@@ -37,6 +37,7 @@ define(function(require) {
 
     // Context binding (context is lost in Promises' `.then` and `.done`)
     _.bindAll(this, 'calculateLayoutSettings',
+      'redrawSelection',
       'display',
       'refresh',
       'redraw',
@@ -331,6 +332,22 @@ define(function(require) {
 
       // canvas y scrolling offset
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
+
+
+      if (_this.layoutHelpers.BasePosition === undefined)
+        _this.layoutHelpers.BasePosition = _this.getBaseFromXYPos(0, lh.yOffset + lh.rows.height);
+
+      if (_this.layoutHelpers.BaseRow === undefined)
+        _this.layoutHelpers.BaseRow = lh.basesPerRow;
+
+      if (_this.layoutHelpers.BaseRow > lh.basesPerRow) {
+        _this.layoutHelpers.yOffsetPrevious = lh.yOffset;
+        lh.yOffset = _this.getYPosFromBase(_this.layoutHelpers.BasePosition);
+      } else {
+        if (_this.layoutHelpers.yOffsetPrevious !== undefined)
+          lh.yOffset = _this.layoutHelpers.yOffsetPrevious;
+      }
+
       _this.$scrollingParent.scrollTop(lh.yOffset);
 
       _this.clearCache();
@@ -372,23 +389,16 @@ define(function(require) {
 
           lh.previousYOffset = undefined;
 
-        } else if(!_this.selection){
-          console.log('This should not happen');
+        } else {
+
           artist.clear();
           drawStart = 0;
           drawEnd = canvasHeight;
 
         }
-        if(_this.selection){
-          console.log(lh.onSelection);
-        _this.forEachRowInPosYRange(_this.getYPosFromBase(lh.onSelection[1]),_this.getYPosFromBase(lh.onSelection[0]), _this.drawRow);
-
-        }
-        else{
-                console.log('This should also not happen');
 
         _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
-        }
+
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
         resolve();
@@ -471,6 +481,8 @@ define(function(require) {
     layoutHelpers.previousYOffset = layoutHelpers.yOffset;
 
     if (yOffset !== undefined) {
+
+      this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
       this.sequence.set('displaySettings.yOffset',
         layoutHelpers.yOffset = yOffset, {
           silent: true
@@ -572,6 +584,7 @@ define(function(require) {
       this.selection = undefined;
       this.redraw();
     }
+    console.log('Y');
     this.displayCaret(newPosition);
   };
 
@@ -579,6 +592,79 @@ define(function(require) {
     this.caret.remove();
     if (hideContextMenu === true) {
       this.hideContextMenuButton();
+    }
+  };
+
+
+ SequenceCanvas.prototype.redrawSelection = function(selection) {
+
+    var 
+      lines = this.layoutSettings.lines,
+      yOffset = this.layoutHelpers.yOffset,
+      rowsHeight = this.layoutHelpers.rows.height,
+      posY;
+      if(selection!=undefined){
+
+      if(this.layoutHelpers.selectionPreviousA == undefined){
+      this.layoutHelpers.selectionPreviousA = selection[0];
+      }
+      if(this.layoutHelpers.selectionPreviousB == undefined){
+      this.layoutHelpers.selectionPreviousB = selection[1];
+      }
+
+      console.log('[ Sec1 '+selection[1]+', PrevA'+this.layoutHelpers.selectionPreviousA+']');
+
+      if(this.layoutHelpers.selectionPreviousA!==selection[1] || this.layoutHelpers.selectionPreviousB!==selection[0]){
+
+
+      if(this.layoutHelpers.selectionPreviousA===selection[1]-1 || this.layoutHelpers.selectionPreviousA===selection[1]+1)
+      {
+      console.log('A');
+      posY =this.getYPosFromBase(selection[1]);
+      if(this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB)
+      {
+        this.layoutHelpers.selectionPreB = selection[0];
+      }
+      this.layoutHelpers.selectionPreviousA=selection[1];
+      }
+
+      else if(this.layoutHelpers.selectionPreviousB===selection[0]-1 || this.layoutHelpers.selectionPreviousB===selection[0]+1)
+      {
+      console.log('B');
+      posY =this.getYPosFromBase(selection[0]);
+       if(this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB)
+      {
+        this.layoutHelpers.selectionPreviousA = selection[1];
+      }
+      this.layoutHelpers.selectionPreviousB=selection[0];
+      }
+
+      else{
+      console.log('Z');
+      this.redraw(selection);
+      }
+
+      }
+
+      }
+
+      var baseRange = this.getBaseRangeFromYPos(posY);
+      var pageMargins = this.layoutSettings.pageMargins.top;
+      var _this = this;
+
+    if (baseRange[0] < this.sequence.length()) {
+
+      _this.artist.clear(posY-pageMargins-yOffset,rowsHeight);
+
+      _.each(lines, function(line, key) {
+
+        if (line.visible === undefined || line.visible()) {
+
+          line.draw(posY-yOffset, baseRange);
+
+          posY += line.height;
+        }
+      });
     }
   };
 
@@ -595,11 +681,17 @@ define(function(require) {
         positionCheck = this.caretPosition;
         if (positionCheck > this.layoutHelpers.caretPositionBefore) {
           this.caretPosition = this.layoutHelpers.caretPositionBefore;
+          if(start!=this.layoutHelpers.selectionPreviousB-1 && start!=this.layoutHelpers.selectionPreviousB+1)
+          this.layoutHelpers.selectionPreviousB = this.caretPosition;
+          console.log('Before'+end+'        '+this.layoutHelpers.selectionPreviousA);
+          if(end!=this.layoutHelpers.selectionPreviousA-1 && end!=this.layoutHelpers.selectionPreviousA+1)
+          this.layoutHelpers.selectionPreviousA = this.caretPosition;
+                  console.log('After'+end+'        '+this.layoutHelpers.selectionPreviousA);
+
           positionCheck = this.caretPosition;
         } else {
           this.layoutHelpers.caretPositionBefore = this.caretPosition;
         }
-
       } else {
         this.selection = [end, start];
         this.caretPosition = start + 1;
@@ -608,8 +700,7 @@ define(function(require) {
       this.selection = undefined;
       this.caretPosition = undefined;
     }
-    this.layoutHelpers.onSelection = this.selection;
-    this.redraw();
+     this.redrawSelection(this.selection);
   };
 
   SequenceCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
