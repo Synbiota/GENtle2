@@ -338,6 +338,8 @@ define(function(require) {
     } else {
       this.displayCaret(base);
     }
+
+    this.redraw();
   };
 
   /** 
