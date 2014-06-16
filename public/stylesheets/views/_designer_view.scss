@@ -4,13 +4,22 @@
 
 .designer-designed-sequence-outlet {
   padding: 10px 20px;
-  border-bottom: 2px solid #ddd;
+  border-right: 2px solid #ddd;
   @include gradient-striped(rgba(255,255,255,.3)); // Bootstrap mixin
   background-size: 40px 40px;
   background-color: transparentize(#ddd, .5);
+  position: absolute;
+  left: 0;
+  width: 300px;
+  bottom: 0;
+  top: 0;
+  overflow-y: auto;
+
+  .designer-designed-sequence-chunks {
+    margin-left: 50px;
+  }
 
   .designer-designed-sequence-chunk {
-    float: left;
     position: relative;
     background: red;
     color: white;
@@ -18,6 +27,18 @@
     font-size: 10px;
     text-align: center;
     border: 1px solid red;
+    margin-bottom: 7px;
+
+    .designer-designed-sequence-chunk-position {
+      float: left;
+      margin-left: -50px;
+      font-size: 10px;
+      color: #005;
+      border-top: 1px solid #888;
+      width: 42px;
+      text-align: left;
+      @include text-overflow()
+    }    
 
     .designer-designed-sequence-chunk-title {
       padding: 5px 10px;
@@ -27,18 +48,19 @@
       position: absolute;
       top: 0;
       left: 0;
-      width: 50%;
-      height: 100%;
+      width: 100%;
+      height: 50%;
       &.active {
-        @include linear-gradient(-90deg, transparent, rgba(255,255,255,.7));
+        @include linear-gradient(0deg, transparent, rgba(255,255,255,.7));
         &::before {
           content: "Insert before";
           display: block;
           position: absolute;
           top: 0;
           margin-top: -25px;
-          left: 0;
-          margin-left: -25px;
+          left: 50%;
+          margin-left: -50px;
+          width: 100px;
           background: white;
           color: #888;
           padding: 3px 6px;
@@ -48,15 +70,16 @@
       }
     }
     .designer-designed-sequence-chunk-droppable-after {
-      left: auto;
-      right: 0;
+      top: auto;
+      bottom: 0;
       &.active {
-        @include linear-gradient(90deg, transparent, rgba(255,255,255,.7));
+        @include linear-gradient(transparent, rgba(255,255,255,.7));
         &::before {
-          left: auto;
-          right: 0;
-          margin-right: -25px;
-          content: "Insert after"
+          top: auto;
+          bottom: 0;
+          margin-bottom: -25px;
+          content: "Insert after";
+          z-index: 1000;
         }
       }
     }
@@ -70,6 +93,12 @@
 }
 
 .designer-available-sequences {
+  position: absolute;
+  left: 0;
+  padding-left: 300px;
+  right: 0;
+  top: 0;
+  bottom: 0;
   overflow-x: hidden;
   overflow-y: auto;
 }
@@ -111,6 +140,7 @@
       color: black;
       width: 100px !important;
       box-shadow: 0 0 3px transparentize(#222, .5);
+      z-index: 2000;
     }
 
     @for $i from 0 to 10 {

@@ -56,7 +56,7 @@ define(function(require) {
 
         $featureElement.css({
           width: featureWidth,
-          left: Math.floor(feature.from / maxBase * viewWidth) + this.topFeatureOffset,
+          left: Math.floor(feature.from / maxBase * viewWidth),
         });
 
         overlapIndex = overlapStack.length;

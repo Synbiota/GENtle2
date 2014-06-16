@@ -13,7 +13,7 @@ define(function(require) {
           features = [],
           chunks = [],
           chunkId = -1,
-          lastChunkEndBase = 0,
+          lastChunkEndBase = -1,
           lastBase = this.model.length() - 1,
           _this = this;
 
@@ -75,7 +75,7 @@ define(function(require) {
       return chunks;
     },
 
-    positionChunks: function() {
+    styleChunks: function() {
       var availableWidth = this.$('.designer-designed-sequence-chunks').width(),
           sequenceLength = this.model.length(),
           chunks = this.chunks;
@@ -84,12 +84,12 @@ define(function(require) {
         var $chunkElem = $(chunkElem),
             chunk = _.findWhere(chunks, {id: $chunkElem.data('chunkId')});
 
-        $chunkElem
-          .css('width',Math.floor(availableWidth * chunk.length / sequenceLength))
-          .addClass(chunk.empty ?
-            'designer-designed-sequence-chunk-empty' :
-            'designer-designed-sequence-chunk-' + chunk.feature._type
-          );
+        // $chunkElem
+        //   .css('width',Math.floor(availableWidth * chunk.length / sequenceLength))
+        $chunkElem.addClass(chunk.empty ?
+          'designer-designed-sequence-chunk-empty' :
+          'designer-designed-sequence-chunk-' + chunk.feature.type
+        );
       });
     },
 
@@ -132,15 +132,13 @@ define(function(require) {
         chunk.from : 
         chunk.to + 1;
 
-      console.log($droppable, chunk.from, chunk.to+1, insertBeforeBase)
-
       this.model.insertBasesAndCreateFeature(insertBeforeBase, subSeq, feature.feature, true);
       this.render();
     },
 
     afterRender: function() {
       var _this = this;
-      this.positionChunks();
+      this.styleChunks();
       this.$('.designer-designed-sequence-chunk-droppable').droppable({
         hoverClass: 'active',
         tolerance: 'pointer',

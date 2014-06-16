@@ -7,8 +7,8 @@
       <i class="glyphicon glyphicon-exclamation-sign"></i>
     </h4>
     <div class="media-content">
-      This sequence has overlapping annotations.
-      <br>
+      <strong>This sequence has overlapping annotations.</strong>
+      <br><br>
       Try deleting some annotations or creating a new sequence to design.
     </div>
   </div>
@@ -18,11 +18,14 @@
   <div class="designer-designed-sequence-chunks">
     {{#each chunks}}
       <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
+        <div class="designer-designed-sequence-chunk-position">
+          {{formatThousands from 1}}
+        </div>
         <div class="designer-designed-sequence-chunk-title">
           {{#if empty}}
             Unannotated
           {{else}}
-            {{#with feature}}{{name}}{{/with}}
+            {{feature.name}}
           {{/if}}
           <br>
           <em>({{formatThousands length}}bp)</em>
