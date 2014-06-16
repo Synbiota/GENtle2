@@ -76,12 +76,11 @@ define(function(require) {
     },
 
     handleResize: function(trigger) {
+      this.$('#sequence-primary-view-outlet').css('left', this.primaryViewLeftPos());
       if(trigger !== false) {
         this.trigger('resize');
         this.actualPrimaryView.trigger('resize');
       }
-      console.log(this.primaryViewLeftPos())
-      this.$('#sequence-primary-view-outlet').css('left', this.primaryViewLeftPos());
     },
 
     primaryViewLeftPos: function() {

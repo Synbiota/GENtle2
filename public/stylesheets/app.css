@@ -8201,36 +8201,46 @@ button.close {
 }
 
 /* line 1, views/_sequence_view.scss */
-.sequence-view, #sequence-primary-view-outlet {
+.sequence-view {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 
-/* line 12, views/_sequence_view.scss */
-.sequence-canvas-wrapper .sequence-canvas-container {
-  position: fixed;
-  left: 50px;
+/* line 7, views/_sequence_view.scss */
+#sequence-primary-view-outlet {
+  position: absolute;
+  top: 0;
+  bottom: 0;
   right: 0;
-  top: 51px;
+}
+
+/* line 15, views/_sequence_view.scss */
+.sequence-canvas-wrapper .sequence-canvas-container {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
   bottom: 0;
 }
-/* line 19, views/_sequence_view.scss */
+/* line 22, views/_sequence_view.scss */
 .sequence-canvas-wrapper .sequence-canvas-container canvas.sequence-canvas {
   width: 100%;
   height: 100%;
 }
-/* line 25, views/_sequence_view.scss */
+/* line 28, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent {
   position: absolute;
   right: 0;
   height: 100%;
-  left: 50px;
+  left: 0;
+  top: 0;
   overflow-x: hidden;
   overflow-y: scroll;
   background: transparent;
   cursor: text;
 }
-/* line 34, views/_sequence_view.scss */
+/* line 38, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent:focus {
   outline: none;
 }

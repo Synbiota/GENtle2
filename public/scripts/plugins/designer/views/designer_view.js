@@ -23,10 +23,14 @@ define(function(require) {
     },
 
     afterRender: function() {
-      this.insertSequences();
+      this.insertSequenceViews();
+      
+      this.$('.designer-available-sequences').css('height',
+        $('.sequence-view').outerHeight() - this.$('.designer-designed-sequence-outlet').outerHeight()
+      );
     },
 
-    insertSequences: function() {
+    insertSequenceViews: function() {
       var _this = this,
           designedSequenceView;
 
@@ -48,10 +52,6 @@ define(function(require) {
       this.setView('.designer-designed-sequence-outlet', designedSequenceView);
       designedSequenceView.render();
       this.designedSequenceView = designedSequenceView;
-
-      this.$('.designer-available-sequences').css('height',
-        this.$el.outerHeight() - this.$('.designer-designed-sequence-outlet').outerHeight()
-      );
     }, 
 
     getAvailableSequenceViewFromSequenceId: function(sequenceId) {

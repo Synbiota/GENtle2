@@ -1,19 +1,22 @@
-.sequence-view, #sequence-primary-view-outlet {
+.sequence-view {
   position: relative;
   height: 100%;
+  width: 100%;
 }
 
-// #sequence-primary-view-outlet {
-//   position: absolute;
-//   right: 0;
-// }
+#sequence-primary-view-outlet {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
 
 .sequence-canvas-wrapper {
   .sequence-canvas-container {
-    position: fixed;
-    left: 50px;
+    position: absolute;
+    left: 0;
     right: 0;
-    top: 51px;
+    top: 0;
     bottom: 0;
 
     canvas.sequence-canvas {
@@ -26,7 +29,8 @@
     position: absolute;
     right: 0;
     height: 100%;
-    left: 50px;
+    left: 0;
+    top: 0;
     overflow-x: hidden;
     overflow-y: scroll;
     background: transparent;

@@ -22,9 +22,9 @@ define(function(require) {
 
       this.model = Gentle.currentSequence;
       
-      this.on('resize', function() { 
-        _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.parentView.primaryViewLeftPos());
-      });
+      // this.on('resize', function() { 
+      //   _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.parentView.primaryViewLeftPos());
+      // });
       
       this.contextMenuView = new ContextMenuView();
       this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
