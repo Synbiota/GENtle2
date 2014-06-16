@@ -230,6 +230,7 @@ console.log ( "SCF parsing" , just_check_format ) ;
 	var name = "Chromatogram" ;
 	var seq = {
 		name: "Chromatogram",
+		desc: '',
 		is_circular: false,
 		features: [], 
 		sequence: seqtext,
@@ -237,7 +238,7 @@ console.log ( "SCF parsing" , just_check_format ) ;
 		scf:scf // KEEP THE FULL, PARSED DATA
 	} ;
 	
-	console.log ( seq ) ;
+//	console.log ( seq ) ;
 	
 	return [ seq ] ;
 	}
