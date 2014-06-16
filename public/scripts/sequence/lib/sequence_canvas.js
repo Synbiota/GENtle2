@@ -417,6 +417,7 @@ define(function(require) {
   @param {integer} posY
   **/
   SequenceCanvas.prototype.drawRow = function(posY) {
+
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
       layoutHelpers = this.layoutHelpers,
@@ -601,10 +602,9 @@ define(function(require) {
       lines = this.layoutSettings.lines,
       yOffset = this.layoutHelpers.yOffset,
       rowsHeight = this.layoutHelpers.rows.height,
-      complementsOffsetA, complementsOffsetB, featuresOffsetA, featuresOffestB,
-      positionOffsetA, positionOffsetB, separatorsOffsetA, separatorsOffsetB,
-      aminoAcidsOffsetA, aminoAcidsOffsetB,
       posY;
+
+    //Calculating posY for baseRange
     if (selection != undefined) {
 
       if (this.layoutHelpers.selectionPreviousA == undefined) {
@@ -631,7 +631,6 @@ define(function(require) {
           }
           this.layoutHelpers.selectionPreviousB = selection[0];
         } else {
-          console.log('Z');
           this.redraw(selection);
 
           return;
@@ -640,6 +639,21 @@ define(function(require) {
       }
 
     }
+
+    this.clearAndDraw(posY);
+
+  };
+
+
+  /**
+  @method clearAndDraw
+  **/
+  SequenceCanvas.prototype.clearAndDraw = function(posY) {
+
+    var
+      lines = this.layoutSettings.lines,
+      yOffset = this.layoutHelpers.yOffset,
+      rowsHeight = this.layoutHelpers.rows.height;
 
     var baseRange = this.getBaseRangeFromYPos(posY);
     var pageMargins = this.layoutSettings.pageMargins.top;
@@ -664,46 +678,46 @@ define(function(require) {
       lines.complements.baseLine -
       this.layoutSettings.basePairDims.height + lineSpace;
 
-    complementsOffsetA = lines.aa.height - lines.position.height;
-    complementsOffsetB = this.layoutSettings.basePairDims.height;
-    featuresOffsetA = 0;
-    featuresOffestB = this.layoutSettings.basePairDims.height + lineSpace;
-    positionOffsetA = lines.position.height;
-    positionOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
-    separatorsOffsetA = lines.topSeparator.height;
-    separatorsOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
-    aminoAcidsOffsetA = 0;
-    aminoAcidsOffsetB = 0;
+    var complementsOffsetA = lines.aa.height - lines.position.height;
+    var complementsOffsetB = this.layoutSettings.basePairDims.height;
+    var featuresOffsetA = 0;
+    var featuresOffestB = this.layoutSettings.basePairDims.height + lineSpace;
+    var positionOffsetA = lines.position.height;
+    var positionOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
+    var separatorsOffsetA = lines.topSeparator.height;
+    var separatorsOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
+    var aminoAcidsOffsetA = 0;
+    var aminoAcidsOffsetB = 0;
 
-
+    //Setting correct layout boundries for canvas to clear selection row which will be redrawn later.
     if (baseRange[0] < this.sequence.length()) {
 
       if (!lines.aa.visible()) {
         aminoAcidsOffsetA = lines.aa.height;
         aminoAcidsOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
-      } 
+      }
       if (!lines.complements.visible() && lines.features.visible() && lines.position.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - complementsOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = complementsOffsetB;
       } else
       if (!lines.features.visible() && lines.complements.visible() && lines.position.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA + featuresOffsetA - aminoAcidsOffsetA;
-        canvasBoundaryB = (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : featuresOffestB;
+        canvasBoundaryB = (aminoAcidsOffsetB > 0) ? aminoAcidsOffsetB : featuresOffestB;
       } else
       if (!lines.position.visible() && lines.features.visible() && lines.complements.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - positionOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = positionOffsetB;
       } else
       if (!lines.topSeparator.visible() && lines.features.visible() && lines.position.visible() && lines.complements.visible()) {
-        canvasBoundaryA = canvasBoundaryA - separatorsOffsetA -aminoAcidsOffsetA;
-        canvasBoundaryB =  (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : separatorsOffsetB;
+        canvasBoundaryA = canvasBoundaryA - separatorsOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = (aminoAcidsOffsetB > 0) ? aminoAcidsOffsetB : separatorsOffsetB;
       } else
       if (!lines.complements.visible() && !lines.features.visible() && lines.position.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - complementsOffsetA + featuresOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = featuresOffestB;
       } else
       if (!lines.complements.visible() && lines.features.visible() && !lines.position.visible() && lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - complementsOffsetA - positionOffsetA  - aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - complementsOffsetA - positionOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = positionOffsetB;
       } else
       if (!lines.complements.visible() && lines.features.visible() && lines.position.visible() && !lines.topSeparator.visible()) {
@@ -711,12 +725,12 @@ define(function(require) {
         canvasBoundaryB = separatorsOffsetB;
       } else
       if (lines.complements.visible() && !lines.features.visible() && lines.position.visible() && !lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - lines.topSeparator.height -aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - lines.topSeparator.height - aminoAcidsOffsetA;
         canvasBoundaryB = separatorsOffsetB;
       } else
       if (lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - positionOffsetA - aminoAcidsOffsetA;
-        canvasBoundaryB = (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : positionOffsetB;
+        canvasBoundaryB = (aminoAcidsOffsetB > 0) ? aminoAcidsOffsetB : positionOffsetB;
       } else
       if (lines.complements.visible() && lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - aminoAcidsOffsetA;
@@ -725,28 +739,33 @@ define(function(require) {
       if (lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - featuresOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = separatorsOffsetB;
-      }
+      } else
       if (!lines.complements.visible() && lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - complementsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - complementsOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = separatorsOffsetB;
-      }
+      } else
       if (!lines.complements.visible() && !lines.features.visible() && lines.position.visible() && !lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - separatorsOffsetA - complementsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - separatorsOffsetA - complementsOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = separatorsOffsetB;
-      }
+      } else
       if (!lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - positionOffsetA - complementsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - positionOffsetA - complementsOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = positionOffsetB;
-      }
+      } else
       if (!lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - positionOffsetA - complementsOffsetA - separatorsOffsetA- aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - positionOffsetA - complementsOffsetA - separatorsOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      } else
+      if (lines.complements.visible() && lines.features.visible() && lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - aminoAcidsOffsetA;
         canvasBoundaryB = separatorsOffsetB;
       }
-
+      //clearing rows
       _this.artist.clear(canvasBoundaryA, canvasBoundaryB);
 
       if (lines.dna.visible === undefined || lines.dna.visible()) {
-       lines.dna.draw(canvasBoundaryA,baseRange);
+        //drawing rows 
+        lines.dna.draw(canvasBoundaryA, baseRange);
       }
 
     }
