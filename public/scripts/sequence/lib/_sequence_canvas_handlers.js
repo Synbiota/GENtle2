@@ -307,7 +307,7 @@ define(function(require) {
       _this.selection = undefined;
     }
 
-    _this.redrawSelection(_this.selection);
+    _this.redraw();
   };
 
   /**

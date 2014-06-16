@@ -397,8 +397,6 @@ define(function(require) {
 
         }
 
-        console.log('Draw End :'+drawEnd);
-
         _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
 
         _this.displayDeferred.resolve();
@@ -586,7 +584,6 @@ define(function(require) {
       this.selection = undefined;
       this.redraw();
     }
-    console.log('Y');
     this.displayCaret(newPosition);
   };
 
@@ -613,15 +610,12 @@ define(function(require) {
       if(this.layoutHelpers.selectionPreviousB == undefined){
       this.layoutHelpers.selectionPreviousB = selection[1];
       }
-      
-      console.log('End :'+this.getYPosFromBase(selection[1]));
-
+     
       if(this.layoutHelpers.selectionPreviousA!==selection[1] || this.layoutHelpers.selectionPreviousB!==selection[0]){
-      console.log('Selection   [ Sec1 '+selection[1]+', PrevA'+this.layoutHelpers.selectionPreviousA+']');
 
       if(this.layoutHelpers.selectionPreviousA===selection[1]-1 || this.layoutHelpers.selectionPreviousA===selection[1]+1)
       {
-      console.log('A');
+
       posY =this.getYPosFromBase(selection[1]);
       if(this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB)
       {
@@ -632,7 +626,7 @@ define(function(require) {
 
       else if(this.layoutHelpers.selectionPreviousB===selection[0]-1 || this.layoutHelpers.selectionPreviousB===selection[0]+1)
       {
-      console.log('B');
+
       posY =this.getYPosFromBase(selection[0]);
        if(this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB)
       {
@@ -644,6 +638,8 @@ define(function(require) {
       else{
       console.log('Z');
       this.redraw(selection);
+
+      return;
       }
 
       }
@@ -657,31 +653,43 @@ define(function(require) {
       var canvasBoundaryA=posY-
                     pageMargins-
                     yOffset-
-                    this.layoutSettings.lines.topSeparator.height+
-                    this.layoutSettings.lines.aa.height+
-                    this.layoutSettings.lines.aa.baseLine-
-                    this.layoutSettings.lines.dna.height+
-                    this.layoutSettings.lines.dna.baseLine+
-                    this.layoutSettings.lines.position.height+
-                    this.layoutSettings.lines.position.baseLine;
+                    lines.topSeparator.height+
+                    lines.aa.height+
+                    lines.aa.baseLine-
+                    lines.dna.height+
+                    lines.dna.baseLine+
+                    lines.position.height+
+                    lines.position.baseLine;
       var canvasBoundaryB=rowsHeight-
-                    this.layoutSettings.lines.features.height-
-                    this.layoutSettings.lines.features.baseLine-
-                    this.layoutSettings.lines.bottomSeparator.height-
-                    this.layoutSettings.lines.complements.height-
-                    this.layoutSettings.lines.complements.baseLine-
+                    lines.features.height-
+                    lines.features.baseLine-
+                    lines.bottomSeparator.height-
+                    lines.complements.height-
+                    lines.complements.baseLine-
                     this.layoutSettings.basePairDims.height+lineSpace;
 
-    console.log(canvasBoundaryA-canvasBoundaryB);
 
     if (baseRange[0] < this.sequence.length()) {
 
-    _this.artist.clear(canvasBoundaryA,canvasBoundaryB);
+      if(!lines.complements.visible()){
+
+        canvasBoundaryB=canvasBoundaryB+this.layoutSettings.basePairDims.height-1;
+      }
+
+       if(!lines.complements.visible() && !lines.topSeparator.visible() && !lines.bottomSeparator.visible()){
+
+          canvasBoundaryB=canvasBoundaryB+this.layoutSettings.basePairDims.height-1;
+      }
+
+
+
+         _this.artist.clear(canvasBoundaryA,canvasBoundaryB);
 
         if (lines.dna.visible === undefined || lines.dna.visible()) {
+
           lines.dna.draw(posY-yOffset+pageMargins+this.layoutSettings.lines.aa.height, baseRange);
         }
-   
+
     }
   };
 
@@ -698,15 +706,11 @@ define(function(require) {
         positionCheck = this.caretPosition;
 
         if (positionCheck > this.layoutHelpers.caretPositionBefore) {
-          console.log('End   '+end);
           this.caretPosition = this.layoutHelpers.caretPositionBefore;
           if(start!=this.layoutHelpers.selectionPreviousB-1 && start!=this.layoutHelpers.selectionPreviousB+1 && start!=this.layoutHelpers.selectionPreviousB)
           this.layoutHelpers.selectionPreviousB = this.caretPosition;
-          console.log('Select   Before End'+end+'        Before Helper '+this.layoutHelpers.selectionPreviousA);
           if(end!=this.layoutHelpers.selectionPreviousA-1 && end!=this.layoutHelpers.selectionPreviousA+1 && end!=this.layoutHelpers.selectionPreviousA)
           this.layoutHelpers.selectionPreviousA = this.caretPosition;
-                  console.log('Select   After End'+end+'       After helper '+this.layoutHelpers.selectionPreviousA);
-          console.log(this.selection);
           positionCheck = this.caretPosition;
         } else {
           this.layoutHelpers.caretPositionBefore = this.caretPosition;
