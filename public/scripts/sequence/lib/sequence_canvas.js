@@ -672,7 +672,7 @@ define(function(require) {
                     this.layoutSettings.lines.complements.baseLine-
                     this.layoutSettings.basePairDims.height+lineSpace;
 
-    console.log(lines);
+    console.log(canvasBoundaryA-canvasBoundaryB);
 
     if (baseRange[0] < this.sequence.length()) {
 
