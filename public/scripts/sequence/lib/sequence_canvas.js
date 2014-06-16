@@ -674,7 +674,6 @@ define(function(require) {
     separatorsOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
     aminoAcidsOffsetA = 0;
     aminoAcidsOffsetB = 0;
-console.log(lines.aa.visible());
 
 
     if (baseRange[0] < this.sequence.length()) {
@@ -686,14 +685,13 @@ console.log(lines.aa.visible());
       if (!lines.complements.visible() && lines.features.visible() && lines.position.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA - complementsOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = complementsOffsetB;
-        console.log('o');
       } else
       if (!lines.features.visible() && lines.complements.visible() && lines.position.visible() && lines.topSeparator.visible()) {
         canvasBoundaryA = canvasBoundaryA + featuresOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : featuresOffestB;
       } else
       if (!lines.position.visible() && lines.features.visible() && lines.complements.visible() && lines.topSeparator.visible()) {
-        canvasBoundaryA = canvasBoundaryA - positionOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA - aminoAcidsOffsetA;
         canvasBoundaryB = positionOffsetB;
       } else
       if (!lines.topSeparator.visible() && lines.features.visible() && lines.position.visible() && lines.complements.visible()) {
@@ -748,7 +746,7 @@ console.log(lines.aa.visible());
       _this.artist.clear(canvasBoundaryA, canvasBoundaryB);
 
       if (lines.dna.visible === undefined || lines.dna.visible()) {
-
+       lines.dna.draw(canvasBoundaryA,baseRange);
       }
 
     }
