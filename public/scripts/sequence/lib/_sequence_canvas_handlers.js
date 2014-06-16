@@ -339,7 +339,7 @@ define(function(require) {
       this.displayCaret(base);
     }
 
-    this.redraw();
+    _this.redraw();
   };
 
   /** 
