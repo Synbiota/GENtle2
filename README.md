@@ -38,7 +38,7 @@ steps:
 1. Install the `node-foreman` and `nodemon` node packages globally
 
     ```shell
-    npm install -g foreman nodemon
+    npm install -g foreman nodemon jade
     ```
   
 1. Install local npm packages
@@ -75,6 +75,12 @@ GENtle will be accessible at [http://localhost:8081](http://localhost:8081)
 
 All compilation tasks use [grunt](http://gruntjs.com) and are defined in 
 `gruntfile.js`
+
+#### Installation
+
+```shell
+npm install -g grunt-cli
+```
 
 #### Stylesheets
 
