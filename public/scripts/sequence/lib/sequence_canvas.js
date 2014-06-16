@@ -595,102 +595,164 @@ define(function(require) {
   };
 
 
- SequenceCanvas.prototype.redrawSelection = function(selection) {
+  SequenceCanvas.prototype.redrawSelection = function(selection) {
 
-    var 
+    var
       lines = this.layoutSettings.lines,
       yOffset = this.layoutHelpers.yOffset,
       rowsHeight = this.layoutHelpers.rows.height,
+      complementsOffsetA, complementsOffsetB, featuresOffsetA, featuresOffestB,
+      positionOffsetA, positionOffsetB, separatorsOffsetA, separatorsOffsetB,
+      aminoAcidsOffsetA, aminoAcidsOffsetB,
       posY;
-      if(selection!=undefined){
+    if (selection != undefined) {
 
-      if(this.layoutHelpers.selectionPreviousA == undefined){
-      this.layoutHelpers.selectionPreviousA = selection[0];
+      if (this.layoutHelpers.selectionPreviousA == undefined) {
+        this.layoutHelpers.selectionPreviousA = selection[0];
       }
-      if(this.layoutHelpers.selectionPreviousB == undefined){
-      this.layoutHelpers.selectionPreviousB = selection[1];
-      }
-     
-      if(this.layoutHelpers.selectionPreviousA!==selection[1] || this.layoutHelpers.selectionPreviousB!==selection[0]){
-
-      if(this.layoutHelpers.selectionPreviousA===selection[1]-1 || this.layoutHelpers.selectionPreviousA===selection[1]+1)
-      {
-
-      posY =this.getYPosFromBase(selection[1]);
-      if(this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB)
-      {
-        this.layoutHelpers.selectionPreB = selection[0];
-      }
-      this.layoutHelpers.selectionPreviousA=selection[1];
+      if (this.layoutHelpers.selectionPreviousB == undefined) {
+        this.layoutHelpers.selectionPreviousB = selection[1];
       }
 
-      else if(this.layoutHelpers.selectionPreviousB===selection[0]-1 || this.layoutHelpers.selectionPreviousB===selection[0]+1)
-      {
+      if (this.layoutHelpers.selectionPreviousA !== selection[1] || this.layoutHelpers.selectionPreviousB !== selection[0]) {
 
-      posY =this.getYPosFromBase(selection[0]);
-       if(this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB)
-      {
-        this.layoutHelpers.selectionPreviousA = selection[1];
-      }
-      this.layoutHelpers.selectionPreviousB=selection[0];
-      }
+        if (this.layoutHelpers.selectionPreviousA === selection[1] - 1 || this.layoutHelpers.selectionPreviousA === selection[1] + 1) {
 
-      else{
-      console.log('Z');
-      this.redraw(selection);
+          posY = this.getYPosFromBase(selection[1]);
+          if (this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB) {
+            this.layoutHelpers.selectionPreB = selection[0];
+          }
+          this.layoutHelpers.selectionPreviousA = selection[1];
+        } else if (this.layoutHelpers.selectionPreviousB === selection[0] - 1 || this.layoutHelpers.selectionPreviousB === selection[0] + 1) {
 
-      return;
-      }
+          posY = this.getYPosFromBase(selection[0]);
+          if (this.layoutHelpers.selectionPreviousA == this.layoutHelpers.selectionPreviousB) {
+            this.layoutHelpers.selectionPreviousA = selection[1];
+          }
+          this.layoutHelpers.selectionPreviousB = selection[0];
+        } else {
+          console.log('Z');
+          this.redraw(selection);
+
+          return;
+        }
 
       }
 
-      }
+    }
 
-      var baseRange = this.getBaseRangeFromYPos(posY);
-      var pageMargins = this.layoutSettings.pageMargins.top;
-      var _this = this;
-      var lineSpace = 3;
-      var canvasBoundaryA=posY-
-                    pageMargins-
-                    yOffset-
-                    lines.topSeparator.height+
-                    lines.aa.height+
-                    lines.aa.baseLine-
-                    lines.dna.height+
-                    lines.dna.baseLine+
-                    lines.position.height+
-                    lines.position.baseLine;
-      var canvasBoundaryB=rowsHeight-
-                    lines.features.height-
-                    lines.features.baseLine-
-                    lines.bottomSeparator.height-
-                    lines.complements.height-
-                    lines.complements.baseLine-
-                    this.layoutSettings.basePairDims.height+lineSpace;
+    var baseRange = this.getBaseRangeFromYPos(posY);
+    var pageMargins = this.layoutSettings.pageMargins.top;
+    var _this = this;
+    var lineSpace = 3;
+    var canvasBoundaryA = posY -
+      pageMargins -
+      yOffset -
+      lines.topSeparator.height +
+      lines.aa.height +
+      lines.aa.baseLine -
+      lines.dna.height +
+      lines.dna.baseLine +
+      lines.position.height +
+      lines.position.baseLine;
+
+    var canvasBoundaryB = rowsHeight -
+      lines.features.height -
+      lines.features.baseLine -
+      lines.bottomSeparator.height -
+      lines.complements.height -
+      lines.complements.baseLine -
+      this.layoutSettings.basePairDims.height + lineSpace;
+
+    complementsOffsetA = lines.aa.height - lines.position.height;
+    complementsOffsetB = this.layoutSettings.basePairDims.height;
+    featuresOffsetA = 0;
+    featuresOffestB = this.layoutSettings.basePairDims.height + lineSpace;
+    positionOffsetA = lines.position.height;
+    positionOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
+    separatorsOffsetA = lines.topSeparator.height;
+    separatorsOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
+    aminoAcidsOffsetA = 0;
+    aminoAcidsOffsetB = 0;
+console.log(lines.aa.visible());
 
 
     if (baseRange[0] < this.sequence.length()) {
 
-      if(!lines.complements.visible()){
-
-        canvasBoundaryB=canvasBoundaryB+this.layoutSettings.basePairDims.height-1;
+      if (!lines.aa.visible()) {
+        aminoAcidsOffsetA = lines.aa.height;
+        aminoAcidsOffsetB = this.layoutSettings.basePairDims.height + lineSpace;
+      } 
+      if (!lines.complements.visible() && lines.features.visible() && lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - complementsOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = complementsOffsetB;
+        console.log('o');
+      } else
+      if (!lines.features.visible() && lines.complements.visible() && lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA + featuresOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : featuresOffestB;
+      } else
+      if (!lines.position.visible() && lines.features.visible() && lines.complements.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryB = positionOffsetB;
+      } else
+      if (!lines.topSeparator.visible() && lines.features.visible() && lines.position.visible() && lines.complements.visible()) {
+        canvasBoundaryA = canvasBoundaryA - separatorsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryB =  (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : separatorsOffsetB;
+      } else
+      if (!lines.complements.visible() && !lines.features.visible() && lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - complementsOffsetA + featuresOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = featuresOffestB;
+      } else
+      if (!lines.complements.visible() && lines.features.visible() && !lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - complementsOffsetA - positionOffsetA  - aminoAcidsOffsetA;
+        canvasBoundaryB = positionOffsetB;
+      } else
+      if (!lines.complements.visible() && lines.features.visible() && lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - complementsOffsetA - lines.topSeparator.height - aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      } else
+      if (lines.complements.visible() && !lines.features.visible() && lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - lines.topSeparator.height -aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      } else
+      if (lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = (aminoAcidsOffsetB>0)? aminoAcidsOffsetB : positionOffsetB;
+      } else
+      if (lines.complements.visible() && lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      } else
+      if (lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - featuresOffsetA - aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      }
+      if (!lines.complements.visible() && lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - positionOffsetA - separatorsOffsetA - complementsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      }
+      if (!lines.complements.visible() && !lines.features.visible() && lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - separatorsOffsetA - complementsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
+      }
+      if (!lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - positionOffsetA - complementsOffsetA -aminoAcidsOffsetA;
+        canvasBoundaryB = positionOffsetB;
+      }
+      if (!lines.complements.visible() && !lines.features.visible() && !lines.position.visible() && !lines.topSeparator.visible()) {
+        canvasBoundaryA = canvasBoundaryA - featuresOffsetA - positionOffsetA - complementsOffsetA - separatorsOffsetA- aminoAcidsOffsetA;
+        canvasBoundaryB = separatorsOffsetB;
       }
 
-       if(!lines.complements.visible() && !lines.topSeparator.visible() && !lines.bottomSeparator.visible()){
+      _this.artist.clear(canvasBoundaryA, canvasBoundaryB);
 
-          canvasBoundaryB=canvasBoundaryB+this.layoutSettings.basePairDims.height-1;
+      if (lines.dna.visible === undefined || lines.dna.visible()) {
+
       }
-
-
-
-         _this.artist.clear(canvasBoundaryA,canvasBoundaryB);
-
-        if (lines.dna.visible === undefined || lines.dna.visible()) {
-
-          lines.dna.draw(posY-yOffset+pageMargins+this.layoutSettings.lines.aa.height, baseRange);
-        }
 
     }
+
   };
 
   /**
@@ -707,10 +769,10 @@ define(function(require) {
 
         if (positionCheck > this.layoutHelpers.caretPositionBefore) {
           this.caretPosition = this.layoutHelpers.caretPositionBefore;
-          if(start!=this.layoutHelpers.selectionPreviousB-1 && start!=this.layoutHelpers.selectionPreviousB+1 && start!=this.layoutHelpers.selectionPreviousB)
-          this.layoutHelpers.selectionPreviousB = this.caretPosition;
-          if(end!=this.layoutHelpers.selectionPreviousA-1 && end!=this.layoutHelpers.selectionPreviousA+1 && end!=this.layoutHelpers.selectionPreviousA)
-          this.layoutHelpers.selectionPreviousA = this.caretPosition;
+          if (start != this.layoutHelpers.selectionPreviousB - 1 && start != this.layoutHelpers.selectionPreviousB + 1 && start != this.layoutHelpers.selectionPreviousB)
+            this.layoutHelpers.selectionPreviousB = this.caretPosition;
+          if (end != this.layoutHelpers.selectionPreviousA - 1 && end != this.layoutHelpers.selectionPreviousA + 1 && end != this.layoutHelpers.selectionPreviousA)
+            this.layoutHelpers.selectionPreviousA = this.caretPosition;
           positionCheck = this.caretPosition;
         } else {
           this.layoutHelpers.caretPositionBefore = this.caretPosition;
@@ -723,7 +785,7 @@ define(function(require) {
       this.selection = undefined;
       this.caretPosition = undefined;
     }
-     this.redrawSelection(this.selection);
+    this.redrawSelection(this.selection);
   };
 
   SequenceCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
