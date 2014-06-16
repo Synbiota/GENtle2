@@ -38,6 +38,7 @@ define(function(require) {
     // Context binding (context is lost in Promises' `.then` and `.done`)
     _.bindAll(this, 'calculateLayoutSettings',
       'redrawSelection',
+      'clearAndDraw',
       'display',
       'refresh',
       'redraw',
