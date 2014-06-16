@@ -9,6 +9,8 @@ define(function(require) {
 
   FT_scf = function() {
     this.typeName = 'SCF' ;
+this.read_binary = true ;
+this.binary = true ;
   }
 
   FT_scf.prototype = new FT_base() ;
@@ -48,11 +50,13 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 
   FT_scf.prototype.parseFile = function ( just_check_format ) {
 	var me = this ;
+console.log ( "SCF parsing" , just_check_format ) ;
 
 	// START SCF PARSING HERE
 
-	var me_text = String.fromCharCode.apply(null, new Uint16Array(me.text)) ;
-	var bytes = new Uint8Array(me.text);
+	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
+	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
+	var bytes = new Uint8Array(text_array);
 	
 
 	// HEADER
@@ -202,6 +206,10 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	var tempseq = [] ;
 	$.each ( scf.base_data , function ( k , v ) {
 		var d = scf.data[v.index] ;
+		if ( typeof d == 'undefined' ) {
+			console.log ( "SCF: Index " + v.index + " undefined" ) ;
+			return ;
+		}
 		var o = {
 			A : (d.A > max ? max : d.A)/n ,
 			C : (d.C > max ? max : d.C)/n  ,
@@ -212,7 +220,7 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 		tempseq.push ( o ) ;
 	} ) ;
 
-	var ret = [] ;
+
 	var seqtext = '';
 
 	for (i in tempseq) {
@@ -220,17 +228,34 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	}
 
 	var name = "Chromatogram" ;
-	var v = new SequenceDNA ( name , seqtext, tempseq ) ;
-	v.scf = scf ; // KEEP THE FULL, PARSED DATA
-	var seqid = gentle.addSequence ( v , true ) ;
-	ret.push ( seqid ) ;
-	return ret ;
+	var seq = {
+		name: "Chromatogram",
+		is_circular: false,
+		features: [], 
+		sequence: seqtext,
+		tempseq: tempseq, // Chromatogram
+		scf:scf // KEEP THE FULL, PARSED DATA
+	} ;
+	
+	console.log ( seq ) ;
+	
+	return [ seq ] ;
+	}
+
+  FT_scf.prototype.parseText = function ( text ) {
+  console.log ( "SCF parseText WTF" ) ;
+    this.text = text ;
+    this.fileTypeValidated = true ;
+  //  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
+    this.parseFile () ;
   }
 
   FT_scf.prototype.textHeuristic = function () {
 console.log("Checking SCF...");
-	return this.parseFile ( true ) ;
-  }
+	var res = this.parseFile ( true ) ;
+	console.log ( "Result: " , res ) ;
+	return res ;
+}
 
   return FT_scf
 
