@@ -397,6 +397,8 @@ define(function(require) {
 
         }
 
+        console.log('Draw End :'+drawEnd);
+
         _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
 
         _this.displayDeferred.resolve();
@@ -611,7 +613,8 @@ define(function(require) {
       if(this.layoutHelpers.selectionPreviousB == undefined){
       this.layoutHelpers.selectionPreviousB = selection[1];
       }
-
+      
+      console.log('End :'+this.getYPosFromBase(selection[1]));
 
       if(this.layoutHelpers.selectionPreviousA!==selection[1] || this.layoutHelpers.selectionPreviousB!==selection[0]){
       console.log('Selection   [ Sec1 '+selection[1]+', PrevA'+this.layoutHelpers.selectionPreviousA+']');
@@ -650,20 +653,35 @@ define(function(require) {
       var baseRange = this.getBaseRangeFromYPos(posY);
       var pageMargins = this.layoutSettings.pageMargins.top;
       var _this = this;
+      var lineSpace = 3;
+      var canvasBoundaryA=posY-
+                    pageMargins-
+                    yOffset-
+                    this.layoutSettings.lines.topSeparator.height+
+                    this.layoutSettings.lines.aa.height+
+                    this.layoutSettings.lines.aa.baseLine-
+                    this.layoutSettings.lines.dna.height+
+                    this.layoutSettings.lines.dna.baseLine+
+                    this.layoutSettings.lines.position.height+
+                    this.layoutSettings.lines.position.baseLine;
+      var canvasBoundaryB=rowsHeight-
+                    this.layoutSettings.lines.features.height-
+                    this.layoutSettings.lines.features.baseLine-
+                    this.layoutSettings.lines.bottomSeparator.height-
+                    this.layoutSettings.lines.complements.height-
+                    this.layoutSettings.lines.complements.baseLine-
+                    this.layoutSettings.basePairDims.height+lineSpace;
+
+    console.log(lines);
 
     if (baseRange[0] < this.sequence.length()) {
 
-      _this.artist.clear(posY-pageMargins-yOffset,rowsHeight);
+    _this.artist.clear(canvasBoundaryA,canvasBoundaryB);
 
-      _.each(lines, function(line, key) {
-
-        if (line.visible === undefined || line.visible()) {
-
-          line.draw(posY-yOffset, baseRange);
-
-          posY += line.height;
+        if (lines.dna.visible === undefined || lines.dna.visible()) {
+          lines.dna.draw(posY-yOffset+pageMargins+this.layoutSettings.lines.aa.height, baseRange);
         }
-      });
+   
     }
   };
 
@@ -678,7 +696,9 @@ define(function(require) {
         this.selection = [start, end];
         this.caretPosition = end + 1;
         positionCheck = this.caretPosition;
+
         if (positionCheck > this.layoutHelpers.caretPositionBefore) {
+          console.log('End   '+end);
           this.caretPosition = this.layoutHelpers.caretPositionBefore;
           if(start!=this.layoutHelpers.selectionPreviousB-1 && start!=this.layoutHelpers.selectionPreviousB+1 && start!=this.layoutHelpers.selectionPreviousB)
           this.layoutHelpers.selectionPreviousB = this.caretPosition;
