@@ -30,7 +30,8 @@ define(function(require) {
         Filetypes.guessTypeAndParseFromText(result.content, result.name).then ( function ( sequences ) {
           if ( sequences.length ) Gentle.addSequencesAndNavigate(sequences);
            else alert('Could not parse the sequence.');
-        } , function () {
+        } , function (err) {
+          console.log(err);
           alert('Could not parse the sequence.');
         } ) ;
       };
