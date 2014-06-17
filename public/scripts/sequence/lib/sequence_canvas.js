@@ -331,6 +331,22 @@ define(function(require) {
 
       // canvas y scrolling offset
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
+
+
+      if (_this.layoutHelpers.BasePosition === undefined)
+        _this.layoutHelpers.BasePosition = _this.getBaseFromXYPos(0, lh.yOffset + lh.rows.height);
+
+      if (_this.layoutHelpers.BaseRow === undefined)
+        _this.layoutHelpers.BaseRow = lh.basesPerRow;
+
+      if (_this.layoutHelpers.BaseRow > lh.basesPerRow) {
+        _this.layoutHelpers.yOffsetPrevious = lh.yOffset;
+        lh.yOffset = _this.getYPosFromBase(_this.layoutHelpers.BasePosition);
+      } else {
+        if (_this.layoutHelpers.yOffsetPrevious !== undefined)
+          lh.yOffset = _this.layoutHelpers.yOffsetPrevious;
+      }
+
       _this.$scrollingParent.scrollTop(lh.yOffset);
 
       _this.clearCache();
@@ -472,6 +488,8 @@ define(function(require) {
     layoutHelpers.previousYOffset = layoutHelpers.yOffset;
 
     if (yOffset !== undefined) {
+
+      this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
       this.sequence.set('displaySettings.yOffset',
         layoutHelpers.yOffset = yOffset, {
           silent: true
