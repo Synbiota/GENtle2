@@ -343,6 +343,8 @@ define(function(require) {
         this.displayCaret(base);
       }
     }
+
+    _this.redraw();
   };
 
   /** 
