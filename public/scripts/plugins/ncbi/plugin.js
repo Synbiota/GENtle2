@@ -5,7 +5,7 @@ define(function(require) {
   Gentle.addPlugin('home', {
     name: 'ncbi',
     title: 'Search NCBI',
-    view: new NCBIView()
+    view: NCBIView
   });
 
   return Math;

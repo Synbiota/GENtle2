@@ -2,11 +2,16 @@ define(function(require) {
   var Backbone = require('backbone.mixed'),
       template = require('hbars!../templates/designed_sequence_view'),
       SynbioData = require('common/lib/synbio_data'),
+      Gentle = require('gentle')(),
       DesignedSequenceView;
 
   DesignedSequenceView = Backbone.View.extend({
     template: template,
     manage: true,
+
+    initialize: function() {
+      this.listenTo(Gentle.currentSequence, 'change', this.render, this);
+    },
 
     processChunks: function() {
       var id = -1,
@@ -94,24 +99,47 @@ define(function(require) {
     },
 
     serialize: function() {
+      var output = {
+        sequence: this.model.serialize()
+      };
+
       if(this.model.maxOverlappingFeatures() > 1) {
-        return {
-          sequence: this.model.serialize(),
-          disabled: true
-        };
+        output.disabled = true;
       } else {
         if(this.model.length()) {
-          return {
-            sequence: this.model.serialize(),
-            chunks: this.processChunks()
-          };
+          output.chunks = this.processChunks();
+        } else {
+          output.empty = true;
         }
       }
+
+      return output;
     },
 
     insertFromAvailableSequence: function($droppable, $draggable) {
-      var sequenceId, availableSequenceView, 
-          feature, subSeq, chunk, insertBeforeBase;
+      var featureAndSubSeq, chunk, insertBeforeBase;
+
+      featureAndSubSeq = this.getFeatureFromDraggable($draggable);
+
+      chunk = _.findWhere(this.chunks, {
+        id: $droppable.closest("[data-chunk-id]").data('chunkId')
+      });
+
+      insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
+        chunk.from : 
+        chunk.to + 1;
+
+      this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+    },
+
+    insertFirstAnnotationFromAvailableSequence: function($draggable) {
+      var featureAndSubSeq = this.getFeatureFromDraggable($draggable);
+
+      this.model.insertBasesAndCreateFeature(0, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+    },
+
+    getFeatureFromDraggable: function($draggable) {
+      var sequenceId, availableSequenceView, feature;
 
       sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
 
@@ -122,28 +150,29 @@ define(function(require) {
         id: $draggable.data('featureId')
       });
 
-      subSeq = availableSequenceView.model.getSubSeq(feature.from, feature.to);
-
-      chunk = _.findWhere(this.chunks, {
-        id: $droppable.closest("[data-chunk-id]").data('chunkId')
-      });
-
-      insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
-        chunk.from : 
-        chunk.to + 1;
-
-      this.model.insertBasesAndCreateFeature(insertBeforeBase, subSeq, feature.feature, true);
-      this.render();
+      return {
+        feature: feature,
+        subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
+      };
     },
 
     afterRender: function() {
       var _this = this;
       this.styleChunks();
+
       this.$('.designer-designed-sequence-chunk-droppable').droppable({
         hoverClass: 'active',
         tolerance: 'pointer',
         drop: function(event, ui) {
           _this.insertFromAvailableSequence($(this), ui.draggable);
+        }
+      });
+
+      this.$('.designer-designed-sequence-empty-placeholder').droppable({
+        activeClass: 'active',
+        tolerance: 'pointer',
+        drop: function(event, ui) {
+          _this.insertFirstAnnotationFromAvailableSequence(ui.draggable);
         }
       });
     }

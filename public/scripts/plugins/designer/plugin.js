@@ -1,6 +1,7 @@
 define(function(require) {
   var Gentle    = require('gentle')(),
-      DesignerView  = require('./views/designer_view');
+      DesignerView  = require('./views/designer_view'),
+      HomeDesignerView = require('./views/home_designer_view');
 
   Gentle.addPlugin('sequence-primary-view', {
     name: 'designer',
@@ -8,5 +9,11 @@ define(function(require) {
     view: DesignerView
   });
 
-  return Math;
+  Gentle.addPlugin('home', {
+    name: 'designer',
+    title: 'Designer',
+    view: HomeDesignerView
+  });
+
+  return Gentle;
 });

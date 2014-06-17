@@ -15,26 +15,36 @@
 
 {{else}}
 
-  <div class="designer-designed-sequence-chunks">
-    {{#each chunks}}
-      <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
-        <div class="designer-designed-sequence-chunk-position">
-          {{formatThousands from 1}}
+  {{#if empty}}
+
+    <div class="designer-designed-sequence-empty-placeholder">
+      Drag annotations from the left-hand list.
+    </div>
+
+  {{else}}
+
+    <div class="designer-designed-sequence-chunks">
+      {{#each chunks}}
+        <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
+          <div class="designer-designed-sequence-chunk-position">
+            {{formatThousands from 1}}
+          </div>
+          <div class="designer-designed-sequence-chunk-title">
+            {{#if empty}}
+              Unannotated
+            {{else}}
+              {{feature.name}}
+            {{/if}}
+            <br>
+            <em>({{formatThousands length}}bp)</em>
+          </div>
+          <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-before">&nbsp;</div>
+          <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-after">&nbsp;</div>
         </div>
-        <div class="designer-designed-sequence-chunk-title">
-          {{#if empty}}
-            Unannotated
-          {{else}}
-            {{feature.name}}
-          {{/if}}
-          <br>
-          <em>({{formatThousands length}}bp)</em>
-        </div>
-        <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-before">&nbsp;</div>
-        <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-after">&nbsp;</div>
-      </div>
-    {{/each}}
-    <div class="clearfix"></div>
-  </div>
+      {{/each}}
+      <div class="clearfix"></div>
+    </div>
+
+  {{/if}}
 
 {{/if}}

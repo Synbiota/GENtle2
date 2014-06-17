@@ -22,12 +22,12 @@ define(function(require) {
       defaultTabs = [{
         name: 'new-sequence',
         title: 'New sequence',
-        view: new NewSequenceView(),
+        view: NewSequenceView,
         active: true
       }, {
         name: 'open-file',
         title: 'Open from disk',
-        view: new OpenFileView()
+        view: OpenFileView
       }];
 
       tabsFromPlugins = _.pluck(_.where(Gentle.plugins, {type: 'home'}), 'data');
@@ -43,8 +43,9 @@ define(function(require) {
     afterRender: function() {
       var _this = this;
       _.each(this.tabs, function(tab) {
-        _this.setView('#home-tab-'+tab.name, tab.view);
-        tab.view.render();
+        var view = new tab.view();
+        _this.setView('#home-tab-'+tab.name, view);
+        view.render();
       });
     },
 
