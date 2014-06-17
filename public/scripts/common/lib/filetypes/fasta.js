@@ -2,7 +2,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // FASTA
 
-  var FT_base = require('lib/files/base'),
+  var FT_base = require('common/lib/filetypes/base'),
       FT_fasta;
 
   FT_fasta = function() {
@@ -38,22 +38,17 @@ define(function(require) {
     var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
     var name = '' ;
     var seq = '' ;
-    var tempseq = [] ;
     $.each ( lines , function ( k , v ) {
       if ( v.match ( /^>/ ) ) {
-        if ( seq !== '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
+        if ( seq !== '' ) ret.push ( { name:name , sequence:seq } ) ;
         name = v.replace ( /^>\s*/ , '' ) ;
         seq = '' ;
       } else {
         seq += v.replace ( /\s/g , '' ).toUpperCase() ;
       }
     } ) ;
-    if ( seq !== '' ) tempseq.push ( new SequenceDNA ( name , seq ) ) ;
+    if ( seq !== '' ) ret.push ( { name:name , sequence:seq } ) ;
     
-    $.each ( tempseq , function ( k , v ) {
-      var seqid = gentle.addSequence ( v , true ) ;
-      ret.push ( seqid ) ;
-    } ) ;
     return ret ;
   };
 
