@@ -66,9 +66,8 @@ define(function(require) {
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
-      this.setView('#sequence-primary-view-outlet', actualView);
+      this.insertView('#sequence-primary-view-outlet', actualView);
       actualView.parentView = this;
-      actualView.render();
     },
 
     afterRender: function() {

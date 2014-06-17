@@ -40,6 +40,7 @@ define(function(require) {
       'redrawSelection',
       'display',
       'refresh',
+      'refreshFromResize',
       'redraw',
       'afterNextRedraw',
       'handleScrolling',
@@ -230,7 +231,7 @@ define(function(require) {
     });
 
     // Events
-    this.view.on('resize', this.refresh);
+    this.view.on('resize', this.refreshFromResize);
     this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
@@ -240,6 +241,7 @@ define(function(require) {
 
     // Kickstart rendering
     this.refresh();
+    console.log('test')
   };
 
   _.extend(SequenceCanvas.prototype, Backbone.Events);
@@ -334,18 +336,23 @@ define(function(require) {
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
 
 
-      if (_this.layoutHelpers.BasePosition === undefined)
-        _this.layoutHelpers.BasePosition = _this.getBaseFromXYPos(0, lh.yOffset + lh.rows.height);
+      // if (_this.layoutHelpers.BasePosition === undefined)
+      //   _this.layoutHelpers.BasePosition = _this.getBaseFromXYPos(0, lh.yOffset + lh.rows.height);
 
-      if (_this.layoutHelpers.BaseRow === undefined)
-        _this.layoutHelpers.BaseRow = lh.basesPerRow;
+      // if (_this.layoutHelpers.BaseRow === undefined)
+      //   _this.layoutHelpers.BaseRow = lh.basesPerRow;
 
-      if (_this.layoutHelpers.BaseRow > lh.basesPerRow) {
-        _this.layoutHelpers.yOffsetPrevious = lh.yOffset;
-        lh.yOffset = _this.getYPosFromBase(_this.layoutHelpers.BasePosition);
-      } else {
-        if (_this.layoutHelpers.yOffsetPrevious !== undefined)
-          lh.yOffset = _this.layoutHelpers.yOffsetPrevious;
+      // if (_this.layoutHelpers.BaseRow > lh.basesPerRow) {
+      //   _this.layoutHelpers.yOffsetPrevious = lh.yOffset;
+      //   lh.yOffset = _this.getYPosFromBase(_this.layoutHelpers.BasePosition);
+      // } else {
+      //   if (_this.layoutHelpers.yOffsetPrevious !== undefined)
+      //     lh.yOffset = _this.layoutHelpers.yOffsetPrevious;
+      // }
+
+      if(lh.firstBase) {
+        lh.yOffset = _this.getYPosFromBase(lh.firstBase);
+        lh.firstBase = undefined;
       }
 
       _this.$scrollingParent.scrollTop(lh.yOffset);
@@ -471,6 +478,21 @@ define(function(require) {
   };
 
   /**
+  Updates layout settings and redraws canvas when resizing. 
+  Keeps the first base the same
+  @method refreshFromResize
+  **/
+  SequenceCanvas.prototype.refreshFromResize = function() {
+    var layoutHelpers = this.layoutHelpers;
+
+    layoutHelpers.firstBase = this.getBaseRangeFromYPos(
+      this.layoutSettings.pageMargins.top + 
+      (layoutHelpers.yOffset || 0)
+    )[0];
+    this.refresh();
+  };
+
+  /**
   Redraws canvas on the next animation frame
   @method redraw
   **/
@@ -486,7 +508,7 @@ define(function(require) {
 
     if (yOffset !== undefined) {
 
-      this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
+      // this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
       this.sequence.set('displaySettings.yOffset',
         layoutHelpers.yOffset = yOffset, {
           silent: true

@@ -51,8 +51,6 @@ define(function(require){
       canvas.width = width * pixelRatio;
       canvas.height = height * pixelRatio;
     }
-
-    console.log(canvas)
     
     this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   };
