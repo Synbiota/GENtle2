@@ -56,18 +56,19 @@ define(function(require) {
         currentView = 'edition';
 
       this.primaryViews = primaryViews;
-      this.changePrimaryView(currentView);
+      this.changePrimaryView(currentView, false);
     },
 
-    changePrimaryView: function(viewName) {
+    changePrimaryView: function(viewName, render) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
           actualView = new primaryView.view();
 
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
-      this.insertView('#sequence-primary-view-outlet', actualView);
+      this.setView('#sequence-primary-view-outlet', actualView);
       actualView.parentView = this;
+      if(render !== false) actualView.render();
     },
 
     afterRender: function() {
