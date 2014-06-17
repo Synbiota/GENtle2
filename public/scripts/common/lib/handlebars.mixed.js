@@ -70,7 +70,28 @@ define(function(require) {
     return _.shortFormNumber(context);
   });
 
+  /**
+  If conditionals with union
+  @method Handlebars##ifOr
+  **/
+  Handlebars.registerHelper('ifOr', function() {
+    var args = _.toArray(arguments),
+        options = args.pop(),
+        isTrue;
 
+    isTrue =  _.some(
+                _.map(args, function(arg) { 
+                  return _.isFunction(arg) ? arg.call(this) : arg; 
+                })
+              );
+
+    if (!isTrue) {
+      return options.inverse(this);
+    } else {
+      return options.fn(this);
+    }
+
+  });
 
   return Handlebars;
 });

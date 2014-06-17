@@ -104,6 +104,38 @@ define(function(require) {
           magOrder = Math.round(Math.log10(number) / 3),
           roundedNumber = Math.round(number / Math.pow(10, magOrder * 3) * 100) / 100;
       return roundedNumber.toString() + suffixes[magOrder];
+    },
+
+    /**
+    Returns a randomized unique ID
+
+    Inspired by http://stackoverflow.com/a/6860916/916312
+
+    @method _.uniqueId
+    **/
+    uniqueId: function() {
+      return +(new Date()) + '-' + (((1+Math.random())*0x10000)|0).toString(16);
+    },
+
+    /**
+    Deep clones an object. Will only work properly with simple objects/arrays
+    Adapted from a rejected underscore pull request 
+    https://github.com/jashkenas/underscore/blob/95ada0839e5ee206e72d831dd62b5e41f18fdcae/underscore.js
+    @method _.deepClone
+    **/
+    deepClone: function(obj) {
+      if (!_.isObject(obj) || _.isFunction(obj)) return obj;
+      if (_.isDate(obj)) return new Date(obj.getTime());
+      if (_.isRegExp(obj)) return new RegExp(obj.source, obj.toString().replace(/.*\//, ""));
+      var isArr = (_.isArray(obj) || _.isArguments(obj));
+      var func = function (memo, value, key) {
+        if (isArr)
+          memo.push(_.clone(value, true));
+        else
+          memo[key] = _.clone(value, true);
+        return memo;
+      };
+      return _.reduce(obj, func, isArr ? [] : {});
     }
 
 

@@ -41,7 +41,7 @@ define(function(require) {
     triggerSearch: function(event) {
       var $form = this.$('form'),
           searchTerm = $form.find('input[name="search"]').val(),
-          NCBIIdRegexp = /[A-Z]{1,3}\d{1,10}(\.\d{1,5})?/i;
+          NCBIIdRegexp = /^\s*[A-Z]{1,3}\B\d{1,10}(\.\d{1,5})?\s*$/i;
 
       event.preventDefault();
       this.searchTerm = searchTerm;

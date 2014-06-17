@@ -1,6 +1,6 @@
 define(function(require) {
   var $ = require('jquery'),
-      _ = require('underscore');
+      _ = require('underscore.mixed');
 
   //________________________________________________________________________________________
   // SYBIL - SYnthetic Biology Interchange Language
@@ -122,8 +122,7 @@ define(function(require) {
   **/
   FT_sybil.prototype.parseFile = function () {
     var sybil           = $($.parseXML(this.text)),
-        sequences       = [],
-        lastFeatureId   = -1;
+        sequences       = [];
 
     sybil.find('session').each ( function ( k1 , v1 ) {
       $(v1).find('circuit').each ( function ( k2 , v2 ) {
@@ -142,7 +141,7 @@ define(function(require) {
           var feature = {} ;
           feature.ranges = [] ;
           feature.desc = $(v3).text() ; // TODO exons
-          feature._id = ++lastFeatureId;
+          feature._id = _.uniqueId();
           $.each ( attrs , function ( dummy , ak ) {
             var av = $(v3).attr(ak) ;
             if ( ak == 'start' ) start = av*1 ;
