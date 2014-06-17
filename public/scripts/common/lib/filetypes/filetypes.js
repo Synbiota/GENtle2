@@ -16,6 +16,7 @@ define(function(require) {
   var FT_plaintext    = require('common/lib/filetypes/plaintext'),
       FT_sybil        = require('common/lib/filetypes/sybil'),
       FT_genebank     = require('common/lib/filetypes/genebank'),
+      FT_scf          = require('common/lib/filetypes/scf'),
       Q               = require('q'),
       saveAs          = require('saveAs'),
       Filetype;
@@ -28,6 +29,7 @@ define(function(require) {
     // fasta:      FT_fasta,
     genebank:   FT_genebank,
     plaintext:  FT_plaintext,
+    scf:        FT_scf,
     // scf2json:   FT_scf2json,
     sybil:      FT_sybil,
   };
