@@ -241,7 +241,7 @@ define(function(require) {
 
     // Kickstart rendering
     this.refresh();
-    console.log('test')
+//    console.log('test')
   };
 
   _.extend(SequenceCanvas.prototype, Backbone.Events);
