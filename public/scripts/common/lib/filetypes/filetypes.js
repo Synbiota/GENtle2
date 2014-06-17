@@ -47,10 +47,14 @@ define(function(require) {
     return Q.promise(function(resolve, reject) {
       text = text.trim();
       for(var filetypeName in Filetypes.types) {
-        var file = new Filetypes.types[filetypeName]();
-        file.file = {name: name || 'Unnamed'};
-        sequences = file.checkAndParseText(text);
-        if(sequences.length) break;
+        try {
+          var file = new Filetypes.types[filetypeName]();
+          file.file = {name: name || 'Unnamed'};
+          sequences = file.checkAndParseText(text);
+          if(sequences.length) break;
+        } catch (err) {
+          reject(err);
+        }  
       }
       
       resolve(sequences);
