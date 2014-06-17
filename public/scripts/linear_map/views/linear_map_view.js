@@ -39,7 +39,7 @@ define(function(require) {
         _.each(feature.ranges, function(range) {
           _this.features.push({
             name: feature.name,
-            id: feature.id,
+            id: ++id,
             from: range.from,
             to: range.to,
             type: feature._type.toLowerCase()
