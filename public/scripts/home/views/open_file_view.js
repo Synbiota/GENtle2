@@ -28,7 +28,7 @@ define(function(require) {
 
       var onLoad = function(result) {
         var sequences = Filetypes.guessTypeAndParseFromText(result.content, result.name);
-        Gentle.addSequencesAndNavigate(sequences);
+        sequences.then(Gentle.addSequencesAndNavigate);
       };
 
       var onError = function(filename) {
