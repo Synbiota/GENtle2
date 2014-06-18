@@ -14,13 +14,15 @@ define(function(require) {
     },
 
     processChunks: function() {
-      var id = -1,
+      var id = 0,
           features = [],
           chunks = [],
           chunkId = -1,
           lastChunkEndBase = -1,
           lastBase = this.model.length() - 1,
-          _this = this;
+          _this = this,
+          type;
+
 
       _.each(_.reject(this.model.get('features'), function(feature) {
         var featureTypeData = SynbioData.featureTypes[feature._type];
@@ -34,7 +36,7 @@ define(function(require) {
             featureId: feature._id,
             from: range.from,
             to: range.to,
-            type: feature._type.toLowerCase()
+            type: ''
           });
         });
       });
@@ -121,6 +123,7 @@ define(function(require) {
 
       featureAndSubSeq = this.getFeatureFromDraggable($draggable);
 
+
       chunk = _.findWhere(this.chunks, {
         id: $droppable.closest("[data-chunk-id]").data('chunkId')
       });
@@ -128,8 +131,13 @@ define(function(require) {
       insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
         chunk.from : 
         chunk.to + 1;
-
+     if(featureAndSubSeq.feature.type==='Sequence'){
+      this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature[0], true);
+     }
+     else
+     {
       this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+     }
     },
 
     insertFirstAnnotationFromAvailableSequence: function($draggable) {
@@ -150,10 +158,21 @@ define(function(require) {
         id: $draggable.data('featureId')
       });
 
+      sequence =_.findWhere(availableSequenceView.sequence, {
+        id: 0
+      });
+
+      if(feature){
       return {
         feature: feature,
         subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
-      };
+      };}
+      else if(sequence){
+      return {
+        feature: sequence,
+        subSeq: availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
+      }; 
+      }
     },
 
     afterRender: function() {

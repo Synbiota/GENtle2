@@ -247,6 +247,26 @@ define(function(require) {
       this.createFeature(newFeature);
     },
 
+    insertSequenceAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
+      var newFeature = _.deepClone(feature.feature);
+      newFeature.ranges = [{
+        from: beforeBase+feature.from-1,
+        to: beforeBase + feature.to - 1
+      }];
+      this.insertBases(bases, beforeBase, updateHistory);
+      this.createFeature(newFeature);
+    },
+
+      insertBasesAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
+      var newFeature = _.deepClone(feature);
+      newFeature.ranges = [{
+        from: beforeBase,
+        to: beforeBase + bases.length - 1
+      }];
+      this.insertBases(bases, beforeBase, updateHistory);
+      this.createFeature(newFeature);
+    },
+
     deleteBases: function(firstBase, length, updateHistory) {
       var seq = this.get('sequence'),
           subseq, linkedHistoryStepTimestamps;

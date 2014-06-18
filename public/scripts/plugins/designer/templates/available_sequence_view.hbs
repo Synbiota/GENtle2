@@ -1,4 +1,7 @@
-<h6>{{sequence.name}}</h6>
+{{#each sequence}}
+<h6>{{name}}</h6>
+<div class="designer-available-sequence-feature" data-entireSeq-id="{{id}}">Entire Sequence</div>
+{{/each}}
 
 <div class="designer-available-sequence-features">
   {{#each features}}

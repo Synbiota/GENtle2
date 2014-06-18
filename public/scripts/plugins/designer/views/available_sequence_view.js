@@ -11,10 +11,11 @@ define(function(require) {
     minFeatureWidth: 4,
 
     processFeatures: function() {
-      var id = -1,
+      var id = 0,
           _this = this;
 
       this.features = [];
+      this.sequence =[];
 
       _.each(_.reject(this.model.get('features'), function(feature) {
         var featureTypeData = SynbioData.featureTypes[feature._type];
@@ -36,6 +37,15 @@ define(function(require) {
       this.features = _.sortBy(this.features, function(feature) {
         return feature.from;
       });
+      this.sequence.push({
+            name: this.model.get('name'),
+            id: 0,
+            from:1,
+            to: this.model.get('sequence').length,
+            type: 'Sequence',
+            feature: this.features,
+            hidden: true
+          });
     },
 
     positionFeatures: function() {
@@ -44,22 +54,30 @@ define(function(require) {
           $featureElement, feature, featureWidth,
           overlapStack = [], overlapIndex,
           maxOverlapStackIndex = 0,
+          entireSeqWidth = 100,
           $featuresElem;
 
-      for(var i = 0; i < this.features.length; i++) {
+      for(var i = 1; i < this.features.length; i++) {
         feature = this.features[i];
+        sequence = this.sequence[0];
         featureWidth = Math.max(
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
         );
         $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
+        $sequenceElement = this.$('[data-entireSeq-id="'+0+'"]');
 
         $featureElement.css({
           width: featureWidth,
           left: Math.floor(feature.from / maxBase * viewWidth),
         });
 
-        overlapIndex = overlapStack.length;
+        $sequenceElement.css({
+          width: entireSeqWidth,
+          left: Math.floor(feature.from / maxBase * viewWidth),
+        });
+
+       overlapIndex = overlapStack.length;
 
         for(var j = overlapStack.length - 1; j >= 0; j--) {
           if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
@@ -67,13 +85,13 @@ define(function(require) {
             overlapIndex = j;
           }
         }
-
+        $sequenceElement.addClass('designer-available-sequence-feature-stacked-'+0);
         $featureElement.addClass('designer-available-sequence-feature-stacked-'+overlapIndex);
 
         overlapStack[overlapIndex] = [feature.from, feature.to];
         maxOverlapStackIndex = Math.max(maxOverlapStackIndex, overlapStack.length);
       }
-
+      $sequenceElement = this.$('.designer-available-sequence-features');
       $featuresElem = this.$('.designer-available-sequence-features');
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
     },
@@ -81,7 +99,7 @@ define(function(require) {
     serialize: function() {
       this.processFeatures();
       return {
-        sequence: this.model.serialize(),
+        sequence: this.sequence,
         features: this.features
       };
     },
