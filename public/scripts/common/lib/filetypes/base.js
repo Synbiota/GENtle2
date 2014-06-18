@@ -14,6 +14,13 @@ define(function(require) {
     return a;
   };
 
+  FT_base.prototype.asString = function () {
+  	var me = this ;
+  	if ( typeof me.ascii != 'undefined' ) return me.ascii ;
+  	me.ascii = String.fromCharCode.apply(null, new Uint8Array(me.text));
+  	return me.ascii ;
+  }
+
   FT_base.prototype.stringToBytes = function ( str ) {
   /*
     var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char

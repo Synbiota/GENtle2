@@ -18,6 +18,7 @@ define(function(require) {
       FT_sybil        = require('common/lib/filetypes/sybil'),
       FT_genebank     = require('common/lib/filetypes/genebank'),
       FT_scf          = require('common/lib/filetypes/scf'),
+      FT_abi          = require('common/lib/filetypes/abi'),
       Q               = require('q'),
       saveAs          = require('saveAs'),
       Filetype;
@@ -31,6 +32,7 @@ define(function(require) {
     genebank:   FT_genebank,
     plaintext:  FT_plaintext,
     scf:        FT_scf,
+    abi:        FT_abi,
     // scf2json:   FT_scf2json,
     sybil:      FT_sybil,
   };
@@ -46,7 +48,7 @@ define(function(require) {
     var sequences = [];
 
     return Q.promise(function(resolve, reject) {
-      text = text.trim();
+//      text = text.trim();
       for(var filetypeName in Filetypes.types) {
         try {
           var file = new Filetypes.types[filetypeName]();

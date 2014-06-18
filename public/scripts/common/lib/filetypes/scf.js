@@ -53,8 +53,8 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 
 	// START SCF PARSING HERE
 
-	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
-	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
+	var text_array = me.text ;
+//	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
 	var bytes = new Uint8Array(text_array);
 	
 

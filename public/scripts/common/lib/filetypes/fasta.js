@@ -35,7 +35,7 @@ define(function(require) {
 
   FT_fasta.prototype.parseFile = function () {
     var ret = [] ;
-    var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
+    var lines = this.asString().replace(/\r/g,'').split ( "\n" ) ;
     var name = '' ;
     var seq = '' ;
     $.each ( lines , function ( k , v ) {
@@ -53,7 +53,7 @@ define(function(require) {
   };
 
   FT_fasta.prototype.textHeuristic = function () {
-    if ( this.text.match ( /^\>/ ) ) return true ;
+    if ( this.asString().match ( /^\>/ ) ) return true ;
     return false ;
   };
 

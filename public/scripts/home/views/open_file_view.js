@@ -41,7 +41,7 @@ define(function(require) {
       };
 
       _.each(input.files, function(file) {
-        Filetypes.loadFile(file).done(onLoad, onError);
+        Filetypes.loadFile(file,true).done(onLoad, onError);
       });
     },
 

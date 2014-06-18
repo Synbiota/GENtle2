@@ -20,13 +20,13 @@ define(function(require) {
   FT_genebank.prototype.constructor = FT_genebank ;
 
   FT_genebank.prototype.textHeuristic = function () {
-    if ( this.text.match ( /^LOCUS\s+/i ) ) return true ;
+    if ( this.asString().match ( /^LOCUS\s+/i ) ) return true ;
     return false ;
   }
 
 
   FT_genebank.prototype.parseText = function ( text ) {
-    this.text = text ;
+    this.ascii = text ;
     this.fileTypeValidated = true ;
   //  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
     this.parseFile () ;
@@ -34,7 +34,7 @@ define(function(require) {
 
   FT_genebank.prototype.parseFile = function () {
     var ret = [] ;
-    var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
+    var lines = this.asString().replace(/\r/g,'').split ( "\n" ) ;
 
     var mode = '' ;
     var seq = {features: [], sequence: ''} ;
