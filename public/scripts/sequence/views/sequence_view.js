@@ -8,6 +8,8 @@ define(function(require) {
       Gentle                  = require('gentle')(),
       SequenceSettingsView    = require('./settings_view'),
       SequenceEditionView     = require('./sequence_edition_view'),
+      StatusbarView           = require('common/views/statusbar_view'),
+      StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       Backbone                = require('backbone.mixed'),
       SequenceView;
   
@@ -17,13 +19,15 @@ define(function(require) {
     className: 'sequence-view',
 
     initialize: function() {
-      var _this = this;
+      var _this = this,
+          statusbarView;
 
       this.model = Gentle.currentSequence;
       
       this.sequenceSettingsView = new SequenceSettingsView();
       this.sequenceSettingsView.parentView = this;
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
+
 
       // this.primaryViewSwitcherView = new PrimaryViewSwitcherView();
       // this.primaryViewSwitcherView.parentView = this;
@@ -34,6 +38,18 @@ define(function(require) {
       $(window).on('resize', this.handleResize);
 
       this.initPrimaryViews();
+      this.initStatusbarView();
+    },
+
+    initStatusbarView: function() {
+      statusbarView = this.statusbarView = new StatusbarView();
+      statusbarView.parentView = this;
+      this.setView('.sequence-statusbar-outlet', statusbarView);
+      statusbarView.addSection({
+        name: 'primaryView',
+        view: new StatusbarPrimaryViewView()
+      });
+      this.listenTo(this.model, 'change:displaySettings.primaryView', statusbarView.render, statusbarView);
     },
 
     initPrimaryViews: function(trigger) {

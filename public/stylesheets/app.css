@@ -8258,7 +8258,7 @@ button.close {
 #sequence-primary-view-outlet {
   position: absolute;
   top: 0;
-  bottom: 0;
+  bottom: 18px;
   right: 0;
 }
 
@@ -8290,6 +8290,13 @@ button.close {
 /* line 38, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent:focus {
   outline: none;
+}
+
+/* line 44, views/_sequence_view.scss */
+.sequence-statusbar-outlet {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
 }
 
 /* line 1, views/_sidebar_view.scss */
@@ -8464,6 +8471,21 @@ button.close {
 /* line 150, views/_sidebar_view.scss */
 .sidebar > div.active .sidebar-tab-link > span {
   display: inline;
+}
+
+/* line 1, views/_statusbar_view.scss */
+.statusbar {
+  height: 20px;
+  font-size: 11px;
+  background-color: #e5e5e5;
+  border-top: 1px solid #ddd;
+}
+/* line 7, views/_statusbar_view.scss */
+.statusbar .statusbar-section {
+  background: white;
+  padding: 2px 10px 2px 10px;
+  border-right: 1px solid #ddd;
+  float: left;
 }
 
 /* line 1, components/_caret.scss */
