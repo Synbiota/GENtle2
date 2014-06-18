@@ -2,7 +2,8 @@ define(function(require) {
   var Backbone = require('backbone.mixed'),
       template = require('hbars!../templates/available_sequence_view'),
       SynbioData = require('common/lib/synbio_data'),
-      AvailableSequenceView;
+      AvailableSequenceView,
+      hidden;
 
   AvailableSequenceView = Backbone.View.extend({
     template: template,
@@ -37,6 +38,12 @@ define(function(require) {
       this.features = _.sortBy(this.features, function(feature) {
         return feature.from;
       });
+
+      if(this.model.maxOverlappingFeatures()<=1)
+        hidden = false;
+      else
+        hidden = true;
+
       this.sequence.push({
             name: this.model.get('name'),
             id: 0,
@@ -44,22 +51,23 @@ define(function(require) {
             to: this.model.get('sequence').length,
             type: 'Sequence',
             feature: this.features,
-            hidden: true
+            hidden: hidden
           });
     },
 
     positionFeatures: function() {
       var maxBase = this.maxBaseForCalc || this.model.length(),
           viewWidth = this.$el.width(),
-          $featureElement, feature, featureWidth,
+          $featureElement, feature, featureWidth,sequence,
           overlapStack = [], overlapIndex,
-          maxOverlapStackIndex = 0,
-          entireSeqWidth = 100,
+          maxOverlapStackIndex = 0, length,
           $featuresElem;
 
-      for(var i = 1; i < this.features.length; i++) {
+       //setting left offset
+       length = this.model.get('name').length +20;
+
+       for(var i = 1; i < this.features.length; i++) {
         feature = this.features[i];
-        sequence = this.sequence[0];
         featureWidth = Math.max(
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
@@ -73,8 +81,10 @@ define(function(require) {
         });
 
         $sequenceElement.css({
-          width: entireSeqWidth,
-          left: Math.floor(feature.from / maxBase * viewWidth),
+          width: 100,  
+          bottom: 0,
+          height: 25,
+          left: length,
         });
 
        overlapIndex = overlapStack.length;
@@ -85,13 +95,12 @@ define(function(require) {
             overlapIndex = j;
           }
         }
-        $sequenceElement.addClass('designer-available-sequence-feature-stacked-'+0);
+        $sequenceElement.addClass('designer-available-sequence-features');
         $featureElement.addClass('designer-available-sequence-feature-stacked-'+overlapIndex);
 
         overlapStack[overlapIndex] = [feature.from, feature.to];
         maxOverlapStackIndex = Math.max(maxOverlapStackIndex, overlapStack.length);
       }
-      $sequenceElement = this.$('.designer-available-sequence-features');
       $featuresElem = this.$('.designer-available-sequence-features');
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
     },

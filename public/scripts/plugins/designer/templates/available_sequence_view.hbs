@@ -1,8 +1,14 @@
 {{#each sequence}}
+<div class="designer-available-sequence-features-entireseq">
 <h6>{{name}}</h6>
-<div class="designer-available-sequence-feature" data-entireSeq-id="{{id}}">Entire Sequence</div>
-{{/each}}
 
+{{#unless hidden}}
+
+<div class="designer-available-sequence-feature-entireseq" data-entireSeq-id="{{id}}">Entire Sequence</div>
+{{/unless}}
+
+</div>
+{{/each}}
 <div class="designer-available-sequence-features">
   {{#each features}}
     <div class="designer-available-sequence-feature" data-feature-id="{{id}}">
