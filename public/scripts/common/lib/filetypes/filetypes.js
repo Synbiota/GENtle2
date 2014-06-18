@@ -77,6 +77,19 @@ define(function(require) {
   };
 
   /**
+  @method exportToString
+  **/
+  Filetypes.exportToString = function(format, sequence)  {
+    var FileType = Filetypes.types[format],
+        file;
+    if(FileType === undefined) {
+      throw new TypeError();
+    }
+    file = new FileType();
+    return file.getExportString(sequence);
+  };
+
+  /**
   Loads the file and returns the text content (Class method)
   @method loadFile
   @param {Blob} file
