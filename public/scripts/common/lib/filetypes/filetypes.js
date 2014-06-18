@@ -14,6 +14,7 @@ define(function(require) {
   //     Filetype;
 
   var FT_plaintext    = require('common/lib/filetypes/plaintext'),
+      FT_fasta        = require('common/lib/filetypes/fasta'),
       FT_sybil        = require('common/lib/filetypes/sybil'),
       FT_genebank     = require('common/lib/filetypes/genebank'),
       FT_scf          = require('common/lib/filetypes/scf'),
@@ -26,7 +27,7 @@ define(function(require) {
   Filetypes.types = {
     // cm5:        FT_cm5,
     // cm5_text:   FT_cm5_text,
-    // fasta:      FT_fasta,
+    fasta:      FT_fasta,
     genebank:   FT_genebank,
     plaintext:  FT_plaintext,
     scf:        FT_scf,
