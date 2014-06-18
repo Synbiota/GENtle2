@@ -5,6 +5,7 @@
 **/
 define(function(require) {
   var Backbone      = require('backbone.mixed'),
+      _             = require('underscore.mixed'),
       template      = require('hbars!common/templates/sidebar_view'),
       SidebarView;
 
@@ -21,23 +22,15 @@ define(function(require) {
       'mouseout .sidebar-tab': 'mouseoutTab'
     },
 
-    addTab: function() {
-      var name = arguments[0],
-          title = arguments[1],
-          icon = arguments[2],
-          view = arguments[3],
-          maxHeighted = !!arguments[4],
-          hoverable = !!arguments[5];
-
-      view.parentView = this;
-      this.tabs[name] = {
-        name: name, 
-        title: title, 
-        icon: icon,
-        view: view,
-        maxHeighted: maxHeighted,
-        hoverable: hoverable
-      };
+    addTab: function(options) {
+      var _this = this;
+      if(!_.isArray(options)) options = [options];
+      _.each(options, function(options_) {
+        options_.maxHeighted = !!options_.maxHeighted;
+        options_.hoverable = !!options_.hoverable;
+        options_.view.parentView = _this;
+        _this.tabs[options_.name] = options_;
+      });
     },
 
     closeOpenTabs: function() {
@@ -146,7 +139,7 @@ define(function(require) {
       return {
         openTab: this.openTab,
         sidebarName: this.sidebarName,
-        tabs: this.tabs
+        tabs: this.getVisibleTabs()
       };
     },
 
@@ -158,11 +151,17 @@ define(function(require) {
       }
     },
 
+    getVisibleTabs: function() {
+      return _.filter(this.tabs, function(tab) {
+        return tab.visible === undefined || tab.visible();
+      });
+    },
+
     insertTabs: function() {
       var _this = this,
           name;
 
-      _.each(this.tabs, function(tab) {
+      _.each(this.getVisibleTabs(), function(tab) {
         name = '#' + _this.sidebarName + '-' + tab.name ;
         _this.setView(name+ '-tab .sidebar-tab-outlet', tab.view).render();
         tab.view.$toggleButton = this.$('[href="' + name + '"]');

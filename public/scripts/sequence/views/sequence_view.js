@@ -68,7 +68,10 @@ define(function(require) {
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
       actualView.parentView = this;
-      if(render !== false) actualView.render();
+      if(render !== false) {
+        actualView.render();
+        this.sequenceSettingsView.render();
+      }
     },
 
     afterRender: function() {
