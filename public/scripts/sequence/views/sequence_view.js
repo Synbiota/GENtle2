@@ -49,6 +49,9 @@ define(function(require) {
         name: 'primaryView',
         view: new StatusbarPrimaryViewView()
       });
+      _.each(_.where(Gentle.plugins, {type: 'sequence-statusbar-section'}), function(plugin) {
+        statusbarView.addSection(plugin.data);
+      });
       this.listenTo(this.model, 'change:displaySettings.primaryView', statusbarView.render, statusbarView);
     },
 
