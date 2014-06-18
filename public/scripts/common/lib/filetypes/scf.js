@@ -53,7 +53,8 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 
 	// START SCF PARSING HERE
 
-	var text_array = me.text ;
+	var text_array = me.asArrayBuffer() ;
+	if ( typeof text_array == 'undefined' ) return false ;
 //	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
 	var bytes = new Uint8Array(text_array);
 	

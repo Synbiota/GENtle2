@@ -27,7 +27,7 @@ define(function(require) {
           _this     = this;
 
       var onLoad = function(result) {
-        Filetypes.guessTypeAndParseFromText(result.content, result.name).then ( function ( sequences ) {
+        Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
           if ( sequences.length ) Gentle.addSequencesAndNavigate(sequences);
            else alert('Could not parse the sequence.');
         } , function (err) {

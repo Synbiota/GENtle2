@@ -48,7 +48,7 @@ define(function(require) {
     var sequences = [];
 
     return Q.promise(function(resolve, reject) {
-//      text = text.trim();
+      text = text.trim();
       for(var filetypeName in Filetypes.types) {
         try {
           var file = new Filetypes.types[filetypeName]();
@@ -64,6 +64,39 @@ define(function(require) {
     });
     
   };
+  
+  
+  /**
+  Guesses filetype and parse sequence from ArrayBuffer (Class method)
+  @method guessTypeAndParseFromArrayBuffer
+  @param {string} text sequence
+  @param {string optional} name
+  @return {array} Array of sequences as POJOs
+  **/
+  Filetypes.guessTypeAndParseFromArrayBuffer = function(ab, name) {
+    var sequences = [];
+
+    return Q.promise(function(resolve, reject) {
+      for(var filetypeName in Filetypes.types) {
+        try {
+          var file = new Filetypes.types[filetypeName]();
+          file.file = {name: name || 'Unnamed'};
+          sequences = file.checkAndParseArrayBuffer(ab);
+          if(sequences.length) break;
+        } catch (err) {
+          reject(err);
+        }  
+      }
+      
+      resolve(sequences);
+    });
+    
+  };
+  
+  
+  
+  
+  
 
   /**
   @method exportToFile
@@ -113,8 +146,9 @@ define(function(require) {
     });
     
     // Read in the image file as a data URL.
-    if ( read_binary === true ) reader.readAsArrayBuffer(file);
-    else reader.readAsText(file);
+    //if ( read_binary === true ) 
+    reader.readAsArrayBuffer(file);
+    //else reader.readAsText(file);
 
     return promise;
   };

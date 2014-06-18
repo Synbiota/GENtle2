@@ -67,9 +67,8 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 
 //	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
 //	var text_array = str2ab ( me.text ) ;
-	var text_array = me.text ;
-//	console.log ( text_array ) ;
-//	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
+	var text_array = me.asArrayBuffer() ;
+	if ( typeof text_array == 'undefined' ) return false ;
 	var bytes = new Uint8Array(text_array);
 	
 
@@ -304,7 +303,7 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	}
 
   FT_abi.prototype.parseText = function ( text ) {
-    this.text = text ;
+    this.text = text ; // Huh?
     this.fileTypeValidated = true ;
   //  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
     this.parseFile () ;
