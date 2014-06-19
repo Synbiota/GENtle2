@@ -7908,7 +7908,7 @@ button.close {
   background-size: 40px 40px;
   background-color: rgba(221, 221, 221, 0.5);
   position: absolute;
-  left: 0;
+  left: 0;nce
   width: 300px;
   bottom: 0;
   top: 0;
@@ -8033,6 +8033,10 @@ button.close {
   padding: 10px 20px;
   border-bottom: 1px solid #ddd;
 }
+
+.designer-available-sequence-entire-outlet {
+  padding: 10px 20px;
+}
 /* line 124, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence {
   position: relative;
@@ -8044,14 +8048,12 @@ button.close {
   border-right: 1px dashed #444;
   margin-top: 10px;
 }
-.designer-available-sequence-features-entireseq{
-  position: relative;
-  margin-top: 10px;
+.designer-available-sequence-features-entire{
+position: absolute;
+bottom: 50px;
+width: 100px;
 }
 /* line 135, views/_designer_view.scss */
-.designer-available-sequence-features-entireseq.designer-available-sequence-features-entireseq-max-overlap-0 {
-  height: 16px;
-}
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-0 {
   height: 16px;
 }
@@ -8103,14 +8105,17 @@ button.close {
   text-align: center;
 }
 
- .designer-available-sequence-feature-entireseq {
-  position: absolute;   
+ .designer-available-sequence-entire {
+  position: relative;   
   background: #333;
   color: white;
   font-size: 10px;
   box-sizing: border-box;
   padding: 5px 3px;
   cursor: move;
+  width: 100px;
+  height: 25px;
+  bottom: 0px;
   text-align: center;
 }
 /* line 151, views/_designer_view.scss */
@@ -8123,7 +8128,7 @@ button.close {
   z-index: 2000;
 }
 
-.designer-available-sequence-feature-entireseq.ui-draggable-dragging {
+.designer-available-sequence-entire-outlet .designer-available-sequence-entire.ui-draggable-dragging {
   padding: 5px 10px;
   background: #ddd;
   color: black;
@@ -8131,10 +8136,7 @@ button.close {
   box-shadow: 0 0 3px rgba(34, 34, 34, 0.5);
   z-index: 2000;
 }
-/* line 161, views/_designer_view.scss */
-.designer-available-sequence-feature-entireseq.designer-available-sequence-feature-entireseq-stacked-0 {
-  top: 10px;
-}
+
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-0 {
   top: 10px;
 }

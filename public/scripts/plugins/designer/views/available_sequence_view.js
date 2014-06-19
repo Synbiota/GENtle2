@@ -66,6 +66,9 @@ define(function(require) {
        //setting left offset
        length = this.model.get('name').length +20;
 
+               console.log(length);
+
+
        for(var i = 1; i < this.features.length; i++) {
         feature = this.features[i];
         featureWidth = Math.max(
@@ -81,9 +84,6 @@ define(function(require) {
         });
 
         $sequenceElement.css({
-          width: 100,  
-          bottom: 0,
-          height: 25,
           left: length,
         });
 
@@ -95,12 +95,13 @@ define(function(require) {
             overlapIndex = j;
           }
         }
-        $sequenceElement.addClass('designer-available-sequence-features');
+        $sequenceElement.addClass('designer-available-sequence-entire');
         $featureElement.addClass('designer-available-sequence-feature-stacked-'+overlapIndex);
 
         overlapStack[overlapIndex] = [feature.from, feature.to];
         maxOverlapStackIndex = Math.max(maxOverlapStackIndex, overlapStack.length);
       }
+
       $featuresElem = this.$('.designer-available-sequence-features');
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
     },
