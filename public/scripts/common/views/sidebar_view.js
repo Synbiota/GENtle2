@@ -28,7 +28,9 @@ define(function(require) {
       _.each(options, function(options_) {
         options_.maxHeighted = !!options_.maxHeighted;
         options_.hoverable = !!options_.hoverable;
-        options_.viewClass = options_.view;
+        if(options_.viewClass === undefined) {
+          options_.viewClass = options_.view;
+        }
         options_.view = new options_.viewClass();
         options_.view.parentView = _this;
         options_.iconIsImage = /\//.test(options_.icon);
