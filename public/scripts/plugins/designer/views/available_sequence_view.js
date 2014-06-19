@@ -70,8 +70,6 @@ define(function(require) {
           left: length,
         });
 
-        console.log(length);
-
        for(var i = 1; i < this.features.length; i++) {
         feature = this.features[i];
         featureWidth = Math.max(

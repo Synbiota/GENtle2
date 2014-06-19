@@ -30,11 +30,8 @@ define(function(require) {
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
         _.each(feature.ranges, function(range) {
-          console.log('XXXXXX');
-          console.log(feature);
           if(feature.type !== 'Sequence'){
-          console.log('***     '+feature.name);
-          features.push({
+            features.push({
             name: feature.name,
             id: ++id,
             featureId: feature._id,
@@ -141,8 +138,6 @@ define(function(require) {
      }
      else
      {
-      console.log('OLA');
-      console.log(featureAndSubSeq.feature.feature);
       this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
      }
     },

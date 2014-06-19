@@ -249,23 +249,13 @@ define(function(require) {
 
     insertSequenceAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
       var _this = this;
-
       this.insertBases(bases, beforeBase, updateHistory);
-console.log('--------------');
-            console.log(feature);
-            console.log(feature.feature[0].ranges);
-            console.log(beforeBase);
-console.log('--------------');
-
-
       if(feature.id ===0)
       _.each(feature.feature,function(feature){
         feature.ranges = [{
         from: beforeBase+feature.from,
         to: beforeBase + feature.to
        }];
-
-       console.log(feature);
 
       _this.createFeature(feature); });
     },
