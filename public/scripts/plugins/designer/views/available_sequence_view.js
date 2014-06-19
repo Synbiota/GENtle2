@@ -66,8 +66,7 @@ define(function(require) {
        //setting left offset
        length = this.model.get('name').length +20;
 
-               console.log(length);
-
+       console.log(length);
 
        for(var i = 1; i < this.features.length; i++) {
         feature = this.features[i];
@@ -77,15 +76,22 @@ define(function(require) {
         );
         $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
         $sequenceElement = this.$('[data-entireSeq-id="'+0+'"]');
+  
 
         $featureElement.css({
           width: featureWidth,
           left: Math.floor(feature.from / maxBase * viewWidth),
         });
 
+                console.log($featureElement);
+
+
         $sequenceElement.css({
           left: length,
         });
+
+                console.log($sequenceElement);
+
 
        overlapIndex = overlapStack.length;
 
