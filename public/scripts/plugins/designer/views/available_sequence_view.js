@@ -63,8 +63,15 @@ define(function(require) {
           $featuresElem;
 
        //setting left offset
-       length = this.model.get('name').length +20;
-       
+       length = this.model.get('name').length * 10;
+       $sequenceElement = this.$('[data-entireSeq-id="'+0+'"]');
+
+        $sequenceElement.css({
+          left: length,
+        });
+
+        console.log(length);
+
        for(var i = 1; i < this.features.length; i++) {
         feature = this.features[i];
         featureWidth = Math.max(
@@ -72,7 +79,6 @@ define(function(require) {
           this.minFeatureWidth
         );
         $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
-        $sequenceElement = this.$('[data-entireSeq-id="'+0+'"]');
   
 
         $featureElement.css({
@@ -80,10 +86,6 @@ define(function(require) {
           left: Math.floor(feature.from / maxBase * viewWidth),
         });
 
-
-        $sequenceElement.css({
-          left: length,
-        });
 
        overlapIndex = overlapStack.length;
 
@@ -115,6 +117,14 @@ define(function(require) {
     afterRender: function() {
       this.positionFeatures();
       this.$('.designer-available-sequence-feature').draggable({
+        revert: 'invalid',
+        helper: 'clone',
+        cursorAt: {
+          top: 5,
+          left: 5
+        }
+      });
+       this.$('.designer-available-sequence-entireseqs').draggable({
         revert: 'invalid',
         helper: 'clone',
         cursorAt: {
