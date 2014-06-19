@@ -47,7 +47,7 @@ define(function(require) {
       this.setView('.sequence-statusbar-outlet', statusbarView);
       statusbarView.addSection({
         name: 'primaryView',
-        view: new StatusbarPrimaryViewView()
+        view: StatusbarPrimaryViewView
       });
       _.each(_.where(Gentle.plugins, {type: 'sequence-statusbar-section'}), function(plugin) {
         statusbarView.addSection(plugin.data);

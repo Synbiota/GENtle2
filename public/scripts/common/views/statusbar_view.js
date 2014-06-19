@@ -9,9 +9,10 @@ define(function(require) {
     hasRendered: false,
 
     addSection: function(section) {
-      section.view.parentView = this;
+      var view = new section.view();
+      view.parentView = this;
       this.sections[section.name] = section;
-      this.setView('.statusbar-section-outlet-'+section.name+'', section.view);
+      this.setView('.statusbar-section-outlet-'+section.name+'', view);
       if(this.hasRendered) this.render();
     },
 

@@ -11,6 +11,7 @@ define(function(require) {
       SidebarView         = require('common/views/sidebar_view'),
       ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
+      Gentle              = require('gentle')(),
       SettingsView;
   
   SettingsView = SidebarView.extend({
@@ -23,25 +24,25 @@ define(function(require) {
         name: 'tools',
         title: 'Mode',
         icon: 'wrench',
-        view: new ToolsView(),
+        view: ToolsView,
         hoverable: true
       }, {
         name: 'edit',
         title: 'Sequence details',
         icon: 'book',
-        view: new EditView(),
+        view: EditView,
         hoverable: true
       }, {
         name: 'export',
         title: 'Export sequence',
         icon: 'floppy-save',
-        view: new ExportView(),
+        view: ExportView,
         hoverable: true
       }, {
         name: 'display-settings',
         title: 'Display settings',
         icon: 'eye-open',
-        view: new DisplaySettingsView(),
+        view: DisplaySettingsView,
         visible: function() {
           return _this.parentView.primaryView.name == 'edition';
         },
@@ -50,17 +51,22 @@ define(function(require) {
         name: 'history',
         title: 'Sequence history',
         icon: 'time',
-        view: new HistoryView(),
+        view: HistoryView,
         maxHeighted: true
       }, {
         name: 'features',
         title: 'Annotations',
         icon: 'edit',
-        view: new FeaturesView(),
+        view: FeaturesView,
         visible: function() {
           return _this.parentView.primaryView.name == 'edition';
         },
       }]);
+
+      _.chain(Gentle.plugins)
+        .where({type: 'sequence-settings-tab'})
+        .pluck('data')
+        .each(_.bind(this.addTab, this));
 
     }
 
