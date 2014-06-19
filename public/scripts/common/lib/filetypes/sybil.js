@@ -121,7 +121,7 @@ define(function(require) {
   @returns {Array} Array containing the sequence as an object
   **/
   FT_sybil.prototype.parseFile = function () {
-    var sybil           = $($.parseXML(this.text)),
+    var sybil           = $($.parseXML(this.asString())),
         sequences       = [];
 
     sybil.find('session').each ( function ( k1 , v1 ) {
@@ -171,7 +171,7 @@ define(function(require) {
   @returns {boolean} True if the file matches, false if not.
   **/
   FT_sybil.prototype.textHeuristic = function () {
-    if ( this.text.match ( /^<sybil\b/i ) ) return true ;
+    if ( this.asString().match ( /^<sybil\b/i ) ) return true ;
     return false ;
   };
 

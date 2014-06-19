@@ -8,6 +8,8 @@ define(function(require) {
       Gentle                  = require('gentle')(),
       SequenceSettingsView    = require('./settings_view'),
       SequenceEditionView     = require('./sequence_edition_view'),
+      StatusbarView           = require('common/views/statusbar_view'),
+      StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       Backbone                = require('backbone.mixed'),
       SequenceView;
   
@@ -17,13 +19,15 @@ define(function(require) {
     className: 'sequence-view',
 
     initialize: function() {
-      var _this = this;
+      var _this = this,
+          statusbarView;
 
       this.model = Gentle.currentSequence;
       
       this.sequenceSettingsView = new SequenceSettingsView();
       this.sequenceSettingsView.parentView = this;
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
+
 
       // this.primaryViewSwitcherView = new PrimaryViewSwitcherView();
       // this.primaryViewSwitcherView.parentView = this;
@@ -34,6 +38,21 @@ define(function(require) {
       $(window).on('resize', this.handleResize);
 
       this.initPrimaryViews();
+      this.initStatusbarView();
+    },
+
+    initStatusbarView: function() {
+      statusbarView = this.statusbarView = new StatusbarView();
+      statusbarView.parentView = this;
+      this.setView('.sequence-statusbar-outlet', statusbarView);
+      statusbarView.addSection({
+        name: 'primaryView',
+        view: StatusbarPrimaryViewView
+      });
+      _.each(_.where(Gentle.plugins, {type: 'sequence-statusbar-section'}), function(plugin) {
+        statusbarView.addSection(plugin.data);
+      });
+      this.listenTo(this.model, 'change:displaySettings.primaryView', statusbarView.render, statusbarView);
     },
 
     initPrimaryViews: function(trigger) {
@@ -56,18 +75,22 @@ define(function(require) {
         currentView = 'edition';
 
       this.primaryViews = primaryViews;
-      this.changePrimaryView(currentView);
+      this.changePrimaryView(currentView, false);
     },
 
-    changePrimaryView: function(viewName) {
+    changePrimaryView: function(viewName, render) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
           actualView = new primaryView.view();
 
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
-      this.insertView('#sequence-primary-view-outlet', actualView);
+      this.setView('#sequence-primary-view-outlet', actualView);
       actualView.parentView = this;
+      if(render !== false) {
+        actualView.render();
+        this.sequenceSettingsView.render();
+      }
     },
 
     afterRender: function() {

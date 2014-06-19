@@ -54,7 +54,7 @@ define(function(require) {
   @returns {Array} Array containing the sequence as an object
   **/
   FT_plaintext.prototype.parseFile = function () {
-    var seqtext = this.text.replace ( /[^a-z]/gi , '' ).toUpperCase() ;
+    var seqtext = this.asString().replace ( /[^a-z]/gi , '' ).toUpperCase() ;
     var name = 'Unnamed sequence' ;
     if ( this.file !== undefined ) name = _.ucFirst ( this.file.name ) ;
 
@@ -70,7 +70,7 @@ define(function(require) {
   @returns {boolean} True if the file matches, false if not.
   **/
   FT_plaintext.prototype.textHeuristic = function () {
-    if ( this.text.match ( /[^a-zA-Z0-0\s]/ ) ) return false ;
+    if ( this.asString().match ( /[^a-zA-Z0-0\s]/ ) ) return false ;
     return true ;
   };
 

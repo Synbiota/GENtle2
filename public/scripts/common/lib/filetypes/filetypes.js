@@ -14,9 +14,11 @@ define(function(require) {
   //     Filetype;
 
   var FT_plaintext    = require('common/lib/filetypes/plaintext'),
+      FT_fasta        = require('common/lib/filetypes/fasta'),
       FT_sybil        = require('common/lib/filetypes/sybil'),
       FT_genebank     = require('common/lib/filetypes/genebank'),
       FT_scf          = require('common/lib/filetypes/scf'),
+      FT_abi          = require('common/lib/filetypes/abi'),
       Q               = require('q'),
       saveAs          = require('saveAs'),
       Filetype;
@@ -26,10 +28,11 @@ define(function(require) {
   Filetypes.types = {
     // cm5:        FT_cm5,
     // cm5_text:   FT_cm5_text,
-    // fasta:      FT_fasta,
+    fasta:      FT_fasta,
     genebank:   FT_genebank,
     plaintext:  FT_plaintext,
     scf:        FT_scf,
+    abi:        FT_abi,
     // scf2json:   FT_scf2json,
     sybil:      FT_sybil,
   };
@@ -47,16 +50,53 @@ define(function(require) {
     return Q.promise(function(resolve, reject) {
       text = text.trim();
       for(var filetypeName in Filetypes.types) {
-        var file = new Filetypes.types[filetypeName]();
-        file.file = {name: name || 'Unnamed'};
-        sequences = file.checkAndParseText(text);
-        if(sequences.length) break;
+        try {
+          var file = new Filetypes.types[filetypeName]();
+          file.file = {name: name || 'Unnamed'};
+          sequences = file.checkAndParseText(text);
+          if(sequences.length) break;
+        } catch (err) {
+          reject(err);
+        }  
       }
       
       resolve(sequences);
     });
     
   };
+  
+  
+  /**
+  Guesses filetype and parse sequence from ArrayBuffer (Class method)
+  @method guessTypeAndParseFromArrayBuffer
+  @param {string} text sequence
+  @param {string optional} name
+  @return {array} Array of sequences as POJOs
+  **/
+  Filetypes.guessTypeAndParseFromArrayBuffer = function(ab, name) {
+    var sequences = [];
+
+    return Q.promise(function(resolve, reject) {
+      for(var filetypeName in Filetypes.types) {
+        try {
+          var file = new Filetypes.types[filetypeName]();
+          file.file = {name: name || 'Unnamed'};
+          sequences = file.checkAndParseArrayBuffer(ab);
+          if(sequences.length) break;
+        } catch (err) {
+          reject(err);
+        }  
+      }
+      
+      resolve(sequences);
+    });
+    
+  };
+  
+  
+  
+  
+  
 
   /**
   @method exportToFile
@@ -69,6 +109,19 @@ define(function(require) {
     }
     file = new FileType();
     saveAs(file.getExportBlob(sequence).blob, sequence.name + '.' + file.getFileExtension());
+  };
+
+  /**
+  @method exportToString
+  **/
+  Filetypes.exportToString = function(format, sequence)  {
+    var FileType = Filetypes.types[format],
+        file;
+    if(FileType === undefined) {
+      throw new TypeError();
+    }
+    file = new FileType();
+    return file.getExportString(sequence);
   };
 
   /**
@@ -93,8 +146,9 @@ define(function(require) {
     });
     
     // Read in the image file as a data URL.
-    if ( read_binary === true ) reader.readAsArrayBuffer(file);
-    else reader.readAsText(file);
+    //if ( read_binary === true ) 
+    reader.readAsArrayBuffer(file);
+    //else reader.readAsText(file);
 
     return promise;
   };

@@ -11,18 +11,63 @@ define(function(require) {
       SidebarView         = require('common/views/sidebar_view'),
       ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
+      Gentle              = require('gentle')(),
       SettingsView;
   
   SettingsView = SidebarView.extend({
 
     initialize: function() {
+      var _this = this;
       this.sidebarName = 'sequence';
-      this.addTab('tools', 'Mode', 'wrench', new ToolsView(), false, true);
-      this.addTab('edit', 'Sequence details', 'book', new EditView(), false, true);
-      this.addTab('export', 'Export sequence', 'floppy-save', new ExportView(), false, true);
-      this.addTab('display-settings', 'Display settings', 'eye-open', new DisplaySettingsView(), false, true);
-      this.addTab('history', 'Sequence history', 'time', new HistoryView(), true);
-      this.addTab('features', 'Annotations', 'edit', new FeaturesView());
+
+      this.addTab([{
+        name: 'tools',
+        title: 'Mode',
+        icon: 'wrench',
+        view: ToolsView,
+        hoverable: true
+      }, {
+        name: 'edit',
+        title: 'Sequence details',
+        icon: 'book',
+        view: EditView,
+        hoverable: true
+      }, {
+        name: 'export',
+        title: 'Export sequence',
+        icon: 'floppy-save',
+        view: ExportView,
+        hoverable: true
+      }, {
+        name: 'display-settings',
+        title: 'Display settings',
+        icon: 'eye-open',
+        view: DisplaySettingsView,
+        visible: function() {
+          return _this.parentView.primaryView.name == 'edition';
+        },
+        hoverable: true
+      }, {
+        name: 'history',
+        title: 'Sequence history',
+        icon: 'time',
+        view: HistoryView,
+        maxHeighted: true
+      }, {
+        name: 'features',
+        title: 'Annotations',
+        icon: 'edit',
+        view: FeaturesView,
+        visible: function() {
+          return _this.parentView.primaryView.name == 'edition';
+        },
+      }]);
+
+      _.chain(Gentle.plugins)
+        .where({type: 'sequence-settings-tab'})
+        .pluck('data')
+        .each(_.bind(this.addTab, this));
+
     }
 
   });

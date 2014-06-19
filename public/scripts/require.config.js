@@ -19,6 +19,7 @@ require.config({
     'Blob':                   '../vendor/scripts/blob',
     'saveAs':                 '../vendor/scripts/filesaver',
     'BrowserDetect':          '../vendor/scripts/browserdetect',
+    'moment':                 '../vendor/scripts/moment-2.7.0-min',
     'gentle':                 'common/models/gentle',
     'backbone.mixed':         'common/lib/backbone.mixed',
     'underscore.mixed':       'common/lib/underscore.mixed',

@@ -51,7 +51,9 @@ define(function(require) {
 
     serialize: function() {
       return {
-        tabs: this.tabs
+        tabs: _.filter(this.tabs, function(tab) {
+          return tab.visible === undefined || tab.visible();
+        })
       };
     }
 

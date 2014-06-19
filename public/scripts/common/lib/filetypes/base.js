@@ -14,6 +14,18 @@ define(function(require) {
     return a;
   };
 
+  FT_base.prototype.asString = function () {
+  	var me = this ;
+  	if ( typeof me.ascii != 'undefined' ) return me.ascii ;
+  	if ( typeof me.array_buffer == 'undefined' ) me.ascii = '' ;
+	else me.ascii = String.fromCharCode.apply(null, new Uint8Array(me.array_buffer));
+  	return me.ascii ;
+  }
+  
+  FT_base.prototype.asArrayBuffer = function () {
+  	return this.array_buffer ;
+  }
+
   FT_base.prototype.stringToBytes = function ( str ) {
   /*
     var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
@@ -121,7 +133,19 @@ define(function(require) {
   @returns {Array} Array of parsed sequences
   **/
   FT_base.prototype.checkAndParseText = function (text) {
-    this.text = text ;
+    this.ascii = text ;
+    if ( !this.textHeuristic() ) return false ;
+    this.fileTypeValidated = true ;
+    return this.parseFile();
+  }
+
+  /**
+  Check if text corresponds to parser and returns sequence(s)
+  @method checkAndParseText
+  @returns {Array} Array of parsed sequences
+  **/
+  FT_base.prototype.checkAndParseArrayBuffer = function (ab) {
+    this.array_buffer = ab ;
     if ( !this.textHeuristic() ) return false ;
     this.fileTypeValidated = true ;
     return this.parseFile();

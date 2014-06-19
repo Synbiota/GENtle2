@@ -50,12 +50,12 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 
   FT_scf.prototype.parseFile = function ( just_check_format ) {
 	var me = this ;
-console.log ( "SCF parsing" , just_check_format ) ;
 
 	// START SCF PARSING HERE
 
-	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
-	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
+	var text_array = me.asArrayBuffer() ;
+	if ( typeof text_array == 'undefined' ) return false ;
+//	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
 	var bytes = new Uint8Array(text_array);
 	
 
@@ -238,13 +238,10 @@ console.log ( "SCF parsing" , just_check_format ) ;
 		scf:scf // KEEP THE FULL, PARSED DATA
 	} ;
 	
-//	console.log ( seq ) ;
-	
 	return [ seq ] ;
 	}
 
   FT_scf.prototype.parseText = function ( text ) {
-  console.log ( "SCF parseText WTF" ) ;
     this.text = text ;
     this.fileTypeValidated = true ;
   //  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
@@ -252,9 +249,7 @@ console.log ( "SCF parsing" , just_check_format ) ;
   }
 
   FT_scf.prototype.textHeuristic = function () {
-console.log("Checking SCF...");
 	var res = this.parseFile ( true ) ;
-	console.log ( "Result: " , res ) ;
 	return res ;
 }
 
