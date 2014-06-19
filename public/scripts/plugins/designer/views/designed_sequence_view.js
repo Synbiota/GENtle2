@@ -30,14 +30,15 @@ define(function(require) {
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
         _.each(feature.ranges, function(range) {
+          if(feature.id >0){
           features.push({
             name: feature.name,
             id: ++id,
             featureId: feature._id,
             from: range.from,
             to: range.to,
-            type: ''
-          });
+            type: feature._type.toLowerCase()
+          });}
         });
       });
 
@@ -131,8 +132,9 @@ define(function(require) {
       insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
         chunk.from : 
         chunk.to + 1;
+
      if(featureAndSubSeq.feature.type==='Sequence'){
-      this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature[0], true);
+      this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature, true);
      }
      else
      {
