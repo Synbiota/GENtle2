@@ -28,20 +28,16 @@ define(function(require) {
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
         _.each(feature.ranges, function(range) {
-                console.log('ooooooooooooooooo');
-
-                console.log(feature);
-                    console.log(feature._type);
 
           if(feature._type !== 'Sequence'){
 
 
           features.push({
-            name: feature.name,
-            id: ++id,
-            featureId: feature._id,
-            from: range.from,
-            to: range.to,
+             name: feature.name,
+             id: ++id,
+             featureId: feature._id,
+             from: range.from,
+             to: range.to,
             _type: feature._type.toLowerCase()
           });
         }
@@ -74,7 +70,7 @@ define(function(require) {
           feature: feature
         });
 
-        lastChunkEndBase = feature.to;
+          lastChunkEndBase = feature.to;
       });
 
       if(lastChunkEndBase < lastBase) {
@@ -113,7 +109,7 @@ define(function(require) {
 
     serialize: function() {
       var output = {
-        sequence: this.model.serialize()
+          sequence: this.model.serialize()
       };
 
       if(this.model.maxOverlappingFeatures() > 1) {
@@ -131,13 +127,8 @@ define(function(require) {
 
       insertFromAvailableSequence: function($droppable, $draggable) {
       var featureAndSubSeq, chunk, insertBeforeBase, bases, basesRange, seqBases, featureObj;
-
-      featureAndSubSeq = this.getFeatureFromDraggable($draggable);
-            console.log('-----------------------');
-
+          featureAndSubSeq = this.getFeatureFromDraggable($draggable);
      
-      console.log(featureAndSubSeq.feature._type);
-
       chunk = _.findWhere(this.chunks, {
         id: $droppable.closest("[data-chunk-id]").data('chunkId')
       });
@@ -145,48 +136,30 @@ define(function(require) {
       insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
         chunk.from : 
         chunk.to + 1;
-console.log(featureAndSubSeq.feature._type);
 
      if(featureAndSubSeq.feature._type !== undefined && featureAndSubSeq.feature._type === 'sequence'){
-                  console.log('1');
 
+      console.log('1');
 
-      console.log('SSDDD');
-
-console.log(featureAndSubSeq.subSeq.substr(0,1));
-
-      this.model.deleteBases( featureAndSubSeq.subSeq.substr(0,1) , featureAndSubSeq.subSeq.length ,false);
-      
+      this.model.deleteBases( featureAndSubSeq.feature.from , Math.abs(featureAndSubSeq.feature.to- featureAndSubSeq.feature.from)+2 ,false);
       this.model.insertBases(featureAndSubSeq.subSeq,insertBeforeBase,false);
+      this.render();
      }
      else
      if(featureAndSubSeq.feature.type==='Sequence')
      {
             console.log('2');
-            console.log(featureAndSubSeq);
-
       this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature, true);
      }
      else 
      if(featureAndSubSeq.feature.type !== 'Sequence' && featureAndSubSeq.feature.feature === undefined)
      {
-      console.log('************************************');
       featureObj = _.findWhere(this.model.get('features'),{_id:featureAndSubSeq.feature.featureId});
       basesRange = _.findWhere(this.model.get('features'),{_id:featureAndSubSeq.feature.featureId}).ranges[0];
       bases = this.model.getSubSeq(basesRange.from,basesRange.to);
-      console.log(this.model.getSubSeq(basesRange.from,basesRange.to));
-      console.log("Beforebsse"+insertBeforeBase);
       this.model.deleteFeature(featureObj,false);
-      console.log('KKOI  '+(featureAndSubSeq.subSeq.length-1));
-
       featureObj.ranges = [{from: insertBeforeBase,to:(basesRange.to-basesRange.from )+ insertBeforeBase}];
-
       this.model.createFeature(featureObj, false);
-
-
-      console.log('3');
-
-      console.log(featureAndSubSeq.feature);
      }
      else
      {
@@ -197,7 +170,6 @@ console.log(featureAndSubSeq.subSeq.substr(0,1));
 
     insertFirstAnnotationFromAvailableSequence: function($draggable) {
       var featureAndSubSeq = this.getFeatureFromDraggable($draggable);
-
       this.model.insertBasesAndCreateFeature(0, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
     },
 
@@ -205,9 +177,6 @@ console.log(featureAndSubSeq.subSeq.substr(0,1));
       var sequenceId, availableSequenceView, sequence, feature, dataChunkId;
       chunkId = $draggable.data('chunkId');
       this.model = Gentle.currentSequence;
-
-       console.log(chunkId);
-
       if(chunkId === undefined) 
       {
        sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
@@ -230,18 +199,11 @@ console.log(featureAndSubSeq.subSeq.substr(0,1));
       }
 
       if(feature){
-
-               console.log(feature);
-
-
       return {
         feature: feature,
         subSeq: (availableSequenceView===undefined)? this.model.getSubSeq(feature.from,feature.to) : availableSequenceView.model.getSubSeq(feature.from, feature.to)
       };}
       if(sequence){
-                       console.log(sequence);
-
-               console.log('XXXXXXXX'+sequence+this.model.get('sequence').substr(sequence.from, sequence.to));
       return {
         feature: sequence,
         subSeq: (availableSequenceView===undefined)? this.model.get('sequence').substr(sequence.from, sequence.to) : availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
@@ -252,9 +214,7 @@ console.log(featureAndSubSeq.subSeq.substr(0,1));
     afterRender: function() {
       var _this = this;
       this.styleChunks();
-
       this.$('.designer-designed-sequence-chunk').draggable({axis: "y"});
-
       this.$('.designer-designed-sequence-chunk-droppable').droppable({
         hoverClass: 'active',
         tolerance: 'pointer',
