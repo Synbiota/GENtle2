@@ -214,7 +214,7 @@ define(function(require) {
     afterRender: function() {
       var _this = this;
       this.styleChunks();
-      this.$('.designer-designed-sequence-chunk').draggable({axis: "y"});
+      this.$('.designer-designed-sequence-chunk').draggable({axis: "y", zIndex: 2000, revert: true, revertDuration: 100, opacity: 0.85, containment:[, 100, , ]});
       this.$('.designer-designed-sequence-chunk-droppable').droppable({
         hoverClass: 'active',
         tolerance: 'pointer',
