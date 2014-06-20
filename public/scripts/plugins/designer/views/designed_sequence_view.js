@@ -28,10 +28,14 @@ define(function(require) {
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
         _.each(feature.ranges, function(range) {
+                console.log('ooooooooooooooooo');
+
+                console.log(feature);
                     console.log(feature._type);
 
-          console.log(feature);
           if(feature._type !== 'Sequence'){
+
+
           features.push({
             name: feature.name,
             id: ++id,
@@ -126,7 +130,7 @@ define(function(require) {
     },
 
       insertFromAvailableSequence: function($droppable, $draggable) {
-      var featureAndSubSeq, chunk, insertBeforeBase;
+      var featureAndSubSeq, chunk, insertBeforeBase, bases, basesRange, seqBases, featureObj;
 
       featureAndSubSeq = this.getFeatureFromDraggable($draggable);
             console.log('-----------------------');
@@ -141,31 +145,52 @@ define(function(require) {
       insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
         chunk.from : 
         chunk.to + 1;
+console.log(featureAndSubSeq.feature._type);
 
+     if(featureAndSubSeq.feature._type !== undefined && featureAndSubSeq.feature._type === 'sequence'){
+                  console.log('1');
 
-     if(featureAndSubSeq.feature._type === 'sequence'){
 
       console.log('SSDDD');
 
-console.log(featureAndSubSeq);
+console.log(featureAndSubSeq.subSeq.substr(0,1));
 
+      this.model.deleteBases( featureAndSubSeq.subSeq.substr(0,1) , featureAndSubSeq.subSeq.length ,false);
+      
       this.model.insertBases(featureAndSubSeq.subSeq,insertBeforeBase,false);
      }
      else
      if(featureAndSubSeq.feature.type==='Sequence')
      {
+            console.log('2');
+            console.log(featureAndSubSeq);
+
       this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature, true);
      }
      else 
      if(featureAndSubSeq.feature.type !== 'Sequence' && featureAndSubSeq.feature.feature === undefined)
      {
-      this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature, true);
-      console.log('NNNNNN');
+      console.log('************************************');
+      featureObj = _.findWhere(this.model.get('features'),{_id:featureAndSubSeq.feature.featureId});
+      basesRange = _.findWhere(this.model.get('features'),{_id:featureAndSubSeq.feature.featureId}).ranges[0];
+      bases = this.model.getSubSeq(basesRange.from,basesRange.to);
+      console.log(this.model.getSubSeq(basesRange.from,basesRange.to));
+      console.log("Beforebsse"+insertBeforeBase);
+      this.model.deleteFeature(featureObj,false);
+      console.log('KKOI  '+(featureAndSubSeq.subSeq.length-1));
+
+      featureObj.ranges = [{from: insertBeforeBase,to:(basesRange.to-basesRange.from )+ insertBeforeBase}];
+
+      this.model.createFeature(featureObj, false);
+
+
+      console.log('3');
 
       console.log(featureAndSubSeq.feature);
      }
      else
      {
+      console.log('4');
       this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
      }
     },

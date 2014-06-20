@@ -490,7 +490,10 @@ define(function(require) {
       this.throttledSave();
     },
 
-    deleteFeature: function(feature, record) {
+
+     deleteFeature: function(feature, record) {
+      var featureId;
+      featureId = (feature._id===undefined)?feature.id : feature._id;
       this.clearFeatureCache();
 
       if (record === true) {
@@ -498,8 +501,10 @@ define(function(require) {
       }
 
       this.set('features', _.reject(this.get('features'), function(_feature) {
-        return _feature._id == feature._id;
+        return _feature._id == featureId;
       }));
+      console.log('inside');
+      console.log(feature);
 
       this.sortFeatures();
       this.throttledSave();
