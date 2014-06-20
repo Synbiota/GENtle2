@@ -141,8 +141,8 @@ define(function(require) {
 
       console.log('1');
 
-      this.model.deleteBases( featureAndSubSeq.feature.from , Math.abs(featureAndSubSeq.feature.to- featureAndSubSeq.feature.from)+2 ,false);
-      this.model.insertBases(featureAndSubSeq.subSeq,insertBeforeBase,false);
+      this.model.deleteBases( featureAndSubSeq.feature.from , Math.abs(featureAndSubSeq.feature.to- featureAndSubSeq.feature.from)+2 ,'design-true');
+      this.model.insertBases(featureAndSubSeq.subSeq,insertBeforeBase,'design-true');
       this.render();
      }
      else
@@ -157,9 +157,9 @@ define(function(require) {
       featureObj = _.findWhere(this.model.get('features'),{_id:featureAndSubSeq.feature.featureId});
       basesRange = _.findWhere(this.model.get('features'),{_id:featureAndSubSeq.feature.featureId}).ranges[0];
       bases = this.model.getSubSeq(basesRange.from,basesRange.to);
-      this.model.deleteFeature(featureObj,false);
+      this.model.deleteFeature(featureObj,'design-true');
       featureObj.ranges = [{from: insertBeforeBase,to:(basesRange.to-basesRange.from )+ insertBeforeBase}];
-      this.model.createFeature(featureObj, false);
+      this.model.createFeature(featureObj, 'design-true');
      }
      else
      {

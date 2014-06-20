@@ -216,15 +216,20 @@ define(function(require) {
       var seq = this.get('sequence');
 
       if (updateHistory === undefined) updateHistory = true;
-
+       if (updateHistory === 'design-true')
+        this.getHistory().add({
+          type: 'design-insert',
+          hidden: true,
+          position: beforeBase,
+          value: bases,
+          operation: '@' + beforeBase + '+' + bases
+        });
+      
       this.set('sequence',
         seq.substr(0, beforeBase) +
         bases +
         seq.substr(beforeBase, seq.length - beforeBase + 1)
       );
-
-      console.log('uuui');
-      console.log(bases);
 
       this.moveFeatures(beforeBase, bases.length);
 
@@ -264,6 +269,16 @@ define(function(require) {
       );
 
       linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length);
+
+      if (updateHistory === 'design-true')
+        this.getHistory().add({
+          type: 'design-delete',
+          value: subseq,
+          hidden: true,
+          position: firstBase,
+          operation: '@' + firstBase + '-' + subseq,
+          linked: linkedHistoryStepTimestamps
+        });
 
       if (updateHistory) {
         this.getHistory().add({
@@ -477,6 +492,18 @@ define(function(require) {
       if (record === true) {
         this.recordFeatureHistoryIns(newFeature);
       } 
+      if (record === 'design-true')
+      this.getHistory().add({
+        type: 'design-feature-create',
+        feature: newFeature,
+        name: newFeature.name,
+        hidden: true,
+        featureType: newFeature._type,
+        range: [{
+          from: newFeature.ranges[0].from,
+          to: newFeature.ranges[0].to
+        }]
+      }).get('timestamp');  
 
       if (id === 0) {
         newFeature._id = 0;
@@ -499,13 +526,23 @@ define(function(require) {
       if (record === true) {
         this.recordFeatureHistoryDel(feature, false, false);
       }
+       if (record === 'design-true')
+       this.getHistory().add({
+        type: 'design-feature-delete',
+        feature: feature,
+        hidden: true,
+        name: feature.name,
+        featureType: feature._type,
+        range: [{
+          from: feature.ranges[0].from,
+          to: feature.ranges[0].to
+        }]
+      }).get('timestamp');
 
       this.set('features', _.reject(this.get('features'), function(_feature) {
         return _feature._id == featureId;
       }));
-      console.log('inside');
-      console.log(feature);
-
+     
       this.sortFeatures();
       this.throttledSave();
     },
