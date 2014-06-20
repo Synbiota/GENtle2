@@ -138,9 +138,6 @@ define(function(require) {
         chunk.to + 1;
 
      if(featureAndSubSeq.feature._type !== undefined && featureAndSubSeq.feature._type === 'sequence'){
-
-      console.log('1');
-
       this.model.deleteBases( featureAndSubSeq.feature.from , Math.abs(featureAndSubSeq.feature.to- featureAndSubSeq.feature.from)+2 ,'design-true');
       this.model.insertBases(featureAndSubSeq.subSeq,insertBeforeBase,'design-true');
       this.render();
@@ -148,7 +145,6 @@ define(function(require) {
      else
      if(featureAndSubSeq.feature.type==='Sequence')
      {
-            console.log('2');
       this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature, true);
      }
      else 
@@ -163,7 +159,6 @@ define(function(require) {
      }
      else
      {
-      console.log('4');
       this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
      }
     },
