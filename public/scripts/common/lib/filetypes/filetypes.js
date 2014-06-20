@@ -20,6 +20,7 @@ define(function(require) {
       FT_scf          = require('common/lib/filetypes/scf'),
       FT_abi          = require('common/lib/filetypes/abi'),
       FT_cm5          = require('common/lib/filetypes/cm5'),
+      FT_cm5_text     = require('common/lib/filetypes/cm5_text'),
       Q               = require('q'),
       saveAs          = require('saveAs'),
       Filetype;
@@ -28,7 +29,7 @@ define(function(require) {
 
   Filetypes.types = {
     cm5:        FT_cm5,
-    // cm5_text:   FT_cm5_text,
+    cm5_text:   FT_cm5_text,
     fasta:      FT_fasta,
     genebank:   FT_genebank,
     plaintext:  FT_plaintext,
