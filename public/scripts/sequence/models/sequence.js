@@ -223,6 +223,9 @@ define(function(require) {
         seq.substr(beforeBase, seq.length - beforeBase + 1)
       );
 
+      console.log('uuui');
+      console.log(bases);
+
       this.moveFeatures(beforeBase, bases.length);
 
       if (updateHistory) {
