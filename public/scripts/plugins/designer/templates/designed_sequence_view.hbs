@@ -26,8 +26,11 @@
     <div class="designer-designed-sequence-chunks">
       {{#each chunks}}
         <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
-          <div class="designer-designed-sequence-chunk-position">
+          <div class="designer-designed-sequence-chunk-position" data-position-id="{{id}}">
             {{formatThousands from 1}}
+          </div>
+          <div class="designer-designed-sequence-chunk-position-container hidden" data-trash-id ={{id}}>
+          <span class="glyphicon glyphicon-trash btn btn-danger"></span>
           </div>
           <div class="designer-designed-sequence-chunk-title">
             {{#if empty}}

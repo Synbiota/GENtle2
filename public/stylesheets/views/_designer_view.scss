@@ -54,6 +54,15 @@
       @include text-overflow()
     }    
 
+      .designer-designed-sequence-chunk-position-container {
+      float: left;
+      margin-left: -50px;
+      color: #005;
+      width: 42px;
+      text-align: left;
+      @include text-overflow()
+    }    
+
     .designer-designed-sequence-chunk-title {
       padding: 5px 10px;
     }
