@@ -33,6 +33,10 @@
     margin-left: 50px;
   }
 
+  .text-overflow{
+    text-overflow: ellipsis; 
+  }
+
   .designer-designed-sequence-chunk {
     position: relative;
     background: red;
@@ -65,6 +69,7 @@
 
     .designer-designed-sequence-chunk-title {
       padding: 5px 10px;
+      @include text-overflow()
     }
 
     .designer-designed-sequence-chunk-droppable {
@@ -172,5 +177,6 @@
         top: 10px + 27px * $i;
       }
     }
+  @include text-overflow()
   }
 }
