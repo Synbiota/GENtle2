@@ -228,7 +228,7 @@ define(function(require) {
         this.$('[data-trash-id="'+chunk+'"]').removeClass('hidden').mouseout(function(){setTimeout(function() {
         this.$('[data-trash-id="'+chunk+'"]').addClass('hidden');
         this.$('[data-position-id="'+chunk+'"]').removeClass('hidden');
-        }, 100);});
+        }, 50);});
         this.$('[data-trash-id="'+chunk+'"]').unbind("click").click(function(event){    event.stopPropagation();
          _this.trashFeatureOrBases(chunk);});
       };
