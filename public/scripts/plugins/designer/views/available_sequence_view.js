@@ -14,8 +14,6 @@ define(function(require) {
     initialize: function(){
       this.listenTo(Gentle.currentSequence, 'change', this.render, this);
       this.model = Gentle.currentSequence;
-      this.featureWidth =[];
-      this.featureLeftOffset =[];
       this.features = [];
       this.availableSequences = Gentle.sequences.without(this.model);
     },
@@ -56,29 +54,29 @@ define(function(require) {
           maxOverlapStackIndex = 0, featureLeftOffset,
           $featuresElem, outletSelector;
 
+          if(this.model.featureWidth === undefined)
+           this.model.featureWidth =[];
+          if(this.model.featureLeftOffset === undefined)
+          this.model.featureLeftOffset =[];
+
       for(var i = 0; i < this.features.length; i++) {
         feature = this.features[i];
         if(this.sidebarOpen === true)    
-        featureWidth = this.featureWidth[i]*this.$('div.designer-available-sequence-features').width();
+        featureWidth = this.model.featureWidth[i]*$('div.designer-available-sequence-features').width();
         else
         featureWidth = Math.max(
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
         );
         if(this.sidebarOpen === false || this.sidebarOpen === undefined){
-        this.featureWidth[i]= featureWidth/this.$('div.designer-available-sequence-features').width();
-        this.featureLeftOffset[i]=Math.floor(feature.from / maxBase * viewWidth)/this.$('div.designer-available-sequence-features').width();
+        this.model.featureWidth[i]= featureWidth/$('div.designer-available-sequence-features').width();
+        this.model.featureLeftOffset[i]=Math.floor(feature.from / maxBase * viewWidth)/this.$('div.designer-available-sequence-features').width();
         featureLeftOffset = Math.floor(feature.from / maxBase * viewWidth);
         }
         else if(this.sidebarOpen === true)
-        featureLeftOffset = this.featureLeftOffset[i]*this.$('div.designer-available-sequence-features').width();
-        outletSelector = 
-              '.designer-available-sequence-outlet[data-sequence-id="' + 
-              this.model.id +
-              '"]';
-        if(this.sidebarOpen === true)
-        this.setView(outletSelector, this, true);
-        $featureElement = this.$('[data-feature-id="'+feature.id+'-'+this.model.id+'"]');
+        featureLeftOffset = this.model.featureLeftOffset[i]*$('div.designer-available-sequence-features').width();
+        
+        $featureElement = $('[data-feature-id="'+feature.id+'-'+this.model.id+'"]');
 
         $featureElement.css({
           width: featureWidth,
@@ -96,8 +94,9 @@ define(function(require) {
         overlapStack[overlapIndex] = [feature.from, feature.to];
         maxOverlapStackIndex = Math.max(maxOverlapStackIndex, overlapStack.length);
       }
-              console.log($featureElement);
-              console.log(this);
+              console.log(this.model.featureWidth);
+              console.log(this.model);
+
 
       $featuresElem = this.$('.designer-available-sequence-features');
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
