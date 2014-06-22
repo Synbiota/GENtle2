@@ -20,13 +20,13 @@
                 {{#if isDeletion}}
                   <span class='text-danger'>Deleted</span>
                 {{/if}}
-                {{#if isInsertionDesignEdit}}
+                {{#if isDeletionDesignEdit}}
                   <span class='text-warning'>Designed Base</span>
                 {{/if}}
                 {{#if isFeatureInsertion}}
                   <span class='text-success'>New annotation</span>
                 {{/if}}
-                {{#if isFeatureCreatedDesignEdit}}
+                {{#if isFeatureDeletedDesignEdit}}
                   <span class='text-warning'>Designed Feature</span>
                 {{/if}}
                 {{#if isFeatureDeletion}}
@@ -36,7 +36,7 @@
                   <span class="text-warning">Edited annotation</span>
                 {{/if}}
               </td>
-              {{#ifOr isInsertion isDeletion isInsertionDesignEdit}}
+              {{#ifOr isInsertion isDeletion isDeletionDesignEdit}}
                 <td style="width: 60px;">
                   <kbd>{{formatThousands position 1}}</kbd>
                 </td>
@@ -46,7 +46,7 @@
                     </kbd> 
                 </td>
               {{/ifOr}}
-              {{#ifOr isFeature isFeatureCreatedDesignEdit}}
+              {{#ifOr isFeature isFeatureDeletedDesignEdit}}
                 <td style="width: 60px;">
                   <kbd>{{featureType}}</kbd>
                 </td> 
