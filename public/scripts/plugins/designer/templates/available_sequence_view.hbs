@@ -1,8 +1,8 @@
-<h6>{{sequence.name}}</h6>
+<div><h6>{{sequence.name}}</h6></div>
 
 <div class="designer-available-sequence-features">
   {{#each features}}
-    <div class="designer-available-sequence-feature" data-feature-id="{{id}}">
+    <div class="designer-available-sequence-feature" data-feature-id="{{id}}-{{sequence}}">
       {{name}}
     </div>
   {{/each}}
