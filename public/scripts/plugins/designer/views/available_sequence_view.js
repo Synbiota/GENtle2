@@ -94,10 +94,6 @@ define(function(require) {
         overlapStack[overlapIndex] = [feature.from, feature.to];
         maxOverlapStackIndex = Math.max(maxOverlapStackIndex, overlapStack.length);
       }
-              console.log(this.model.featureWidth);
-              console.log(this.model);
-
-
       $featuresElem = this.$('.designer-available-sequence-features');
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
     },
@@ -117,25 +113,34 @@ define(function(require) {
       this.sidebarOpen = false;
       this.positionFeatures();
       var outletSelector;
-
-      $('html').unbind("click").click(function(){ 
-        _.each(_this.availableSequences, function(sequence){  
-
-        _this.sidebarOpen = true;    
-
-        _this.model = sequence;
-
-        _this.features = [];
-
-        _this.processFeatures();
-
-        _this.positionFeatures();
-
-        _this.sidebarOpen = false;
-
-        });
       
-  });
+      $('html').unbind("click").click(function(e){ 
+      if(this.changeWidth === undefined){
+          this.changeWidth = $('div.hovered').width();
+      }
+      
+        if(this.changeWidth === $('div.hovered').width()){
+        _.each(_this.availableSequences, function(sequence){  
+        _this.sidebarOpen = true;    
+        _this.model = sequence;
+        _this.features = [];
+        _this.processFeatures();
+        _this.positionFeatures();
+        _this.sidebarOpen = false;
+        });}
+        else
+
+        if(this.changeWidth !== $('div.hovered').width()){
+        _.each(_this.availableSequences, function(sequence){  
+        _this.sidebarOpen = false;    
+        _this.model = sequence;
+        _this.features = [];
+        _this.processFeatures();
+        _this.positionFeatures();
+        _this.sidebarOpen = false;
+        });}
+
+      });
 
       this.$('.designer-available-sequence-feature').draggable({
         revert: 'invalid',
