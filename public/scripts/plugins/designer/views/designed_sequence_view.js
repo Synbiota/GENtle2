@@ -130,22 +130,43 @@ define(function(require) {
         chunk.from : 
         chunk.to + 1;
 
-      console.log(insertBeforeBase)
+      console.log(featureAndSubSeq.feature.type, featureAndSubSeq.feature)
 
-      this.model.insertBasesAndCreateFeatures(
-        insertBeforeBase, 
-        featureAndSubSeq.subSeq, 
-        featureAndSubSeq.feature.type == 'Sequence' ? 
-          featureAndSubSeq.feature.features : 
+      if(featureAndSubSeq.feature.type == 'Sequence') { 
+        this.model.insertSequenceAndCreateFeatures(
+          insertBeforeBase, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.features, 
+          true
+        );
+      } else {
+        this.model.insertBasesAndCreateFeatures(
+          insertBeforeBase, 
+          featureAndSubSeq.subSeq, 
           featureAndSubSeq.feature.feature, 
-        true
-      );
+          true
+        );
+      }
     },
 
     insertFirstAnnotationFromAvailableSequence: function($draggable) {
       var featureAndSubSeq = this.getFeatureFromDraggable($draggable);
 
-      this.model.insertBasesAndCreateFeatures(0, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+      if(featureAndSubSeq.feature.type == 'Sequence') { 
+        this.model.insertSequenceAndCreateFeatures(
+          0, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.features, 
+          true
+        );
+      } else {
+        this.model.insertBasesAndCreateFeatures(
+          0, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.feature, 
+          true
+        );
+      }
     },
 
     getFeatureFromDraggable: function($draggable) {
