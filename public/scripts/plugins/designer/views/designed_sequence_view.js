@@ -23,22 +23,20 @@ define(function(require) {
           _this = this,
           type;
 
-
       _.each(_.reject(this.model.get('features'), function(feature) {
         var featureTypeData = SynbioData.featureTypes[feature._type];
         return false;
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
         _.each(feature.ranges, function(range) {
-          if(feature.type !== 'Sequence'){
-            features.push({
+          features.push({
             name: feature.name,
             id: ++id,
             featureId: feature._id,
             from: range.from,
             to: range.to,
             type: feature._type.toLowerCase()
-          });}
+          });
         });
       });
 
@@ -124,7 +122,6 @@ define(function(require) {
 
       featureAndSubSeq = this.getFeatureFromDraggable($draggable);
 
-
       chunk = _.findWhere(this.chunks, {
         id: $droppable.closest("[data-chunk-id]").data('chunkId')
       });
@@ -133,47 +130,51 @@ define(function(require) {
         chunk.from : 
         chunk.to + 1;
 
-     if(featureAndSubSeq.feature.type==='Sequence'){
-      this.model.insertSequenceAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature, true);
-     }
-     else
-     {
-      this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
-     }
+      console.log(insertBeforeBase)
+
+      this.model.insertBasesAndCreateFeatures(
+        insertBeforeBase, 
+        featureAndSubSeq.subSeq, 
+        featureAndSubSeq.feature.type == 'Sequence' ? 
+          featureAndSubSeq.feature.features : 
+          featureAndSubSeq.feature.feature, 
+        true
+      );
     },
 
     insertFirstAnnotationFromAvailableSequence: function($draggable) {
       var featureAndSubSeq = this.getFeatureFromDraggable($draggable);
 
-      this.model.insertBasesAndCreateFeature(0, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+      this.model.insertBasesAndCreateFeatures(0, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
     },
 
     getFeatureFromDraggable: function($draggable) {
-      var sequenceId, availableSequenceView, feature;
+      var sequenceId, availableSequenceView, feature, sequence;
 
       sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
 
       availableSequenceView = this.parentView
         .getAvailableSequenceViewFromSequenceId(sequenceId);
 
-      feature = _.findWhere(availableSequenceView.features, {
-        id: $draggable.data('featureId')
-      });
+      if($draggable.hasClass('designer-available-sequence-entireseq')) {
 
-      sequence =_.findWhere(availableSequenceView.sequence, {
-        id: 0
-      });
+        sequence = availableSequenceView.sequenceInfo;
 
-      if(feature){
-      return {
-        feature: feature,
-        subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
-      };}
-      else if(sequence){
-      return {
-        feature: sequence,
-        subSeq: availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
-      }; 
+        return {
+          feature: sequence,
+          subSeq: availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
+        }; 
+
+      } else {
+
+        feature = _.findWhere(availableSequenceView.features, {
+          id: $draggable.data('featureId')
+        });
+
+        return {
+          feature: feature,
+          subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
+        };
       }
     },
 

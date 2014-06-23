@@ -125,6 +125,24 @@
     position: relative;
   }
 
+  .designer-available-sequence-name {
+    display: inline-block;
+  }
+
+  .designer-available-sequence-entireseq {
+    display: inline-block;
+    margin-left: 20px;
+    cursor: move;
+    text-align: center;
+    &.ui-draggable-dragging {
+      padding: 5px 10px;
+      background: #ddd;
+      color: black;
+      box-shadow: 0 0 3px transparentize(#222, .5);
+      z-index: 2000;
+    }
+  }
+
   .designer-available-sequence-features {
     position: relative;
     border-left: 1px dashed #444;
@@ -137,33 +155,6 @@
       }
     }
   }
-
-  .designer-available-sequence-entireseq {
-    position: relative;
-    width: 200px;
-    bottom: 30px;
-  }
-
-.designer-available-sequence-entireseqs {
-    position: absolute;
-    margin-left: -1px;
-    background: #333;
-    color: white;
-    font-size: 10px;
-    box-sizing: border-box;
-    padding: 5px 3px;
-    cursor: move;
-    text-align: center;
-     &.ui-draggable-dragging {
-      padding: 5px 10px;
-      background: #ddd;
-      color: black;
-      width: 100px !important;
-      box-shadow: 0 0 3px transparentize(#222, .5);
-      z-index: 2000;
-    }
-    }
-
 
   .designer-available-sequence-feature {
     position: absolute;

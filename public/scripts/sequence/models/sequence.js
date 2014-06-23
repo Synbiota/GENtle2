@@ -237,38 +237,44 @@ define(function(require) {
       this.throttledSave();
     },
 
-    insertBasesAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
-      var newFeature = _.deepClone(feature);
-      newFeature.ranges = [{
-        from: beforeBase,
-        to: beforeBase + bases.length - 1
-      }];
+    insertBasesAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
+      var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
+          _this = this;
+      
       this.insertBases(bases, beforeBase, updateHistory);
-      this.createFeature(newFeature);
-    },
 
-    insertSequenceAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
-      var _this = this;
-      this.insertBases(bases, beforeBase, updateHistory);
-      if(feature.id ===0)
-      _.each(feature.feature,function(feature){
+      _.each(newFeatures,function(feature){
+
         feature.ranges = [{
-        from: beforeBase+feature.from,
-        to: beforeBase + feature.to
-       }];
+          from: beforeBase,
+          to: beforeBase + bases.length - 1
+        }];
 
-      _this.createFeature(feature); });
+        delete feature.from;
+        delete feature.to;
+
+        _this.createFeature(feature, updateHistory); 
+      });
     },
 
-      insertBasesAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
-      var newFeature = _.deepClone(feature);
-      newFeature.ranges = [{
-        from: beforeBase,
-        to: beforeBase + bases.length - 1
-      }];
+    insertSequenceAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
+      var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
+          _this = this;
+      
       this.insertBases(bases, beforeBase, updateHistory);
-      this.createFeature(newFeature);
-    },
+
+      _.each(newFeatures,function(feature){
+
+        feature.ranges = _.map(feature.ranges, function(range) {
+          return {
+            from: beforeBase + range.from,
+            to: beforeBase + range.to
+          };
+        });
+
+        _this.createFeature(feature, updateHistory); 
+      });
+    }, 
 
     deleteBases: function(firstBase, length, updateHistory) {
       var seq = this.get('sequence'),
@@ -304,6 +310,7 @@ define(function(require) {
           featurePreviousState,
           storePreviousState,
           firstBase, lastBase,
+          trigger = false,
           historyTimestamps = [];
 
       storePreviousState = function(feature) {
@@ -323,6 +330,7 @@ define(function(require) {
               
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
+              if (range.from >= base || range.to >= base) trigger = true;
 
             } else {
 
@@ -331,6 +339,7 @@ define(function(require) {
 
               if (firstBase <= range.from) {
                 storePreviousState(feature);
+                trigger = true;
                 if (lastBase >= range.to) {
                   feature.ranges.splice(j--, 1);
                 } else {
@@ -339,6 +348,7 @@ define(function(require) {
                 }
               } else if (firstBase <= range.to) {
                 storePreviousState(feature);
+                trigger = true;
                 range.to = Math.max(firstBase - 1, -offset);
               }
 
@@ -354,6 +364,7 @@ define(function(require) {
           }
         }
         this.clearFeatureCache();
+        if(trigger) this.trigger('change change:features');
 
       }
 

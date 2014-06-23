@@ -1,19 +1,17 @@
-<div>
-{{#each sequence}}
-<h6>{{name}}</h6>
+<h6 class="designer-available-sequence-name">{{sequence.name}}</h6>
 
-<div class="designer-available-sequence-entireseq" id="entireseq">
-{{#unless hidden}}
-<div class="designer-available-sequence-entireseqs" data-entireSeq-id="{{id}}">Entire Sequence</div>
+{{#unless sequence.hidden}}
+  <div class="designer-available-sequence-entireseq btn btn-sm btn-default" data-entireSeq-id="{{sequence.id}}">
+    Entire Sequence ({{formatThousands sequence.length}}bp)
+  </div>
 {{/unless}}
 
-</div>
-
-{{/each}}
-<div class="designer-available-sequence-features">
-  {{#each features}}
-    <div class="designer-available-sequence-feature" data-feature-id="{{id}}">
-      {{name}}
-    </div>
-  {{/each}}
-</div>
+{{#if features}}
+  <div class="designer-available-sequence-features">
+    {{#each features}}
+      <div class="designer-available-sequence-feature" data-feature-id="{{id}}">
+        {{name}}
+      </div>
+    {{/each}}
+  </div>
+{{/if}}

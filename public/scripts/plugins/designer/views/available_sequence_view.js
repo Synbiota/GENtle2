@@ -2,8 +2,7 @@ define(function(require) {
   var Backbone = require('backbone.mixed'),
       template = require('hbars!../templates/available_sequence_view'),
       SynbioData = require('common/lib/synbio_data'),
-      AvailableSequenceView,
-      hidden;
+      AvailableSequenceView;
 
   AvailableSequenceView = Backbone.View.extend({
     template: template,
@@ -39,19 +38,16 @@ define(function(require) {
         return feature.from;
       });
 
-      if(this.model.maxOverlappingFeatures()<=1)
-        hidden = false;
-      else
-        hidden = true;
-      this.sequence.push({
-            name: this.model.get('name'),
-            id: 0,
-            from:1,
-            to: this.model.get('sequence').length,
-            type: 'Sequence',
-            feature: this.features,
-            hidden: hidden
-          });
+      this.sequenceInfo = {
+        name: this.model.get('name'),
+        id: 0,
+        from: 0,
+        to: this.model.length()-1,
+        length: this.model.length(),
+        type: 'Sequence',
+        features: this.model.get('features'),
+        hidden: this.model.maxOverlappingFeatures()>1
+      };
     },
 
     positionFeatures: function() {
@@ -62,15 +58,7 @@ define(function(require) {
           maxOverlapStackIndex = 0, length,
           $featuresElem;
 
-       //setting left offset
-       length = this.model.get('name').length * 10;
-       $sequenceElement = this.$('[data-entireSeq-id="'+0+'"]');
-
-        $sequenceElement.css({
-          left: length,
-        });
-
-       for(var i = 1; i < this.features.length; i++) {
+       for(var i = 0; i < this.features.length; i++) {
         feature = this.features[i];
         featureWidth = Math.max(
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
@@ -107,7 +95,7 @@ define(function(require) {
     serialize: function() {
       this.processFeatures();
       return {
-        sequence: this.sequence,
+        sequence: this.sequenceInfo,
         features: this.features
       };
     },
@@ -122,7 +110,7 @@ define(function(require) {
           left: 5
         }
       });
-       this.$('.designer-available-sequence-entireseqs').draggable({
+       this.$('.designer-available-sequence-entireseq').draggable({
         revert: 'invalid',
         helper: 'clone',
         cursorAt: {
