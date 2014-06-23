@@ -125,6 +125,24 @@
     position: relative;
   }
 
+  .designer-available-sequence-name {
+    display: inline-block;
+  }
+
+  .designer-available-sequence-entireseq {
+    display: inline-block;
+    margin-left: 20px;
+    cursor: move;
+    text-align: center;
+    &.ui-draggable-dragging {
+      padding: 5px 10px;
+      background: #ddd;
+      color: black;
+      box-shadow: 0 0 3px transparentize(#222, .5);
+      z-index: 2000;
+    }
+  }
+
   .designer-available-sequence-features {
     position: relative;
     border-left: 1px dashed #444;
