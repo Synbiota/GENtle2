@@ -28,6 +28,10 @@
             <small class="glyphicon glyphicon-remove close-sequence"></small>
             <span class="name">{{name}}</span> <br>
             <small class="details">
+              {{#if readOnly}}
+                <span class="text-info"><i class="glyphicon glyphicon-lock"></i></span>
+                &middot;
+              {{/if}}
               <span class="text-muted">{{shortFormNumber length}}bp</span>
               &middot;
               <span class="text-success">DNA</span>

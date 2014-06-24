@@ -43,6 +43,7 @@ define(function(require) {
       if (this.isOpen) {
         return {
           isOpen: true,
+          readOnly: this.model.get('readOnly'),
           historySteps: this.getHistorySteps().serialize(),
         };
       } else return {};

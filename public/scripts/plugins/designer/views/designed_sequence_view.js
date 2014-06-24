@@ -119,7 +119,8 @@ define(function(require) {
 
     serialize: function() {
       var output = {
-          sequence: this.model.serialize()
+          sequence: this.model.serialize(),
+          readOnly: this.model.get('readOnly')
       };
 
       if(this.model.maxOverlappingFeatures() > 1) {

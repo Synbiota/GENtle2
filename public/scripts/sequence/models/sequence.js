@@ -19,6 +19,7 @@ define(function(require) {
     defaults: function() {
       return {
         id: _.uniqueId(),
+        readOnly: false,
         displaySettings: {
           rows: {
             numbering: true,

@@ -25,13 +25,15 @@ define(function(require) {
     this.contextMenuYPos = posY;
     menu.reset().move(posX, posY - this.layoutHelpers.yOffset);
 
-    if(this.copyPasteHandler.copiedValue) {
+    if(!this.readOnly && this.copyPasteHandler.copiedValue) {
       menu.add('Paste', this.pasteFromMenu);
     }
 
     if(this.selection) {
       menu.add('Copy', this.copyFromMenu);
-      menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+      if(!this.readOnly) {
+        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+      }
     }
 
     if(menu.menuItems.length) {

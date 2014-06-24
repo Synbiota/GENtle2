@@ -93,6 +93,7 @@ define(function(require) {
         @default `this.view.model`
     **/
     this.sequence = options.sequence || this.view.model;
+    this.readOnly = !!this.sequence.get('readOnly');
 
     /**
         @property layoutSettings

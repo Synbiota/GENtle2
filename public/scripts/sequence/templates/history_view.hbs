@@ -5,12 +5,14 @@
         {{#each historySteps}}
             <tr>
               <td style="width: 30px">
-                {{#unless hidden}}
-                <button class="btn btn-default btn-xs undo-history-step" 
-                        title="Undo this and later operations"
-                        data-timestamp="{{timestamp}}">
-                  <i class="glyphicon glyphicon-fast-backward"></i>
-                </button>
+                {{#unless ../readOnly}}
+                  {{#unless hidden}}
+                  <button class="btn btn-default btn-xs undo-history-step" 
+                          title="Undo this and later operations"
+                          data-timestamp="{{timestamp}}">
+                    <i class="glyphicon glyphicon-fast-backward"></i>
+                  </button>
+                  {{/unless}}
                 {{/unless}}
               </td>
               <td style="width: 80px;">

@@ -86,18 +86,22 @@
 
   {{else}}
     <div class="list-group" id="sequence-features-list">
-      <div class="list-group-item">
-        <button class="btn btn-default btn-xs pull-right sequence-feature-create-button">
-          Create annotation
-        </button>
-        <div class="clearfix"></div>
-      </div>
+      {{#unless readOnly}}
+        <div class="list-group-item">
+          <button class="btn btn-default btn-xs pull-right sequence-feature-create-button">
+            Create annotation
+          </button>
+          <div class="clearfix"></div>
+        </div>
+      {{/unless}}
       {{#each features}}
         <a href="#" class="list-group-item sequence-feature-link" data-feature-id="{{_id}}">
           <div class="media">
-            <button class="pull-left btn btn-default btn-sm sequence-feature-edit-button" data-feature-id="{{_id}}">
-              <i class="media-object glyphicon glyphicon-pencil"></i>
-            </button>
+            {{#unless ../readOnly}}
+              <button class="pull-left btn btn-default btn-sm sequence-feature-edit-button" data-feature-id="{{_id}}">
+                <i class="media-object glyphicon glyphicon-pencil"></i>
+              </button>
+            {{/unless}}
             <div class="media-body">
               <div class="pull-right">
                 {{#each ranges}}

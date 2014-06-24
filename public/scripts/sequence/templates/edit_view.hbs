@@ -1,13 +1,15 @@
 <form role="form">
     <div class="form-group{{#if error.name}} has-error{{/if}}">
     <label for="Name">Sequence Name</label>
-    <input type="text" class="form-control" id="name" value="{{Name}}">
+    <input type="text" class="form-control" id="name" value="{{Name}}"{{#if readOnly}} disabled{{/if}}>
     </div>
      <div class="form-group">
     <label for="Desc">Description</label>
-<textarea type="text" class="form-control" style="resize:none" rows="4" id="desc" >{{Desc}}</textarea>
+<textarea type="text" class="form-control" style="resize:none" rows="4" id="desc"{{#if readOnly}} disabled{{/if}}>{{Desc}}</textarea>
   </div>
   </div>
-  <input type="button" value="Save" class="sequence-save-button btn btn-primary pull-right" required>
+  {{#unless readOnly}}
+    <input type="button" value="Save" class="sequence-save-button btn btn-primary pull-right" required>
+  {{/unless}}
  
 </form>
