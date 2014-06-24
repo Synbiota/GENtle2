@@ -13,19 +13,14 @@ define(function(require) {
       this.listenTo(Gentle.currentSequence, 'change', this.render, this);
     },
 
-
     trashFeatureOrBases: function(chunk){
       var currentChunk = _.findWhere(this.model.chunks,{id: chunk}), featureObj;
 
-      if(currentChunk.feature !== undefined){
-           featureObj = _.findWhere(this.model.get('features'),{_id:currentChunk.feature.featureId});
-           this.model.deleteFeature(featureObj,'design-true');
-        }
-        else
-      if(currentChunk._type === 'sequence'){
-          this.model.deleteBases(currentChunk.from,Math.abs(currentChunk.from-currentChunk.to)+1,'design-true');
-          this.render();
-        }
+      this.model.deleteBases(
+        currentChunk.from,
+        -currentChunk.from+currentChunk.to+1, 
+        true
+      );
     },
 
     processChunks: function() {
@@ -236,15 +231,6 @@ define(function(require) {
 
     afterRender: function() {
       var _this = this;
-      var trashButton = function(chunk){
-        this.$('[data-position-id="'+chunk+'"]').addClass('hidden');
-        this.$('[data-trash-id="'+chunk+'"]').removeClass('hidden').mouseout(function(){setTimeout(function() {
-        this.$('[data-trash-id="'+chunk+'"]').addClass('hidden');
-        this.$('[data-position-id="'+chunk+'"]').removeClass('hidden');
-        }, 50);});
-        this.$('[data-trash-id="'+chunk+'"]').unbind("click").click(function(event){    event.stopPropagation();
-         _this.trashFeatureOrBases(chunk);});
-      };
       this.styleChunks();
 
       this.$('.designer-designed-sequence-chunk').draggable({
@@ -255,20 +241,18 @@ define(function(require) {
           top: 5, 
           left: 5
         },
-        start: function() {
-          var chunkId = $(this).data('chunkId');
-          _this.$('[data-position-id="'+chunkId+'"]').addClass('hidden');
-          _this.$('[data-trash-id="'+chunkId+'"]').addClass('hidden');
-        }, 
-        stop: function() { 
-          var chunkId = $(this).data('chunkId'); 
-          _this.$('[data-position-id="'+chunkId+'"]').removeClass('hidden');
-        }
       });
 
-      this.$('div.designer-designed-sequence-chunk-position').mouseenter(function(){
-        var chunkId = $(this).parent().data('chunkId');
-        trashButton(chunkId);
+      this.$('div.designer-designed-sequence-chunk-trash').droppable({
+        activeClass: 'enabled',
+        hoverClass: 'active',
+        tolerance: 'pointer',
+        accept: function($draggable) {
+          return $draggable.data('chunkId') == $(this).data('trashId');
+        },
+        drop: function(event, ui) {
+          _this.trashFeatureOrBases(ui.draggable.data('chunkId'));
+        }
       });
 
       this.$('.designer-designed-sequence-chunk-droppable').droppable({

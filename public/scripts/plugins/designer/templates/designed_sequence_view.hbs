@@ -25,24 +25,26 @@
 
     <div class="designer-designed-sequence-chunks">
       {{#each chunks}}
-        <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
-          <div class="designer-designed-sequence-chunk-position" data-position-id="{{id}}">
+        <div class="designer-designed-sequence-chunk-container" data-chunk-id="{{id}}">
+          <div class="designer-designed-sequence-chunk-position">
             {{formatThousands from 1}}
           </div>
-          <div class="designer-designed-sequence-chunk-position-container hidden" data-trash-id ={{id}}>
-          <span class="glyphicon glyphicon-trash btn btn-danger"></span>
+          <div class="designer-designed-sequence-chunk-trash" data-trash-id="{{id}}">
+            <i class="glyphicon glyphicon-trash"></i>
           </div>
-          <div class="designer-designed-sequence-chunk-title">
-            {{#if empty}}
-              Unannotated
-            {{else}}
-              {{feature.name}}
-            {{/if}}
-            <br>
-            <em>({{formatThousands length}}bp)</em>
+          <div class="designer-designed-sequence-chunk" data-chunk-id="{{id}}">
+            <div class="designer-designed-sequence-chunk-title">
+              {{#if empty}}
+                Unannotated
+              {{else}}
+                {{feature.name}}
+              {{/if}}
+              <br>
+              <em>({{formatThousands length}}bp)</em>
+            </div>
+            <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-before">&nbsp;</div>
+            <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-after">&nbsp;</div>
           </div>
-          <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-before">&nbsp;</div>
-          <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-after">&nbsp;</div>
         </div>
       {{/each}}
       <div class="clearfix"></div>
