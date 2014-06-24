@@ -9,7 +9,7 @@
 {{#if features}}
   <div class="designer-available-sequence-features">
     {{#each features}}
-      <div class="designer-available-sequence-feature" data-feature-id="{{id}}">
+      <div class="designer-available-sequence-feature designer-available-sequence-feature-{{_type}}" data-feature-id="{{id}}">
         {{name}}
       </div>
     {{/each}}

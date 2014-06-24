@@ -7893,12 +7893,12 @@ button.close {
     display: none !important;
   }
 }
-/* line 1, views/_designer_view.scss */
+/* line 3, views/_designer_view.scss */
 .designer {
   height: 100%;
 }
 
-/* line 5, views/_designer_view.scss */
+/* line 7, views/_designer_view.scss */
 .designer-designed-sequence-outlet {
   padding: 10px 20px;
   border-right: 2px solid #ddd;
@@ -7914,7 +7914,7 @@ button.close {
   top: 0;
   overflow-y: auto;
 }
-/* line 18, views/_designer_view.scss */
+/* line 20, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-empty-placeholder {
   border: 3px dashed #ddd;
   color: #999;
@@ -7923,16 +7923,16 @@ button.close {
   padding: 15px 30px;
   margin-top: 20px;
 }
-/* line 26, views/_designer_view.scss */
+/* line 28, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-empty-placeholder.active {
   color: #2a6496;
   border-color: #428bca;
 }
-/* line 32, views/_designer_view.scss */
+/* line 34, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunks {
   margin-left: 50px;
 }
-/* line 38, views/_designer_view.scss */
+/* line 40, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-trash {
   visibility: hidden;
   float: left;
@@ -7949,15 +7949,15 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 53, views/_designer_view.scss */
+/* line 55, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-trash.enabled {
   visibility: visible;
 }
-/* line 56, views/_designer_view.scss */
+/* line 58, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-trash.active {
   color: red;
 }
-/* line 61, views/_designer_view.scss */
+/* line 63, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-position {
   float: left;
   margin-left: -50px;
@@ -7970,32 +7970,32 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 72, views/_designer_view.scss */
+/* line 74, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-title {
   padding: 5px 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 77, views/_designer_view.scss */
+/* line 79, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk {
   position: relative;
-  background: red;
+  background: #a12e29;
   color: white;
   box-sizing: border-box;
   font-size: 10px;
   text-align: center;
-  border: 1px solid red;
+  border: 1px solid white;
   margin-bottom: 7px;
 }
-/* line 87, views/_designer_view.scss */
+/* line 89, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-title {
   padding: 5px 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 92, views/_designer_view.scss */
+/* line 94, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-droppable {
   position: absolute;
   top: 0;
@@ -8003,13 +8003,13 @@ button.close {
   width: 100%;
   height: 50%;
 }
-/* line 98, views/_designer_view.scss */
+/* line 100, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-droppable.active {
   background-color: transparent;
   background-image: -webkit-linear-gradient(-270deg, transparent, rgba(255, 255, 255, 0.7));
   background-image: linear-gradient(0deg,transparent, rgba(255, 255, 255, 0.7));
 }
-/* line 100, views/_designer_view.scss */
+/* line 102, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-droppable.active::before {
   content: "Insert before";
   display: block;
@@ -8025,18 +8025,18 @@ button.close {
   border: 1px dashed #888;
   border-radius: 7px;
 }
-/* line 117, views/_designer_view.scss */
+/* line 119, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-droppable-after {
   top: auto;
   bottom: 0;
 }
-/* line 120, views/_designer_view.scss */
+/* line 122, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-droppable-after.active {
   background-color: transparent;
   background-image: -webkit-linear-gradient(transparent, rgba(255, 255, 255, 0.7));
   background-image: linear-gradient(transparent, rgba(255, 255, 255, 0.7));
 }
-/* line 122, views/_designer_view.scss */
+/* line 124, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-droppable-after.active::before {
   top: auto;
   bottom: 0;
@@ -8044,14 +8044,56 @@ button.close {
   content: "Insert after";
   z-index: 1000;
 }
-/* line 132, views/_designer_view.scss */
+/* line 134, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-empty {
   background: #ddd;
   color: #888;
   border: 1px solid #888;
 }
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-CDS {
+  color: white;
+  border-color: white;
+  background: #3c4589;
+}
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-terminator {
+  color: white;
+  border-color: white;
+  background: #1c1c25;
+}
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-oriT {
+  color: #3e0208;
+  border-color: #3e0208;
+  background: #d5cb4a;
+}
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-promoter {
+  color: white;
+  border-color: white;
+  background: #a12e29;
+}
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-rbs {
+  color: white;
+  border-color: white;
+  background: #a12e29;
+}
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-protein_bind {
+  color: white;
+  border-color: white;
+  background: #a12e29;
+}
+/* line 142, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-note {
+  color: white;
+  border-color: white;
+  background: #3c6e39;
+}
 
-/* line 141, views/_designer_view.scss */
+/* line 153, views/_designer_view.scss */
 .designer-available-sequences {
   position: absolute;
   left: 0;
@@ -8063,27 +8105,27 @@ button.close {
   overflow-y: auto;
 }
 
-/* line 152, views/_designer_view.scss */
+/* line 164, views/_designer_view.scss */
 .designer-available-sequence-outlet {
   padding: 10px 20px;
   border-bottom: 1px solid #ddd;
 }
-/* line 156, views/_designer_view.scss */
+/* line 168, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence {
   position: relative;
 }
-/* line 160, views/_designer_view.scss */
+/* line 172, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-name {
   display: inline-block;
 }
-/* line 164, views/_designer_view.scss */
+/* line 176, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-entireseq {
   display: inline-block;
   margin-left: 20px;
   cursor: move;
   text-align: center;
 }
-/* line 169, views/_designer_view.scss */
+/* line 181, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-entireseq.ui-draggable-dragging {
   padding: 5px 10px;
   background: #ddd;
@@ -8091,59 +8133,60 @@ button.close {
   box-shadow: 0 0 3px rgba(34, 34, 34, 0.5);
   z-index: 2000;
 }
-/* line 178, views/_designer_view.scss */
+/* line 190, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features {
   position: relative;
   border-left: 1px dashed #444;
   border-right: 1px dashed #444;
   margin-top: 10px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-0 {
   height: 16px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-1 {
   height: 43px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-2 {
   height: 70px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-3 {
   height: 97px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-4 {
   height: 124px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-5 {
   height: 151px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-6 {
   height: 178px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-7 {
   height: 205px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-8 {
   height: 232px;
 }
-/* line 185, views/_designer_view.scss */
+/* line 197, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-9 {
   height: 259px;
 }
-/* line 191, views/_designer_view.scss */
+/* line 203, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature {
   position: absolute;
   margin-left: -1px;
-  background: #333;
+  background: #a12e29;
   color: white;
+  border-color: white;
   font-size: 10px;
   box-sizing: border-box;
   padding: 5px 3px;
@@ -8153,7 +8196,7 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 203, views/_designer_view.scss */
+/* line 216, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.ui-draggable-dragging {
   padding: 5px 10px;
   background: #ddd;
@@ -8162,45 +8205,87 @@ button.close {
   box-shadow: 0 0 3px rgba(34, 34, 34, 0.5);
   z-index: 2000;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-0 {
   top: 10px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-1 {
   top: 37px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-2 {
   top: 64px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-3 {
   top: 91px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-4 {
   top: 118px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-5 {
   top: 145px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-6 {
   top: 172px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-7 {
   top: 199px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-8 {
   top: 226px;
 }
-/* line 213, views/_designer_view.scss */
+/* line 226, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-9 {
   top: 253px;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-CDS {
+  border-color: white;
+  color: white;
+  background: #3c4589;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-terminator {
+  border-color: white;
+  color: white;
+  background: #1c1c25;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-oriT {
+  border-color: #3e0208;
+  color: #3e0208;
+  background: #d5cb4a;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-promoter {
+  border-color: white;
+  color: white;
+  background: #a12e29;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-rbs {
+  border-color: white;
+  color: white;
+  background: #a12e29;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-protein_bind {
+  border-color: white;
+  color: white;
+  background: #a12e29;
+}
+/* line 233, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-note {
+  border-color: white;
+  color: white;
+  background: #3c6e39;
 }
 
 /* line 1, views/_navbar_view.scss */

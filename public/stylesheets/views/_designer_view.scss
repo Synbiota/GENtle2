@@ -1,3 +1,5 @@
+$__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"), "features"), "color");
+
 .designer {
   height: 100%;
 }
@@ -76,12 +78,12 @@
 
     .designer-designed-sequence-chunk {
       position: relative;
-      background: red;
-      color: white;
+      background: map_get(map_get($__colors, '_default'), 'fill');
+      color: map_get(map_get($__colors, '_default'), 'color');
       box-sizing: border-box;
       font-size: 10px;
       text-align: center;
-      border: 1px solid red;
+      border: 1px solid map_get(map_get($__colors, '_default'), 'color');
       margin-bottom: 7px; 
 
       .designer-designed-sequence-chunk-title {
@@ -133,6 +135,16 @@
         background: #ddd;
         color: #888;
         border: 1px solid #888;
+      }
+
+      @each $feature_type, $v in $__colors {
+        @if $feature_type != '_default' {
+          &.designer-designed-sequence-chunk-#{$feature_type} {
+            color: map_get($v, 'color');
+            border-color: map_get($v, 'color');
+            background: map_get($v, 'fill');
+          }
+        }
       }
     }
   }
@@ -191,8 +203,9 @@
   .designer-available-sequence-feature {
     position: absolute;
     margin-left: -1px;
-    background: #333;
-    color: white;
+    background: map_get(map_get($__colors, '_default'), 'fill');
+    color: map_get(map_get($__colors, '_default'), 'color');
+    border-color: map_get(map_get($__colors, '_default'), 'color');
     font-size: 10px;
     box-sizing: border-box;
     padding: 5px 3px;
@@ -212,6 +225,16 @@
     @for $i from 0 to 10 {
       &.designer-available-sequence-feature-stacked-#{$i} {
         top: 10px + 27px * $i;
+      }
+    }
+
+    @each $feature_type, $v in $__colors {
+      @if $feature_type != '_default' {
+        &.designer-available-sequence-feature-#{$feature_type} {
+          border-color: map_get($v, 'color');
+          color: map_get($v, 'color');
+          background: map_get($v, 'fill');
+        }
       }
     }
   }
