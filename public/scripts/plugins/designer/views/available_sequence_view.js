@@ -75,6 +75,7 @@ define(function(require) {
         $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
 
         $featureElement.css({
+          left: Math.floor(feature.from / maxBase * viewWidth),
           width: featureWidth
         });
 
