@@ -21,7 +21,7 @@ define(function(require) {
         selection = this.selection,
         caretPosition = this.caretPosition;
 
-      if (~this.allowedInputChars.indexOf(base)) {
+      if (!this.readOnly && ~this.allowedInputChars.indexOf(base)) {
 
         if (!selection && caretPosition !== undefined) {
 
@@ -93,19 +93,21 @@ define(function(require) {
   };
 
   Handlers.prototype.handleBackspaceKey = function(shift, meta) {
-    if (this.selection) {
-      var selection = this.selection;
-      this.selection = undefined;
-      this.sequence.deleteBases(
-        selection[0],
-        selection[1] - selection[0] + 1
-      );
-      this.displayCaret(selection[0]);
-    } else if (this.caretPosition > 0) {
-      var previousCaret = this.caretPosition;
-      this.hideCaret();
-      this.sequence.deleteBases(previousCaret - 1, 1);
-      this.displayCaret(previousCaret - 1);
+    if(!this.readOnly) {
+      if (this.selection) {
+        var selection = this.selection;
+        this.selection = undefined;
+        this.sequence.deleteBases(
+          selection[0],
+          selection[1] - selection[0] + 1
+        );
+        this.displayCaret(selection[0]);
+      } else if (this.caretPosition > 0) {
+        var previousCaret = this.caretPosition;
+        this.hideCaret();
+        this.sequence.deleteBases(previousCaret - 1, 1);
+        this.displayCaret(previousCaret - 1);
+      }
     }
   };
 
@@ -232,20 +234,24 @@ define(function(require) {
       selection = _this.selection,
       caretPosition = _this.caretPosition;
 
-    this.copyPasteHandler.paste().then(function(text) {
-      if (caretPosition !== undefined && !selection) {
-        text = _this.cleanPastedText(text);
-        _this.hideCaret();
-        _this.sequence.insertBases(text, caretPosition);
-        _this.displayCaret(caretPosition + text.length);
-        _this.focus();
-      }
+    if(!this.readOnly) {
 
-    });
+      this.copyPasteHandler.paste().then(function(text) {
+        if (caretPosition !== undefined && !selection) {
+          text = _this.cleanPastedText(text);
+          _this.hideCaret();
+          _this.sequence.insertBases(text, caretPosition);
+          _this.displayCaret(caretPosition + text.length);
+          _this.focus();
+        }
+
+      });
+
+    }
   };
 
   Handlers.prototype.handleUndo = function(event) {
-    if (this.caretPosition !== undefined) {
+    if (!this.readOnly && this.caretPosition !== undefined) {
       event.preventDefault();
       this.hideCaret();
       this.sequence.undo();

@@ -103,7 +103,7 @@ define(function(require) {
       var suffixes = ['', 'K', 'M', 'G'],
           magOrder = Math.round(Math.log10(number) / 3),
           roundedNumber = Math.round(number / Math.pow(10, magOrder * 3) * 100) / 100;
-      return roundedNumber.toString() + suffixes[magOrder];
+      return number === 0 ? 0 : roundedNumber.toString() + suffixes[magOrder];
     },
 
     /**

@@ -24,10 +24,8 @@ define(function(require) {
 
     afterRender: function() {
       this.insertSequenceViews();
-      
-      // this.$('.designer-available-sequences').css('height',
-      //   $('.sequence-view').outerHeight() - this.$('.designer-designed-sequence-outlet').outerHeight()
-      // );
+      this.stopListening();
+      this.listenTo(this.parentView, 'resize', this.render, this);
     },
 
     insertSequenceViews: function() {

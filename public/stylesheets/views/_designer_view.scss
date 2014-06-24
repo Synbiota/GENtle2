@@ -33,19 +33,30 @@
     margin-left: 50px;
   }
 
-  .text-overflow{
-    text-overflow: ellipsis; 
-  }
+  .designer-designed-sequence-chunk-container {
 
-  .designer-designed-sequence-chunk {
-    position: relative;
-    background: red;
-    color: white;
-    box-sizing: border-box;
-    font-size: 10px;
-    text-align: center;
-    border: 1px solid red;
-    margin-bottom: 7px;
+    .designer-designed-sequence-chunk-trash {
+      visibility: hidden;
+      float: left;
+      margin-left: -50px;
+      color: #888;
+      width: 42px;
+      text-align: left;
+      border: 1px solid #888;
+      background: white;
+      padding: 7px 0 2px 0;
+      text-align: center;
+      font-size: 1.5em;
+
+      @include text-overflow();
+
+      &.enabled {
+        visibility: visible;
+      }
+      &.active {
+        color: red;
+      }
+    }  
 
     .designer-designed-sequence-chunk-position {
       float: left;
@@ -55,16 +66,7 @@
       border-top: 1px solid #888;
       width: 42px;
       text-align: left;
-      @include text-overflow()
-    }    
-
-      .designer-designed-sequence-chunk-position-container {
-      float: left;
-      margin-left: -50px;
-      color: #005;
-      width: 42px;
-      text-align: left;
-      @include text-overflow()
+      @include text-overflow();
     }    
 
     .designer-designed-sequence-chunk-title {
@@ -72,50 +74,66 @@
       @include text-overflow()
     }
 
-    .designer-designed-sequence-chunk-droppable {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 50%;
-      &.active {
-        @include linear-gradient(0deg, transparent, rgba(255,255,255,.7));
-        &::before {
-          content: "Insert before";
-          display: block;
-          position: absolute;
-          top: 0;
-          margin-top: -25px;
-          left: 50%;
-          margin-left: -50px;
-          width: 100px;
-          background: white;
-          color: #888;
-          padding: 3px 6px;
-          border: 1px dashed #888;
-          border-radius: 7px;
-        }
-      }
-    }
-    .designer-designed-sequence-chunk-droppable-after {
-      top: auto;
-      bottom: 0;
-      &.active {
-        @include linear-gradient(transparent, rgba(255,255,255,.7));
-        &::before {
-          top: auto;
-          bottom: 0;
-          margin-bottom: -25px;
-          content: "Insert after";
-          z-index: 1000;
-        }
-      }
-    }
+    .designer-designed-sequence-chunk {
+      position: relative;
+      background: red;
+      color: white;
+      box-sizing: border-box;
+      font-size: 10px;
+      text-align: center;
+      border: 1px solid red;
+      margin-bottom: 7px; 
 
-    &.designer-designed-sequence-chunk-empty {
-      background: #ddd;
-      color: #888;
-      border: 1px solid #888;
+      .designer-designed-sequence-chunk-title {
+        padding: 5px 10px;
+        @include text-overflow();
+      }
+
+      .designer-designed-sequence-chunk-droppable {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 50%;
+        &.active {
+          @include linear-gradient(0deg, transparent, rgba(255,255,255,.7));
+          &::before {
+            content: "Insert before";
+            display: block;
+            position: absolute;
+            top: 0;
+            margin-top: -25px;
+            left: 50%;
+            margin-left: -50px;
+            width: 100px;
+            background: white;
+            color: #888;
+            padding: 3px 6px;
+            border: 1px dashed #888;
+            border-radius: 7px;
+          }
+        }
+      }
+      .designer-designed-sequence-chunk-droppable-after {
+        top: auto;
+        bottom: 0;
+        &.active {
+          @include linear-gradient(transparent, rgba(255,255,255,.7));
+          &::before {
+            top: auto;
+            bottom: 0;
+            margin-bottom: -25px;
+            content: "Insert after";
+            z-index: 1000;
+          }
+        }
+      }
+
+      &.designer-designed-sequence-chunk-empty {
+        background: #ddd;
+        color: #888;
+        border: 1px solid #888;
+      }
     }
   }
 }
@@ -137,6 +155,24 @@
 
   .designer-available-sequence {
     position: relative;
+  }
+
+  .designer-available-sequence-name {
+    display: inline-block;
+  }
+
+  .designer-available-sequence-entireseq {
+    display: inline-block;
+    margin-left: 20px;
+    cursor: move;
+    text-align: center;
+    &.ui-draggable-dragging {
+      padding: 5px 10px;
+      background: #ddd;
+      color: black;
+      box-shadow: 0 0 3px transparentize(#222, .5);
+      z-index: 2000;
+    }
   }
 
   .designer-available-sequence-features {
@@ -162,6 +198,7 @@
     padding: 5px 3px;
     cursor: move;
     text-align: center;
+    @include text-overflow();
 
     &.ui-draggable-dragging {
       padding: 5px 10px;
@@ -177,6 +214,5 @@
         top: 10px + 27px * $i;
       }
     }
-  @include text-overflow()
   }
 }

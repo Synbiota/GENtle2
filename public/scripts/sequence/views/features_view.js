@@ -205,6 +205,7 @@ define(function(require) {
       if (this.isOpen) {
         if (this.editedFeature) {
           return {
+            readOnly: this.model.get('readOnly'),
             isOpen: true,
             creating: this.creating,
             editedFeature: this.editedFeature,
@@ -213,6 +214,7 @@ define(function(require) {
           };
         } else {
           return {
+            readOnly: this.model.get('readOnly'),
             isOpen: true,
             features: this.model.get('features')
           };

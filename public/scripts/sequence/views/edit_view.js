@@ -65,6 +65,7 @@ define(function(require) {
 
         serialize: function() {
             return {
+                readOnly: this.model.get('readOnly'),
                 Name: this.model.get('name'),
                 Desc: this.model.get('description'),
                 error: this.model.errors || {}

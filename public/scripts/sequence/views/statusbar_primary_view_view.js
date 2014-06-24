@@ -1,5 +1,6 @@
 define(function(require) {
   var Backbone = require('backbone.mixed'),
+      Gentle = require('gentle')(),
       template = require('hbars!../templates/statusbar_primary_view_view');
 
   return Backbone.View.extend({
@@ -8,6 +9,7 @@ define(function(require) {
 
     serialize: function() {
       return {
+        readOnly: !!Gentle.currentSequence.get('readOnly'),
         primaryView: this.parentView.parentView.primaryView.title
       };
     }
