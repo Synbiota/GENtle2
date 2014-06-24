@@ -68,9 +68,6 @@ define(function(require) {
 
        for(var i = 0; i < this.features.length; i++) {
         feature = this.features[i];
-        if(this.sidebarOpen === true)    
-        featureWidth = this.model.featureWidth[i]*$('div.designer-available-sequence-features').width();
-        else
         featureWidth = Math.max(
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
@@ -78,11 +75,10 @@ define(function(require) {
         $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
 
         $featureElement.css({
-          width: featureWidth,
-          left: featureLeftOffset,
+          width: featureWidth
         });
 
-       overlapIndex = overlapStack.length;
+        overlapIndex = overlapStack.length;
 
         for(var j = overlapStack.length - 1; j >= 0; j--) {
           if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
@@ -100,7 +96,6 @@ define(function(require) {
     },
 
     serialize: function() {
-      this.sidebarOpen = false;
       this.processFeatures();
       return {
         sequence: this.sequenceInfo,
@@ -109,39 +104,8 @@ define(function(require) {
     },
 
     afterRender: function() {
-      _this = this;
-            var id = -1;
-      this.sidebarOpen = false;
+      var _this = this;
       this.positionFeatures();
-      var outletSelector;
-      
-      $('html').unbind("click").click(function(e){ 
-      if(this.changeWidth === undefined){
-          this.changeWidth = $('div.hovered').width();
-      }
-      
-        if(this.changeWidth === $('div.hovered').width()){
-        _.each(_this.availableSequences, function(sequence){  
-        _this.sidebarOpen = true;    
-        _this.model = sequence;
-        _this.features = [];
-        _this.processFeatures();
-        _this.positionFeatures();
-        _this.sidebarOpen = false;
-        });}
-        else
-
-        if(this.changeWidth !== $('div.hovered').width()){
-        _.each(_this.availableSequences, function(sequence){  
-        _this.sidebarOpen = false;    
-        _this.model = sequence;
-        _this.features = [];
-        _this.processFeatures();
-        _this.positionFeatures();
-        _this.sidebarOpen = false;
-        });}
-
-      });
 
       this.$('.designer-available-sequence-feature').draggable({
         revert: 'invalid',
