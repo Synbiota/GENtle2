@@ -11,10 +11,11 @@ define(function(require) {
     minFeatureWidth: 4,
 
     processFeatures: function() {
-      var id = -1,
+      var id = 0,
           _this = this;
 
       this.features = [];
+      this.sequence =[];
 
       _.each(_.reject(this.model.get('features'), function(feature) {
         var featureTypeData = SynbioData.featureTypes[feature._type];
@@ -27,7 +28,7 @@ define(function(require) {
             id: ++id,
             from: range.from,
             to: range.to,
-            type: feature._type.toLowerCase(),
+            _type: feature._type.toLowerCase(),
             feature: feature
           });
         });
@@ -36,30 +37,43 @@ define(function(require) {
       this.features = _.sortBy(this.features, function(feature) {
         return feature.from;
       });
+
+      this.sequenceInfo = {
+        name: this.model.get('name'),
+        id: 0,
+        from: 0,
+        to: this.model.length()-1,
+        length: this.model.length(),
+        type: 'Sequence',
+        features: this.model.get('features'),
+        hidden: this.model.maxOverlappingFeatures()>1
+      };
     },
 
     positionFeatures: function() {
       var maxBase = this.maxBaseForCalc || this.model.length(),
           viewWidth = this.$el.width(),
-          $featureElement, feature, featureWidth,
+          $featureElement, feature, featureWidth,sequence,
           overlapStack = [], overlapIndex,
-          maxOverlapStackIndex = 0,
+          maxOverlapStackIndex = 0, length,
           $featuresElem;
 
-      for(var i = 0; i < this.features.length; i++) {
+       for(var i = 0; i < this.features.length; i++) {
         feature = this.features[i];
         featureWidth = Math.max(
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
         );
         $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
+  
 
         $featureElement.css({
           width: featureWidth,
           left: Math.floor(feature.from / maxBase * viewWidth),
         });
 
-        overlapIndex = overlapStack.length;
+
+       overlapIndex = overlapStack.length;
 
         for(var j = overlapStack.length - 1; j >= 0; j--) {
           if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
@@ -81,7 +95,7 @@ define(function(require) {
     serialize: function() {
       this.processFeatures();
       return {
-        sequence: this.model.serialize(),
+        sequence: this.sequenceInfo,
         features: this.features
       };
     },
@@ -89,6 +103,14 @@ define(function(require) {
     afterRender: function() {
       this.positionFeatures();
       this.$('.designer-available-sequence-feature').draggable({
+        revert: 'invalid',
+        helper: 'clone',
+        cursorAt: {
+          top: 5,
+          left: 5
+        }
+      });
+       this.$('.designer-available-sequence-entireseq').draggable({
         revert: 'invalid',
         helper: 'clone',
         cursorAt: {

@@ -2,7 +2,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // Clone Manager CM5
 
-  var FT_base = require('lib/files/base'),
+  var FT_base = require('common/lib/filetypes/base'),
       FT_cm5;
 
   FT_cm5 = function() {
@@ -32,15 +32,6 @@ define(function(require) {
     this.parseFile () ;
   }
 
-  FT_cm5.prototype.getLittleEndianUnsignedLong = function ( bytes , p ) {
-    var n1 = bytes[p+1] * 256 + bytes[p+0] ;
-    var n2 = bytes[p+2] * 256 + bytes[p+3] ;
-  //  n2 *= 65536 ;
-    console.log ( "!" + n2 ) ;
-    return n1 ;
-  //  return n2 * 65536 + n1 ;
-  }
-
   FT_cm5.prototype.getLittleEndianUnsignedWord = function ( bytes , p ) {
     var n1 = bytes[p+1] * 256 + bytes[p+0] ;
     return n1 ;
@@ -48,13 +39,14 @@ define(function(require) {
 
   FT_cm5.prototype.parseFile = function ( heuristic ) {
     var me = this ;
-    var me_text = String.fromCharCode.apply(null, new Uint16Array(me.text)) ;
-    if ( me_text.substr(0,1) >= '0' && me_text.substr(0,1) <= '9' ) return false ; // HACK prevent error "Uncaught RangeError: ArrayBufferView size is not a small enough positive integer. "
-    var bytes = new Uint8Array(me.text);
+
+	var text_array = me.asArrayBuffer() ;
+	if ( typeof text_array == 'undefined' ) return false ;
+	var bytes = new Uint8Array(text_array);
+
     if ( bytes[0] != 26 || bytes[1] != 83 || bytes[2] != 69 || bytes[3] != 83 ) return false ; // CHECK HEURISTIC!
     
-    var seq = new SequenceDNA ( '' , '' ) ;
-    seq.desc = '' ;
+    var seq = { name:'' , sequence:'' , desc:'' } ;
 
     var feat_start = [] ;
     for ( var p = 4 ; p < bytes.length ; p++ ) {
@@ -92,7 +84,7 @@ define(function(require) {
       feature.name = shortname ;
       feature.desc = name ;
       feature['ranges'] = [ { from:from , to:to , rc:rc } ] ;
-      feature['_type'] = gentle.getFeatureType ( type ) ;
+      feature['_type'] = type ; //gentle.getFeatureType ( type ) ; // TODO normalize type
       seq.features.push ( feature ) ;
       
   //    console.log ( type + " : " + from + "-" + to + (rc?" RC":"") + " [" + shortname + "] " + name ) ;
@@ -100,7 +92,7 @@ define(function(require) {
     
     // Actual sequence
     var p ;
-    for ( p = seq_start ; bytes[p] > 0 ; p++ ) seq.seq += String.fromCharCode ( bytes[p] ) ;
+    for ( p = seq_start ; bytes[p] > 0 ; p++ ) seq.sequence += String.fromCharCode ( bytes[p] ) ;
     p++ ;
     
     var number_of_enzymes = me.getLittleEndianUnsignedWord ( bytes , p ) ;
@@ -124,8 +116,8 @@ define(function(require) {
     p++ ;
     while ( bytes[p] > 0 ) seq.desc += String.fromCharCode ( bytes[p++] ) ;
     
-    if ( !heuristic ) gentle.addSequence ( seq , true ) ;
-    return true ;
+    if ( heuristic ) return true ;
+    return [ seq ] ;
   }
 
   FT_cm5.prototype.getExportString = function ( sequence ) { // TODO

@@ -13,12 +13,29 @@ define(function(require) {
     for (++b; --b; a = ((a %= 0x7fffffff + 1) & 0x40000000) == 0x40000000 ? a * 2 : (a - 0x40000000) * 2 + 0x7fffffff + 1);
     return a;
   };
+  
+	FT_base.prototype.ab2str = function (buf) {
+		var str = "";
+		var ab = new Uint8Array(buf);
+		var abLen = ab.length;
+		var CHUNK_SIZE = Math.pow(2, 16);
+		var offset, len, subab;
+		for (offset = 0; offset < abLen; offset += CHUNK_SIZE) {
+			len = Math.min(CHUNK_SIZE, abLen-offset);
+			subab = ab.subarray(offset, offset+len);
+			str += String.fromCharCode.apply(null, subab);
+		}
+		return str;
+	}
 
   FT_base.prototype.asString = function () {
   	var me = this ;
   	if ( typeof me.ascii != 'undefined' ) return me.ascii ;
   	if ( typeof me.array_buffer == 'undefined' ) me.ascii = '' ;
-	else me.ascii = String.fromCharCode.apply(null, new Uint8Array(me.array_buffer));
+	else {
+//		var uint8 = new Uint8Array(me.array_buffer) ;
+		me.ascii = me.ab2str(me.array_buffer);//String.fromCharCode.apply(null, uint8);
+	}
   	return me.ascii ;
   }
   
