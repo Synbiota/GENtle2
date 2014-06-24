@@ -19,8 +19,12 @@ define(function(require) {
     },
 
     processFeatures: function() {
-      var id = -1,
+      var id = 0,
           _this = this;
+
+      this.features = [];
+      this.sequence =[];
+
       _.each(_.reject(this.model.get('features'), function(feature) {
         var featureTypeData = SynbioData.featureTypes[feature._type];
         return false;
@@ -32,10 +36,8 @@ define(function(require) {
             id: ++id,
             from: range.from,
             to: range.to,
-            type: feature._type.toLowerCase(),
-            feature: feature,
-            sequence: _this.model.get('id')
-
+            _type: feature._type.toLowerCase(),
+            feature: feature
           });
         });
       });
@@ -44,22 +46,27 @@ define(function(require) {
         return feature.from;
       });
 
+      this.sequenceInfo = {
+        name: this.model.get('name'),
+        id: 0,
+        from: 0,
+        to: this.model.length()-1,
+        length: this.model.length(),
+        type: 'Sequence',
+        features: this.model.get('features'),
+        hidden: this.model.maxOverlappingFeatures()>1
+      };
     },
 
     positionFeatures: function() {
       var maxBase = this.maxBaseForCalc || this.model.length(),
           viewWidth = this.$el.width(),
-          $featureElement, feature, featureWidth,
+          $featureElement, feature, featureWidth,sequence,
           overlapStack = [], overlapIndex,
-          maxOverlapStackIndex = 0, featureLeftOffset,
-          $featuresElem, outletSelector;
+          maxOverlapStackIndex = 0, length,
+          $featuresElem;
 
-          if(this.model.featureWidth === undefined)
-           this.model.featureWidth =[];
-          if(this.model.featureLeftOffset === undefined)
-          this.model.featureLeftOffset =[];
-
-      for(var i = 0; i < this.features.length; i++) {
+       for(var i = 0; i < this.features.length; i++) {
         feature = this.features[i];
         if(this.sidebarOpen === true)    
         featureWidth = this.model.featureWidth[i]*$('div.designer-available-sequence-features').width();
@@ -68,21 +75,15 @@ define(function(require) {
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
         );
-        if(this.sidebarOpen === false || this.sidebarOpen === undefined){
-        this.model.featureWidth[i]= featureWidth/$('div.designer-available-sequence-features').width();
-        this.model.featureLeftOffset[i]=Math.floor(feature.from / maxBase * viewWidth)/this.$('div.designer-available-sequence-features').width();
-        featureLeftOffset = Math.floor(feature.from / maxBase * viewWidth);
-        }
-        else if(this.sidebarOpen === true)
-        featureLeftOffset = this.model.featureLeftOffset[i]*$('div.designer-available-sequence-features').width();
-        
-        $featureElement = $('[data-feature-id="'+feature.id+'-'+this.model.id+'"]');
+        $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
 
         $featureElement.css({
           width: featureWidth,
           left: featureLeftOffset,
         });
-        overlapIndex = overlapStack.length;
+
+       overlapIndex = overlapStack.length;
+
         for(var j = overlapStack.length - 1; j >= 0; j--) {
           if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
             overlapStack[j] = undefined;
@@ -102,7 +103,7 @@ define(function(require) {
       this.sidebarOpen = false;
       this.processFeatures();
       return {
-        sequence: this.model.serialize(),
+        sequence: this.sequenceInfo,
         features: this.features
       };
     },
@@ -143,6 +144,14 @@ define(function(require) {
       });
 
       this.$('.designer-available-sequence-feature').draggable({
+        revert: 'invalid',
+        helper: 'clone',
+        cursorAt: {
+          top: 5,
+          left: 5
+        }
+      });
+       this.$('.designer-available-sequence-entireseq').draggable({
         revert: 'invalid',
         helper: 'clone',
         cursorAt: {

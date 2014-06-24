@@ -213,10 +213,19 @@ define(function(require) {
 
     insertBases: function(bases, beforeBase, updateHistory) {
 
-      var seq = this.get('sequence');
+      var seq = this.get('sequence'),
+          timestamps;
 
       if (updateHistory === undefined) updateHistory = true;
-
+       // if (updateHistory === 'design-true')
+       //  this.getHistory().add({
+       //    type: 'design-insert',
+       //    hidden: true,
+       //    position: beforeBase,
+       //    value: bases,
+       //    operation: '@' + beforeBase + '+' + bases
+       //  });
+      
       this.set('sequence',
         seq.substr(0, beforeBase) +
         bases +
@@ -226,29 +235,104 @@ define(function(require) {
       this.moveFeatures(beforeBase, bases.length);
 
       if (updateHistory) {
-        this.getHistory().add({
+        timestamp = this.getHistory().add({
           type: 'insert',
           position: beforeBase,
           value: bases,
           operation: '@' + beforeBase + '+' + bases
-        });
+        }).get('timestamp');
       }
 
       this.throttledSave();
+
+      return timestamp;
     },
 
-    insertBasesAndCreateFeature: function(beforeBase, bases, feature, updateHistory) {
-      var newFeature = _.deepClone(feature);
-      newFeature.ranges = [{
-        from: beforeBase,
-        to: beforeBase + bases.length - 1
-      }];
-      this.insertBases(bases, beforeBase, updateHistory);
-      this.createFeature(newFeature);
+    moveBases: function(firstBase, length, newFirstBase, updateHistory) {
+      var lastBase = firstBase + length - 1,
+          history = this.getHistory(),
+          _this = this,
+          featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
+      
+      if(updateHistory === undefined) updateHistory = true;
+
+      featuresInRange = _.deepClone(_.filter(this.get('features'), function(feature) {
+        return _.some(feature.ranges, function(range) {
+          return range.from >= firstBase && range.to <= lastBase;
+        });
+      }));
+
+      subSeq = this.getSubSeq(firstBase, lastBase);
+
+      deletionTimestamp = this.deleteBases(firstBase, length, updateHistory);
+      insertionTimestamp = this.insertBases(
+        subSeq, 
+        newFirstBase < firstBase ? 
+          newFirstBase : 
+          newFirstBase - length
+      );
+
+      _.each(featuresInRange, function(feature) {
+        feature.ranges = _.map(_.filter(feature.ranges, function(range) {
+          return range.from >= firstBase && range.to <= lastBase;
+        }), function(range) {
+          var offset = newFirstBase < firstBase ? 
+            newFirstBase - firstBase : 
+            newFirstBase - length - firstBase;
+
+          return {
+            from: range.from + offset,
+            to: range.to + offset
+          };
+        });
+
+        _this.createFeature(feature, updateHistory);
+      });
+
     },
+
+    insertBasesAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
+      var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
+          _this = this;
+      
+      this.insertBases(bases, beforeBase, updateHistory);
+
+      _.each(newFeatures,function(feature){
+
+        feature.ranges = [{
+          from: beforeBase,
+          to: beforeBase + bases.length - 1
+        }];
+
+        delete feature.from;
+        delete feature.to;
+
+        _this.createFeature(feature, updateHistory); 
+      });
+    },
+
+    insertSequenceAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
+      var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
+          _this = this;
+      
+      this.insertBases(bases, beforeBase, updateHistory);
+
+      _.each(newFeatures,function(feature){
+
+        feature.ranges = _.map(feature.ranges, function(range) {
+          return {
+            from: beforeBase + range.from,
+            to: beforeBase + range.to
+          };
+        });
+
+        _this.createFeature(feature, updateHistory); 
+      });
+    }, 
 
     deleteBases: function(firstBase, length, updateHistory) {
       var seq = this.get('sequence'),
+          timestamp,
           subseq, linkedHistoryStepTimestamps;
 
       if (updateHistory === undefined) updateHistory = true;
@@ -262,17 +346,29 @@ define(function(require) {
 
       linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length);
 
+      // if (updateHistory === 'design-true')
+      //   this.getHistory().add({
+      //     type: 'design-delete',
+      //     value: subseq,
+      //     hidden: true,
+      //     position: firstBase,
+      //     operation: '@' + firstBase + '-' + subseq,
+      //     linked: linkedHistoryStepTimestamps
+      //   });
+
       if (updateHistory) {
-        this.getHistory().add({
+        timestamp = this.getHistory().add({
           type: 'delete',
           value: subseq,
           position: firstBase,
           operation: '@' + firstBase + '-' + subseq,
           linked: linkedHistoryStepTimestamps
-        });
+        }).get('timestamp');
       }
 
       this.throttledSave();
+
+      return timestamp;
 
     },
 
@@ -281,6 +377,7 @@ define(function(require) {
           featurePreviousState,
           storePreviousState,
           firstBase, lastBase,
+          trigger = false,
           historyTimestamps = [];
 
       storePreviousState = function(feature) {
@@ -300,6 +397,7 @@ define(function(require) {
               
               if (range.from >= base) range.from += offset;
               if (range.to >= base) range.to += offset;
+              if (range.from >= base || range.to >= base) trigger = true;
 
             } else {
 
@@ -308,6 +406,7 @@ define(function(require) {
 
               if (firstBase <= range.from) {
                 storePreviousState(feature);
+                trigger = true;
                 if (lastBase >= range.to) {
                   feature.ranges.splice(j--, 1);
                 } else {
@@ -316,6 +415,7 @@ define(function(require) {
                 }
               } else if (firstBase <= range.to) {
                 storePreviousState(feature);
+                trigger = true;
                 range.to = Math.max(firstBase - 1, -offset);
               }
 
@@ -331,6 +431,7 @@ define(function(require) {
           }
         }
         this.clearFeatureCache();
+        if(trigger) this.trigger('change change:features');
 
       }
 
@@ -474,6 +575,18 @@ define(function(require) {
       if (record === true) {
         this.recordFeatureHistoryIns(newFeature);
       } 
+      // if (record === 'design-true')
+      // this.getHistory().add({
+      //   type: 'design-feature-create',
+      //   feature: newFeature,
+      //   name: newFeature.name,
+      //   hidden: true,
+      //   featureType: newFeature._type,
+      //   range: [{
+      //     from: newFeature.ranges[0].from,
+      //     to: newFeature.ranges[0].to
+      //   }]
+      // }).get('timestamp');  
 
       if (id === 0) {
         newFeature._id = 0;
@@ -487,17 +600,32 @@ define(function(require) {
       this.throttledSave();
     },
 
-    deleteFeature: function(feature, record) {
+
+     deleteFeature: function(feature, record) {
+      var featureId;
+      featureId = (feature._id===undefined)?feature.id : feature._id;
       this.clearFeatureCache();
 
       if (record === true) {
         this.recordFeatureHistoryDel(feature, false, false);
       }
+      //  if (record === 'design-true')
+      //  this.getHistory().add({
+      //   type: 'design-feature-delete',
+      //   feature: feature,
+      //   hidden: true,
+      //   name: feature.name,
+      //   featureType: feature._type,
+      //   range: [{
+      //     from: feature.ranges[0].from,
+      //     to: feature.ranges[0].to
+      //   }]
+      // }).get('timestamp');
 
       this.set('features', _.reject(this.get('features'), function(_feature) {
-        return _feature._id == feature._id;
+        return _feature._id == featureId;
       }));
-
+     
       this.sortFeatures();
       this.throttledSave();
     },

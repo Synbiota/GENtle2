@@ -2,7 +2,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // Clone Manager CM5 Text
 
-  var FT_base = require('lib/files/base'),
+  var FT_base = require('common/lib/filetypes/base'),
       FT_cm5_text;
 
   FT_cm5_text = function() {
@@ -32,11 +32,10 @@ define(function(require) {
   }
 
   FT_cm5_text.prototype.parseFile = function ( heuristic ) {
-    var lines = this.text.replace(/\r/g,'').split ( "\n" ) ;
+    var lines = this.asString().replace(/\r/g,'').split ( "\n" ) ;
     if ( lines.length < 2 ) return false ;
     
-    var seq = new SequenceDNA ( lines.shift() , '' ) ;
-    seq.desc = '' ;
+    var seq = { name:'' , sequence:'' , desc:'' } ;
     
     if ( lines.length == 0 || !lines[0].match(/^\d+$/) ) return false ;
     var seqlen = lines.shift() * 1 ;

@@ -43,6 +43,11 @@ define(function(require){
         isFeatureInsertion: type == 'featureIns',
         isFeatureEdition: type == 'featureEdit', 
         isFeatureDeletion: type == 'featureDel',
+        isFeatureDeletedDesignEdit: type == 'design-feature-delete',
+        isFeatureCreatedDesignEdit: type == 'design-feature-create',
+        isInsertionDesignEdit: type == 'design-insert',
+        isDeletionDesignEdit: type == 'design-delete',
+
         isFeature: /^feature/.test(type)
       });
     }

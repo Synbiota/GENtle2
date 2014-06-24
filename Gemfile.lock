@@ -2,7 +2,7 @@ GEM
   remote: http://production.cf.rubygems.org/
   specs:
     SassyJSON (1.1.8)
-    bourbon (4.0.1)
+    bourbon (4.0.2)
       sass (~> 3.3)
       thor
     chunky_png (1.3.1)

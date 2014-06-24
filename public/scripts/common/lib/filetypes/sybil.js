@@ -144,8 +144,8 @@ define(function(require) {
           feature._id = _.uniqueId();
           $.each ( attrs , function ( dummy , ak ) {
             var av = $(v3).attr(ak) ;
-            if ( ak == 'start' ) start = av*1 ;
-            else if ( ak == 'stop' ) stop = av*1 ;
+            if ( ak == 'start' ) start = av*1 - 1 ;
+            else if ( ak == 'stop' ) stop = av*1 - 1 ;
             else if ( ak == 'rc' ) rc = ( av == 1 ) ;
             else if ( ak == 'type' ) feature._type = av ;
             else feature[ak] = av ;

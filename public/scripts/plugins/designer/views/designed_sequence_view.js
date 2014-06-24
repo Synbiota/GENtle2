@@ -13,14 +13,25 @@ define(function(require) {
       this.listenTo(Gentle.currentSequence, 'change', this.render, this);
     },
 
+    trashFeatureOrBases: function(chunk){
+      var currentChunk = _.findWhere(this.model.chunks,{id: chunk}), featureObj;
+
+      this.model.deleteBases(
+        currentChunk.from,
+        -currentChunk.from+currentChunk.to+1, 
+        true
+      );
+    },
+
     processChunks: function() {
-      var id = -1,
+      var id = 0,
           features = [],
           chunks = [],
           chunkId = -1,
           lastChunkEndBase = -1,
           lastBase = this.model.length() - 1,
-          _this = this;
+          _this = this,
+          type;
 
       _.each(_.reject(this.model.get('features'), function(feature) {
         var featureTypeData = SynbioData.featureTypes[feature._type];
@@ -28,14 +39,19 @@ define(function(require) {
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
         _.each(feature.ranges, function(range) {
+
+          if(feature._type !== 'Sequence'){
+
+
           features.push({
-            name: feature.name,
-            id: ++id,
-            featureId: feature._id,
-            from: range.from,
-            to: range.to,
-            type: feature._type.toLowerCase()
+             name: feature.name,
+             id: ++id,
+             featureId: feature._id,
+             from: range.from,
+             to: range.to,
+            _type: feature._type.toLowerCase()
           });
+        }
         });
       });
 
@@ -47,6 +63,7 @@ define(function(require) {
         if(feature.from > lastChunkEndBase + 1) {
           chunks.push({
             id: ++chunkId,
+            _type: 'sequence',
             empty: true,
             from: lastChunkEndBase + 1,
             to: feature.from - 1,
@@ -63,12 +80,13 @@ define(function(require) {
           feature: feature
         });
 
-        lastChunkEndBase = feature.to;
+          lastChunkEndBase = feature.to;
       });
 
       if(lastChunkEndBase < lastBase) {
         chunks.push({
           id: ++chunkId,
+          _type: 'sequence',
           empty: true,
           from: lastChunkEndBase + 1,
           to: lastBase,
@@ -77,6 +95,7 @@ define(function(require) {
       }
 
       this.chunks = chunks;
+      this.model.chunks = this.chunks;
       return chunks;
     },
 
@@ -100,7 +119,7 @@ define(function(require) {
 
     serialize: function() {
       var output = {
-        sequence: this.model.serialize()
+          sequence: this.model.serialize()
       };
 
       if(this.model.maxOverlappingFeatures() > 1) {
@@ -117,10 +136,9 @@ define(function(require) {
     },
 
     insertFromAvailableSequence: function($droppable, $draggable) {
-      var featureAndSubSeq, chunk, insertBeforeBase;
-
-      featureAndSubSeq = this.getFeatureFromDraggable($draggable);
-
+      var featureAndSubSeq, chunk, insertBeforeBase, bases, basesRange, seqBases, featureObj;
+          featureAndSubSeq = this.getFeatureFromAvailableSequenceDraggable($draggable);
+     
       chunk = _.findWhere(this.chunks, {
         id: $droppable.closest("[data-chunk-id]").data('chunkId')
       });
@@ -129,42 +147,123 @@ define(function(require) {
         chunk.from : 
         chunk.to + 1;
 
-      this.model.insertBasesAndCreateFeature(insertBeforeBase, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+      if(featureAndSubSeq.feature.type == 'Sequence') { 
+        this.model.insertSequenceAndCreateFeatures(
+          insertBeforeBase, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.features, 
+          true
+        );
+      } else {
+        this.model.insertBasesAndCreateFeatures(
+          insertBeforeBase, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.feature, 
+          true
+        );
+      }
     },
 
     insertFirstAnnotationFromAvailableSequence: function($draggable) {
-      var featureAndSubSeq = this.getFeatureFromDraggable($draggable);
+      var featureAndSubSeq = this.getFeatureFromAvailableSequenceDraggable($draggable);
 
-      this.model.insertBasesAndCreateFeature(0, featureAndSubSeq.subSeq, featureAndSubSeq.feature.feature, true);
+      if(featureAndSubSeq.feature.type == 'Sequence') { 
+        this.model.insertSequenceAndCreateFeatures(
+          0, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.features, 
+          true
+        );
+      } else {
+        this.model.insertBasesAndCreateFeatures(
+          0, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.feature, 
+          true
+        );
+      }
     },
 
-    getFeatureFromDraggable: function($draggable) {
-      var sequenceId, availableSequenceView, feature;
+    getFeatureFromAvailableSequenceDraggable: function($draggable) {
+      var sequenceId, availableSequenceView, feature, sequence;
 
       sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
 
       availableSequenceView = this.parentView
         .getAvailableSequenceViewFromSequenceId(sequenceId);
 
-      feature = _.findWhere(availableSequenceView.features, {
-        id: $draggable.data('featureId')
-      });
+      if($draggable.hasClass('designer-available-sequence-entireseq')) {
 
-      return {
-        feature: feature,
-        subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
-      };
+        sequence = availableSequenceView.sequenceInfo;
+
+        return {
+          feature: sequence,
+          subSeq: availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
+        }; 
+
+      } else {
+
+        feature = _.findWhere(availableSequenceView.features, {
+          id: $draggable.data('featureId')
+        });
+
+        return {
+          feature: feature,
+          subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
+        };
+      }
+    },
+
+    moveChunk: function($droppable, $draggable) {
+      var targetChunk = _.findWhere(this.chunks, {
+            id: $droppable.closest('[data-chunk-id]').data('chunkId')
+          }),
+          movingChunk = _.findWhere(this.chunks, {id: $draggable.data('chunkId')});
+
+      this.model.moveBases(
+        movingChunk.from, 
+        movingChunk.length, 
+        $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
+          targetChunk.from : 
+          targetChunk.to + 1
+      );
     },
 
     afterRender: function() {
       var _this = this;
       this.styleChunks();
 
+      this.$('.designer-designed-sequence-chunk').draggable({
+        zIndex: 2000, 
+        revert: true, 
+        helper: 'clone',
+        cursorAt: {
+          top: 5, 
+          left: 5
+        },
+      });
+
+      this.$('div.designer-designed-sequence-chunk-trash').droppable({
+        activeClass: 'enabled',
+        hoverClass: 'active',
+        tolerance: 'pointer',
+        accept: function($draggable) {
+          return $draggable.data('chunkId') == $(this).data('trashId');
+        },
+        drop: function(event, ui) {
+          _this.trashFeatureOrBases(ui.draggable.data('chunkId'));
+        }
+      });
+
       this.$('.designer-designed-sequence-chunk-droppable').droppable({
         hoverClass: 'active',
         tolerance: 'pointer',
         drop: function(event, ui) {
-          _this.insertFromAvailableSequence($(this), ui.draggable);
+          if(ui.draggable.hasClass('designer-designed-sequence-chunk')) {
+            _this.moveChunk($(this), ui.draggable);
+          } else {
+            _this.insertFromAvailableSequence($(this), ui.draggable);
+          }
         }
       });
 
