@@ -227,7 +227,10 @@ define(function(require) {
         zIndex: 2000, 
         revert: true, 
         helper: 'clone',
-        revertDuration: 100, 
+        cursorAt: {
+          top: 5, 
+          left: 5
+        }
       });
 
       this.$('.designer-designed-sequence-chunk-droppable').droppable({

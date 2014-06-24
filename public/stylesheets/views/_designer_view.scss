@@ -43,6 +43,12 @@
     border: 1px solid red;
     margin-bottom: 7px;
 
+    &.ui-draggable-dragging {
+      .designer-designed-sequence-chunk-position {
+        display: none;
+      }
+    }
+
     .designer-designed-sequence-chunk-position {
       float: left;
       margin-left: -50px;
