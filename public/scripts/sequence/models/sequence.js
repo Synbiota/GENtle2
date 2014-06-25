@@ -417,7 +417,7 @@ define(function(require) {
               } else if (firstBase <= range.to) {
                 storePreviousState(feature);
                 trigger = true;
-                range.to = Math.max(firstBase - 1, -offset);
+                range.to = Math.max(firstBase - 1, range.to + offset);
               }
 
             }
