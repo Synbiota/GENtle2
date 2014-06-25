@@ -7,11 +7,12 @@
     - [Installation](#installation)
     - [Running the servers](#running-the-servers)
     - [Recompiling assets](#recompiling-assets)
+      - [Installation](#installation-1)
       - [Stylesheets](#stylesheets)
       - [Javascripts](#javascripts)
       - [Continuous compilation](#continuous-compilation)
     - [Running specs](#running-specs)
-      - [Installation](#installation-1)
+      - [Installation](#installation-2)
       - [Running the server](#running-the-server)
   - [Server](#server)
   - [App](#app)
@@ -103,7 +104,9 @@ run:
 grunt js
 ```
 
-__Always recompile the app before pushing__
+The compiled script (`public/scripts/app.min.js`) is ignored by git. 
+
+__The app is automatically compiled when deploying via the `postinstall` npm hook.__
 
 #### Continuous compilation
 

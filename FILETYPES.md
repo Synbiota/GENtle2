@@ -1,3 +1,14 @@
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+
+- [GENtle refactor](#gentle-refactor)
+  - [Filetypes](#filetypes)
+    - [Genebank](#genebank)
+      - [Genebank / SYBIL features mapping](#genebank--sybil-features-mapping)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 # GENtle refactor
 
 ## Filetypes
