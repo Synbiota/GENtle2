@@ -75,13 +75,7 @@ GENtle will be accessible at [http://localhost:8081](http://localhost:8081)
 ### Recompiling assets
 
 All compilation tasks use [grunt](http://gruntjs.com) and are defined in 
-`gruntfile.js`
-
-#### Installation
-
-```shell
-npm install -g grunt-cli
-```
+`gruntfile.js`. 
 
 #### Stylesheets
 
