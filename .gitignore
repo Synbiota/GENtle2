@@ -4,7 +4,7 @@ node_modules
 docs
 *.sublime-workspace
 npm-debug.log
-app/scripts/app.min.s
+public/scripts/app.min.js
 *.orig
 stylesheets/app.css
 npm-debug.log
