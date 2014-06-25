@@ -18,7 +18,7 @@ define(function(require) {
     initialize: function() {
       this.model = Gentle.currentSequence;
       this.minFeatureWidth = 4;
-      this.topFeatureOffset = -16;
+      this.topFeatureOffset = 0;
       _.bindAll(this, 'scrollSequenceCanvas');
 
       this.listenTo(

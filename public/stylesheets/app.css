@@ -8400,7 +8400,7 @@ button.close {
 #sequence-primary-view-outlet {
   position: absolute;
   top: 0;
-  bottom: 18px;
+  bottom: 21px;
   right: 0;
 }
 
@@ -8746,7 +8746,7 @@ button.close {
   position: fixed;
   top: 51px;
   right: 0;
-  bottom: 0;
+  bottom: 21px;
   width: 150px;
 }
 /* line 8, components/_linear_map.scss */
@@ -8775,36 +8775,39 @@ button.close {
   padding: 1px 2px;
   position: absolute;
   overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   background: #a12e29;
   color: white;
   text-align: center;
   text-transform: uppercase;
   white-space: nowrap;
-  -webkit-transform: rotate(-90deg);
-  -moz-transform: rotate(-90deg);
-  -ms-transform: rotate(-90deg);
-  -o-transform: rotate(-90deg);
-  transform: rotate(-90deg);
-  -webkit-transform-origin: bottom right;
-  -moz-transform-origin: bottom right;
-  -ms-transform-origin: bottom right;
-  transform-origin: bottom right;
+  border: 1px solid white;
+  -webkit-transform: rotate(90deg);
+  -moz-transform: rotate(90deg);
+  -ms-transform: rotate(90deg);
+  -o-transform: rotate(90deg);
+  transform: rotate(90deg);
+  -webkit-transform-origin: top left;
+  -moz-transform-origin: top left;
+  -ms-transform-origin: top left;
+  transform-origin: top left;
 }
 /* line 44, components/_linear_map.scss */
 .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-0 {
-  right: 10px;
+  left: -2px;
 }
 /* line 44, components/_linear_map.scss */
 .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-1 {
-  right: 27px;
+  left: -19px;
 }
 /* line 44, components/_linear_map.scss */
 .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-2 {
-  right: 44px;
+  left: -36px;
 }
 /* line 44, components/_linear_map.scss */
 .linear-map .linear-map-features .linear-map-feature.linear-map-feature-stacked-3 {
-  right: 61px;
+  left: -53px;
 }
 /* line 51, components/_linear_map.scss */
 .linear-map .linear-map-features .linear-map-feature.linear-map-feature-CDS {

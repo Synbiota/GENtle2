@@ -2,7 +2,7 @@
   position: fixed;
   top: 51px;
   right: 0;
-  bottom: 0;
+  bottom: 21px;
   width: 150px;
 
   .linear-map-canvas {
@@ -29,20 +29,20 @@
       box-sizing: border-box;
       padding: 1px 2px;
       position: absolute;
-      // @include text-overflow();
-      overflow: hidden;
+      @include text-overflow();
       background: map_get(map_get($__colors, '_default'), 'fill');
       color: map_get(map_get($__colors, '_default'), 'color');
       text-align: center;
       text-transform: uppercase;
       white-space: nowrap;
-      @include transform(rotate(-90deg));
-      @include transform-origin(bottom right);
+      border: 1px solid white;
+      @include transform(rotate(90deg));
+      @include transform-origin(top left);
       // TODO: IE8 vertical text
 
       @for $i from 0 to 4 {
         &.linear-map-feature-stacked-#{$i} {
-          right: 10px + 17px * $i;
+          left: -2px - 17px * $i;
         }
       }
 
