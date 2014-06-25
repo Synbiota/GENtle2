@@ -10,7 +10,7 @@ define(function(require) {
         features: [{
           ranges: [{
             from: 3,
-            to: 4
+            to: 7
           }],
           name: 'test feature',
           desc: 'test feature description',
@@ -56,7 +56,7 @@ define(function(require) {
     it('should move the features', function() {
       var featureRange = sequence.get('features.0.ranges.0');
       expect(featureRange.from).toEqual(6);
-      expect(featureRange.to).toEqual(7);
+      expect(featureRange.to).toEqual(10);
     });
   });
 
@@ -79,19 +79,19 @@ define(function(require) {
 
     it('should move the end of the features', function() {
       var featureRange = sequence.get('features.0.ranges.0');
-      expect(featureRange.to).toEqual(2);
+      expect(featureRange.to).toEqual(5);
     });
   });
 
   describe('when deleting bases containing an entire sequence', function() {
 
     beforeEach(function() {
-      sequence.deleteBases(2, 5);
+      sequence.deleteBases(2, 6);
     });
 
     it('should update the sequence', function() {
-      expect(sequence.get('sequence')).toEqual('ATGATCGATCG');
-      expect(sequence.getSubSeq(3, 5)).toEqual('ATC');
+      expect(sequence.get('sequence')).toEqual('ATATCGATCG');
+      expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
       expect(sequence.save).toHaveBeenCalled();
     });
 
