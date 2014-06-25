@@ -215,7 +215,7 @@ define(function(require) {
     insertBases: function(bases, beforeBase, updateHistory) {
 
       var seq = this.get('sequence'),
-          timestamps;
+          timestamp;
 
       if (updateHistory === undefined) updateHistory = true;
        // if (updateHistory === 'design-true')
