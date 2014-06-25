@@ -16,6 +16,7 @@
     "underscore": "^1.6.0",
     "koa-request": "^1.0.0",
     "grunt": "~0.4.1",
+    "grunt-cli": "0.1.9",
     "grunt-contrib-requirejs": "~0.4.1"
   },
   "devDependencies": {
@@ -30,6 +31,6 @@
   },
   "scripts": {
     "start": "nf start webdev,doc",
-    "postinstall": "grunt js"
+    "postinstall": "./node_modules/grunt-cli/bin/grunt js"
   }
 }
