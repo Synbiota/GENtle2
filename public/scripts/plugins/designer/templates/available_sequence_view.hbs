@@ -9,8 +9,13 @@
 {{#if features}}
   <div class="designer-available-sequence-features">
     {{#each features}}
-      <div class="designer-available-sequence-feature designer-available-sequence-feature-{{_type}}" data-feature-id="{{id}}">
+      <div class="designer-available-sequence-feature designer-available-sequence-feature-{{_type}}" data-feature-id="{{id}}" title="{{name}}{{#if reverseComplement}} &larr;{{else}} &rarr;{{/if}}">
         {{name}}
+        {{#if reverseComplement}}
+          &larr;
+        {{else}}
+          &rarr;
+        {{/if}}
       </div>
     {{/each}}
   </div>

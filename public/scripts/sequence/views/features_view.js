@@ -82,9 +82,10 @@ define(function(require) {
       this.editedFeature = {
         ranges: [{
           from: firstBase,
-          to: lastBase
+          to: lastBase,
+          reverseComplement: false
         }],
-        _type: 'noe'
+        _type: 'note'
       };
       if (!this.isOpen) this.$toggleButton.click();
       this.startCreating();
@@ -139,11 +140,13 @@ define(function(require) {
       return _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function(row) {
         var $row = $(row),
           from = $row.find('[name="from"]').val() * 1 - 1,
-          to = $row.find('[name="to"]').val() * 1 - 1;
+          to = $row.find('[name="to"]').val() * 1 - 1,
+          reverseComplement = $row.find('[name="rc"]').prop('checked');
 
         return {
           from: from,
-          to: to
+          to: to,
+          reverseComplement: reverseComplement
         };
       });
     },

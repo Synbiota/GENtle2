@@ -29,6 +29,7 @@
             <tr>
               <th>From</th>
               <th>To</th>
+              <th><abbr title="Reverse Complement">RC</abbr></th>
               <th></th>
               <th></th>
             </tr>
@@ -45,6 +46,9 @@
                   <div class="form-group no-margin{{#if ../errors.ranges}} has-error{{/if}}">
                     <input type="number" class="form-control input-sm" value="{{to}}" name="to">
                   </div>
+                </td>
+                <td>
+                  <input class="form-group no-margin" type="checkbox" name="rc"{{#if reverseComplement}} checked="checked"{{/if}}>
                 </td>
                 <td>
                   {{#if _canDelete}}

@@ -83,7 +83,7 @@ define(function(require) {
       
       var o = $('<annotation></annotation>') ;
       o.text ( desc ) ;
-      o.attr ( 'rc' , v['ranges'][0].rc ? 1 : 0 ) ;
+      o.attr ( 'rc' , v['ranges'][0].reverseComplement ? 1 : 0 ) ;
 
       $.each ( v , function ( k2 , v2 ) {
         if ( k2.substr ( 0 , 1 ) == '_' ) return ;
@@ -152,7 +152,7 @@ define(function(require) {
           } ) ;
           
           if ( feature.ranges.length === 0 ) {
-            feature.ranges = [ { from:start , to:stop , rc:rc } ] ;
+            feature.ranges = [ { from:start , to:stop , reverseComplement:rc } ] ;
           }
           
           seq.features.push ( feature ) ;

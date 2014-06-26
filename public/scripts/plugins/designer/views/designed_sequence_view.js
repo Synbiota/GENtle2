@@ -49,6 +49,7 @@ define(function(require) {
              featureId: feature._id,
              from: range.from,
              to: range.to,
+             reverseComplement: range.reverseComplement,
             _type: feature._type.toLowerCase()
           });
         }

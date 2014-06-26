@@ -118,21 +118,21 @@ define(function(require) {
       
       var m = r.match ( /^\d+$/ ) ;
       if ( m ) {
-        range.push ( { from : r*1 -1, to : r*1 -1, rc : false } ) ;
+        range.push ( { from : r*1 -1, to : r*1 -1, reverseComplement : false } ) ;
         v['ranges'] = range ;
         return v;
       }
       
       m = r.match ( /^[<>]?(\d+)\.\.[<>]?(\d+)$/ ) ;
       if ( m ) {
-        range.push ( { from : m[1]*1 -1, to : m[2]*1 -1, rc : false } ) ;
+        range.push ( { from : m[1]*1 -1, to : m[2]*1 -1, reverseComplement : false } ) ;
         v['ranges'] = range ;
         return v;
       }
       
       m = r.match ( /^complement\([<>]?(\d+)\.\.[<>]?(\d+)\)$/i ) ;
       if ( m ) {
-        range.push ( { from : m[1]*1 -1, to : m[2]*1 -1, rc : true } ) ;
+        range.push ( { from : m[1]*1 -1, to : m[2]*1 -1, reverseComplement : true } ) ;
         v['ranges'] = range ;
         return v;
       }

@@ -47,11 +47,12 @@
               <i class="glyphicon glyphicon-trash"></i>
             </div>
             <div class="designer-designed-sequence-chunk designer-designed-sequence-chunk-{{feature._type}}" data-chunk-id="{{id}}">
-              <div class="designer-designed-sequence-chunk-title">
+              <div class="designer-designed-sequence-chunk-title" {{#unless empty}}title="{{feature.name}}{{#if feature.reverseComplement}} &larr;{{else}} &rarr;{{/if}}{{/unless}}">
                 {{#if empty}}
                   Unannotated
                 {{else}}
                   {{feature.name}}
+                  {{#if feature.reverseComplement}} &larr;{{else}} &rarr;{{/if}}
                 {{/if}}
                 <br>
                 <em>({{formatThousands length}}bp)</em>

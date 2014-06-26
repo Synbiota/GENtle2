@@ -36,6 +36,7 @@ define(function(require) {
             id: ++id,
             from: range.from,
             to: range.to,
+            reverseComplement: range.reverseComplement,
             _type: feature._type.toLowerCase(),
             feature: feature
           });
