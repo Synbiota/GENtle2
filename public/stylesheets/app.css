@@ -8445,7 +8445,7 @@ button.close {
 .sidebar > div {
   position: absolute;
   top: 0px;
-  bottom: 0;
+  bottom: 21px;
   width: 50px;
   border-right: 1px solid #ddd;
   overflow-x: hidden;

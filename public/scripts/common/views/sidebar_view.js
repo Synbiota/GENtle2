@@ -52,6 +52,7 @@ define(function(require) {
           view;
 
       this.$('.hovered').removeClass('hovered');
+      this.$el.removeClass('hovered');
 
       if($link.hasClass('active')) {
         this.$el.removeClass('active');
