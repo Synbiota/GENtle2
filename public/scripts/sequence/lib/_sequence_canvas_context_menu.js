@@ -9,7 +9,13 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 define(function(require) {
   var SequenceCanvasContextMenu;
 
-  SequenceCanvasContextMenu = function() {};
+  SequenceCanvasContextMenu = function() {
+
+    this.$container = this.$('.scrolling-child').first();
+
+
+
+  };
 
   /**
   Shows button to open context menu and adds menu items to context menu view
@@ -23,7 +29,7 @@ define(function(require) {
     
     this.contextMenuXPos = posX;
     this.contextMenuYPos = posY;
-    menu.reset().move(posX, posY - this.layoutHelpers.yOffset);
+    menu.reset().move(posX, posY);
 
     if(!this.readOnly && this.copyPasteHandler.copiedValue) {
       menu.add('Paste', this.pasteFromMenu);
@@ -42,14 +48,6 @@ define(function(require) {
 
   };
 
-  SequenceCanvasContextMenu.prototype.restoreContextMenuYPosition = function() {
-    if(this.contextMenuXPos && this.contextMenuYPos) {
-      this.contextMenu.move(
-        this.contextMenuXPos,
-        this.contextMenuYPos - this.layoutHelpers.yOffset
-      ).show();
-    }
-  };
 
   SequenceCanvasContextMenu.prototype.hideContextMenuButton = function() {
     this.contextMenu.hide();

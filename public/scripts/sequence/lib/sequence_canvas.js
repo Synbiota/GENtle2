@@ -76,7 +76,6 @@ define(function(require) {
         @default `.scrollingChild`
     **/
     this.$scrollingChild = options.$scrollingChild || this.view.$('.scrolling-child').first();
-
     /**
         Div in which `this.$scrollingChild` will scroll.
         Same height as `this.$canvas`
@@ -223,6 +222,7 @@ define(function(require) {
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
+    this.$scrollingChild.append($('#sequence-canvas-context-menu-outlet'));
     this.contextMenu = this.view.getView('#sequence-canvas-context-menu-outlet');
 
     this.invertHotkeys = _.invert(Hotkeys);
@@ -523,8 +523,6 @@ define(function(require) {
     this.afterNextRedraw(deferred.resolve);
 
     this.redraw();
-
-    this.restoreContextMenuYPosition();
 
     if (triggerEvent !== false) {
       this.trigger('scroll');
