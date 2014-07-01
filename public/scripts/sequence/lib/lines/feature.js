@@ -89,8 +89,7 @@ define(function(require) {
     var nbFeatures      = [],
         sequenceCanvas  = this.sequenceCanvas,
         sequence        = sequenceCanvas.sequence,
-        basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow,
-        _maxNb;
+        basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow;
 
     for(var i = 0; i <= Math.floor(sequence.length() / basesPerRow); i++) {
       nbFeatures.push(sequence.nbFeaturesInRange(i * basesPerRow, (i+1) * basesPerRow - 1));
@@ -104,7 +103,7 @@ define(function(require) {
   @method calculateHeight
   **/
   Feature.prototype.calculateHeight = function() {
-    this.height = this.unitHeight * this.maxNbFeaturesPerRow();
+    this.height = this.unitHeight * this.maxNbFeaturesPerRow() + (this.topMargin || 0);
   },
 
   /**
@@ -125,6 +124,8 @@ define(function(require) {
         features, startX, endX, deltaX, textWidth, backgroundFillStyle;
 
     features = _(sequence.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
+    y += (this.topMargin || 0);
+
     for(var i = 0; i < features.length; i++) {
       var feature = features[i],
           j = 0;

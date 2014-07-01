@@ -128,6 +128,13 @@ define(function(require) {
           }
         }),
 
+        // Restriction Enzyme Sites
+        restrictionEnzymesLabels: new Lines.RestrictionEnzymeLabels(this, {
+          unitHeight: 10,
+          textFont: LineStyles.RES.text.font,
+          textColour: LineStyles.RES.text.color,
+        }),
+
         // Position numbering
         position: new Lines.Position(this, {
           height: 15,
@@ -184,6 +191,7 @@ define(function(require) {
           unitHeight: 15,
           baseLine: 10,
           textFont: LineStyles.features.font,
+          topMargin: 3,
           textColour: function(type) {
             var colors = LineStyles.features.color;
             type = type.toLowerCase();
@@ -210,11 +218,11 @@ define(function(require) {
           })
         }),
 
-        // Blank line
+        // Restriction Enzyme Sites
         restrictionEnzymeSites: new Lines.RestrictionEnzymeSites(this, {
-          height: 10,
           floating: true
-        })
+        }),
+
       }
     };
 

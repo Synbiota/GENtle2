@@ -187,5 +187,12 @@ define(function(require){
 
   };
 
+  Artist.prototype.setLineDash = function(segments) {
+    var context = this.context;
+    if(_.isFunction(context.setLineDash)) {
+      context.setLineDash(segments);
+    }
+  };
+
   return Artist;
 });

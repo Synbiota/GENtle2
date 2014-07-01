@@ -4,13 +4,16 @@ define(function(require) {
       DNA       = require('./lines/dna'),
       Feature   = require('./lines/feature'),
       RestrictionEnzymeSites 
-                = require('./lines/restriction_enzymes_sites');
+                = require('./lines/restriction_enzymes_sites'),
+      RestrictionEnzymeLabels
+                = require('./lines/restriction_enzymes_labels');
 
   return {
     Blank: Blank,
     Position: Position,
     DNA: DNA,
     Feature: Feature,
-    RestrictionEnzymeSites: RestrictionEnzymeSites
+    RestrictionEnzymeSites: RestrictionEnzymeSites,
+    RestrictionEnzymeLabels: RestrictionEnzymeLabels
   };
 });
