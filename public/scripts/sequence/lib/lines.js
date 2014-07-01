@@ -1,13 +1,16 @@
 define(function(require) {
-  var Blank     = require('sequence/lib/lines/blank'),
-      Position  = require('sequence/lib/lines/position'),
-      DNA       = require('sequence/lib/lines/dna'),
-      Feature   = require('sequence/lib/lines/feature');
+  var Blank     = require('./lines/blank'),
+      Position  = require('./lines/position'),
+      DNA       = require('./lines/dna'),
+      Feature   = require('./lines/feature'),
+      RestrictionEnzymeSites 
+                = require('./lines/restriction_enzymes_sites');
 
   return {
     Blank: Blank,
     Position: Position,
     DNA: DNA,
-    Feature: Feature
+    Feature: Feature,
+    RestrictionEnzymeSites: RestrictionEnzymeSites
   };
 });

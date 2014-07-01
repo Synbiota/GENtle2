@@ -208,6 +208,12 @@ define(function(require) {
           visible: _.memoize2(function() {
             return _this.sequence.get('displaySettings.rows.separators');
           })
+        }),
+
+        // Blank line
+        restrictionEnzymeSites: new Lines.RestrictionEnzymeSites(this, {
+          height: 10,
+          floating: true
         })
       }
     };
@@ -310,7 +316,7 @@ define(function(require) {
       lh.lineOffsets = {};
       _.each(ls.lines, function(line, lineName) {
         line.clearCache();
-        if (line.visible === undefined || line.visible()) {
+        if ((line.visible === undefined || line.visible()) && !line.floating) {
           lh.lineOffsets[lineName] = line_offset;
           if (_.isFunction(line.calculateHeight)) line.calculateHeight();
           line_offset += line.height;
@@ -433,14 +439,21 @@ define(function(require) {
       rowsHeight = layoutHelpers.rows.height,
       canvasHeight = layoutSettings.canvasDims.height,
       bottomMargin = layoutSettings.pageMargins.bottom,
-      baseRange = this.getBaseRangeFromYPos(posY + yOffset);
+      baseRange = this.getBaseRangeFromYPos(posY + yOffset),
+      initPosY = posY;
+
+    console.log('row')
 
     this.artist.clear(posY, rowsHeight);
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
-          line.draw(posY, baseRange);
-          posY += line.height;
+          if(line.floating) {
+            line.draw(initPosY, baseRange);
+          } else {
+            line.draw(posY, baseRange);
+            posY += line.height;
+          }
         }
       });
     }

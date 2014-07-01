@@ -6,6 +6,7 @@
 **/
 define(function(require) {
   var SynbioData = require('common/lib/synbio_data'),
+      iupacToBases,
       SequenceTransforms;
 
   SequenceTransforms = SequenceTransforms || {};
@@ -56,6 +57,15 @@ define(function(require) {
       var map = SequenceTransforms.toComplements;
       map = map || {'A': 'T', 'C': 'G', 'T': 'A', 'G': 'C'};
       return _.map(sequence.split(''), function(base) { return map[base] || ' '; }).join('');
-    }
+    },
+
+    iupacToBases: _.memoize(function(sequence) {
+      var output = sequence;
+      iupacToBases = iupacToBases || _.invert(SynbioData.bases2iupac);
+      _.each(iupacToBases, function(bases, iupac) {
+        output = output.replace(new RegExp(iupac, 'gi'), bases);
+      });
+      return output;
+    })
   };
 });

@@ -13,6 +13,8 @@ define(function(require){
   var $ = require('jquery'),
       Rect = require('./rect'),
       Text = require('./text'),
+      Path = require('./path'),
+      _ = require('underscore.mixed'),
       // BrowserDetect = require('BrowserDetect'),
       Artist;
 
@@ -96,6 +98,16 @@ define(function(require){
     return rect;
   };
 
+  Artist.prototype.path = function() {
+    var args = arguments,
+        options = _.isObject(args[args.length-1]) ? args.pop() : {};
+        path = new Path(this, args);
+
+    this.shapes.push(path);
+    path.draw(options);
+    return path;
+  };
+
   /**
   @method text
   @param {String} text
@@ -123,7 +135,7 @@ define(function(require){
   Artist.prototype.updateStyle = function(options) {
     if(_.isObject(options)) {
       var lastStyleOptions = this.lastStyleOptions,
-          optionsToUpdate = ['font', 'fillStyle'],
+          optionsToUpdate = ['font', 'fillStyle', 'strokeStyle', 'lineWidth'],
           optionName, value;
 
       for(var i = 0; i < optionsToUpdate.length; i++) {
