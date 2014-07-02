@@ -8,6 +8,7 @@ define(function(require) {
       Gentle                  = require('gentle')(),
       SequenceSettingsView    = require('./settings_view'),
       SequenceEditionView     = require('./sequence_edition_view'),
+      SecondaryChangeView = require('sequence/views/secondary_view_dropdown'),
       StatusbarView           = require('common/views/statusbar_view'),
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       Backbone                = require('backbone.mixed'),
@@ -23,7 +24,7 @@ define(function(require) {
           statusbarView;
 
       this.model = Gentle.currentSequence;
-      
+      this.secondaryViewDropdown = new SecondaryChangeView();      
       this.sequenceSettingsView = new SequenceSettingsView();
       this.sequenceSettingsView.parentView = this;
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
@@ -49,6 +50,7 @@ define(function(require) {
         name: 'primaryView',
         view: StatusbarPrimaryViewView
       });
+
       _.each(_.where(Gentle.plugins, {type: 'sequence-statusbar-section'}), function(plugin) {
         statusbarView.addSection(plugin.data);
       });
@@ -64,6 +66,7 @@ define(function(require) {
         .pluck('data')
         .value();
 
+
       primaryViews.push({
         name: 'edition',
         title: 'Edition',
@@ -71,6 +74,7 @@ define(function(require) {
       });
 
       currentView = this.model.get('displaySettings.primaryView');
+
       if(!~_.pluck(primaryViews, 'name').indexOf(currentView))
         currentView = 'edition';
 
@@ -87,6 +91,7 @@ define(function(require) {
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
       actualView.parentView = this;
+
       if(render !== false) {
         actualView.render();
         this.sequenceSettingsView.render();
@@ -98,15 +103,18 @@ define(function(require) {
     },
 
     handleResize: function(trigger) {
+
       this.$('#sequence-primary-view-outlet').css('left', this.primaryViewLeftPos());
-      if(trigger !== false) {
+
+      if(trigger !== false && trigger !== undefined) {
         this.trigger('resize');
         this.actualPrimaryView.trigger('resize');
       }
     },
 
     primaryViewLeftPos: function() {
-      return this.sequenceSettingsView.$el.width();
+      console.log($('#sequence-primary-view-outlet').width());
+      return $('#sequence-primary-view-outlet').width();
     },
 
     remove: function() {

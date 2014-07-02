@@ -8380,7 +8380,11 @@ button.close {
 #sequence-tabs > li.hidden-tabs-dropdown {
   min-width: 0;
 }
-/* line 77, views/_navbar_view.scss */
+/* line 76, views/_navbar_view.scss */
+#sequence-tabs .margin-right {
+  margin-right: 170px;
+}
+/* line 81, views/_navbar_view.scss */
 #sequence-tabs .close-sequence {
   float: right;
   cursor: pointer;
@@ -8867,6 +8871,14 @@ button.close {
 /* line 74, components/_linear_map.scss */
 .linear-map .linear-map-position-marks .linear-map-position-mark:first-child {
   border-top: none;
+}
+
+/* line 1, components/_secondary_view_dropdown.scss */
+.change-secondary-view {
+  float: right;
+  margin-right: 40px;
+  bottom: 35px;
+  z-index: 5000;
 }
 
 @-webkit-keyframes blink {

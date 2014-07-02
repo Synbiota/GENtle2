@@ -66,7 +66,8 @@ define(function(require) {
     serialize: function() {
 
       var dropdownWidth = this.$el.find('.dropdown').width() || 0,
-          availableWidth = this.$el.find('#sequence-tabs').width() + dropdownWidth,
+          secondaryDropdownWidth = $('#secondary-view-dropdown').width(),
+          availableWidth = this.$el.find('#sequence-tabs').width() + dropdownWidth - secondaryDropdownWidth,
           sequences = Gentle.sequences.serialize(),
           currentSequenceId = Gentle.currentSequence && Gentle.currentSequence.get('id'),
           calculatedMaxTabWidth,
@@ -76,6 +77,7 @@ define(function(require) {
           maxDropdownWidth,
           _this = this;
 
+          console.log('width '+secondaryDropdownWidth);
       // In order to properly determine tab spacing, we need to allow the view to render, and grab width data.
       // So we do nothing on initial render, and only display tabs once we have that initial data.
       if (!this.initialRender){
@@ -111,7 +113,6 @@ define(function(require) {
         });
 
         maxDropdownWidth = Math.floor($(window).width() * 0.75);
-
       }
 
       return {
@@ -125,8 +126,8 @@ define(function(require) {
     },
 
     afterRender: function() {
-
       // First render requires container width in order to properly space tabs.
+
       if (this.initialRender){
         this.initialRender = false;
         this.render();
@@ -147,6 +148,9 @@ define(function(require) {
         this.initialRender = true;
 
       }
+
+      $('#hidden-tabs-dropdown').attr("style","margin-right:170px");
+
     }
   });
 
