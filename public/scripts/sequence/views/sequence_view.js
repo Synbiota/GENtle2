@@ -104,11 +104,9 @@ define(function(require) {
 
     handleResize: function(trigger) {
 
-      console.log('Rendered '+this.model.actualSecondaryView.$el.width());
-
       this.$('#sequence-primary-view-outlet').css('left', this.primaryViewLeftPos());
 
-      if(trigger !== false && trigger !== undefined) {
+      if(trigger !== false) {
         this.trigger('resize');
         this.actualPrimaryView.trigger('resize');
       }

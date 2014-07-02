@@ -85,7 +85,6 @@ define(function(require) {
     },
 
      primaryViewLeftPos: function() {
-      console.log('THis NO');
       return $('#sequence-primary-view-outlet').width();
     },
 

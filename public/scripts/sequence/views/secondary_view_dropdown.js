@@ -17,10 +17,7 @@ define(function(require) {
     initialize: function() {
       this.model = Gentle.currentSequence;
     },
-
-    serialize: function() {
-      
-    },
+    
   });
 
   return SecondaryChangeView;
