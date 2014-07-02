@@ -7,6 +7,7 @@ define(function(require) {
   var template        = require('hbars!sequence/templates/display_settings_view'),
       Gentle          = require('gentle')(),
       Backbone        = require('backbone.mixed'),
+      _               = require('underscore.mixed'),
       DisplaySettingsView;
   
   DisplaySettingsView = Backbone.View.extend({
@@ -21,14 +22,29 @@ define(function(require) {
     },
 
     updateDisplaySettings: function(event) {
-      var $input = this.$(event.currentTarget);
+      var $input = this.$(event.currentTarget),
+          attr = $input.attr('name'),
+          modelValue = this.model.get(attr);
+
       switch($input.attr('type')) {
         case 'checkbox':
-          this.model.set($input.attr('name'), !!$input.is(':checked') && !$input.is(':disabled'));
+          if(_.isArray(modelValue)) {
+            if(~modelValue.indexOf($input.val())) {
+              if(!$input.is(':checked'))
+                this.model.set(attr, _.without(modelValue, $input.val()));  
+            } else {
+              if(!!$input.is(':checked')) {
+                modelValue.push($input.val());
+                this.model.set(attr, modelValue, $input.val());  
+              }
+            }
+          } else {
+            this.model.set(attr, !!$input.is(':checked') && !$input.is(':disabled'));
+          }
           break;
         case 'radio':
           if(!!$input.is(':checked') && !$input.is(':disabled'))
-            this.model.set($input.attr('name'), $input.val());
+            this.model.set(attr, $input.val());
           break;
       }
       this.model.throttledSave();
@@ -41,7 +57,14 @@ define(function(require) {
             modelValue = _this.model.get($element.attr('name'));
         switch($element.attr('type')) {
           case 'checkbox':
-            if(!!modelValue) $element.attr('checked', 'checked');
+            if(_.isArray(modelValue)) {
+              if($element.attr('name') == 'displaySettings.rows.res.lengths')
+                console.log(modelValue, $element.val())
+              if(~modelValue.indexOf($element.val())) 
+                $element.attr('checked', 'checked');
+            } else {
+              if(!!modelValue) $element.attr('checked', 'checked');
+            }
             break;
           case 'radio':
             if($element.val() == modelValue) $element.attr('checked', 'checked');
@@ -56,6 +79,12 @@ define(function(require) {
 
     afterRender: function() {
       this.populate();
+    },
+
+    serialize: function() {
+      return {
+        recognitionSites: _.range(1,10)
+      };
     }
 
   });

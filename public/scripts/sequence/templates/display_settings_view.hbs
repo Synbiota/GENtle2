@@ -71,3 +71,25 @@
   </dd>
 </dl>
 <div class="clearfix"></div>
+<dl class="dl-horizontal">
+  <dt>RES</dt>
+  <dd>
+    <div class="checkbox floating">
+      <label>
+        <input type="checkbox" name="displaySettings.rows.res.display" value="false"/>
+        Display
+      </label>
+    </div>
+    <div class="clearfix"></div>
+    <div><em>Recognition sites</em></div>
+    {{#each recognitionSites}}
+      <div class="checkbox floating floating-fifth">
+        <label>
+          <input type="checkbox" name="displaySettings.rows.res.lengths" value="{{.}}"/>
+          {{.}}
+        </label>
+      </div>
+    {{/each}}
+  </dd>
+</dl>
+<div class="clearfix"></div>

@@ -1,6 +1,7 @@
 define(function(require) {
   var Line = require('./line'),
       RestrictionEnzymes = require('../restriction_enzymes'),
+      RestrictionEnzymesSites = require('./restriction_enzymes_sites'),
       RestrictionEnzymesLabels;
 
   RestrictionEnzymesLabels = function(sequenceCanvas, options) {
@@ -37,16 +38,7 @@ define(function(require) {
     return nbRES.length ? _.max(nbRES) : 0;
   });
 
-  RestrictionEnzymesLabels.prototype.getBaseX = function(base, baseRange) {
-    var layoutSettings = this.sequenceCanvas.layoutSettings,
-        relativeBase, x;
-
-    relativeBase = Math.max(0, Math.min(baseRange[1], base + baseRange[0]) - baseRange[0]);
-    x = layoutSettings.pageMargins.left + relativeBase * layoutSettings.basePairDims.width;
-    x += layoutSettings.gutterWidth * Math.floor((relativeBase -1) / layoutSettings.basesPerBlock);
-
-    return x;
-  };
+  RestrictionEnzymesLabels.prototype.getBaseX = RestrictionEnzymesSites.prototype.getBaseX;
 
   RestrictionEnzymesLabels.prototype.onlyVisibleEnzymes = function(enzymes, firstBase, subSeqPadding) {
     var basesPerRow = this.sequenceCanvas.layoutHelpers.basesPerRow,
@@ -56,7 +48,7 @@ define(function(require) {
     _.each(enzymes, function(enzymes_, position) {
       adjustedPosition = position - (firstBase === 0 ? 0 : subSeqPadding);
       areVisibleRES = _.some(enzymes_, function(enzyme) {
-        return adjustedPosition < basesPerRow && adjustedPosition > 0;
+        return adjustedPosition < basesPerRow && adjustedPosition >= 0;
       });
       if(areVisibleRES) {
         output[position] = enzymes_;
@@ -82,13 +74,12 @@ define(function(require) {
         x, text;
 
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
-    console.log(enzymes)
 
     y += this.height - _.keys(enzymes).length * this.unitHeight;
 
     artist.updateStyle({
       fillStyle: this.textColour,
-      font: this.font,
+      font: this.textFont,
       lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
       height: this.unitHeight - (this.margin || 0),
     });

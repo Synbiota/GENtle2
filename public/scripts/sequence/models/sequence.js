@@ -24,8 +24,14 @@ define(function(require) {
           rows: {
             numbering: true,
             features: true,
+            complements: true,
             aa: 'none',
-            aaOffset: 0
+            aaOffset: 0,
+            res: {
+              display: true,
+              lengths: ['4','5','6'],
+              manual: ''
+            }
           }
         },
         history: new HistorySteps()
@@ -35,6 +41,8 @@ define(function(require) {
     constructor: function() {
       Backbone.DeepModel.apply(this, arguments);
       this.sortFeatures();
+      if(this.get('displaySettings.rows.res.lengths') === undefined) 
+        this.set('displaySettings.rows.res.lengths', this.defaults().displaySettings.rows.res.lengths).save();
       this.maxOverlappingFeatures = _.memoize2(this._maxOverlappingFeatures);
       this.nbFeaturesInRange = _.memoize2(this._nbFeaturesInRange);
     },

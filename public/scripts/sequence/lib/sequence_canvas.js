@@ -450,8 +450,6 @@ define(function(require) {
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       initPosY = posY;
 
-    console.log('row')
-
     this.artist.clear(posY, rowsHeight);
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {

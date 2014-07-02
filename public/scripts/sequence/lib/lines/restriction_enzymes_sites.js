@@ -17,9 +17,9 @@ define(function(require) {
     var layoutSettings = this.sequenceCanvas.layoutSettings,
         relativeBase, x;
 
-    relativeBase = Math.max(0, Math.min(baseRange[1], base + baseRange[0]) - baseRange[0]);
+    relativeBase = Math.max(0, Math.min(baseRange[1]+1, base + baseRange[0]) - baseRange[0]);
     x = layoutSettings.pageMargins.left + relativeBase * layoutSettings.basePairDims.width;
-    x += layoutSettings.gutterWidth * Math.floor((relativeBase -1) / layoutSettings.basesPerBlock);
+    x += layoutSettings.gutterWidth * Math.floor(Math.max(0, relativeBase - 1) / layoutSettings.basesPerBlock);
 
     return x;
   };
@@ -39,7 +39,7 @@ define(function(require) {
         ),
         baseRangeLength = baseRange[1] - baseRange[0] + 1,
         enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq),
-        x, initPosition,
+        x, initPosition, points,
         _this = this;
 
     y -= 2; // Styling
@@ -56,20 +56,21 @@ define(function(require) {
       _.each(enzymes_, function(enzyme) {
 
         position = initPosition;
+        points = [];
 
         // Line above DNA
         if(enzyme.cut > 0 && position < baseRangeLength && position + enzyme.cut > 0) {
-          artist.path(
+          points = points.concat([
             _this.getBaseX(position, baseRange), y + dnaY,
             _this.getBaseX(position + enzyme.cut, baseRange), y + dnaY
-          );
+          ]);
         }
 
         // First cut
         position += enzyme.cut;
         if(position >= 0 && position < baseRangeLength) {
           x = _this.getBaseX(position, baseRange);
-          artist.path(
+          points = points.concat(
             x, y + dnaY,
             x, y + complementsY
           );
@@ -77,7 +78,7 @@ define(function(require) {
 
         // Line below DNA
         if(position < baseRangeLength && position + enzyme.offset > 0) {
-          artist.path(
+          points.concat(
             _this.getBaseX(position, baseRange), y + complementsY,
             _this.getBaseX(position + enzyme.offset, baseRange), y + complementsY
           );
@@ -87,7 +88,7 @@ define(function(require) {
         position += enzyme.offset;
         if(position >= 0 && position < baseRangeLength) {
           x = _this.getBaseX(position, baseRange);
-          artist.path(
+          points = points.concat(
             x, y + complementsY,
             x, y + complementsY + complementsHeight
           );
@@ -95,11 +96,13 @@ define(function(require) {
 
         // Line below complements
         if(position < baseRangeLength && initPosition + enzyme.bases.length - 1 > 0) {
-          artist.path(
+          points = points.concat(
             _this.getBaseX(position, baseRange), y + complementsY + complementsHeight,
             _this.getBaseX(initPosition + enzyme.bases.length - 1 , baseRange), y + complementsY + complementsHeight
           );
         }
+        console.log(points, points.length)
+        if(points.length) artist.path.apply(artist, points);
 
       });
     });
