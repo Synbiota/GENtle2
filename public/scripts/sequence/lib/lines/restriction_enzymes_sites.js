@@ -13,13 +13,19 @@ define(function(require) {
 
   _.extend(RestrictionEnzymeSites.prototype, Line.prototype);
 
-  RestrictionEnzymeSites.prototype.getBaseX = function(base, baseRange) {
+  RestrictionEnzymeSites.prototype.getBaseX = function(base, baseRange, isStart) {
     var layoutSettings = this.sequenceCanvas.layoutSettings,
+        layoutHelpers = this.sequenceCanvas.layoutHelpers,
+        basesPerBlock = layoutSettings.basesPerBlock,
         relativeBase, x;
 
     relativeBase = Math.max(0, Math.min(baseRange[1]+1, base + baseRange[0]) - baseRange[0]);
     x = layoutSettings.pageMargins.left + relativeBase * layoutSettings.basePairDims.width;
-    x += layoutSettings.gutterWidth * Math.floor(Math.max(0, relativeBase - 1) / layoutSettings.basesPerBlock);
+    x += layoutSettings.gutterWidth * Math.floor(Math.max(0, relativeBase - 1) / basesPerBlock);
+    
+    if(!!isStart && relativeBase % basesPerBlock === 0 && relativeBase != layoutHelpers.basesPerRow) {
+      x += layoutSettings.gutterWidth;
+    }
 
     return x;
   };
@@ -32,14 +38,19 @@ define(function(require) {
         dnaY = layoutHelpers.lineOffsets.dna,
         complementsY = layoutHelpers.lineOffsets.complements,
         complementsHeight = layoutSettings.lines.complements.height,
-        subSeqPadding = RestrictionEnzymes.maxBaseLength(),
+        displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        enzymeOptions = {
+          length: displaySettings.lengths || [],
+          manualList: displaySettings.manual || ''
+        },
+        subSeqPadding = RestrictionEnzymes.maxLength(),
         expandedSubSeq = sequenceCanvas.sequence.getSubSeq(
           baseRange[0] - subSeqPadding,
           baseRange[1] + subSeqPadding
         ),
         baseRangeLength = baseRange[1] - baseRange[0] + 1,
-        enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq),
-        x, initPosition, points,
+        enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions),
+        x, x2, initPosition, points, negativeOffset, basesLength,
         _this = this;
 
     y -= 2; // Styling
@@ -55,21 +66,23 @@ define(function(require) {
 
       _.each(enzymes_, function(enzyme) {
 
-        position = initPosition;
         points = [];
+        negativeOffset = enzyme.offset < 0;
+        basesLength = enzyme.seq.length ;
+        position = negativeOffset ? initPosition + basesLength : initPosition;
 
         // Line above DNA
-        if(enzyme.cut > 0 && position < baseRangeLength && position + enzyme.cut > 0) {
+        if(enzyme.cut > 0 && position <= baseRangeLength && position + enzyme.cut > 0) {
           points = points.concat([
-            _this.getBaseX(position, baseRange), y + dnaY,
-            _this.getBaseX(position + enzyme.cut, baseRange), y + dnaY
+            _this.getBaseX(position, baseRange, !negativeOffset), y + dnaY,
+            _this.getBaseX(initPosition + enzyme.cut, baseRange, negativeOffset), y + dnaY
           ]);
         }
 
         // First cut
-        position += enzyme.cut;
+        position = (negativeOffset ? initPosition : position) + enzyme.cut;
         if(position >= 0 && position < baseRangeLength) {
-          x = _this.getBaseX(position, baseRange);
+          x = _this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0);
           points = points.concat(
             x, y + dnaY,
             x, y + complementsY
@@ -77,9 +90,9 @@ define(function(require) {
         }
 
         // Line below DNA
-        if(position < baseRangeLength && position + enzyme.offset > 0) {
-          points.concat(
-            _this.getBaseX(position, baseRange), y + complementsY,
+        if((negativeOffset && position > 0 && position + enzyme.offset <= baseRangeLength) || position <= baseRangeLength && position + enzyme.offset > 0) {
+          points = points.concat(
+            _this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0), y + complementsY,
             _this.getBaseX(position + enzyme.offset, baseRange), y + complementsY
           );
         }
@@ -95,13 +108,19 @@ define(function(require) {
         }
 
         // Line below complements
-        if(position < baseRangeLength && initPosition + enzyme.bases.length - 1 > 0) {
-          points = points.concat(
-            _this.getBaseX(position, baseRange), y + complementsY + complementsHeight,
-            _this.getBaseX(initPosition + enzyme.bases.length - 1 , baseRange), y + complementsY + complementsHeight
-          );
+        if(position < baseRangeLength && initPosition + enzyme.seq.length - 1 > 0) {
+          x = _this.getBaseX(position, baseRange);
+          x2 = _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange);
+          if(x !== x2) {
+            points = points.concat(
+              _this.getBaseX(position, baseRange), 
+              y + complementsY + complementsHeight,
+              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
+              y + complementsY + complementsHeight
+            );
+          }
         }
-        console.log(points, points.length)
+
         if(points.length) artist.path.apply(artist, points);
 
       });

@@ -100,10 +100,8 @@ define(function(require){
 
   Artist.prototype.path = function() {
     var args = arguments,
-        options = _.isObject(args[args.length-1]) ? args.pop() : {},
+        options = _.isObject(args[args.length-1])? args.pop() : {},
         path = new Path(this, args);
-
-    console.log(args)
 
     this.shapes.push(path);
     path.draw(options);

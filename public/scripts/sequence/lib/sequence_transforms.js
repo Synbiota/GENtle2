@@ -6,28 +6,31 @@
 **/
 define(function(require) {
   var SynbioData = require('common/lib/synbio_data'),
-      iupacToBases,
+      iupacToBases, toComplementsMap,
+      codonToAALongMap, codonToAAShortMap,
       SequenceTransforms;
 
   SequenceTransforms = SequenceTransforms || {};
 
+  toComplementsMap = {'A': 'T', 'C': 'G', 'T': 'A', 'G': 'C'};
+
   return {
+
     /**
     @method codonToAALong
     @params {String} codon
     @returns {String} long-form amino acid
     **/
     codonToAALong: function(codon) {
-      var map = SequenceTransforms.codonToAALong;
-      if(map === undefined) {
-        map = [];
+      if(codonToAALongMap === undefined) {
+        codonToAALongMap = [];
         _.each(SynbioData.aa, function(aa) {
           _.each(aa.codons, function(codon) {
-            map[codon] = aa.long || '   ';
+            codonToAALongMap[codon] = aa.long || '   ';
           });
         });
       }
-      return map[codon];
+      return codonToAALongMap[codon];
     },
 
     /**
@@ -36,16 +39,15 @@ define(function(require) {
     @returns {String} short-form amino acid
     **/
     codonToAAShort: function(codon) {
-      var map = SequenceTransforms.codonToAAShort;
-      if(map === undefined) {
-        map = [];
+      if(codonToAAShortMap === undefined) {
+        codonToAAShortMap = [];
         _.each(SynbioData.aa, function(aa) {
           _.each(aa.codons, function(codon) {
-            map[codon] = (aa.short || ' ') + '  ';
+            codonToAAShortMap[codon] = (aa.short || ' ') + '  ';
           });
         });
       }
-      return map[codon];
+      return codonToAAShortMap[codon];
     },
 
     /**
@@ -54,9 +56,15 @@ define(function(require) {
     @returns {String} sequence complement
     **/
     toComplements: function(sequence) {
-      var map = SequenceTransforms.toComplements;
-      map = map || {'A': 'T', 'C': 'G', 'T': 'A', 'G': 'C'};
+      var map = toComplementsMap;
       return _.map(sequence.split(''), function(base) { return map[base] || ' '; }).join('');
+    },
+
+    toReverseComplements: function(sequence) {
+      var o = '';
+      for (var i = sequence.length - 1; i >= 0; i--)
+        o += toComplementsMap[sequence[i]];
+      return o;
     },
 
     iupacToBases: _.memoize(function(sequence) {

@@ -59,7 +59,6 @@ define(function(require) {
           case 'checkbox':
             if(_.isArray(modelValue)) {
               if($element.attr('name') == 'displaySettings.rows.res.lengths')
-                console.log(modelValue, $element.val())
               if(~modelValue.indexOf($element.val())) 
                 $element.attr('checked', 'checked');
             } else {

@@ -23,7 +23,12 @@ define(function(require) {
         sequenceCanvas  = this.sequenceCanvas,
         sequence        = sequenceCanvas.sequence,
         basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow,
-        subSeqPadding   = RestrictionEnzymes.maxBaseLength(),
+        subSeqPadding   = RestrictionEnzymes.maxLength(),
+        displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        enzymeOptions = {
+          length: displaySettings.lengths || [],
+          manualList: displaySettings.manual || ''
+        },
         subSeq, enzymes, countEnzymes, i;
 
     for(i = 0; i <= Math.floor(sequence.length() / basesPerRow); i++) {
@@ -31,7 +36,7 @@ define(function(require) {
         i * basesPerRow - subSeqPadding,
         (i+1) * basesPerRow - 1 + subSeqPadding
       );
-      enzymes = RestrictionEnzymes.getAllInSeq(subSeq);
+      enzymes = RestrictionEnzymes.getAllInSeq(subSeq, enzymeOptions);
       nbRES.push(_.keys(this.onlyVisibleEnzymes(enzymes, i, subSeqPadding)).length);
     }
 
@@ -63,12 +68,17 @@ define(function(require) {
         artist = sequenceCanvas.artist,
         layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
-        subSeqPadding = RestrictionEnzymes.maxBaseLength(),
+        subSeqPadding = RestrictionEnzymes.maxLength(),
+        displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        enzymeOptions = {
+          length: displaySettings.lengths || [],
+          manualList: displaySettings.manual || ''
+        },
         expandedSubSeq = sequenceCanvas.sequence.getSubSeq(
           baseRange[0] - subSeqPadding,
           baseRange[1] + subSeqPadding
         ),
-        enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq),
+        enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions),
         _this = this,
         initY = y,
         x, text;
@@ -88,7 +98,7 @@ define(function(require) {
 
     _.each(enzymes, function(enzymes_, position) {
       position -= baseRange[0] === 0 ? 0 : subSeqPadding;
-      x = _this.getBaseX(position, baseRange);
+      x = _this.getBaseX(position, baseRange, true);
       artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
       artist.path(
         x, y + _this.unitHeight + 3, 
