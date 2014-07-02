@@ -34,8 +34,7 @@ define(function(require) {
                 this.model.set(attr, _.without(modelValue, $input.val()));  
             } else {
               if(!!$input.is(':checked')) {
-                modelValue.push($input.val());
-                this.model.set(attr, modelValue, $input.val());  
+                this.model.set(attr, modelValue.concat($input.val()), {silent: false});  
               }
             }
           } else {
@@ -47,6 +46,7 @@ define(function(require) {
             this.model.set(attr, $input.val());
           break;
       }
+
       this.model.throttledSave();
     },
 
@@ -54,7 +54,12 @@ define(function(require) {
       var _this = this;
       this.$('input').each(function(i, element){
         var $element = $(element),
-            modelValue = _this.model.get($element.attr('name'));
+            modelValue;
+
+        if($element.attr('name') === undefined) return true;
+
+        modelValue = _this.model.get($element.attr('name'));
+
         switch($element.attr('type')) {
           case 'checkbox':
             if(_.isArray(modelValue)) {
@@ -79,12 +84,6 @@ define(function(require) {
     afterRender: function() {
       this.populate();
     },
-
-    serialize: function() {
-      return {
-        recognitionSites: _.range(1,10)
-      };
-    }
 
   });
 

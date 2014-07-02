@@ -1,0 +1,47 @@
+<form role="form">
+  <dl class="dl-horizontal">
+    <dt>Sites</dt>
+    <dd>
+      Filter enzymes by recognition site length:
+      <div class="separator"></div>
+      {{#each recognitionSites}}
+        <div class="checkbox floating floating-fifth">
+          <label>
+            <input type="checkbox" name="displaySettings.rows.res.lengths" class="res-settings-sites" value="{{.}}"/>
+            {{.}}
+          </label>
+        </div>
+      {{/each}}
+      <div class="clearfix"></div>
+      <br>
+    </dd>
+    <dt>Custom list</dt>
+    <dd>
+      {{#if selected}}
+        <div>
+          <a href="#" class="btn btn-default btn-xs res-settings-selected-clear pull-right">Clear</a>
+          Only the following enzymes will be shown: 
+          <br>
+          {{#each selected}}
+            <code>{{.}}</code>
+          {{/each}}
+        </div>
+      {{else}}
+        Restricted the enzymes by selecting them in the list below.
+      {{/if}}
+      <div class="separator"></div>
+      <hr class="no-margin">
+      <div class="separator"></div>
+      <div class="form-group">
+        <div class="input-group">
+          <input type="text" class="res-settings-filter form-control input-sm" value="{{filter}}" placeholder="Search for enzymes...">
+          <div class="input-group-addon"><a href="#" class="text-muted res-settings-filter-clear">&times;</a></div>
+        </div>
+      </div>
+      <div>
+      </div>
+      <div class="separator"></div>
+      <div class="res-settings-list-outlet"></div>
+    </dd>
+  </dl>
+</form>

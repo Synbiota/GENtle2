@@ -14,11 +14,11 @@ define(function(require) {
 
   RestrictionEnzymes.all = function() {
     restrictionEnzymes = restrictionEnzymes || (function() {
-      return _.map(SynbioData.restriction_enzymes, function(enzyme) {
+      return _.sortBy(_.map(SynbioData.restriction_enzymes, function(enzyme) {
         return _.extend(enzyme, {
           // isPalyndromic: bases == reverseComplements(bases)
         });
-      });
+      }), 'name');
     })();
 
     return restrictionEnzymes;
@@ -79,8 +79,8 @@ define(function(require) {
       }
     };
 
-    if(options.manualList !== undefined && options.manualList !== '') {
-      list = options.manualList.split(',');
+    if(options.customList && options.customList.length) {
+      list = options.customList;
       _.each(RestrictionEnzymes.all(), function(enzyme) {
         if(~list.indexOf(enzyme.name)) checkAndAddMatch(enzyme, enzyme.seq);
       });

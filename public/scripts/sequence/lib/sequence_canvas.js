@@ -485,6 +485,7 @@ define(function(require) {
   @method refresh
   **/
   SequenceCanvas.prototype.refresh = function() {
+    console.log('refresh')
     if (this.caretPosition !== undefined) {
       this.hideCaret();
       this.caretPosition = undefined;
