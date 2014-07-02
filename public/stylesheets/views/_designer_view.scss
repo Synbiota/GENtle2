@@ -50,8 +50,6 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       text-align: center;
       font-size: 1.5em;
 
-      @include text-overflow();
-
       &.enabled {
         visibility: visible;
       }
@@ -71,11 +69,6 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       @include text-overflow();
     }    
 
-    .designer-designed-sequence-chunk-title {
-      padding: 5px 10px;
-      @include text-overflow()
-    }
-
     .designer-designed-sequence-chunk {
       position: relative;
       background: map_get(map_get($__colors, '_default'), 'fill');
@@ -88,7 +81,6 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
 
       .designer-designed-sequence-chunk-title {
         padding: 5px 10px;
-        @include text-overflow();
       }
 
       .designer-designed-sequence-chunk-droppable {
@@ -135,6 +127,13 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
         background: #ddd;
         color: #888;
         border: 1px solid #888;
+      }
+
+      &.ui-draggable-dragging {
+        width: 200px !important;
+        .designer-designed-sequence-chunk-title {
+          @include text-overflow();
+        }
       }
 
       @each $feature_type, $v in $__colors {
