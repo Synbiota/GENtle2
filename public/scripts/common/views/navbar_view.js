@@ -77,7 +77,6 @@ define(function(require) {
           maxDropdownWidth,
           _this = this;
 
-          console.log('width '+secondaryDropdownWidth);
       // In order to properly determine tab spacing, we need to allow the view to render, and grab width data.
       // So we do nothing on initial render, and only display tabs once we have that initial data.
       if (!this.initialRender){

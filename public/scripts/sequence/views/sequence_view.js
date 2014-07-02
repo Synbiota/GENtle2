@@ -104,6 +104,8 @@ define(function(require) {
 
     handleResize: function(trigger) {
 
+      console.log('Rendered '+this.model.actualSecondaryView.$el.width());
+
       this.$('#sequence-primary-view-outlet').css('left', this.primaryViewLeftPos());
 
       if(trigger !== false && trigger !== undefined) {
@@ -113,8 +115,7 @@ define(function(require) {
     },
 
     primaryViewLeftPos: function() {
-      console.log($('#sequence-primary-view-outlet').width());
-      return $('#sequence-primary-view-outlet').width();
+      return this.sequenceSettingsView.$el.width();
     },
 
     remove: function() {

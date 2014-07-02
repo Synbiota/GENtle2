@@ -28,7 +28,7 @@ define(function(require) {
       // });
       this.contextMenuView = new ContextMenuView();
       this.secondaryViewDropdown = new SecondaryChangeView();
-      this.insertView('#sequence-canvas-context-menu-outlet',this.secondaryViewDropdown);
+      this.insertView('#sequence-canvas-secondary-view-outlet',this.secondaryViewDropdown);
       this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
       this.initSecondaryViews();
     },
@@ -60,10 +60,12 @@ define(function(require) {
     },
 
     handleResizeRight: function(trigger) {
-      $('#sequence-canvas-secondary-view-outlet').css({
+      $('#sequence-canvas-primary-view-outlet').css({
         'right': this.actualSecondaryView.$el.width(),
       });
-      console.log('Edition  NOT '+this.secondaryViewRightPos());
+      this.$('.sequence-canvas-container, .scrolling-parent').css({
+        'right': this.actualSecondaryView.$el.width(),
+      });
       if(trigger !== false) {
         this.trigger('resize');
         this.actualSecondaryView.trigger('resize');
@@ -72,7 +74,6 @@ define(function(require) {
 
     handleResizeLeft: function(trigger) {
 
-      console.log('Edition  NOT '+this.secondaryViewRightPos());
       if(trigger !== false) {
         this.trigger('resize');
         this.actualSecondaryView.trigger('resize');
@@ -84,7 +85,7 @@ define(function(require) {
     },
 
      primaryViewLeftPos: function() {
-      console.log($('#sequence-primary-view-outlet').width());
+      console.log('THis NO');
       return $('#sequence-primary-view-outlet').width();
     },
 
@@ -96,6 +97,7 @@ define(function(require) {
       this.secondaryView = secondaryView;
       this.actualSecondaryView = actualView;
       this.actualSecondaryView.parentView = this;
+      this.model.actualSecondaryView = this.actualSecondaryView;
       this.model.set('displaySettings.secondaryView', viewName).throttledSave();
       this.insertView('#sequence-canvas-secondary-view-outlet', this.actualSecondaryView);
 
