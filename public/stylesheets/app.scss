@@ -49,3 +49,8 @@ body {
   @include user-select(none);
 }
 
+.separator {
+  display: block;
+  margin-bottom: .6em;
+}
+

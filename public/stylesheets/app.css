@@ -9008,3 +9008,9 @@ body {
   -ms-user-select: none;
   user-select: none;
 }
+
+/* line 52, app.scss */
+.separator {
+  display: block;
+  margin-bottom: .6em;
+}

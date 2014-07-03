@@ -7,6 +7,7 @@ define(function(require) {
   var FeaturesView        = require('./features_view'),
       HistoryView         = require('./history_view'),
       DisplaySettingsView = require('./display_settings_view'),
+      RestrictionEnzymesSettingsView = require('./restriction_enzymes_settings_view'),
       ExportView          = require('./export_view'),
       SidebarView         = require('common/views/sidebar_view'),
       ToolsView           = require('./tools_view'),
@@ -58,6 +59,15 @@ define(function(require) {
         title: 'Annotations',
         icon: 'edit',
         view: FeaturesView,
+        visible: function() {
+          return _this.parentView.primaryView.name == 'edition';
+        },
+      },{
+        name: 'resSettings',
+        title: 'Restriction enzymes',
+        icon: 'sort',
+        maxHeighted: true,
+        view: RestrictionEnzymesSettingsView,
         visible: function() {
           return _this.parentView.primaryView.name == 'edition';
         },

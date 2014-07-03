@@ -49,6 +49,11 @@ define(function(require) {
         view: LinearMapView
         });  
 
+        secondaryViews.push({
+        name: 'plasmid',
+        title: 'PlasmidMap',
+        });  
+
       currentView = this.model.get('displaySettings.secondaryView');
 
       if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
@@ -114,6 +119,7 @@ define(function(require) {
      for (var i=0;i<this.secondaryViews.length;i++){
       li += '<li role="presentation" >'+'<a role="menuitem" id ="secondary-view-item">'+this.secondaryViews[i].name +'</a></li>';
       $('#secondary-view-list').append(li);
+      li = '';
      }
      $('#secondary-view-item').click(function () {
        value = $(this).html();

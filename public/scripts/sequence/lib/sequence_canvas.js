@@ -128,6 +128,13 @@ define(function(require) {
           }
         }),
 
+        // Restriction Enzyme Sites
+        restrictionEnzymesLabels: new Lines.RestrictionEnzymeLabels(this, {
+          unitHeight: 10,
+          textFont: LineStyles.RES.text.font,
+          textColour: LineStyles.RES.text.color,
+        }),
+
         // Position numbering
         position: new Lines.Position(this, {
           height: 15,
@@ -184,6 +191,7 @@ define(function(require) {
           unitHeight: 15,
           baseLine: 10,
           textFont: LineStyles.features.font,
+          topMargin: 3,
           textColour: function(type) {
             var colors = LineStyles.features.color;
             type = type.toLowerCase();
@@ -208,7 +216,13 @@ define(function(require) {
           visible: _.memoize2(function() {
             return _this.sequence.get('displaySettings.rows.separators');
           })
-        })
+        }),
+
+        // Restriction Enzyme Sites
+        restrictionEnzymeSites: new Lines.RestrictionEnzymeSites(this, {
+          floating: true
+        }),
+
       }
     };
 
@@ -310,7 +324,7 @@ define(function(require) {
       lh.lineOffsets = {};
       _.each(ls.lines, function(line, lineName) {
         line.clearCache();
-        if (line.visible === undefined || line.visible()) {
+        if ((line.visible === undefined || line.visible()) && !line.floating) {
           lh.lineOffsets[lineName] = line_offset;
           if (_.isFunction(line.calculateHeight)) line.calculateHeight();
           line_offset += line.height;
@@ -433,14 +447,19 @@ define(function(require) {
       rowsHeight = layoutHelpers.rows.height,
       canvasHeight = layoutSettings.canvasDims.height,
       bottomMargin = layoutSettings.pageMargins.bottom,
-      baseRange = this.getBaseRangeFromYPos(posY + yOffset);
+      baseRange = this.getBaseRangeFromYPos(posY + yOffset),
+      initPosY = posY;
 
     this.artist.clear(posY, rowsHeight);
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
-          line.draw(posY, baseRange);
-          posY += line.height;
+          if(line.floating) {
+            line.draw(initPosY, baseRange);
+          } else {
+            line.draw(posY, baseRange);
+            posY += line.height;
+          }
         }
       });
     }
@@ -466,6 +485,7 @@ define(function(require) {
   @method refresh
   **/
   SequenceCanvas.prototype.refresh = function() {
+    console.log('refresh')
     if (this.caretPosition !== undefined) {
       this.hideCaret();
       this.caretPosition = undefined;
