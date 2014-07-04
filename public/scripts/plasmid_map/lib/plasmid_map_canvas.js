@@ -87,14 +87,14 @@ define(function(require) {
         r = - this.radii.lineNumbering.r,
         R = - this.radii.lineNumbering.R,
         textX = - this.radii.lineNumbering.R,
-        textY = -10,
+        textY = -5,
         artist = this.artist;
 
     artist.updateStyle({
       strokeStyle: '#bbb', 
       fillStyle: "#bbb",
       lineWidth: 1 ,
-      font: "10px Arial",
+      font: "9px Monospace",
       textAlign: 'start'
     });
 
