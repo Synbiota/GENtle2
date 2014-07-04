@@ -455,7 +455,6 @@ var centreX = arguments[0],
     }
   };
 
-
 Artist.prototype.bestLineNumbering = function(bp,radius){
 
   var min_d = 25;
