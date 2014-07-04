@@ -159,10 +159,11 @@ define(function(require) {
 
     artist.onTemporaryTransformation(function() {
       _.each(enzymes, function(enzymes_, position) {
+        var names = _.pluck(enzymes_, 'name');
         position = 1*position;
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
         artist.path(-radii.R, 0, -radii.r, 0);
-        artist.text(_.pluck(enzymes_, 'name').join(','), -radii.label, 2);
+        artist.text(names.length <= 2 ? names.join(', ') : (names[0] + ' +' + (names.length-1)), -radii.label, 2);
         previousPosition = position;
       });
     });
