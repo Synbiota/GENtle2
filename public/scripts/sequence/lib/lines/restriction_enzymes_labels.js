@@ -94,7 +94,7 @@ define(function(require) {
       height: this.unitHeight - (this.margin || 0),
     });
 
-    artist.setLineDash([2,2]);
+    artist.setLineDash([1.5,3]);
 
     _.each(enzymes, function(enzymes_, position) {
       position -= baseRange[0] === 0 ? 0 : subSeqPadding;
