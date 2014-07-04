@@ -1,0 +1,13 @@
+.plasmid-map {
+  position: fixed;
+  top: 51px;
+  right: 0;
+  bottom: 21px;
+  width: 500px;
+
+  .plasmid-map-canvas {
+    height: 100%;
+    width: 500px;
+    position: absolute;
+  }
+}

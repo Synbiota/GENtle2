@@ -12,6 +12,7 @@ Includes Shape system for handling mouse events.
 define(function(require){
   var $ = require('jquery'),
       Rect = require('./rect'),
+      Washer = require('./washer'),
       Text = require('./text'),
       Path = require('./path'),
       _ = require('underscore.mixed'),
@@ -53,8 +54,8 @@ define(function(require){
       canvas.width = width * pixelRatio;
       canvas.height = height * pixelRatio;
     }
-    
-    this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+ //   this.context.settransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
   };
 
   /**
@@ -73,6 +74,248 @@ define(function(require){
     context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
     this.shapes = [];
   };
+
+  Artist.prototype.point = function (x, y) {
+    "use strict";
+
+    if (!(this instanceof Artist.point)) {
+        throw new Error("point constructor called as function!");
+    }
+
+    this.x = x || 0.0;
+    this.y = y || 0.0;
+
+    this.add = function (p2) {
+        return new Artist.point(this.x + p2.x, this.y + p2.y);
+    };
+
+    this.clone = function () {
+        return new Artist.point(this.x, this.y);
+    }
+
+    this.sub = function (p2) {
+        return new Artist.point(this.x - p2.x, this.y - p2.y);
+    };
+
+    this.mult = function (s) {
+        return new Artist.point(this.x * s, this.y * s);
+    };
+
+    this.div = function (s) {
+        return new Artist.point(this.x / s, this.y / s);
+    };
+
+    this.neg = function () {
+        return new Artist.point(-this.x, -this.y);
+    };
+
+    this.magnitude2 = function () {
+        return this.x * this.x + this.y * this.y;
+    };
+
+    this.magnitude = function () {
+        return Math.sqrt(this.magnitude2());
+    };
+
+    this.distance2 = function (p2) {
+        var dx = this.x - p2.x,
+            dy = this.y - p2.y;
+        return dx * dx + dy * dy;
+    };
+
+    this.distance = function (p2) {
+        return Math.sqrt(this.distance2(p2));
+    };
+
+    this.normalise = function () {
+        return this.div(this.magnitude());
+    };
+
+    this.scale = function (sx, sy) {
+        return new Artist.point(this.x * sx, this.y * sy);
+    };
+
+    this.toString = function () {
+        return "point(" + this.x + "," + this.y + ")";
+    };
+};
+
+Artist.prototype.transform = function(a, b, c, d, e, f) {
+    "use strict";
+    /* Affine tranform matrix (same layout as canvas) :
+     *   | a, c, e |
+     *   | b, d, f |
+     *   | 0, 0, 1 |
+     */
+    this.m = [];
+
+    this.m[0] = a || 1.0;
+    this.m[1] = b || 0.0;
+    this.m[2] = c || 0.0;
+    this.m[3] = d || 1.0;
+    this.m[4] = e || 0.0;
+    this.m[5] = f || 0.0;
+
+    this.add = function(t2) {
+        return new Artist.transform(
+            this.m[0] + t2.m[0],
+            this.m[1] + t2.m[1],
+            this.m[2] + t2.m[2],
+            this.m[3] + t2.m[3],
+            this.m[4] + t2.m[4],
+            this.m[5] + t2.m[5]
+        );
+    };
+
+    this.sub = function(t2) {
+        Artist.prototype.sub.call(this);
+        return new Artist.transform(
+            this.m[0] + t2.m[0],
+            this.m[1] + t2.m[1],
+            this.m[2] + t2.m[2],
+            this.m[3] + t2.m[3],
+            this.m[4] + t2.m[4],
+            this.m[5] + t2.m[5]
+        );
+    };
+
+    this.mult = function(o2) {
+        var toreturn;
+        if (o2 instanceof Artist.transform) {
+            toreturn = new Artist.transform(
+                this.m[0] * o2.m[0] + this.m[2] * o2.m[1],
+                this.m[1] * o2.m[0] + this.m[3] * o2.m[1],
+                this.m[0] * o2.m[2] + this.m[2] * o2.m[3],
+                this.m[1] * o2.m[2] + this.m[3] * o2.m[3],
+                this.m[0] * o2.m[4] + this.m[2] * o2.m[5] + this.m[4],
+                this.m[1] * o2.m[4] + this.m[3] * o2.m[5] + this.m[5]
+            );
+        } else {
+            toreturn = new Artist.point(
+                this.m[0] * o2.x + this.m[2] * o2.y + this.m[4],
+                this.m[1] * o2.x + this.m[3] * o2.y + this.m[5]
+            );
+        }
+
+        return toreturn;
+    };
+
+    this.invert = function() {
+        var det = this.m[0] * this.m[3] - this.m[2] * this.m[1];
+        return new _this.transform(
+            this.m[3] / det,
+            -this.m[1] / det,
+            -this.m[2] / det,
+            this.m[0] / det,
+            (this.m[2] * this.m[5] - this.m[4] * this.m[3]) / det,
+            (this.m[4] * this.m[1] - this.m[0] * this.m[5]) / det
+        );
+    };
+
+    this.clone = function() {
+        return new Artist.prototype.transform(
+            this.m[0],
+            this.m[1],
+            this.m[2],
+            this.m[3],
+            this.m[4],
+            this.m[5]
+        ) ;
+    }
+
+    this.toString = function() {
+        return "transform[" + this.m + "]";
+    };
+
+};
+
+
+Artist.prototype.translate = function (x, y) {
+    "use strict";
+    return new Artist.transform(1.0, 0.0, 0.0, 1.0, x, y);
+};
+
+Artist.prototype.normaliseAngle = function(angle){
+  while (angle < 0){
+    angle += 2 * Math.PI ;
+  }
+  while (angle >= 2*Math.PI){
+    angle -= 2 * Math.PI ;
+  }
+  return angle ;
+};
+
+
+Artist.prototype.rotate = function (t) {
+    "use strict";
+    return new Artist.transform(
+        Math.cos(t),
+        Math.sin(t),
+        -Math.sin(t),
+        Math.cos(t),
+        0.0,
+        0.0
+    );
+};
+
+Artist.prototype.wrapText = function(context, text, maxWidth) {
+  var words = text.split(' ');
+  var line = '';
+  var lines = [];
+
+  for(var n = 0; n < words.length; n++) {
+    var testLine = line + words[n] + ' ';
+    var metrics = context.measureText(testLine);
+    var testWidth = metrics.width;
+    if (testWidth > maxWidth && n > 0) {
+      lines.push(line) ;
+      line = words[n] + ' ';
+    }
+    else {
+      line = testLine;
+    }
+  }
+  lines.push(line);
+  return lines;
+};
+
+Artist.reflect = function (line) {
+    "use strict";
+    var mag2 = line.magnitude2();
+    return new Artist.transform(
+        (line.x * line.x - line.y * line.y) / mag2,
+        2 * line.x * line.y / mag2,
+        2 * line.x * line.y / mag2,
+        (line.y * line.y - line.x * line.x) / mag2,
+        0.0,
+        0.0
+    );
+};
+
+Artist.rotateAround = function (p, t) {
+    "use strict";
+    return Artist.translate(p.x, p.y).mult(Artist.rotate(t)).mult(Artist.translate(-p.x, -p.y));
+};
+
+Artist.angleBetween = function (p1, p2) {
+    "use strict";
+    var a1 = Math.atan2(p1.y, p1.x),
+        a2 = Math.atan2(p2.y, p2.x);
+    return a2 - a1;
+};
+
+Artist.linescross = function (p1, p2, p3, p4) {
+    "use strict";
+    var D = (p1.x - p2.x) * (p3.y - p4.y) - (p1.y - p2.y) * (p3.x - p4.x),
+        x = ((p3.x - p4.x) * (p1.x * p2.y - p1.y * p2.x) - (p1.x - p2.x) * (p3.x * p4.y - p3.y * p4.x)) / D,
+        y = ((p3.y - p4.y) * (p1.x * p2.y - p1.y * p2.x) - (p1.y - p2.y) * (p3.x * p4.y - p3.y * p4.x)) / D;
+    return new Artist.point(x, y);
+};
+
+Artist.centroid = function (p1, p2, p3, p4) {
+    "use strict";
+    return new Artist.point((p1.x + p2.x + p3.x + p4.x) / 4, (p1.y + p2.y + p3.y + p4.y) / 4);
+};
 
   /**
   Draw a filled rectangle. Adds it to `this.shapes`.
@@ -96,6 +339,24 @@ define(function(require){
     this.shapes.push(rect);
     rect.draw(options);
     return rect;
+  };
+
+Artist.prototype.washer = function() {
+var centreX = arguments[0],
+    centreY = arguments[1],
+    innerRadius = arguments[2],
+    outerRadius = arguments[3],
+    startAngle = arguments[4],
+    endAngle = arguments[5],
+    counterClockwise = arguments[6],
+    fill = arguments[7],
+    stroke = arguments[8],
+    highlight = false,
+    arrowHead = arguments[9],
+    washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, fill, stroke, counterClockwise, arrowHead);
+    this.shapes.push(washer);
+    washer.draw(this);
+    return washer;
   };
 
   Artist.prototype.path = function() {
@@ -193,6 +454,39 @@ define(function(require){
       context.setLineDash(segments);
     }
   };
+
+
+Artist.prototype.bestLineNumbering = function(bp,radius){
+
+  var min_d = 25;
+  var max_d = 100;
+
+  var min_c = Math.floor(2*Math.PI*radius/max_d);
+  var max_c = Math.floor(2*Math.PI*radius/min_d);
+  var c = min_c;
+  var q = [1,2,2.5,5];
+  var i = 0;
+  var n = Math.floor(Math.log(bp/(q[q.length-1]*(max_c+1)))/Math.log(10));
+  var guess = (c+1)*q[i]*Math.pow(10,n);
+
+  while (guess < bp){
+    
+    if (c < max_c){
+      c = c+1;
+    }else{
+      c = min_c;
+      if(i < q.length -1){
+        i+=1;
+      }else{
+        i = 0;
+        n += 1;
+      }
+    }
+    guess = (c+1)*q[i]*Math.pow(10,n);
+  }
+
+  return q[i]*Math.pow(10,n);
+}
 
   return Artist;
 });

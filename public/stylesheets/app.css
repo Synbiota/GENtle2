@@ -8870,6 +8870,21 @@ button.close {
   border-top: none;
 }
 
+/* line 1, components/_plasmid_map.scss */
+.plasmid-map {
+  position: fixed;
+  top: 51px;
+  right: 0;
+  bottom: 21px;
+  width: 500px;
+}
+/* line 8, components/_plasmid_map.scss */
+.plasmid-map .plasmid-map-canvas {
+  height: 100%;
+  width: 500px;
+  position: absolute;
+}
+
 /* line 1, components/_secondary_view_dropdown.scss */
 .change-secondary-view {
   float: right;

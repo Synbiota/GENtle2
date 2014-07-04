@@ -1,240 +1,206 @@
 define(function(require) {
   var Backbone        = require('backbone.mixed'),
       Gentle          = require('gentle')(),
-      template        = require('hbars!linear_map/templates/linear_map_view'),
+      Artist          = require('common/lib/graphics/artist'),
+      SequenceCanvas = require('sequence/lib/sequence_canvas'),
+      template        = require('hbars!plasmid_map/templates/plasmid_map_view'),
       LinearMapView;
 
   PlasmidMapView = Backbone.View.extend({
     manage: true,
-    template: template,
     className: 'plasmid-map',
-    minPositionMarkInterval: 60,
-    initialRender: true,
+    template: template,
 
-    events: {
-      'click .linear-map-feature': 'goToFeature'
-    },
 
     initialize: function() {
       this.model = Gentle.currentSequence;
-      this.minFeatureWidth = 4;
-      this.topFeatureOffset = 0;
-      _.bindAll(this, 'scrollSequenceCanvas');
-
-      this.listenTo(
-        this.model, 
-        'change:sequence change:features.* change:features',
-        _.debounce(this.refresh, 500),
-        this
-      );
     },
 
-    processFeatures: function() {
-      var id = -1,
-          _this = this;
-
-      this.features = [];
-
-      _.each(this.model.get('features'), function(feature) {
-        _.each(feature.ranges, function(range) {
-          _this.features.push({
-            name: feature.name,
-            id: ++id,
-            from: range.from,
-            to: range.to,
-            type: feature._type.toLowerCase()
-          });
-        });
+    initPlasmidMap: function(){
+    
+  this.sequenceCanvas = new SequenceCanvas({
+        view: this,
+        $canvas: this.$('canvas').first()
       });
 
-      this.features = _.sortBy(this.features, function(feature) {
-        return feature.from;
-      });
+  this.mouseTool = {};
+  this.mouseTool.drag = false;
+
+  var canvas = document.getElementById('plasmid_map_canvas') ;
+  this.artist = new Artist(canvas);  
+  this.context = this.artist.context;
+  this.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
+  this.context.canvas.height = parseInt ( $('#plasmid_map').height() ) ;
+
+  this.canvasOffset = { x: this.context.canvas.width / 2, y:this.context.canvas.height /2};
+
+  // This is silly, but only way I can keep track of 
+  // the context's transform, like these guys...
+  // http://stackoverflow.com/questions/7395813/html5-canvas-get-transform-matrix
+  this.ctm = {
+    t: new this.artist.transform()
+  } ;
+
+  this.ctm.translate = function(x, y){
+    this.ctm.t = this.ctm.t.mult(this.artist.translate(x, y));
+        this.context.translate(x, y);
+  }
+  this.ctm.rotate = function(t){
+    this.ctm.t = this.ctm.t.mult(this.artist.rotate(t));
+        this.context.rotate(t);
+  }
+    this.ctm.setTransform = function(newt){
+        this.ctm.t = newt.clone();
+        this.context.setTransform(  newt.m[0], 
+                                    newt.m[1], 
+                                    newt.m[2], 
+                                    newt.m[3], 
+                                    newt.m[4], 
+                                    newt.m[5]
+        )
+    }
+  
+
+  this.radii = {
+          currentSelection: {r:10, R:200},
+          plasmidCircle: {r:150},
+          annotations: {r1:125, r2:140, r3:160, r4:175 },
+          linegraph: {r:100},
+          lineNumbering: {r:180, R:240},
+          title_width: 200*0.8660254 - 50
+  };
+
+var len = this.model.get('sequence').length;
+
+var from = 250 * Math.PI * 2 / len;
+var to = 500 * Math.PI * 2 / len;
+this.currentSelection = this.artist.washer(0,0,this.radii.currentSelection.r,this.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
+
+
+    this.renderMap();
     },
 
-    positionFeatures: function() {
-      var maxBase = this.maxBaseForCalc || this.model.length(),
-          viewHeight = this.$el.height(),
-          $featureElement, feature, featureWidth,
-          overlapStack = [], overlapIndex;
+  renderMap: function () {
 
-      for(var i = 0; i < this.features.length; i++) {
-        feature = this.features[i];
-        featureWidth = Math.max(
-          Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
-          this.minFeatureWidth
-        );
-        $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
+  var len =this.model.get('sequence').length;
 
-        $featureElement.css({
-          width: featureWidth,
-          top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset,
-        });
+  //clear canvas set bg colour to white
+    // using a box defined by our canvas, then pushed through our matrices!
+   /* var p1 = this.ctm.t.invert().mult(new simple2d.Point(0, 0)),
+        p2 = this.ctm.t.invert().mult(new simple2d.Point(this.context.canvas.width, 0)),
+        p3 = this.ctm.t.invert().mult(new simple2d.Point(this.context.canvas.width, this.context.canvas.height)),
+        p4 = this.ctm.t.invert().mult(new simple2d.Point(0, this.context.canvas.height));
 
-        overlapIndex =  overlapStack.length;
+  this.context.fillStyle = 'white' ;
+    this.context.beginPath();
+    this.context.moveTo(p1.x, p1.y);
+    this.context.lineTo(p2.x, p2.y);
+    this.context.lineTo(p3.x, p3.y);
+    this.context.lineTo(p4.x, p4.y);
+    this.context.lineTo(p1.x, p1.y);
+  this.context.fill(); */
 
-        for(var j = overlapStack.length - 1; j >= 0; j--) {
-          if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
-            overlapStack[j] = undefined;
-            overlapIndex = j;
-          }
-        }
+  //draw line numbers
+  var lineNumberIncrement = this.artist.bestLineNumbering(len, 200) ; 
+  var angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ;
+  var r =  - this.radii.lineNumbering.r;
+  var R =    - this.radii.lineNumbering.R;
+  var textX = - this.radii.lineNumbering.R;
+  var textY = -10;
 
-        $featureElement.addClass('linear-map-feature-stacked-'+overlapIndex);
+  this.context.save() ;
+  this.strokeStyle = '#000' ; 
+  this.context.fillStyle = "#000";
+  this.context.lineWidth = 1 ;
+  this.context.font = "10px Arial";
+  this.context.textAlign = 'start';
+  this.context.rotate(Math.PI);
 
-        overlapStack[overlapIndex] = [feature.from, feature.to];
+  for ( var i = 0; i < len/lineNumberIncrement; i++){
+    this.context.beginPath()
+    this.context.moveTo(r,0);
+    this.context.lineTo(R,0);
+    this.context.stroke();
+    this.context.fillText(i*lineNumberIncrement, textX, textY);
+    this.context.rotate(angleIncrement);
+  }
+  this.context.restore() ;
+
+  //draw the current selection marker first
+  this.currentSelection.draw(this.artist);
+
+  //draw a circle to represent our plasmid...
+  this.context.beginPath();
+  this.context.arc(0,0,this.radii.plasmidCircle.r,0,Math.PI*2, true);
+  this.context.strokeStyle = 'grey';
+  this.context.lineWidth = 15;
+  //this.context.fillStyle = 'grey'; //();
+  this.context.stroke();
+  
+  this.context.lineWidth = 5;
+
+  /*var annLength = this.annotations.length ;
+
+  //draw annotations
+  for (var i = 0; i < annLength; i++){
+    this.annotations[i].canvasShape.draw( this.context );
+  }
+
+  if(annLength < 1000){
+    this.context.save();
+    this.context.fillStyle = "white";
+    this.context.textAlign = 'center';
+    this.context.font = "12px Arial";
+    for (var i = 0; i < annLength; i++){
+      var wh = this.annotations[i].textWidth; 
+
+      var midAngle = (this.annotations[i].start + this.annotations[i].end)/2;
+      var midR = (this.annotations[i].min + this.annotations[i].max*4)/5;
+      var arcLength = (this.annotations[i].end - this.annotations[i].start)*midR;
+      //console.log(arcLength , wh);
+      if (arcLength > wh.width){
+        drawTextAlongArc(this.context, this.annotations[i].name, 0, 0, midR, midAngle,"12px Arial", wh)
       }
-    },
-
-    goToFeature: function(event) {
-      var featureId = $(event.currentTarget).data('featureId'),
-          feature = _.findWhere(this.features, {id: featureId});
-
-      this.sequenceCanvas.scrollToBase(feature.from);
-
-      event.preventDefault();
-    },
-
-    serialize: function() {
-      if(this.initialRender) {
-        return {};
-      } else {
-        return {
-          features: this.features,
-          positionMarks: this.positionMarks
-        };
-      }
-    },
-
-    refresh: function(render) {
-      this.processFeatures();
-      this.processPositionMarks();
-      if(render !== false) this.render();
-    },
-
-    processPositionMarks: function(layoutHelpers) {
-      var sequenceCanvas = this.sequenceCanvas,
-          height = this.$el.height(),
-          maxBase = sequenceCanvas.maxVisibleBase(),
-          magnitudeOrder = Math.floor(Math.log10(maxBase)),
-          divider = Math.pow(10, magnitudeOrder - 1),
-          maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
-
-      this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
-      this.maxBaseForCalc = maxBaseForCalc;
-
-      while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
-        this.positionMarksInterval = Math.floor(this.positionMarksInterval * 2);
-      }
-
-      this.positionMarks = [];
-      for(var i = 0; i < maxBase; i += this.positionMarksInterval) {
-        this.positionMarks.push({
-          base: i,
-          label: _.formatThousands(i+1),
-          top: Math.floor(i / maxBase * height)
-        });
-      }
+    }
+    this.context.restore();
+  }
+*/
+  //this.linegraph.draw(this.context);
 
 
-    },
+  var secret_div = $('<div>' + '</div>')
+          .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': '12px Arial'})
+          .appendTo($('body')) ;
+  //Write the name in the centre
 
-    // positionPositionMarks: function() {
-    //   var _this = this;
-    //   this.$('linar-map-position-mark').each(function(i, element) {
-    //     var $mark = $(element);
-    //     $mark.css({
-    //       top: Math.floor($mark.data('base') / _this.maxBase * canvasHeight)
-    //     });
-    //   });
-    // },
+  this.context.save();
+  var t = this.ctm.t.clone() ;
+  this.context.rotate(t.m[1] < 0 ? Math.acos(t.m[0]) : Math.PI + Math.acos( - t.m[0]) );
+  this.context.fillStyle = "white";
+  this.context.textAlign = 'center';
+  this.context.font = "bold 12px Arial";
+  this.context.fillStyle = "black";
+  var name_lines = this.artist.wrapText(this.context, this.model.get('name'), this.radii.title_width);
+  var metrics = this.context.measureText(this.model.get('name'));
+  var line_height = 15;
+  for (var i = 0; i < name_lines.length; i++){
 
-    setupScrollHelper: function() {
-      var sequenceCanvas = this.sequenceCanvas,
-          $scrollHelper = this.$('.linear-map-visible-range'),
-          scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
-          scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-          elemHeight = this.$el.height();
+    this.context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i)); 
 
-      this.$scrollHelper = $scrollHelper;
+  }
+  this.context.font = "italic 12px Arial";
+  this.context.fillText(""+len+" bp", 0,line_height*(name_lines.length*2/3));
 
-      $scrollHelper.height(Math.floor(
-        scrollingParentHeight / 
-        scrollingChildHeight *
-        elemHeight
-      )).draggable({
-        axis: 'y',
-        containment: 'parent',
-        drag: _.throttle(this.scrollSequenceCanvas, 50)
-      });
+  this.context.restore();
+  secret_div.remove();
+},
 
-      this.updateScrollHelperPosition();
-    },
+   afterRender: function(){
+      this.initPlasmidMap();
 
-    updateScrollHelperPosition: function() {
-      var sequenceCanvas = this.sequenceCanvas,
-          $scrollHelper = this.$scrollHelper,
-          scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-          elemHeight = this.$el.height();
+   }
 
-      if($scrollHelper) {
-        $scrollHelper.css({
-          top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset / 
-                            scrollingChildHeight * 
-                            elemHeight)
-        });
-      }
-    },
-
-    scrollSequenceCanvas: function(event, ui) {
-      this.sequenceCanvas.scrollTo(Math.floor(
-        this.$scrollHelper.position().top /
-        this.$el.height() * 
-        this.sequenceCanvas.$scrollingChild.height()
-      ), false);
-    },
-
-    afterRender: function() {
-      if(this.initialRender) {
-        var sequenceCanvas = this.parentView.sequenceCanvas;
-        this.initialRender = false;
-        this.sequenceCanvas = sequenceCanvas;
-
-        this.listenTo(
-          sequenceCanvas, 
-          'scroll', 
-          this.updateScrollHelperPosition, 
-          this
-        );
-
-        this.listenTo(
-          sequenceCanvas,
-          'change:layoutHelpers',
-          this.refresh,
-          this
-        );
-
-      } else {
-
-        this.setupScrollHelper();
-        this.positionFeatures();
-
-        // When SequenceCanvas' layoutHelpers are calculated, we fetch the
-        // max base number (>= sequence length)
-        // sequenceCanvas.redraw();
-        // sequenceCanvas.afterNextRedraw(function() {
-        //   var layoutHelpers = sequenceCanvas.layoutHelpers;
-        //   _this.maxBase = layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
-
-        //   _this.setupScrollHelper();
-
-        //   _this.positionFeatures();
-        // });
-      }
-    },
-
-  });
-
-  return LinearMapView;
+});
+  return PlasmidMapView;
 
 });
