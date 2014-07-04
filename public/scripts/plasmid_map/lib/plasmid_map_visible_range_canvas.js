@@ -12,19 +12,30 @@ define(function(require) {
     this.sequenceCanvas = options.view.parentView().sequenceCanvas;
     this.artist = new Artist(options.$canvas);
 
-    _.bindAll(this, 'render');
+    this.relativeRadii = {
+      r: 50 / 250,
+      R: 165 / 250
+    };
+    this.radii = {};
+
+    _.bindAll(this, 'render', 'refresh');
     throttledRender = _.throttle(this.render, 30);
 
     this.sequenceCanvas.on('scroll', throttledRender);
-    this.model.on('change', throttledRender)
+    this.model.on('change', throttledRender);
+    this.view.parentView().on('resize', _.debounce(this.refresh, 200));
 
-    this.setupCanvas();
     this.artist.setOpacity(0.5);
-    this.render();
+    this.refresh();
   };
 
   PlasmidMapVisibleRangeCanvas.prototype.setupCanvas = PlasmidMapCanvas.prototype.setupCanvas;
   PlasmidMapVisibleRangeCanvas.prototype.clear = PlasmidMapCanvas.prototype.clear;
+  PlasmidMapVisibleRangeCanvas.prototype.updateRadii = PlasmidMapCanvas.prototype.updateRadii;
+
+  PlasmidMapVisibleRangeCanvas.prototype.refresh = function() {
+    this.setupCanvas().then(this.render);
+  };
 
   PlasmidMapVisibleRangeCanvas.prototype.render = function() {
     this.clear();
@@ -43,7 +54,7 @@ define(function(require) {
 
     if(childHeight > parentHeight) {
 
-      artist.washer(0, 0, 50, 165, startAngle, endAngle, false, false, false, {
+      artist.washer(0, 0, this.radii.r, this.radii.R, startAngle, endAngle, false, false, false, {
         fillStyle: 'rgb(180, 180, 180)',
       });
 

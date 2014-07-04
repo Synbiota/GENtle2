@@ -29,25 +29,26 @@ define(function(require) {
       }
     };
 
-    this.radii = {
-      currentSelection: {r:10, R:200},
-      plasmidCircle: {r:150},
-      features: {r1:125, r2:140, r3:160, r4:175 },
-      linegraph: {r:100},
-      lineNumbering: {r:180, R:240},
-      title_width: 200*0.8660254 - 50,
+    this.relativeRadii = {
+      currentSelection: {r:10/250, R:200/250},
+      plasmidCircle: {r:150/250},
+      features: {r1:125/250, r2:140/250, r3:160/250, r4:175/250 },
+      linegraph: {r:100/250},
+      lineNumbering: {r:180/250, R:240/250},
+      title_width: (200*0.8660254 - 50)/250,
       RES: {
-        r: 144,
-        R: 170,
-        label: 174
+        r: 144/250,
+        R: 170/250,
+        label: 174/250
       }
     };
 
-    _.bindAll(this, 'render');
+    _.bindAll(this, 'render', 'refresh');
 
-    this.setupCanvas().then(this.render);
+    this.refresh();
 
     this.model.on('change', _.debounce(this.render, 500));
+    this.view.parentView().on('resize', _.debounce(this.refresh, 200));
       
   };
 
@@ -60,6 +61,10 @@ define(function(require) {
     this.drawSequenceInfo();
     this.drawRES();
     
+  };
+
+  PlasmidMapCanvas.prototype.refresh = function () {
+    this.setupCanvas().then(this.render);
   };
 
   PlasmidMapCanvas.prototype.setupCanvas = function() {
@@ -76,14 +81,29 @@ define(function(require) {
       _this.canvasDims = { 
         width: width,
         height: height,
-        center: artist.point(width, height)
+        center: artist.point(width/2, height/2)
       };
+
+      _this.radii = _this.updateRadii();
 
       artist.setDimensions(width, height);
       artist.translate(width / 2, height / 2);
 
       resolve();
     });
+  };  
+
+  PlasmidMapCanvas.prototype.updateRadii = function(obj) {
+    var _this = this,
+        size = Math.min(_this.canvasDims.width, _this.canvasDims.height) / 2,
+        result = {};
+
+    _.each(obj || this.relativeRadii, function(value, key) {
+      result[key] = _.isObject(value) ? _this.updateRadii(value) : value * size;
+    });
+
+    return result;
+
   };
 
   PlasmidMapCanvas.prototype.drawPositionMarks = function() {
