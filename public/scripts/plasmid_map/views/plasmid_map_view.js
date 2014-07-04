@@ -4,7 +4,7 @@ define(function(require) {
       Artist          = require('common/lib/graphics/artist'),
       SequenceCanvas = require('sequence/lib/sequence_canvas'),
       template        = require('hbars!plasmid_map/templates/plasmid_map_view'),
-      LinearMapView;
+      LinearMapView, canvas, len, from, to, height;
 
   PlasmidMapView = Backbone.View.extend({
     manage: true,
@@ -25,7 +25,7 @@ define(function(require) {
   this.mouseTool = {};
   this.mouseTool.drag = false;
 
-  var canvas = document.getElementById('plasmid_map_canvas');
+  canvas = document.getElementById('plasmid_map_canvas');
   this.artist = new Artist(canvas);  
   this.artist.clear();
   this.context = this.artist.context;
@@ -70,18 +70,20 @@ define(function(require) {
           title_width: 200*0.8660254 - 50
   };
 
-var len = this.model.get('sequence').length;
+len = this.model.get('sequence').length;
 
-var from = 0 * Math.PI * 2 / len;
-var to = 1 * Math.PI * 2 / len;
-var height = $('#plasmid_map_canvas').height();
+from = 0 * Math.PI * 2 / len;
+to = 1 * Math.PI * 2 / len;
+height = $('#plasmid_map_canvas').height();
 this.currentSelection = this.artist.washer(0,0,this.radii.currentSelection.r,this.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
 this.renderMap();
     },
 
   renderMap: function () {
 
-  var len =this.model.get('sequence').length;
+  var len =this.model.get('sequence').length, lineNumberIncrement,
+  angleIncrement, r, R, textX, textY, height, secret_div, t, name_lines,
+  metrics, line_height;
 
   //clear canvas set bg colour to white
     // using a box defined by our canvas, then pushed through our matrices!
@@ -100,13 +102,13 @@ this.renderMap();
   this.context.fill(); */
 
   //draw line numbers
-  var lineNumberIncrement = this.artist.bestLineNumbering(len, 200) ; 
-  var angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ;
-  var r =  - this.radii.lineNumbering.r;
-  var R =    - this.radii.lineNumbering.R;
-  var textX = - this.radii.lineNumbering.R;
-  var textY = -10;
-  var height = $('#plasmid_map_canvas').height();
+  lineNumberIncrement = this.artist.bestLineNumbering(len, 200) ; 
+  angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ;
+  r =  - this.radii.lineNumbering.r;
+  R =    - this.radii.lineNumbering.R;
+  textX = - this.radii.lineNumbering.R;
+  textY = -10;
+  height = $('#plasmid_map_canvas').height();
 
   this.context.translate(250,height/2);
   this.context.save() ;
@@ -141,7 +143,7 @@ this.renderMap();
   //draw annotations >>HERE
 
   //this.linegraph.draw(this.context);
-  var secret_div = $('<div>' + '</div>')
+ secret_div = $('<div>' + '</div>')
           .css({'position': 'absolute', 
                 'float': 'left', 'white-space': 'nowrap', 
                 'visibility': 'hidden', 'font': '12px Arial'})
@@ -149,14 +151,14 @@ this.renderMap();
   //Write the name in the centre
 
   this.context.save();
-  var t = this.ctm.t.clone() ;
+  t = this.ctm.t.clone() ;
   this.context.rotate(t.m[1] < 0 ? Math.acos(t.m[0]) : Math.PI + Math.acos( - t.m[0]) );
   this.context.fillStyle = "white";
   this.context.textAlign = 'center';
   this.context.font = "bold 12px Arial";
   this.context.fillStyle = "black";
-  var name_lines = this.artist.wrapText(this.context, this.model.get('name'), this.radii.title_width);
-  var metrics = this.context.measureText(this.model.get('name'));
+  name_lines = this.artist.wrapText(this.context, this.model.get('name'), this.radii.title_width);
+  metrics = this.context.measureText(this.model.get('name'));
   var line_height = 15;
   for (var i = 0; i < name_lines.length; i++){
 

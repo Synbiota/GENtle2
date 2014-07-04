@@ -27,35 +27,36 @@ define(function(require) {
 
   Washer.prototype.draw = function(artist){
   //draws the washer segment on the canvas context provided.
-  var ctx = artist.context;
+  var ctx = artist.context,
+  midRad, temp, angOffset;
   ctx.beginPath();
     
   if (this.arrowHead){
-    var angOffset = 5/this.innerRadius;
+   angOffset = 5/this.innerRadius;
   
     if (angOffset > this.endAngle - this.startAngle){
       angOffset = this.endAngle - this.startAngle;
     }
 
     if (this.arrowHead == 'front'){
-      var midRad = (this.innerRadius + this.outerRadius)/2 ;
+      midRad = (this.innerRadius + this.outerRadius)/2 ;
       ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle - angOffset, this.counterClockwise);
       ctx.lineTo(midRad*Math.cos(this.endAngle), midRad*Math.sin(this.endAngle));
       ctx.lineTo(this.outerRadius*Math.cos(this.endAngle - angOffset), this.outerRadius*Math.sin(this.endAngle - angOffset));
-      var temp = !this.counterClockwise;
+      temp = !this.counterClockwise;
       ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle - angOffset, this.startAngle, temp);
     }else {
-      var midRad = (this.innerRadius + this.outerRadius)/2 ;
+      midRad = (this.innerRadius + this.outerRadius)/2 ;
       ctx.arc(this.centreX, this.centreY, this.innerRadius, this.endAngle, this.startAngle + angOffset, !this.counterClockwise);
       ctx.lineTo(midRad*Math.cos(this.startAngle), midRad*Math.sin(this.startAngle));
       ctx.lineTo(this.outerRadius*Math.cos(this.startAngle + angOffset), this.outerRadius*Math.sin(this.startAngle + angOffset));
-      var temp = !this.counterClockwise;
+      temp = !this.counterClockwise;
       ctx.arc(this.centreX, this.centreY, this.outerRadius, this.startAngle + angOffset, this.endAngle, this.counterClockwise);     
     }
   }else{
     ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle, this.counterClockwise);
     ctx.lineTo(this.outerRadius*Math.cos(this.endAngle), this.outerRadius*Math.sin(this.endAngle));
-    var temp = !this.counterClockwise;
+    temp = !this.counterClockwise;
     ctx.arc(this.centreX, this.centreY, this.outerRadius, this.endAngle, this.startAngle, temp);
   }
 
@@ -71,17 +72,17 @@ Washer.prototype.pointWithin = function(point){
   //returns true if the given point is within the Washer Segment.
 
   var rel_p = {x: point.x - this.centreX,
-         y: point.y - this.centreY} ;
-  var rad_p = { r: Math.sqrt(rel_p.x*rel_p.x + rel_p.y*rel_p.y),
+         y: point.y - this.centreY}, rad_p, s, e,t,t_in_ccw,
+         rad_p = { r: Math.sqrt(rel_p.x*rel_p.x + rel_p.y*rel_p.y),
            theta: normaliseAngle(Math.atan2(rel_p.y,rel_p.x))} ; 
 
   if ( rad_p.r > this.outerRadius || rad_p.r < this.innerRadius ) return false ;
 
-  var s = this.startAngle ;
-  var e =  this.endAngle ;
-  var t = rad_p.theta ;
+  s = this.startAngle ;
+  e =  this.endAngle ;
+  t = rad_p.theta ;
 
-  var t_in_ccw = false;
+  t_in_ccw = false;
   if ( s < e && (t < s || e < t) || (e < t && t < s)) t_in_ccw = true;
   if ( this.counterClockwise != t_in_ccw) return false;
 
