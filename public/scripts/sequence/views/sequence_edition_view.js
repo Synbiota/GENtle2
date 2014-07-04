@@ -111,12 +111,15 @@ define(function(require) {
       this.insertView('#sequence-canvas-secondary-view-outlet', this.actualSecondaryView);
 
       if(render !== false) {
+              this.removeView('#sequence-canvas-secondary-view-outlet', this.previousSecondaryView);
+
         this.actualSecondaryView.render();
       }
       this.handleResizeRight(false);
       if(render !== false) {
        this.sequenceCanvas.refresh();
       }
+      //trying to remove the previous view
       this.previousSecondaryView = this.actualSecondaryView;
     },
 

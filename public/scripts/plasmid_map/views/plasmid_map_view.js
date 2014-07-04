@@ -11,14 +11,13 @@ define(function(require) {
     className: 'plasmid-map',
     template: template,
 
-
     initialize: function() {
       this.model = Gentle.currentSequence;
     },
 
     initPlasmidMap: function(){
-    
-  this.sequenceCanvas = new SequenceCanvas({
+
+    this.sequenceCanvas = new SequenceCanvas({
         view: this,
         $canvas: this.$('canvas').first()
       });
@@ -28,14 +27,15 @@ define(function(require) {
 
   var canvas = document.getElementById('plasmid_map_canvas') ;
   this.artist = new Artist(canvas);  
+  this.artist.clear();
   this.context = this.artist.context;
-  this.context.canvas.width = parseInt ( $('#plasmid_map').width() ) ;
-  this.context.canvas.height = parseInt ( $('#plasmid_map').height() ) ;
+
+  this.context.canvas.width = parseInt ( $('#plasmid_map_canvas').width() ) ;
+  this.context.canvas.height = parseInt ( $('#plasmid_map_canvas').height() ) ;
 
   this.canvasOffset = { x: this.context.canvas.width / 2, y:this.context.canvas.height /2};
 
-  // This is silly, but only way I can keep track of 
-  // the context's transform, like these guys...
+  // Keep track of context's transform, reference:
   // http://stackoverflow.com/questions/7395813/html5-canvas-get-transform-matrix
   this.ctm = {
     t: new this.artist.transform()
@@ -72,12 +72,11 @@ define(function(require) {
 
 var len = this.model.get('sequence').length;
 
-var from = 250 * Math.PI * 2 / len;
-var to = 500 * Math.PI * 2 / len;
+var from = 0 * Math.PI * 2 / len;
+var to = 1 * Math.PI * 2 / len;
+var height = $('#plasmid_map_canvas').height();
 this.currentSelection = this.artist.washer(0,0,this.radii.currentSelection.r,this.radii.currentSelection.R,from,to,'#FFFFC8', 'rgba(0,0,0,0)',false);
-
-
-    this.renderMap();
+this.renderMap();
     },
 
   renderMap: function () {
@@ -107,7 +106,9 @@ this.currentSelection = this.artist.washer(0,0,this.radii.currentSelection.r,thi
   var R =    - this.radii.lineNumbering.R;
   var textX = - this.radii.lineNumbering.R;
   var textY = -10;
+  var height = $('#plasmid_map_canvas').height();
 
+  this.context.translate(250,height/2);
   this.context.save() ;
   this.strokeStyle = '#000' ; 
   this.context.fillStyle = "#000";
@@ -134,42 +135,16 @@ this.currentSelection = this.artist.washer(0,0,this.radii.currentSelection.r,thi
   this.context.arc(0,0,this.radii.plasmidCircle.r,0,Math.PI*2, true);
   this.context.strokeStyle = 'grey';
   this.context.lineWidth = 15;
-  //this.context.fillStyle = 'grey'; //();
   this.context.stroke();
-  
   this.context.lineWidth = 5;
 
-  /*var annLength = this.annotations.length ;
+  //draw annotations >>HERE
 
-  //draw annotations
-  for (var i = 0; i < annLength; i++){
-    this.annotations[i].canvasShape.draw( this.context );
-  }
-
-  if(annLength < 1000){
-    this.context.save();
-    this.context.fillStyle = "white";
-    this.context.textAlign = 'center';
-    this.context.font = "12px Arial";
-    for (var i = 0; i < annLength; i++){
-      var wh = this.annotations[i].textWidth; 
-
-      var midAngle = (this.annotations[i].start + this.annotations[i].end)/2;
-      var midR = (this.annotations[i].min + this.annotations[i].max*4)/5;
-      var arcLength = (this.annotations[i].end - this.annotations[i].start)*midR;
-      //console.log(arcLength , wh);
-      if (arcLength > wh.width){
-        drawTextAlongArc(this.context, this.annotations[i].name, 0, 0, midR, midAngle,"12px Arial", wh)
-      }
-    }
-    this.context.restore();
-  }
-*/
   //this.linegraph.draw(this.context);
-
-
   var secret_div = $('<div>' + '</div>')
-          .css({'position': 'absolute', 'float': 'left', 'white-space': 'nowrap', 'visibility': 'hidden', 'font': '12px Arial'})
+          .css({'position': 'absolute', 
+                'float': 'left', 'white-space': 'nowrap', 
+                'visibility': 'hidden', 'font': '12px Arial'})
           .appendTo($('body')) ;
   //Write the name in the centre
 
@@ -193,11 +168,10 @@ this.currentSelection = this.artist.washer(0,0,this.radii.currentSelection.r,thi
 
   this.context.restore();
   secret_div.remove();
-},
+  },
 
    afterRender: function(){
       this.initPlasmidMap();
-
    }
 
 });

@@ -8883,6 +8883,7 @@ button.close {
   height: 100%;
   width: 500px;
   position: absolute;
+  z-index: 3000;
 }
 
 /* line 1, components/_secondary_view_dropdown.scss */

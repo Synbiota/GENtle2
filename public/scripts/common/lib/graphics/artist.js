@@ -355,7 +355,6 @@ var centreX = arguments[0],
     arrowHead = arguments[9],
     washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, fill, stroke, counterClockwise, arrowHead);
     this.shapes.push(washer);
-    washer.draw(this);
     return washer;
   };
 

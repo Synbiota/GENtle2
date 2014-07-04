@@ -28,9 +28,8 @@ define(function(require) {
   Washer.prototype.draw = function(artist){
   //draws the washer segment on the canvas context provided.
   var ctx = artist.context;
-
   ctx.beginPath();
-  
+    
   if (this.arrowHead){
     var angOffset = 5/this.innerRadius;
   
