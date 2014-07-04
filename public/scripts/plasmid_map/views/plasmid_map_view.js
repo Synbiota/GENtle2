@@ -4,7 +4,7 @@ define(function(require) {
       Artist          = require('common/lib/graphics/artist'),
       PlasmidMapCanvas = require('../lib/plasmid_map_canvas'),
       template        = require('hbars!plasmid_map/templates/plasmid_map_view'),
-      LinearMapView;
+      LinearMapView, canvas, len, from, to, height;
 
   PlasmidMapView = Backbone.View.extend({
     manage: true,
