@@ -29,8 +29,8 @@ define(function(require) {
       // });
       this.contextMenuView = new ContextMenuView();
       this.secondaryViewDropdown = new SecondaryChangeView();
-      this.insertView('#sequence-canvas-secondary-view-outlet',this.secondaryViewDropdown);
-      this.insertView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
+      this.setView('#sequence-canvas-secondary-view-switcher-outlet',this.secondaryViewDropdown);
+      this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
       this.initSecondaryViews();
 
     },
@@ -100,7 +100,7 @@ define(function(require) {
       this.model.actualSecondaryView = this.actualSecondaryView;
       this.model.set('displaySettings.secondaryView', viewName).throttledSave();
 
-      this.insertView('#sequence-canvas-secondary-view-outlet', this.actualSecondaryView);
+      this.setView('#sequence-canvas-secondary-view-outlet', this.actualSecondaryView);
 
       if(render !== false) {
         this.actualSecondaryView.render();
@@ -131,7 +131,7 @@ define(function(require) {
       });
       this.sequenceCanvas = new SequenceCanvas({
         view: this,
-        $canvas: this.$('canvas').first()
+        $canvas: this.$('.sequence-canvas-container canvas').first()
       });
       this.sequenceCanvas.refresh();
       this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();

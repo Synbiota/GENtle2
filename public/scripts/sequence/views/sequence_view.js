@@ -8,7 +8,6 @@ define(function(require) {
       Gentle                  = require('gentle')(),
       SequenceSettingsView    = require('./settings_view'),
       SequenceEditionView     = require('./sequence_edition_view'),
-      SecondaryChangeView = require('sequence/views/secondary_view_dropdown'),
       StatusbarView           = require('common/views/statusbar_view'),
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       Backbone                = require('backbone.mixed'),
@@ -23,16 +22,10 @@ define(function(require) {
       var _this = this,
           statusbarView;
 
-      this.model = Gentle.currentSequence;
-      this.secondaryViewDropdown = new SecondaryChangeView();      
+      this.model = Gentle.currentSequence;     
       this.sequenceSettingsView = new SequenceSettingsView();
       this.sequenceSettingsView.parentView = this;
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
-
-
-      // this.primaryViewSwitcherView = new PrimaryViewSwitcherView();
-      // this.primaryViewSwitcherView.parentView = this;
-      // this.setView('#sequence-primary-view-switcher-outlet', this.primaryViewSwitcherView);
 
       this.handleResize = _.bind(this.handleResize, this);
       this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);
