@@ -30,7 +30,7 @@ define(function(require) {
             res: {
               display: true,
               lengths: ['4','5','6'],
-              manual: []
+              manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI']
             }
           }
         },

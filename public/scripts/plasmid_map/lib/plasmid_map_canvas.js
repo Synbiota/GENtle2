@@ -2,6 +2,7 @@ define(function(require) {
   var Q = require('q'),
       Artist = require('common/lib/graphics/artist'),
       _ = require('underscore.mixed'),
+      RestrictionEnzymes = require('sequence/lib/restriction_enzymes'),
       PlasmidMapCanvas;
 
   PlasmidMapCanvas = function(options) {
@@ -34,7 +35,12 @@ define(function(require) {
       features: {r1:125, r2:140, r3:160, r4:175 },
       linegraph: {r:100},
       lineNumbering: {r:180, R:240},
-      title_width: 200*0.8660254 - 50
+      title_width: 200*0.8660254 - 50,
+      RES: {
+        r: 144,
+        R: 170,
+        label: 174
+      }
     };
 
     _.bindAll(this, 'render');
@@ -52,6 +58,7 @@ define(function(require) {
     this.drawPositionMarks();
     this.drawSequence();
     this.drawSequenceInfo();
+    this.drawRES();
     
   };
 
@@ -107,6 +114,38 @@ define(function(require) {
       }
     });
 
+  };
+
+  PlasmidMapCanvas.prototype.drawRES = function() {
+    var displaySettings = this.model.get('displaySettings.rows.res') || {},
+        enzymes = RestrictionEnzymes.getAllInSeq(this.model.get('sequence'), {
+          length: displaySettings.lengths || [],
+          customList: displaySettings.custom || []
+        }),
+        len = this.model.length(),
+        previousPosition = 0,
+        artist = this.artist,
+        radii = this.radii.RES;
+
+    // artist.setLineDash([1.5,3]);
+
+    artist.updateStyle({
+      strokeStyle: "#59955C",
+      font: "10px Monospace",
+      fillStyle: "#59955C",
+      lineWidth: 1,
+      textAlign: 'right'
+    });
+
+    artist.onTemporaryTransformation(function() {
+      _.each(enzymes, function(enzymes_, position) {
+        position = 1*position;
+        artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
+        artist.path(-radii.R, 0, -radii.r, 0);
+        artist.text(_.pluck(enzymes_, 'name').join(','), -radii.label, 2);
+        previousPosition = position;
+      });
+    });
   };
 
   PlasmidMapCanvas.prototype.drawSequenceInfo = function() {

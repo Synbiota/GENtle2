@@ -262,7 +262,7 @@ var centreX = arguments[0],
   Artist.prototype.updateStyle = function(options) {
     if(_.isObject(options)) {
       var lastStyleOptions = this.lastStyleOptions,
-          optionsToUpdate = ['font', 'fillStyle', 'strokeStyle', 'lineWidth'],
+          optionsToUpdate = ['font', 'fillStyle', 'strokeStyle', 'lineWidth', 'textAlign'],
           optionName, value;
 
       for(var i = 0; i < optionsToUpdate.length; i++) {
