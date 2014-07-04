@@ -191,7 +191,7 @@ define(function(require) {
 
       sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
 
-      availableSequenceView = this.parentView
+      availableSequenceView = this.parentView()
         .getAvailableSequenceViewFromSequenceId(sequenceId);
 
       if($draggable.hasClass('designer-available-sequence-entireseq')) {

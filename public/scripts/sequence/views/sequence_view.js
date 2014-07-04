@@ -24,7 +24,6 @@ define(function(require) {
 
       this.model = Gentle.currentSequence;     
       this.sequenceSettingsView = new SequenceSettingsView();
-      this.sequenceSettingsView.parentView = this;
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
 
       this.handleResize = _.bind(this.handleResize, this);
@@ -37,7 +36,6 @@ define(function(require) {
 
     initStatusbarView: function() {
       statusbarView = this.statusbarView = new StatusbarView();
-      statusbarView.parentView = this;
       this.setView('.sequence-statusbar-outlet', statusbarView);
       statusbarView.addSection({
         name: 'primaryView',
@@ -83,7 +81,6 @@ define(function(require) {
       this.actualPrimaryView = actualView;
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
-      actualView.parentView = this;
 
       if(render !== false) {
         actualView.render();

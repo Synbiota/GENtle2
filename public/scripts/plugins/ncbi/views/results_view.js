@@ -18,7 +18,7 @@ define(function(require) {
       $element.find('.open-label').hide();
       $element.find('.loading-label').show();
       $element.addClass('disabled');
-      this.parentView.openFromId.call(this.parentView, id, false).then(function() {
+      this.parentView().openFromId.call(this.parentView(), id, false).then(function() {
         $element.find('.success-label').show();
         $element.find('.loading-label').hide();
         $element.addClass('btn-success')
@@ -31,7 +31,7 @@ define(function(require) {
 
     serialize: function() {
       return {
-        results: this.parentView.results || []
+        results: this.parentView().results || []
       };
     }
   });

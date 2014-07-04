@@ -27,7 +27,6 @@ define(function(require) {
 
     initialize: function() {
       this.resultsView = new ResultsView();
-      this.resultsView.parentView = this;
       this.dbName = 'nuccore';
 
       _.bindAll(this, 'parseNCBISearchResponseAndGetIds',

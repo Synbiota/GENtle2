@@ -26,7 +26,7 @@ define(function(require) {
 
     serialize: function() {
       return {
-        enzymes: this.parentView.getEnzymes()
+        enzymes: this.parentView().getEnzymes()
       };
     }
   });

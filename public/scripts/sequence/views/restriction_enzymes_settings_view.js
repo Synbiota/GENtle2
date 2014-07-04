@@ -25,7 +25,6 @@ define(function(require) {
       this.setView('.res-settings-list-outlet', listView);
       listView.model = this.model;
       listView.updateDisplaySettings = this.updateDisplaySettings;
-      listView.parentView = this;
       this.listView = listView;
 
       this.listenTo(this.model, 'change:displaySettings.rows.res.custom', _.debounce(this.render, 50), this);

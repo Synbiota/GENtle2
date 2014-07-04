@@ -10,7 +10,6 @@ define(function(require) {
 
     addSection: function(section) {
       var view = new section.view();
-      view.parentView = this;
       this.sections[section.name] = section;
       this.setView('.statusbar-section-outlet-'+section.name+'', view);
       if(this.hasRendered) this.render();

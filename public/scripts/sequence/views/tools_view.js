@@ -17,15 +17,15 @@ define(function(require) {
 
     changePrimaryView: function(event) {
       var $element = this.$(event.currentTarget).find('input');
-      this.parentView.parentView.changePrimaryView($element.val());
+      this.parentView(2).changePrimaryView($element.val());
       this.render();
       event.preventDefault();
     },
 
     serialize: function() {
-      var primaryViewName = this.parentView.parentView.primaryView.name;
+      var primaryViewName = this.parentView(2).primaryView.name;
       return {
-        tools: _.map(this.parentView.parentView.primaryViews, function(view) {
+        tools: _.map(this.parentView(2).primaryViews, function(view) {
           return _.extend({
             active: view.name == primaryViewName
           }, view);

@@ -32,7 +32,6 @@ define(function(require) {
           options_.viewClass = options_.view;
         }
         options_.view = new options_.viewClass();
-        options_.view.parentView = _this;
         options_.iconIsImage = /\//.test(options_.icon);
         _this.tabs[options_.name] = options_;
       });

@@ -25,7 +25,7 @@ define(function(require) {
     afterRender: function() {
       this.insertSequenceViews();
       this.stopListening();
-      this.listenTo(this.parentView, 'resize', this.render, this);
+      this.listenTo(this.parentView(), 'resize', this.render, this);
     },
 
     insertSequenceViews: function() {
@@ -46,7 +46,6 @@ define(function(require) {
 
       designedSequenceView = new DesignedSequenceView();
       designedSequenceView.model = this.model;
-      designedSequenceView.parentView = this;
       this.setView('.designer-designed-sequence-outlet', designedSequenceView);
       designedSequenceView.render();
       this.designedSequenceView = designedSequenceView;

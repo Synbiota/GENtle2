@@ -25,7 +25,7 @@ define(function(require) {
       this.model = Gentle.currentSequence;
       
       // this.on('resize', function() {
-      // _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.parentView.primaryViewLeftPos());
+      // _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.parentView().primaryViewLeftPos());
       // });
       this.contextMenuView = new ContextMenuView();
       this.secondaryViewDropdown = new SecondaryChangeView();
@@ -96,7 +96,6 @@ define(function(require) {
 
       this.secondaryView = secondaryView;
       this.actualSecondaryView = actualView;
-      this.actualSecondaryView.parentView = this;
       this.model.actualSecondaryView = this.actualSecondaryView;
       this.model.set('displaySettings.secondaryView', viewName).throttledSave();
 

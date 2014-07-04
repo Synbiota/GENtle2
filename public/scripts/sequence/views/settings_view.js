@@ -45,7 +45,7 @@ define(function(require) {
         icon: 'eye-open',
         view: DisplaySettingsView,
         visible: function() {
-          return _this.parentView.primaryView.name == 'edition';
+          return _this.parentView().primaryView.name == 'edition';
         },
         hoverable: true
       }, {
@@ -60,7 +60,7 @@ define(function(require) {
         icon: 'edit',
         view: FeaturesView,
         visible: function() {
-          return _this.parentView.primaryView.name == 'edition';
+          return _this.parentView().primaryView.name == 'edition';
         },
       },{
         name: 'resSettings',
@@ -69,7 +69,7 @@ define(function(require) {
         maxHeighted: true,
         view: RestrictionEnzymesSettingsView,
         visible: function() {
-          return _this.parentView.primaryView.name == 'edition';
+          return _this.parentView().primaryView.name == 'edition';
         },
       }]);
 

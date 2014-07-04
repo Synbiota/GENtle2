@@ -59,6 +59,7 @@ define(function(require) {
     this.drawSequence();
     this.drawSequenceInfo();
     this.drawRES();
+    this.drawVisibleWindow();
     
   };
 
@@ -180,6 +181,12 @@ define(function(require) {
     artist.updateStyle({
       lineWidth: 5
     });
+  };
+
+  PlasmidMapCanvas.prototype.drawVisibleWindow = function() {
+    var sequenceCanvas = this.view.parentView(2);
+
+    console.log(sequenceCanvas)
   };
 
   PlasmidMapCanvas.prototype.bestLineNumbering = function(bp,radius){

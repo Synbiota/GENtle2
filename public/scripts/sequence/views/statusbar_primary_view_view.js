@@ -10,7 +10,7 @@ define(function(require) {
     serialize: function() {
       return {
         readOnly: !!Gentle.currentSequence.get('readOnly'),
-        primaryView: this.parentView.parentView.primaryView.title
+        primaryView: this.parentView(2).primaryView.title
       };
     }
   });
