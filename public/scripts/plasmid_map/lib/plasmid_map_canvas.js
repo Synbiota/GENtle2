@@ -59,7 +59,6 @@ define(function(require) {
     this.drawSequence();
     this.drawSequenceInfo();
     this.drawRES();
-    this.drawVisibleWindow();
     
   };
 
@@ -174,19 +173,13 @@ define(function(require) {
     var artist = this.artist;
 
     artist.arc(0,0,this.radii.plasmidCircle.r,0,Math.PI*2, true, {
-      strokeStyle: '#bbb',
+      strokeStyle: 'rgba(90,90,90,.5)',
       lineWidth: 15
     });
 
     artist.updateStyle({
       lineWidth: 5
     });
-  };
-
-  PlasmidMapCanvas.prototype.drawVisibleWindow = function() {
-    var sequenceCanvas = this.view.parentView(2);
-
-    console.log(sequenceCanvas)
   };
 
   PlasmidMapCanvas.prototype.bestLineNumbering = function(bp,radius){

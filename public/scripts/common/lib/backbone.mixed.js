@@ -11,10 +11,7 @@ define(function(require) {
       parent = this.__manager__.parent;
     }
 
-    console.log(parent)
-
     if(parent && depth > 1) {
-      console.log(parent.parentView)
       parent = parent.parentView(depth-1);
     }
 

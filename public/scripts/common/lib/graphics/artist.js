@@ -198,18 +198,19 @@ define(function(require) {
   };
 
 Artist.prototype.washer = function() {
-var centreX = arguments[0],
-    centreY = arguments[1],
-    innerRadius = arguments[2],
-    outerRadius = arguments[3],
-    startAngle = arguments[4],
-    endAngle = arguments[5],
-    counterClockwise = arguments[6],
-    fill = arguments[7],
-    stroke = arguments[8],
-    highlight = false,
-    arrowHead = arguments[9],
-    washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, fill, stroke, counterClockwise, arrowHead);
+    var centreX = arguments[0],
+        centreY = arguments[1],
+        innerRadius = arguments[2],
+        outerRadius = arguments[3],
+        startAngle = arguments[4],
+        endAngle = arguments[5],
+        counterClockwise = arguments[6],
+        highlight = false,
+        arrowHead = arguments[7],
+        stroke = arguments[8],
+        washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke);
+
+    washer.draw(arguments[9] || {});
     // this.shapes.push(washer);
     return washer;
   };
@@ -319,6 +320,10 @@ var centreX = arguments[0],
     if(_.isFunction(context.setLineDash)) {
       context.setLineDash(segments);
     }
+  };
+
+  Artist.prototype.setOpacity = function(opacity) {
+    this.context.globalAlpha = opacity;
   };
 
   return Artist;
