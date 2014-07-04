@@ -81,14 +81,6 @@ define(function(require) {
       }
     },
 
-    handleResizeLeft: function(trigger) {
-
-      if(trigger !== false) {
-        this.trigger('resize');
-        this.actualSecondaryView.trigger('resize');
-      }
-    },
-
     secondaryViewRightPos: function() {
       return $('#sequence-secondary-view-outlet').width();
     },
@@ -111,8 +103,6 @@ define(function(require) {
       this.insertView('#sequence-canvas-secondary-view-outlet', this.actualSecondaryView);
 
       if(render !== false) {
-              this.removeView('#sequence-canvas-secondary-view-outlet', this.previousSecondaryView);
-
         this.actualSecondaryView.render();
       }
       this.handleResizeRight(false);

@@ -25,7 +25,7 @@ define(function(require) {
   this.mouseTool = {};
   this.mouseTool.drag = false;
 
-  var canvas = document.getElementById('plasmid_map_canvas') ;
+  var canvas = document.getElementById('plasmid_map_canvas');
   this.artist = new Artist(canvas);  
   this.artist.clear();
   this.context = this.artist.context;
