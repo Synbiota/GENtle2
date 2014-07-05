@@ -40,7 +40,7 @@ define(function(require) {
         angOffset = this.endAngle - this.startAngle;
       }
 
-      if (this.arrowHead == 'front'){
+      if (this.arrowHead !== 'tail'){
         midRad = (this.innerRadius + this.outerRadius)/2 ;
         ctx.arc(this.centreX, this.centreY, this.innerRadius, this.startAngle, this.endAngle - angOffset, this.counterClockwise);
         ctx.lineTo(midRad*Math.cos(this.endAngle), midRad*Math.sin(this.endAngle));

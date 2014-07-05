@@ -32,7 +32,6 @@ define(function(require) {
     this.relativeRadii = {
       currentSelection: {r:10/250, R:200/250},
       plasmidCircle: {r:150/250},
-      features: {r1:125/250, r2:140/250, r3:160/250, r4:175/250 },
       linegraph: {r:100/250},
       lineNumbering: {r:180/250, R:240/250},
       title_width: (200*0.8660254 - 50)/250,
@@ -40,6 +39,11 @@ define(function(require) {
         r: 144/250,
         R: 170/250,
         label: 174/250
+      },
+      features: {
+        R: 135/250,
+        width: 10/250,
+        marginBottom: 2/250
       }
     };
 
@@ -172,49 +176,67 @@ define(function(require) {
   };
 
   PlasmidMapCanvas.prototype.drawFeatures = function() {
-      var id = -1,
-      _this = this;
-        this.features = [];
-      _.each(this.model.get('features'), function(feature) {
-        _.each(feature.ranges, function(range) {
-          _this.features.push({
-            name: feature.name,
-            id: ++id,
-            from: range.from,
-            to: range.to,
-            type: feature._type.toLowerCase()
-          });
+    var featuresStack = _.first(this.processFeatures(), 3),
+        len = this.model.length(),
+        _this = this,
+        artist = _this.artist,
+        startAngle, endAngle, arrowHead, r, R,
+        radii = this.radii.features;
+
+    _.each(featuresStack, function(features, i) {
+      _.each(features, function(feature) {
+        var startAngle = Math.PI * 2 * feature.from / len,
+            endAngle = Math.PI * 2 * feature.to / len,
+            arrowHead = feature.reverseComplement ? 'tail' : 'front',
+            R = radii.R - i * (radii.marginBottom + radii.width),
+            r = R - radii.width;
+
+        artist.washer(0, 0, r, R, startAngle, endAngle, false, arrowHead, false, {
+          fillStyle: 'red',
         });
       });
-
-      this.features = _.groupBy(this.features, function(feature) {
-        return feature.from;      });
-
-   var len = this.model.length(),
-        previousPosition = 0,
-        artist = this.artist,
-        radii = this.radii.RES, names, namelen;
-
-    // artist.setLineDash([1.5,3]);
-
-    artist.updateStyle({
-      strokeStyle: "#ff0000",
-      font: "10px Monospace",
-      fillStyle: "#ff0000",
-      lineWidth: 1,
-      textAlign: 'right'
     });
 
-    artist.onTemporaryTransformation(function() {
-      _.each(_this.features, function(feature,postion) {
-        names = _.pluck(feature,'name');
-        position = _.pluck(feature,'from')[0];
-        artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
-        artist.path(-radii.R, 0, -radii.r, 0);
-        artist.text(names.length <= 3 ? names.join(', ') : (names[0] + ' +' + (names.length-1)), -radii.label, 2);
-        previousPosition = position;
+  };
+
+  PlasmidMapCanvas.prototype.processFeatures = function() {
+    var id = -1,
+        features = [],
+        overlapStack = [], 
+        output = [],
+        overlapIndex;
+
+    _.each(this.model.get('features'), function(feature) {
+      _.each(feature.ranges, function(range) {
+        features.push({
+          name: feature.name,
+          id: ++id,
+          from: range.from,
+          to: range.to,
+          type: feature._type.toLowerCase(),
+          reverseComplement: !!range.reverseComplement
+        });
       });
     });
+
+    for(var i = 0; i < features.length; i++) {
+      feature = features[i];
+
+      overlapIndex =  overlapStack.length;
+
+      for(var j = overlapStack.length - 1; j >= 0; j--) {
+        if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
+          overlapStack[j] = undefined;
+          overlapIndex = j;
+        }
+      }
+
+      overlapStack[overlapIndex] = [feature.from, feature.to];
+      output[overlapIndex] = output[overlapIndex] || [];
+      output[overlapIndex].push(feature);
+    }
+
+    return output;
   };
 
   PlasmidMapCanvas.prototype.drawSequenceInfo = function() {

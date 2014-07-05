@@ -197,20 +197,10 @@ define(function(require) {
     return rect;
   };
 
-Artist.prototype.washer = function() {
-    var centreX = arguments[0],
-        centreY = arguments[1],
-        innerRadius = arguments[2],
-        outerRadius = arguments[3],
-        startAngle = arguments[4],
-        endAngle = arguments[5],
-        counterClockwise = arguments[6],
-        highlight = false,
-        arrowHead = arguments[7],
-        stroke = arguments[8],
-        washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke);
+Artist.prototype.washer = function(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, options) {
+    var washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke);
 
-    washer.draw(arguments[9] || {});
+    washer.draw(options || {});
     // this.shapes.push(washer);
     return washer;
   };
