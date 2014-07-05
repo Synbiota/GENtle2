@@ -7,17 +7,20 @@ define(function(require) {
   var Shape = require('./shape'),
       Rect;
 
-  Washer =  function(artist, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise,  arrowHead, stroke){
+  Washer =  function(artist, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise,  arrowHead, stroke, text){
     this.centreX = centreX || 0;
     this.centreY = centreY || 0;
     this.innerRadius = innerRadius || 0;
     this.outerRadius = outerRadius || 100;
-    this.startAngle = artist.normaliseAngle(startAngle) || 0;
-    this.endAngle = artist.normaliseAngle(endAngle) || 2* Math.PI;
+    startAngle = artist.normaliseAngle(startAngle || 0);
+    endAngle = artist.normaliseAngle(endAngle || 2 * Math.PI);
+    this.startAngle = startAngle;
+    this.endAngle = endAngle;
     this.counterClockwise = counterClockwise !== undefined ? counterClockwise : false;
     this.stroke = stroke !== undefined ? stroke : true;
     this.highlight = false;
     this.arrowHead = arrowHead || false;
+    this.text = text;
     this.artist = artist;
   };
 
@@ -65,6 +68,12 @@ define(function(require) {
     ctx.closePath();
     if(this.stroke) ctx.stroke();
     ctx.fill();
+
+    if(this.text) {
+      this.artist.textArc(this.text, 0, 0, this.innerRadius + 2, this.startAngle, this.endAngle - this.startAngle, {
+        fillStyle: styleOptions.textStyle || 'white'
+      });
+    }
   };
 
   Washer.prototype.pointWithin = function(point){

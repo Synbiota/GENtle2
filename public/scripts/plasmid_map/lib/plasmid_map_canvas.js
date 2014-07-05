@@ -3,7 +3,11 @@ define(function(require) {
       Artist = require('common/lib/graphics/artist'),
       _ = require('underscore.mixed'),
       RestrictionEnzymes = require('sequence/lib/restriction_enzymes'),
+      Styles = require('text!styles.json'),
       PlasmidMapCanvas;
+
+  Styles = JSON.parse(Styles);
+  LineStyles = Styles.sequences.lines;
 
   PlasmidMapCanvas = function(options) {
     this.mouseTool = {};
@@ -181,6 +185,7 @@ define(function(require) {
         _this = this,
         artist = _this.artist,
         startAngle, endAngle, arrowHead, r, R,
+        colors = LineStyles.features.color;
         radii = this.radii.features;
 
     _.each(featuresStack, function(features, i) {
@@ -189,11 +194,19 @@ define(function(require) {
             endAngle = Math.PI * 2 * feature.to / len,
             arrowHead = feature.reverseComplement ? 'tail' : 'front',
             R = radii.R - i * (radii.marginBottom + radii.width),
-            r = R - radii.width;
+            r = R - radii.width,
+            type = feature.type;
 
-        artist.washer(0, 0, r, R, startAngle, endAngle, false, arrowHead, false, {
-          fillStyle: 'red',
+        artist.rotate(-Math.PI);
+
+        artist.washer(0, 0, r, R, startAngle, endAngle, false, arrowHead, false, feature.name, {
+          fillStyle: (colors[type] && colors[type].fill) || colors._default.fill,
+          font: '9px Monospace',
+          textStyle: (colors[type] && colors[type].color) || colors._default.color,
+          textAlign: 'center'
         });
+
+        artist.rotate(Math.PI);
       });
     });
 
