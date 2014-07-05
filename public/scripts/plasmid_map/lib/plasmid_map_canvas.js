@@ -60,6 +60,7 @@ define(function(require) {
     this.drawSequence();
     this.drawSequenceInfo();
     this.drawRES();
+    this.drawFeatures();
     
   };
 
@@ -164,6 +165,52 @@ define(function(require) {
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
         artist.path(-radii.R, 0, -radii.r, 0);
         artist.text(names.length <= 2 ? names.join(', ') : (names[0] + ' +' + (names.length-1)), -radii.label, 2);
+        previousPosition = position;
+      });
+    });
+  };
+
+  PlasmidMapCanvas.prototype.drawFeatures = function() {
+      var id = -1,
+      _this = this;
+        this.features = [];
+      _.each(this.model.get('features'), function(feature) {
+        _.each(feature.ranges, function(range) {
+          _this.features.push({
+            name: feature.name,
+            id: ++id,
+            from: range.from,
+            to: range.to,
+            type: feature._type.toLowerCase()
+          });
+        });
+      });
+
+      this.features = _.groupBy(this.features, function(feature) {
+        return feature.from;      });
+
+   var len = this.model.length(),
+        previousPosition = 0,
+        artist = this.artist,
+        radii = this.radii.RES, names, namelen;
+
+    // artist.setLineDash([1.5,3]);
+
+    artist.updateStyle({
+      strokeStyle: "#ff0000",
+      font: "10px Monospace",
+      fillStyle: "#ff0000",
+      lineWidth: 1,
+      textAlign: 'right'
+    });
+
+    artist.onTemporaryTransformation(function() {
+      _.each(_this.features, function(feature) {
+        names = _.pluck(feature,'name');
+        position = feature.from;
+        artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
+        artist.path(-radii.R, 0, -radii.r, 0);
+        artist.text(names.length <= 3 ? names.join(', ') : (names[0] + ' +' + (names.length-1)), -radii.label, 2);
         previousPosition = position;
       });
     });
