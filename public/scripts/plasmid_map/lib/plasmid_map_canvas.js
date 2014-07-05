@@ -205,9 +205,9 @@ define(function(require) {
     });
 
     artist.onTemporaryTransformation(function() {
-      _.each(_this.features, function(feature) {
+      _.each(_this.features, function(feature,postion) {
         names = _.pluck(feature,'name');
-        position = feature.from;
+        position = _.pluck(feature,'from')[0];
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
         artist.path(-radii.R, 0, -radii.r, 0);
         artist.text(names.length <= 3 ? names.join(', ') : (names[0] + ' +' + (names.length-1)), -radii.label, 2);
