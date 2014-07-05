@@ -43,12 +43,13 @@ define(function(require) {
       }
     };
 
-    _.bindAll(this, 'render', 'refresh');
+    _.bindAll(this, 'render', 'refresh', 'handleClick');
 
     this.refresh();
 
     this.model.on('change', _.debounce(this.render, 500));
     this.view.parentView().on('resize', _.debounce(this.refresh, 200));
+    this.$canvas.on('click', this.handleClick);
       
   };
 
@@ -287,6 +288,19 @@ define(function(require) {
         height = this.canvasDims.height;
     // TODO Refactor this Artist
     this.artist.context.clearRect(-width/2, -height/2, width, height);
+  };
+
+  PlasmidMapCanvas.prototype.handleClick = function(event) {
+    var artist = this.artist,
+        parentOffset = this.$canvas.offset(),
+        centerPoint = artist.point(this.$canvas.width()/2, this.$canvas.height()/2),
+        mousePoint = artist.point(event.pageX - parentOffset.left, event.pageY - parentOffset.top).sub(centerPoint),
+        refPoint = artist.point(0, centerPoint.y).sub(centerPoint);
+        angle = artist.normaliseAngle(Artist.angleBetween(refPoint, mousePoint));
+
+    this.view.parentView().sequenceCanvas.scrollToBase(
+      Math.floor(this.model.length() * angle / Math.PI / 2)
+    );
   };
 
 

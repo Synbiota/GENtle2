@@ -23,7 +23,7 @@ define(function(require) {
 
     this.sequenceCanvas.on('scroll', throttledRender);
     this.model.on('change', throttledRender);
-    this.view.parentView().on('resize', _.debounce(this.refresh, 200));
+    this.view.parentView().on('resize', _.debounce(this.refresh, 200));;
 
     this.artist.setOpacity(0.5);
     this.refresh();
