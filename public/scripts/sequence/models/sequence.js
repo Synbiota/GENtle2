@@ -32,7 +32,8 @@ define(function(require) {
               lengths: ['4','5','6'],
               manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI']
             }
-          }
+          },
+          secondaryView: 'plasmid'
         },
         history: new HistorySteps()
       };

@@ -7,7 +7,6 @@ define(function(require) {
   var template = require('hbars!sequence/templates/sequence_edition_view'),
       SequenceCanvas = require('sequence/lib/sequence_canvas'),
       Gentle = require('gentle')(),
-      SecondaryChangeView = require('sequence/views/secondary_view_dropdown'),
       ContextMenuView = require('common/views/context_menu_view'),
       LinearMapView = require('linear_map/views/linear_map_view'),
       PlasmidMapView = require('plasmid_map/views/plasmid_map_view'),
@@ -24,12 +23,7 @@ define(function(require) {
 
       this.model = Gentle.currentSequence;
       
-      // this.on('resize', function() {
-      // _this.$('.sequence-canvas-container, .scrolling-parent').css('left', _this.parentView().primaryViewLeftPos());
-      // });
       this.contextMenuView = new ContextMenuView();
-      this.secondaryViewDropdown = new SecondaryChangeView();
-      this.setView('#sequence-canvas-secondary-view-switcher-outlet',this.secondaryViewDropdown);
       this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
       this.initSecondaryViews();
 
@@ -45,17 +39,17 @@ define(function(require) {
         .pluck('data')
         .value();
 
-        secondaryViews.push({
+      secondaryViews.push({
         name: 'linear',
-        title: 'LinearMap',
+        title: 'Linear map',
         view: LinearMapView
-        });  
+      });  
 
-        secondaryViews.push({
+      secondaryViews.push({
         name: 'plasmid',
-        title: 'PlasmidMap',
+        title: 'Plasmid map',
         view: PlasmidMapView
-        });  
+      });  
 
       currentView = this.model.get('displaySettings.secondaryView');
 
@@ -114,17 +108,6 @@ define(function(require) {
 
 
     afterRender: function() {
-    var li = '', _this= this;
-    
-     for (var i=0;i<this.secondaryViews.length;i++){
-      li += '<li role="presentation" >'+'<a role="menuitem" id ="secondary-view-item">'+this.secondaryViews[i].name +'</a></li>';
-      $('#secondary-view-list').append(li);
-      li = '';
-     }
-     $("a[id = 'secondary-view-item']").click(function () {
-       value = $(this).html();
-       _this.changeSecondaryView(value,true);
-      });
       this.$('.sequence-canvas-container, .scrolling-parent').css({
         'right': this.actualSecondaryView.$el.width(),
       });

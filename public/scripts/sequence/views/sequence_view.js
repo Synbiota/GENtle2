@@ -10,6 +10,7 @@ define(function(require) {
       SequenceEditionView     = require('./sequence_edition_view'),
       StatusbarView           = require('common/views/statusbar_view'),
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
+      StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone.mixed'),
       SequenceView;
   
@@ -35,11 +36,21 @@ define(function(require) {
     },
 
     initStatusbarView: function() {
+      var sequence = this.model;
       statusbarView = this.statusbarView = new StatusbarView();
       this.setView('.sequence-statusbar-outlet', statusbarView);
+
       statusbarView.addSection({
         name: 'primaryView',
         view: StatusbarPrimaryViewView
+      });
+
+      statusbarView.addSection({
+        name: 'secondaryView',
+        view: StatusbarSecondaryViewSwitcherview,
+        visible: function() {
+          return sequence.get('displaySettings.primaryView') == 'edition';
+        }
       });
 
       _.each(_.where(Gentle.plugins, {type: 'sequence-statusbar-section'}), function(plugin) {
@@ -56,7 +67,6 @@ define(function(require) {
         .where({type: 'sequence-primary-view'})
         .pluck('data')
         .value();
-
 
       primaryViews.push({
         name: 'edition',

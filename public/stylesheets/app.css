@@ -8630,6 +8630,10 @@ button.close {
   border-right: 1px solid #ddd;
   float: left;
 }
+/* line 14, views/_statusbar_view.scss */
+.statusbar a:hover {
+  text-decoration: none;
+}
 
 /* line 1, components/_caret.scss */
 .caret {

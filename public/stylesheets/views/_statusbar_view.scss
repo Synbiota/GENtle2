@@ -9,5 +9,10 @@
     padding: 2px 10px 2px 10px;
     border-right: 1px solid #ddd;
     float: left;
+  } 
+  a {
+    &:hover {
+      text-decoration: none;
+    }
   }
 }
