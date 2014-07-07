@@ -70,7 +70,6 @@ define(function(require) {
     },
 
     afterRender: function() {
-      console.log(this.filter);
       this.populate();
     },
 

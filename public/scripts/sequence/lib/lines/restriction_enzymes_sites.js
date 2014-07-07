@@ -23,7 +23,7 @@ define(function(require) {
     x = layoutSettings.pageMargins.left + relativeBase * layoutSettings.basePairDims.width;
     x += layoutSettings.gutterWidth * Math.floor(Math.max(0, relativeBase - 1) / basesPerBlock);
     
-    if(!!isStart && relativeBase % basesPerBlock === 0 && relativeBase != layoutHelpers.basesPerRow) {
+    if(!!isStart && relativeBase % basesPerBlock === 0 && relativeBase != layoutHelpers.basesPerRow && relativeBase !== 0) {
       x += layoutSettings.gutterWidth;
     }
 
@@ -108,7 +108,7 @@ define(function(require) {
         }
 
         // Line below complements
-        if(position < baseRangeLength && initPosition + enzyme.seq.length - 1 > 0) {
+        if(position < baseRangeLength && initPosition + enzyme.seq.length > 0) {
           x = _this.getBaseX(position, baseRange);
           x2 = _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange);
           if(x !== x2) {
