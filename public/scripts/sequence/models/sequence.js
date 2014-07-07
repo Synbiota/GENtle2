@@ -44,9 +44,9 @@ define(function(require) {
       Backbone.DeepModel.apply(this, arguments);
       this.sortFeatures();
       if(this.get('displaySettings.rows.res.lengths') === undefined) 
-        this.set('displaySettings.rows.res.lengths', defaults.displaySettings.rows.res.lengths).save();
+        this.set('displaySettings.rows.res.lengths', defaults.displaySettings.rows.res.lengths);
       if(this.get('displaySettings.rows.res.custom') === undefined) 
-        this.set('displaySettings.rows.res.custom', defaults.displaySettings.rows.res.manual).save();
+        this.set('displaySettings.rows.res.custom', defaults.displaySettings.rows.res.manual);
       this.maxOverlappingFeatures = _.memoize2(this._maxOverlappingFeatures);
       this.nbFeaturesInRange = _.memoize2(this._nbFeaturesInRange);
     },
