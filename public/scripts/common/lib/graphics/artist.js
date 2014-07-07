@@ -220,7 +220,12 @@ define(function(require) {
 
    var radialLineGraph = new RadialLineGraph(centreX, centreY, radius, offset, lineData, fill);
 
-   radialLineGraph.draw(this.context);
+
+   this.onTemporaryTransformation(
+    function() {  
+    this.context.rotate(Math.PI);
+    radialLineGraph.draw(this.context); 
+    });
     // this.shapes.push(washer);
    return radialLineGraph;
   };

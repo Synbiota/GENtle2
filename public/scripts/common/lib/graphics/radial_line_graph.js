@@ -26,7 +26,6 @@ define(function(require) {
   var resAngle = 2*Math.PI/this.lineData.length;
   var p0x = this.radius + (this.lineData[0] - 0.5) * this.offset,
   ld, rad, angle, px, py;
-  ctx.rotate(Math.PI);
   ctx.lineTo(p0x,0);
   for (var i=1; i<this.lineData.length; i++){
     //given data between 0 and 1
@@ -41,7 +40,6 @@ define(function(require) {
   ctx.closePath();
   ctx.fillStyle = this.fill;
   ctx.fill();
-  ctx.rotate(-Math.PI);
 };
 
   return RadialLineGraph;
