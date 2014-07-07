@@ -13,8 +13,10 @@ define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
       Washer = require('./washer'),
+      RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
       TextArc = require('./text_arc'),
+      GCATRatios = require('./gcat_ratios'),
       Path = require('./path'),
       Point = require('./point'),
       Arc = require('./arc'),
@@ -198,13 +200,31 @@ define(function(require) {
     return rect;
   };
 
-Artist.prototype.washer = function(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, text, options) {
+ Artist.prototype.washer = function(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, text, options) {
     var washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, _.isString(text) ? text : undefined);
 
     washer.draw(options || (_.isObject(text) ? text : undefined) || {});
     // this.shapes.push(washer);
     return washer;
   };
+
+   Artist.prototype.gcatRatios = function(sequence_length, res){
+
+    var gcatRatios = new GCATRatios(sequence_length, res);
+
+    return gcatRatios;
+
+   }
+
+   Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, fill){
+
+   var radialLineGraph = new RadialLineGraph(centreX, centreY, radius, offset, lineData, fill);
+
+   radialLineGraph.draw(this.context);
+    // this.shapes.push(washer);
+   return radialLineGraph;
+  };
+
 
   Artist.prototype.path = function() {
     var args = arguments,

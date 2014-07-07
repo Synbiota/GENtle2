@@ -70,6 +70,7 @@ define(function(require) {
     this.drawSequenceInfo();
     this.drawRES();
     this.drawFeatures();
+    this.drawGCAT();
     
   };
 
@@ -284,6 +285,15 @@ define(function(require) {
     artist.updateStyle({
       lineWidth: 5
     });
+  };
+
+  PlasmidMapCanvas.prototype.drawGCAT = function() {
+
+    var artist = this.artist;
+
+    var gcatCalc = artist.gcatRatios(this.model, 300);
+
+    artist.radialLineGraph(0,0,this.radii.linegraph.r,50,gcatCalc.gcat_ratio,'blue');
   };
 
   PlasmidMapCanvas.prototype.bestLineNumbering = function(bp,radius){
