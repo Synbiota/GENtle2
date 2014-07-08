@@ -7,18 +7,25 @@ define(function(require) {
   var Shape = require('./shape'),
       RadialLineGraph;
 
-  RadialLineGraph = function(centreX, centreY, radius, offset, lineData, fill){
+  RadialLineGraph = function(artist, centreX, centreY, radius, offset, lineData){
   this.centreX = centreX || 0;
   this.centreY = centreY || 0;
   this.radius = radius || 100;
   this.offset = offset || 10;
   this.lineData = lineData;
-  this.fill = fill || 'black';
+  this.artist = artist;
   };
 
   _.extend(RadialLineGraph.prototype, Shape.prototype);
 
-  RadialLineGraph.prototype.draw = function(ctx){
+  RadialLineGraph.prototype.draw = function(styleOptions){
+
+  var artist = this.artist;
+  var ctx = artist.context;
+
+
+  artist.updateStyle(styleOptions);
+
   ctx.beginPath();
   //draw arc going arround, ccw
   ctx.arc(this.centreX, this.centreY, this.radius, 0,2*Math.PI, true);

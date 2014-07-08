@@ -16,7 +16,6 @@ define(function(require) {
       RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
       TextArc = require('./text_arc'),
-      GCATRatios = require('./gcat_ratios'),
       Path = require('./path'),
       Point = require('./point'),
       Arc = require('./arc'),
@@ -216,15 +215,16 @@ define(function(require) {
 
    }
 
-   Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, fill){
+   Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
 
-   var radialLineGraph = new RadialLineGraph(centreX, centreY, radius, offset, lineData, fill);
+   var  options = options || {};
 
+   var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
 
    this.onTemporaryTransformation(
     function() {  
     this.context.rotate(Math.PI);
-    radialLineGraph.draw(this.context); 
+    radialLineGraph.draw(options); 
     });
     // this.shapes.push(washer);
    return radialLineGraph;
