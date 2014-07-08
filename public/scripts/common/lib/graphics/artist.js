@@ -218,7 +218,6 @@ define(function(require) {
    Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
 
    var  options = options || {};
-
    var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
 
    this.onTemporaryTransformation(

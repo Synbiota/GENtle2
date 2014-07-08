@@ -19,13 +19,9 @@ define(function(require) {
   _.extend(RadialLineGraph.prototype, Shape.prototype);
 
   RadialLineGraph.prototype.draw = function(styleOptions){
-
   var artist = this.artist;
   var ctx = artist.context;
-
-
   artist.updateStyle(styleOptions);
-
   ctx.beginPath();
   //draw arc going arround, ccw
   ctx.arc(this.centreX, this.centreY, this.radius, 0,2*Math.PI, true);

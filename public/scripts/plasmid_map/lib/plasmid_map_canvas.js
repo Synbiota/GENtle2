@@ -290,7 +290,6 @@ define(function(require) {
   PlasmidMapCanvas.prototype.drawGCAT = function() {
 
     var artist = this.artist;
-
     var gcatCalc = this.calcGCAT(this.model, 300);
 
     artist.radialLineGraph(0,0,this.radii.linegraph.r,50,gcatCalc,{    
