@@ -13,6 +13,7 @@ require([
     'backbone.mixed',
     'gentle',
     // Just loading libraries, no object created
+    'jquery',
     'bootstrap',
     'jquery.ui',
     'common/lib/polyfills',
