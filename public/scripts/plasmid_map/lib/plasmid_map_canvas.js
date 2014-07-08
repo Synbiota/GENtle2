@@ -198,6 +198,11 @@ define(function(require) {
             r = R - radii.width,
             type = feature.type;
 
+            if(_this.referenceRadii === undefined)
+              _this.referenceRadii = r;
+            else
+              _this.referenceRadii = Math.min(_this.referenceRadii,r);
+
         artist.rotate(-Math.PI);
 
         artist.washer(0, 0, r, R, startAngle, endAngle, false, arrowHead, false, feature.name, {
@@ -210,7 +215,6 @@ define(function(require) {
         artist.rotate(Math.PI);
       });
     });
-
   };
 
   PlasmidMapCanvas.prototype.processFeatures = function() {
@@ -292,7 +296,7 @@ define(function(require) {
     var artist = this.artist;
     var gcatCalc = this.calcGCAT(this.model, 300);
 
-    artist.radialLineGraph(0,0,this.radii.linegraph.r,50,gcatCalc,{    
+    artist.radialLineGraph(0,0,this.referenceRadii-25,50,gcatCalc,{    
       fillStyle: '#0000FF'
     });
   };
