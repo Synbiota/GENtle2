@@ -202,9 +202,14 @@ define(function(require) {
               _this.referenceRadii = r;
             if(featuresStack.length === 0)
               _this.referenceRadii = 100;
-            else{
-                 _this.referenceRadii = (featuresStack.length ===1)? Math.max(_this.referenceRadii,r) : Math.min(_this.referenceRadii,r);
+            else 
+              if(featuresStack.length ===1){
+                 _this.referenceRadii = Math.max(_this.referenceRadii,r);
                }
+            else
+            {
+              _this.referenceRadii = Math.min(_this.referenceRadii,r);
+            }
 
         artist.rotate(-Math.PI);
 
