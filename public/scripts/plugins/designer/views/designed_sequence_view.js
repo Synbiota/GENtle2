@@ -220,15 +220,18 @@ define(function(require) {
       var targetChunk = _.findWhere(this.chunks, {
             id: $droppable.closest('[data-chunk-id]').data('chunkId')
           }),
-          movingChunk = _.findWhere(this.chunks, {id: $draggable.data('chunkId')});
+          movingChunk = _.findWhere(this.chunks, {id: $draggable.data('chunkId')}),
+          movingTo = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
+            targetChunk.from : 
+            targetChunk.to + 1;
 
-      this.model.moveBases(
-        movingChunk.from, 
-        movingChunk.length, 
-        $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
-          targetChunk.from : 
-          targetChunk.to + 1
-      );
+      if(movingTo !== movingChunk.from && movingTo !== movingChunk.to + 1) {
+        this.model.moveBases(
+          movingChunk.from, 
+          movingChunk.length, 
+          movingTo
+        );
+      }
     },
 
     afterRender: function() {

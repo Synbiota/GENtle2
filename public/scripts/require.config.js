@@ -4,6 +4,7 @@ require.config({
     'jquery':                 '../vendor/scripts/jquery-1.10.2',
     'jquery.ui':              '../vendor/scripts/jquery-ui-1.10.4.custom',
     'jquery.ui.touch-punch':  '../vendor/scripts/jquery.ui.touch-punch-0.2.3',
+    'jquery.mixed':           'common/lib/jquery.mixed',
     'underscore':             '../vendor/scripts/underscore-1.6.0',
     'Handlebars.base':        '../vendor/scripts/handlebars',
     'hbars':                  '../vendor/scripts/hbars',
@@ -29,30 +30,17 @@ require.config({
     extension: '.hbs'
   },
   shim: {
-    backbone: {
+    'backbone': {
       deps: ['underscore.mixed', 'jquery'],
       exports: 'Backbone'
-    },
-    jquery: {
-      exports: '$'
-    },
-    'jquery.ui': {
-      deps: ['jquery']
     },
     'Handlebars.base': {
       exports: 'Handlebars'
     },
-    bootstrap: {
-      deps: ['jquery']
-    },
-    'bootstrap-confirmation': {
-      deps: ['jquery', 'bootstrap']
-    },
-    'deepmodel': {
-      deps: ['underscore.mixed']
-    },
-    'jquery.ui.touch-punch': {
-      deps: ['jquery']
-    }
+    'bootstrap': ['jquery'],
+    'bootstrap-confirmation': ['jquery', 'bootstrap'],
+    'deepmodel': ['underscore.mixed'],
+    'jquery.ui': ['jquery'],
+    'jquery.ui.touch-punch': ['jquery.ui']
   }
 });

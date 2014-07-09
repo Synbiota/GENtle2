@@ -4,6 +4,7 @@ Gentle app definition.
 
 require([
     'require',
+    'jquery.mixed',
     'text!config.json',
     'common/views/layout',
     'domReady',
@@ -13,12 +14,9 @@ require([
     'backbone.mixed',
     'gentle',
     // Just loading libraries, no object created
-    'bootstrap',
-    'jquery.ui',
     'common/lib/polyfills',
-    'jquery.ui.touch-punch',
     'Blob'
-  ], function(require, config, Layout, domReady, Router, Sequences, _, Backbone, Gentle) {
+  ], function(require, $, config, Layout, domReady, Router, Sequences, _, Backbone, Gentle) {
 
   var plugins = [];
 

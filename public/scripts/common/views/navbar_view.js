@@ -148,8 +148,6 @@ define(function(require) {
 
       }
 
-      $('#hidden-tabs-dropdown').attr("style","margin-right:170px");
-
     }
   });
 
