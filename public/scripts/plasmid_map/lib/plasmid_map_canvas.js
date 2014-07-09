@@ -303,8 +303,9 @@ define(function(require) {
 
     var artist = this.artist;
     var gcatCalc = this.calcGCAT(this.model, 300);
-
-    artist.radialLineGraph(0,0,this.referenceRadii-25,50,gcatCalc,{    
+    var referenceRadii = (this.referenceRadii-25)/250;
+    this.radii = this.updateRadii({linegraph : { r : referenceRadii}});
+    artist.radialLineGraph(0,0,this.radii.linegraph.r,50,gcatCalc,{    
       fillStyle: '#0000FF'
     });
   };
