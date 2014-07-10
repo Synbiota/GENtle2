@@ -571,7 +571,6 @@ define(function(require) {
     updateFeature: function(editedFeature, record) {
       var oldFeature = _.indexBy(this.get('features'), '_id')[editedFeature._id],
         id = this.get('features').indexOf(oldFeature);
-
       this.clearFeatureCache();
       this.set('features.' + id, editedFeature);
       this.sortFeatures();
@@ -583,7 +582,7 @@ define(function(require) {
     },
 
     createFeature: function(newFeature, record) {
-      var id = this.get('features').length;
+      var id = this.get('features').length, sortedIdList, len;
 
       if (record === true) {
         this.recordFeatureHistoryIns(newFeature);
@@ -604,9 +603,11 @@ define(function(require) {
       if (id === 0) {
         newFeature._id = 0;
       } else {
-        newFeature._id = _.max(_.pluck(this.get('features'), '_id')) + 1;
+        sortedIdList = _.sortBy(_.pluck(this.get('features'),'_id'));
+        len = sortedIdList.length;
+        newFeature._id = sortedIdList[len-1]+1;
       }
-
+    
       this.clearFeatureCache();
       this.set('features.' + id, newFeature);
       this.sortFeatures();
