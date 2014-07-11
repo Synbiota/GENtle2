@@ -13,6 +13,7 @@ define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
       Washer = require('./washer'),
+      RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
       TextArc = require('./text_arc'),
       Path = require('./path'),
@@ -198,13 +199,27 @@ define(function(require) {
     return rect;
   };
 
-Artist.prototype.washer = function(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, text, options) {
+ Artist.prototype.washer = function(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, text, options) {
     var washer = new Washer(this, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, _.isString(text) ? text : undefined);
 
     washer.draw(options || (_.isObject(text) ? text : undefined) || {});
     // this.shapes.push(washer);
     return washer;
   };
+
+  Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
+
+    options = options || {};
+    var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
+
+    this.onTemporaryTransformation(function() {  
+      this.rotate(Math.PI);
+      radialLineGraph.draw(options); 
+    });
+    // this.shapes.push(washer);
+    return radialLineGraph;
+  };
+
 
   Artist.prototype.path = function() {
     var args = arguments,

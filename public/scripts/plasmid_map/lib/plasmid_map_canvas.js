@@ -36,18 +36,20 @@ define(function(require) {
     this.relativeRadii = {
       currentSelection: {r:10/250, R:200/250},
       plasmidCircle: {r:150/250},
-      linegraph: {r:100/250},
+      linegraph: {
+        r: 150/250
+      },
       lineNumbering: {r:180/250, R:240/250},
       title_width: (200*0.8660254 - 50)/250,
       RES: {
-        r: 144/250,
-        R: 170/250,
-        label: 174/250
+        r: 140/250,
+        R: 175/250,
+        label: 179/250
       },
       features: {
-        R: 135/250,
+        R: 130/250,
         width: 10/250,
-        marginBottom: 2/250
+        marginBottom: 3/250
       }
     };
 
@@ -68,6 +70,7 @@ define(function(require) {
     this.drawPositionMarks();
     this.drawSequence();
     this.drawSequenceInfo();
+    this.drawGCAT();
     this.drawRES();
     this.drawFeatures();
     
@@ -180,7 +183,7 @@ define(function(require) {
   };
 
   PlasmidMapCanvas.prototype.drawFeatures = function() {
-    var featuresStack = _.first(this.processFeatures(), 3),
+    var featuresStack = _.first(this.processFeatures(), 4),
         len = this.model.length(),
         _this = this,
         artist = _this.artist,
@@ -209,7 +212,6 @@ define(function(require) {
         artist.rotate(Math.PI);
       });
     });
-
   };
 
   PlasmidMapCanvas.prototype.processFeatures = function() {
@@ -277,14 +279,61 @@ define(function(require) {
     var artist = this.artist;
 
     artist.arc(0,0,this.radii.plasmidCircle.r,0,Math.PI*2, true, {
-      strokeStyle: 'rgba(90,90,90,.5)',
-      lineWidth: 15
+      strokeStyle: 'rgba(90,90,90,.2)',
+      lineWidth: 20
     });
 
     artist.updateStyle({
       lineWidth: 5
     });
   };
+
+  PlasmidMapCanvas.prototype.drawGCAT = function() {
+
+    var gcatCalc = this.calcGCAT(this.model, 300),
+        radii = this.radii.linegraph;
+    this.artist.radialLineGraph(0, 0, radii.r, 20, gcatCalc, {    
+      fillStyle: 'rgba(90,90,90,.4)'
+    });
+  };
+
+  PlasmidMapCanvas.prototype.calcGCAT = function(sequence,res){
+  //determine quantities of G,C,A,T in chunks, given resolution
+  var gcat_chunks = [],
+      gcat_ratio = [],
+      seq_length = sequence.length(),
+      chunk_size = Math.ceil(seq_length/res),
+      chunk_res = Math.ceil(seq_length/chunk_size),
+      chunk, gs, cs, as, ts, i;
+
+  for (i = 0; i < chunk_res; i++){
+    if(i != chunk_res-1){
+      chunk = sequence.getSubSeq(i*chunk_size, (i+1)*chunk_size);
+    } else {
+      chunk = sequence.getSubSeq(i*chunk_size);
+    }
+    gs = chunk.match(/G/g);
+    cs = chunk.match(/C/g);
+    as = chunk.match(/A/g);
+    ts = chunk.match(/T/g);
+
+    gcat_chunks.push({ 
+      g: gs ? gs.length : 0,
+      a: as ? as.length : 0,
+      c: cs ? cs.length : 0,
+      t: ts ? ts.length : 0,
+      total: chunk.length
+    });
+  }
+
+  for (i =0; i < chunk_res; i++){
+    gcat_ratio.push((gcat_chunks[i].g + gcat_chunks[i].c)/gcat_chunks[i].total - 0.5);
+  }
+
+  window.ratio = gcat_ratio;
+
+  return gcat_ratio;
+};
 
   PlasmidMapCanvas.prototype.bestLineNumbering = function(bp,radius){
 
