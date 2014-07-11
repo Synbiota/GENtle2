@@ -207,26 +207,17 @@ define(function(require) {
     return washer;
   };
 
-   Artist.prototype.gcatRatios = function(sequence_length, res){
+  Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
 
-    var gcatRatios = new GCATRatios(sequence_length, res);
+    options = options || {};
+    var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
 
-    return gcatRatios;
-
-   }
-
-   Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
-
-   var  options = options || {};
-   var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
-
-   this.onTemporaryTransformation(
-    function() {  
-    this.context.rotate(Math.PI);
-    radialLineGraph.draw(options); 
+    this.onTemporaryTransformation(function() {  
+      this.rotate(Math.PI);
+      radialLineGraph.draw(options); 
     });
     // this.shapes.push(washer);
-   return radialLineGraph;
+    return radialLineGraph;
   };
 
 
