@@ -268,7 +268,7 @@ define(function(require) {
     for (var i = 0; i < name_lines.length; i++){
 
       if(name_lines[i].length >19)
-      name_lines[i] = name_lines[i].substr(0,18)+'...';
+       name_lines[i] = name_lines[i].substr(0,18)+'...';
 
       context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i));
     }
