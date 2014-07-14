@@ -10,6 +10,16 @@
     border-right: 1px solid #ddd;
     float: left;
   } 
+
+.statusbar-section-outlet-secondaryView{
+ float: right;
+ margin-right: 80px;
+}
+
+.z-indexup{
+  z-index: 4000;
+}
+
   a {
     &:hover {
       text-decoration: none;

@@ -8631,6 +8631,15 @@ button.close {
   float: left;
 }
 /* line 14, views/_statusbar_view.scss */
+.statusbar .statusbar-section-outlet-secondaryView {
+  float: right;
+  margin-right: 80px;
+}
+/* line 19, views/_statusbar_view.scss */
+.statusbar .z-indexup {
+  z-index: 4000;
+}
+/* line 24, views/_statusbar_view.scss */
 .statusbar a:hover {
   text-decoration: none;
 }
@@ -8888,14 +8897,6 @@ button.close {
   width: 500px;
   position: absolute;
   z-index: 3000;
-}
-
-/* line 1, components/_secondary_view_dropdown.scss */
-.change-secondary-view {
-  float: right;
-  margin-right: 40px;
-  bottom: 35px;
-  z-index: 5000;
 }
 
 @-webkit-keyframes blink {
