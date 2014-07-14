@@ -267,8 +267,10 @@ define(function(require) {
     var line_height = 15;
     for (var i = 0; i < name_lines.length; i++){
 
-      context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i)); 
+      if(name_lines[i].length >19)
+      name_lines[i] = name_lines[i].substr(0,18)+'...';
 
+      context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i));
     }
     context.font = "italic 12px Arial";
     context.fillText(""+_.formatThousands(len)+" bp", 0,line_height*(name_lines.length*2/3));
