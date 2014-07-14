@@ -23,7 +23,7 @@ define(function(require) {
 
   _.extend(Text.prototype, Shape.prototype);
 
-  Text.prototype.draw = function() {
+   Text.prototype.draw = function() {
     var artist = this.artist,
         context = artist.context,
         styleOptions = this.styleOptions,
@@ -41,6 +41,24 @@ define(function(require) {
     artist.updateStyle(styleOptions);
     artist.context.fillText(this.text, this.x + styleOptions.textPadding, this.y + styleOptions.lineHeight);
   };
+
+
+  Text.prototype.rotateAndWriteText = function() {
+  var artist = this.artist,
+        context = artist.context,
+        styleOptions = this.styleOptions,               
+        textWidth;
+
+      context.rotate(Math.PI);
+      context.fillText(this.text,this.x+styleOptions.textPadding,(this.y+styleOptions.lineHeight));
+      context.rotate(-Math.PI);
+
+      };
+
+Text.prototype.reverseText = function(text){
+var text = text.split("").reverse().join("");
+return text;
+};
 
   return Text;
 });
