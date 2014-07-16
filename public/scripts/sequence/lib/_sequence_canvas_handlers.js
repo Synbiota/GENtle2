@@ -58,6 +58,7 @@ define(function(require) {
     position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
 
     this.moveCaret(position);
+    this.hideContextMenuButton();
 
     this.changeCaretColor('#b6b6b6');
   };
