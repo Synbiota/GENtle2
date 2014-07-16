@@ -229,9 +229,16 @@ define(function(require) {
 
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
-    this.caret = new Caret({
+    this.caretDefault = new Caret({
       $container: this.$scrollingChild,
-      className: 'sequence-canvas-caret',
+      className: 'caret-caret',
+      hovering: false,
+      blinking: true
+    });
+    this.caretHover = new Caret({
+      $container: this.$scrollingChild,
+      className: 'caret-hovering',
+      hovering: true,
       blinking: true
     });
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
@@ -636,21 +643,24 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
+    console.log(this.caret);
     this.caret.remove();
     if (hideContextMenu === true) {
       this.hideContextMenuButton();
     }
   };
 
-  /**
-  Changes the caret color when hex color code is passed
-  @method changeCaretColor
-  **/
-  SequenceCanvas.prototype.changeCaretColor = function(hexColor){
-
-    var color = hexColor+'';
-    this.view.$('div.caret-caret').css({ background : color});
-
+  SequenceCanvas.prototype.changeCaret = function(event) {
+   if(event.type === 'mousedown'){
+   if(this.caret!==undefined)
+   this.hideCaret(false);
+   this.caret = this.caretDefault;
+    }
+   if(event.type === 'mousemove'){
+   if(this.caret!==undefined && this.caret.className !== 'caret-hovering')
+   this.hideCaret(false);
+   this.caret = this.caretHover;
+   }
   };
 
   SequenceCanvas.prototype.redrawSelection = function(selection) {

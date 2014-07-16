@@ -24,7 +24,7 @@ define(function(require) {
   Caret.prototype.createElement = function() {
     var $element = $(template({
           className: this.className,
-          blinking: this.blinking
+          blinking: this.blinking,
         })).hide();
 
     this.$container.append($element);

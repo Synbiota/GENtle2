@@ -53,14 +53,16 @@ define(function(require) {
   **/
   Handlers.prototype.handleMouseHover = function(event) {
     event.preventDefault();
+    if(!this.selection){
+
+    this.changeCaret(event);
+
     var mouse = this.normalizeMousePosition(event),
     
     position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
 
     this.moveCaret(position);
-    this.hideContextMenuButton();
-
-    this.changeCaretColor('#b6b6b6');
+    }
   };
 
 
@@ -279,8 +281,11 @@ define(function(require) {
   /**
    **/
   Handlers.prototype.handleMousedown = function(event) {
+
     var _this = this,
       mouse = this.normalizeMousePosition(event);
+
+      this.changeCaret(event);
 
     _this.hideCaret();
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
@@ -357,6 +362,8 @@ define(function(require) {
       _this = this,
       base, baseRange;
 
+      this.changeCaret(event);
+
     baseRange = this.getBaseRangeFromYPos(mouse.top + this.layoutHelpers.yOffset);
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
@@ -367,8 +374,6 @@ define(function(require) {
         this.displayCaret(base);
       }
     }
-
-    this.changeCaretColor('#000');
 
     _this.redraw();
   };
