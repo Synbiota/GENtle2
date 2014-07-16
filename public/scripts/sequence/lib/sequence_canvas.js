@@ -50,7 +50,8 @@ define(function(require) {
       'handleClick',
       'handleKeypress',
       'handleKeydown',
-      'handleBlur'
+      'handleBlur',
+      'handleMouseHover'
     );
 
     /**
@@ -253,6 +254,7 @@ define(function(require) {
     this.$scrollingParent.on('keypress', this.handleKeypress);
     this.$scrollingParent.on('keydown', this.handleKeydown);
     this.$scrollingParent.on('blur', this.handleBlur);
+    this.$scrollingParent.on('mousemove', this.handleMouseHover);
 
     // Kickstart rendering
     this.refresh();
@@ -640,6 +642,16 @@ define(function(require) {
     }
   };
 
+  /**
+  Changes the caret color when hex color code is passed
+  @method changeCaretColor
+  **/
+  SequenceCanvas.prototype.changeCaretColor = function(hexColor){
+
+    var color = hexColor+'';
+    $('div.caret-caret').css({ background : color});
+
+  };
 
   SequenceCanvas.prototype.redrawSelection = function(selection) {
 

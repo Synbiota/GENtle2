@@ -46,6 +46,23 @@ define(function(require) {
     }
   };
 
+   /**
+  Updates caret position on mouse hover events
+  @method handleKeypress
+  @param event [event] Keypress event
+  **/
+  Handlers.prototype.handleMouseHover = function(event) {
+    event.preventDefault();
+    var mouse = this.normalizeMousePosition(event),
+    
+    position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
+
+    this.moveCaret(position);
+
+    this.changeCaretColor('#b6b6b6');
+  };
+
+
   /**
   Handles keystrokes on keydown events (used for hotkeys)
   @method handleKeydown
@@ -349,6 +366,8 @@ define(function(require) {
         this.displayCaret(base);
       }
     }
+
+    this.changeCaretColor('#000');
 
     _this.redraw();
   };
