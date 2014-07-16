@@ -649,7 +649,7 @@ define(function(require) {
   SequenceCanvas.prototype.changeCaretColor = function(hexColor){
 
     var color = hexColor+'';
-    $('div.caret-caret').css({ background : color});
+    this.view.$('div.caret-caret').css({ background : color});
 
   };
 
