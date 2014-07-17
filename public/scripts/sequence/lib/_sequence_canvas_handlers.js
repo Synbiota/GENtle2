@@ -53,15 +53,12 @@ define(function(require) {
   **/
   Handlers.prototype.handleMouseHover = function(event) {
     event.preventDefault();
+
     if(!this.selection){
-
-    this.changeCaret(event);
-
-    var mouse = this.normalizeMousePosition(event),
-    
-    position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
-
-    this.moveCaret(position);
+     this.changeCaret(event);
+     var mouse = this.normalizeMousePosition(event),
+     position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
+     this.moveCaret(position);
     }
   };
 
@@ -285,9 +282,9 @@ define(function(require) {
     var _this = this,
       mouse = this.normalizeMousePosition(event);
 
-      this.changeCaret(event);
+    _this.changeCaret(event);
 
-    _this.hideCaret();
+    _this.hideCaret(true);
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
 
@@ -310,7 +307,9 @@ define(function(require) {
       selection = _this.selection,
       mouse = _this.normalizeMousePosition(event);
 
-    mouse.top += layoutHelpers.yOffset;
+      _this.hideCaret(true);
+
+      mouse.top += layoutHelpers.yOffset;
 
     if (_this.dragStartPos &&
       (Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
@@ -361,8 +360,8 @@ define(function(require) {
     var mouse = this.normalizeMousePosition(event),
       _this = this,
       base, baseRange;
-
-      this.changeCaret(event);
+     
+    this.changeCaret(event);
 
     baseRange = this.getBaseRangeFromYPos(mouse.top + this.layoutHelpers.yOffset);
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);

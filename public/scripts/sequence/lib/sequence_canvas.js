@@ -29,11 +29,11 @@ define(function(require) {
   Styles = JSON.parse(Styles);
   LineStyles = Styles.sequences.lines;
 
-
   SequenceCanvas = function(options) {
     var _this = this;
     options = options || {};
     this.visible = true;
+    this.mouseDown = false;
 
     // Context binding (context is lost in Promises' `.then` and `.done`)
     _.bindAll(this, 'calculateLayoutSettings',
@@ -262,6 +262,7 @@ define(function(require) {
     this.$scrollingParent.on('keydown', this.handleKeydown);
     this.$scrollingParent.on('blur', this.handleBlur);
     this.$scrollingParent.on('mousemove', this.handleMouseHover);
+
 
     // Kickstart rendering
     this.refresh();
@@ -643,7 +644,6 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
-    console.log(this.caret);
     this.caret.remove();
     if (hideContextMenu === true) {
       this.hideContextMenuButton();
@@ -651,15 +651,25 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.changeCaret = function(event) {
+
+   if(event.type === 'mousemove'){
+   if(this.mouseDown === false){
+   if(this.caret!==undefined && this.caret.className !== 'caret-hovering')
+   this.hideCaret(true);
+   this.caret = this.caretHover;
+   }
+   }
+   
    if(event.type === 'mousedown'){
-   if(this.caret!==undefined)
+   if(this.caret!==undefined && this.caret.className !== 'caret-caret')
    this.hideCaret(false);
    this.caret = this.caretDefault;
-    }
-   if(event.type === 'mousemove'){
-   if(this.caret!==undefined && this.caret.className !== 'caret-hovering')
-   this.hideCaret(false);
-   this.caret = this.caretHover;
+   this.mouseDown = true;
+   }
+
+   if(event.type === 'mouseup')
+   {
+    this.mouseDown = false;
    }
   };
 
