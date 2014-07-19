@@ -8631,15 +8631,10 @@ button.close {
   float: left;
 }
 /* line 14, views/_statusbar_view.scss */
-.statusbar .statusbar-section-outlet-secondaryView {
-  float: right;
-  margin-right: 80px;
+.statusbar a {
+  text-decoration: none;
 }
-/* line 19, views/_statusbar_view.scss */
-.statusbar .z-indexup {
-  z-index: 4000;
-}
-/* line 24, views/_statusbar_view.scss */
+/* line 16, views/_statusbar_view.scss */
 .statusbar a:hover {
   text-decoration: none;
 }

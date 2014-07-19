@@ -1,9 +1,9 @@
-<div class="dropdown dropup z-indexup">
+<div class="dropdown dropup">
   <a class="dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown" href="#">
     {{currentView.title}}
     &nbsp;<span class="glyphicon glyphicon-chevron-up"></span>
   </a>
-  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1" id="secondary-view-list">
+  <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenu1" id="secondary-view-list">
     {{#each views}}
       <li><a href="#" role="menuitem" data-section-name="{{name}}">{{title}}</a></li>
     {{/each}}
