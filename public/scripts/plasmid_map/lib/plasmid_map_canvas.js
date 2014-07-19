@@ -145,9 +145,9 @@ define(function(require) {
         this.path(r, 0, R, 0);
         linenumberinglen = _.formatThousands(i*lineNumberIncrement).length;
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
-        this.rotatedText(_.formatThousands(i*lineNumberIncrement),-textX-(linenumberinglen*5), textY);
+          this.rotatedText(_.formatThousands(i*lineNumberIncrement),-textX-(linenumberinglen*5), textY);
         else
-        this.text(_.formatThousands(i*lineNumberIncrement), textX, textY);
+          this.text(_.formatThousands(i*lineNumberIncrement), textX, textY);
         this.rotate(angleIncrement);
         angle += angleIncrement;
       }
@@ -180,16 +180,17 @@ define(function(require) {
     artist.onTemporaryTransformation(function() {
       _.each(enzymes, function(enzymes_, position) {
         var names = _.pluck(enzymes_, 'name');
+        names = (names.length <= 2 ) ? names.join(', ') : (names[0] + ' +' + (names.length-1));
         position = 1*position;
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
         artist.path(-radii.R, 0, -radii.r, 0);
-        angle += (Math.PI * 2 * (position - previousPosition) / len),
-        namelen = ((names.length <= 2 )? names.join(', ') : (names[0] + ' +' + (names.length-1))).length;
+        angle += (Math.PI * 2 * (position - previousPosition) / len);
+        namelen = names.length;
 
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
-          artist.rotatedText(names.length <= 2 ? names.join(', ') : (names[0] + ' +' + (names.length-1)),radii.label+(namelen*6), 2);
+          artist.rotatedText(names, radii.label+(namelen*6), 2);
         else
-          artist.text(names.length <= 2 ? names.join(', ') : (names[0] + ' +' + (names.length-1)),-radii.label, 2);        
+          artist.text(names, -radii.label, 2);        
         previousPosition = position;
       });
     });

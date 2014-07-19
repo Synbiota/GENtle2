@@ -44,21 +44,20 @@ define(function(require) {
 
 
   Text.prototype.rotateAndWriteText = function() {
-  var artist = this.artist,
+    var artist = this.artist,
         context = artist.context,
         styleOptions = this.styleOptions,               
         textWidth;
 
-      context.rotate(Math.PI);
-      context.fillText(this.text,this.x+styleOptions.textPadding,(this.y+styleOptions.lineHeight));
-      context.rotate(-Math.PI);
+    context.rotate(Math.PI);
+    context.fillText(this.text,this.x+styleOptions.textPadding,(this.y+styleOptions.lineHeight));
+    context.rotate(-Math.PI);
 
-      };
+  };
 
-Text.prototype.reverseText = function(text){
-var text = text.split("").reverse().join("");
-return text;
-};
+  Text.prototype.reverseText = function(text){
+    return text.split("").reverse().join("");
+  };
 
   return Text;
 });
