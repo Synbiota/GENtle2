@@ -33,7 +33,7 @@ define(function(require) {
 
   loadFiles: function(event){
   if (event.preventDefault) event.preventDefault(); 
-
+  if(event.originalEvent.dataTransfer !== undefined){
   var files = event.originalEvent.dataTransfer.files;
   var onLoad = function(result) {
    Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
@@ -51,6 +51,7 @@ define(function(require) {
   _.each(files, function(file) {
     Filetypes.loadFile(file,true).done(onLoad, onError);
   });
+  }
   }
   });
 
