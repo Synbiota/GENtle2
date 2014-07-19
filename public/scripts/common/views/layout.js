@@ -32,19 +32,20 @@ define(function(require) {
     },
 
   loadFiles: function(event){
+  var files, onLoad, onError;
   if (event.preventDefault) event.preventDefault(); 
   if(event.originalEvent.dataTransfer !== undefined){
-  var files = event.originalEvent.dataTransfer.files;
-  var onLoad = function(result) {
-   Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
-    if ( sequences.length ) Gentle.addSequencesAndNavigate(sequences);
-      else alert('Could not parse the sequence.');
-     } , function (err) {
-       console.log(err);
-       alert('Could not parse the sequence.');
-     } ) ;
-  };
-  var onError = function(filename) {
+    files = event.originalEvent.dataTransfer.files;
+    onLoad = function(result) {
+      Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
+      if ( sequences.length ) Gentle.addSequencesAndNavigate(sequences);
+       else alert('Could not parse the sequence.');
+       } , function (err) {
+        console.log(err);
+        alert('Could not parse the sequence.');
+      } ) ;
+    };
+    onError = function(filename) {
     alert('Could not load file ' + filename);
   };
 
