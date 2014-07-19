@@ -48,6 +48,7 @@ define(function(require) {
       statusbarView.addSection({
         name: 'secondaryView',
         view: StatusbarSecondaryViewSwitcherview,
+        className: 'pull-right',
         visible: function() {
           return sequence.get('displaySettings.primaryView') == 'edition';
         }
