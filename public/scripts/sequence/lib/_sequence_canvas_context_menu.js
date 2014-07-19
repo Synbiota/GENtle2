@@ -9,13 +9,7 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 define(function(require) {
   var SequenceCanvasContextMenu;
 
-  SequenceCanvasContextMenu = function() {
-
-    this.$container = this.$('.scrolling-child').first();
-
-
-
-  };
+  SequenceCanvasContextMenu = function() {};
 
   /**
   Shows button to open context menu and adds menu items to context menu view

@@ -222,7 +222,6 @@ define(function(require) {
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
-    this.$scrollingChild.append($('#sequence-canvas-context-menu-outlet'));
     this.contextMenu = this.view.getView('#sequence-canvas-context-menu-outlet');
 
     this.invertHotkeys = _.invert(Hotkeys);
