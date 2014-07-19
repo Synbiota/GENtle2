@@ -207,17 +207,26 @@ define(function(require) {
     return washer;
   };
 
-  Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
+   Artist.prototype.gcatRatios = function(sequence_length, res){
 
-    options = options || {};
-    var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
+    var gcatRatios = new GCATRatios(sequence_length, res);
 
-    this.onTemporaryTransformation(function() {  
-      this.rotate(Math.PI);
-      radialLineGraph.draw(options); 
+    return gcatRatios;
+
+   }
+
+   Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
+
+   var  options = options || {};
+   var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
+
+   this.onTemporaryTransformation(
+    function() {  
+    this.context.rotate(Math.PI);
+    radialLineGraph.draw(options); 
     });
     // this.shapes.push(washer);
-    return radialLineGraph;
+   return radialLineGraph;
   };
 
 
@@ -272,6 +281,29 @@ define(function(require) {
 
     // this.shapes.push(textShape);
     textShape.draw();
+    
+    return textShape;
+  };
+
+
+  /**
+  @method rotatedText
+  @param {String} text
+  @param {Integer} x
+  @param {Integer} y
+  @param {Object} [options]
+  @returns {Text} instance of {{#crossLink "Text"}}{{/crossLink}}
+  **/
+  Artist.prototype.rotatedText = function() {
+    var text      = arguments[0],
+        x         = arguments[1],
+        y         = arguments[2],
+        options   = arguments[3] || {},
+        textShape = new Text(this, text, x, y, options);
+
+    // this.shapes.push(textShape);
+    textShape.rotateAndWriteText();
+    
     return textShape;
   };
 

@@ -128,7 +128,8 @@ define(function(require) {
         R = - this.radii.lineNumbering.R,
         textX = - this.radii.lineNumbering.R,
         textY = -5,
-        artist = this.artist;
+        artist = this.artist,
+        angle = 0, linenumberinglen = 0;
 
     artist.updateStyle({
       strokeStyle: '#bbb', 
@@ -142,8 +143,13 @@ define(function(require) {
       // `this` is now `artist`
       for(var i = 0; i < len/lineNumberIncrement; i++){
         this.path(r, 0, R, 0);
-        this.text(_.formatThousands(i*lineNumberIncrement), textX, textY);
+        linenumberinglen = _.formatThousands(i*lineNumberIncrement).length;
+        if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
+          this.rotatedText(_.formatThousands(i*lineNumberIncrement),-textX-(linenumberinglen*5), textY);
+        else
+          this.text(_.formatThousands(i*lineNumberIncrement), textX, textY);
         this.rotate(angleIncrement);
+        angle += angleIncrement;
       }
     });
 
@@ -158,7 +164,8 @@ define(function(require) {
         len = this.model.length(),
         previousPosition = 0,
         artist = this.artist,
-        radii = this.radii.RES;
+        radii = this.radii.RES,
+        angle = 0;
 
     // artist.setLineDash([1.5,3]);
 
@@ -173,10 +180,17 @@ define(function(require) {
     artist.onTemporaryTransformation(function() {
       _.each(enzymes, function(enzymes_, position) {
         var names = _.pluck(enzymes_, 'name');
+        names = (names.length <= 2 ) ? names.join(', ') : (names[0] + ' +' + (names.length-1));
         position = 1*position;
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
         artist.path(-radii.R, 0, -radii.r, 0);
-        artist.text(names.length <= 2 ? names.join(', ') : (names[0] + ' +' + (names.length-1)), -radii.label, 2);
+        angle += (Math.PI * 2 * (position - previousPosition) / len);
+        namelen = names.length;
+
+        if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
+          artist.rotatedText(names, radii.label+(namelen*6), 2);
+        else
+          artist.text(names, -radii.label, 2);        
         previousPosition = position;
       });
     });
