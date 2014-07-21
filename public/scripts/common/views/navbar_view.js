@@ -32,8 +32,10 @@ define(function(require) {
     },
 
     navigateToSequence: function(event) {
-      var $target = $(event.currentTarget);
-      if(!$target.parent().hasClass('hidden-tabs-dropdown')) {
+      var $target = $(event.currentTarget),
+          $refTarget = $(event.target);
+
+      if(!$target.parent().hasClass('hidden-tabs-dropdown') && !$refTarget.hasClass('close-sequence')) {
         event.preventDefault();
         Gentle.router.sequence($target.data('sequence-id'));
       }
