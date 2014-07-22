@@ -226,7 +226,7 @@ define(function(require) {
 
       }
     };
-
+    _this = this;
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
     this.caretDefault = new Caret({
@@ -257,11 +257,11 @@ define(function(require) {
     this.view.on('resize', this.refreshFromResize);
     this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
-    this.$scrollingParent.on('mousedown', this.handleMousedown);
+    this.$scrollingParent.on('mousedown', function(event){_this.handleMousedown(event,_this.caretDefault);});
     this.$scrollingParent.on('keypress', this.handleKeypress);
-    this.$scrollingParent.on('keydown', this.handleKeydown);
+    this.$scrollingParent.on('keydown', function(event){_this.handleKeydown(event,_this.caretDefault);});
     this.$scrollingParent.on('blur', this.handleBlur);
-    this.$scrollingParent.on('mousemove', this.handleMouseHover);
+    this.$scrollingParent.on('mousemove', function(event){_this.handleMouseHover(event,_this.caretHover);});
 
 
     // Kickstart rendering
@@ -496,7 +496,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.refresh = function() {
     if (this.caretPosition !== undefined) {
-      this.hideCaret();
+      this.hideCaret(false,this.caret);
       this.caretPosition = undefined;
     }
     this.updateCanvasDims()
@@ -607,12 +607,15 @@ define(function(require) {
   @method displayCaret
   @param base [base] 
   **/
-  SequenceCanvas.prototype.displayCaret = function(base) {
+  SequenceCanvas.prototype.displayCaret = function(base, caret) {
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
       _this = this,
       posX, posY;
+
+      if(caret !== undefined)
+      _this.caret = caret;
 
     if (base === undefined && this.caretPosition !== undefined) {
       base = this.caretPosition;
@@ -629,48 +632,35 @@ define(function(require) {
 
       _this.caret.move(posX, posY, base);
       _this.caretPosition = base;
+      if(_this.caret.className!=='caret-hovering')
       _this.showContextMenuButton(posX, posY + 20);
 
     });
 
   };
 
-  SequenceCanvas.prototype.moveCaret = function(newPosition) {
+  SequenceCanvas.prototype.moveCaret = function(newPosition, caret) {
+    if(caret !== undefined)
+    this.caret = caret;
+    
     if (this.selection) {
       this.selection = undefined;
       this.redraw();
     }
-    this.displayCaret(newPosition);
+    this.displayCaret(newPosition, this.caret);
   };
 
-  SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
+  SequenceCanvas.prototype.hideCaret = function(hideContextMenu, caret) {
+    if(caret !== undefined)
+    this.caret = caret;
+
+  console.log('hidden');
+  console.log(this.caret);
+
     this.caret.remove();
     if (hideContextMenu === true) {
       this.hideContextMenuButton();
     }
-  };
-
-  SequenceCanvas.prototype.changeCaret = function(event) {
-
-   if(event.type === 'mousemove'){
-   if(this.mouseDown === false){
-   if(this.caret!==undefined && this.caret.className !== 'caret-hovering')
-   this.hideCaret(true);
-   this.caret = this.caretHover;
-   }
-   }
-   
-   if(event.type === 'mousedown'){
-   if(this.caret!==undefined && this.caret.className !== 'caret-caret')
-   this.hideCaret(false);
-   this.caret = this.caretDefault;
-   this.mouseDown = true;
-   }
-
-   if(event.type === 'mouseup')
-   {
-    this.mouseDown = false;
-   }
   };
 
   SequenceCanvas.prototype.redrawSelection = function(selection) {
@@ -737,7 +727,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.select = function(start, end) {
     var positionCheck;
-    this.hideCaret();
+    this.hideCaret(false,this.caret);
     if (start !== undefined) {
       if (start < end) {
         this.selection = [start, end];
@@ -790,7 +780,7 @@ define(function(require) {
         }
       }
     }
-    this.displayCaret(newCaret);
+    this.displayCaret(newCaret, this.caret);
   };
 
   SequenceCanvas.prototype.cleanPastedText = function(text) {

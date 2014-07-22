@@ -13,8 +13,11 @@ define(function(require) {
   @method handleKeypress
   @param event [event] Keypress event
   **/
-  Handlers.prototype.handleKeypress = function(event) {
+  Handlers.prototype.handleKeypress = function(event, caret) {
     event.preventDefault();
+
+    if(caret !== undefined)
+      this.caret = caret;
 
     if (!~_.values(Hotkeys).indexOf(event.which)) {
       var base = String.fromCharCode(event.which).toUpperCase(),
@@ -25,14 +28,14 @@ define(function(require) {
 
         if (!selection && caretPosition !== undefined) {
 
-          this.hideCaret();
+          this.hideCaret(false,this.caret);
           this.sequence.insertBases(base, caretPosition);
           this.caretPosition = ++caretPosition;
           this.displayCaret();
 
         } else if (selection) {
 
-          this.hideCaret();
+          this.hideCaret(false,this.caret);
           this.selection = undefined;
           this.sequence.deleteBases(
             selection[0],
@@ -40,7 +43,7 @@ define(function(require) {
           );
           this.sequence.insertBases(base, selection[0]);
           this.caretPosition = selection[0] + 1;
-          this.displayCaret(selection[0] + 1);
+          this.displayCaret(selection[0] + 1,this.caret);
         }
       }
     }
@@ -51,14 +54,16 @@ define(function(require) {
   @method handleKeypress
   @param event [event] Keypress event
   **/
-  Handlers.prototype.handleMouseHover = function(event) {
+  Handlers.prototype.handleMouseHover = function(event, caret) {
     event.preventDefault();
+    if(caret!== undefined)
+      this.caret = caret;
 
     if(!this.selection){
-     this.changeCaret(event);
+//      console.log('this should not happen');
      var mouse = this.normalizeMousePosition(event),
      position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
-     this.moveCaret(position);
+     this.moveCaret(position, this.caret);
     }
   };
 
@@ -68,7 +73,10 @@ define(function(require) {
   @method handleKeydown
   @param event [event] Keydown event
   **/
-  Handlers.prototype.handleKeydown = function(event) {
+  Handlers.prototype.handleKeydown = function(event, caret) {
+
+    if(caret !== undefined)
+      this.caret = caret;
 
     if (~_.values(Hotkeys).indexOf(event.which)) {
 
@@ -85,12 +93,11 @@ define(function(require) {
 
     } else if (event.metaKey && event.which == this.commandKeys.V) {
 
-      this.handlePaste();
+      this.handlePaste(this.caret);
 
     } else if (event.metaKey && event.which == this.commandKeys.Z) {
 
-      this.handleUndo(event);
-
+      this.handleUndo(event, this.caret);
     }
 
   };
@@ -109,7 +116,7 @@ define(function(require) {
 
   };
 
-  Handlers.prototype.handleBackspaceKey = function(shift, meta) {
+  Handlers.prototype.handleBackspaceKey = function(shift, meta, caret) {
     if(!this.readOnly) {
       if (this.selection) {
         var selection = this.selection;
@@ -118,10 +125,10 @@ define(function(require) {
           selection[0],
           selection[1] - selection[0] + 1
         );
-        this.displayCaret(selection[0]);
+        this.displayCaret(selection[0], caret);
       } else if (this.caretPosition > 0) {
         var previousCaret = this.caretPosition;
-        this.hideCaret();
+        this.hideCaret(false,this.caret);
         this.sequence.deleteBases(previousCaret - 1, 1);
         this.displayCaret(previousCaret - 1);
       }
@@ -129,7 +136,7 @@ define(function(require) {
   };
 
   Handlers.prototype.handleEscKey = function(shift, meta) {
-    this.hideCaret();
+    this.hideCaret(false,this.caret);
     this.caretPosition = undefined;
   };
 
@@ -153,7 +160,7 @@ define(function(require) {
       }
       this.caretPosition = nextCaret;
     } else {
-      this.moveCaret(nextCaret);
+      this.moveCaret(nextCaret, this.caret);
     }
 
   };
@@ -178,7 +185,7 @@ define(function(require) {
         this.caretPosition = nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      this.moveCaret(nextCaret, this.caret);
     }
 
   };
@@ -204,7 +211,7 @@ define(function(require) {
         this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      this.moveCaret(nextCaret, this.caret);
     }
   };
 
@@ -231,7 +238,7 @@ define(function(require) {
         this.caretPosition = nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      this.moveCaret(nextCaret, this.caret);
     }
 
   };
@@ -246,68 +253,74 @@ define(function(require) {
     }
   };
 
-  Handlers.prototype.handlePaste = function() {
+  Handlers.prototype.handlePaste = function(caret) {
     var _this = this,
       selection = _this.selection,
       caretPosition = _this.caretPosition;
+
+    if(caret !== undefined)
+      this.caret = caret;
 
     if(!this.readOnly) {
 
       this.copyPasteHandler.paste().then(function(text) {
         if (caretPosition !== undefined && !selection) {
           text = _this.cleanPastedText(text);
-          _this.hideCaret();
+          _this.hideCaret(false,this.caret);
           _this.sequence.insertBases(text, caretPosition);
-          _this.displayCaret(caretPosition + text.length);
+          _this.displayCaret(caretPosition + text.length,this.caret);
           _this.focus();
         }
-
       });
 
     }
   };
 
-  Handlers.prototype.handleUndo = function(event) {
+  Handlers.prototype.handleUndo = function(event, caret) {
     if (!this.readOnly && this.caretPosition !== undefined) {
       event.preventDefault();
-      this.hideCaret();
+      this.hideCaret(false,this.caret);
       this.sequence.undo();
     }
   };
 
   /**
    **/
-  Handlers.prototype.handleMousedown = function(event) {
+  Handlers.prototype.handleMousedown = function(event, caret) {
 
     var _this = this,
       mouse = this.normalizeMousePosition(event);
 
-    _this.changeCaret(event);
-
-    _this.hideCaret(true);
+    if(caret !== undefined)
+    _this.caret = caret;
+    _this.hideCaret(true,this.caret);
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
       if (event.type === 'mouseup') {
-        _this.handleMouseup(event);
+        _this.handleMouseup(event, _this.caret);
         _this.$scrollingParent.off('mouseup mousemove', mousedownHandler);
       } else {
-        _this.handleMousemove(event);
+        _this.handleMousemove(event, _this.caret);
       }
     });
   };
 
   /**
    **/
-  Handlers.prototype.handleMousemove = function(event) {
+  Handlers.prototype.handleMousemove = function(event, caret) {
     var _this = this,
       layoutHelpers = _this.layoutHelpers,
       caretPosition = _this.caretPosition,
       selection = _this.selection,
       mouse = _this.normalizeMousePosition(event);
 
-      _this.hideCaret(true);
+      if(caret !== undefined)
+      this.caret = caret;
+
+      if(this.caret.className !== 'caret-hovering')
+      _this.hideCaret(true, this.caret);
 
       mouse.top += layoutHelpers.yOffset;
 
@@ -340,13 +353,18 @@ define(function(require) {
 
   /**
    **/
-  Handlers.prototype.handleMouseup = function(event) {
+  Handlers.prototype.handleMouseup = function(event, caret) {
+    if(caret !== undefined)
+      this.caret = caret;
+
+    console.log(caret);
+
     if (!this.selection || !this.selecting) {
-      this.handleClick(event);
+      this.handleClick(event, this.caret);
     }
     this.dragStartPos = this.dragStartBase = undefined;
     if (this.selection) {
-      this.displayCaret(this.caretPosition);
+      this.displayCaret(this.caretPosition, this.caret);
     }
     this.selecting = false;
   };
@@ -356,13 +374,13 @@ define(function(require) {
   @method handleClick
   @param event [event] Click event
   **/
-  Handlers.prototype.handleClick = function(event) {
+  Handlers.prototype.handleClick = function(event, caret) {
     var mouse = this.normalizeMousePosition(event),
       _this = this,
       base, baseRange;
+      if(caret !== undefined)
+      this.caret = caret;
      
-    this.changeCaret(event);
-
     baseRange = this.getBaseRangeFromYPos(mouse.top + this.layoutHelpers.yOffset);
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
@@ -370,7 +388,7 @@ define(function(require) {
       if (this.selection) {
         this.select(undefined);
       } else {
-        this.displayCaret(base);
+        this.displayCaret(base, this.caret);
       }
     }
 
@@ -391,7 +409,7 @@ define(function(require) {
   **/
   Handlers.prototype.handleBlur = function(event) {
     if (this.caretPosition !== undefined) {
-      this.hideCaret(false);
+      this.hideCaret(false, this.caret);
     }
   };
 
