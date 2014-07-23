@@ -302,11 +302,11 @@ define(function(require) {
 
       if (first <= last) {
         _this.selection = [first, last];
+        _this.caretPosition = last + 1;
       } else {
         _this.selection = [last, first];
+        _this.caretPosition = last;
       }
-
-      _this.caretPosition = selection && selection[0] < caretPosition ? last + 1 : last;
 
     } else {
       _this.selecting = false;
