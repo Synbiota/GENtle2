@@ -40,6 +40,9 @@ define(function(require) {
     var seq = {features: [], sequence: ''} ;
     seq.desc = '' ;
     var feature = {} ;
+    var allowedInputChars = ['A', 'T', 'C', 'G'];
+    var regexp = new RegExp('[^' +allowedInputChars.join('') + ']', 'g')
+
     $.each ( lines , function ( k , v ) {
 
       if ( v.match(/^LOCUS/i) ) {
@@ -102,7 +105,7 @@ define(function(require) {
       
         if ( v.match(/^\/\//) ) return false ; // The absolute end
         seq.sequence += v.replace ( /[ 0-9]/g , '' ).toUpperCase() ;
-        
+        seq.sequence = seq.sequence.replace(regexp,'#');
       }
     } ) ;
     
