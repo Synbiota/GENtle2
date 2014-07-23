@@ -265,10 +265,12 @@ define(function(require) {
     var name_lines = this.artist.wrapText(context, this.model.get('name'), this.radii.title_width);
     var metrics = context.measureText(this.model.get('name'));
     var line_height = 15;
+    var yPosBP = line_height*(name_lines.length*2/3);
     for (var i = 0; i < name_lines.length; i++){
     if(name_lines[i].length >19){
        name_lines[i] = name_lines[i].substr(0,18);
-       context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i));
+       context.fillText(name_lines[i], 0,line_height*(-1/3+i));
+       yPosBP = line_height*(2/3);
        break;
       }
       else{
@@ -276,7 +278,7 @@ define(function(require) {
       }
     }
     context.font = "italic 12px Arial";
-    context.fillText(""+_.formatThousands(len)+" bp", 0,line_height*(name_lines.length*2/3));
+    context.fillText(""+_.formatThousands(len)+" bp", 0,yPosBP);
 
   };
 
