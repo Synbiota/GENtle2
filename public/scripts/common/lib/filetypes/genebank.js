@@ -35,16 +35,14 @@ define(function(require) {
   FT_genebank.prototype.parseFile = function () {
     var ret = [] ;
     var lines = this.asString().replace(/\r/g,'').split ( "\n" ) ;
-
     var mode = '' ;
     var seq = {features: [], sequence: ''} ;
     seq.desc = '' ;
     var feature = {} ;
     var allowedInputChars = ['A', 'T', 'C', 'G'];
-    var regexp = new RegExp('[^' +allowedInputChars.join('') + ']', 'g')
+    var regexp = new RegExp('[^' +allowedInputChars.join('') + ']', 'g');
 
     $.each ( lines , function ( k , v ) {
-
       if ( v.match(/^LOCUS/i) ) {
         var m = v.match(/^LOCUS\s+(\S+)\s+(.+)$/i)
         seq.name = m[1] ;
@@ -104,8 +102,7 @@ define(function(require) {
       } else if ( mode == 'ORIGIN' ) {
       
         if ( v.match(/^\/\//) ) return false ; // The absolute end
-        seq.sequence += v.replace ( /[ 0-9]/g , '' ).toUpperCase() ;
-        seq.sequence = seq.sequence.replace(regexp,'#');
+        seq.sequence += v.replace ( /[ 0-9]/g , '' ).toUpperCase().replace(regexp,'#');
       }
     } ) ;
     
