@@ -10,7 +10,9 @@
     border-right: 1px solid #ddd;
     float: left;
   } 
+
   a {
+    text-decoration: none;
     &:hover {
       text-decoration: none;
     }

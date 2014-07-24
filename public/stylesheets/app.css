@@ -8631,6 +8631,10 @@ button.close {
   float: left;
 }
 /* line 14, views/_statusbar_view.scss */
+.statusbar a {
+  text-decoration: none;
+}
+/* line 16, views/_statusbar_view.scss */
 .statusbar a:hover {
   text-decoration: none;
 }
