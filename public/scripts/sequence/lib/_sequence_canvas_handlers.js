@@ -13,16 +13,13 @@ define(function(require) {
   @method handleKeypress
   @param event [event] Keypress event
   **/
-  Handlers.prototype.handleKeypress = function(event, caret) {
+  Handlers.prototype.handleKeypress = function(event) {
     event.preventDefault();
-
-    if(caret !== undefined)
-      this.caret = caret;
 
     if (!~_.values(Hotkeys).indexOf(event.which)) {
       var base = String.fromCharCode(event.which).toUpperCase(),
         selection = this.selection,
-        caretPosition = this.caretPosition;
+        caretPosition = this.caret.base;
 
       if (!this.readOnly && ~this.allowedInputChars.indexOf(base)) {
 
@@ -30,8 +27,8 @@ define(function(require) {
 
           this.hideCaret(false,this.caret);
           this.sequence.insertBases(base, caretPosition);
-          this.caretPosition = ++caretPosition;
-          this.displayCaret();
+          this.caret.base = ++caretPosition;
+          this.displayCaret(this.caret.base,this.caret);
 
         } else if (selection) {
 
@@ -42,7 +39,7 @@ define(function(require) {
             selection[1] - selection[0] + 1
           );
           this.sequence.insertBases(base, selection[0]);
-          this.caretPosition = selection[0] + 1;
+          this.caret.base = selection[0] + 1;
           this.displayCaret(selection[0] + 1,this.caret);
         }
       }
@@ -56,13 +53,13 @@ define(function(require) {
   **/
   Handlers.prototype.handleMouseHover = function(event, caret) {
     event.preventDefault();
+    if(!this.selection && this.mouseDown === false){
     if(caret!== undefined)
       this.caret = caret;
-
-    if(!this.selection){
 //      console.log('this should not happen');
      var mouse = this.normalizeMousePosition(event),
      position = this.getBaseFromXYPos(mouse.left,mouse.top+this.layoutHelpers.yOffset);
+     if(position>=0)
      this.moveCaret(position, this.caret);
     }
   };
@@ -121,13 +118,14 @@ define(function(require) {
       if (this.selection) {
         var selection = this.selection;
         this.selection = undefined;
+        this.hideCaret(true,this.caret);
         this.sequence.deleteBases(
           selection[0],
           selection[1] - selection[0] + 1
         );
         this.displayCaret(selection[0], caret);
-      } else if (this.caretPosition > 0) {
-        var previousCaret = this.caretPosition;
+      } else if (this.caret.base > 0) {
+        var previousCaret = this.caret.base;
         this.hideCaret(false,this.caret);
         this.sequence.deleteBases(previousCaret - 1, 1);
         this.displayCaret(previousCaret - 1);
@@ -137,11 +135,11 @@ define(function(require) {
 
   Handlers.prototype.handleEscKey = function(shift, meta) {
     this.hideCaret(false,this.caret);
-    this.caretPosition = undefined;
+    this.caret.base = undefined;
   };
 
   Handlers.prototype.handleLeftKey = function(shift, meta) {
-    var previousCaret = this.caretPosition,
+    var previousCaret = this.caret.base,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
       nextCaret;
@@ -158,7 +156,7 @@ define(function(require) {
       } else {
         this.select(nextCaret, previousCaret - 1);
       }
-      this.caretPosition = nextCaret;
+      this.caret.base = nextCaret;
     } else {
       this.moveCaret(nextCaret, this.caret);
     }
@@ -166,7 +164,7 @@ define(function(require) {
   };
 
   Handlers.prototype.handleRightKey = function(shift, meta) {
-    var previousCaret = this.caretPosition,
+    var previousCaret = this.caret.base,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
       nextCaret;
@@ -182,7 +180,7 @@ define(function(require) {
         this.expandSelectionToNewCaret(nextCaret);
       } else {
         this.select(previousCaret, nextCaret - 1);
-        this.caretPosition = nextCaret;
+        this.caret.base = nextCaret;
       }
     } else {
       this.moveCaret(nextCaret, this.caret);
@@ -192,13 +190,13 @@ define(function(require) {
 
   Handlers.prototype.handleUpKey = function(shift, meta) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
-      previousCaret = this.caretPosition,
+      previousCaret = this.caret.base,
       selection = this.selection,
       nextCaret;
 
     if (previousCaret === undefined) return;
 
-    nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
+    nextCaret = meta ? 0 : Math.max(0, this.caret.base - basesPerRow);
 
     if (shift) {
       if (selection) {
@@ -208,7 +206,7 @@ define(function(require) {
           previousCaret,
           nextCaret < previousCaret ? nextCaret - 1 : nextCaret
         );
-        this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
+        this.caret.base = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
       }
     } else {
       this.moveCaret(nextCaret, this.caret);
@@ -217,7 +215,7 @@ define(function(require) {
 
   Handlers.prototype.handleDownKey = function(shift, meta) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
-      previousCaret = this.caretPosition,
+      previousCaret = this.caret.base,
       selection = this.selection,
       nextCaret;
 
@@ -225,7 +223,7 @@ define(function(require) {
 
     nextCaret = meta ?
       this.sequence.length() :
-      Math.min(this.caretPosition + basesPerRow, this.sequence.length());
+      Math.min(this.caret.base + basesPerRow, this.sequence.length());
 
     if (shift) {
       if (selection) {
@@ -235,7 +233,7 @@ define(function(require) {
           previousCaret,
           nextCaret
         );
-        this.caretPosition = nextCaret;
+        this.caret.base = nextCaret;
       }
     } else {
       this.moveCaret(nextCaret, this.caret);
@@ -256,7 +254,7 @@ define(function(require) {
   Handlers.prototype.handlePaste = function(caret) {
     var _this = this,
       selection = _this.selection,
-      caretPosition = _this.caretPosition;
+      caretPosition = _this.caret.base;
 
     if(caret !== undefined)
       this.caret = caret;
@@ -277,7 +275,7 @@ define(function(require) {
   };
 
   Handlers.prototype.handleUndo = function(event, caret) {
-    if (!this.readOnly && this.caretPosition !== undefined) {
+    if (!this.readOnly && this.caret.base !== undefined) {
       event.preventDefault();
       this.hideCaret(false,this.caret);
       this.sequence.undo();
@@ -296,12 +294,14 @@ define(function(require) {
     _this.hideCaret(true,this.caret);
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
+    _this.mouseDown = true;
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
       if (event.type === 'mouseup') {
         _this.handleMouseup(event, _this.caret);
+        _this.mouseDown = false;
         _this.$scrollingParent.off('mouseup mousemove', mousedownHandler);
-      } else {
+      } else if(event.type === 'mousemove' && _this.caret.className !== 'caret-hovering'){
         _this.handleMousemove(event, _this.caret);
       }
     });
@@ -312,7 +312,7 @@ define(function(require) {
   Handlers.prototype.handleMousemove = function(event, caret) {
     var _this = this,
       layoutHelpers = _this.layoutHelpers,
-      caretPosition = _this.caretPosition,
+      caretPosition = _this.caret.base,
       selection = _this.selection,
       mouse = _this.normalizeMousePosition(event);
 
@@ -320,7 +320,10 @@ define(function(require) {
       this.caret = caret;
 
       if(this.caret.className !== 'caret-hovering')
-      _this.hideCaret(true, this.caret);
+      {
+         this.hiddenCaret = this.caret;
+        _this.hideCaret(true, this.caret);
+      }
 
       mouse.top += layoutHelpers.yOffset;
 
@@ -341,7 +344,7 @@ define(function(require) {
         _this.selection = [last, first];
       }
 
-      _this.caretPosition = selection && selection[0] < caretPosition ? last + 1 : last;
+      _this.caret.base = selection && selection[0] < caretPosition ? last + 1 : last;
 
     } else {
       _this.selecting = false;
@@ -357,14 +360,12 @@ define(function(require) {
     if(caret !== undefined)
       this.caret = caret;
 
-    console.log(caret);
-
     if (!this.selection || !this.selecting) {
       this.handleClick(event, this.caret);
     }
     this.dragStartPos = this.dragStartBase = undefined;
     if (this.selection) {
-      this.displayCaret(this.caretPosition, this.caret);
+      this.displayCaret(this.caret.base, this.hiddenCaret);
     }
     this.selecting = false;
   };
@@ -407,12 +408,14 @@ define(function(require) {
   Removes the caret on blur events
   @method handleBlur
   **/
-  Handlers.prototype.handleBlur = function(event) {
-    if (this.caretPosition !== undefined) {
+  Handlers.prototype.handleBlur = function(event,caret) {
+    if(caret!==undefined)
+      this.caret = caret;
+    if (this.caret.base !== undefined) {
       this.hideCaret(false);
       this.selection = undefined;
       this.redraw();
-    }
+  }
   };
 
   Handlers.prototype.normalizeMousePosition = function(event) {

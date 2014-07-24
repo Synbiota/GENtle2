@@ -257,9 +257,9 @@ define(function(require) {
     this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
     this.$scrollingParent.on('mousedown', function(event){_this.handleMousedown(event,_this.caretDefault);});
-    this.$scrollingParent.on('keypress', this.handleKeypress);
+    this.$scrollingParent.on('keypress', _this.handleKeypress);
     this.$scrollingParent.on('keydown', function(event){_this.handleKeydown(event,_this.caretDefault);});
-    this.$scrollingParent.on('blur', this.handleBlur);
+    this.$scrollingParent.on('blur', function(event){_this.handleBlur(event,_this.caretDefault);});
     this.$scrollingParent.on('mousemove', function(event){_this.handleMouseHover(event,_this.caretHover);});
 
 
@@ -650,9 +650,6 @@ define(function(require) {
   SequenceCanvas.prototype.hideCaret = function(hideContextMenu, caret) {
     if(caret !== undefined)
     this.caret = caret;
-
-  console.log('hidden');
-  console.log(this.caret);
 
     this.caret.remove();
     if (hideContextMenu === true) {
