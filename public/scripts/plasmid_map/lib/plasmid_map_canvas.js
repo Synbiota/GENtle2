@@ -54,7 +54,6 @@ define(function(require) {
     };
 
     _.bindAll(this, 'render', 'refresh', 'handleClick');
-
     this.refresh();
 
     this.model.on('change', _.debounce(this.render, 500));
@@ -77,7 +76,9 @@ define(function(require) {
   };
 
   PlasmidMapCanvas.prototype.refresh = function () {
-    this.setupCanvas().then(this.render);
+    this.setupCanvas().then(this.render).catch(function(e) {
+      console.log('ERROR', e.stack);
+    });
   };
 
   PlasmidMapCanvas.prototype.setupCanvas = function() {
@@ -378,7 +379,9 @@ define(function(require) {
       guess = (c+1)*q[i]*Math.pow(10,n);
     }
 
-    return Math.floor(q[i]*Math.pow(10,n));
+    guess = Math.floor(q[i]*Math.pow(10,n));
+
+    return guess === 0 ? Math.floor(bp/2) : guess;
   };
 
   PlasmidMapCanvas.prototype.clear = function() {
