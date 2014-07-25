@@ -118,7 +118,6 @@ define(function(require) {
       if (this.selection) {
         var selection = this.selection;
         this.selection = undefined;
-        this.hideCaret(true,this.caret);
         this.sequence.deleteBases(
           selection[0],
           selection[1] - selection[0] + 1
