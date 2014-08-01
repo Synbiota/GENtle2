@@ -309,11 +309,8 @@ define(function(require) {
 
 /**
   @method trackShape
-  @param {String} text
-  @param {Integer} x
-  @param {Integer} y
+  @param {Shape} subclass of {{#crossLink "Shape"}}{{/crossLink}}
   @param {Object} [options]
-  @returns {Text} instance of {{#crossLink "Text"}}{{/crossLink}}
   **/
   Artist.prototype.trackShape =  function(shape, options){
 
