@@ -15,8 +15,6 @@ define(function(require) {
     this.height = height;
     this.artist = artist;
     this.model  = Gentle.currentSequence;
-   // console.log('should work');
-   // console.log(this.Canvas.$scrollingParent);
   };
 
   _.extend(Rect.prototype, Shape.prototype);
