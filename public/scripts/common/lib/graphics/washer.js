@@ -5,6 +5,7 @@
 **/
 define(function(require) {
   var Shape = require('./shape'),
+      Gentle = require('gentle')(),
       Rect;
 
   Washer =  function(artist, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise,  arrowHead, stroke, text){
@@ -22,6 +23,7 @@ define(function(require) {
     this.arrowHead = arrowHead || false;
     this.text = text;
     this.artist = artist;
+    this.model = Gentle.currentSequence;
   };
 
   _.extend(Washer.prototype, Shape.prototype);
@@ -76,7 +78,7 @@ define(function(require) {
     }
   };
 
-  Washer.prototype.pointWithin = function(point){
+  Washer.prototype.includesPoint = function(point){
     //returns true if the given point is within the Washer Segment.
 
     var rel_p = {x: point.x - this.centreX,
@@ -95,6 +97,23 @@ define(function(require) {
     if ( this.counterClockwise != t_in_ccw) return false;
 
     return true;
+  };
+
+  Washer.prototype.isVisible = function(){
+     var artist = this.artist,
+        context = artist.context,
+        $plasmidCanvas = $('#plasmid_map_canvas'),
+        visibleCanvasWidth = $plasmidCanvas.width(),
+        visibleCanvasHeight = $plasmidCanvas.height();
+     
+  if((this.centreY+this.outerRadius)<=(visibleCanvasHeight) && (this.centreX+this.outerRadius)<=(visibleCanvasWidth)){ 
+    return true;
+    }
+    return false;
+  };
+
+  Washer.prototype.moveVertically = function(yOffset){
+  //angular displacement
   };
 
   Washer.prototype.setHighLight = function(highlight, fill, stroke){

@@ -11,7 +11,6 @@ define(function(require) {
     this.$canvas = options.$canvas;
     this.sequenceCanvas = options.view.parentView().sequenceCanvas;
     this.artist = new Artist(options.$canvas);
-
     this.relativeRadii = {
       r: 50 / 250,
       R: 165 / 250
@@ -54,8 +53,9 @@ define(function(require) {
 
     if(childHeight > parentHeight) {
 
-      artist.washer(0, 0, this.radii.r, this.radii.R, startAngle, endAngle, false, false, false, {
+      artist.washer(0, 0, this.radii.r, this.radii.R, startAngle, endAngle, false, false, false,false, {
         fillStyle: 'rgb(180, 180, 180)',
+        storeShape: true
       });
 
     }

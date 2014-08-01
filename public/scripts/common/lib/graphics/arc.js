@@ -26,6 +26,6 @@ define(function(require) {
 
     context.stroke();
   };
-
+  
   return Arc;
 });

@@ -65,7 +65,8 @@ define(function(require) {
             k+baseRange[0] >= selection[0]) {
 
           artist.rect(x, y+3, ls.basePairDims.width, this.height, {
-            fillStyle: this.selectionColour
+            fillStyle: this.selectionColour,
+            storeShape: true
           });
 
           if(this.selectionTextColour) {
@@ -77,7 +78,7 @@ define(function(require) {
           this.setTextColour(character);
         }
 
-        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine),{storeShape: true});
 
         x += ls.basePairDims.width;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;

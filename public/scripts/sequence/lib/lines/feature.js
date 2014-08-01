@@ -147,7 +147,8 @@ define(function(require) {
                     deltaX, 
                     this.lineSize, 
                     {
-                      fillStyle: backgroundFillStyle
+                      fillStyle: backgroundFillStyle,
+                      storeShape: true
                     });
 
         artist.text(feature.name, 
@@ -159,7 +160,8 @@ define(function(require) {
                       lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
                       height: this.unitHeight - this.margin,
                       textPadding: this.textPadding,
-                      backgroundFillStyle: backgroundFillStyle
+                      backgroundFillStyle: backgroundFillStyle,
+                      storeShape: true
                     });
         
       }

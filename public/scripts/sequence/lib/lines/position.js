@@ -36,7 +36,8 @@ define(function(require) {
       text = typeof this.transform == 'function' ? this.transform(k+1) : k+1;
       artist.text(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine), {
         fillStyle: this.textColour,
-        font: this.textFont
+        font: this.textFont,
+        storeShape: true
       });
       x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
     }

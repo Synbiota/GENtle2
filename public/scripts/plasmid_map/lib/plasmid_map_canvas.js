@@ -143,7 +143,9 @@ define(function(require) {
     artist.onTemporaryTransformation(function() {
       // `this` is now `artist`
       for(var i = 0; i < len/lineNumberIncrement; i++){
-        this.path(r, 0, R, 0);
+        this.path(r, 0, R, 0,{
+          storeShape: true
+        });
         linenumberinglen = _.formatThousands(i*lineNumberIncrement).length;
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
           this.rotatedText(_.formatThousands(i*lineNumberIncrement),-textX-(linenumberinglen*5), textY);
@@ -184,7 +186,7 @@ define(function(require) {
         names = (names.length <= 2 ) ? names.join(', ') : (names[0] + ' +' + (names.length-1));
         position = 1*position;
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
-        artist.path(-radii.R, 0, -radii.r, 0);
+        artist.path(-radii.R, 0, -radii.r, 0,{storeShape: true});
         angle += (Math.PI * 2 * (position - previousPosition) / len);
         namelen = names.length;
 
@@ -221,7 +223,8 @@ define(function(require) {
           fillStyle: (colors[type] && colors[type].fill) || colors._default.fill,
           font: '9px Monospace',
           textStyle: (colors[type] && colors[type].color) || colors._default.color,
-          textAlign: 'center'
+          textAlign: 'center',
+          storeShape: true
         });
 
         artist.rotate(Math.PI);
@@ -295,7 +298,8 @@ define(function(require) {
 
     artist.arc(0,0,this.radii.plasmidCircle.r,0,Math.PI*2, true, {
       strokeStyle: 'rgba(90,90,90,.2)',
-      lineWidth: 20
+      lineWidth: 20,
+      storeShape: true
     });
 
     artist.updateStyle({
@@ -307,8 +311,9 @@ define(function(require) {
 
     var gcatCalc = this.calcGCAT(this.model, 300),
         radii = this.radii.linegraph;
-    this.artist.radialLineGraph(0, 0, radii.r, 20, gcatCalc, {    
-      fillStyle: 'rgba(90,90,90,.4)'
+        this.artist.radialLineGraph(0, 0, radii.r, 20, gcatCalc, {    
+      fillStyle: 'rgba(90,90,90,.4)',
+      storeShape: true
     });
   };
 

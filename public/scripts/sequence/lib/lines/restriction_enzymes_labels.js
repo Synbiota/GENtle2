@@ -99,7 +99,7 @@ define(function(require) {
     _.each(enzymes, function(enzymes_, position) {
       position -= baseRange[0] === 0 ? 0 : subSeqPadding;
       x = _this.getBaseX(position, baseRange, true);
-      artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
+      artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight,{storeShape: true});
       artist.path(
         x, y + _this.unitHeight + 3, 
         x, initY + layoutHelpers.lineOffsets.dna - layoutHelpers.lineOffsets.restrictionEnzymesLabels

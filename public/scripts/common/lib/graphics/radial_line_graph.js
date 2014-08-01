@@ -45,5 +45,7 @@ define(function(require) {
     ctx.fill();
   };
 
+  RadialLineGraph
+
   return RadialLineGraph;
 });

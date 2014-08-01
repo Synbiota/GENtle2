@@ -16,7 +16,6 @@ define(function(require) {
       RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
       TextArc = require('./text_arc'),
-      Gentle = require('gentle')(),
       Path = require('./path'),
       Point = require('./point'),
       Arc = require('./arc'),
@@ -36,13 +35,8 @@ define(function(require) {
     canvas = canvas instanceof $ ? canvas[0] : canvas;
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
-    this.model = Gentle.currentSequence;
-  
-    if(this.model.trackedShapes !== undefined)
-    this.shapes = this.model.trackedShapes;
-    else
     this.shapes = [];
-
+    console.log('Created');
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
     // if(BrowserDetect.browser == 'Firefox') {
@@ -86,11 +80,13 @@ define(function(require) {
 
     context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
      
-     _.each(this.shapes,function(shape,index){
-       if(!shape.isVisible()){
+    if(this.shapes.length !== 0)
+      _.each(this.shapes,function(shape,index){
+        if(!shape.isVisible())
           _this.shapes.splice(index,1);
-       }
-      });
+        });
+
+
   };
 
   Artist.prototype.point = function (x, y) {
@@ -205,7 +201,7 @@ define(function(require) {
         height  = arguments[3],
         options = arguments[4] || {},
         rect = new Rect(this, x, y, width, height);
-
+    
     // this.shapes.push(rect);
     this.trackShape(rect, options);
     rect.draw(options);
@@ -299,7 +295,7 @@ define(function(require) {
         textShape = new Text(this, text, x, y, options);
 
     // this.shapes.push(textShape);
-    this.trackShape(textShape, options);
+    // this.trackShape(textShape, options);
 
     textShape.draw();
     
@@ -321,15 +317,11 @@ define(function(require) {
     var storeShape = _.pluck(args,'storeShape')[0];
     _this = this;
 
-    //Updating shapes from different instances of Arstist created by the current sequence.
- 
-    if(storeShape && shape !== undefined){
-      _this.shapes.push(shape);
-    if(_this.model.trackedShapes !== undefined && _this.model.trackedShapes.length > 0)
-      _this.model.trackedShapes.push(shape);
-    else
-      _this.model.trackedShapes = _this.shapes;
-    }
+    if(storeShape)
+    _this.shapes.push(shape);
+
+  console.log('1');
+  console.log(this.shapes);
 
   };
 
@@ -351,6 +343,9 @@ define(function(require) {
 
     // this.shapes.push(textShape);
     textShape.rotateAndWriteText();
+    
+    console.log(this.shapes);
+
     return textShape;
   };
 
@@ -410,23 +405,23 @@ define(function(require) {
         _this = this;
         this.sequenceCanvas = $('canvas').first();
 
-            if(_this.shapes.length === 0 || _this.shapes !== undefined) 
-              if(_this.model.trackedShapes.length !== undefined)
-                _this.shapes = _this.model.trackedShapes;
-              
+    this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
+   // context.putImageData(imageData, 0, offset * pixelRatio);
 
-   this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-   context.putImageData(imageData, 0, offset * pixelRatio);
-_.each(this.shapes,function(shape, index){
-  if(!shape.isVisible()){
-     _this.shapes.splice(index,1);
-  }else 
-  if(shape.isVisible()){
-     //for future use
-     //shape.moveVertically(_this.model.get('displaySettings.yOffset'));
-  }
-  });
 
+   console.log('2');
+   console.log(this.shapes);
+
+    _.each(this.shapes,function(shape,index){
+
+    console.log(shape.isVisible());
+    console.log("DDDDDDDDD");
+
+      if(!shape.isVisible())
+        _this.shapes.splice(index,1);
+      if(shape.isVisible())
+        shape.moveVertically(this.sequenceCanvas.layoutHelpers.yOffset);
+    });
   };
 
   Artist.prototype.setLineDash = function(segments) {
