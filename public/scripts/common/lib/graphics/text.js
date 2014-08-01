@@ -61,7 +61,7 @@ define(function(require) {
     return text.split("").reverse().join("");
   };
 
-  Text.prototype.moveVertically = function(yOffset){
+  Text.prototype.moveVertically = function(yOffset, pixelRatio){
      var artist = this.artist,
         context = artist.context,
         styleOptions = this.styleOptions,               
@@ -69,7 +69,11 @@ define(function(require) {
 
     imageData = artist.context.getImageData(this.x,this.y,this.textWidth, this.styleOptions.lineHeight);
     artist.context.clearRect(this.x,this.y,this.textWidth, this.styleOptions.lineHeight);
-    artist.putImageData(imageData, this.x, this.y+offset);
+
+    artist.context.clearRect(this.x,this.y + offset,this.textWidth, this.styleOptions.lineHeight);
+    artist.putImageData(imageData, this.x, (this.y + offset)*pixelRatio);
+
+    //this.y = this.y + offset;
   };
 
   Text.prototype.isVisible = function(){

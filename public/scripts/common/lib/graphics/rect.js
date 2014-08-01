@@ -26,12 +26,16 @@ define(function(require) {
     artist.context.fillRect(this.x, this.y, this.width, this.height);
   };
 
-  Rect.prototype.moveVertically = function(yOffset){
+  Rect.prototype.moveVertically = function(yOffset, pixelRatio){
     var artist = this.artist, offset = yOffset, imageData;
 
     imageData = artist.context.getImageData(this.x,this.y,this.width, this.height);
     artist.context.clearRect(this.x,this.y,this.width, this.height);
-    artist.putImageData(imageData, this.x, this.y+offset);
+
+    artist.context.clearRect(this.x,this.y+offset,this.width, this.height);
+    artist.putImageData(imageData, this.x, (this.y+offset)*pixelRatio);
+
+    //this.y = this.y + offset;
   };
 
   Rect.prototype.isVisible = function(){

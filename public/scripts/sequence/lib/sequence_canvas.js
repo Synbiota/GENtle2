@@ -404,6 +404,7 @@ define(function(require) {
 
         if (moveOffset !== 0) {
           artist.scroll(-moveOffset);
+          console.log('OLA');
 
           drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
           drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;

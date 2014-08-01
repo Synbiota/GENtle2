@@ -112,7 +112,7 @@ define(function(require) {
     return false;
   };
 
-  Washer.prototype.moveVertically = function(yOffset){
+  Washer.prototype.moveVertically = function(yOffset, pixelRatio){
   //angular displacement
   };
 

@@ -412,15 +412,14 @@ define(function(require) {
                 _this.shapes = _this.model.trackedShapes;
               
 
-   this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-   context.putImageData(imageData, 0, offset * pixelRatio);
+ //this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
+ //  context.putImageData(imageData, 0, offset * pixelRatio);
 _.each(this.shapes,function(shape, index){
   if(!shape.isVisible()){
      _this.shapes.splice(index,1);
   }else 
   if(shape.isVisible()){
-     //for future use
-     //shape.moveVertically(_this.model.get('displaySettings.yOffset'));
+    shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
   }
   });
 
