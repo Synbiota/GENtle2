@@ -37,12 +37,25 @@ define(function(require) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     this.model = Gentle.currentSequence;
+    _this = this;
   
     if(this.model.trackedShapes !== undefined)
-    this.shapes = this.model.trackedShapes;
+     this.shapes = this.model.trackedShapes;
     else
-    this.shapes = [];
+     this.shapes = [];
+    if(this.model.refCanvas === undefined)
+      {
+        this.model.refCanvas = [];
+        this.model.refCanvas.push('#'+canvas.id);
+      }
+    else
+      this.model.refCanvas.push('#'+canvas.id);
 
+    if(this.model.refCanvas !== undefined)
+      if(this.model.refCanvas.length > 0)
+        _.each(this.model.refCanvas, function(canvasInstance,index){
+    $(document).on('mouseover',canvasInstance.parent,function(event){_this.callEventFunc(event);});
+   });
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
     // if(BrowserDetect.browser == 'Firefox') {
@@ -69,6 +82,26 @@ define(function(require) {
     }
 
    this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  };
+
+  /**
+  Execute all the event functions for tracked shapes.
+  @method callEventFunc
+  @param {Object} event
+  **/
+  Artist.prototype.callEventFunc = function(event){
+    var eventName = event.type;
+    var trackedEventStack = [];
+    _.each(this.shapes,function(shape){
+      var eventObj =_.filter(shape.trackedEvents,function(eventList){
+        return eventList.eventType === eventName;
+      });
+      if(eventObj[0]!==undefined)
+       trackedEventStack.push(eventObj[0].eventFunc);
+    });
+  _.each(trackedEventStack,function(trackedFunc){
+     trackedFunc.call(null,event);
+  });
   };
 
   /**
@@ -314,12 +347,32 @@ define(function(require) {
   **/
   Artist.prototype.trackShape =  function(shape, options){
 
-    var args = [options];
-    var storeShape = _.pluck(args,'storeShape')[0];
+    var args = [options], eventFunctions;
+    var eventStack = ['click','dblclick', 'focusout', 
+                      'hover', 'mousedown', 'mouseenter', 
+                      'mouseleave', 'mousemove', 'mouseout', 
+                      'mouseover','mouseup', 'toggle'];
+    this.eventList = eventStack;
+
+    var storeShape = false;
     _this = this;
+    
+    var trackedEvents = _.filter(eventStack,function(evetType){  
+                          return options.hasOwnProperty(evetType);    
+                        });
+
+   if(trackedEvents !== undefined)
+   if(trackedEvents.length > 0)
+   {
+      storeShape = true;
+      shape.trackedEvents = [];
+      _.each(trackedEvents, function(eventType,index){
+        var funcObj = { eventType : eventType, eventFunc : options[eventType]};
+        shape.trackedEvents.push(funcObj);
+      });
+   }
 
     //Updating shapes from different instances of Arstist created by the current sequence.
- 
     if(storeShape && shape !== undefined){
       _this.shapes.push(shape);
     if(_this.model.trackedShapes !== undefined && _this.model.trackedShapes.length > 0)
@@ -327,7 +380,6 @@ define(function(require) {
     else
       _this.model.trackedShapes = _this.shapes;
     }
-
   };
 
 

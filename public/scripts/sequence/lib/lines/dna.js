@@ -66,7 +66,7 @@ define(function(require) {
 
           artist.rect(x, y+3, ls.basePairDims.width, this.height, {
             fillStyle: this.selectionColour,
-            storeShape: true
+            mouseover: function(event) {}
           });
 
           if(this.selectionTextColour) {
@@ -78,7 +78,8 @@ define(function(require) {
           this.setTextColour(character);
         }
 
-        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine),{storeShape: true});
+        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine),
+                    {click: function(event){}});
 
         x += ls.basePairDims.width;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;

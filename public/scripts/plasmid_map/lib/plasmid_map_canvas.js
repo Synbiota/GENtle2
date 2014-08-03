@@ -150,7 +150,7 @@ define(function(require) {
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
           this.rotatedText(_.formatThousands(i*lineNumberIncrement),-textX-(linenumberinglen*5), textY);
         else
-          this.text(_.formatThousands(i*lineNumberIncrement), textX, textY);
+          this.text(_.formatThousands(i*lineNumberIncrement), textX, textY,{click: function(event){}});
         this.rotate(angleIncrement);
         angle += angleIncrement;
       }
@@ -193,7 +193,7 @@ define(function(require) {
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
           artist.rotatedText(names, radii.label+(namelen*6), 2);
         else
-          artist.text(names, -radii.label, 2);        
+          artist.text(names, -radii.label, 2,{click: function(event){}});        
         previousPosition = position;
       });
     });
@@ -224,7 +224,7 @@ define(function(require) {
           font: '9px Monospace',
           textStyle: (colors[type] && colors[type].color) || colors._default.color,
           textAlign: 'center',
-          storeShape: true
+          click: function(event){}
         });
 
         artist.rotate(Math.PI);

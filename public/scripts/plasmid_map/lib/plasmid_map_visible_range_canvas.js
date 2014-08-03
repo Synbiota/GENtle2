@@ -55,7 +55,7 @@ define(function(require) {
 
       artist.washer(0, 0, this.radii.r, this.radii.R, startAngle, endAngle, false, false, false,false, {
         fillStyle: 'rgb(180, 180, 180)',
-        storeShape: true
+        click: function(event){}
       });
 
     }

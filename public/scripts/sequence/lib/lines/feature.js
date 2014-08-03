@@ -148,7 +148,7 @@ define(function(require) {
                     this.lineSize, 
                     {
                       fillStyle: backgroundFillStyle,
-                      storeShape: true
+                      mouseover: function(event) {}
                     });
 
         artist.text(feature.name, 
@@ -161,7 +161,7 @@ define(function(require) {
                       height: this.unitHeight - this.margin,
                       textPadding: this.textPadding,
                       backgroundFillStyle: backgroundFillStyle,
-                      storeShape: true
+                      click: function(event){}
                     });
         
       }

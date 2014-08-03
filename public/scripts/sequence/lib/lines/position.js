@@ -37,7 +37,7 @@ define(function(require) {
       artist.text(text, x, y + (this.baseLine === undefined ? this.height : this.baseLine), {
         fillStyle: this.textColour,
         font: this.textFont,
-        storeShape: true
+        click: function(event){}
       });
       x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
     }
