@@ -327,6 +327,49 @@ define(function(require) {
     }
   };
 
+
+/**
+  @method trackShape
+  @param {Shape} subclass of {{#crossLink "Shape"}}{{/crossLink}}
+  @param {Object} [options]
+  **/
+  Artist.prototype.trackShape =  function(shape, options){
+
+    var args = [options], eventFunctions;
+    var eventStack = ['click','dblclick', 'focusout', 
+                      'hover', 'mousedown', 'mouseenter', 
+                      'mouseleave', 'mousemove', 'mouseout', 
+                      'mouseover','mouseup', 'toggle'];
+    this.eventList = eventStack;
+
+    var storeShape = false;
+    _this = this;
+    
+    var trackedEvents = _.filter(eventStack,function(evetType){  
+                          return options.hasOwnProperty(evetType);    
+                        });
+
+   if(trackedEvents !== undefined)
+   if(trackedEvents.length > 0)
+   {
+      storeShape = true;
+      shape.trackedEvents = [];
+      _.each(trackedEvents, function(eventType,index){
+        var funcObj = { eventType : eventType, eventFunc : options[eventType]};
+        shape.trackedEvents.push(funcObj);
+      });
+   }
+
+    //Updating shapes from different instances of Arstist created by the current sequence.
+    if(storeShape && shape !== undefined){
+      _this.shapes.push(shape);
+    if(_this.model.trackedShapes !== undefined && _this.model.trackedShapes.length > 0)
+      _this.model.trackedShapes.push(shape);
+    else
+      _this.model.trackedShapes = _this.shapes;
+    }
+  };
+
   /**
   @method getPixelRatio
   @returns {float} max of `this.minPixelRatio` and actual pixel ratio (ratio of
@@ -356,14 +399,34 @@ define(function(require) {
   @param {integer} offset
   **/
   Artist.prototype.scroll = function(offset) {
+
+    console.log('scrolling');
+
     var canvas = this.canvas,
         context = this.context,
         pixelRatio = this.getPixelRatio(),
-        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    
-    this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-    context.putImageData(imageData, 0, offset * pixelRatio);
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height),
+        _this = this;
+        this.sequenceCanvas = $('canvas').first();
 
+            if(_this.shapes.length === 0 || _this.shapes !== undefined) 
+              if(_this.model.trackedShapes.length !== undefined)
+                _this.shapes = _this.model.trackedShapes;
+              
+
+ this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
+ context.putImageData(imageData, 0, offset * pixelRatio);
+
+/*
+ _.each(this.shapes,function(shape, index){
+  if(!shape.isVisible()){
+     _this.shapes.splice(index,1);
+  }else 
+  if(shape.isVisible()){
+    shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
+  }
+  });
+*/
   };
 
   Artist.prototype.setLineDash = function(segments) {
