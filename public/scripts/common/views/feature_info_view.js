@@ -19,8 +19,8 @@ define(function(require) {
   FeatureInfo.prototype.createElement= function(){
       var _this = this;
       _.each(this.featureInfo,function(info, index){
-        if(info.length >  12)
-          _this.featureInfo[index] = info.substring(0,11);
+        if(info.length >  9)
+          _this.featureInfo[index] = info.substring(0,8);
       });    
 
       this.$container = $('div.sequence-canvas-container');
