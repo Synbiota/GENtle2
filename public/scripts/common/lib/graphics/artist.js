@@ -378,6 +378,8 @@ define(function(require) {
   **/
   Artist.prototype.trackShape =  function(shape, options){
 
+    console.log(shape);
+
     var args = [options], eventFunctions;
     var eventStack = ['click','dblclick', 'focusout', 
                       'hover', 'mousedown', 'mouseenter', 
@@ -411,6 +413,8 @@ define(function(require) {
     else
       _this.model.trackedShapes = _this.shapes;
     }
+
+    console.log('coming from trackShape :'+this.shapes.length);
   };
 
   /**
@@ -452,12 +456,14 @@ define(function(require) {
     */
 
  console.log('comming from scroll');
-
+ console.log(this.shapes.length);
  _.each(this.shapes,function(shape, index){
+ console.log('Shape isVisible :'+shap.isVisible());
   if(!shape.isVisible()){
      _this.shapes.splice(index,1);
-  }else 
+  } 
   if(shape.isVisible()){
+    console.log('shape is shape isVisible');
     shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
   }
   });

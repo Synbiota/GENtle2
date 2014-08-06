@@ -78,7 +78,7 @@ define(function(require) {
           this.setTextColour(character);
         }
 
-        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine),{mousemove: function(event){console.log('coming from text in dna.js');}});
 
         x += ls.basePairDims.width;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;

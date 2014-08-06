@@ -33,6 +33,8 @@ define(function(require) {
     artist.context.clearRect(this.x,this.y+offset,this.width, this.height);
     artist.putImageData(imageData, this.x, (this.y+offset)*pixelRatio);
 
+    console.log('coming from rect.jssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss :'+yOffset);
+
     //this.y = this.y + offset;
   };
 
