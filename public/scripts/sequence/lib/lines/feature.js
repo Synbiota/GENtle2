@@ -147,7 +147,10 @@ define(function(require) {
                     deltaX, 
                     this.lineSize, 
                     {
-                      fillStyle: backgroundFillStyle
+                      fillStyle: backgroundFillStyle,
+                      mousemove: function(event){
+                        console.log('coming from feature.js');
+                      }
                     });
 
         artist.text(feature.name, 

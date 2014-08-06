@@ -12,6 +12,7 @@ Includes Shape system for handling mouse events.
 define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
+      Gentle = require('gentle')(),
       Washer = require('./washer'),
       RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
@@ -35,7 +36,26 @@ define(function(require) {
     canvas = canvas instanceof $ ? canvas[0] : canvas;
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
-    this.shapes = [];
+     this.model = Gentle.currentSequence;
+    _this = this;
+  
+    if(this.model.trackedShapes !== undefined)
+     this.shapes = this.model.trackedShapes;
+    else
+     this.shapes = [];
+    if(this.model.refCanvas === undefined)
+      {
+        this.model.refCanvas = [];
+        this.model.refCanvas.push('#'+canvas.id);
+      }
+    else
+      this.model.refCanvas.push('#'+canvas.id);
+
+    if(this.model.refCanvas !== undefined)
+      if(this.model.refCanvas.length > 0)
+        _.each(this.model.refCanvas, function(canvasInstance,index){
+    $(document).on('mouseover',canvasInstance.parent,function(event){_this.callEventFunc(event);});
+   });
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
     // if(BrowserDetect.browser == 'Firefox') {
@@ -62,6 +82,27 @@ define(function(require) {
     }
 
    this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+  };
+
+  /**
+  Execute all the event functions for tracked shapes.
+  @method callEventFunc
+  @param {Object} event
+  **/
+  Artist.prototype.callEventFunc = function(event){
+    console.log('coming from callEventFunc');
+    var eventName = event.type;
+    var trackedEventStack = [];
+    _.each(this.shapes,function(shape){
+      var eventObj =_.filter(shape.trackedEvents,function(eventList){
+        return eventList.eventType === eventName;
+      });
+      if(eventObj[0]!==undefined)
+       trackedEventStack.push(eventObj[0].eventFunc);
+    });
+  _.each(trackedEventStack,function(trackedFunc){
+     trackedFunc.call(null,event);
+  });
   };
 
   /**
@@ -399,24 +440,13 @@ define(function(require) {
   @param {integer} offset
   **/
   Artist.prototype.scroll = function(offset) {
-
-    console.log('scrolling');
-
     var canvas = this.canvas,
         context = this.context,
         pixelRatio = this.getPixelRatio(),
-        imageData = context.getImageData(0, 0, canvas.width, canvas.height),
-        _this = this;
-        this.sequenceCanvas = $('canvas').first();
-
-            if(_this.shapes.length === 0 || _this.shapes !== undefined) 
-              if(_this.model.trackedShapes.length !== undefined)
-                _this.shapes = _this.model.trackedShapes;
-              
-
- this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
- context.putImageData(imageData, 0, offset * pixelRatio);
-
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    
+    this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
+    context.putImageData(imageData, 0, offset * pixelRatio);
 /*
  _.each(this.shapes,function(shape, index){
   if(!shape.isVisible()){

@@ -65,7 +65,8 @@ define(function(require) {
             k+baseRange[0] >= selection[0]) {
 
           artist.rect(x, y+3, ls.basePairDims.width, this.height, {
-            fillStyle: this.selectionColour
+            fillStyle: this.selectionColour,
+            mousemove: function(event){ console.log('comming from dna.js'); }
           });
 
           if(this.selectionTextColour) {
