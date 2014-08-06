@@ -116,8 +116,11 @@ define(function(require) {
       event.preventDefault();
       if(featureInfo!==undefined){
         if(this.previousInfo !== undefined)
-          if(this.previousInfo.Id === featureInfo.Id)
-            prevInstance = true;
+            prevInstance = _.every(this.previousInfo,function(Info,index){
+                          return Info === featureInfo[index];
+            });
+
+          console.log(prevInstance);
               
         if(prevInstance === false){
          if(this.previousDiv!==undefined)
@@ -144,7 +147,7 @@ define(function(require) {
   },
 
   /**
-  Draws the featuresf or a given range
+  Draws the features for a given range
   @method draw
   @param {integer} y Start y position
   @param {array} baseRange 
@@ -197,7 +200,8 @@ define(function(require) {
                               to:   feature.ranges[0].to+1,
                               Type: feature._type,
                               Description: feature.desc,
-                              Id:   feature._id
+                              Id:   feature._id,
+                              fillStyle: backgroundFillStyle
                        }
                        }
                       });
