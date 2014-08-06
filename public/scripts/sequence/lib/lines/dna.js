@@ -66,7 +66,7 @@ define(function(require) {
 
           artist.rect(x, y+3, ls.basePairDims.width, this.height, {
             fillStyle: this.selectionColour,
-            mouseover: function(event) {}
+            mouseover: function(event) { }
           });
 
           if(this.selectionTextColour) {

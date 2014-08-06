@@ -54,8 +54,8 @@ define(function(require) {
     if(this.model.refCanvas !== undefined)
       if(this.model.refCanvas.length > 0)
         _.each(this.model.refCanvas, function(canvasInstance,index){
-    $(document).on('mouseover',canvasInstance.parent,function(event){_this.callEventFunc(event);});
-   });
+            $(document).on('mousemove',canvasInstance.parent,function(event){_this.callEventFunc(event);});
+        });
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
     // if(BrowserDetect.browser == 'Firefox') {
@@ -92,15 +92,17 @@ define(function(require) {
   Artist.prototype.callEventFunc = function(event){
     var eventName = event.type;
     var trackedEventStack = [];
+    var posY = event.pageY, posX = event.pageX;
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
         return eventList.eventType === eventName;
       });
       if(eventObj[0]!==undefined)
-       trackedEventStack.push(eventObj[0].eventFunc);
-    });
-  _.each(trackedEventStack,function(trackedFunc){
-     trackedFunc.call(null,event);
+        if(shape.includesPoint(posX,posY))
+          trackedEventStack.push(eventObj[0].eventFunc);
+          });
+  _.each(trackedEventStack,function(trackedEvent){
+     trackedEvent.eventFunc.call(null,event,trackedEvent.featureInfo);
   });
   };
 
@@ -338,14 +340,36 @@ define(function(require) {
     
     return textShape;
   };
+ 
+ /**
+  @method hideDiv
+  @param {Object} funcObj
+  **/
+ Artist.prototype.hideDiv = function(funcObj){
+  var evalObj = funcObj, id, 
+  refObj = $('div.feature-info');
+  id = refObj.attr('id');
 
+  if(id!==undefined)
+    {
+      if(evalObj.eventFunc.featureInfo!==undefined)
+        {
+          if(evalObj.eventFunc.featureInfo.Id === id)
+            this.featureVisible = true;
+        }
+    }
+  if(this.featureVisible !== true)
+  {
+    refObj.hide();
+  }
+ };
 
 /**
   @method trackShape
   @param {Shape} subclass of {{#crossLink "Shape"}}{{/crossLink}}
   @param {Object} [options]
   **/
-  Artist.prototype.trackShape =  function(shape, options){
+  Artist.prototype.trackShape = function(shape, options){
 
     var args = [options], eventFunctions;
     var eventStack = ['click','dblclick', 'focusout', 
@@ -356,11 +380,10 @@ define(function(require) {
 
     var storeShape = false;
     _this = this;
-    
-    var trackedEvents = _.filter(eventStack,function(evetType){  
-                          return options.hasOwnProperty(evetType);    
+    //Tracking shapes with mouse event callbacks.
+    var trackedEvents = _.filter(eventStack,function(eventType){  
+                          return options.hasOwnProperty(eventType);    
                         });
-
    if(trackedEvents !== undefined)
    if(trackedEvents.length > 0)
    {
@@ -369,6 +392,7 @@ define(function(require) {
       _.each(trackedEvents, function(eventType,index){
         var funcObj = { eventType : eventType, eventFunc : options[eventType]};
         shape.trackedEvents.push(funcObj);
+        _this.hideDiv(funcObj);
       });
    }
 

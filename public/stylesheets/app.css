@@ -8722,6 +8722,24 @@ button.close {
   border-bottom-right-radius: 0;
 }
 
+/* line 1, components/_feature_info.scss */
+.feature-info {
+  position: fixed;
+  z-index: 5000;
+  background-color: #000;
+  border-radius: 3px;
+  -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+}
+/* line 7, components/_feature_info.scss */
+.feature-info .feature-details {
+  color: #fff;
+}
+/* line 10, components/_feature_info.scss */
+.feature-info .text-overflow {
+  text-overflow: elipses;
+}
+
 /* line 2, components/_intro_loader.scss */
 #intro-loader {
   height: 80px;
