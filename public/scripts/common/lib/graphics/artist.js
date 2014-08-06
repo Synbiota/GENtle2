@@ -54,7 +54,7 @@ define(function(require) {
     if(this.model.refCanvas !== undefined)
       if(this.model.refCanvas.length > 0)
         _.each(this.model.refCanvas, function(canvasInstance,index){
-    $(document).on('mouseover',canvasInstance.parent,function(event){_this.callEventFunc(event);});
+    $(document).on('mousemove',canvasInstance.parent,function(event){_this.callEventFunc(event);});
    });
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
@@ -90,15 +90,16 @@ define(function(require) {
   @param {Object} event
   **/
   Artist.prototype.callEventFunc = function(event){
-    console.log('coming from callEventFunc');
     var eventName = event.type;
     var trackedEventStack = [];
+    var posX = event.clientX, posY = event.clientY;
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
         return eventList.eventType === eventName;
       });
       if(eventObj[0]!==undefined)
-       trackedEventStack.push(eventObj[0].eventFunc);
+        if(shape.includesPoint(posX,posY))
+           trackedEventStack.push(eventObj[0].eventFunc);
     });
   _.each(trackedEventStack,function(trackedFunc){
      trackedFunc.call(null,event);
@@ -236,6 +237,7 @@ define(function(require) {
         rect = new Rect(this, x, y, width, height);
 
     // this.shapes.push(rect);
+    this.trackShape(rect,options);
     rect.draw(options);
     return rect;
   };
@@ -444,10 +446,13 @@ define(function(require) {
         context = this.context,
         pixelRatio = this.getPixelRatio(),
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    
+    /*
     this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
     context.putImageData(imageData, 0, offset * pixelRatio);
-/*
+    */
+
+ console.log('comming from scroll');
+
  _.each(this.shapes,function(shape, index){
   if(!shape.isVisible()){
      _this.shapes.splice(index,1);
@@ -456,7 +461,7 @@ define(function(require) {
     shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
   }
   });
-*/
+
   };
 
   Artist.prototype.setLineDash = function(segments) {
