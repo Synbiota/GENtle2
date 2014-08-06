@@ -4,6 +4,7 @@
 **/
 define(function(require) {
   var Shape = require('./shape'),
+      Gentle = require('gentle')(),
       Text;
 
   Text = function() {
@@ -14,6 +15,7 @@ define(function(require) {
     this.text = args.shift();
     this.x = args.shift();
     this.y = args.shift();
+    this.model = Gentle.currentSequence;
 
     styleOptions = args.shift() || {};
     styleOptions.lineHeight = styleOptions.lineHeight || 0;
@@ -57,6 +59,49 @@ define(function(require) {
 
   Text.prototype.reverseText = function(text){
     return text.split("").reverse().join("");
+  };
+
+   Text.prototype.moveVertically = function(yOffset, pixelRatio){
+
+    console.log('coming from text.js :'+yOffset);
+
+     var artist = this.artist,
+        context = artist.context,
+        styleOptions = this.styleOptions,               
+        textHeight, imageData, offset = yOffset, styleOptions = this.styleOptions;
+
+    imageData = artist.context.getImageData(this.x,this.y,this.textWidth, this.styleOptions.lineHeight);
+    artist.context.clearRect(this.x,this.y,this.textWidth, this.styleOptions.lineHeight);
+
+    artist.context.clearRect(this.x,this.y + offset,this.textWidth, this.styleOptions.lineHeight);
+    artist.putImageData(imageData, this.x, (this.y + offset)*pixelRatio);
+
+    //this.y = this.y + offset;
+  };
+
+  Text.prototype.isVisible = function(){
+
+    var  artist = this.artist,
+         context = artist.context,
+         yOffset = this.model.get('displaySettings').yOffset,
+         $scrollingParent = $('div.scrolling-parent').first(),
+         visibleCanvas = $scrollingParent.height();
+
+        if((0<=(this.y+this.styleOptions.lineHeight)<=(visibleCanvas))){
+          return true;
+        }
+
+        return false;
+  };
+
+  Text.prototype.includesPoint = function(x,y){
+
+  if((this.x<=x<=(this.x+this.textWidth)) || ((this.x+this.textWidth)<=x<=this.x)){
+      if((this.y<=y<=(this.y+this.styleOptions.lineHeight)) || ((this.y+this.styleOptions.lineHeight)<=y<=this.y))
+        return true;
+  }
+  else
+    return false;
   };
 
   return Text;

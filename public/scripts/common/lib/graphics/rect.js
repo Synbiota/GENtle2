@@ -39,6 +39,8 @@ define(function(require) {
   };
 
   Rect.prototype.isVisible = function(){
+            console.log('isVisible from rect');
+
     var artist = this.artist,
         context = artist.context,
         yOffset = this.model.get('displaySettings.yOffset'),

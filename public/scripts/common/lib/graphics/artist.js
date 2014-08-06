@@ -323,6 +323,7 @@ define(function(require) {
         textShape = new Text(this, text, x, y, options);
 
     // this.shapes.push(textShape);
+    this.trackShape(textShape,options);
     textShape.draw();
     
     return textShape;
@@ -377,9 +378,6 @@ define(function(require) {
   @param {Object} [options]
   **/
   Artist.prototype.trackShape =  function(shape, options){
-
-    console.log(shape);
-
     var args = [options], eventFunctions;
     var eventStack = ['click','dblclick', 'focusout', 
                       'hover', 'mousedown', 'mouseenter', 
@@ -413,8 +411,6 @@ define(function(require) {
     else
       _this.model.trackedShapes = _this.shapes;
     }
-
-    console.log('coming from trackShape :'+this.shapes.length);
   };
 
   /**
@@ -454,16 +450,15 @@ define(function(require) {
     this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
     context.putImageData(imageData, 0, offset * pixelRatio);
     */
-
- console.log('comming from scroll');
- console.log(this.shapes.length);
+    //Updating shapes from different instances of Artist
+  if(this.shapes.length < this.model.trackedShapes.length)
+      this.shapes = this.model.trackedShapes;
+ 
  _.each(this.shapes,function(shape, index){
- console.log('Shape isVisible :'+shap.isVisible());
   if(!shape.isVisible()){
      _this.shapes.splice(index,1);
   } 
   if(shape.isVisible()){
-    console.log('shape is shape isVisible');
     shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
   }
   });
