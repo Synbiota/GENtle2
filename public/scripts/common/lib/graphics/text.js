@@ -85,6 +85,9 @@ define(function(require) {
          $scrollingParent = $('div.scrolling-parent').first(),
          visibleCanvas = $scrollingParent.height();
 
+        if((0<=(this.y)<=(visibleCanvas))){
+          return true;
+        }
         if((0<=(this.y+this.styleOptions.lineHeight)<=(visibleCanvas))){
           return true;
         }

@@ -5,6 +5,7 @@
 **/
 define(function(require) {
   var Shape = require('./shape'),
+      Gentle = require('gentle')(),
       Rect;
 
   Rect = function(artist, x, y, width, height) {
@@ -13,6 +14,7 @@ define(function(require) {
     this.width = width;
     this.height = height;
     this.artist = artist;
+    this.model = Gentle.currentSequence;
   };
 
   _.extend(Rect.prototype, Shape.prototype);
@@ -40,31 +42,37 @@ define(function(require) {
     
     var artist = this.artist,
         context = artist.context,
-        yOffset = this.model.get('displaySettings.yOffset'),
-        $scrollingParent = $('scrolling-parent').first();
+        yOffset = this.model.get('displaySettings').yOffset,
+        $scrollingParent = $('div.scrolling-parent').first();
         visibleCanvas = $scrollingParent.height();
-       
-        if(this.yOffset === undefined)
-          this.yOffset = yOffset;
 
-        if((yOffset<=(this.y+this.height)<=(visibleCanvas+yOffset)) && (yOffset>this.yOffset)){
-          this.yOffset = yOffset;
+        if((0<=(this.y+this.height)<=(visibleCanvas))){
           return true;
         }
-        else if((yOffset<=(this.y)<=(visibleCanvas+yOffset)) && (yOffset<this.yOffset)){
-          this.yOffset = yOffset;
+        else if((0<=(this.y)<=(visibleCanvas))){
           return true;
         }
           
-        this.yOffset = yOffset;
         return false;
   };
 
   Rect.prototype.includesPoint = function(x,y){
 
-  if((this.x<=x<=(this.x+this.width)) || ((this.x+this.width)<=x<=this.x)){
-      if((this.y<=y<=(this.y+this.height)) || ((this.y+this.height)<=y<=this.y))
+  var yOffset = this.model.get('displaySettings').yOffset;
+
+  if(this.x<=x && x<=(this.x+(this.width)))
+  {
+      if((this.y<=(y-16)))
+      {
+        this.artist.context.fillStyle = "#000";
+        this.artist.context.fillRect(this.x,this.y,this.width,this.y-16);
+
+        console.log('x: '+this.x+'  '+x+' '+(this.width+this.x));
+        console.log('y: '+ this.y+'  '+y+' '+(-10+this.y));
+        console.log(this.y<=y<=(this.y+this.height)) || ((this.y+this.height)<=y<=this.y);
+       
         return true;
+      }
   }
   else
     return false;

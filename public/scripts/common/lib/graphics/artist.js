@@ -463,6 +463,7 @@ define(function(require) {
       _.each(trackedEvents, function(eventType,index){
         var funcObj = { eventType : eventType, eventFunc : options[eventType]};
         shape.trackedEvents.push(funcObj);
+        _this.hideDiv(funcObj);
       });
    }
 
