@@ -33,14 +33,11 @@ define(function(require) {
     artist.context.clearRect(this.x,this.y+offset,this.width, this.height);
     artist.putImageData(imageData, this.x, (this.y+offset)*pixelRatio);
 
-    console.log('coming from rect.jssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss :'+yOffset);
-
     //this.y = this.y + offset;
   };
 
   Rect.prototype.isVisible = function(){
-            console.log('isVisible from rect');
-
+    
     var artist = this.artist,
         context = artist.context,
         yOffset = this.model.get('displaySettings.yOffset'),

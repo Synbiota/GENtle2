@@ -18,6 +18,7 @@ Options are:
 define(function(require) {
   var Line = require('sequence/lib/lines/line'),
       _    = require('underscore.mixed'),
+      FeatureInfo = require('common/views/feature_info_view'),
       Feature;
 
   Feature = function(sequenceCanvas, options) {
@@ -78,6 +79,45 @@ define(function(require) {
     });
 
   };
+
+   /**
+  Instantiates the feature_info view to display feature details.
+  @method featureInfo
+  **/
+  Feature.prototype.featureInfo = function(event,featureInfo) {
+      var prevInstance = false;
+      event.preventDefault();
+      if(featureInfo!==undefined){
+        if(this.previousInfo !== undefined)
+            prevInstance = _.every(this.previousInfo,function(Info,index){
+                          return Info === featureInfo[index];
+            });
+
+          console.log(prevInstance);
+              
+        if(prevInstance === false){
+         if(this.previousDiv!==undefined)
+         this.previousDiv.remove();
+         this.infoDiv = new FeatureInfo(event,featureInfo);
+         this.previousInfo = featureInfo;
+        }
+        else 
+          if(prevInstance === true)
+          {
+            if(event.target.className==='scrolling-child')
+            {
+              this.infoDiv.remove();
+              this.infoDiv.move(event.clientX,event.clientY);
+              this.previousDiv = this.infoDiv;
+            }
+            else
+            {
+              this.infoDiv.remove();
+            }
+          }
+        this.previousInfo = featureInfo;
+      }
+  },
 
   /**
   Returns the max number of ranges to be found in one row for the entire sequence
@@ -148,9 +188,22 @@ define(function(require) {
                     this.lineSize, 
                     {
                       fillStyle: backgroundFillStyle,
-                      mousemove: function(event){
-                        console.log('coming from feature.js');
-                      }
+                      mousemove:{
+                      eventFunc: function(event, featureInfo) {  
+                           event.preventDefault();
+                          _this.featureInfo(event, featureInfo);
+                       },
+                       featureInfo: 
+                       {
+                              Name: feature.name,
+                              from: feature.ranges[0].from+1,
+                              to:   feature.ranges[0].to+1,
+                              Type: feature._type,
+                              Description: feature.desc,
+                              Id:   feature._id,
+                              fillStyle: backgroundFillStyle
+                       }
+                       }
                     });
 
         artist.text(feature.name, 

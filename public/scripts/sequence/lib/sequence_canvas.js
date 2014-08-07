@@ -402,12 +402,9 @@ define(function(require) {
           -lh.previousYOffset + yOffset :
           0;
 
-          console.log(moveOffset);
-
         if (moveOffset !== 0) {
           artist.scroll(-moveOffset);
-          console.log('coming from sequence Canvas');
-
+          
           drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
           drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 

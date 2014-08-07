@@ -446,11 +446,14 @@ define(function(require) {
         context = this.context,
         pixelRatio = this.getPixelRatio(),
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-    /*
+
+
     this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
     context.putImageData(imageData, 0, offset * pixelRatio);
-    */
+  
     //Updating shapes from different instances of Artist
+
+  /*
   if(this.shapes.length < this.model.trackedShapes.length)
       this.shapes = this.model.trackedShapes;
  
@@ -462,7 +465,7 @@ define(function(require) {
     shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
   }
   });
-
+  */
   };
 
   Artist.prototype.setLineDash = function(segments) {

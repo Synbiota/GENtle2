@@ -62,9 +62,7 @@ define(function(require) {
   };
 
    Text.prototype.moveVertically = function(yOffset, pixelRatio){
-
-    console.log('coming from text.js :'+yOffset);
-
+    
      var artist = this.artist,
         context = artist.context,
         styleOptions = this.styleOptions,               

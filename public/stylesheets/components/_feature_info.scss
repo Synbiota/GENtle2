@@ -1,0 +1,13 @@
+.feature-info {
+  position: fixed; 
+  z-index: 5000;
+  background-color: #000;
+  border-radius: 3px;
+  @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
+  .feature-details{
+   color: #fff;
+  }
+  .text-overflow{
+   text-overflow: elipses;
+  }
+}
