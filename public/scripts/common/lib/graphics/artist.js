@@ -13,6 +13,7 @@ define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
       Gentle = require('gentle')(),
+      FeatureInfo = require('common/views/feature_info_view'),
       Washer = require('./washer'),
       RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
@@ -89,21 +90,59 @@ define(function(require) {
   @method callEventFunc
   @param {Object} event
   **/
-  Artist.prototype.callEventFunc = function(event){
+ Artist.prototype.callEventFunc = function(event){
     var eventName = event.type;
     var trackedEventStack = [];
-    var posX = event.clientX, posY = event.clientY;
+    var posY = event.pageY, posX = event.pageX;
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
         return eventList.eventType === eventName;
       });
       if(eventObj[0]!==undefined)
         if(shape.includesPoint(posX,posY))
-           trackedEventStack.push(eventObj[0].eventFunc);
-    });
-  _.each(trackedEventStack,function(trackedFunc){
-     trackedFunc.call(null,event);
+          trackedEventStack.push(eventObj[0].eventFunc);
+          });
+  _.each(trackedEventStack,function(trackedEvent){
+     if(trackedEvent.eventFunc!==undefined)
+     trackedEvent.eventFunc.call(null,event,trackedEvent.featureInfo);
   });
+  };
+
+  /**
+  Instantiates the feature_info view to display feature details.
+  @method featureInfo
+  **/
+  Artist.prototype.featureInfo = function(event,featureInfo) {
+      var prevInstance = false;
+      event.preventDefault();
+      if(featureInfo!==undefined){
+        if(this.previousInfo !== undefined)
+            prevInstance = _.every(this.previousInfo,function(Info,index){
+                          return Info === featureInfo[index];
+            });
+              
+        if(prevInstance === false){
+         if(this.previousDiv!==undefined)
+         this.previousDiv.remove();
+         this.infoDiv = new FeatureInfo(event,featureInfo);
+         this.previousInfo = featureInfo;
+        }
+        else 
+          if(prevInstance === true)
+          {
+            if(event.target.className==='scrolling-child')
+            {
+              this.infoDiv.remove();
+              this.infoDiv.move(event.clientX,event.clientY);
+              this.previousDiv = this.infoDiv;
+            }
+            else
+            {
+              this.infoDiv.remove();
+            }
+          }
+        this.previousInfo = featureInfo;
+      }
   };
 
   /**
