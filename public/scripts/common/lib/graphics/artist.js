@@ -93,15 +93,22 @@ define(function(require) {
  Artist.prototype.callEventFunc = function(event){
     var eventName = event.type;
     var trackedEventStack = [];
-    var posY = event.pageY, posX = event.pageX;
+    var posY = event.pageY, posX = event.pageX,
+    _this = this;
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
         return eventList.eventType === eventName;
       });
-      if(eventObj[0]!==undefined)
+      if(eventObj[0]!==undefined){
         if(shape.includesPoint(posX,posY))
+        {
           trackedEventStack.push(eventObj[0].eventFunc);
+        }
+        else{
+          _this.hideDiv(eventObj[0],false);
+          }}
           });
+      
   _.each(trackedEventStack,function(trackedEvent){
      if(trackedEvent.eventFunc!==undefined)
      trackedEvent.eventFunc.call(null,event,trackedEvent.featureInfo);
@@ -394,12 +401,12 @@ define(function(require) {
   @method hideDiv
   @param {Object} funcObj
   **/
- Artist.prototype.hideDiv = function(funcObj){
+ Artist.prototype.hideDiv = function(funcObj,conditionCheck){
   var evalObj = funcObj, id, 
   refObj = $('div.feature-info');
   id = refObj.attr('id');
-
-  if(id!==undefined)
+  if(conditionCheck){
+   if(id!==undefined)
     {
       if(evalObj.eventFunc.featureInfo!==undefined)
         {
@@ -407,10 +414,14 @@ define(function(require) {
             this.featureVisible = true;
         }
     }
-  if(this.featureVisible !== true)
-  {
-    refObj.hide();
-  }
+   if(this.featureVisible !== true)
+    {
+     refObj.hide();
+    }
+   }
+  else{
+     refObj.hide();
+   }
  };
 
 
@@ -463,7 +474,7 @@ define(function(require) {
       _.each(trackedEvents, function(eventType,index){
         var funcObj = { eventType : eventType, eventFunc : options[eventType]};
         shape.trackedEvents.push(funcObj);
-        _this.hideDiv(funcObj);
+        _this.hideDiv(funcObj,true);
       });
    }
 

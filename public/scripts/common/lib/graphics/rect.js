@@ -62,15 +62,8 @@ define(function(require) {
 
   if(this.x<=x && x<=(this.x+(this.width)))
   {
-      if((this.y<=(y-16)))
+      if((this.y<=(y-10)))
       {
-        this.artist.context.fillStyle = "#000";
-        this.artist.context.fillRect(this.x,this.y,this.width,this.y-16);
-
-        console.log('x: '+this.x+'  '+x+' '+(this.width+this.x));
-        console.log('y: '+ this.y+'  '+y+' '+(-10+this.y));
-        console.log(this.y<=y<=(this.y+this.height)) || ((this.y+this.height)<=y<=this.y);
-       
         return true;
       }
   }
