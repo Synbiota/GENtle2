@@ -390,6 +390,30 @@ define(function(require) {
     return textShape;
   };
 
+   /**
+  @method hideDiv
+  @param {Object} funcObj
+  **/
+ Artist.prototype.hideDiv = function(funcObj){
+  var evalObj = funcObj, id, 
+  refObj = $('div.feature-info');
+  id = refObj.attr('id');
+
+  if(id!==undefined)
+    {
+      if(evalObj.eventFunc.featureInfo!==undefined)
+        {
+          if(evalObj.eventFunc.featureInfo.Id === id)
+            this.featureVisible = true;
+        }
+    }
+  if(this.featureVisible !== true)
+  {
+    refObj.hide();
+  }
+ };
+
+
   /**
   @method updateStyle
   @params {Object} options
