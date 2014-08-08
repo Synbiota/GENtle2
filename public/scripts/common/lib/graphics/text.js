@@ -64,7 +64,9 @@ define(function(require) {
    Text.prototype.moveVertically = function(yOffset){
       var offset = yOffset;
       if(offset !== undefined)
-      this.y = this.y+ yOffset;
+      {
+      this.yRef = this.y+ yOffset;
+      }
   };
 
   Text.prototype.isVisible = function(){

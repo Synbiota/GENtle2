@@ -12,7 +12,6 @@ Includes Shape system for handling mouse events.
 define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
-      Gentle = require('gentle')(),
       Washer = require('./washer'),
       RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
@@ -36,26 +35,8 @@ define(function(require) {
     canvas = canvas instanceof $ ? canvas[0] : canvas;
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
-     this.model = Gentle.currentSequence;
     _this = this;
-  
-    if(this.model.trackedShapes !== undefined)
-     this.shapes = this.model.trackedShapes;
-    else
-     this.shapes = [];
-    if(this.model.refCanvas === undefined)
-      {
-        this.model.refCanvas = [];
-        this.model.refCanvas.push('#'+canvas.id);
-      }
-    else
-      this.model.refCanvas.push('#'+canvas.id);
-
-    if(this.model.refCanvas !== undefined)
-      if(this.model.refCanvas.length > 0)
-        _.each(this.model.refCanvas, function(canvasInstance,index){
-          $(document).on('mousemove',canvasInstance.parent,function(event){_this.callEventFunc(event);});
-        });
+    $(document).on('mousemove',$('#'+canvas.id).parent,function(event){_this.callEventFunc(event);});
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
     // if(BrowserDetect.browser == 'Firefox') {
@@ -94,10 +75,6 @@ define(function(require) {
     var trackedEventStack = [];
     var posY = event.pageY, posX = event.pageX,
     _this = this;
-
-   if(this.shapes.length < this.model.trackedShapes.length)
-      this.shapes = this.model.trackedShapes;
- 
 
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
@@ -271,7 +248,7 @@ define(function(require) {
 
     return gcatRatios;
 
-   }
+   };
 
    Artist.prototype.radialLineGraph = function(centreX, centreY, radius, offset, lineData, options){
 
@@ -338,7 +315,7 @@ define(function(require) {
         textShape = new Text(this, text, x, y, options);
 
     // this.shapes.push(textShape);
-    // this.trackShape(textShape,options);
+    this.trackShape(textShape,options);
     textShape.draw();
     
     return textShape;
@@ -446,15 +423,8 @@ define(function(require) {
         _this.hideDiv(funcObj,true);
       });
    }
-
-    //Updating shapes from different instances of Arstist created by the current sequence.
-    if(storeShape && shape !== undefined){
+    if(storeShape && shape !== undefined)
       _this.shapes.push(shape);
-    if(_this.model.trackedShapes !== undefined && _this.model.trackedShapes.length > 0)
-      _this.model.trackedShapes.push(shape);
-    else
-      _this.model.trackedShapes = _this.shapes;
-    }
   };
 
   /**

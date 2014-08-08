@@ -29,7 +29,9 @@ define(function(require) {
    Rect.prototype.moveVertically = function(yOffset){
         var offset = yOffset;
         if(offset !== undefined)
-        this.y = this.y + offset;
+        {
+          this.yRef = this.y + offset;
+        }
   };
 
   Rect.prototype.isVisible = function(){
@@ -56,6 +58,7 @@ define(function(require) {
   {
       if(this.y<=posY && posY<=(this.y+10))
       {
+        console.log(this.y+"  "+posY);
         return true;
       }
   }

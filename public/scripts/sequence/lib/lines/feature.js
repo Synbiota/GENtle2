@@ -200,7 +200,6 @@ define(function(require) {
                        }
                        }
                     });
-        console.log('creating rects :'+i+'  '+j);
 
         artist.text(feature.name, 
                     startX, 
