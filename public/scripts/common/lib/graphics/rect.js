@@ -26,14 +26,16 @@ define(function(require) {
     artist.context.fillRect(this.x, this.y, this.width, this.height);
   };
 
-   Rect.prototype.moveVertically = function(yOffset, pixelRatio){
-    var artist = this.artist;
+   Rect.prototype.moveVertically = function(yOffset){
+        var offset = yOffset;
+        if(offset !== undefined)
         this.y = this.y + offset;
   };
 
   Rect.prototype.isVisible = function(){
     
-    var artist = this.artist;
+  var artist = this.artist,
+      visibleCanvas = artist.canvas.height;
 
         if((0<=(this.y+this.height)<=(visibleCanvas))){
           return true;
@@ -47,11 +49,12 @@ define(function(require) {
 
   Rect.prototype.includesPoint = function(x,y){
 
-  var yOffset = this.model.get('displaySettings').yOffset;
+  var posX = x, posY = y;
 
-  if(x<=(this.x+this.width))
+  if(posX !== undefined && posY !== undefined)
+  if(posX<=(this.x+this.width))
   {
-      if(this.y<=y && y<=(this.y+10))
+      if(this.y<=posY && posY<=(this.y+10))
       {
         return true;
       }

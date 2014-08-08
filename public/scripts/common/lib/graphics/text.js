@@ -61,18 +61,16 @@ define(function(require) {
     return text.split("").reverse().join("");
   };
 
-   Text.prototype.moveVertically = function(yOffset, pixelRatio){
+   Text.prototype.moveVertically = function(yOffset){
+      var offset = yOffset;
+      if(offset !== undefined)
       this.y = this.y+ yOffset;
-    //this.y = this.y + offset;
   };
 
   Text.prototype.isVisible = function(){
 
     var  artist = this.artist,
-         context = artist.context,
-         yOffset = this.model.get('displaySettings').yOffset,
-         $scrollingParent = $('div.scrolling-parent').first(),
-         visibleCanvas = $scrollingParent.height();
+         visibleCanvas = artist.canvas.height;
 
         if((0<=(this.y)<=(visibleCanvas))){
           return true;
