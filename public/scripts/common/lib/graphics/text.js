@@ -62,18 +62,7 @@ define(function(require) {
   };
 
    Text.prototype.moveVertically = function(yOffset, pixelRatio){
-    
-     var artist = this.artist,
-        context = artist.context,
-        styleOptions = this.styleOptions,               
-        textHeight, imageData, offset = yOffset, styleOptions = this.styleOptions;
-
-    imageData = artist.context.getImageData(this.x,this.y,this.textWidth, this.styleOptions.lineHeight);
-    artist.context.clearRect(this.x,this.y,this.textWidth, this.styleOptions.lineHeight);
-
-    artist.context.clearRect(this.x,this.y + offset,this.textWidth, this.styleOptions.lineHeight);
-    artist.putImageData(imageData, this.x, (this.y + offset)*pixelRatio);
-
+      this.y = this.y+ yOffset;
     //this.y = this.y + offset;
   };
 

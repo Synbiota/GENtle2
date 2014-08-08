@@ -13,7 +13,6 @@ define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
       Gentle = require('gentle')(),
-      FeatureInfo = require('common/views/feature_info_view'),
       Washer = require('./washer'),
       RadialLineGraph = require('./radial_line_graph'),
       Text = require('./text'),
@@ -55,8 +54,8 @@ define(function(require) {
     if(this.model.refCanvas !== undefined)
       if(this.model.refCanvas.length > 0)
         _.each(this.model.refCanvas, function(canvasInstance,index){
-    $(document).on('mousemove',canvasInstance.parent,function(event){_this.callEventFunc(event);});
-   });
+          $(document).on('mousemove',canvasInstance.parent,function(event){_this.callEventFunc(event);});
+        });
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
     // if(BrowserDetect.browser == 'Firefox') {
@@ -95,6 +94,11 @@ define(function(require) {
     var trackedEventStack = [];
     var posY = event.pageY, posX = event.pageX,
     _this = this;
+
+   if(this.shapes.length < this.model.trackedShapes.length)
+      this.shapes = this.model.trackedShapes;
+ 
+
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
         return eventList.eventType === eventName;
@@ -108,48 +112,13 @@ define(function(require) {
           _this.hideDiv(eventObj[0],false);
           }}
           });
-      
-  _.each(trackedEventStack,function(trackedEvent){
-     if(trackedEvent.eventFunc!==undefined)
-     trackedEvent.eventFunc.call(null,event,trackedEvent.featureInfo);
-  });
-  };
 
-  /**
-  Instantiates the feature_info view to display feature details.
-  @method featureInfo
-  **/
-  Artist.prototype.featureInfo = function(event,featureInfo) {
-      var prevInstance = false;
-      event.preventDefault();
-      if(featureInfo!==undefined){
-        if(this.previousInfo !== undefined)
-            prevInstance = _.every(this.previousInfo,function(Info,index){
-                          return Info === featureInfo[index];
-            });
-              
-        if(prevInstance === false){
-         if(this.previousDiv!==undefined)
-         this.previousDiv.remove();
-         this.infoDiv = new FeatureInfo(event,featureInfo);
-         this.previousInfo = featureInfo;
-        }
-        else 
-          if(prevInstance === true)
-          {
-            if(event.target.className==='scrolling-child')
-            {
-              this.infoDiv.remove();
-              this.infoDiv.move(event.clientX,event.clientY);
-              this.previousDiv = this.infoDiv;
-            }
-            else
-            {
-              this.infoDiv.remove();
-            }
-          }
-        this.previousInfo = featureInfo;
-      }
+
+  _.each(trackedEventStack,function(trackedEvent, index){
+     if(trackedEvent.eventFunc!==undefined){
+     trackedEvent.eventFunc(event,trackedEvent.featureInfo);
+   }
+  });
   };
 
   /**
@@ -369,7 +338,7 @@ define(function(require) {
         textShape = new Text(this, text, x, y, options);
 
     // this.shapes.push(textShape);
-    this.trackShape(textShape,options);
+    // this.trackShape(textShape,options);
     textShape.draw();
     
     return textShape;
@@ -532,15 +501,13 @@ define(function(require) {
   if(this.shapes.length < this.model.trackedShapes.length)
       this.shapes = this.model.trackedShapes;
  
- _.each(this.shapes,function(shape, index){
-  if(!shape.isVisible()){
-     _this.shapes.splice(index,1);
-  } 
-  if(shape.isVisible()){
+ _.each(this.shapes,function(shape, index){ 
+  
     shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
-  }
+
   });
-  */
+*/
+
   };
 
   Artist.prototype.setLineDash = function(segments) {

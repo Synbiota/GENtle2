@@ -27,24 +27,13 @@ define(function(require) {
   };
 
    Rect.prototype.moveVertically = function(yOffset, pixelRatio){
-    var artist = this.artist, offset = yOffset, imageData;
-
-    imageData = artist.context.getImageData(this.x,this.y,this.width, this.height);
-    artist.context.clearRect(this.x,this.y,this.width, this.height);
-
-    artist.context.clearRect(this.x,this.y+offset,this.width, this.height);
-    artist.putImageData(imageData, this.x, (this.y+offset)*pixelRatio);
-
-    //this.y = this.y + offset;
+    var artist = this.artist;
+        this.y = this.y + offset;
   };
 
   Rect.prototype.isVisible = function(){
     
-    var artist = this.artist,
-        context = artist.context,
-        yOffset = this.model.get('displaySettings').yOffset,
-        $scrollingParent = $('div.scrolling-parent').first();
-        visibleCanvas = $scrollingParent.height();
+    var artist = this.artist;
 
         if((0<=(this.y+this.height)<=(visibleCanvas))){
           return true;
@@ -60,9 +49,9 @@ define(function(require) {
 
   var yOffset = this.model.get('displaySettings').yOffset;
 
-  if(this.x<=x && x<=(this.x+(this.width)))
+  if(x<=(this.x+this.width))
   {
-      if((this.y<=(y-10)))
+      if(this.y<=y && y<=(this.y+10))
       {
         return true;
       }
