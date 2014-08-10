@@ -227,6 +227,9 @@ define(function(require) {
 
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
+
+    console.log("1");
+    console.log(this.artist);
     this.caret = new Caret({
       $container: this.$scrollingChild,
       className: 'sequence-canvas-caret',
@@ -403,16 +406,16 @@ define(function(require) {
           0;
 
         if (moveOffset !== 0) {
-          artist.scroll(-moveOffset);
-          
+          artist.scroll(-moveOffset, lh.previousYOffset);
+          console.log('if');
           drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
           drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 
           lh.previousYOffset = undefined;
 
         } else {
-
-          artist.clear();
+          console.log('else');
+          artist.clear(undefined, undefined, 0, yOffset);
           drawStart = 0;
           drawEnd = canvasHeight;
 
@@ -448,7 +451,6 @@ define(function(require) {
       bottomMargin = layoutSettings.pageMargins.bottom,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       initPosY = posY;
-
     this.artist.clear(posY, rowsHeight);
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {

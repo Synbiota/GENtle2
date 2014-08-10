@@ -61,11 +61,22 @@ define(function(require) {
     return text.split("").reverse().join("");
   };
 
-   Text.prototype.moveVertically = function(yOffset){
-      var offset = yOffset;
-      if(offset !== undefined)
+   Text.prototype.moveVertically = function(offset, yOffset){
+      if(yOffset !== undefined)
+      this.yOffset = yOffset;
+      this.offset = offset;
+
+      if(yOffset !== undefined)
       {
-      this.yRef = this.y+ yOffset;
+        if(this.refY === undefined)
+          this.refY = this.y + this.yOffset;
+
+        this.refY = this.refY + this.offset;
+      }
+      else
+      {
+        this.refY = this.refY + this.offset;
+        this.yOffset = this.yOffset + this.offset;
       }
   };
 
@@ -74,10 +85,10 @@ define(function(require) {
     var  artist = this.artist,
          visibleCanvas = artist.canvas.height;
 
-        if((0<=(this.y)<=(visibleCanvas))){
+        if((this.yOffset<=(this.refY) && (this.refY)<=(visibleCanvas+this.yOffset))){
           return true;
         }
-        if((0<=(this.y+this.styleOptions.lineHeight)<=(visibleCanvas))){
+        else if((this.yOffset<=(this.refY+this.styleOptions.lineHeight) && (this.refY+this.styleOptions.lineHeight)<=(visibleCanvas+this.yOffset))){
           return true;
         }
 

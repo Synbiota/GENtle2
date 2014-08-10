@@ -18,6 +18,8 @@ define(function(require) {
     this.model = options.view.model;
     this.$canvas = options.$canvas;
     this.artist = new Artist(options.$canvas);
+    console.log("2");
+    console.log(this.artist);
 
     // Keep track of context's transform, reference:
     // http://stackoverflow.com/questions/7395813/html5-canvas-get-transform-matrix

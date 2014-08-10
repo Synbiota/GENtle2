@@ -36,6 +36,8 @@ define(function(require) {
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
     _this = this;
+    this.shapes = [];
+    this.refVar = [];
     $(document).on('mousemove',$('#'+canvas.id).parent,function(event){_this.callEventFunc(event);});
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
@@ -85,10 +87,10 @@ define(function(require) {
         {
           trackedEventStack.push(eventObj[0].eventFunc);
         }
-        else{
+      else{
           _this.hideDiv(eventObj[0],false);
-          }}
-          });
+      }}
+      });
 
 
   _.each(trackedEventStack,function(trackedEvent, index){
@@ -109,10 +111,28 @@ define(function(require) {
     var canvas = this.canvas, 
         context = this.context,
         posY = arguments[0],
-        height = arguments[1];
+        height = arguments[1],
+        offset = arguments[2],
+        yOffset = arguments[3],
+        refVar = _.pluck(this.refVar,'yOffset'),
+        _this = this;
 
-    context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
-    this.shapes = [];
+  context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
+
+  if(offset !== undefined){
+   _.each(this.shapes,function(shape, index){ 
+    if(refVar[0] === undefined)
+      shape.moveVertically(offset, yOffset);
+    else
+      shape.moveVertically(offset, undefined);
+    if(!shape.isVisible()){
+      _this.shapes.splice(index,1);
+    }
+    });
+    this.refVar[0]={yOffset : yOffset};
+  }
+    console.log(_this.shapes.length);
+
   };
 
   Artist.prototype.point = function (x, y) {
@@ -424,7 +444,7 @@ define(function(require) {
       });
    }
     if(storeShape && shape !== undefined)
-      _this.shapes.push(shape);
+       this.shapes.push(shape);
   };
 
   /**
@@ -455,29 +475,29 @@ define(function(require) {
   @method scroll
   @param {integer} offset
   **/
-  Artist.prototype.scroll = function(offset) {
+  Artist.prototype.scroll = function(offset, yOffset) {
     var canvas = this.canvas,
         context = this.context,
         pixelRatio = this.getPixelRatio(),
-        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
-
+        imageData = context.getImageData(0, 0, canvas.width, canvas.height),
+        _this = this,
+        refVar = _.pluck(this.refVar,'yOffset');
 
     this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
     context.putImageData(imageData, 0, offset * pixelRatio);
-  
-    //Updating shapes from different instances of Artist
-
-  /*
-  if(this.shapes.length < this.model.trackedShapes.length)
-      this.shapes = this.model.trackedShapes;
  
- _.each(this.shapes,function(shape, index){ 
-  
-    shape.moveVertically(_this.model.get('displaySettings.yOffset'), pixelRatio);
+    _.each(this.shapes,function(shape, index){ 
+      if(refVar[0] === undefined)
+        shape.moveVertically(offset, yOffset);
+      else
+        shape.moveVertically(offset, undefined);
 
-  });
-*/
+      if(!shape.isVisible()){
+       _this.shapes.splice(index,1);
+       }
+    });
 
+    this.refVar[0]={yOffset : yOffset};
   };
 
   Artist.prototype.setLineDash = function(segments) {

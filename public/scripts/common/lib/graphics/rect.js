@@ -26,12 +26,22 @@ define(function(require) {
     artist.context.fillRect(this.x, this.y, this.width, this.height);
   };
 
-   Rect.prototype.moveVertically = function(yOffset){
-        var offset = yOffset;
-        if(offset !== undefined)
-        {
-          this.yRef = this.y + offset;
-        }
+   Rect.prototype.moveVertically = function(offset, yOffset){
+       if(yOffset !== undefined)
+        this.yOffset = yOffset;
+        this.offset = offset;
+
+      if(yOffset !== undefined)
+      {
+        if(this.refY === undefined)
+          this.refY = this.y + this.yOffset;
+        this.refY = this.refY + this.offset;
+      }
+      else
+      {
+        this.refY = this.refY + this.offset;
+        this.yOffset = this.yOffset + this.offset;
+      }
   };
 
   Rect.prototype.isVisible = function(){
@@ -39,10 +49,10 @@ define(function(require) {
   var artist = this.artist,
       visibleCanvas = artist.canvas.height;
 
-        if((0<=(this.y+this.height)<=(visibleCanvas))){
+        if((this.yOffset<=(this.refY+this.height) && (this.refY+this.height)<=(visibleCanvas+this.yOffset))){
           return true;
         }
-        else if((0<=(this.y)<=(visibleCanvas))){
+        else if((this.yOffset<=(this.refY) && (this.refY)<=(visibleCanvas+this.yOffset))){
           return true;
         }
           
@@ -54,11 +64,12 @@ define(function(require) {
   var posX = x, posY = y;
 
   if(posX !== undefined && posY !== undefined)
-  if(posX<=(this.x+this.width))
+  if(posX>=(this.x) && posX<=(this.x+this.width))
   {
-      if(this.y<=posY && posY<=(this.y+10))
+          console.log(posY-this.y);
+
+      if(posY>=(this.y+50) && posY<=(this.y+60))
       {
-        console.log(this.y+"  "+posY);
         return true;
       }
   }
