@@ -227,9 +227,6 @@ define(function(require) {
 
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
-
-    console.log("1");
-    console.log(this.artist);
     this.caret = new Caret({
       $container: this.$scrollingChild,
       className: 'sequence-canvas-caret',

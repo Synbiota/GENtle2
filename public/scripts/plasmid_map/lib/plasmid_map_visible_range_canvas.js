@@ -11,9 +11,6 @@ define(function(require) {
     this.$canvas = options.$canvas;
     this.sequenceCanvas = options.view.parentView().sequenceCanvas;
     this.artist = new Artist(options.$canvas);
-    console.log("3");
-    console.log(this.artist);
-
     this.relativeRadii = {
       r: 50 / 250,
       R: 165 / 250

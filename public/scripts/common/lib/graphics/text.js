@@ -62,7 +62,7 @@ define(function(require) {
   };
 
    Text.prototype.moveVertically = function(yOffset){
-       this.yOffset = yOffset;
+        this.yOffset = yOffset;
         var visibleCanvas = this.artist.canvas.height;
 
        if(this.prevYoffset !== undefined){
