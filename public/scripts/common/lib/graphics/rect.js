@@ -47,7 +47,8 @@ define(function(require) {
 
         if(this.y>=0 || (this.y+this.height)>=0) 
           if(this.y<visibleCanvas || (this.y+this.height)<visibleCanvas){
-            console.log('tracking');
+            console.log('Y:'+this.y+'     YOFFSET:'+(this.yOffset)+'    PREVOFFSET:'+this.prevYoffset+'  DIFF:'+(this.prevYoffset-this.yOffset)+' visibleCanvas:'+(visibleCanvas));
+
             return true;
          }
         return false;

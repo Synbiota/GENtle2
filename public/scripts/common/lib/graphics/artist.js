@@ -75,9 +75,8 @@ define(function(require) {
  Artist.prototype.callEventFunc = function(event){
     var eventName = event.type;
     var trackedEventStack = [];
-    var posY = event.pageY, posX = event.pageX,
+    var posY = event.clientY, posX = event.clientX,
     _this = this;
-
     _.each(this.shapes,function(shape){
       var eventObj =_.filter(shape.trackedEvents,function(eventList){
         return eventList.eventType === eventName;
