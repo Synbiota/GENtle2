@@ -39,6 +39,8 @@ define(function(require) {
         if(this.prevYoffset === undefined){
             this.prevYoffset = this.yOffset;
         }
+
+        console.log('moved :'+this.y);
   };
 
   Rect.prototype.isVisible = function(){  
@@ -47,8 +49,6 @@ define(function(require) {
 
         if(this.y>=0 || (this.y+this.height)>=0) 
           if(this.y<visibleCanvas || (this.y+this.height)<visibleCanvas){
-            console.log('Y:'+this.y+'     YOFFSET:'+(this.yOffset)+'    PREVOFFSET:'+this.prevYoffset+'  DIFF:'+(this.prevYoffset-this.yOffset)+' visibleCanvas:'+(visibleCanvas));
-
             return true;
          }
         return false;
@@ -56,10 +56,17 @@ define(function(require) {
 
   Rect.prototype.includesPoint = function(x,y){
   
-  var posX = x, posY = y;
+  var posX = x, posY = y, visibleCanvas = this.artist.canvas.height;
   if(posX !== undefined && posY !== undefined)
   if(posX>=(this.x))
   {   
+    if((this.prevYoffset-this.yOffset)<0)
+      if(posY>=((this.prevYoffset-this.yOffset) + visibleCanvas) && posY<=((this.prevYoffset-this.yOffset) + visibleCanvas + 10))
+        {
+          console.log('reverse moved :'+((this.prevYoffset-this.yOffset) - 50 + visibleCanvas));
+          return true;
+        }
+    if((this.prevYoffset-this.yOffset)>=0)
       if(posY>=(this.y+50) && posY<=(this.y+60))
       {
         return true;
