@@ -85,13 +85,12 @@ define(function(require) {
       if(eventObj[0]!==undefined){
         if(shape.includesPoint(posX,posY))
         {
-          trackedEventStack.push(eventObj[0].eventFunc);
+          trackedEventStack[0]=(eventObj[0].eventFunc);
         }
       else{
           _this.hideDiv(eventObj[0],false);
       }}
       });
-
 
   _.each(trackedEventStack,function(trackedEvent, index){
      if(trackedEvent.eventFunc!==undefined){
@@ -114,25 +113,24 @@ define(function(require) {
         height = arguments[1],
         offset = arguments[2],
         yOffset = arguments[3],
-        refVar = _.pluck(this.refVar,'yOffset'),
         _this = this;
 
   context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
 
-  if(offset !== undefined){
-   _.each(this.shapes,function(shape, index){ 
-    if(refVar[0] === undefined)
-      shape.moveVertically(offset, yOffset);
-    else
-      shape.moveVertically(offset, undefined);
-    if(!shape.isVisible()){
-      _this.shapes.splice(index,1);
-    }
-    });
-    this.refVar[0]={yOffset : yOffset};
-  }
-    console.log(_this.shapes.length);
+  if(yOffset!==undefined)
+    _this.yOffset = yOffset+offset;
 
+  if(offset !== undefined && this.shapes.length !== 0)
+  {
+   _.each(this.shapes,function(shape, index){ 
+      shape.moveVertically(_this.yOffset);
+    });
+    _.each(this.shapes, function(shape, index){
+   if(!shape.isVisible()){
+   _this.shapes.splice(index,1);
+   }
+    });
+  }
   };
 
   Artist.prototype.point = function (x, y) {
@@ -335,7 +333,7 @@ define(function(require) {
         textShape = new Text(this, text, x, y, options);
 
     // this.shapes.push(textShape);
-    this.trackShape(textShape,options);
+    // this.trackShape(textShape,options);
     textShape.draw();
     
     return textShape;
@@ -480,25 +478,26 @@ define(function(require) {
         context = this.context,
         pixelRatio = this.getPixelRatio(),
         imageData = context.getImageData(0, 0, canvas.width, canvas.height),
-        _this = this,
-        refVar = _.pluck(this.refVar,'yOffset');
+        _this = this;
+
+        if(yOffset!==undefined)
+        _this.yOffset = yOffset+offset;
 
     this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
     context.putImageData(imageData, 0, offset * pixelRatio);
- 
+
+   if(offset !== undefined && this.shapes.length !== 0)
+  {
     _.each(this.shapes,function(shape, index){ 
-      if(refVar[0] === undefined)
-        shape.moveVertically(offset, yOffset);
-      else
-        shape.moveVertically(offset, undefined);
-
-      if(!shape.isVisible()){
-       _this.shapes.splice(index,1);
-       }
+        shape.moveVertically(_this.yOffset);
     });
-
-    this.refVar[0]={yOffset : yOffset};
-  };
+    _.each(this.shapes,function(shape, index){
+      if(!shape.isVisible()){
+        _this.shapes.splice(index,1);
+      }
+    });
+  }
+ };
 
   Artist.prototype.setLineDash = function(segments) {
     var context = this.context;

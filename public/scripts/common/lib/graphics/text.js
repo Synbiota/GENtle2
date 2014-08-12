@@ -61,45 +61,42 @@ define(function(require) {
     return text.split("").reverse().join("");
   };
 
-   Text.prototype.moveVertically = function(offset, yOffset){
-      if(yOffset !== undefined)
-      this.yOffset = yOffset;
-      this.offset = offset;
+   Text.prototype.moveVertically = function(yOffset){
+       this.yOffset = yOffset;
+        var visibleCanvas = this.artist.canvas.height;
 
-      if(yOffset !== undefined)
-      {
-        if(this.refY === undefined)
-          this.refY = this.y + this.yOffset;
-
-        this.refY = this.refY + this.offset;
-      }
-      else
-      {
-        this.refY = this.refY + this.offset;
-        this.yOffset = this.yOffset + this.offset;
-      }
+       if(this.prevYoffset !== undefined){
+           if((this.prevYoffset-this.yOffset)>0)
+           this.y = (this.prevYoffset-this.yOffset) + 50;
+           if((this.prevYoffset - this.yOffset)<0)
+           this.y = Math.abs(this.prevYoffset - this.yOffset) + 50;
+        }
+        if(this.prevYoffset === undefined){
+            this.prevYoffset = this.yOffset;
+        }
   };
 
   Text.prototype.isVisible = function(){
+  var artist = this.artist,
+      visibleCanvas = artist.canvas.height;
 
-    var  artist = this.artist,
-         visibleCanvas = artist.canvas.height;
-
-        if((this.yOffset<=(this.refY) && (this.refY)<=(visibleCanvas+this.yOffset))){
-          return true;
-        }
-        else if((this.yOffset<=(this.refY+this.styleOptions.lineHeight) && (this.refY+this.styleOptions.lineHeight)<=(visibleCanvas+this.yOffset))){
-          return true;
-        }
-
+        if(this.y>=0 || (this.y+this.lineHeight)>=0) 
+          if(this.y<visibleCanvas || (this.y+this.lineHeight)<visibleCanvas){
+            return true;
+         }
         return false;
   };
 
   Text.prototype.includesPoint = function(x,y){
 
-  if((this.x<=x<=(this.x+this.textWidth)) || ((this.x+this.textWidth)<=x<=this.x)){
-      if((this.y<=y<=(this.y+this.styleOptions.lineHeight)) || ((this.y+this.styleOptions.lineHeight)<=y<=this.y))
+  var posX = x, posY = y;
+  if(posX !== undefined && posY !== undefined)
+  if(posX>=(this.x))
+  {   
+      if(posY>=(this.y+50) && posY<=(this.y+60))
+      {
         return true;
+      }
   }
   else
     return false;

@@ -407,15 +407,13 @@ define(function(require) {
 
         if (moveOffset !== 0) {
           artist.scroll(-moveOffset, lh.previousYOffset);
-          console.log('if');
           drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
           drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 
           lh.previousYOffset = undefined;
 
         } else {
-          console.log('else');
-          artist.clear(undefined, undefined, 0, yOffset);
+          artist.clear(undefined, undefined, 0,yOffset);
           drawStart = 0;
           drawEnd = canvasHeight;
 
@@ -451,7 +449,7 @@ define(function(require) {
       bottomMargin = layoutSettings.pageMargins.bottom,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       initPosY = posY;
-    this.artist.clear(posY, rowsHeight);
+    this.artist.clear(posY, rowsHeight, 0, yOffset);
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
