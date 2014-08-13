@@ -61,13 +61,18 @@ define(function(require) {
   if(posX>=(this.x))
   {   
     if((this.prevYoffset-this.yOffset)<0)
-      if(posY>=((this.prevYoffset-this.yOffset) + visibleCanvas) && posY<=((this.prevYoffset-this.yOffset) + visibleCanvas + 10))
+      if(posY>=((this.prevYoffset-this.yOffset) + visibleCanvas - 20) && posY<=((this.prevYoffset-this.yOffset) + visibleCanvas - 10))
         {
           console.log('reverse moved :'+((this.prevYoffset-this.yOffset) - 50 + visibleCanvas));
           return true;
         }
-    if((this.prevYoffset-this.yOffset)>=0)
+    if((this.prevYoffset-this.yOffset)==0)
       if(posY>=(this.y+50) && posY<=(this.y+60))
+      {
+        return true;
+      }
+    if((this.prevYoffset-this.yOffset)>0)
+      if(posY>=(this.y+25) && posY<=(this.y+35))
       {
         return true;
       }
