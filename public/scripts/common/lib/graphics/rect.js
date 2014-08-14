@@ -24,41 +24,38 @@ define(function(require) {
 
     artist.updateStyle(styleOptions);
     artist.context.fillRect(this.x, this.y, this.width, this.height);
-
-    if(this.y>0 && this.y<=visibleCanvas)
-       this.initialOffset = -50;
-    else 
-    if(this.y<=0 || this.y>visibleCanvas)
-       this.initialOffset = 0;
-
-     console.log('Y1 '+this.y);
   };
 
    Rect.prototype.moveVertically = function(yOffset){
         this.yOffset = yOffset;
+        //Visible canvas height
         var visibleCanvas = this.artist.canvas.height;
 
        if(this.prevYoffset !== undefined){
- 
+            //No change in Y offset
+             if((this.prevYoffset-this.yOffset)===0)
+                this.y = (this.prevYoffset-this.yOffset+ this.refY);
+            //Scroll down
              if((this.prevYoffset-this.yOffset)>0)
                 this.y = (this.prevYoffset-this.yOffset+ this.refY);
+            //Scroll up
              if((this.prevYoffset-this.yOffset)<0)
                 this.y = (this.prevYoffset-this.yOffset+ this.refY);
           
         }
         if(this.prevYoffset === undefined){
+            //Setting previous Y offset
             this.prevYoffset = this.yOffset;
+            //Setting Initial Y position for reference.
               if(this.refY === undefined)
                 this.refY = this.y;
         }
-
-        console.log('Y2 :'+(this.y));
   };
 
   Rect.prototype.isVisible = function(){  
   var artist = this.artist,
       visibleCanvas = artist.canvas.height;
-
+        //Visibility set from -30 to  artist.canvas.height + 30
         if(this.y>=(-30) || (this.y+this.height)>=(-30)) 
           if(this.y<(visibleCanvas+30) || (this.y+this.height)<(visibleCanvas+30)){
             return true;
@@ -67,30 +64,33 @@ define(function(require) {
   };
 
   Rect.prototype.includesPoint = function(x,y){
-
-    console.log('Y5 '+ this.y+'     '+(y-50));
-  
-  var posX = x, posY = y, visibleCanvas = this.artist.canvas.height;
+  var posX = x, 
+  //Accounting for navbar height
+  posY = y-50, 
+  visibleCanvas = this.artist.canvas.height;
   if(posX !== undefined && posY !== undefined)
+  //X pos greater than this.x
   if(posX>=(this.x))
   {   
+    //Scroll up
     if((this.prevYoffset-this.yOffset)<0)
-      if(posY>=(this.y+50) && posY<=(this.y+60))
+      //Cover full height of rect
+      if(posY>=(this.y) && posY<=(this.y+this.height))
         {
-          console.log('reverse moved :'+((this.prevYoffset-this.yOffset) - 50 + visibleCanvas));
           return true;
         }
+    //No change in Y offset
     if((this.prevYoffset-this.yOffset)==0)
-      if(posY>=(this.y+50) && posY<=(this.y+60))
+      //Cover full height of rect
+      if(posY>=(this.y) && posY<=(this.y+this.height))
       {
-        console.log('Y4 :'+(this.y));
-
         return true;
       }
+    //Scroll down
     if((this.prevYoffset-this.yOffset)>0)
-      if((posY)>=(this.y) && (posY)<=(this.y+10))
+      //Cover full height of rect 
+      if((posY)>=(this.y) && (posY)<=(this.y+this.height))
       {
-        console.log('Bingo :'+(this.y));
         return true;
       }
   }
