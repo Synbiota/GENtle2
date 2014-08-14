@@ -63,37 +63,68 @@ define(function(require) {
 
    Text.prototype.moveVertically = function(yOffset){
         this.yOffset = yOffset;
+        //Visible canvas height
         var visibleCanvas = this.artist.canvas.height;
 
        if(this.prevYoffset !== undefined){
-           if((this.prevYoffset-this.yOffset)>0)
-           this.y = (this.prevYoffset-this.yOffset) + 50;
-           if((this.prevYoffset - this.yOffset)<0)
-           this.y = Math.abs(this.prevYoffset - this.yOffset) + 50;
+            //No change in Y offset
+             if((this.prevYoffset-this.yOffset)===0)
+                this.y = (this.prevYoffset-this.yOffset+ this.refY);
+            //Scroll down
+             if((this.prevYoffset-this.yOffset)>0)
+                this.y = (this.prevYoffset-this.yOffset+ this.refY);
+            //Scroll up
+             if((this.prevYoffset-this.yOffset)<0)
+                this.y = (this.prevYoffset-this.yOffset+ this.refY);
+          
         }
         if(this.prevYoffset === undefined){
+            //Setting previous Y offset
             this.prevYoffset = this.yOffset;
+            //Setting Initial Y position for reference.
+              if(this.refY === undefined)
+                this.refY = this.y;
         }
   };
 
   Text.prototype.isVisible = function(){
-  var artist = this.artist,
+   var artist = this.artist,
       visibleCanvas = artist.canvas.height;
-
-        if(this.y>=0 || (this.y+this.lineHeight)>=0) 
-          if(this.y<visibleCanvas || (this.y+this.lineHeight)<visibleCanvas){
+        //Visibility set from -30 to  artist.canvas.height + 30
+        if(this.y>=(-30) || (this.y+this.lineHeight)>=(-30)) 
+          if(this.y<(visibleCanvas+30) || (this.y+this.lineHeight)<(visibleCanvas+30)){
             return true;
          }
         return false;
   };
 
   Text.prototype.includesPoint = function(x,y){
-
-  var posX = x, posY = y;
+  var posX = x, 
+  //Accounting for navbar height
+  posY = y-50, 
+  visibleCanvas = this.artist.canvas.height;
   if(posX !== undefined && posY !== undefined)
+  //X pos greater than this.x
   if(posX>=(this.x))
   {   
-      if(posY>=(this.y+50) && posY<=(this.y+60))
+    //Scroll up
+    if((this.prevYoffset-this.yOffset)<0)
+      //Cover full height of rect
+      if(posY>=(this.y) && posY<=(this.y+this.lineHeight))
+        {
+          return true;
+        }
+    //No change in Y offset
+    if((this.prevYoffset-this.yOffset)==0)
+      //Cover full height of rect
+      if(posY>=(this.y) && posY<=(this.y+this.lineHeight))
+      {
+        return true;
+      }
+    //Scroll down
+    if((this.prevYoffset-this.yOffset)>0)
+      //Cover full height of rect 
+      if((posY)>=(this.y) && (posY)<=(this.y+this.lineHeight))
       {
         return true;
       }

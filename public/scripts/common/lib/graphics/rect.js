@@ -32,15 +32,21 @@ define(function(require) {
         var visibleCanvas = this.artist.canvas.height;
 
        if(this.prevYoffset !== undefined){
-            //No change in Y offset
+             //No change in Y offset
              if((this.prevYoffset-this.yOffset)===0)
+             {
                 this.y = (this.prevYoffset-this.yOffset+ this.refY);
-            //Scroll down
+             }
+             //Scroll up
              if((this.prevYoffset-this.yOffset)>0)
+             {
                 this.y = (this.prevYoffset-this.yOffset+ this.refY);
-            //Scroll up
+             }
+            //Scroll down
              if((this.prevYoffset-this.yOffset)<0)
+             {
                 this.y = (this.prevYoffset-this.yOffset+ this.refY);
+             }
           
         }
         if(this.prevYoffset === undefined){
@@ -50,12 +56,15 @@ define(function(require) {
               if(this.refY === undefined)
                 this.refY = this.y;
         }
+
+        console.log('yposition :'+(this.y));
   };
 
   Rect.prototype.isVisible = function(){  
   var artist = this.artist,
       visibleCanvas = artist.canvas.height;
-        //Visibility set from -30 to  artist.canvas.height + 30
+        //Visibility set from -30 to visibleCanvas + 30
+
         if(this.y>=(-30) || (this.y+this.height)>=(-30)) 
           if(this.y<(visibleCanvas+30) || (this.y+this.height)<(visibleCanvas+30)){
             return true;
@@ -64,10 +73,9 @@ define(function(require) {
   };
 
   Rect.prototype.includesPoint = function(x,y){
-  var posX = x, 
-  //Accounting for navbar height
-  posY = y-50, 
-  visibleCanvas = this.artist.canvas.height;
+  //Accounting for navbar height with reference to posY
+
+  var posX = x, posY = y-50, visibleCanvas = this.artist.canvas.height;
   if(posX !== undefined && posY !== undefined)
   //X pos greater than this.x
   if(posX>=(this.x))
@@ -77,6 +85,7 @@ define(function(require) {
       //Cover full height of rect
       if(posY>=(this.y) && posY<=(this.y+this.height))
         {
+          console.log('includes yposition :'+(this.y));
           return true;
         }
     //No change in Y offset
@@ -84,13 +93,16 @@ define(function(require) {
       //Cover full height of rect
       if(posY>=(this.y) && posY<=(this.y+this.height))
       {
+          console.log('includes yposition :'+(this.y));
+
         return true;
       }
     //Scroll down
     if((this.prevYoffset-this.yOffset)>0)
-      //Cover full height of rect 
+      //Cover full height of rect
       if((posY)>=(this.y) && (posY)<=(this.y+this.height))
       {
+          console.log('includes yposition :'+(this.y));
         return true;
       }
   }
