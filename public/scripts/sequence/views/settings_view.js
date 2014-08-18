@@ -10,6 +10,7 @@ define(function(require) {
       RestrictionEnzymesSettingsView = require('./restriction_enzymes_settings_view'),
       ExportView          = require('./export_view'),
       SidebarView         = require('common/views/sidebar_view'),
+      SearchView          = require('plugins/search/views/search_view'),
       ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
       Gentle              = require('gentle')(),
@@ -71,7 +72,20 @@ define(function(require) {
         visible: function() {
           return _this.parentView().primaryView.name == 'edition';
         },
-      }]);
+      },
+      {
+        name: 'searchSequence',
+        title: 'Search Sequence',
+        icon: 'search',
+        maxHeighted: true,
+        view: SearchView,
+        visible: function() {
+          return _this.parentView().primaryView.name == 'edition';
+        },
+      },
+
+
+      ]);
 
       _.chain(Gentle.plugins)
         .where({type: 'sequence-settings-tab'})

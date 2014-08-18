@@ -226,7 +226,7 @@ define(function(require) {
     },
 
     afterRender: function() {
-      this.sequenceCanvas = Gentle.layout.getView('#content').sequenceCanvas;
+      this.sequenceCanvas = Gentle.layout.getView('#content').actualPrimaryView.sequenceCanvas;
       $('.sequence-feature-delete-button').confirmation({
         popout: true,
         placement: 'top',
