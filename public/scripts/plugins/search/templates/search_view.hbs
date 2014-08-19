@@ -10,7 +10,7 @@
 {{#if searchResult}}
 <div class="list-group" id="sequence-match-list">
         {{#each ranges}}
-        <a href="#" class="list-group-item sequence-search-link" data-range-id="{{from}}">
+        <a href="#" class="list-group-item sequence-search-link" data-range-From="{{from}}" data-range-To="{{to}}">
                   <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
         </a>
         {{/each}}

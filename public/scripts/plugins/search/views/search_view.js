@@ -9,6 +9,7 @@ define(function(require) {
     SynbioData = require('common/lib/synbio_data'),
     Backbone = require('backbone.mixed'),
     BSConfirmation = require('bootstrap-confirmation'),
+
     FeaturesView;
 
   SearchView = Backbone.View.extend({
@@ -34,11 +35,21 @@ define(function(require) {
           this.$('#search-term').val(capitalize);
     },
 
+    drawHighlight: function(from, to){
+          this.sequenceCanvas.highlight.setColor('#ffff32',undefined);
+          this.sequenceCanvas.highlight.draw(from,to);
+    },
+
     scrollToBase: function(event) {
       var $element = $(event.currentTarget),
-         rangeFrom = $element.data('rangeId');
-         event.preventDefault();
-         this.sequenceCanvas.scrollToBase(rangeFrom);
+          rangeFrom = $element.data('rangeFrom'),
+          rangeTo = $element.data('rangeTo'),
+          _this = this;
+          event.preventDefault();
+          this.sequenceCanvas.scrollToBase(rangeFrom);
+          //draw highlight
+          setTimeout(function(){
+          _this.drawHighlight(rangeFrom, rangeTo);},500);
     },
 
     readSearchTerm: function(event){

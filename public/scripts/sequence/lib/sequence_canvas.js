@@ -17,6 +17,7 @@ define(function(require) {
     Hotkeys = require('common/lib/hotkeys'),
     CopyPasteHandler = require('common/lib/copy_paste_handler'),
     Lines = require('sequence/lib/lines'),
+    Highlight = require('common/lib/graphics/highlight'),
     Caret = require('common/lib/caret'),
     _Handlers = require('sequence/lib/_sequence_canvas_handlers'),
     _Utilities = require('sequence/lib/_sequence_canvas_utilities'),
@@ -232,6 +233,7 @@ define(function(require) {
       className: 'sequence-canvas-caret',
       blinking: true
     });
+    this.highlight = new Highlight(this);
     this.allowedInputChars = ['A', 'T', 'C', 'G'];
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
@@ -438,7 +440,7 @@ define(function(require) {
   @param {integer} posY
   **/
   SequenceCanvas.prototype.drawRow = function(posY) {
-
+    console.log('2');
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
       layoutHelpers = this.layoutHelpers,
