@@ -8894,6 +8894,13 @@ button.close {
   z-index: 3000;
 }
 
+/* line 1, components/_search_plugin.scss */
+.search-results {
+  overflow: scroll;
+  height: 200px;
+  width: 314px;
+}
+
 @-webkit-keyframes blink {
   /* line 2, animations/_blink.scss */
   0%, 35% {

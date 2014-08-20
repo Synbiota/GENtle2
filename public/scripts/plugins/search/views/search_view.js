@@ -74,7 +74,6 @@ define(function(require) {
 
               artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, totalHeight + height, {backgroundFillStyle: this.textColor,
                                                                                                                                 font: "15px Monospace" });
-
               x += ls.basePairDims.width;
               if ((Math.abs(baseRange[0]-this.sequenceCanvas.getBaseFromXYPos(x,y))) % ls.basesPerBlock === 0) x += ls.gutterWidth;
           }

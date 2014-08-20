@@ -2,16 +2,16 @@
       <input type="text" class="form-control" id="search-term">
       <span class="input-group-btn">
         <button class="btn btn-default" type="button" id="start-search">
-        <span class="glyphicon glyphicon-chevron-right"></span>
+        <span class="glyphicon glyphicon-search"></span>
         </button>
       </span>
 </div><!-- /input-group -->
 
 {{#if searchResult}}
-<div class="list-group" id="sequence-match-list">
+<div class="list-group search-results" id="sequence-match-list">
         {{#each ranges}}
         <a href="#" class="list-group-item sequence-search-link" data-range-From="{{from}}" data-range-To="{{to}}">
-                  <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
+        <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
         </a>
         {{/each}}
     </div>
