@@ -47,6 +47,7 @@ define(function(require) {
           _this = this;
           event.preventDefault();
           this.sequenceCanvas.scrollToBase(rangeFrom);
+          this.sequenceCanvas.refresh();
           //draw highlight
           setTimeout(function(){
           _this.drawHighlight(rangeFrom, rangeTo);},500);
