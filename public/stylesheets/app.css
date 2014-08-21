@@ -8895,10 +8895,25 @@ button.close {
 }
 
 /* line 1, components/_search_plugin.scss */
-.search-results {
+.results-container {
+  margin-top: 5px;
+}
+/* line 4, components/_search_plugin.scss */
+.results-container .search-results {
   overflow: scroll;
   height: 200px;
   width: 314px;
+}
+/* line 9, components/_search_plugin.scss */
+.results-container .search-results-features {
+  overflow: scroll;
+  height: 200px;
+  float: left;
+  width: 156px;
+}
+/* line 15, components/_search_plugin.scss */
+.results-container .feature-name {
+  margin-left: 6px;
 }
 
 @-webkit-keyframes blink {

@@ -102,7 +102,6 @@ define(function(require) {
        if(termLen >= 3 && regexTest !== null)
        {
         searchTerm = this.$('#search-term').val().toUpperCase();
-        this.searchResult = true;
         this.requiredTerm = false;
         this.startSearch(searchTerm);
        }
@@ -119,10 +118,32 @@ define(function(require) {
           query = searchTerm, i = 0, from, to,
           regexp =  new RegExp(query, 'g'), pos;   
           this.ranges = [],
-          this.requiredTerm = false;
+          this.rangesInFeatures = [],
+          this.termInFeature = false,
+          this.requiredTerm = false,
+          features = this.model.get('features'),
+          _this = this;
 
           while(pos = regexp.exec(sequence)){
             this.ranges.push({from: pos.index, to: pos.index+query.length});
+          }
+
+          if(this.ranges.length > 0)
+          {
+             this.searchResult = true;
+             _.each(this.ranges, function(range){
+                _.each(features, function(feature){
+                        if(range.from>=feature.ranges[0].from && range.to<=feature.ranges[0].to)
+                        {
+                          _this.rangesInFeatures.push({from: range.from, to: range.to, name: feature.name});
+                          _this.termInFeature = true;
+                        }
+                });
+             });
+          }
+          else
+          {
+             this.searchResult = false;
           }
 
           this.refresh();
@@ -155,7 +176,9 @@ define(function(require) {
     serialize: function() {
      return { requiredTerm : this.requiredTerm,
               searchResult : this.searchResult,
-              ranges : this.ranges
+              ranges : this.ranges,
+              rangesInFeatures : this.rangesInFeatures,
+              termInFeature : this.termInFeature
      };
     },
 

@@ -6,13 +6,29 @@
         </button>
       </span>
 </div><!-- /input-group -->
-
+<div class="results-container">
 {{#if searchResult}}
-<div class="list-group search-results" id="sequence-match-list">
+<div class="list-group search-results" id="sequence-match-list" {{#if termInFeature}}style="width:156px; float:left"{{/if}}>
         {{#each ranges}}
         <a href="#" class="list-group-item sequence-search-link" data-range-From="{{from}}" data-range-To="{{to}}">
+        <h5 class="list-group-item-heading feature-name">DNA</h5>
         <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
         </a>
         {{/each}}
     </div>
 {{/if}}
+{{#if termInFeature}}
+<div class="list-group search-results-features" id="sequence-match-list">
+        {{#each rangesInFeatures}}
+        <div class="media">
+        <div class="media-body">
+        <a href="#" class="list-group-item sequence-search-link" data-range-From="{{from}}" data-range-To="{{to}}">
+        <h5 class="list-group-item-heading feature-name">{{name}}</h5>
+        <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
+        </a>
+        </div>
+        </div>
+        {{/each}}
+    </div>
+{{/if}}
+</div>

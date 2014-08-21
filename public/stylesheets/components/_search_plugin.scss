@@ -1,5 +1,18 @@
+.results-container{
+ margin-top: 5px;
+
 .search-results {
  overflow: scroll;
  height: 200px;
  width: 314px;
+}
+.search-results-features {
+ overflow: scroll;
+ height: 200px;
+ float: left;
+ width: 156px;
+}
+.feature-name{
+ margin-left: 6px;	
+}
 }
