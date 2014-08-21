@@ -8909,11 +8909,20 @@ button.close {
   overflow: scroll;
   height: 200px;
   float: left;
-  width: 156px;
+  width: 155px;
 }
 /* line 15, components/_search_plugin.scss */
 .results-container .feature-name {
   margin-left: 6px;
+}
+/* line 19, components/_search_plugin.scss */
+.results-container .dna-text {
+  float: left;
+  margin-top: 10px;
+}
+/* line 24, components/_search_plugin.scss */
+.results-container ranges {
+  margin-top: 5px;
 }
 
 @-webkit-keyframes blink {
