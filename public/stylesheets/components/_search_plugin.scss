@@ -1,11 +1,14 @@
 .results-container{
  margin-top: 5px;
+ height: 200px;
 
 .search-results {
  overflow: scroll;
  height: 200px;
  width: 314px;
+ margin-top: 60px;
 }
+
 .search-results-features {
  overflow: scroll;
  height: 200px;
@@ -13,7 +16,8 @@
  width: 155px;
 }
 .feature-name{
- margin-left: 6px;	
+ float: left;	
+ margin-top: 10px;
 }
 
 .dna-text{
@@ -21,7 +25,20 @@
  margin-top: 10px;	
 }
 
-ranges{
+.ranges{
  margin-top: 5px;
 }
+
+}
+
+.features-search-results{
+	margin-top: 20px;
+	margin-left: 10px;
+	float: left;
+}
+
+.sequence-search-results{
+	margin-top: 20px;
+	margin-left: 10px;
+	float: left;
 }

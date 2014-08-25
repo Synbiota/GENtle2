@@ -8521,7 +8521,7 @@ button.close {
 }
 /* line 64, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab.active.max-heighted, .sidebar > div .sidebar-tab.hovered.max-heighted {
-  max-height: 300px;
+  max-height: 400px;
 }
 /* line 69, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab.hovered {
@@ -8897,32 +8897,49 @@ button.close {
 /* line 1, components/_search_plugin.scss */
 .results-container {
   margin-top: 5px;
+  height: 200px;
 }
-/* line 4, components/_search_plugin.scss */
+/* line 5, components/_search_plugin.scss */
 .results-container .search-results {
   overflow: scroll;
   height: 200px;
   width: 314px;
+  margin-top: 60px;
 }
-/* line 9, components/_search_plugin.scss */
+/* line 12, components/_search_plugin.scss */
 .results-container .search-results-features {
   overflow: scroll;
   height: 200px;
   float: left;
   width: 155px;
 }
-/* line 15, components/_search_plugin.scss */
+/* line 18, components/_search_plugin.scss */
 .results-container .feature-name {
-  margin-left: 6px;
+  float: left;
+  margin-top: 10px;
 }
-/* line 19, components/_search_plugin.scss */
+/* line 23, components/_search_plugin.scss */
 .results-container .dna-text {
   float: left;
   margin-top: 10px;
 }
-/* line 24, components/_search_plugin.scss */
-.results-container ranges {
+/* line 28, components/_search_plugin.scss */
+.results-container .ranges {
   margin-top: 5px;
+}
+
+/* line 34, components/_search_plugin.scss */
+.features-search-results {
+  margin-top: 20px;
+  margin-left: 10px;
+  float: left;
+}
+
+/* line 40, components/_search_plugin.scss */
+.sequence-search-results {
+  margin-top: 20px;
+  margin-left: 10px;
+  float: left;
 }
 
 @-webkit-keyframes blink {

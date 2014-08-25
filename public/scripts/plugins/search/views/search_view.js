@@ -18,13 +18,35 @@ define(function(require) {
     events: {
       'click #start-search': 'readSearchTerm',
       'keyup #search-term' : 'textCapitalize',
-      'click .sequence-search-link' : 'scrollToBase'
+      'click .sequence-search-link' : 'scrollToBase',
+      'click #add-InfoCard' : 'startEditing',
+      'click .sequence-search-results': 'listSearchResults', 
+      'click .features-search-results': 'listSearchResults',
+      'click #infoCard-delete-button' : 'editInfoCard',
+      'click #infoCard-cancel-button' : 'editInfoCard',
+      'click #infoCard-edit-save-button' : 'editInfoCard'
+    },
+
+    editInfoCard: function(event){
+      event.preventDefault();
+      //create and update infocard
+      this.refresh();
+    },
+   
+    listSearchResults: function(event){
+      event.preventDefault();
+      if(event.currentTarget.id === "#sequence-results-button")
+        this.listResults = {features: false, sequence: true};
+      if(event.currentTarget.id === "#features-results-button")
+        this.listResults = {features: true, sequence:false};
+
+      this.refresh();
     },
 
     initialize: function() {
       this.model = Gentle.currentSequence;
       this.requiredTerm = false;
-      this.searchResult = false;
+      this.searchResult = {features: false, sequence: false};
       this.listenTo(this.model.getHistory(), 'change add remove', _.debounce(this.refresh, 100), this);
     },
 
@@ -90,7 +112,7 @@ define(function(require) {
           this.sequenceCanvas.refresh();
           //draw highlight
           setTimeout(function(){
-          _this.drawHighlight(rangeFrom, rangeTo);},500);
+          _this.drawHighlight(rangeFrom, rangeTo);}, 500);
     },
 
     readSearchTerm: function(event){
@@ -121,8 +143,9 @@ define(function(require) {
           this.rangesInFeatures = [],
           this.termInFeature = false,
           this.requiredTerm = false,
+          this.setDetails = false,
           features = this.model.get('features'),
-          _this = this;
+          _this = this, featureName='';
 
           while(pos = regexp.exec(sequence)){
             this.ranges.push({from: pos.index, to: pos.index+query.length});
@@ -131,20 +154,34 @@ define(function(require) {
           if(this.ranges.length > 0)
           {
              this.searchResult = true;
-             _.each(this.ranges, function(range){
+             _.each(this.ranges, function(range, index){
                 _.each(features, function(feature){
                         if(range.from>=feature.ranges[0].from && range.to<=feature.ranges[0].to)
-                        {
-                          _this.rangesInFeatures.push({from: range.from, to: range.to, name: feature.name});
-                          _this.termInFeature = true;
+                        {  
+                          if(feature.name.length > 9)
+                            featureName = feature.name.substring(0,25);
+                          else
+                            featureName = feature.name;
+                            range.featureName = featureName;
+                            range.termInFeature = true;
+                            _this.rangesInFeatures.push({from: range.from, to: range.to, name: featureName});
+                            _this.ranges.splice(index,1);
                         }
                 });
              });
           }
-          else
-          {
-             this.searchResult = false;
+         
+          if(this.ranges.length>0 && this.rangesInFeatures.length>0){
+            this.searchResult = {sequence: true, features:true };
           }
+          else if(this.ranges.length>0 && this.rangesInFeatures.length===0){
+            this.searchResult = {sequence: true, features:false };
+          }
+          else if(this.ranges.length===0 && this.rangesInFeatures.length>0){
+            this.searchResult = {sequence: false, features:true };
+          }
+
+          this.listResults = {features: false, sequence: false};
 
           this.refresh();
     },
@@ -172,13 +209,19 @@ define(function(require) {
     refresh: function() {
       this.render();
     },
-
+   
+   startEditing: function(event){
+    this.setDetails = true;
+    this.refresh();
+    },
+   
     serialize: function() {
      return { requiredTerm : this.requiredTerm,
               searchResult : this.searchResult,
               ranges : this.ranges,
-              rangesInFeatures : this.rangesInFeatures,
-              termInFeature : this.termInFeature
+              setDetails : this.setDetails,
+              listResults: this.listResults,
+              rangesInFeatures: this.rangesInFeatures
      };
     },
 

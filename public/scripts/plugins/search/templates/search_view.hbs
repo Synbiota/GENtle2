@@ -1,3 +1,33 @@
+{{#if setDetails}}
+<form>
+      <div class="form-group{{#if errors.name}} has-error{{/if}}">
+        <label class="control-label" for="infoCard-name">Name</label>
+        <input type="text" class="form-control" value="{{infoCard.name}}" name="name" id="infoCard-name">  
+      </div>
+      <div class="form-group">
+        <label class="control-label" for="edited-feature-desc">Description</label>
+        <textarea class="form-control" name="desc" id="infoCardDesc">{{infoCard.desc}}</textarea>
+      </div>
+    </form>
+
+     <div class="pull-right">
+      {{#unless creating}}
+        <button class="btn btn-danger" id="infoCard-delete-button" data-card-from="{{infoCard.from}}" data-card-to="{{infoCard.to}}">
+          <i class="glyphicon glyphicon-trash"></i>
+        </button>
+      {{/unless}}
+      <button class="btn btn-default" id="infoCard-cancel-button">
+        Cancel
+      </button>
+    </div>
+    <button class="btn btn-primary"  id="infoCard-edit-save-button">
+      {{#if creating}}
+        Create
+      {{else}}
+        Update
+      {{/if}}
+    </button>
+{{else}}
 <div class="input-group {{#if requiredTerm}}has-error{{/if}}">
       <input type="text" class="form-control" id="search-term">
       <span class="input-group-btn">
@@ -5,34 +35,59 @@
         <span class="glyphicon glyphicon-search"></span>
         </button>
       </span>
-</div><!-- /input-group -->
+</div>
+
+{{#if searchResult.sequence}}
+<button class="btn btn-primary sequence-search-results" id="#sequence-results-button">
+Sequence    
+</button>
+{{/if}}
+{{#if searchResult.features}}
+<button class="btn btn-primary features-search-results" id="#features-results-button">
+Features    
+</button>
+{{/if}}
+
+{{#if listResults.sequence}}
 <div class="results-container">
-{{#if searchResult}}
-<div class="list-group search-results" id="sequence-match-list" {{#if termInFeature}}style="width:155px; float:left"{{/if}}>
+<div class="list-group search-results" id="sequence-match-list">
         {{#each ranges}}
         <a href="#" class="list-group-item sequence-search-link" data-range-From="{{from}}" data-range-To="{{to}}">
-        <button class="btn btn-default pull-right infocard" type="button" id="add-Infocard">
+        {{!--
+        <button class="btn btn-default pull-right infocard" type="button" id="add-InfoCard">
         <span class="glyphicon glyphicon-comment"></span>
         </button>
-        <h5 class="list-group-item-heading dna-text">DNA</h5>
+        --}}
+        {{#if termInFeature}}
+        <h5 class="list-group-item-heading dna-text">
+        {{featureName}}</h5>
+        {{else}}
+        <h5 class="list-group-item-heading dna-text">
+        DNA</h5>
+        {{/if}}
         </br></br>
         <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
         </a>
         {{/each}}
     </div>
 {{/if}}
-{{#if termInFeature}}
-<div class="list-group search-results-features" id="sequence-match-list">
+{{#if listResults.features}}
+<div class="results-container">
+<div class="list-group search-results" id="sequence-match-list">
         {{#each rangesInFeatures}}
-        <div class="media">
-        <div class="media-body">
         <a href="#" class="list-group-item sequence-search-link" data-range-From="{{from}}" data-range-To="{{to}}">
-        <h5 class="list-group-item-heading feature-name">{{name}}</h5>
+        {{!--
+        <button class="btn btn-default pull-right infocard" type="button" id="add-InfoCard">
+        <span class="glyphicon glyphicon-comment"></span>
+        </button>
+        --}}
+        <h5 class="list-group-item-heading dna-text">
+        {{name}}</h5>
+        </br></br>
         <code>@{{formatThousands from 1}}-{{formatThousands to 1}}</code>
         </a>
-        </div>
-        </div>
         {{/each}}
-    </div>
-{{/if}}
 </div>
+</div>
+{{/if}}
+{{/if}}
