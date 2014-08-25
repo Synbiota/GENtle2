@@ -38,12 +38,12 @@
 </div>
 
 {{#if searchResult.sequence}}
-<button class="btn btn-primary sequence-search-results" id="#sequence-results-button">
+<button class="btn btn-primary sequence-search-results {{#if listResults.sequence}}active{{/if}}" id="#sequence-results-button">
 Sequence    
 </button>
 {{/if}}
 {{#if searchResult.features}}
-<button class="btn btn-primary features-search-results" id="#features-results-button">
+<button class="btn btn-primary features-search-results {{#if listResults.features}}active{{/if}}" id="#features-results-button">
 Features    
 </button>
 {{/if}}
