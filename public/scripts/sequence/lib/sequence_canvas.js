@@ -13,20 +13,19 @@ rendered.
 **/
 define(function(require) {
   'use strict';
-  var Artist = require('common/lib/graphics/artist'),
-    Hotkeys = require('common/lib/hotkeys'),
-    CopyPasteHandler = require('common/lib/copy_paste_handler'),
-    Lines = require('sequence/lib/lines'),
-    Caret = require('common/lib/caret'),
-    _Handlers = require('sequence/lib/_sequence_canvas_handlers'),
-    _Utilities = require('sequence/lib/_sequence_canvas_utilities'),
-    _ContextMenu = require('sequence/lib/_sequence_canvas_context_menu'),
+  var Artist = require('../../common/lib/graphics/artist'),
+    Hotkeys = require('../../common/lib/hotkeys'),
+    CopyPasteHandler = require('../../common/lib/copy_paste_handler'),
+    Lines = require('./lines'),
+    Caret = require('../../common/lib/caret'),
+    _Handlers = require('./_sequence_canvas_handlers'),
+    _Utilities = require('./_sequence_canvas_utilities'),
+    _ContextMenu = require('../lib/_sequence_canvas_context_menu'),
     Backbone = require('backbone.mixed'),
-    Styles = require('text!styles.json'),
+    Styles = require('../../styles.json'),
     Q = require('q'),
     LineStyles, SequenceCanvas;
 
-  Styles = JSON.parse(Styles);
   LineStyles = Styles.sequences.lines;
 
 

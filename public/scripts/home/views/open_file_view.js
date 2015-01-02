@@ -5,8 +5,8 @@
 **/
 define(function(require) {
   var Backbone    = require('backbone.mixed'),
-      template    = require('hbars!home/templates/open_file_view'),
-      Filetypes   = require('common/lib/filetypes/filetypes'),
+      template    = require('../templates/open_file_view.hbs'),
+      Filetypes   = require('../../common/lib/filetypes/filetypes'),
       Gentle      = require('gentle')(),
       OpenFileView;
 

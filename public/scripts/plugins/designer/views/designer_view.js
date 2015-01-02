@@ -1,6 +1,6 @@
 define(function(require) {
   var Backbone = require('backbone.mixed'),
-      template = require('hbars!../templates/designer_view_template'),
+      template = require('../templates/designer_view_template.hbs'),
       AvailableSequenceView = require('./available_sequence_view'),
       DesignedSequenceView = require('./designed_sequence_view'),
       Gentle = require('gentle')(),

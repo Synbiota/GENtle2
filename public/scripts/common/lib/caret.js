@@ -7,7 +7,7 @@
 @params {String} options.className
 **/
 define(function(require) {
-  var template = require('hbars!../templates/caret'),
+  var template = require('../templates/caret.hbs'),
       Caret;
 
   Caret = function(options) {

@@ -9,7 +9,7 @@ define(function(require) {
       DisplaySettingsView = require('./display_settings_view'),
       RestrictionEnzymesSettingsView = require('./restriction_enzymes_settings_view'),
       ExportView          = require('./export_view'),
-      SidebarView         = require('common/views/sidebar_view'),
+      SidebarView         = require('../../common/views/sidebar_view'),
       ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
       Gentle              = require('gentle')(),

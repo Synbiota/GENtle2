@@ -4,7 +4,7 @@ define(function(require) {
       Gentle = require('gentle')(),
       RestrictionEnzymes = require('../lib/restriction_enzymes'),
       RestrictionEnzymesSettingsListView = require('./restriction_enzymes_settings_list_view'),
-      template = require('hbars!../templates/restriction_enzymes_settings_view');
+      template = require('../templates/restriction_enzymes_settings_view.hbs');
 
   return Backbone.View.extend({
     template: template,

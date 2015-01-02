@@ -1,6 +1,6 @@
 define(function(require) {
   var Backbone = require('backbone.mixed'),
-      template = require('hbars!../templates/statusbar_view'),
+      template = require('../templates/statusbar_view.hbs'),
       StatusbarView;
 
   StatusbarView = Backbone.View.extend({

@@ -1,5 +1,5 @@
 define(function(require) {
-  var SynbioData = require('common/lib/synbio_data'),
+  var SynbioData = require('../../common/lib/synbio_data'),
       SequenceTransforms = require('./sequence_transforms'),
       iupacToBases,
       restrictionEnzymes,

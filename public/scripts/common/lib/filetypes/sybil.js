@@ -5,7 +5,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // SYBIL - SYnthetic Biology Interchange Language
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       FT_sybil;
 
   FT_sybil = function() {

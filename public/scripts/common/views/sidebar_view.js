@@ -6,7 +6,7 @@
 define(function(require) {
   var Backbone      = require('backbone.mixed'),
       _             = require('underscore.mixed'),
-      template      = require('hbars!common/templates/sidebar_view'),
+      template      = require('../templates/sidebar_view.hbs'),
       SidebarView;
 
   SidebarView = Backbone.View.extend({

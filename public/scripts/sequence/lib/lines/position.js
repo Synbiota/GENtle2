@@ -13,7 +13,7 @@ Options are:
 @submodule SequenceCanvas
 **/
 define(function(require) {
-  var Line = require('sequence/lib/lines/line'),
+  var Line = require('./line'),
       Position;
 
   Position = function(sequenceCanvas, options) {

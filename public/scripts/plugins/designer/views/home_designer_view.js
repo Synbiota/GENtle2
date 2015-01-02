@@ -5,8 +5,8 @@
 **/
 define(function(require) {
   var Backbone    = require('backbone.mixed'),
-      template    = require('hbars!../templates/home_designer_view'),
-      Sequence    = require('sequence/models/sequence'),
+      template    = require('../templates/home_designer_view.hbs'),
+      Sequence    = require('../../../sequence/models/sequence'),
       Gentle      = require('gentle')(),
       HomeDesignerView;
 

@@ -4,10 +4,10 @@
 @submodule Views
 **/
 define(function(require) {
-  var template = require('hbars!sequence/templates/edit_view'),
+  var template = require('../templates/edit_view.hbs'),
     Backbone = require('backbone.mixed'),
     Gentle = require('gentle')(),
-    Sequences = require('sequence/models/sequences'),
+    Sequences = require('../models/sequences'),
     EditView;
 
   EditView = Backbone.View.extend({

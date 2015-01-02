@@ -5,7 +5,7 @@
 @static
 **/
 define(function(require) {
-  var SynbioData = require('common/lib/synbio_data'),
+  var SynbioData = require('../../common/lib/synbio_data'),
       _ = require('underscore.mixed'),
       iupacToBases, toComplementsMap,
       codonToAALongMap, codonToAAShortMap,

@@ -4,11 +4,11 @@
 @class SequenceView
 **/
 define(function(require) {
-  var template                = require('hbars!../templates/sequence_view'),
+  var template                = require('../templates/sequence_view.hbs'),
       Gentle                  = require('gentle')(),
       SequenceSettingsView    = require('./settings_view'),
       SequenceEditionView     = require('./sequence_edition_view'),
-      StatusbarView           = require('common/views/statusbar_view'),
+      StatusbarView           = require('../../common/views/statusbar_view'),
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone.mixed'),

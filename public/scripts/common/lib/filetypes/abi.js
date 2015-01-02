@@ -3,7 +3,7 @@ define(function(require) {
   // ABI
  // For file format description, see http://www6.appliedbiosystems.com/support/software_community/ABIF_File_Format.pdf
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       FT_abi;
 
   FT_abi = function() {

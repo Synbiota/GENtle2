@@ -1,7 +1,7 @@
 define(function(require) {
   var Backbone        = require('backbone.mixed'),
-      SequenceView    = require('sequence/views/sequence_view'),
-      HomeView        = require('home/views/home_view'),
+      SequenceView    = require('./sequence/views/sequence_view'),
+      HomeView        = require('./home/views/home_view'),
       Gentle          = require('gentle'),
       Router;
 

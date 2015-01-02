@@ -1,7 +1,7 @@
 define(function(require) {
   var Backbone = require('backbone.mixed'),
       _ = require('underscore.mixed'),
-      template = require('hbars!../templates/restriction_enzymes_settings_list_view');
+      template = require('../templates/restriction_enzymes_settings_list_view.hbs');
 
   return Backbone.View.extend({
     template: template,

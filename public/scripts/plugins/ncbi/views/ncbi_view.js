@@ -1,9 +1,9 @@
 define(function(require) {
   var Backbone    = require('backbone.mixed'),
-      template    = require('hbars!../templates/ncbi_view'),
-      Filetypes   = require('common/lib/filetypes/filetypes'),
+      template    = require('../templates/ncbi_view.hbs'),
+      Filetypes   = require('../../../common/lib/filetypes/filetypes'),
       Gentle      = require('gentle')(),
-      Proxy       = require('common/lib/proxy'),
+      Proxy       = require('../../../common/lib/proxy'),
       ResultsView = require('./results_view'),
       Q           = require('q'),
       NCBIUrls,

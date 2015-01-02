@@ -4,11 +4,11 @@
 @class HomeView
 **/
 define(function(require) {
-  var template        = require('hbars!home/templates/home_view'),
+  var template        = require('../templates/home_view.hbs'),
       Backbone        = require('backbone.mixed'),
       Gentle          = require('gentle')(),
-      NewSequenceView = require('home/views/new_sequence_view'),
-      OpenFileView    = require('home/views/open_file_view'),
+      NewSequenceView = require('./new_sequence_view'),
+      OpenFileView    = require('./open_file_view'),
       HomeView;
 
   HomeView = Backbone.View.extend({

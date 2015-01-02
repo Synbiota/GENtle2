@@ -1,10 +1,10 @@
 define(function(require) {
   var Backbone        = require('backbone.mixed'),
       Gentle          = require('gentle')(),
-      Artist          = require('common/lib/graphics/artist'),
+      Artist          = require('../../common/lib/graphics/artist'),
       PlasmidMapCanvas = require('../lib/plasmid_map_canvas'),
       PlasmidMapVisibleRangeCanvas = require('../lib/plasmid_map_visible_range_canvas'),
-      template        = require('hbars!plasmid_map/templates/plasmid_map_view'),
+      template        = require('../templates/plasmid_map_view.hbs'),
       LinearMapView, canvas, len, from, to, height;
 
   PlasmidMapView = Backbone.View.extend({

@@ -4,10 +4,10 @@
 @submodule Views
 **/
 define(function(require) {
-  var template = require('hbars!sequence/templates/statusbar_secondary_view_switcher_view'),
+  var template = require('../templates/statusbar_secondary_view_switcher_view.hbs'),
     Backbone = require('backbone.mixed'),
     Gentle = require('gentle')(),
-    Sequences = require('sequence/models/sequences'),
+    Sequences = require('../models/sequences'),
     SecondaryViewSwitcher;
 
   SecondaryViewSwitcher = Backbone.View.extend({

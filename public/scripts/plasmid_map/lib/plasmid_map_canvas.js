@@ -1,12 +1,11 @@
 define(function(require) {
   var Q = require('q'),
-      Artist = require('common/lib/graphics/artist'),
+      Artist = require('../../common/lib/graphics/artist'),
       _ = require('underscore.mixed'),
-      RestrictionEnzymes = require('sequence/lib/restriction_enzymes'),
-      Styles = require('text!styles.json'),
+      RestrictionEnzymes = require('../../sequence/lib/restriction_enzymes'),
+      Styles = require('../../styles.json'),
       PlasmidMapCanvas;
 
-  Styles = JSON.parse(Styles);
   LineStyles = Styles.sequences.lines;
 
   PlasmidMapCanvas = function(options) {

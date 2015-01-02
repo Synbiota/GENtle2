@@ -4,10 +4,9 @@
 @class HistoryView
 **/
 define(function(require) {
-  var template = require('hbars!sequence/templates/history_view'),
+  var template = require('../templates/history_view.hbs'),
     Gentle = require('gentle')(),
     Backbone = require('backbone.mixed'),
-    BSConfirmation = require('bootstrap-confirmation'),
     HistoryView;
 
   HistoryView = Backbone.View.extend({

@@ -4,8 +4,8 @@
 @class Sequences
 **/
 define(function(require) {
-  var Sequence      = require('sequence/models/sequence'),
-      ls            = require('localstorage'),
+  var Sequence      = require('./sequence'),
+      ls            = require('backbone.localstorage'),
       Sequences;
 
   Sequences = Backbone.Collection.extend({

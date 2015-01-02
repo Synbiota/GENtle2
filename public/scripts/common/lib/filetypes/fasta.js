@@ -2,7 +2,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // FASTA
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       FT_fasta;
 
   FT_fasta = function() {

@@ -1,5 +1,5 @@
 define(function(require) {
-  var template      = require('hbars!../templates/results_view'),
+  var template      = require('../templates/results_view.hbs'),
       ResultsView;
 
   ResultsView = Backbone.View.extend({

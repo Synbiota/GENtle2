@@ -1,22 +1,25 @@
-define(function(require) {
-  var Backbone  = require('backbone'),
-      DeepModel = require('deepmodel'),
-      LayoutMgr = require('layoutmanager');
+var _ = require('underscore.mixed');
+var $ = require('jquery.mixed');
 
-  Backbone.View.prototype.parentView = function(depth) {
-    var parent;
-    depth = depth || 1;
+var Backbone = window.Backbone = require('backbone');
+Backbone.$ = $;
 
-    if(this.__manager__ && this.__manager__.parent) {
-      parent = this.__manager__.parent;
-    }
+require('backbone-deep-model');
+require('backbone.layoutmanager/backbone.layoutmanager');
 
-    if(parent && depth > 1) {
-      parent = parent.parentView(depth-1);
-    }
+Backbone.View.prototype.parentView = function(depth) {
+  var parent;
+  depth = depth || 1;
 
-    return parent;
-  };
+  if(this.__manager__ && this.__manager__.parent) {
+    parent = this.__manager__.parent;
+  }
 
-  return Backbone;
-});
+  if(parent && depth > 1) {
+    parent = parent.parentView(depth-1);
+  }
+
+  return parent;
+};
+
+module.exports = Backbone;

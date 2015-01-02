@@ -3,7 +3,7 @@ Event handlers for SequenceCanvas
 @class SequenceCanvasHandlers
 **/
 define(function(require) {
-  var Hotkeys = require('common/lib/hotkeys'),
+  var Hotkeys = require('../../common/lib/hotkeys'),
     Handlers;
 
   Handlers = function() {};

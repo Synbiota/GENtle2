@@ -4,7 +4,7 @@
 @class NavbarView
 **/
 define(function(require) {
-  var template    = require('hbars!common/templates/navbar_view'),
+  var template    = require('../templates/navbar_view.hbs'),
       Gentle      = require('gentle')(),
       Backbone    = require('backbone.mixed'),
       NavbarView;

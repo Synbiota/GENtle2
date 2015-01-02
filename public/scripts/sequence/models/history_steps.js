@@ -4,7 +4,7 @@
 @class HistorySteps
 **/
 define(function(require) {
-  var HistoryStep   = require('sequence/models/history_step'),
+  var HistoryStep   = require('./history_step'),
       History;
 
   HistorySteps = Backbone.Collection.extend({

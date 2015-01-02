@@ -4,7 +4,7 @@
 @class DisplaySettingsView
 **/
 define(function(require) {
-  var template        = require('hbars!sequence/templates/display_settings_view'),
+  var template        = require('../templates/display_settings_view.hbs'),
       Gentle          = require('gentle')(),
       Backbone        = require('backbone.mixed'),
       _               = require('underscore.mixed'),

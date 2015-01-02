@@ -3,8 +3,8 @@
 @submodule Views
 **/
 define(function(require) {
-  var template      = require('hbars!common/templates/layout'),
-      NavbarView    = require('common/views/navbar_view'),
+  var template      = require('../templates/layout.hbs'),
+      NavbarView    = require('./navbar_view'),
       Backbone      = require('backbone.mixed'),
       Layout;
 

@@ -1,6 +1,6 @@
 define(function(require) {
   var PlasmidMapCanvas = require('./plasmid_map_canvas'),
-      Artist = require('common/lib/graphics/artist'),
+      Artist = require('../../common/lib/graphics/artist'),
       PlasmidMapVisibleRangeCanvas;
 
   PlasmidMapVisibleRangeCanvas = function(options) {

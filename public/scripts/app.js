@@ -2,53 +2,38 @@
 Gentle app definition.
 **/
 
-require([
-    'require',
-    'jquery.mixed',
-    'text!config.json',
-    'common/views/layout',
-    'domReady',
-    'router',
-    'sequence/models/sequences',
-    'underscore.mixed',
-    'backbone.mixed',
-    'gentle',
-    // Just loading libraries, no object created
-    'common/lib/polyfills',
-    'Blob'
-  ], function(require, $, config, Layout, domReady, Router, Sequences, _, Backbone, Gentle) {
+var $ = require('jquery.mixed');
+var _ = require('underscore.mixed');
+var Backbone = require('backbone.mixed');
+var Gentle = require('./common/models/gentle');
+var config = require('./config.json');
+var Layout = require('./common/views/layout');
+var Router = require('./router');
+var Sequences = require('./sequence/models/sequences');
 
-  var plugins = [];
+var ncbi = require('./plugins/ncbi/plugin');
+var designer = require('./plugins/designer/plugin'); 
 
-  config = JSON.parse(config);
+var plugins = [ncbi, designer];
 
-  if(_.isArray(config.plugins)) {
-    plugins = _.map(config.plugins, function(plugin) {
-      return 'plugins/' + plugin + '/plugin';
-    });
-  }
 
-  require(plugins, function() {
 
-    Gentle = Gentle();
+Gentle = Gentle();
 
-    Gentle.config = config;
+Gentle.config = config;
 
-    Gentle.sequences = new Sequences();
+Gentle.sequences = new Sequences();
 
-    Gentle.sequences.fetch();
-    
-    Gentle.router = new Router();
-    window.gentle = Gentle;
+Gentle.sequences.fetch();
 
-    domReady(function() {
-      Gentle.layout = new Layout();
-      Backbone.history.start();
+Gentle.router = new Router();
+window.gentle = Gentle;
 
-      _.each(_.where(Gentle.plugins, {type: 'init'}), function(plugin) {
-        plugin.data.afterDomReady && plugin.data.afterDomReady(Gentle);
-      });
-    });
+$(function() {
+  Gentle.layout = new Layout();
+  Backbone.history.start();
+
+  _.each(_.where(Gentle.plugins, {type: 'init'}), function(plugin) {
+    plugin.data.afterDomReady && plugin.data.afterDomReady(Gentle);
   });
-
 });

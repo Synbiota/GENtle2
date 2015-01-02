@@ -5,8 +5,8 @@
 **/
 define(function(require) {
   var Backbone    = require('backbone.mixed'),
-      template    = require('hbars!home/templates/new_sequence_view'),
-      Filetypes   = require('common/lib/filetypes/filetypes'),
+      template    = require('../templates/new_sequence_view.hbs'),
+      Filetypes   = require('../../common/lib/filetypes/filetypes'),
       Gentle      = require('gentle')(),
       NewSequenceView;
 

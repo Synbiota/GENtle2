@@ -2,7 +2,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // Clone Manager CM5 Text
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       FT_cm5_text;
 
   FT_cm5_text = function() {

@@ -4,7 +4,7 @@ define(function(require) {
  // See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
  // For V3.1 RfC, see http://staden.sourceforge.net/scf-rfc.html
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       FT_scf;
 
   FT_scf = function() {

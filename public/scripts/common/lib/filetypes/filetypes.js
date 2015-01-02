@@ -13,16 +13,16 @@ define(function(require) {
   //     FT_sybil        = require('lib/files/sybil'),
   //     Filetype;
 
-  var FT_plaintext    = require('common/lib/filetypes/plaintext'),
-      FT_fasta        = require('common/lib/filetypes/fasta'),
-      FT_sybil        = require('common/lib/filetypes/sybil'),
-      FT_genebank     = require('common/lib/filetypes/genebank'),
-      FT_scf          = require('common/lib/filetypes/scf'),
-      FT_abi          = require('common/lib/filetypes/abi'),
-      FT_cm5          = require('common/lib/filetypes/cm5'),
-      FT_cm5_text     = require('common/lib/filetypes/cm5_text'),
+  var FT_plaintext    = require('./plaintext'),
+      FT_fasta        = require('./fasta'),
+      FT_sybil        = require('./sybil'),
+      FT_genebank     = require('./genebank'),
+      FT_scf          = require('./scf'),
+      FT_abi          = require('./abi'),
+      FT_cm5          = require('./cm5'),
+      FT_cm5_text     = require('./cm5_text'),
       Q               = require('q'),
-      saveAs          = require('saveAs'),
+      saveAs          = require('filesaver.js'),
       Filetype;
 
   Filetypes = function() {};

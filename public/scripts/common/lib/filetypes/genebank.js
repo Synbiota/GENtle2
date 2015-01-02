@@ -2,7 +2,7 @@ define(function(require) {
   //________________________________________________________________________________________
   // GeneBank
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       _       = require('underscore.mixed'),
       FT_genebank;
 

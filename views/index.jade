@@ -10,8 +10,11 @@ html(lang="en")
         span Loading...
         i.glyphicon.glyphicon-refresh
 
-    if env == 'development'
-      script(data-main="scripts/app" src="vendor/scripts/require.js")
-      script(type="text/javascript" src="scripts/require.config.js")
-    else
-      script(data-main="scripts/app.min" src="vendor/scripts/require.js")
+
+    script(type="text/javascript" src="scripts/app.min.js")
+
+    //- if env == 'development'
+    //-   script(data-main="scripts/app" src="vendor/scripts/require.js")
+    //-   script(type="text/javascript" src="scripts/require.config.js")
+    //- else
+    //- script(data-main="scripts/app.min" src="vendor/scripts/require.js")

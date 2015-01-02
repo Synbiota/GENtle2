@@ -4,7 +4,7 @@
 @class ToolsView
 **/
 define(function(require) {
-  var template        = require('hbars!../templates/tools_view'),
+  var template        = require('../templates/tools_view.hbs'),
       Backbone        = require('backbone.mixed'),
       ToolsView;
   

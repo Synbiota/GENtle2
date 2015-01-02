@@ -17,7 +17,7 @@ define(function(require) {
   // Plain text
 
 
-  var FT_base = require('common/lib/filetypes/base'),
+  var FT_base = require('./base'),
       FT_plaintext;
 
 

@@ -16,7 +16,7 @@ Options are:
 @extends Lines.Line
 **/
 define(function(require) {
-  var Line = require('sequence/lib/lines/line'),
+  var Line = require('./line'),
       _    = require('underscore.mixed'),
       Feature;
 

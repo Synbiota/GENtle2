@@ -1,7 +1,7 @@
 define(function(require) {
   var Backbone        = require('backbone.mixed'),
       Gentle          = require('gentle')(),
-      template        = require('hbars!linear_map/templates/linear_map_view'),
+      template        = require('../templates/linear_map_view.hbs'),
       LinearMapView;
 
   LinearMapView = Backbone.View.extend({

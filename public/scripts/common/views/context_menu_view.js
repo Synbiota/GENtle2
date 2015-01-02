@@ -3,7 +3,7 @@
 @submodule Views
 **/
 define(function(require) {
-  var template        = require('hbars!common/templates/context_menu_view'),
+  var template        = require('../templates/context_menu_view.hbs'),
       Backbone        = require('backbone.mixed'),
       ContextMenuView;
 

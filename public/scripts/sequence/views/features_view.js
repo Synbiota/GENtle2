@@ -4,11 +4,10 @@
 @class FeaturesView
 **/
 define(function(require) {
-  var template = require('hbars!sequence/templates/features_view'),
+  var template = require('../templates/features_view.hbs'),
     Gentle = require('gentle')(),
-    SynbioData = require('common/lib/synbio_data'),
+    SynbioData = require('../../common/lib/synbio_data'),
     Backbone = require('backbone.mixed'),
-    BSConfirmation = require('bootstrap-confirmation'),
     FeaturesView;
 
   FeaturesView = Backbone.View.extend({

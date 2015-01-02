@@ -9,7 +9,7 @@ Options are:
 @submodule SequenceCanvas
 **/
 define(function(require) {
-  var Line = require('sequence/lib/lines/line'),
+  var Line = require('./line'),
       Blank;
 
   Blank = function(sequenceCanvas, options) {
