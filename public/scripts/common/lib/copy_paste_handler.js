@@ -1,12 +1,11 @@
-define(function(require) {
-  var Q = require('q'),
-      CopyPasteHandler;
+import Q from 'q';
 
-  CopyPasteHandler = function() {
+export default class {
+  constructor() {
     this.copiedValue = undefined;
-  };
+  }
 
-  CopyPasteHandler.prototype.createBufferElement = function(callback) {
+  createBufferElement(callback) {
     var _this = this,
         $element = $('<textarea/>')
           .css({
@@ -43,28 +42,24 @@ define(function(require) {
 
     return $element;
 
-  };
+  }
 
-  CopyPasteHandler.prototype.fakeCopy = function(text) {
+  fakeCopy(text) {
     this.copiedValue = text;
-  };
+  }
 
-  CopyPasteHandler.prototype.copy = function(text) {
+  copy(text) {
     this.fakeCopy(text);
     this.createBufferElement().text(text).select();
-  };
+  }
 
-  CopyPasteHandler.prototype.paste = function() {
+  paste() {
     var _this = this;
-    return Q.promise(function(resolve) {
-
-      _this.createBufferElement(function(text) {
+    return Q.promise((resolve) => {
+      this.createBufferElement(function(text) {
         resolve(text);
       });
-
     });
 
-  };
-
-  return CopyPasteHandler;
-});
+  }
+}

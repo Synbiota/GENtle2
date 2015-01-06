@@ -7,7 +7,7 @@ define(function(require) {
   var Shape = require('./shape'),
       Rect;
 
-  Washer =  function(artist, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise,  arrowHead, stroke, text){
+  var Washer =  function(artist, centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise,  arrowHead, stroke, text){
     this.centreX = centreX || 0;
     this.centreY = centreY || 0;
     this.innerRadius = innerRadius || 0;

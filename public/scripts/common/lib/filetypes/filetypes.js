@@ -25,7 +25,7 @@ define(function(require) {
       saveAs          = require('filesaver.js'),
       Filetype;
 
-  Filetypes = function() {};
+  var Filetypes = function() {};
 
   Filetypes.types = {
     cm5:        FT_cm5,

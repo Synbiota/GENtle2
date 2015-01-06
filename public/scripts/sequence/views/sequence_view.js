@@ -37,7 +37,7 @@ define(function(require) {
 
     initStatusbarView: function() {
       var sequence = this.model;
-      statusbarView = this.statusbarView = new StatusbarView();
+      var statusbarView = this.statusbarView = new StatusbarView();
       this.setView('.sequence-statusbar-outlet', statusbarView);
 
       statusbarView.addSection({

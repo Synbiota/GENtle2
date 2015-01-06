@@ -14,24 +14,8 @@
     "bootstrap": "./public/vendor/bootstrap/js/bootstrap.js",
     "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js"
   },
-  "browserify": {
-    "transform": [
-      ["hbsfy", {
-          "compiler": "require('handlebars.mixed')"
-      }],
-      "browserify-shim",
-      "deamdify"
-    ]
-  },
-  "browserify-shim": {
-    "backbone-deep-model": {
-      "depends": [
-        "underscore",
-        "backbone"
-      ]
-    }
-  },
   "dependencies": {
+    "6to5ify": "^3.1.0",
     "backbone": "~1.1.2",
     "backbone-deep-model": "~0.11.0",
     "backbone.layoutmanager": "~0.9.5",
@@ -40,6 +24,7 @@
     "browserify-shim": "^3.8.1",
     "filesaver.js": "~0.1.1",
     "grunt": "~0.4.1",
+    "grunt-browserify": "^3.2.1",
     "grunt-cli": "0.1.9",
     "handlebars": "~2.0.0",
     "hbsfy": "^2.2.1",
@@ -55,18 +40,21 @@
     "q": "~1.1.2",
     "then-jade": "^2.0.0",
     "underscore": "^1.6.0",
-    "underscore-deep-extend": "0.0.5"
+    "underscore-deep-extend": "0.0.5",
+    "yuidoc-bootstrap-theme": "^1.0.4"
   },
   "devDependencies": {
+    "amdefine": "~0.1.0",
+    "benchmark": "~1.0.0",
+    "deamdify": "Automattic/deamdify.git#master",
+    "grunt-concurrent": "^1.0.0",
+    "grunt-contrib-compass": "^0.8.0",
+    "grunt-contrib-sass": "^0.7.3",
     "grunt-contrib-watch": "~0.5.3",
     "grunt-contrib-yuidoc": "~0.5.0",
-    "grunt-contrib-sass": "^0.7.3",
-    "benchmark": "~1.0.0",
-    "amdefine": "~0.1.0",
     "grunt-notify": "0.2.20",
-    "sassyjson": "^1.1.8",
-    "grunt-contrib-compass": "^0.8.0",
-    "deamdify": "Automattic/deamdify.git#master"
+    "grunt-watchify": "^0.1.0",
+    "sassyjson": "^1.1.8"
   },
   "scripts": {
     "start": "nf start webdev,doc",

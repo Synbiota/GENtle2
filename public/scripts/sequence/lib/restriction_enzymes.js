@@ -1,16 +1,13 @@
 define(function(require) {
-  var SynbioData = require('../../common/lib/synbio_data'),
-      SequenceTransforms = require('./sequence_transforms'),
-      iupacToBases,
-      restrictionEnzymes,
-      restrictionEnzymesByBases,
-      restrictionEnzymesByLength,
-      RestrictionEnzymes;
+  var SynbioData = require('../../common/lib/synbio_data');
+  var SequenceTransforms = require('./sequence_transforms');
+  var restrictionEnzymes;
+  var restrictionEnzymesByBases;
+  var restrictionEnzymesByLength;
+  var iupacToBases = SequenceTransforms.iupacToBases;
+  var reverseComplements = SequenceTransforms.toReverseComplements;
 
-  iupacToBases = SequenceTransforms.iupacToBases;
-  reverseComplements = SequenceTransforms.toReverseComplements;
-
-  RestrictionEnzymes = {};
+  var RestrictionEnzymes = {};
 
   RestrictionEnzymes.all = function() {
     restrictionEnzymes = restrictionEnzymes || (function() {

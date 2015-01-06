@@ -163,12 +163,9 @@ define(function(require) {
     },
 
     insertTabs: function() {
-      var _this = this,
-          name;
-
-      _.each(this.getVisibleTabs(), function(tab) {
-        name = '#' + _this.sidebarName + '-' + tab.name ;
-        _this.setView(name+ '-tab .sidebar-tab-outlet', tab.view).render();
+      _.each(this.getVisibleTabs(), (tab) => {
+        var name = '#' + this.sidebarName + '-' + tab.name ;
+        this.setView(name+ '-tab .sidebar-tab-outlet', tab.view).render();
         tab.view.$toggleButton = this.$('[href="' + name + '"]');
       });
     },

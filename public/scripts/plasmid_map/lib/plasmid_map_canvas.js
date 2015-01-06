@@ -6,7 +6,7 @@ define(function(require) {
       Styles = require('../../styles.json'),
       PlasmidMapCanvas;
 
-  LineStyles = Styles.sequences.lines;
+  var LineStyles = Styles.sequences.lines;
 
   PlasmidMapCanvas = function(options) {
     this.mouseTool = {};

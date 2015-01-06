@@ -7,7 +7,7 @@ define(function(require) {
   var HistoryStep   = require('./history_step'),
       History;
 
-  HistorySteps = Backbone.Collection.extend({
+  var HistorySteps = Backbone.Collection.extend({
     model: HistoryStep,
     comparator: function(historyStep) {
       return - historyStep.get('timestamp');

@@ -6,6 +6,8 @@
   "options": {
     "paths": ["./public/scripts"],
     "exclude": "app.min.js",
-    "outdir": "docs/"
+    "outdir": "docs/",
+    "themedir": "node_modules/yuidoc-bootstrap-theme",
+    "helpers": ["node_modules/yuidoc-bootstrap-theme/helpers/helpers.js"]
   }
 }

@@ -7,7 +7,7 @@ define(function(require) {
       template        = require('../templates/plasmid_map_view.hbs'),
       LinearMapView, canvas, len, from, to, height;
 
-  PlasmidMapView = Backbone.View.extend({
+  var PlasmidMapView = Backbone.View.extend({
     manage: true,
     className: 'plasmid-map',
     template: template,
