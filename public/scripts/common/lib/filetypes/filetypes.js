@@ -123,7 +123,7 @@ define(function(require) {
       throw new TypeError();
     }
     file = new FileType();
-    return file.getExportString(sequence);
+    return file.getExportString(_.isObject(sequence.attributes) ? sequence.attributes : sequence);
   };
 
   /**

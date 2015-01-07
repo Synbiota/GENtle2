@@ -16,12 +16,15 @@ var designer = require('./plugins/designer/plugin');
 
 var plugins = [ncbi, designer];
 
+var Blast = require('./plugins/blast/lib/blast_request');
+window.blast = Blast;
+
 
 
 Gentle = Gentle();
 
 Gentle.config = config;
-
+  
 Gentle.sequences = new Sequences();
 
 Gentle.sequences.fetch();
