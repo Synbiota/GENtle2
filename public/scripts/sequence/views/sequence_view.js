@@ -71,7 +71,7 @@ define(function(require) {
 
       primaryViews.push({
         name: 'edition',
-        title: 'Edition',
+        title: 'Edition mode',
         view: SequenceEditionView
       });
 
@@ -88,6 +88,9 @@ define(function(require) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
           actualView = new primaryView.view();
 
+      
+      if(this.primaryView) this.primaryView.current = false;
+      primaryView.current = true;
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;
       this.model.set('displaySettings.primaryView', viewName).throttledSave();

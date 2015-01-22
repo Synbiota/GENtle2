@@ -5,6 +5,6 @@ Gentle = Gentle();
 
 Gentle.addPlugin('sequence-primary-view', {
   name: 'blast',
-  title: 'Blast',
+  title: 'Blast mode',
   view: BlastView
 });

@@ -6,8 +6,8 @@
 
 #sequence-primary-view-outlet {
   position: absolute;
-  top: 0;
-  bottom: 21px;
+  top: 30px;
+  bottom: 0;
   right: 0;
 }
 
@@ -43,7 +43,7 @@
 
 .sequence-statusbar-outlet {
   position: absolute;
-  bottom: 0;
+  top: 0;
   width: 100%;
 }
 

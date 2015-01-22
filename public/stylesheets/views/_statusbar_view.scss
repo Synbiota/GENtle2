@@ -1,15 +1,53 @@
 .statusbar {
-  height: 20px;
+  height: 30px;
+  line-height: 26px;
   font-size: 11px;
-  background-color:  #e5e5e5;
-  border-top: 1px solid #ddd;
+  background-color: #F5F4F4;
+  border-bottom: 1px solid #ddd;
 
   .statusbar-section {
+    height: 29px;
     background: white;
     padding: 2px 10px 2px 10px;
     border-right: 1px solid #ddd;
     float: left;
   } 
+
+  .large-statusbar-section {
+    font-size: 14px;
+    line-height: 24px; 
+    margin-top: 1px; 
+
+    .caret {
+      position: relative;
+      margin-top: 0;
+      margin-left: 4px;
+    }
+
+    & > i {
+      font-size: 18px;
+      margin: 1px 23px 0 7px;
+      float: left;
+    }
+
+    button {
+      border-color: white;
+      font-size: 14px;
+      margin-top: -3px;
+      height: 25px;
+      padding-left: 10px;
+      padding-right: 10px;
+
+      &:hover {
+        border-color: #cccccc;
+      }
+    }
+
+    ul.dropdown-menu {
+      margin-left: 74px;
+      margin-top: -2px;
+    }
+  }
 
   a {
     text-decoration: none;
