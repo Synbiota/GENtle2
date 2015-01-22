@@ -2,66 +2,78 @@ import $ from 'jquery.mixed';
 import Q from 'q';
 
 export default {
-  get: function(url) {
+  get: function(url, data, method) {
+    method = method || 'GET';
+    data = data || {};
+
     return Q(
       $.ajax({
         url: '/p/'+encodeURIComponent(url),
-        method: 'POST'
+        method: 'POST',
+        data: data
       })
     );
   },
 
-  yqlExtractHtml: function(url, data, selector) {
-    return this.yqlQuery(
-      'SELECT * FROM data.html.cssselect ' + 
-      'WHERE url=\'{{url}}\' AND css=\''+selector+'\'',
-      url, 
-      data
-    ).then(function(data) { 
-      return _.isObject(data.query.results) ? 
-        data.query.results.results : 
+  yqlExtractHtml: function(url, data, xpathSelector) {
+    var query = "SELECT * FROM html WHERE compat='html5' " +
+      "AND xpath='" + xpathSelector.replace(/'/g, '"') + "'";
+
+    console.log(xpathSelector)
+    return this.yqlQuery(query, url, data).then(function(data) { 
+      return typeof data.query.results == 'object' ? 
+        data.query.results : 
         {};
     });
   },
 
   yqlExtractHtmlPost: function(url, data, xpathSelector) {
-    return this.yqlQuery(
-      'SELECT * FROM htmlpost WHERE url=\'{{url}}\' '+
-      'AND postdata=\'' + this.serializeParams(data) + '\' '+
-      'AND xpath=\'' + xpathSelector.replace(/'/g, '"') + '\'',
-      url, {}
-    ).then(function(data) {
-      return _.isObject(data.query.results) ? 
-        data.query.results.postresult : 
-        {};
-    });
+    xpathSelector = xpathSelector || '//body';
+
+    var query = 'SELECT * FROM htmlpost WHERE' +
+      'postdata=\'' + this.serializeParams(data) + '\' ' +
+      'AND xpath=\'' + xpathSelector.replace(/'/g, '"') + '\'';
+
+    console.log(xpathSelector)
+    return this.yqlQuery(query, url, {}, 'POST', 'xml');
   },
 
   yqlGetXml: function(url, data) {
-    return this.yqlQuery('SELECT * FROM xml WHERE url=\'{{url}}\'', url, data)
+    return this.yqlQuery('SELECT * FROM xml', url, data)
       .then(function(data) {
         return data.query.results;
       });
   },
 
   serializeParams: function(data) {
-    return _.map(data || {}, (value, key) => key + '=' + value).join('&');
+    data = data || {};
+    return Object.keys(data).map((key) => key + '=' + data[key]).join('&');
   },
 
-  yqlQuery: function(query, url, data, method) {
+  yqlQuery: function(query, url, data, method, format) {
     method = method || 'POST';
     url = url + '?' + this.serializeParams(data);
-    query = query.replace('{{url}}', url);
+    format = format || 'json';
+
+    var whereRegexp = /where/i;
+    var whereClause = "WHERE url='"+url+"'";
+
+    query = whereRegexp.test(query) ? 
+      query.replace(whereRegexp, () => whereClause + ' AND ') : 
+      query + ' ' + whereClause;
+
+    console.log('query', query, method, format)
+
     if(method !== 'POST') query = encodeURIComponent(query);
 
     return Q($.ajax({
       url:  'https://query.yahooapis.com/v1/public/yql',
       type: method,
-      dataType: 'json',
+      dataType: format,
       data: {
         q: query,
         env: 'http://datatables.org/alltables.env',
-        format: 'json'
+        format: format
       }
     }));
   }

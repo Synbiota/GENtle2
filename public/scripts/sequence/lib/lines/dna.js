@@ -25,10 +25,10 @@ define(function(require) {
   };
   _.extend(DNA.prototype, Line.prototype);
 
-  DNA.prototype.setTextColour = function(base) {
+  DNA.prototype.setTextColour = function(base, pos) {
     var artist = this.sequenceCanvas.artist;
     if(_.isFunction(this.textColour)) {
-      artist.updateStyle({fillStyle: this.textColour(base)});
+      artist.updateStyle({fillStyle: this.textColour(base, pos)});
     } else {
       artist.updateStyle({fillStyle: this.textColour});
     }
@@ -44,7 +44,7 @@ define(function(require) {
         k, x, subSequence, character;
 
     artist.updateStyle({font: this.textFont});
-    x = ls.pageMargins.left;
+    x = ls.pageMargins.left + (this.leftMargin || 0);
     
     subSequence = (_.isFunction(this.getSubSeq) ? 
       this.getSubSeq : 
@@ -71,10 +71,11 @@ define(function(require) {
           if(this.selectionTextColour) {
             artist.updateStyle({fillStyle: this.selectionTextColour});
           } else {
-            this.setTextColour(character);
+            this.setTextColour(character, k+baseRange[0]);
           }
+
         } else {
-          this.setTextColour(character);
+          this.setTextColour(character, k+baseRange[0]);
         }
 
         artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));

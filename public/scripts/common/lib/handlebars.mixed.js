@@ -92,4 +92,14 @@ Handlebars.registerHelper('ifOr', function() {
 
 });
 
+Handlebars.registerHelper('pluralize', function(number, singular, plural) {
+  return number === 1 ? 
+    singular : 
+    (typeof plural === 'string' ? plural : singular + 's');
+});
+
+Handlebars.registerHelper('pluralCount', function(number, singular, plural) {
+  return number + ' ' + Handlebars.helpers.pluralize.apply(this, arguments); 
+});
+
 module.exports = Handlebars;

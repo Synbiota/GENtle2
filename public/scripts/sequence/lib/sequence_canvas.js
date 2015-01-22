@@ -115,113 +115,122 @@ define(function(require) {
       basePairDims: {
         width: 10,
         height: 15
-      },
-      lines: options.lines || {
-
-        // Blank line
-        topSeparator: new Lines.Blank(this, {
-          height: 5,
-          visible: function() {
-            return _this.sequence.get('displaySettings.rows.separators');
-          }
-        }),
-
-        // Restriction Enzyme Sites
-        restrictionEnzymesLabels: new Lines.RestrictionEnzymeLabels(this, {
-          unitHeight: 10,
-          textFont: LineStyles.RES.text.font,
-          textColour: LineStyles.RES.text.color,
-        }),
-
-        // Position numbering
-        position: new Lines.Position(this, {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.position.text.font,
-          textColour: LineStyles.position.text.color,
-          transform: _.formatThousands,
-          visible: _.memoize2(function() {
-            return _this.sequence.get('displaySettings.rows.numbering');
-          })
-        }),
-
-        // Aminoacids
-        aa: new Lines.DNA(this, {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.aa.text.font,
-          transform: function(base) {
-            return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
-          },
-          visible: _.memoize2(function() {
-            return _this.sequence.get('displaySettings.rows.aa') != 'none';
-          }),
-          textColour: function(codon) {
-            var colors = LineStyles.aa.text.color;
-            return colors[codon.sequence] || colors._default;
-          }
-        }),
-
-        // DNA Bases
-        dna: new Lines.DNA(this, {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.dna.text.font,
-          textColour: LineStyles.dna.text.color,
-          selectionColour: LineStyles.dna.selection.fill,
-          selectionTextColour: LineStyles.dna.selection.color
-        }),
-
-        // Complements
-        complements: new Lines.DNA(this, {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.complements.text.font,
-          textColour: LineStyles.complements.text.color,
-          getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
-          visible: _.memoize2(function() {
-            return _this.sequence.get('displaySettings.rows.complements');
-          })
-        }),
-
-        // Annotations
-        features: new Lines.Feature(this, {
-          unitHeight: 15,
-          baseLine: 10,
-          textFont: LineStyles.features.font,
-          topMargin: 3,
-          textColour: function(type) {
-            var colors = LineStyles.features.color;
-            type = type.toLowerCase();
-            return (colors[type] && colors[type].color) || colors._default.color;
-          },
-          textPadding: 2,
-          margin: 2,
-          lineSize: 2,
-          colour: function(type) {
-            var colors = LineStyles.features.color;
-            type = type.toLowerCase();
-            return (colors[type] && colors[type].fill) || colors._default.fill;
-          },
-          visible: _.memoize2(function() {
-            return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
-          })
-        }),
-
-        // Blank line
-        bottomSeparator: new Lines.Blank(this, {
-          height: 10,
-          visible: _.memoize2(function() {
-            return _this.sequence.get('displaySettings.rows.separators');
-          })
-        }),
-
-        // Restriction Enzyme Sites
-        restrictionEnzymeSites: new Lines.RestrictionEnzymeSites(this, {
-          floating: true
-        }),
-
       }
+    };
+
+    if(_.isObject(options.lines)) {
+      _.each(options.lines, (value, key) => {
+        options.lines[key] = new Lines[value[0]](this, value[1] || {});
+      });
+
+      console.log('lines', options.lines)
+    } 
+
+    this.layoutSettings.lines = options.lines || {
+
+      // Blank line
+      topSeparator: new Lines.Blank(this, {
+        height: 5,
+        visible: function() {
+          return _this.sequence.get('displaySettings.rows.separators');
+        }
+      }),
+
+      // Restriction Enzyme Sites
+      restrictionEnzymesLabels: new Lines.RestrictionEnzymeLabels(this, {
+        unitHeight: 10,
+        textFont: LineStyles.RES.text.font,
+        textColour: LineStyles.RES.text.color,
+      }),
+
+      // Position numbering
+      position: new Lines.Position(this, {
+        height: 15,
+        baseLine: 15,
+        textFont: LineStyles.position.text.font,
+        textColour: LineStyles.position.text.color,
+        transform: _.formatThousands,
+        visible: _.memoize2(function() {
+          return _this.sequence.get('displaySettings.rows.numbering');
+        })
+      }),
+
+      // Aminoacids
+      aa: new Lines.DNA(this, {
+        height: 15,
+        baseLine: 15,
+        textFont: LineStyles.aa.text.font,
+        transform: function(base) {
+          return _this.sequence.getAA(_this.sequence.get('displaySettings.rows.aa'), base, parseInt(_this.sequence.get('displaySettings.rows.aaOffset')));
+        },
+        visible: _.memoize2(function() {
+          return _this.sequence.get('displaySettings.rows.aa') != 'none';
+        }),
+        textColour: function(codon) {
+          var colors = LineStyles.aa.text.color;
+          return colors[codon.sequence] || colors._default;
+        }
+      }),
+
+      // DNA Bases
+      dna: new Lines.DNA(this, {
+        height: 15,
+        baseLine: 15,
+        textFont: LineStyles.dna.text.font,
+        textColour: LineStyles.dna.text.color,
+        selectionColour: LineStyles.dna.selection.fill,
+        selectionTextColour: LineStyles.dna.selection.color
+      }),
+
+      // Complements
+      complements: new Lines.DNA(this, {
+        height: 15,
+        baseLine: 15,
+        textFont: LineStyles.complements.text.font,
+        textColour: LineStyles.complements.text.color,
+        getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
+        visible: _.memoize2(function() {
+          return _this.sequence.get('displaySettings.rows.complements');
+        })
+      }),
+
+      // Annotations
+      features: new Lines.Feature(this, {
+        unitHeight: 15,
+        baseLine: 10,
+        textFont: LineStyles.features.font,
+        topMargin: 3,
+        textColour: function(type) {
+          var colors = LineStyles.features.color;
+          type = type.toLowerCase();
+          return (colors[type] && colors[type].color) || colors._default.color;
+        },
+        textPadding: 2,
+        margin: 2,
+        lineSize: 2,
+        colour: function(type) {
+          var colors = LineStyles.features.color;
+          type = type.toLowerCase();
+          return (colors[type] && colors[type].fill) || colors._default.fill;
+        },
+        visible: _.memoize2(function() {
+          return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
+        })
+      }),
+
+      // Blank line
+      bottomSeparator: new Lines.Blank(this, {
+        height: 10,
+        visible: _.memoize2(function() {
+          return _this.sequence.get('displaySettings.rows.separators');
+        })
+      }),
+
+      // Restriction Enzyme Sites
+      restrictionEnzymeSites: new Lines.RestrictionEnzymeSites(this, {
+        floating: true
+      })
+
     };
 
     this.layoutHelpers = {};
@@ -431,13 +440,22 @@ define(function(require) {
     }
   };
 
+  SequenceCanvas.prototype.drawHighlight = function(posY, baseRange) {
+    var layoutHelpers = this.layoutHelpers;
+    var startX = this.getXPosFromBase(baseRange[0]);
+    var endX = this.getXPosFromBase(baseRange[1]);
+
+    this.artist.rect(startX, posY, endX - startX, layoutHelpers.rows.height, {
+      fillStyle: '#fcf8e3'
+    });
+  };
+
   /** 
   Draw row at position posY in the canvas
   @method drawRow
   @param {integer} posY
   **/
   SequenceCanvas.prototype.drawRow = function(posY) {
-
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
       layoutHelpers = this.layoutHelpers,
@@ -446,9 +464,18 @@ define(function(require) {
       canvasHeight = layoutSettings.canvasDims.height,
       bottomMargin = layoutSettings.pageMargins.bottom,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
+      highlight = this.highlight,
       initPosY = posY;
 
     this.artist.clear(posY, rowsHeight);
+
+    if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
+      this.drawHighlight(posY, [
+        Math.max(baseRange[0], highlight[0]), 
+        Math.min(baseRange[1], highlight[1])
+      ]);
+    }
+
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
@@ -586,6 +613,16 @@ define(function(require) {
     this.displayDeferred.promise.then(function() {
       func.apply(_this, args);
     });
+  };
+
+  SequenceCanvas.prototype.highlightBaseRange = function(fromBase, toBase) {
+    if(fromBase === undefined) {
+      this.highlight = undefined;
+    } else {
+      this.highlight = [fromBase, toBase];
+    }
+
+    this.refresh();
   };
 
   /**
