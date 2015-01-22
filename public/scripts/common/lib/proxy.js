@@ -19,7 +19,6 @@ export default {
     var query = "SELECT * FROM html WHERE compat='html5' " +
       "AND xpath='" + xpathSelector.replace(/'/g, '"') + "'";
 
-    console.log(xpathSelector)
     return this.yqlQuery(query, url, data).then(function(data) { 
       return typeof data.query.results == 'object' ? 
         data.query.results : 
@@ -34,7 +33,6 @@ export default {
       'postdata=\'' + this.serializeParams(data) + '\' ' +
       'AND xpath=\'' + xpathSelector.replace(/'/g, '"') + '\'';
 
-    console.log(xpathSelector)
     return this.yqlQuery(query, url, {}, 'POST', 'xml');
   },
 
@@ -61,8 +59,6 @@ export default {
     query = whereRegexp.test(query) ? 
       query.replace(whereRegexp, () => whereClause + ' AND ') : 
       query + ' ' + whereClause;
-
-    console.log('query', query, method, format)
 
     if(method !== 'POST') query = encodeURIComponent(query);
 

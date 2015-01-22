@@ -24,7 +24,10 @@
               </div>
             </div>
           {{else}}
-            <h4>Results for request <strong>{{blastRequest.RID}}</strong></h4>
+            <h4>
+              <button class="btn btn-default btn-xs pull-right blast-run-new">Run new search</button>
+              Results for request <strong>{{blastRequest.RID}}</strong>
+            </h4>
             {{#unless blastRequest.results}}
               <br><br>
               <p class="text-danger">No results</p>

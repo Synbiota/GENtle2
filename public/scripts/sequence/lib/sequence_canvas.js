@@ -122,8 +122,6 @@ define(function(require) {
       _.each(options.lines, (value, key) => {
         options.lines[key] = new Lines[value[0]](this, value[1] || {});
       });
-
-      console.log('lines', options.lines)
     } 
 
     this.layoutSettings.lines = options.lines || {

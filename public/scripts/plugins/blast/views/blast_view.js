@@ -24,6 +24,7 @@ export default Backbone.View.extend({
     this.alignView = new AlignView();
     this.setView('#blast-align-container', this.alignView);
     this.model = Gentle.currentSequence;
+
     this.blastRequest = new BlastRequest(this.model);
 
     _.bindAll(this, 
@@ -33,7 +34,6 @@ export default Backbone.View.extend({
   },
 
   serialize: function() {
-    console.log('render BlastInfo', this.NCBIError)
     return {
       blastRequest: this.blastRequest,
       noRID: this.noRID,
@@ -63,25 +63,15 @@ export default Backbone.View.extend({
   },
 
   getResults: function() {
-    var sequenceLength = this.parentView().model.length();
+    var sequence = this.parentView().model
+    var sequenceLength = sequence.length();
     this.incrementProgressBar();
     this.blastRequest.getResults().then((results) => {
-      this.results = results;
-      
-      _.each(results, function(result) {
-        _.each(result.hsps, function(hsp) {
-          hsp.alignFromPct = hsp.queryFrom / sequenceLength * 100;
-          hsp.alignLenPct = hsp.alignLen / sequenceLength * 100;
-        });
-      });
-
-      console.log(results)
       this.render();
     }).catch(this.handleBlastRequestError);
   },
 
   handleBlastRequestError: function(error) {
-    console.log('ASDASD', error, this)
     if(_.isObject(error)) {
       switch(error.type) {
         case 'NO_RID':
@@ -92,7 +82,6 @@ export default Backbone.View.extend({
           break;
       }
 
-      console.log('errorerror', error)
       this.render();
     }
   },

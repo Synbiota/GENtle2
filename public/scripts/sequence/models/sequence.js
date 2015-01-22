@@ -46,7 +46,8 @@ export default Backbone.DeepModel.extend({
     if(this.get('displaySettings.rows.res.custom') === undefined) 
       this.set('displaySettings.rows.res.custom', defaults.displaySettings.rows.res.manual);
     this.maxOverlappingFeatures = _.memoize2(this._maxOverlappingFeatures);
-    this.nbFeaturesInRange = _.memoize2(this._nbFeaturesInRange);
+    this.nbFeaturesInRange = _.memoize2(this.nbFeaturesInRange);
+    this.listenTo(this, 'change:sequence', this.clearBlastCache);
   },
 
   /**
@@ -214,7 +215,7 @@ export default Backbone.DeepModel.extend({
   @method featuresCountInRange
   @returns {integer}
   **/
-  _nbFeaturesInRange: function(startBase, endBase) {
+  nbFeaturesInRange: function(startBase, endBase) {
     return _.filter(this.attributes.features, function(feature) {
       return _.some(feature.ranges, function(range) {
         return range.from <= endBase && range.to >= startBase;
@@ -709,6 +710,27 @@ export default Backbone.DeepModel.extend({
 
   throttledSave: function() {
     return _.throttle(_.bind(this.save, this), 100)();
+  },
+
+  clearBlastCache: function() {
+    if(this.get('meta.blast')) {
+      this.set('meta.blast', {});
+      this.throttledSave();
+    }
+
+    return this;
+  },
+
+  saveBlastRID: function(RID) {
+    this.set('meta.blast.RID', RID);
+    this.throttledSave();
+    return this;
+  },
+
+  saveBlastResults: function(results) {
+    this.set('meta.blast.results', results);
+    this.throttledSave();
+    return this;
   }
 
 });

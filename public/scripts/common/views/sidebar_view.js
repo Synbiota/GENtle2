@@ -173,11 +173,9 @@ define(function(require) {
     afterRender: function() {
       this.insertTabs();
       this.restoreOpenTab();
-      console.log('prout')
       this.$('.sidebar-tab-link').tooltip({
         container: 'body'
       });
-      console.log('pla')
     },
   });
 

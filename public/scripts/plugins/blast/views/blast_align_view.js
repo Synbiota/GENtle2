@@ -169,6 +169,22 @@ export default Backbone.View.extend({
             getSubSeq: this.getHitDnaSeq,
             textColour: this.getHitDnaColour
           }],
+          features: ['Feature', {
+            unitHeight: 15,
+            baseLine: 10,
+            textFont: '10px Monospace',
+            topMargin: 3,
+            features: [{
+              id: 'matchSequence',
+              name: 'Matched sequence',
+              ranges: [{from: queryFrom, to: this.hsp.queryTo}]
+            }],
+            textColour: '#000',
+            textPadding: 2,
+            margin: 2,
+            lineSize: 2,
+            colour: '#ddd',
+          }],
           hitPosition: ['Position', {
             height: 15,
             baseLine: 13,
