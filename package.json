@@ -41,12 +41,12 @@
     "then-jade": "^2.0.0",
     "underscore": "^1.6.0",
     "underscore-deep-extend": "0.0.5",
-    "yuidoc-bootstrap-theme": "^1.0.4"
+    "yuidoc-bootstrap-theme": "^1.0.4",
+    "deamdify": "Automattic/deamdify.git#master"
   },
   "devDependencies": {
     "amdefine": "~0.1.0",
     "benchmark": "~1.0.0",
-    "deamdify": "Automattic/deamdify.git#master",
     "grunt-concurrent": "^1.0.0",
     "grunt-contrib-compass": "^0.8.0",
     "grunt-contrib-sass": "^0.7.3",
