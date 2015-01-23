@@ -58,7 +58,7 @@ define(function(require) {
     this.model.on('change', _.debounce(this.render, 500));
     this.view.parentView().on('resize', _.debounce(this.refresh, 200));
     this.$canvas.on('click', this.handleClick);
-      
+
   };
 
   PlasmidMapCanvas.prototype.render = function () {
@@ -71,7 +71,7 @@ define(function(require) {
     this.drawGCAT();
     this.drawRES();
     this.drawFeatures();
-    
+
   };
 
   PlasmidMapCanvas.prototype.refresh = function () {
@@ -91,7 +91,7 @@ define(function(require) {
       var width = _this.$canvas[0].scrollWidth,
           height = _this.$canvas[0].scrollHeight;
 
-      _this.canvasDims = { 
+      _this.canvasDims = {
         width: width,
         height: height,
         center: artist.point(width/2, height/2)
@@ -104,7 +104,7 @@ define(function(require) {
 
       resolve();
     });
-  };  
+  };
 
   PlasmidMapCanvas.prototype.updateRadii = function(obj) {
     var _this = this,
@@ -122,7 +122,7 @@ define(function(require) {
   PlasmidMapCanvas.prototype.drawPositionMarks = function() {
 
     var len = this.model.length(),
-        lineNumberIncrement = this.bestLineNumbering(len, 100) , 
+        lineNumberIncrement = this.bestLineNumbering(len, 100) ,
         angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ,
         r = - this.radii.lineNumbering.r,
         R = - this.radii.lineNumbering.R,
@@ -132,7 +132,7 @@ define(function(require) {
         angle = 0, linenumberinglen = 0;
 
     artist.updateStyle({
-      strokeStyle: '#bbb', 
+      strokeStyle: '#bbb',
       fillStyle: "#bbb",
       lineWidth: 1 ,
       font: "9px Monospace",
@@ -190,7 +190,7 @@ define(function(require) {
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
           artist.rotatedText(names, radii.label+(namelen*6), 2);
         else
-          artist.text(names, -radii.label, 2);        
+          artist.text(names, -radii.label, 2);
         previousPosition = position;
       });
     });
@@ -231,7 +231,7 @@ define(function(require) {
   PlasmidMapCanvas.prototype.processFeatures = function() {
     var id = -1,
         features = [],
-        overlapStack = [], 
+        overlapStack = [],
         output = [],
         overlapIndex;
 
@@ -281,7 +281,7 @@ define(function(require) {
     var line_height = 15;
     for (var i = 0; i < name_lines.length; i++){
 
-      context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i)); 
+      context.fillText(name_lines[i], 0,line_height*(-name_lines.length/3+i));
 
     }
     context.font = "italic 12px Arial";
@@ -306,7 +306,7 @@ define(function(require) {
 
     var gcatCalc = this.calcGCAT(this.model, 300),
         radii = this.radii.linegraph;
-    this.artist.radialLineGraph(0, 0, radii.r, 20, gcatCalc, {    
+    this.artist.radialLineGraph(0, 0, radii.r, 20, gcatCalc, {
       fillStyle: 'rgba(90,90,90,.4)'
     });
   };
@@ -331,7 +331,7 @@ define(function(require) {
     as = chunk.match(/A/g);
     ts = chunk.match(/T/g);
 
-    gcat_chunks.push({ 
+    gcat_chunks.push({
       g: gs ? gs.length : 0,
       a: as ? as.length : 0,
       c: cs ? cs.length : 0,
@@ -363,7 +363,7 @@ define(function(require) {
     var guess = (c+1)*q[i]*Math.pow(10,n);
 
     while (guess < bp){
-      
+
       if (c < max_c){
         c = c+1;
       }else{
@@ -380,7 +380,7 @@ define(function(require) {
 
     guess = Math.floor(q[i]*Math.pow(10,n));
 
-    return guess === 0 ? Math.floor(bp/2) : guess;
+    return guess === 0 ? Math.max(1,Math.floor(bp/2)) : guess;
   };
 
   PlasmidMapCanvas.prototype.clear = function() {
