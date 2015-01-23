@@ -3,38 +3,42 @@ module.exports = function(grunt) {
   var appConfig   = grunt.file.readJSON('public/scripts/config.json');
   var _           = require('underscore');
 
-  var browserifyConfig =  {
-    transform: [
-      ['6to5ify', { only: 'public/scripts' }],
-      ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
-      'deamdify'
-    ]
-  };
+  var browserifyTransforms = [
+    ['6to5ify', { only: 'public/scripts' }],
+    ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
+    'deamdify'
+  ];
 
   var browserifyFiles = { 'public/scripts/app.min.js': ['public/scripts/app.js'] };
-
-
 
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'), 
     browserify: {
       dev: {
         files: browserifyFiles,
-        options: _.extend({
+        options: {
+          transform: browserifyTransforms,
           browserifyOptions: {
             debug: true
           }
-        }, browserifyConfig)
+        }
       },
       watch: {
         files: browserifyFiles,
-        options: _.extend({
+        options: {
+          transform: browserifyTransforms,
           watch: true,
           keepAlive: true,
           browserifyOptions: {
             debug: true
           }
-        }, browserifyConfig)
+        }
+      },
+      minify: {
+        files: browserifyFiles,
+        options: {
+          transform: browserifyTransforms.concat([['uglifyify', { global: true }]]),
+        }
       }
     },
 
@@ -80,6 +84,7 @@ module.exports = function(grunt) {
   // Task aliases
   grunt.registerTask('css', ['compass']);
   grunt.registerTask('js', ['browserify:dev']);
+  grunt.registerTask('js:min', ['browserify:minify'])
 
   grunt.registerTask('default', ['concurrent:build']);
   grunt.registerTask('watch:all', ['concurrent:watch']);
