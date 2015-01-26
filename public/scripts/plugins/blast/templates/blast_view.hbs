@@ -2,7 +2,15 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-md-12">
-        <h3>BLAST search</h3>
+        <h3>
+          {{#if blastRequest.resultsLoaded}}
+            <div class="btn-group pull-right">
+              <button class="btn btn-default btn-xs blast-clear-search">Clear results</button>
+              <button class="btn btn-default btn-xs blast-run-new">Run new search</button>
+            </div>
+          {{/if}}
+          BLAST search
+        </h3>
         {{#if NCBIError}}
           <div class="alert alert-danger" style="margin-bottom: 10px;">
             {{NCBIError}}
@@ -10,22 +18,20 @@
         {{/if}}
         {{#unless blastRequest.RIDLoaded}}
           <button class="btn btn-lg btn-primary" id="blast-intro-run">
-            <span class="btn-label">Run</span>
+            <span class="btn-label">Start</span>
             <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
           </button>
         {{else}}
           {{#unless blastRequest.resultsLoaded}}
-            <h4>Loading results for request <strong>{{blastRequest.RID}}</strong></h4>
-            <div class="row">
-              <div class="col-md-4">
-                <div class="progress">
-                  <div class="progress-bar blast-progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"></div>
-                </div>
-              </div>
-            </div>
+            <h4>
+              Loading results for request 
+              <strong>{{blastRequest.RID}}</strong>
+              <span class="loader">
+                <i class="glyphicon glyphicon-refresh"></i>
+              </span>
+            </h4>
           {{else}}
             <h4>
-              <button class="btn btn-default btn-xs pull-right blast-run-new">Run new search</button>
               Results for request <strong>{{blastRequest.RID}}</strong>
             </h4>
             {{#unless blastRequest.results}}
@@ -33,6 +39,12 @@
               <p class="text-danger">No results</p>
             {{/unless}}
           {{/unless}}
+        {{/unless}}
+        {{#unless blastRequest.resultsLoaded}}
+          <br><br>
+          <p class="text-muted">
+            Loading the BLAST search results can take up to a few minutes depending on the length of the sequence.
+          </p>
         {{/unless}}
       </div>
     </div>

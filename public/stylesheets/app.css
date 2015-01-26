@@ -7927,9 +7927,10 @@ button.close {
 /* line 30, views/_blast_view.scss */
 #blast-align-container .sequence-canvas-wrapper .scrolling-parent, #blast-align-container .sequence-canvas-wrapper .sequence-canvas-container {
   top: 40px;
+  bottom: 3px;
 }
 
-/* line 36, views/_blast_view.scss */
+/* line 37, views/_blast_view.scss */
 .blast-align-match-bar {
   width: 150px;
   height: 10px;
@@ -7937,7 +7938,7 @@ button.close {
   margin-bottom: 0px;
   border-radius: 0;
 }
-/* line 43, views/_blast_view.scss */
+/* line 44, views/_blast_view.scss */
 .blast-align-match-bar .progress-bar {
   min-width: 1px;
 }

@@ -89,7 +89,10 @@ define(function(require) {
           actualView = new primaryView.view();
 
       
-      if(this.primaryView) this.primaryView.current = false;
+      _.each(this.primaryViews, function(view) {
+        view.current = false;
+      });
+      
       primaryView.current = true;
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;

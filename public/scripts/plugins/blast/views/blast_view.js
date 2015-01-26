@@ -15,7 +15,9 @@ export default Backbone.View.extend({
   events: {
     'click #blast-intro-run': 'getRID',
     'click .show-align': 'showAlign',
-    'click .blast-open-sequence': 'openSequence'
+    'click .blast-open-sequence': 'openSequence',
+    'click .blast-run-new': 'runNewSearch',
+    'click .blast-clear-search': 'clearSearch'
   },
 
   initialize: function() {
@@ -24,13 +26,18 @@ export default Backbone.View.extend({
     this.alignView = new AlignView();
     this.setView('#blast-align-container', this.alignView);
     this.model = Gentle.currentSequence;
+    this.initBlastRequest();
 
-    this.blastRequest = new BlastRequest(this.model);
+    if(this.model.get('meta.blast.RID')) this.getRID();
 
     _.bindAll(this, 
       'incrementProgressBar',
       'handleBlastRequestError'
     );
+  },
+
+  initBlastRequest: function() {
+    this.blastRequest = new BlastRequest(this.model);
   },
 
   serialize: function() {
@@ -51,8 +58,8 @@ export default Backbone.View.extend({
     $el.closest('tr').addClass('info');
   },
 
-  getRID: function(event) {
-    var $el = $(event.currentTarget);
+  getRID: function() {
+    var $el = this.$('#blast-intro-run');
     $el.attr('disabled', 'disabled');
     $el.find('.btn-label').text('Loading request ID');
     this.$('.loader').show();
@@ -63,9 +70,8 @@ export default Backbone.View.extend({
   },
 
   getResults: function() {
-    var sequence = this.parentView().model
-    var sequenceLength = sequence.length();
-    this.incrementProgressBar();
+    var sequenceLength = this.model.length();
+    // this.incrementProgressBar();
     this.blastRequest.getResults().then((results) => {
       this.render();
     }).catch(this.handleBlastRequestError);
@@ -113,6 +119,17 @@ export default Backbone.View.extend({
     NCBIRequest
       .loadFromId(result.NCBIAccessionId, 'nuccore')
       .then(Gentle.addSequencesAndNavigate);
+  },
+
+  clearSearch: function(event) {
+    this.model.clearBlastCache();
+    this.initBlastRequest();
+    this.render();
+  },
+
+  runNewSearch: function(event) {
+    this.clearSearch();
+    this.getRID();
   }
 
 

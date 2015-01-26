@@ -180,7 +180,7 @@ export default class BlastRequest {
       this.sequence.saveBlastResults(this.results);
       defer.resolve(this.results);
     } else {
-      if(this._currentResultsIteration <= 20) {
+      if(this._currentResultsIteration <= 30) {
         setTimeout(this.getResults, this._getNextIterationTiming());
         defer.notify( this._currentResultsIteration);
         this._currentResultsIteration++;
