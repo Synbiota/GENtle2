@@ -735,6 +735,8 @@ define(function(require) {
   @method select
   **/
   SequenceCanvas.prototype.select = function(start, end) {
+
+    console.log('select', start, end)
     var positionCheck;
     this.hideCaret();
     if (start !== undefined) {
