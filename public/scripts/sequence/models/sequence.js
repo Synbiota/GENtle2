@@ -18,6 +18,7 @@ export default Backbone.DeepModel.extend({
     return {
       id: _.uniqueId(),
       readOnly: false,
+      isCircular: false,
       displaySettings: {
         rows: {
           numbering: true,
@@ -30,8 +31,7 @@ export default Backbone.DeepModel.extend({
             lengths: ['4','5','6'],
             manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI']
           }
-        },
-        secondaryView: 'plasmid'
+        }
       },
       history: new HistorySteps()
     };

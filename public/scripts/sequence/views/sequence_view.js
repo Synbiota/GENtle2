@@ -10,7 +10,7 @@ define(function(require) {
       SequenceEditionView     = require('./sequence_edition_view'),
       StatusbarView           = require('../../common/views/statusbar_view'),
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
-      StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
+      // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone.mixed'),
       SequenceView;
   
@@ -31,8 +31,16 @@ define(function(require) {
       this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);
       $(window).on('resize', this.handleResize);
 
+
+      this.listenTo(this.model, 'change:isCircular', this.changeSecondaryView);
+
       this.initPrimaryViews();
       this.initStatusbarView();
+    },
+
+    changeSecondaryView: function() {
+      var viewName = this.model.get('isCircular') ? 'plasmid' : 'linear';
+      this.actualPrimaryView.changeSecondaryView(viewName, true);
     },
 
     initStatusbarView: function() {
@@ -45,14 +53,14 @@ define(function(require) {
         view: StatusbarPrimaryViewView
       });
 
-      statusbarView.addSection({
-        name: 'secondaryView',
-        view: StatusbarSecondaryViewSwitcherview,
-        className: 'pull-right',
-        visible: function() {
-          return sequence.get('displaySettings.primaryView') == 'edition';
-        }
-      });
+      // statusbarView.addSection({
+      //   name: 'secondaryView',
+      //   view: StatusbarSecondaryViewSwitcherview,
+      //   className: 'pull-right',
+      //   visible: function() {
+      //     return sequence.get('displaySettings.primaryView') == 'edition';
+      //   }
+      // });
 
       _.each(_.where(Gentle.plugins, {type: 'sequence-statusbar-section'}), function(plugin) {
         statusbarView.addSection(plugin.data);

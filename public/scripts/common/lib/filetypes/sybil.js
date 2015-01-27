@@ -103,7 +103,7 @@ define(function(require) {
     
     var o = $("<sequence></sequence>") ;
     o.text ( sequence.sequence ) ;
-    o.attr( { type:'dna' , name:sequence.name } ) ;
+    o.attr( { type:'dna' , name:sequence.name, circular: sequence.isCircular || 'false' } ) ;
     s += o[0].outerHTML + "\n" ;
     
     s += "</circuit>\n" ;
@@ -130,7 +130,8 @@ define(function(require) {
         s = $(s) ;
         var seq = { 
           name: s.attr('name'), 
-          sequence: s.text().toUpperCase()
+          sequence: s.text().toUpperCase(),
+          isCircular: s.attr('circular') == "true"
         };
         seq.desc = $(v2).find('general_description').text() ;
         

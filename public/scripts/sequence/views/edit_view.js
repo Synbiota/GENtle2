@@ -28,10 +28,12 @@ define(function(require) {
       this.model.errors= {};
 
       event.preventDefault();
+      var isCircular = this.$('[name="isCircular"]:checked').val() || "false";
 
       this.model.set({
         name: this.$('#name').val(),
         description: this.$('#desc').val(),
+        isCircular: isCircular == "true"
       }, {
         validate: true
       });
@@ -68,6 +70,7 @@ define(function(require) {
         readOnly: this.model.get('readOnly'),
         Name: this.model.get('name'),
         Desc: this.model.get('desc'),
+        isCircular: !!this.model.get('isCircular'),
         error: this.model.errors || {}
       };
 

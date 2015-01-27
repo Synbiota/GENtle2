@@ -45,7 +45,7 @@ define(function(require) {
       if ( v.match(/^LOCUS/i) ) {
         var m = v.match(/^LOCUS\s+(\S+)\s+(.+)$/i)
         seq.name = m[1] ;
-        seq.is_circular = m[2].match(/\bcircular\b/i) ? true : false ;
+        seq.isCircular = m[2].match(/\bcircular\b/i) ? true : false ;
         return ;
       } else if ( v.match(/^DEFINITION\s+(.+)$/i) ) {
         var m = v.match(/^DEFINITION\s+(.+)$/i) ;

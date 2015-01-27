@@ -51,10 +51,10 @@ define(function(require) {
         view: PlasmidMapView
       });  
 
-      currentView = this.model.get('displaySettings.secondaryView');
+      currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
 
-      if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
-        currentView = 'linear';
+      // if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
+      //   currentView = 'linear';
 
       this.secondaryViews = secondaryViews;
       this.changeSecondaryView(currentView, false);
