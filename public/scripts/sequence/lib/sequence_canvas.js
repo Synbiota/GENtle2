@@ -650,7 +650,7 @@ define(function(require) {
 
       _this.caret.move(posX, posY, base);
       _this.caretPosition = base;
-      // _this.showContextMenuButton(posX, posY + 20);
+      _this.showContextMenuButton(posX, posY + 20);
 
     });
 

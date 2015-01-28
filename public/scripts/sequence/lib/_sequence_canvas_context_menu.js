@@ -20,17 +20,19 @@ define(function(require) {
   **/
   SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY) {
     var menu = this.contextMenu;
-    
+
     this.contextMenuXPos = posX;
     this.contextMenuYPos = posY;
     menu.reset().move(posX, posY);
 
-    if(!this.readOnly && this.copyPasteHandler.copiedValue) {
-      menu.add('Paste', this.pasteFromMenu);
-    }
+    // Commenting out copy/paste actions for now until mobile copy/paste handling is properly solved.
+
+    // if(!this.readOnly && this.copyPasteHandler.copiedValue) {
+    //   menu.add('Paste', this.pasteFromMenu);
+    // }
 
     if(this.selection) {
-      menu.add('Copy', this.copyFromMenu);
+      // menu.add('Copy', this.copyFromMenu);
       if(!this.readOnly) {
         menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
       }
@@ -67,7 +69,7 @@ define(function(require) {
 
   /**
   Paste subsequence that has previous been __copied internally__
-  
+
   No way to paste programmatically without keyboard input
 
   @method pasteFromMenu
@@ -81,7 +83,7 @@ define(function(require) {
       if(selection) {
         this.selection = undefined;
         this.sequence.deleteBases(
-          selection[0], 
+          selection[0],
           selection[1] - selection[0] + 1
         );
       }
@@ -96,7 +98,7 @@ define(function(require) {
 
     if(selection) {
       this.view.parentView().sequenceSettingsView.tabs.features.view.createOnRange(
-        selection[0], 
+        selection[0],
         Math.min(this.sequence.length(), selection[1])
       );
     }
