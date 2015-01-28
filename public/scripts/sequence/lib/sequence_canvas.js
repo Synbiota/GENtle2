@@ -68,7 +68,7 @@ define(function(require) {
     this.$canvas = options.$canvas || this.view.$('canvas').first();
 
     /**
-        Invisible DIV used to handle scrolling. 
+        Invisible DIV used to handle scrolling.
         As high as the total virtual height of the sequence as displayed.
         @property $scrollingChild
         @type jQuery object
@@ -122,7 +122,7 @@ define(function(require) {
       _.each(options.lines, (value, key) => {
         options.lines[key] = new Lines[value[0]](this, value[1] || {});
       });
-    } 
+    }
 
     this.layoutSettings.lines = options.lines || {
 
@@ -341,7 +341,7 @@ define(function(require) {
         height: line_offset
       };
 
-      //total number of rows in sequence, 
+      //total number of rows in sequence,
       lh.rows.total = Math.ceil(_this.sequence.length() / lh.basesPerRow);
       // number of visible rows in canvas
       lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height);
@@ -386,7 +386,7 @@ define(function(require) {
     });
   };
 
-  /** 
+  /**
       If `this.visible`, displays the sequence in the initiated canvas.
       @method display
   **/
@@ -448,7 +448,7 @@ define(function(require) {
     });
   };
 
-  /** 
+  /**
   Draw row at position posY in the canvas
   @method drawRow
   @param {integer} posY
@@ -469,7 +469,7 @@ define(function(require) {
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
       this.drawHighlight(posY, [
-        Math.max(baseRange[0], highlight[0]), 
+        Math.max(baseRange[0], highlight[0]),
         Math.min(baseRange[1], highlight[1])
       ]);
     }
@@ -521,7 +521,7 @@ define(function(require) {
   };
 
   /**
-  Updates layout settings and redraws canvas when resizing. 
+  Updates layout settings and redraws canvas when resizing.
   Keeps the first base the same
   @method refreshFromResize
   **/
@@ -529,7 +529,7 @@ define(function(require) {
     var layoutHelpers = this.layoutHelpers;
 
     layoutHelpers.firstBase = this.getBaseRangeFromYPos(
-      this.layoutSettings.pageMargins.top + 
+      this.layoutSettings.pageMargins.top +
       (layoutHelpers.yOffset || 0)
     )[0];
     this.refresh();
@@ -626,7 +626,7 @@ define(function(require) {
   /**
   Displays the caret before a base
   @method displayCaret
-  @param base [base] 
+  @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
     var layoutHelpers = this.layoutHelpers,
@@ -650,7 +650,7 @@ define(function(require) {
 
       _this.caret.move(posX, posY, base);
       _this.caretPosition = base;
-      _this.showContextMenuButton(posX, posY + 20);
+      // _this.showContextMenuButton(posX, posY + 20);
 
     });
 
@@ -706,7 +706,7 @@ define(function(require) {
             this.layoutHelpers.selectionPreviousA = selection[1];
           }
           this.layoutHelpers.selectionPreviousB = selection[0];
-        } 
+        }
 
       }
 

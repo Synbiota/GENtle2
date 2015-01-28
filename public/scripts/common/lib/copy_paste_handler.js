@@ -31,13 +31,13 @@ export default class {
 
     // We wait for the value to be pasted in the buffer
     if(callback !== undefined) {
-      if(this.copiedValue === undefined) {
+      // if(this.copiedValue === undefined) {
         setTimeout(function() {
           callback.call(_this, $element.val());
         }, 20);
-      } else {
-        callback.call(_this, this.copiedValue);
-      }
+      // } else {
+      //   callback.call(_this, this.copiedValue);
+      // }
     }
 
     return $element;
@@ -49,7 +49,7 @@ export default class {
   }
 
   copy(text) {
-    this.fakeCopy(text);
+    // this.fakeCopy(text);
     this.createBufferElement().text(text).select();
   }
 
