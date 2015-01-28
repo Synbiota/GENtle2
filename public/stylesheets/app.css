@@ -7893,6 +7893,56 @@ button.close {
     display: none !important;
   }
 }
+/* line 1, views/_blast_view.scss */
+.blast, #blast-intro-container, #blast-align-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: scroll;
+}
+
+/* line 10, views/_blast_view.scss */
+#blast-intro-container {
+  right: 50%;
+  border-right: 1px solid #ddd;
+}
+/* line 14, views/_blast_view.scss */
+#blast-intro-container tr.noborder > td {
+  border: none;
+}
+
+/* line 19, views/_blast_view.scss */
+#blast-align-container {
+  left: 50%;
+}
+/* line 22, views/_blast_view.scss */
+#blast-align-container .blast-align-header {
+  line-height: 21px;
+  height: 40px;
+  border-bottom: 1px solid #ddd;
+  padding: 8px 15px;
+}
+/* line 30, views/_blast_view.scss */
+#blast-align-container .sequence-canvas-wrapper .scrolling-parent, #blast-align-container .sequence-canvas-wrapper .sequence-canvas-container {
+  top: 40px;
+  bottom: 3px;
+}
+
+/* line 37, views/_blast_view.scss */
+.blast-align-match-bar {
+  width: 150px;
+  height: 10px;
+  margin-top: 6px;
+  margin-bottom: 0px;
+  border-radius: 0;
+}
+/* line 44, views/_blast_view.scss */
+.blast-align-match-bar .progress-bar {
+  min-width: 1px;
+}
+
 /* line 3, views/_designer_view.scss */
 .designer {
   height: 100%;
@@ -8400,8 +8450,8 @@ button.close {
 /* line 7, views/_sequence_view.scss */
 #sequence-primary-view-outlet {
   position: absolute;
-  top: 0;
-  bottom: 21px;
+  top: 30px;
+  bottom: 0;
   right: 0;
 }
 
@@ -8422,7 +8472,7 @@ button.close {
 .sequence-canvas-wrapper .scrolling-parent {
   position: absolute;
   right: 0;
-  height: 100%;
+  bottom: 0;
   left: 0;
   top: 0;
   overflow-x: hidden;
@@ -8438,15 +8488,15 @@ button.close {
 /* line 44, views/_sequence_view.scss */
 .sequence-statusbar-outlet {
   position: absolute;
-  bottom: 0;
+  top: 0;
   width: 100%;
 }
 
 /* line 1, views/_sidebar_view.scss */
 .sidebar > div {
   position: absolute;
-  top: 0px;
-  bottom: 21px;
+  top: 30px;
+  bottom: 0px;
   width: 50px;
   border-right: 1px solid #ddd;
   overflow-x: hidden;
@@ -8618,23 +8668,61 @@ button.close {
 
 /* line 1, views/_statusbar_view.scss */
 .statusbar {
-  height: 20px;
+  height: 30px;
+  line-height: 26px;
   font-size: 11px;
-  background-color: #e5e5e5;
-  border-top: 1px solid #ddd;
+  background-color: #F5F4F4;
+  border-bottom: 1px solid #ddd;
 }
-/* line 7, views/_statusbar_view.scss */
+/* line 8, views/_statusbar_view.scss */
 .statusbar .statusbar-section {
+  height: 29px;
   background: white;
   padding: 2px 10px 2px 10px;
   border-right: 1px solid #ddd;
   float: left;
 }
-/* line 14, views/_statusbar_view.scss */
+/* line 16, views/_statusbar_view.scss */
+.statusbar .large-statusbar-section {
+  font-size: 14px;
+  line-height: 24px;
+  margin-top: 1px;
+}
+/* line 21, views/_statusbar_view.scss */
+.statusbar .large-statusbar-section .caret {
+  position: relative;
+  margin-top: 0;
+  margin-left: 4px;
+}
+/* line 27, views/_statusbar_view.scss */
+.statusbar .large-statusbar-section > i {
+  font-size: 18px;
+  margin: 1px 23px 0 7px;
+  float: left;
+}
+/* line 33, views/_statusbar_view.scss */
+.statusbar .large-statusbar-section button {
+  border-color: white;
+  font-size: 14px;
+  margin-top: -3px;
+  height: 25px;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+/* line 41, views/_statusbar_view.scss */
+.statusbar .large-statusbar-section button:hover {
+  border-color: #cccccc;
+}
+/* line 46, views/_statusbar_view.scss */
+.statusbar .large-statusbar-section ul.dropdown-menu {
+  margin-left: 48px;
+  margin-top: -2px;
+}
+/* line 52, views/_statusbar_view.scss */
 .statusbar a {
   text-decoration: none;
 }
-/* line 16, views/_statusbar_view.scss */
+/* line 54, views/_statusbar_view.scss */
 .statusbar a:hover {
   text-decoration: none;
 }
@@ -8753,9 +8841,9 @@ button.close {
 /* line 1, components/_linear_map.scss */
 .linear-map {
   position: fixed;
-  top: 51px;
+  top: 81px;
   right: 0;
-  bottom: 21px;
+  bottom: 0;
   width: 150px;
 }
 /* line 8, components/_linear_map.scss */
@@ -8881,9 +8969,9 @@ button.close {
 /* line 1, components/_plasmid_map.scss */
 .plasmid-map {
   position: fixed;
-  top: 51px;
+  top: 81px;
   right: 0px;
-  bottom: 21px;
+  bottom: 0px;
   width: 500px;
 }
 /* line 8, components/_plasmid_map.scss */

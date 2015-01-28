@@ -13,6 +13,8 @@ define(function(require) {
 
     events: {
       'click .menu-item, .menu-icon': 'handleClick',
+      'mouseup .menu-item, .menu-icon, .dropdown-toggle': 'stopPropagation',
+      'mousedown .menu-item, .menu-icon, .dropdown-toggle': 'stopPropagation',
       'click .dropdown-toggle': 'toggleMenu'
     },
 
@@ -107,6 +109,11 @@ define(function(require) {
       event.preventDefault();
 
       menuItem.callback.call(this.boundTo);
+    },
+
+    stopPropagation: function(event) {
+      event.preventDefault();
+      event.stopPropagation();
     },
 
     toggleMenu: function(event) {

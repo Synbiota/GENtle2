@@ -6,6 +6,7 @@ Backbone.$ = $;
 
 require('backbone-deep-model');
 require('backbone.layoutmanager/backbone.layoutmanager');
+Backbone.LocalStorage = require('backbone.localstorage');
 
 Backbone.View.prototype.parentView = function(depth) {
   var parent;

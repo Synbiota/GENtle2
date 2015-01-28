@@ -18,6 +18,7 @@ Options are:
 define(function(require) {
   var Line = require('./line'),
       _    = require('underscore.mixed'),
+      Sequence = require('../../models/sequence'),
       Feature;
 
   Feature = function(sequenceCanvas, options) {
@@ -61,6 +62,27 @@ define(function(require) {
     });
   };
 
+  Feature.prototype.featuresInRange = function(fn, args) {
+
+  };
+
+  var switchContext = function(fn) {
+    var args = _.toArray(arguments);
+    var sequence = this.sequenceCanvas.sequence;
+    var context = (this.features === undefined) ? sequence : { 
+      attributes: {
+        features: this.features 
+      }
+    };
+
+    args.shift();
+
+    return sequence[fn].apply(context, args);
+  };
+
+  Feature.prototype.featuresInRange = _.partial(switchContext, 'featuresInRange');
+  Feature.prototype.nbFeaturesInRange = _.partial(switchContext, 'nbFeaturesInRange');
+
   /**
   Checks whether one of the ranges of a feature ends in a give base range
 
@@ -92,7 +114,7 @@ define(function(require) {
         basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow;
 
     for(var i = 0; i <= Math.floor(sequence.length() / basesPerRow); i++) {
-      nbFeatures.push(sequence.nbFeaturesInRange(i * basesPerRow, (i+1) * basesPerRow - 1));
+      nbFeatures.push(this.nbFeaturesInRange(i * basesPerRow, (i+1) * basesPerRow - 1));
     }
     return nbFeatures.length ? _.max(nbFeatures) : 0;
 
@@ -123,7 +145,7 @@ define(function(require) {
         gutterWidth     = layoutSettings.gutterWidth,
         features, startX, endX, deltaX, textWidth, backgroundFillStyle;
 
-    features = _(sequence.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
+    features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     y += (this.topMargin || 0);
 
     for(var i = 0; i < features.length; i++) {

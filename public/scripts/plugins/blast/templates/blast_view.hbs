@@ -1,0 +1,105 @@
+<div id="blast-intro-container">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-12">
+        <h3>
+          {{#if blastRequest.resultsLoaded}}
+            <div class="btn-group pull-right">
+              <button class="btn btn-default btn-xs blast-clear-search">Clear results</button>
+              <button class="btn btn-default btn-xs blast-run-new">Run new search</button>
+            </div>
+          {{/if}}
+          BLAST search
+        </h3>
+        {{#if NCBIError}}
+          <div class="alert alert-danger" style="margin-bottom: 10px;">
+            {{NCBIError}}
+          </div>
+        {{/if}}
+        {{#unless blastRequest.RIDLoaded}}
+          <button class="btn btn-lg btn-primary" id="blast-intro-run">
+            <span class="btn-label">Start</span>
+            <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
+          </button>
+        {{else}}
+          {{#unless blastRequest.resultsLoaded}}
+            <h4>
+              Loading results for request 
+              <strong>{{blastRequest.RID}}</strong>
+              <span class="loader">
+                <i class="glyphicon glyphicon-refresh"></i>
+              </span>
+            </h4>
+          {{else}}
+            <h4>
+              Results for request <strong>{{blastRequest.RID}}</strong>
+            </h4>
+            {{#unless blastRequest.results}}
+              <br><br>
+              <p class="text-danger">No results</p>
+            {{/unless}}
+          {{/unless}}
+        {{/unless}}
+        {{#unless blastRequest.resultsLoaded}}
+          <br><br>
+          <p class="text-muted">
+            Loading the BLAST search results can take up to a few minutes depending on the length of the sequence.
+          </p>
+        {{/unless}}
+      </div>
+    </div>
+  </div>
+  {{#if blastRequest.results}}
+    <br>
+    <table class="table" style="vertical-align: middle;">
+      <thead>
+        <tr> 
+          <th></th>
+          <th width="40%"></th>
+          <th>Align length</th>
+          <th>E-value</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each blastRequest.results}}
+          <tr>
+            <td><small>{{formatThousands @index 1}}</small></td>
+            <td colspan="4">
+              <div class="pull-right">
+                <a href="#" class="blast-open-sequence" data-result-id="{{id}}">
+                  <small>
+                    Open sequence
+                    <i class="glyphicon glyphicon-open"></i>
+                  </small>
+                </a>
+              </div>
+              <small>{{name}}</small></td>
+            </td>
+          </tr>
+          {{#each hsps}}
+            <tr class="noborder" data-hsp-id="{{id}}">
+              <td></td>
+              <td>
+                <div class="progress blast-align-match-bar">
+                  <div class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="margin-left: {{alignFromPct}}%; width: {{alignLenPct}}%;"></div>
+                </div>
+              </td>
+              <td><small><code>{{shortFormNumber alignLen}}bp</code></small></td>
+              <td><small><code>{{evalue}}</code></small></td>
+              <td class="text-right">
+                <button class="show-align btn btn-default btn-xs" data-result-id="{{../id}}" data-hsp-id="{{id}}">
+                  <span class="open-label">
+                    Show
+                    <i class="glyphicon glyphicon-arrow-right"></i>
+                  </span>
+                </button>
+              </td>
+            </td>
+          {{/each}}
+        {{/each}}
+      </tbody>
+    </table>
+  {{/if}}
+</div>
+<div id="blast-align-container"></div>

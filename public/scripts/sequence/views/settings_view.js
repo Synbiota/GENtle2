@@ -21,13 +21,15 @@ define(function(require) {
       var _this = this;
       this.sidebarName = 'sequence';
 
+      // {
+      //   name: 'tools',
+      //   title: 'Mode',
+      //   icon: 'wrench',
+      //   view: ToolsView,
+      //   hoverable: true
+      // }, 
+
       this.addTab([{
-        name: 'tools',
-        title: 'Mode',
-        icon: 'wrench',
-        view: ToolsView,
-        hoverable: true
-      }, {
         name: 'edit',
         title: 'Sequence details',
         icon: 'book',

@@ -5,7 +5,7 @@ define(function(require) {
 
   Gentle.addPlugin('sequence-primary-view', {
     name: 'designer',
-    title: 'Designer',
+    title: 'Designer mode',
     view: DesignerView
   });
 

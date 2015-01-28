@@ -16,10 +16,10 @@ define(function(require) {
 
     events: {
       'click .sidebar-tab-link': 'toggleTabs',
-      'mouseover .sidebar-tab-link': 'mouseoverTabLink',
-      'mouseout .sidebar-tab-link': 'mouseoutTabLink',
-      'mouseover .sidebar-tab': 'mouseoverTab',
-      'mouseout .sidebar-tab': 'mouseoutTab'
+      // 'mouseover .sidebar-tab-link': 'mouseoverTabLink',
+      // 'mouseout .sidebar-tab-link': 'mouseoutTabLink',
+      // 'mouseover .sidebar-tab': 'mouseoverTab',
+      // 'mouseout .sidebar-tab': 'mouseoutTab'
     },
 
     addTab: function(options) {
@@ -173,6 +173,9 @@ define(function(require) {
     afterRender: function() {
       this.insertTabs();
       this.restoreOpenTab();
+      this.$('.sidebar-tab-link').tooltip({
+        container: 'body'
+      });
     },
   });
 

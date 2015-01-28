@@ -1,0 +1,47 @@
+.blast, #blast-intro-container, #blast-align-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: scroll;
+}
+
+#blast-intro-container {
+  right: 50%;
+  border-right: 1px solid #ddd;
+
+  tr.noborder > td {
+    border: none;
+  }
+}
+
+#blast-align-container {
+  left: 50%;
+
+  .blast-align-header {
+    line-height: 21px;
+    height: 40px;
+    border-bottom: 1px solid #ddd;
+    padding: 8px 15px;
+  }
+
+  .sequence-canvas-wrapper {
+    .scrolling-parent, .sequence-canvas-container {
+      top: 40px;
+      bottom: 3px;
+    }
+  }
+}
+
+.blast-align-match-bar {
+  width: 150px;
+  height: 10px;
+  margin-top: 6px;
+  margin-bottom: 0px;
+  border-radius: 0;
+
+  .progress-bar {
+    min-width: 1px;
+  }
+}

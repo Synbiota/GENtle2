@@ -25,7 +25,7 @@ define(function(require) {
   FT_fasta.prototype.getExportString = function ( sequence ) {
     var ret = '' ;
     ret += ">" + sequence.name + "\n" ;
-    var s = sequence.seq ;
+    var s = sequence.sequence ;
     while ( s !== '' ) {
       ret += s.substr ( 0 , 60 ) + "\n" ;
       s = s.substr ( 60 , s.length-60 ) ;

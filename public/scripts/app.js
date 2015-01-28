@@ -2,26 +2,27 @@
 Gentle app definition.
 **/
 
-var $ = require('jquery.mixed');
-var _ = require('underscore.mixed');
-var Backbone = require('backbone.mixed');
-var Gentle = require('./common/models/gentle');
-var config = require('./config.json');
-var Layout = require('./common/views/layout');
-var Router = require('./router');
-var Sequences = require('./sequence/models/sequences');
+import $ from 'jquery.mixed';
+import _ from 'underscore.mixed';
+import Backbone from 'backbone.mixed';
 
-var ncbi = require('./plugins/ncbi/plugin');
-var designer = require('./plugins/designer/plugin'); 
+import Gentle from './common/models/gentle';
+import config from './config.json';
+import Layout from './common/views/layout';
+import Router from './router';
+import Sequences from './sequence/models/sequences';
 
-var plugins = [ncbi, designer];
+import ncbi from './plugins/ncbi/plugin';
+import designer from './plugins/designer/plugin';
+import blast from './plugins/blast/plugin';
 
+var plugins = [ncbi, designer, blast];
 
 
 Gentle = Gentle();
 
 Gentle.config = config;
-
+  
 Gentle.sequences = new Sequences();
 
 Gentle.sequences.fetch();

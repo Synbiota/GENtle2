@@ -1,8 +1,30 @@
-Mode: <strong>{{primaryView}}</strong>
-{{#if readOnly}}
-  &nbsp;&nbsp;|&nbsp;&nbsp; 
-  <span class="text-info">
-    <i class="glyphicon glyphicon-lock"></i>
-    Read only
-  </span>
-{{/if}}
+<div class="large-statusbar-section pull-left dropdown">
+  <i class="glyphicon glyphicon-wrench"></i>
+  <button class="btn btn-xs btn-default dropdown-toggle" id="dropdownMenu2" data-toggle="dropdown">
+    <strong>{{primaryView}}</strong>
+    <span class="caret"></span>
+  </button>
+
+  <ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu2" id="primary-view-list">
+    {{#each primaryViews}}
+      <li>
+        <a href="#" role="menuitem" data-section-name="{{name}}">
+          {{#if current}}
+            <i class="pull-right glyphicon glyphicon-ok"></i>
+          {{/if}}
+          {{title}}
+        </a>
+      </li>
+    {{/each}}
+  </ul>
+</div>
+
+<div class="pull-left">
+  {{#if readOnly}}
+    &nbsp;&nbsp;|&nbsp;&nbsp; 
+    <span class="text-info">
+      <i class="glyphicon glyphicon-lock"></i>
+      Read only
+    </span>
+  {{/if}}
+</div>

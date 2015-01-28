@@ -49,7 +49,7 @@ define(function(require) {
 
       event.preventDefault();
 
-      this.sequenceCanvas.scrollToBase(feature.ranges[0].from);
+      this.getSequenceCanvas().scrollBaseToVisibility(feature.ranges[0].from);
     },
 
     startEditing: function(event) {
@@ -224,8 +224,11 @@ define(function(require) {
       } else return {};
     },
 
+    getSequenceCanvas: function() {
+      return Gentle.layout.getView('#content').actualPrimaryView.sequenceCanvas;
+    },
+
     afterRender: function() {
-      this.sequenceCanvas = Gentle.layout.getView('#content').sequenceCanvas;
       $('.sequence-feature-delete-button').confirmation({
         popout: true,
         placement: 'top',
