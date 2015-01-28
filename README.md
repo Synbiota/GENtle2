@@ -1,18 +1,17 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](http://doctoc.herokuapp.com/)*
+**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
 
-- [GENtle refactor (3.0.0.alpha.1)](#gentle-refactor-300alpha1)
+- [GENtle refactor](#gentle-refactor)
   - [Getting started](#getting-started)
     - [Installation](#installation)
     - [Running the servers](#running-the-servers)
     - [Recompiling assets](#recompiling-assets)
-      - [Installation](#installation-1)
       - [Stylesheets](#stylesheets)
       - [Javascripts](#javascripts)
       - [Continuous compilation](#continuous-compilation)
     - [Running specs](#running-specs)
-      - [Installation](#installation-2)
+      - [Installation](#installation-1)
       - [Running the server](#running-the-server)
   - [Server](#server)
   - [App](#app)
@@ -24,7 +23,7 @@
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
-# GENtle refactor (3.0.0.alpha.1)
+# GENtle refactor
 
 ## Getting started
 
@@ -39,7 +38,7 @@ steps:
 1. Install the `node-foreman` and `nodemon` node packages globally
 
     ```shell
-    npm install -g foreman nodemon jade
+    npm install -g foreman nodemon
     ```
   
 1. Install local npm packages
@@ -88,19 +87,24 @@ grunt css
 
 #### Javascripts
 
-In development, `requirejs` loads all source files asynchronously so no precompilation
-is needed.
+We use [browserify](https://github.com/substack/node-browserify) to precompile
+templates, transform ES6 files and generate the bundle, `app.min.js`.
 
-In production, the server uses a minified single-file version of the app. To compile it,
-run:
+To generate an unminified bundle, run:
+
+```shell 
+grunt js
+```
+
+To generate a minified bundle, run:
 
 ```shell
-grunt js
+grunt js:min
 ```
 
 The compiled script (`public/scripts/app.min.js`) is ignored by git. 
 
-__The app is automatically compiled when deploying via the `postinstall` npm hook.__
+__The app is automatically compiled and minified when deploying via the `postinstall` npm hook.__
 
 #### Continuous compilation
 
@@ -108,12 +112,15 @@ To automatically recompile assets when sources change, run:
 
 ```shell
 # Watch and recompile everything
-grunt watch 
+grunt w 
 # Watch and recompile stylesheets
 grunt watch:css 
 # Watch and recompile javascripts
-grunt watch:js 
+grunt browserify:watch
 ```
+
+JS continuous compilation uses watchify which makes it very quick to update when 
+files changes.
 
 ### Running specs
 
@@ -144,8 +151,13 @@ since we use `nodemon`.
 
 ## App
 
-The app itself uses [requirejs](requirejs.org) to load the different 
+The app itself uses `browserify` to load the different 
 source files and manage dependency injection.
+
+We now use the [ES6 module syntax](http://24ways.org/2014/javascript-modules-the-es6-way/) to load modules. 
+Legacy modules using AMD-syntax are still compatible.
+
+Non-NPM module aliases are defined in the `package.json` file.
 
 ### Directory structure and primary files
 
@@ -157,7 +169,6 @@ yet implemented).
 | `common/`           | common lib and backbone components            |
 | `sequence/`         | main sequence view module                     |
 | `app.js`            | instantiates and starts the app               |
-| `require.config.js` | defines vendor plugins dependencies and shims |
 | `router.js`         | defines app routes                            |
 
 
@@ -184,19 +195,21 @@ To ensure backbone dependencies are properly loaded in your files, require
 `backbone.mixed` instead of `backbone`.
 
 ```js
+import Backbone from 'backbone.mixed';
 var Backbone = require('backbone.mixed');
 ```
 
 #### Underscore
 
 [Underscore](http://underscorejs.org) is a backbone dependency but also 
-quite a powerful tool. Custom methods are defined in `common/lib/undescore.mixed.js`.
+quite a powerful tool. Custom methods are defined in `common/lib/underscore.mixed.js`.
 
 To ensure custom methods are properly mixed in, require `underscore.mixed` instead
 of `underscore`.
 
 ```js
-var _ = require('undescore.mixed');
+import _ from 'underscore.mixed';
+var _ = require('underscore.mixed');
 ```
 
 #### Handlebars
@@ -205,10 +218,11 @@ We use [Handlebars](http://handlebarsjs.com) for templating in the app.
 
 Helpers are defined in `common/lib/handlebar.mixed.js` and loaded automatically.
 
-To require and precompile a a Handlebars template, use the `hbars` requirejs plugin.
+To require and precompile a template, just require/import the html file.
 
 ```js
-var template = require('hbars!common/templates/sidebar_view');
+import template from '../templates/sidebar_view.html';
+var template = require('../templates/sidebar_view.html');
 ```
 
 
