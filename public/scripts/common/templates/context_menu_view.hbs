@@ -7,18 +7,20 @@
         {{label}}
       </a>
     {{/each}}
-    <a href="#" data-toggle="dropdown" class="btn btn-default btn-sm dropdown-toggle">
-      <i class="glyphicon glyphicon-chevron-down"></i>
-    </a>
-    {{!-- </div> --}}
-    <ul class="dropdown-menu {{#unless pullRight}}no-{{/unless}}pull-right" role="menu">
-      {{#each menuItems}}
-        <li>
-          <a href="#" class="menu-item" data-id="{{id}}">
-            {{label}}
-          </a>
-        </li>
-      {{/each}}
-    </ul>
+    {{#if menuItems.length}}
+      <a href="#" data-toggle="dropdown" class="btn btn-default btn-sm dropdown-toggle">
+        <i class="glyphicon glyphicon-chevron-down"></i>
+      </a>
+      {{!-- </div> --}}
+      <ul class="dropdown-menu {{#unless pullRight}}no-{{/unless}}pull-right" role="menu">
+        {{#each menuItems}}
+          <li>
+            <a href="#" class="menu-item" data-id="{{id}}">
+              {{label}}
+            </a>
+          </li>
+        {{/each}}
+      </ul>
+    {{/if}}
   </div>
 {{/if}}

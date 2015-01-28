@@ -46,8 +46,8 @@ define(function(require) {
 
       if(icon) {
         this.menuIcons.push({
-          label: label, 
-          icon: icon, 
+          label: label,
+          icon: icon,
           callback: callback,
           id: this.menuItems.length + this.menuIcons.length
         });
@@ -60,8 +60,8 @@ define(function(require) {
       }
 
       this.posX = Math.min(
-        this.posX, 
-        $assumedParent.width() + $assumedParent.position().left - 
+        this.posX,
+        $assumedParent.width() + $assumedParent.position().left -
           ((this.menuIcons.length + 1) * this.menuIconWidth + 20)
       );
 
@@ -79,7 +79,8 @@ define(function(require) {
 
     show: function() {
       var itemNb = this.menuItems.length;
-      if(itemNb > 0) {
+
+      if (this.menuItems.length || this.menuIcons.length){
         var $parent = this.$assumedParent,
             parentWidth = $parent.width(),
             parentHeight = $parent.height();
@@ -140,7 +141,7 @@ define(function(require) {
     }
 
 
-    
+
 
   });
 

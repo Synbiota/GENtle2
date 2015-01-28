@@ -38,7 +38,7 @@ define(function(require) {
       }
     }
 
-    if(menu.menuItems.length) {
+    if(menu.menuItems.length || menu.menuIcons.length) {
       menu.show();
     }
 
