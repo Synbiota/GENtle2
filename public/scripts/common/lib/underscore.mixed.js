@@ -139,12 +139,26 @@ _.mixin({
       return memo;
     };
     return _.reduce(obj, func, isArr ? [] : {});
+  },
+
+  afterLastCall: function(func, wait) {
+    var timeoutId, args, thisArg, delayed;
+
+    delayed = function() {
+      func.apply(thisArg, args);
+    };
+
+    return function() {
+      args = arguments;
+      thisArg = this;
+
+      if(timeoutId) {
+        timeoutId = clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(delayed, wait);
+    };
   }
-
-
-
-
-
 });
 
 module.exports = _;

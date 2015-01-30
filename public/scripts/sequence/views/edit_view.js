@@ -16,17 +16,20 @@ define(function(require) {
 
     initialize: function() {
       this.model = Gentle.currentSequence;
+      this.deyaledReadAndUpdate = _.afterLastCall(this.readAndUpdate, 1000);
     },
 
     events: {
       'click input[type=button]': 'readAndUpdate',
+      'keydown :input' : 'deyaledReadAndUpdate',
+      'click input[type=radio]' : 'deyaledReadAndUpdate',
     },
 
     readAndUpdate: function(event) {
+      console.log("saving");
       var descript = 'No Description';
       this.model.nameBefore = this.model.get('name');
       this.model.errors= {};
-
       event.preventDefault();
       var isCircular = this.$('[name="isCircular"]:checked').val() || "false";
 
@@ -55,14 +58,17 @@ define(function(require) {
           this.model.set('desc', descript);
           document.title = this.model.nameBefore + " / Gentle";
         }
+        this.$("#name").parents('.form-group').addClass('has-error');
       } else {
         this.model.set('name', this.$('#name').val());
         this.model.set('desc', this.$('#desc').val());
         document.title = this.$('#name').val() + " / Gentle";
+        this.$("#name").parents('.form-group').removeClass('has-error');
+
       }
 
       this.model.save();
-      this.render();
+      // this.render(); 
     },
 
     serialize: function() {
