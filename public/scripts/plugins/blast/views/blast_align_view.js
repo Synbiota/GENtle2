@@ -153,6 +153,8 @@ export default Backbone.View.extend({
             baseLine: 15,
             textFont: '15px Monospace',
             textColour: 'black',
+            selectionColour: 'red',
+            selectionTextColour: 'white'
           }],
           midLine: ['DNA', {
             height: 13,

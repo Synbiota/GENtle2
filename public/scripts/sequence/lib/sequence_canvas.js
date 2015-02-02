@@ -673,7 +673,6 @@ define(function(require) {
 
 
   SequenceCanvas.prototype.redrawSelection = function(selection) {
-
     var
       lines = this.layoutSettings.lines,
       yOffset = this.layoutHelpers.yOffset,
@@ -707,9 +706,7 @@ define(function(require) {
           }
           this.layoutHelpers.selectionPreviousB = selection[0];
         }
-
       }
-
     }
 
     if(posY !== undefined) {
@@ -717,7 +714,6 @@ define(function(require) {
     } else {
       this.redraw();
     }
-
   };
 
   /**
@@ -736,7 +732,7 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.select = function(start, end) {
 
-    console.log('select', start, end)
+    console.log('select', start, end);
     var positionCheck;
     this.hideCaret();
     if (start !== undefined) {

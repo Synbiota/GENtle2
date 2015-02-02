@@ -54,10 +54,12 @@ define(function(require) {
     if(subSequence) {
       for(k = 0; k < lh.basesPerRow; k++){
         if(!subSequence[k]) break;
-
+        
         character = _.isFunction(this.transform) ?
           this.transform.call(sequence, k+baseRange[0]) :
           subSequence[k];
+
+
 
         if( this.selectionColour && 
             selection && 
