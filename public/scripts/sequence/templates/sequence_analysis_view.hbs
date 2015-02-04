@@ -1,0 +1,20 @@
+<table class="table">
+  <thead>
+    <tr>
+      <th>
+        col1
+      </th>
+      <th>
+        col2
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each results}}
+      <tr>
+        <th>type: {{@key}}</th>
+        <th>result: {{this}}</th>
+      </tr>
+    {{/each}}
+  </tbody>
+</table>

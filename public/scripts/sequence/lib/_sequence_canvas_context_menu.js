@@ -33,8 +33,10 @@ define(function(require) {
 
     if(this.selection) {
       // menu.add('Copy', this.copyFromMenu);
+      menu.add('Analayze Fragment', 'edit', this.analyzeFragment);
+
       if(!this.readOnly) {
-        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        // menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
       }
     }
 
@@ -42,6 +44,16 @@ define(function(require) {
       menu.show();
     }
 
+  };
+
+  SequenceCanvasContextMenu.prototype.analyzeFragment = function(){
+    var selection = this.selection;
+
+    if(selection) {
+      this.view.parentView().analyzeFragment(
+        this.sequence.getSubSeq(selection[0], selection[1])
+      );
+    }
   };
 
 
