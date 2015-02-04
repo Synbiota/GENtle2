@@ -6,8 +6,37 @@ define(function(require){
       SequenceAnalysisView;
 
   var analysisRubric = {
+    sequence: function(fragment){
+      return '5\'- ' + fragment + ' -3\'';
+    },
+
+    complement: function(fragment){
+      var fragmentComplement = ""
+
+      _.each(fragment.split(""), function(nucleotide){
+        var complementaryNucleotide
+        switch (nucleotide){
+          case 'A':
+            complementaryNucleotide = 'T'
+            break;
+          case 'T':
+            complementaryNucleotide = 'A'
+            break;
+          case 'C':
+            complementaryNucleotide = 'G'
+            break;
+          case 'G':
+            complementaryNucleotide = 'C'
+            break;
+        }
+        fragmentComplement = fragmentComplement + complementaryNucleotide;
+      })
+
+      return '5\'- ' + fragmentComplement + ' -3\'';
+    },
+
     length: function(fragment){
-      return 'length ' + fragment
+      return fragment.length
     },
     weight: function(fragment){
       return 'weight ' + fragment
@@ -18,8 +47,6 @@ define(function(require){
   SequenceAnalysisView = Backbone.View.extend({
     manage: true,
     template: template,
-    className: 'abcd',
-
 
     calculateResults: function(fragment){
 
@@ -33,7 +60,6 @@ define(function(require){
     },
 
     serialize: function(){
-      console.log(this.results);
       return {
         results: this.results
       };

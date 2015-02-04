@@ -1,5 +1,5 @@
 <table class="table">
-  <thead>
+  {{!-- <thead>
     <tr>
       <th>
         col1
@@ -8,12 +8,12 @@
         col2
       </th>
     </tr>
-  </thead>
+  </thead> --}}
   <tbody>
     {{#each results}}
       <tr>
-        <th>type: {{@key}}</th>
-        <th>result: {{this}}</th>
+        <th>{{@key}}</th>
+        <th>{{this}}</th>
       </tr>
     {{/each}}
   </tbody>

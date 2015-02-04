@@ -39,10 +39,20 @@ define(function(require) {
     },
 
     analyzeFragment: function(fragment){
+
       var sequenceAnalysisView = new SequenceAnalysisView()
+      var canvasView = this.actualPrimaryView.sequenceCanvas;
+
+      Modal.modalTitle = 'Analysis';
       Modal.setView('.modal-body', sequenceAnalysisView);
+
       sequenceAnalysisView.calculateResults(fragment)
       sequenceAnalysisView.render();
+
+      canvasView.hideCaret();
+      canvasView.selection = "";
+      canvasView.redraw();
+
       Modal.show();
     },
 

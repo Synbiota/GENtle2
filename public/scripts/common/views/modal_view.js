@@ -16,6 +16,7 @@ define(function(require){
     },
 
     show: function(){
+      this.render();
       this.$el.modal('show')
     },
 
@@ -25,8 +26,7 @@ define(function(require){
 
     serialize: function(){
       return {
-        modalTitle: "Title",
-        modalBody: "body"
+        modalTitle: this.modalTitle
       };
     }
 
