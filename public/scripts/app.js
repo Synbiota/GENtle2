@@ -16,6 +16,11 @@ import ncbi from './plugins/ncbi/plugin';
 import designer from './plugins/designer/plugin';
 import blast from './plugins/blast/plugin';
 
+
+//temp
+import pcr from './sequence/lib/pcr_primer_design';
+window.pcr = pcr;
+
 var plugins = [ncbi, designer, blast];
 
 
