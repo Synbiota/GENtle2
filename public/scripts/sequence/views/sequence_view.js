@@ -104,6 +104,7 @@ define(function(require) {
       primaryView.current = true;
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;
+      console.log(actualView)
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
 

@@ -1,0 +1,50 @@
+<br>
+<h3>PCR Products</h3>
+{{#each products}}
+  <div class="panel panel-default" data-product-id="{{id}}">
+    <div class="panel-heading">
+      <div class="pull-right">
+        <div class="btn-group">
+          <button class="btn btn-default btn-xs delete-pcr-product">
+            <i class="glyphicon glyphicon-trash"></i>
+          </button>
+          <button class="btn btn-default btn-xs show-pcr-product">Show &rarr;</button>
+        </div>
+      </div>
+      <h3 class="panel-title">{{name}}</h3>
+    </div>
+    <table class="table table-condensed">
+      <thead>
+        <th></th>
+        <th class="text-right"><small>Size</small></th>
+        <th class="text-right"><small>Melting temperature</small></th>
+        <th class="text-right"><small>GC content</small></th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><small><strong>Product</strong></small></td>
+          <td class="text-right"><small>{{shortFormNumber length}}bp</small></td>
+          <td class="text-right"><small>{{round meltingTemperature 2}}&deg;C</small></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><small>Start primer <small class="text-muted"><em>(exc. sticky ends)</em></small></small></td>
+          <td class="text-right"><small>{{shortFormNumber startPrimer.length}}bp</small></td>
+          <td class="text-right"><small>{{round startPrimer.meltingTemperature 2}}&deg;C</small></td>
+          <td class="text-right"><small>{{round startPrimer.CGContent 2 true}}%</small></td>
+        </tr>
+        <tr>
+          <td><small>End primer <small class="text-muted"><em>(exc. sticky ends)</em></small></td>
+          <td class="text-right"><small>{{shortFormNumber endPrimer.length}}bp</small></td>
+          <td class="text-right"><small>{{round endPrimer.meltingTemperature 2}}&deg;C</small></td>
+          <td class="text-right"><small>{{round endPrimer.CGContent 2 true}}%</small></td>
+        </tr>
+        <tr>
+          <td><small>Sticky ends</small></td>
+          <td colspan="3" class="text-right"><small>{{stickyEnds.name}}</small></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+{{/each}}

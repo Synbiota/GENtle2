@@ -8139,6 +8139,18 @@ button.close {
   border-color: white;
   background: #3c6e39;
 }
+/* line 141, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-primer {
+  color: white;
+  border-color: white;
+  background: blue;
+}
+/* line 141, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-sticky_end {
+  color: white;
+  border-color: white;
+  background: green;
+}
 
 /* line 152, views/_designer_view.scss */
 .designer-available-sequences {
@@ -8334,6 +8346,18 @@ button.close {
   color: white;
   background: #3c6e39;
 }
+/* line 232, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-primer {
+  border-color: white;
+  color: white;
+  background: blue;
+}
+/* line 232, views/_designer_view.scss */
+.designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-sticky_end {
+  border-color: white;
+  color: white;
+  background: green;
+}
 
 /* line 1, views/_navbar_view.scss */
 #navbar .navbar {
@@ -8438,6 +8462,31 @@ button.close {
   margin-right: -16px;
   margin-left: 5px;
   margin-top: 1px;
+}
+
+/* line 1, views/_pcr_view.scss */
+.pcr, #pcr-list-outer-container, #pcr-canvas-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: scroll;
+}
+/* line 9, views/_pcr_view.scss */
+.pcr label, #pcr-list-outer-container label, #pcr-canvas-container label {
+  text-align: left;
+}
+
+/* line 14, views/_pcr_view.scss */
+#pcr-list-outer-container {
+  width: 50%;
+  border-right: 1px solid #ddd;
+}
+
+/* line 19, views/_pcr_view.scss */
+#pcr-canvas-container {
+  left: 50%;
 }
 
 /* line 1, views/_sequence_view.scss */
@@ -8940,6 +8989,16 @@ button.close {
 .linear-map .linear-map-features .linear-map-feature.linear-map-feature-note {
   color: white;
   background: #3c6e39;
+}
+/* line 51, components/_linear_map.scss */
+.linear-map .linear-map-features .linear-map-feature.linear-map-feature-primer {
+  color: white;
+  background: blue;
+}
+/* line 51, components/_linear_map.scss */
+.linear-map .linear-map-features .linear-map-feature.linear-map-feature-sticky_end {
+  color: white;
+  background: green;
 }
 /* line 58, components/_linear_map.scss */
 .linear-map .linear-map-features .linear-map-feature:hover {
