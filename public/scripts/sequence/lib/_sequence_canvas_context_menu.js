@@ -33,10 +33,10 @@ define(function(require) {
 
     if(this.selection) {
       // menu.add('Copy', this.copyFromMenu);
-      menu.add('Analayze Fragment', 'edit', this.analyzeFragment);
+      menu.add('Analayze Fragment', this.analyzeFragment);
 
       if(!this.readOnly) {
-        // menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
       }
     }
 

@@ -13,9 +13,9 @@ define(function(require) {
 
     events: {
       'click .menu-item, .menu-icon': 'handleClick',
+      'click .dropdown-toggle': 'toggleMenu',
       'mouseup .menu-item, .menu-icon, .dropdown-toggle': 'stopPropagation',
       'mousedown .menu-item, .menu-icon, .dropdown-toggle': 'stopPropagation',
-      'click .dropdown-toggle': 'toggleMenu'
     },
 
     initialize: function() {
@@ -118,6 +118,9 @@ define(function(require) {
     },
 
     toggleMenu: function(event) {
+
+      this.parentView().skipBlur = true;
+
       event.stopPropagation();
       event.preventDefault();
       $(event.currentTarget).dropdown('toggle');
