@@ -671,7 +671,6 @@ define(function(require) {
     }
   };
 
-
   SequenceCanvas.prototype.redrawSelection = function(selection) {
 
     var
