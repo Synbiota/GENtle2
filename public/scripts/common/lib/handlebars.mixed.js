@@ -65,6 +65,10 @@ Handlebars.registerHelper('formatThousands', function(context, offset) {
   return _.formatThousands(context + (_.isObject(offset) ? 0 : offset));
 });
 
+Handlebars.registerHelper('plus', function(number, offset) {
+  return number + offset;
+});
+
 Handlebars.registerHelper('shortFormNumber', function(context) {
   return _.shortFormNumber(context);
 });

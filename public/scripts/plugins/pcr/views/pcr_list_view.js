@@ -32,6 +32,10 @@ export default Backbone.View.extend({
     if(showingProductId) {
       this.$('[data-product-id="'+showingProductId+'"]').addClass('panel-info');
     }
+
+    this.$('.has-tooltip').tooltip({
+      container: 'body'
+    });
   },
 
   getProduct: function(event) {

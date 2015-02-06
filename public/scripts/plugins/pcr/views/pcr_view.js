@@ -16,7 +16,14 @@ export default Backbone.View.extend({
 
   initialize: function() {
     this.model = Gentle.currentSequence;
-    this.products = [];
+    this.products = this.model.get('meta.pcr.products') || [];
+    this.defaults = _.defaults(this.model.get('meta.pcr.defaults') || {}, {
+      from: 0,
+      to: this.model.length()-1,
+      meltingTemperatureFrom: 57,
+      meltingTemperatureTo: 62
+    });
+
     this.listView = new ListView();
     this.setView('.pcr-list-container', this.listView);
   },
@@ -25,9 +32,13 @@ export default Backbone.View.extend({
     'submit .new-pcr-product-form': 'createNewPcrProduct'
   },
 
+  getFieldFor: function(field) {
+    return this.$('#newProduct_'+field);
+  },
+
   extractFieldsData: function() {
     return _.reduce(_.toArray(arguments), (memo, field) => {
-      var $field = this.$('#newProduct_'+field);
+      var $field = this.getFieldFor(field);
       memo[field] = $field.val();
       if($field.attr('type') == 'number') memo[field] = memo[field]^0;
       return memo;
@@ -48,16 +59,19 @@ export default Backbone.View.extend({
 
   createNewPcrProduct: function(event) {
     event.preventDefault();
-
     var data = this.getFormData();
 
-    var sequence = Gentle.currentSequence;
+    var sequence = this.model;
 
     var product = _.extend(PrimerDesign.getPCRProduct(sequence, data), {
       name: data.name
     });
 
     this.products.push(product);
+
+    sequence.set('meta.pcr.products', this.products);
+    sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
+    sequence.throttledSave();
 
     this.listView.render();
     this.showCanvas(product);
@@ -78,6 +92,7 @@ export default Backbone.View.extend({
     if(~idx) {
       if(this.showingProductId == product.id) this.removeView('#pcr-canvas-container');
       this.products.splice(idx, 1);
+      this.model.set('meta.pcr.products', this.products).throttledSave();
       this.listView.render();
     }
   },
@@ -91,7 +106,6 @@ export default Backbone.View.extend({
 
   getSequenceFromProduct: function(product) {
 
-    console.log(product)
     var sequence = Gentle.currentSequence.getSubSeq(product.from, product.to);
     var stickyEndOffsets = this.getStickyEndOffsets(product);
     var features = [];
@@ -139,6 +153,12 @@ export default Backbone.View.extend({
     });
   },
 
+  updateRange: function(from, to) {
+    this.getFieldFor('from').val(from);
+    this.getFieldFor('to').val(to);
+    this.getFieldFor('name').focus();
+  },
+
   serialize: function() {
     return {
       availableStickyEnds: _.map(StickyEnds, function(end) {
@@ -147,11 +167,7 @@ export default Backbone.View.extend({
           value: end.name
         };
       }),
-      defaultFrom: 1,
-      defaultTo: Gentle.currentSequence.length(),
-      defaultTemperatureFrom: 57,
-      defaultTemperatureTo: 62
-
+      defaults: this.defaults
     };
   }
 

@@ -104,7 +104,6 @@ define(function(require) {
       primaryView.current = true;
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;
-      console.log(actualView)
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
 
@@ -124,6 +123,7 @@ define(function(require) {
 
       if(trigger !== false) {
         this.trigger('resize');
+        Gentle.trigger('resize');
         this.actualPrimaryView.trigger('resize');
       }
     },

@@ -8,3 +8,16 @@ Gentle.addPlugin('sequence-primary-view', {
   title: 'PCR mode',
   view: PCRView
 });
+
+Gentle.addPlugin('sequence-canvas-context-menu', {
+  name: 'pcr',
+  title: 'Create PCR product',
+  icon: 'wrench',
+  callback: function() {
+    // `this` is the SequenceCanvas instance
+    var sequenceView = this.view.parentView();
+    var [selectionFrom, selectionTo] = this.selection;
+    sequenceView.changePrimaryView('pcr');
+    sequenceView.actualPrimaryView.updateRange(selectionFrom, selectionTo);
+  }
+});

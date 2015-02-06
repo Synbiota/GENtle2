@@ -8,7 +8,7 @@
           <button class="btn btn-default btn-xs delete-pcr-product">
             <i class="glyphicon glyphicon-trash"></i>
           </button>
-          <button class="btn btn-default btn-xs open-pcr-product">
+          <button class="btn btn-default btn-xs open-pcr-product has-tooltip" title="Open PCR product in new tab">
             Open
             <i class="glyphicon glyphicon-share"></i>
           </button>
@@ -28,18 +28,18 @@
       <tbody>
         <tr>
           <td><small><strong>Product</strong></small></td>
-          <td class="text-right"><small>{{formatThousands length}}bp</small></td>
+          <td class="text-right"><small>{{formatThousands sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round meltingTemperature 1}}&deg;C</small></td>
           <td></td>
           <td></td>
         </tr>
         <tr>
           <td><small>Forward primer <small class="text-muted"><em>(inc. sticky ends)</em></small></small></td>
-          <td class="text-right"><small>{{shortFormNumber forwardPrimer.length}}bp</small></td>
+          <td class="text-right"><small>{{shortFormNumber forwardPrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
           <td class="text-right"><small>{{round forwardPrimer.CGContent 1 true}}%</small></td>
           <td class="text-right">
-            <button class="export-forward-primer btn btn-default btn-xs">
+            <button class="export-forward-primer btn btn-default btn-xs has-tooltip" data-placement="left" title="Download primer in FASTA format">
               <i class="glyphicon glyphicon-floppy-save"></i>
             </button>
           </td>
@@ -49,11 +49,11 @@
         <tr>
         <tr>
           <td><small>Reverse primer <small class="text-muted"><em>(inc. sticky ends)</em></small></td>
-          <td class="text-right"><small>{{shortFormNumber reversePrimer.length}}bp</small></td>
+          <td class="text-right"><small>{{shortFormNumber reversePrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
           <td class="text-right"><small>{{round reversePrimer.CGContent 1 true}}%</small></td>
           <td class="text-right">
-            <button class="export-reverse-primer btn btn-default btn-xs">
+            <button class="export-reverse-primer btn btn-default btn-xs has-tooltip" data-placement="left"  title="Download primer in FASTA format">
               <i class="glyphicon glyphicon-floppy-save"></i>
             </button>
           </td>

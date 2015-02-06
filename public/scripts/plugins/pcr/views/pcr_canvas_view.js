@@ -15,6 +15,9 @@ export default Backbone.View.extend({
 
   initialize: function() {
     _.bindAll(this, 'getSequenceColour');
+    this.listenTo(Gentle, 'resize', function() {
+      this.trigger('resize');
+    });
   },
 
   getSequenceColour: function(base, pos, defaultColor) {

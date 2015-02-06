@@ -21,9 +21,9 @@ var primerScore = function(sequence, targetMeltingTemperature) {
   score += startingGCScore(sequence);
   score -= selfAnnealingScore(sequence) / 10;
 
-  console.log('primerScore', sequence)
-  console.log(SequenceCalculations.meltingTemperature(sequence), Math.pow(SequenceCalculations.meltingTemperature(sequence) - targetMeltingTemperature, 2), startingGCScore(sequence), targetMeltingTemperature, score)
-  console.log('selfAnnealingScore', selfAnnealingScore(sequence))
+  // console.log('primerScore', sequence)
+  // console.log(SequenceCalculations.meltingTemperature(sequence), Math.pow(SequenceCalculations.meltingTemperature(sequence) - targetMeltingTemperature, 2), startingGCScore(sequence), targetMeltingTemperature, score)
+  // console.log('selfAnnealingScore', selfAnnealingScore(sequence))
 
   return score;
 };
@@ -137,14 +137,14 @@ var getPCRProduct = function(sequence, opts = {}) {
     forwardPrimer: _.extend(forwardPrimer, {
       from: 0,
       to: forwardPrimer.sequence.length - 1,
-      length: forwardPrimer.sequence.length
+      sequenceLength: forwardPrimer.sequence.length
     }),
     reversePrimer: _.extend(reversePrimer, {
       from: reversePrimerFrom,
       to: reversePrimerFrom + reversePrimer.sequence.length,
-      length: reversePrimer.sequence.length
+      sequenceLength: reversePrimer.sequence.length
     }),
-    length: sequence.length,
+    sequenceLength: sequence.length,
     stickyEnds: opts.stickyEnds,
     meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
   };
