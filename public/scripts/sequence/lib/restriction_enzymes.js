@@ -67,6 +67,7 @@ define(function(require) {
         checkAndAddMatch;
     options = options || {}; 
 
+
     checkAndAddMatch = function(enzymes, bases) {
       var regexp = RestrictionEnzymes.getRegExp(bases),
           result;

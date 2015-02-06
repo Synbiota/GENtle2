@@ -60,6 +60,7 @@ define(function(require) {
           filter = this.filter,
           output = [];
 
+
       _.each(enzymes, function(enzyme) {
         if(~lengths.indexOf(enzyme.seq.length+"") && (!filter || ~enzyme.name.toLowerCase().indexOf(filter.toLowerCase()))) {
           output.push(enzyme);
@@ -75,7 +76,7 @@ define(function(require) {
 
     serialize: function() {
       return {
-        recognitionSites: _.range(1,10),
+        recognitionSites: _.range(1,22),
         selected: this.model.get('displaySettings.rows.res.custom'),
         filter: this.filter
       };
