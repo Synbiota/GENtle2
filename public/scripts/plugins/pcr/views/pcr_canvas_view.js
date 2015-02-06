@@ -2,7 +2,6 @@ import Backbone from 'backbone.mixed';
 import template from '../templates/pcr_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
-import Sequence from '../../../sequence/models/sequence';
 import _ from 'underscore.mixed';
 import Styles from '../../../styles.json';
 
@@ -18,26 +17,18 @@ export default Backbone.View.extend({
     _.bindAll(this, 'getSequenceColour');
   },
 
-  getStickyEndOffsets: function() {
-    var product = this.product;
-    return !product.stickyEnds ? [0, 0] : [
-      product.stickyEnds.start.length,
-      -product.stickyEnds.end.length
-    ];
-  },
-
   getSequenceColour: function(base, pos, defaultColor) {
-    var stickyEndOffsets = this.getStickyEndOffsets();
+    var stickyEndOffsets = this.parentView().getStickyEndOffsets(this.product);
     var featuresColors = LineStyles.features.color;
     var sequenceLength = this.model.length();
-    var startPrimerLength = this.product.startPrimer.sequence.length;
-    var endPrimerLength = this.product.endPrimer.sequence.length;
+    var forwardPrimerLength = this.product.forwardPrimer.sequence.length;
+    var reversePrimerLength = this.product.reversePrimer.sequence.length;
 
     defaultColor = defaultColor || LineStyles.complements.text.color;
 
     if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] -1) {
       return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
-    } else if(pos < stickyEndOffsets[0] + startPrimerLength || pos >= sequenceLength + stickyEndOffsets[1] - endPrimerLength){
+    } else if(pos < stickyEndOffsets[0] + forwardPrimerLength || pos >= sequenceLength + stickyEndOffsets[1] - reversePrimerLength){
       return (featuresColors.primer && featuresColors.primer.fill) || defaultColor;
     } else {
       return defaultColor;
@@ -46,56 +37,9 @@ export default Backbone.View.extend({
 
   setProduct: function(product) {
     this.product = product;
-    var sequence = Gentle.currentSequence.get('sequence');
-    var stickyEndOffsets = this.getStickyEndOffsets();
-    var features = [];
-
-    if(product.stickyEnds) {
-      sequence = product.stickyEnds.start + sequence + product.stickyEnds.end;
-
-      features = features.concat([{
-        name: 'Sticky end',
-        _type: 'sticky_end',
-        ranges: [{
-          from: 0,
-          to: product.stickyEnds.start.length-1
-        }]
-      }],[{
-        name: 'Sticky end',
-        _type: 'sticky_end',
-        ranges: [{
-          from: sequence.length - product.stickyEnds.end.length,
-          to: sequence.length-1
-        }]
-      }]);
-    }
-
-    features = features.concat([{
-      name: 'Primer',
-      _type: 'primer',
-      ranges: [{
-        from: 0,
-        to: product.startPrimer.to + stickyEndOffsets[0],
-      }]
-    },{
-      name: 'Primer',
-      _type: 'primer',
-      ranges: [{
-        from: sequence.length - product.endPrimer.sequence.length + stickyEndOffsets[1],
-        to: sequence.length - 1
-      }]
-    }]);
-
-    this.model = new Sequence({
-      sequence: sequence,
-      name: product.name,
-      features: features
-    });
-
+    this.model = this.parentView().getSequenceFromProduct(product);
     this.model.save = _.noop;
-
     this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
-
   },
 
   afterRender: function() {

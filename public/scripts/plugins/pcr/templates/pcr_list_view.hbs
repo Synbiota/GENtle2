@@ -8,6 +8,10 @@
           <button class="btn btn-default btn-xs delete-pcr-product">
             <i class="glyphicon glyphicon-trash"></i>
           </button>
+          <button class="btn btn-default btn-xs open-pcr-product">
+            Open
+            <i class="glyphicon glyphicon-share"></i>
+          </button>
           <button class="btn btn-default btn-xs show-pcr-product">Show &rarr;</button>
         </div>
       </div>
@@ -19,29 +23,48 @@
         <th class="text-right"><small>Size</small></th>
         <th class="text-right"><small>Melting temperature</small></th>
         <th class="text-right"><small>GC content</small></th>
+        <th></th>
       </thead>
       <tbody>
         <tr>
           <td><small><strong>Product</strong></small></td>
-          <td class="text-right"><small>{{shortFormNumber length}}bp</small></td>
-          <td class="text-right"><small>{{round meltingTemperature 2}}&deg;C</small></td>
+          <td class="text-right"><small>{{formatThousands length}}bp</small></td>
+          <td class="text-right"><small>{{round meltingTemperature 1}}&deg;C</small></td>
+          <td></td>
           <td></td>
         </tr>
         <tr>
-          <td><small>Start primer <small class="text-muted"><em>(exc. sticky ends)</em></small></small></td>
-          <td class="text-right"><small>{{shortFormNumber startPrimer.length}}bp</small></td>
-          <td class="text-right"><small>{{round startPrimer.meltingTemperature 2}}&deg;C</small></td>
-          <td class="text-right"><small>{{round startPrimer.CGContent 2 true}}%</small></td>
+          <td><small>Forward primer <small class="text-muted"><em>(inc. sticky ends)</em></small></small></td>
+          <td class="text-right"><small>{{shortFormNumber forwardPrimer.length}}bp</small></td>
+          <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
+          <td class="text-right"><small>{{round forwardPrimer.CGContent 1 true}}%</small></td>
+          <td class="text-right">
+            <button class="export-forward-primer btn btn-default btn-xs">
+              <i class="glyphicon glyphicon-floppy-save"></i>
+            </button>
+          </td>
         </tr>
         <tr>
-          <td><small>End primer <small class="text-muted"><em>(exc. sticky ends)</em></small></td>
-          <td class="text-right"><small>{{shortFormNumber endPrimer.length}}bp</small></td>
-          <td class="text-right"><small>{{round endPrimer.meltingTemperature 2}}&deg;C</small></td>
-          <td class="text-right"><small>{{round endPrimer.CGContent 2 true}}%</small></td>
+          <td colspan="5" class="pcr-primer-sequence">5' – {{forwardPrimer.sequence}} – 3'</td>
+        <tr>
+        <tr>
+          <td><small>Reverse primer <small class="text-muted"><em>(inc. sticky ends)</em></small></td>
+          <td class="text-right"><small>{{shortFormNumber reversePrimer.length}}bp</small></td>
+          <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
+          <td class="text-right"><small>{{round reversePrimer.CGContent 1 true}}%</small></td>
+          <td class="text-right">
+            <button class="export-reverse-primer btn btn-default btn-xs">
+              <i class="glyphicon glyphicon-floppy-save"></i>
+            </button>
+          </td>
         </tr>
+        <tr>
+          <td colspan="5" class="pcr-primer-sequence">5' – {{reversePrimer.sequence}} – 3'</td>
+        <tr>
         <tr>
           <td><small>Sticky ends</small></td>
           <td colspan="3" class="text-right"><small>{{stickyEnds.name}}</small></td>
+          <td></td>
         </tr>
 
       </tbody>

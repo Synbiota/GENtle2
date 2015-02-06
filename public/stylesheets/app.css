@@ -8489,6 +8489,16 @@ button.close {
   left: 50%;
 }
 
+/* line 23, views/_pcr_view.scss */
+.pcr-primer-sequence {
+  border-top: none !important;
+  color: #bbb;
+  font: 10px Monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding-top: 0;
+}
+
 /* line 1, views/_sequence_view.scss */
 .sequence-view {
   position: relative;
