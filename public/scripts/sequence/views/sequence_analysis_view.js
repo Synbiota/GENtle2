@@ -3,45 +3,75 @@ define(function(require){
   var Backbone = require('backbone.mixed'),
       template = require('../templates/sequence_analysis_view.hbs'),
       _ = require('underscore'),
+      SequenceCalculations = require('../lib/sequence_calculations.js'),
       SequenceAnalysisView;
 
-  var analysisRubric = {
-    sequence: function(fragment){
-      return '5\'- ' + fragment + ' -3\'';
+  var analysisRubric = [
+    {
+      name: "Sequence",
+      unit: "",
+      formula: function(fragment){
+        return '5\'- ' + fragment + ' -3\'';
+      },
     },
 
-    complement: function(fragment){
-      var fragmentComplement = ""
+    {
+      name: "Complement",
+      unit: "",
+      formula: function(fragment){
+        var fragmentComplement = ""
 
-      _.each(fragment.split(""), function(nucleotide){
-        var complementaryNucleotide
-        switch (nucleotide){
-          case 'A':
-            complementaryNucleotide = 'T'
-            break;
-          case 'T':
-            complementaryNucleotide = 'A'
-            break;
-          case 'C':
-            complementaryNucleotide = 'G'
-            break;
-          case 'G':
-            complementaryNucleotide = 'C'
-            break;
-        }
-        fragmentComplement = fragmentComplement + complementaryNucleotide;
-      })
+        _.each(fragment.split(""), function(nucleotide){
+          var complementaryNucleotide
+          switch (nucleotide){
+            case 'A':
+              complementaryNucleotide = 'T'
+              break;
+            case 'T':
+              complementaryNucleotide = 'A'
+              break;
+            case 'C':
+              complementaryNucleotide = 'G'
+              break;
+            case 'G':
+              complementaryNucleotide = 'C'
+              break;
+          }
+          fragmentComplement = fragmentComplement + complementaryNucleotide;
+        })
 
-      return '5\'- ' + fragmentComplement + ' -3\'';
+        return '5\'- ' + fragmentComplement + ' -3\'';
+      },
     },
 
-    length: function(fragment){
-      return fragment.length
+    {
+      name: "Length",
+      unit: "",
+      formula: function(fragment){
+        return fragment.length
+      },
     },
-    weight: function(fragment){
-      return 'weight ' + fragment
+
+    {
+      name: "Molecular Weight",
+      unit: "g/mole",
+      formula: SequenceCalculations.molecularWeight,
+    },
+
+    {
+      name: "CG Content",
+      unit: "%",
+      formula: SequenceCalculations.CGContent,
+    },
+
+    {
+      name: "Melting Temperature",
+      unit: "ºC",
+      formula: SequenceCalculations.meltingTemperature
     }
-  }
+
+
+  ]
 
 
   SequenceAnalysisView = Backbone.View.extend({
@@ -50,12 +80,13 @@ define(function(require){
 
     calculateResults: function(fragment){
 
-      this.results = {}
-      var _this = this
-
-      _.forEach(analysisRubric, function(calculation, analysisType){
-        _this.results[analysisType] = calculation(fragment)
-      })
+      this.results = _.reduce(analysisRubric, function(memo, analysis){
+        return memo.concat({
+          name: analysis.name,
+          result: analysis.formula(fragment),
+          unit: analysis.unit
+        })
+      }, [])
 
     },
 
