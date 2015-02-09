@@ -44,9 +44,7 @@ var convertToObject = function(xml) {
     return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
   };
   var areArrayElements = function(contents) {
-    var uniqueTagNames = _.uniq(_.map(contents, function(el) {
-      return el.tagName;
-    }));
+    var uniqueTagNames = _.uniq(_.pluck(contents, 'tagName'));
     return uniqueTagNames.length == 1 && contents.length > 1;
   };
 
@@ -67,8 +65,6 @@ var convertToObject = function(xml) {
     return memo;
   }, {});
 };
-
-window.convertToObject = convertToObject;
 
 //________________________________________________________________________________________
 // SYBIL - SYnthetic Biology Interchange Language
