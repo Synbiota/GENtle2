@@ -123,6 +123,7 @@ define(function(require) {
 
       if(trigger !== false) {
         this.trigger('resize');
+        Gentle.trigger('resize');
         this.actualPrimaryView.trigger('resize');
       }
     },

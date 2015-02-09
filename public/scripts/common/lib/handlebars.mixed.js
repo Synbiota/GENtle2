@@ -65,6 +65,10 @@ Handlebars.registerHelper('formatThousands', function(context, offset) {
   return _.formatThousands(context + (_.isObject(offset) ? 0 : offset));
 });
 
+Handlebars.registerHelper('plus', function(number, offset) {
+  return number + offset;
+});
+
 Handlebars.registerHelper('shortFormNumber', function(context) {
   return _.shortFormNumber(context);
 });
@@ -100,6 +104,11 @@ Handlebars.registerHelper('pluralize', function(number, singular, plural) {
 
 Handlebars.registerHelper('pluralCount', function(number, singular, plural) {
   return number + ' ' + Handlebars.helpers.pluralize.apply(this, arguments); 
+});
+
+Handlebars.registerHelper('round', function(number, precision, isPercentage) {
+  isPercentage = _.isBoolean(isPercentage) && isPercentage;
+  return (number * (isPercentage ? 100 : 1)).toFixed(precision) ;
 });
 
 module.exports = Handlebars;

@@ -1,0 +1,30 @@
+.pcr, #pcr-list-outer-container, #pcr-canvas-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: scroll;
+
+  label {
+    text-align: left;
+  }
+}
+
+#pcr-list-outer-container {
+  width: 50%;
+  border-right: 1px solid #ddd;
+}
+
+#pcr-canvas-container {
+  left: 50%;
+}
+
+.pcr-primer-sequence {
+  border-top: none !important;
+  color: #bbb;
+  font: 10px Monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding-top: 0;
+}

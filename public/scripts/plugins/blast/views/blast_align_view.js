@@ -16,6 +16,10 @@ export default Backbone.View.extend({
   initialize: function() {
     this.mismatches = [];
 
+    this.listenTo(Gentle, 'resize', function() {
+      this.trigger('resize');
+    });
+
     _.bindAll(this, 
       'getHitDnaSeq', 'transformHitPosition', 'getMidLine', 
       'getHitDnaColour'

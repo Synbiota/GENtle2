@@ -141,6 +141,19 @@ _.mixin({
     return _.reduce(obj, func, isArr ? [] : {});
   },
 
+  snakify: function(object) {
+    return object.replace(/([A-Z\d]+)([A-Z][a-z])/g,'$1_$2')
+                 .replace(/([a-z\d])([A-Z])/g,'$1_$2')
+                 .toLowerCase();
+  },
+
+  camelize: function(string) {
+
+    return string.replace (/(?:[-_])(\w)/g, function (_, c) {
+      return c ? c.toUpperCase () : '';
+    });
+  },
+
   afterLastCall: function(func, wait) {
     var timeoutId, args, thisArg, delayed;
 
