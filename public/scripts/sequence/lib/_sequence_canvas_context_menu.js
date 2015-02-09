@@ -32,23 +32,36 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
   // if(!this.readOnly && this.copyPasteHandler.copiedValue) {
   //   menu.add('Paste', this.pasteFromMenu);
   // }
+    if(this.selection) {
+      // menu.add('Copy', this.copyFromMenu);
+      menu.add('Analyze Fragment', this.analyzeFragment);
 
-  if(this.selection) {
-    // menu.add('Copy', this.copyFromMenu);
-    if(!this.readOnly) {
-      menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+      if(!this.readOnly) {
+        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+      }
     }
-  }
 
   _.chain(Gentle.plugins).where({type: 'sequence-canvas-context-menu'}).each(function(plugin) {
     var data = plugin.data;
     menu.add(data.title, data.icon, data.callback)
   });
 
+
   if(menu.menuItems.length || menu.menuIcons.length) {
     menu.show();
   }
 
+
+};
+
+SequenceCanvasContextMenu.prototype.analyzeFragment = function(){
+  var selection = this.selection;
+
+  if(selection) {
+    this.view.parentView().analyzeFragment(
+      this.sequence.getSubSeq(selection[0], selection[1])
+    );
+  }
 };
 
 

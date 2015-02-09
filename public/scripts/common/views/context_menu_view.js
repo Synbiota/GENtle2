@@ -13,12 +13,12 @@ define(function(require) {
 
     events: {
       'click .menu-item, .menu-icon': 'handleClick',
+      'click .dropdown-toggle': 'toggleMenu',
       'mouseup .menu-item, .menu-icon, .dropdown-toggle': 'stopPropagation',
       'mousedown .menu-item, .menu-icon, .dropdown-toggle': 'stopPropagation',
-      'click .dropdown-toggle': 'toggleMenu'
     },
 
-    initialize: function() {
+    initialize: function(options) {
       this.display = false;
       this.posX = 0;
       this.posY = 0;
@@ -28,6 +28,9 @@ define(function(require) {
       this.reset();
       _.bindAll(this, 'hide');
       $('body').on('click', this.hide);
+
+      this.context = options && options.context;
+
     },
 
     reset: function() {
@@ -118,9 +121,11 @@ define(function(require) {
     },
 
     toggleMenu: function(event) {
+
       event.stopPropagation();
       event.preventDefault();
       $(event.currentTarget).dropdown('toggle');
+
     },
 
     serialize: function() {
@@ -131,7 +136,8 @@ define(function(require) {
         posX: this.posX,
         posY: this.posY,
         pullRight: this.pullRight,
-        dropup: this.dropup
+        dropup: this.dropup,
+        context: this.context || 'generic'
       };
     },
 

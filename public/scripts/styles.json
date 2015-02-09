@@ -67,15 +67,7 @@
           "note": {
             "fill": "#3c6e39",
             "color": "white"
-          },
-          "primer": {
-            "fill": "blue",
-            "color": "white"
-          },
-          "sticky_end": {
-            "fill": "green",
-            "color": "white"
-          }
+          } 
         }
       },
       "RES": {

@@ -4,6 +4,13 @@ import SequenceTransforms from './sequence_transforms';
 var compose = _.compose;
 var partial = _.partial;
 
+var molecularWeights = {
+  'A': 313.209,
+  'C': 289.184,
+  'G': 329.208,
+  'T': 304.196
+}
+
 var getStringSequence = function(sequence) {
   if(_.isString(sequence)) {
     return sequence;
@@ -25,7 +32,7 @@ var saltCorrection = function(sequence, naPlusConcentration, mg2PlusConcentratio
   return 0.368 * (sequence.length - 1) * Math.log(concentration);
 };
 
-// Following data from 
+// Following data from
 // http://www.ncbi.nlm.nih.gov/pmc/articles/PMC19045/table/T2/
 
 // cal/K.mol
@@ -97,7 +104,7 @@ var nearestNeighborsCalculator = function(dataType, sequence) {
     }
 
     if(i < sequence.length-1) {
-      memo += getThermodynamicsData(nearestNeighborsData[dataType], base + sequence[i+1]); 
+      memo += getThermodynamicsData(nearestNeighborsData[dataType], base + sequence[i+1]);
     } else {
       memo += getThermodynamicsData(terminalCorrectionData[dataType], base);
     }
@@ -128,9 +135,9 @@ var deltaEnthalpy = partial(nearestNeighborsCalculator, 'enthalpy');
 var deltaEntropy = partial(nearestNeighborsCalculator, 'entropy');
 
 /**
- * Calculates the change in entropy of a sequence corrected for the presence of 
+ * Calculates the change in entropy of a sequence corrected for the presence of
  * salt in the solution
- * 
+ *
  * http://www.ncbi.nlm.nih.gov/pmc/articles/PMC19045/
  * @function correctedDeltaEntropy
  * @param  {String or Sequence object} sequence Sequence as string
@@ -144,14 +151,14 @@ var correctedDeltaEntropy = function(sequence, naPlusConcentration, mg2PlusConce
 
 /**
  * Calculates the melting temperature of a sequence
- *   
- * @param {String or Sequence object} sequence 
+ *
+ * @param {String or Sequence object} sequence
  * @param {Number (mol)} concentration Concentration of the sequence. Defaults
  *                       to 50µmol
  * @return {Number (Celsius)} melting temperature
  */
-var meltingTemperature = function(sequence, 
-                                  concentration = 50e-6, 
+var meltingTemperature = function(sequence,
+                                  concentration = 50e-6,
                                   naPlusConcentration = 50e-3,
                                   mg2PlusConcentration = 0) {
   return 1000 * deltaEnthalpy(sequence) / (
@@ -160,6 +167,15 @@ var meltingTemperature = function(sequence,
     ) - 273.15;
 };
 
+var molecularWeight = function(sequence) {
+
+  sequence = getStringSequence(sequence)
+  return _.reduce(sequence, function(memo, base){
+    return memo + molecularWeights[base]
+  }, 0);
+
+}
+
 export default {
   deltaEnthalpy: deltaEnthalpy,
   deltaEntropy: deltaEntropy,
@@ -167,4 +183,5 @@ export default {
   correctedDeltaEntropy: correctedDeltaEntropy,
   meltingTemperature: meltingTemperature,
   gcContent: gcContent
+  molecularWeight: molecularWeight,
 };

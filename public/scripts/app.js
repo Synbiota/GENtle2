@@ -15,9 +15,8 @@ import Sequences from './sequence/models/sequences';
 import ncbi from './plugins/ncbi/plugin';
 import designer from './plugins/designer/plugin';
 import blast from './plugins/blast/plugin';
-import pcr from './plugins/pcr/plugin';
 
-var plugins = [ncbi, designer, blast, pcr];
+var plugins = [ncbi, designer, blast];
 
 
 Gentle = Gentle();

@@ -8,12 +8,13 @@ define(function(require) {
       Gentle                  = require('gentle')(),
       SequenceSettingsView    = require('./settings_view'),
       SequenceEditionView     = require('./sequence_edition_view'),
+      SequenceAnalysisView    = require('./sequence_analysis_view'),
       StatusbarView           = require('../../common/views/statusbar_view'),
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone.mixed'),
       SequenceView;
-  
+
   SequenceView = Backbone.View.extend({
     manage: true,
     template: template,
@@ -23,7 +24,7 @@ define(function(require) {
       var _this = this,
           statusbarView;
 
-      this.model = Gentle.currentSequence;     
+      this.model = Gentle.currentSequence;
       this.sequenceSettingsView = new SequenceSettingsView();
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
 
@@ -31,11 +32,28 @@ define(function(require) {
       this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);
       $(window).on('resize', this.handleResize);
 
-
       this.listenTo(this.model, 'change:isCircular', this.changeSecondaryView);
 
       this.initPrimaryViews();
       this.initStatusbarView();
+    },
+
+    analyzeFragment: function(fragment){
+
+      var sequenceAnalysisView = new SequenceAnalysisView()
+      var canvasView = this.actualPrimaryView.sequenceCanvas;
+
+      Modal.modalTitle = 'Analysis';
+      Modal.setView('.modal-body', sequenceAnalysisView);
+
+      sequenceAnalysisView.calculateResults(fragment)
+      sequenceAnalysisView.render();
+
+      canvasView.hideCaret();
+      canvasView.selection = "";
+      canvasView.redraw();
+
+      Modal.show();
     },
 
     changeSecondaryView: function() {
@@ -96,11 +114,11 @@ define(function(require) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
           actualView = new primaryView.view();
 
-      
+
       _.each(this.primaryViews, function(view) {
         view.current = false;
       });
-      
+
       primaryView.current = true;
       this.primaryView = primaryView;
       this.actualPrimaryView = actualView;

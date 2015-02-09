@@ -12,7 +12,7 @@ define(function(require) {
       PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
       Backbone = require('backbone.mixed'),
       SequenceEditionView;
-  
+
   SequenceEditionView = Backbone.View.extend({
     manage: true,
     template: template,
@@ -22,8 +22,8 @@ define(function(require) {
       var _this = this;
 
       this.model = Gentle.currentSequence;
-      
-      this.contextMenuView = new ContextMenuView();
+
+      this.contextMenuView = new ContextMenuView({context: 'sequence'});
       this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
       this.initSecondaryViews();
 
@@ -43,13 +43,13 @@ define(function(require) {
         name: 'linear',
         title: 'Linear map',
         view: LinearMapView
-      });  
+      });
 
       secondaryViews.push({
         name: 'plasmid',
         title: 'Plasmid map',
         view: PlasmidMapView
-      });  
+      });
 
       currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
 

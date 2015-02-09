@@ -353,7 +353,7 @@ define(function(require) {
     _this.redraw();
   };
 
-  /** 
+  /**
   Handles scrolling events
   @method handleScrolling
   **/
@@ -366,11 +366,13 @@ define(function(require) {
   @method handleBlur
   **/
   Handlers.prototype.handleBlur = function(event) {
-    if (this.caretPosition !== undefined) {
+
+    if (this.caretPosition !== undefined && !$(event.relatedTarget).hasClass('sequence-dropdown')) {
       this.hideCaret(false);
       this.selection = undefined;
       this.redraw();
     }
+
   };
 
   Handlers.prototype.normalizeMousePosition = function(event) {
