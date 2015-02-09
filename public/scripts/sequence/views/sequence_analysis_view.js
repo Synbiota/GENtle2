@@ -46,7 +46,7 @@ define(function(require){
 
     {
       name: "Length",
-      unit: "",
+      unit: "bp",
       formula: function(fragment){
         return fragment.length
       },
@@ -54,20 +54,26 @@ define(function(require){
 
     {
       name: "Molecular Weight",
-      unit: "g/mole",
-      formula: SequenceCalculations.molecularWeight,
+      unit: "g/mol",
+      formula: function(){
+        return (SequenceCalculations.molecularWeight.apply(this, arguments)).toFixed(2);
+      }
     },
 
     {
       name: "CG Content",
       unit: "%",
-      formula: SequenceCalculations.CGContent,
+      formula: function(){
+        return (SequenceCalculations.gcContent.apply(this, arguments) * 100).toFixed(2);
+      }
     },
 
     {
       name: "Melting Temperature",
       unit: "ºC",
-      formula: SequenceCalculations.meltingTemperature
+      formula: function(){
+        return (SequenceCalculations.meltingTemperature.apply(this, arguments)).toFixed(2);
+      }
     }
 
 
