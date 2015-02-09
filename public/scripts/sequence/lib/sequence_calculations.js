@@ -182,6 +182,6 @@ export default {
   saltCorrection: saltCorrection,
   correctedDeltaEntropy: correctedDeltaEntropy,
   meltingTemperature: meltingTemperature,
-  gcContent: gcContent
+  gcContent: gcContent,
   molecularWeight: molecularWeight,
 };
