@@ -114,14 +114,14 @@ export default Backbone.View.extend({
       sequence = product.stickyEnds.start + sequence + product.stickyEnds.end;
 
       features = features.concat([{
-        name: 'Sticky end',
+        name: product.stickyEnds.startName + ' end',
         _type: 'sticky_end',
         ranges: [{
           from: 0,
           to: product.stickyEnds.start.length-1
         }]
       }],[{
-        name: 'Sticky end',
+        name: product.stickyEnds.endName + ' end',
         _type: 'sticky_end',
         ranges: [{
           from: sequence.length - product.stickyEnds.end.length,
