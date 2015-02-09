@@ -1,28 +1,29 @@
-var _ = require('underscore'),
-    request = require('koa-request');
+var _ = require('underscore');
+var request = require('request');
 
 var ALLOWED_HOSTS = [
   /^http:\/\/eutils\.ncbi\.nlm\.nih\.gov\//
 ];
 
-exports.proxy = function *()  {
-  var url = this.params.url,
+exports.proxy = function (req, res)  {
+  var url = req.params.url,
       allowedUrl = _.some(ALLOWED_HOSTS, function(host) {
         return host.test(url);
       });
 
   if(allowedUrl) {
-    var response = yield request({
+    request({
       url: url,
       headers: { 'Access-Control-Allow-Origin': '*' }
+    }, function(err, response, body) {
+      if(err || !(response.statusCode >= 200 && response.statusCode < 300)) {
+        res.status(500);
+        console.log('here is an error', err, body);
+      } else {
+        res.send(body);
+      }
     });
-
-    if(response.statusCode >= 200 && response.statusCode < 300) {
-      this.body = response.body;
-    } else {
-      this.status = response.statusCode;
-    }
   } else {
-    this.status = 500;
+    res.status(500);
   }
 };

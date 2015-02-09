@@ -1,30 +1,34 @@
-var // Core
-  path        = require('path'),
+var path = require('path');
+var MEMCACHED_HOST = process.env.MEMCACHED_HOST || '127.0.0.1:11211';
+var PORT = process.env.PORT || 3000;
 
-  // Koa and middlewares
-  koa         = require('koa'),
-  favicon     = require('koa-favicon'),
-  router      = require('koa-router'),
-  views       = require('koa-views'),
-  serve       = require('koa-static'),
+var express = require('express');
+var app = express();
 
-  // App
-  app         = koa(),
-  routes      = {},
-
-  // App config
-  PORT        = process.env.PORT || 3000;
-
-
-// Middleware usage
+// Favicon
+var favicon = require('serve-favicon');
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.png')));
-app.use(serve('public'));
-app.use(views('views', {
-  default: 'jade'
+// Serving public files
+app.use(express.static('public'));
+// Jade views
+app.set('view engine', 'jade');
+// Basic logger
+var logger = require('morgan');
+app.use(logger('dev'));
+// Understanding JSON requests (POST)
+var bodyParser = require('body-parser');
+app.use(bodyParser.json()); 
+app.use(bodyParser.urlencoded());
+
+
+// Cookies sessions
+var session = require('cookie-session');
+app.use(session({
+  keys: ['lapin']
 }));
-app.use(router(app));
 
 // Routes
+var routes = {};
 require('fs').readdirSync('./routes').forEach(function(file) {
   var routeName = file.replace('.js', '');
   routes[routeName] = require('./routes/' + file)[routeName];
@@ -33,6 +37,19 @@ require('fs').readdirSync('./routes').forEach(function(file) {
 app.get('/', routes.index);
 app.post('/p/:url', routes.proxy);
 
+// Errors handling
+if (process.env.NODE_ENV === 'development') {
+  // var errorhandler = require('errorhandler');
+  // app.use(errorhandler());
+  var PrettyError = require('pretty-error');
+  pe = new PrettyError();
+  app.use(function(err, req, res, next){
+    if(err) console.log(pe.render(err));
+  });
+  pe.skipNodeFiles(); 
+}
+
+// App startup
 app.listen(PORT);
-console.log('Koa listening on port ' + PORT);
+console.log('Express listening on port ' + PORT);
 

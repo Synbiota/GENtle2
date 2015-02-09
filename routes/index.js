@@ -1,5 +1,5 @@
-exports.index = function *(next) {
-  yield this.render('index', {
-    env: this.app.env
+exports.index = function(req, res) {
+  res.render('index', {
+    env: process.env.NODE_ENV
   });
 };
