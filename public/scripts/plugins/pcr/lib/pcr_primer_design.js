@@ -2,14 +2,14 @@ import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 
-var distanceToTarget = function(sequence, targetMeltingTemperature, targetCGContent) {
+var distanceToTarget = function(sequence, targetMeltingTemperature, targetGcContent) {
   return Math.sqrt(
     Math.pow(targetMeltingTemperature - SequenceCalculations.meltingTemperature(sequence), 2) * 0 + 
-    Math.pow((targetCGContent - SequenceCalculations.CGContent(sequence))*50, 2)
+    Math.pow((targetGcContent - SequenceCalculations.gcContent(sequence))*50, 2)
   );
 };
 
-var startingGCScore = function(sequence) {
+var startingGcScore = function(sequence) {
   var match = sequence.match(/^[GC]+/);
   return match && match[0].length ? Math.pow(2, match[0].length) : 0
 };
@@ -18,11 +18,11 @@ var primerScore = function(sequence, targetMeltingTemperature) {
   var score = 500;
 
   score -= Math.pow(SequenceCalculations.meltingTemperature(sequence) - targetMeltingTemperature, 2);
-  score += startingGCScore(sequence);
+  score += startingGcScore(sequence);
   score -= selfAnnealingScore(sequence) / 10;
 
   // console.log('primerScore', sequence)
-  // console.log(SequenceCalculations.meltingTemperature(sequence), Math.pow(SequenceCalculations.meltingTemperature(sequence) - targetMeltingTemperature, 2), startingGCScore(sequence), targetMeltingTemperature, score)
+  // console.log(SequenceCalculations.meltingTemperature(sequence), Math.pow(SequenceCalculations.meltingTemperature(sequence) - targetMeltingTemperature, 2), startingGcScore(sequence), targetMeltingTemperature, score)
   // console.log('selfAnnealingScore', selfAnnealingScore(sequence))
 
   return score;
@@ -81,7 +81,7 @@ var optimalPrimer = function(sequence, opts = {}) {
     maxPrimerLength: 30,
     meltingTemperatureFrom: 57,
     meltingTemperatureTo: 62,
-    targetCGContent: 0.5
+    targetGcContent: 0.5
   });
   
   var potentialPrimers = _.map(_.range(opts.minPrimerLength, opts.maxPrimerLength+1), function(i) {
@@ -91,7 +91,7 @@ var optimalPrimer = function(sequence, opts = {}) {
   // potentialPrimers = getPrimersWithinMeltingTemperatureRange(potentialPrimers, opts);
 
   // var scores = _.map(potentialPrimers, function(primer) {
-  //   return Math.abs(opts.targetCGContent - SequenceCalculations.CGContent(primer));
+  //   return Math.abs(opts.targetGcContent - SequenceCalculations.gcContent(primer));
   // });
   
   var targetMeltingTemperature = (opts.meltingTemperatureFrom + opts.meltingTemperatureTo) / 2;
@@ -102,7 +102,7 @@ var optimalPrimer = function(sequence, opts = {}) {
   return {
     sequence: optimalPrimer,
     meltingTemperature: SequenceCalculations.meltingTemperature(optimalPrimer),
-    CGContent: SequenceCalculations.CGContent(optimalPrimer)
+    gcContent: SequenceCalculations.gcContent(optimalPrimer)
   };
 };
 

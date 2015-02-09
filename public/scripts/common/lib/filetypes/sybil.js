@@ -41,7 +41,7 @@ var convertToObject = function(xml) {
     return _.camelize(string.toLowerCase());
   };
   var formatContent = function(string) {
-    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? string ^ 0 : string;
+    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
   };
   var areArrayElements = function(contents) {
     var uniqueTagNames = _.uniq(_.map(contents, function(el) {

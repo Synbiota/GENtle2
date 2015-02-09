@@ -37,7 +37,7 @@
           <td><small>Forward primer <small class="text-muted"><em>(inc. sticky ends)</em></small></small></td>
           <td class="text-right"><small>{{shortFormNumber forwardPrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
-          <td class="text-right"><small>{{round forwardPrimer.CGContent 1 true}}%</small></td>
+          <td class="text-right">lapin: {{forwardPrimer.gcContent}} <small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td class="text-right">
             <button class="export-forward-primer btn btn-default btn-xs has-tooltip" data-placement="left" title="Download primer in FASTA format">
               <i class="glyphicon glyphicon-floppy-save"></i>
@@ -51,7 +51,7 @@
           <td><small>Reverse primer <small class="text-muted"><em>(inc. sticky ends)</em></small></td>
           <td class="text-right"><small>{{shortFormNumber reversePrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
-          <td class="text-right"><small>{{round reversePrimer.CGContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td class="text-right">
             <button class="export-reverse-primer btn btn-default btn-xs has-tooltip" data-placement="left"  title="Download primer in FASTA format">
               <i class="glyphicon glyphicon-floppy-save"></i>

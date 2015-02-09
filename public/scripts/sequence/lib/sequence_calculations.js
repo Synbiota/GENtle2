@@ -12,7 +12,7 @@ var getStringSequence = function(sequence) {
   }
 };
 
-var CGContent = function(sequence) {
+var gcContent = function(sequence) {
   sequence = getStringSequence(sequence);
   return _.reduce(sequence, function(memo, base) {
     return /[CG]/.test(base) ? memo + 1 : memo;
@@ -166,5 +166,5 @@ export default {
   saltCorrection: saltCorrection,
   correctedDeltaEntropy: correctedDeltaEntropy,
   meltingTemperature: meltingTemperature,
-  CGContent: CGContent
+  gcContent: gcContent
 };
