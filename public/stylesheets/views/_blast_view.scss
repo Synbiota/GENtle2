@@ -8,11 +8,23 @@
 }
 
 #blast-intro-container {
-  right: 50%;
   border-right: 1px solid #ddd;
+  right: 50%;
 
-  tr.noborder > td {
-    border: none;
+  tr {
+    &.noborder > td {
+      border: 0;
+    }
+
+    &.clickable {
+      td {
+        cursor: pointer;
+      }
+
+      &:hover td {
+        background-color: #f5f5f5;
+      }  
+    }
   }
 }
 

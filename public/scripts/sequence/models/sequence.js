@@ -721,8 +721,9 @@ export default Backbone.DeepModel.extend({
     return this;
   },
 
-  saveBlastRID: function(RID) {
+  saveBlastRID: function(RID, database) {
     this.set('meta.blast.RID', RID);
+    this.set('meta.blast.database', database);
     this.throttledSave();
     return this;
   },

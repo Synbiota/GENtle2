@@ -11,8 +11,26 @@ var estimationTimingRegexp = /We estimate that results will be ready in (\d+) se
 var isObject = _.isObject;
 var map = _.map;
 var each = _.each;
+var isUndefined = _.isUndefined;
 
-export default class BlastRequest {
+var databases =  {
+  nr: "Nucleotide collection (nr/nt)",   
+  refseq_rna: "Reference RNA sequences (refseq_rna)",
+  refseq_genomic: "Reference genomic sequences (refseq_genomic)",
+  chromosome: "NCBI Genomes (chromosome)",
+  est: "Expressed sequence tags (est)",
+  gss: "Genomic survey sequences (gss)",
+  htgs: "High throughput genomic sequences (HTGS)",
+  pat: "Patent sequences(pat)",
+  pdb: "Protein Data Bank (pdb)",
+  alu: "Human ALU repeat elements (alu_repeats)",
+  dbsts: "Sequence tagged sites (dbsts)",
+  Whole_Genome_Shotgun_contigs: "Whole-genome shotgun contigs (wgs)",
+  tsa_nt: "Transcriptome Shotgun Assembly (TSA)",
+  'rRNA_typestrains/prokaryotic_16S_ribosomal_RNA': "16S ribosomal RNA sequences (Bacteria and Archaea)"
+};
+
+var BlastRequest = class {
   constructor(sequence) {
     this.sequence = sequence;
     
@@ -26,6 +44,8 @@ export default class BlastRequest {
     this.RIDLoading = false;
     this.RIDLoaded = !!this.RID;
 
+    this.database = sequence.get('meta.blast.database') || 'nr';
+
     this.results = sequence.get('meta.blast.results') || [];
     this.resultsLoaded = !!this.results.length;
 
@@ -38,7 +58,10 @@ export default class BlastRequest {
     );
   }
 
-  getRequestId() {
+  getRequestId(database) {
+    if(!isUndefined(database) && _.has(databases, database)) 
+      this.database = database;
+
     this._loadingRIDPromise = this._loadingRIDPromise || Q.promise((resolve, reject) => {
       // var selector = "//input[@type = 'hidden' and @name = 'RID'] | //comment()";
       var selector = "//input[@type = 'hidden' and @name = 'RID']";
@@ -53,13 +76,13 @@ export default class BlastRequest {
         Proxy.yqlExtractHtmlPost(URL, {
           CMD: 'Put',
           QUERY: this.sequence.get('sequence'),
-          DATABASE: 'nr',
+          DATABASE: this.database,
           PROGRAM: 'blastn',
           NCBI_GI: 'on',
           HITLIST_SIZE: this.hitlistSize
         }).then(this._parseRIDResponse).then((RID) => {
           this.RID = RID;
-          this.sequence.saveBlastRID(RID);
+          this.sequence.saveBlastRID(RID, this.database);
           this.RIDLoaded = true;
           resolve(RID);
         }).catch((error) => {
@@ -76,7 +99,10 @@ export default class BlastRequest {
     return this._loadingRIDPromise;
   }
 
-  getResults() {
+  getResults(database) {
+    if(!isUndefined(database) && _.has(databases, database)) 
+      this.database = database;
+
     var defer = this._loadingResultsDefer = this._loadingResultsDefer || Q.defer();
 
     if(this.RID && !this.results.length) {
@@ -256,4 +282,8 @@ export default class BlastRequest {
 
     return output;
   }
-}
+};
+
+BlastRequest.databases = databases;
+
+export default BlastRequest;

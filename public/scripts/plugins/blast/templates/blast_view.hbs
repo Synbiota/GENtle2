@@ -9,7 +9,7 @@
               <button class="btn btn-default btn-xs blast-run-new">Run new search</button>
             </div>
           {{/if}}
-          BLAST search
+          Nucleotide BLAST search
         </h3>
         {{#if NCBIError}}
           <div class="alert alert-danger" style="margin-bottom: 10px;">
@@ -17,23 +17,34 @@
           </div>
         {{/if}}
         {{#unless blastRequest.RIDLoaded}}
-          <button class="btn btn-lg btn-primary" id="blast-intro-run">
+          <br>
+          <div class="form-group">
+            <label class="colcontrol-label" for="blast-database-select">Database</label>
+            {{{select databases class="form-control" id="blast-database-select"}}}
+          </div>
+          <button class="btn btn-primary" id="blast-intro-run">
             <span class="btn-label">Start</span>
             <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
           </button>
+          <br><br>
         {{else}}
           {{#unless blastRequest.resultsLoaded}}
             <h4>
-              Loading results for request 
-              <strong>{{blastRequest.RID}}</strong>
+              Loading results
               <span class="loader">
                 <i class="glyphicon glyphicon-refresh"></i>
               </span>
             </h4>
+            <p class="text-muted">
+              We are waiting for NCBI to process the BLAST search. {{!-- This request's ID is {{blastRequest.RID}}.  --}}
+            </p>
+            <p class="text-muted">
+              <a href="http://blast.ncbi.nlm.nih.gov/Blast.cgi?RID={{blastRequest.RID}}&CMD=Get" target="_blank">
+                See request on NCBI's website
+                <i class="glyphicon glyphicon-open"></i>
+              </a>
+            </p>
           {{else}}
-            <h4>
-              Results for request <strong>{{blastRequest.RID}}</strong>
-            </h4>
             {{#unless blastRequest.results}}
               <br><br>
               <p class="text-danger">No results</p>
@@ -41,9 +52,8 @@
           {{/unless}}
         {{/unless}}
         {{#unless blastRequest.resultsLoaded}}
-          <br><br>
           <p class="text-muted">
-            Loading the BLAST search results can take up to a few minutes depending on the length of the sequence.
+            Loading the BLAST search results from NCBI can take up to a few minutes depending on the length of the sequence.
           </p>
         {{/unless}}
       </div>
@@ -66,19 +76,19 @@
           <tr>
             <td><small>{{formatThousands @index 1}}</small></td>
             <td colspan="4">
-              <div class="pull-right">
+              {{!-- <div class="pull-right">
                 <a href="#" class="blast-open-sequence" data-result-id="{{id}}">
                   <small>
                     Open sequence
                     <i class="glyphicon glyphicon-open"></i>
                   </small>
                 </a>
-              </div>
+              </div> --}}
               <small>{{name}}</small></td>
             </td>
           </tr>
           {{#each hsps}}
-            <tr class="noborder" data-hsp-id="{{id}}">
+            <tr class="noborder clickable show-align" data-result-id="{{../id}}" data-hsp-id="{{id}}">
               <td></td>
               <td>
                 <div class="progress blast-align-match-bar">
@@ -88,12 +98,16 @@
               <td><small><code>{{shortFormNumber alignLen}}bp</code></small></td>
               <td><small><code>{{evalue}}</code></small></td>
               <td class="text-right">
-                <button class="show-align btn btn-default btn-xs" data-result-id="{{../id}}" data-hsp-id="{{id}}">
+                <small class="open-label text-muted">
+                  Show
+                  <i class="glyphicon glyphicon-arrow-right"></i>
+                </small>
+                {{!-- <button class="show-align btn btn-default btn-xs" data-result-id="{{../id}}" data-hsp-id="{{id}}">
                   <span class="open-label">
                     Show
                     <i class="glyphicon glyphicon-arrow-right"></i>
                   </span>
-                </button>
+                </button> --}}
               </td>
             </td>
           {{/each}}

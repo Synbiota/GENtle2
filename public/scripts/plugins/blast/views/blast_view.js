@@ -27,6 +27,7 @@ export default Backbone.View.extend({
     this.setView('#blast-align-container', this.alignView);
     this.model = Gentle.currentSequence;
     this.initBlastRequest();
+    this.initDatabases();
 
     if(this.model.get('meta.blast.RID')) this.getRID();
 
@@ -40,12 +41,22 @@ export default Backbone.View.extend({
     this.blastRequest = new BlastRequest(this.model);
   },
 
+  initDatabases: function() {
+    this.databases = _.map(BlastRequest.databases, function(name, value) {
+      return {
+        name: name, 
+        value: value
+      };
+    });
+  },
+
   serialize: function() {
     return {
       blastRequest: this.blastRequest,
       noRID: this.noRID,
       NCBIError: this.NCBIError,
-      resultId: this.resultId
+      resultId: this.resultId,
+      databases: this.databases
     };
   },
 
@@ -61,9 +72,16 @@ export default Backbone.View.extend({
   getRID: function() {
     var $el = this.$('#blast-intro-run');
     $el.attr('disabled', 'disabled');
-    $el.find('.btn-label').text('Loading request ID');
+    $el.find('.btn-label').text('Initiating request with NCBI');
     this.$('.loader').show();
-    this.blastRequest.getRequestId().then(() => {
+
+    var $databaseInput = this.$('#blast-database-select');
+    this.database = $databaseInput.val();
+
+    this.NCBIError = undefined;
+    this.$('.alert-danger').hide();
+
+    this.blastRequest.getRequestId(this.database).then(() => {
       this.render();
       this.getResults();
     }).catch(this.handleBlastRequestError);
