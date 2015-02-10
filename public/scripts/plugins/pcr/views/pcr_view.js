@@ -134,15 +134,15 @@ export default Backbone.View.extend({
       name: 'Forward primer',
       _type: 'primer',
       ranges: [{
-        from: 0,
-        to: product.forwardPrimer.to,
+        from: stickyEndOffsets[0],
+        to: stickyEndOffsets[0] + product.forwardPrimer.to,
       }]
     },{
       name: 'Reverse primer',
       _type: 'primer',
       ranges: [{
-        from: sequence.length - product.reversePrimer.sequence.length,
-        to: sequence.length - 1
+        from: sequence.length + stickyEndOffsets[1] - product.reversePrimer.sequence.length,
+        to: sequence.length + stickyEndOffsets[1] - 1
       }]
     }]);
 

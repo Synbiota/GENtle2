@@ -31,7 +31,7 @@ export default Backbone.View.extend({
 
     if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] -1) {
       return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
-    } else if(pos < forwardPrimerLength || pos >= sequenceLength - reversePrimerLength){
+    } else if(pos < forwardPrimerLength + stickyEndOffsets[0] || pos >= sequenceLength - reversePrimerLength + stickyEndOffsets[1]){
       return (featuresColors.primer && featuresColors.primer.fill) || defaultColor;
     } else {
       return defaultColor;

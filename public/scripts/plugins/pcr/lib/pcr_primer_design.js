@@ -110,8 +110,8 @@ var optimalPrimer = function(sequence, opts = {}) {
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
-  var forwardPrimer = optimalPrimer(opts.stickyEnds.start + sequence, opts);
-  var reversePrimer = optimalPrimer(SequenceTransforms.toReverseComplements(sequence + opts.stickyEnds.end), opts);
+  var forwardPrimer = optimalPrimer(sequence, opts);
+  var reversePrimer = optimalPrimer(SequenceTransforms.toReverseComplements(sequence), opts);
 
   _.defaults(opts, {
     from: 0,
