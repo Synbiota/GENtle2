@@ -61,7 +61,7 @@ define(function(require){
     {
       name: "CG Content",
       unit: "%",
-      formula: SequenceCalculations.CGContent,
+      formula: SequenceCalculations.gcContent,
     },
 
     {
@@ -69,7 +69,6 @@ define(function(require){
       unit: "ºC",
       formula: SequenceCalculations.meltingTemperature
     }
-
 
   ]
 
