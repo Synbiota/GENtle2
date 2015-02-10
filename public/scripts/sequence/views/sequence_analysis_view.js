@@ -61,7 +61,7 @@ define(function(require){
     },
 
     {
-      name: "CG Content",
+      name: "GC Content",
       unit: "%",
       formula: function(){
         return (SequenceCalculations.gcContent.apply(this, arguments) * 100).toFixed(2);
