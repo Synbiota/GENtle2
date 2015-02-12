@@ -77,10 +77,9 @@ var getPrimersWithinMeltingTemperatureRange = function(primers, opts) {
 var optimalPrimer = function(sequence, opts = {}) {
 
   _.defaults(opts, {
-    minPrimerLength: 18,
-    maxPrimerLength: 30,
-    meltingTemperatureFrom: 57,
-    meltingTemperatureTo: 62,
+    minPrimerLength: 10,
+    maxPrimerLength: 50,
+    targetMeltingTemperature: 68,
     targetGcContent: 0.5
   });
   
@@ -94,8 +93,7 @@ var optimalPrimer = function(sequence, opts = {}) {
   //   return Math.abs(opts.targetGcContent - SequenceCalculations.gcContent(primer));
   // });
   
-  var targetMeltingTemperature = (opts.meltingTemperatureFrom + opts.meltingTemperatureTo) / 2;
-  var scores = _.map(potentialPrimers, _.partial(primerScore, _, targetMeltingTemperature));
+  var scores = _.map(potentialPrimers, _.partial(primerScore, _, opts.targetMeltingTemperature));
 
   var optimalPrimer = potentialPrimers[_.indexOf(scores, _.max(scores))];
 

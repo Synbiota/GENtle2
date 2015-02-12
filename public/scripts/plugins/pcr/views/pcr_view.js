@@ -20,8 +20,7 @@ export default Backbone.View.extend({
     this.defaults = _.defaults(this.model.get('meta.pcr.defaults') || {}, {
       from: 0,
       to: this.model.length()-1,
-      meltingTemperatureFrom: 57,
-      meltingTemperatureTo: 62
+      targetMeltingTemperature: 68
     });
 
     this.listView = new ListView();
@@ -47,8 +46,7 @@ export default Backbone.View.extend({
 
   getFormData: function() {
     var data = this.extractFieldsData(
-      'from', 'to', 'name', 'meltingTemperatureFrom',
-      'meltingTemperatureTo'
+      'from', 'to', 'name', 'targetMeltingTemperature'
     );
     return _.extend(data, {
       from: data.from - 1,
