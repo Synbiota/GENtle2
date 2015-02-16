@@ -87,8 +87,8 @@ var terminalCorrectionData = {
     C: 2.3
   },
   entropy: {
-    A: -2.8,
-    C: 4.1
+    C: -2.8,
+    A: 4.1
   }
 };
 
@@ -134,6 +134,12 @@ var deltaEnthalpy = partial(nearestNeighborsCalculator, 'enthalpy');
  */
 var deltaEntropy = partial(nearestNeighborsCalculator, 'entropy');
 
+
+var complexSaltCorrection = function(sequence, naPlusConcentration, mg2PlusConcentration) {
+  sequence = getStringSequence(sequence);
+
+};
+
 /**
  * Calculates the change in entropy of a sequence corrected for the presence of
  * salt in the solution
@@ -146,6 +152,70 @@ var deltaEntropy = partial(nearestNeighborsCalculator, 'entropy');
  */
 var correctedDeltaEntropy = function(sequence, naPlusConcentration, mg2PlusConcentration) {
   return deltaEntropy(sequence) + saltCorrection(sequence, naPlusConcentration, mg2PlusConcentration);
+};
+
+var meltingTemperature2 = function( sequence,
+                                    concentration = 0.25e-6,
+                                    naPlusConcentration = 50e-3,
+                                    mg2PlusConcentration = 2e-3) {
+
+
+  console.log('deltaEnthalpy', deltaEnthalpy(sequence))
+  console.log('deltaEntropy', deltaEntropy(sequence))
+  console.log('deltaFreeEnegery', deltaEnthalpy(sequence) - 37 * deltaEntropy(sequence))
+  var basicMeltingTemperature = 1000 * deltaEnthalpy(sequence) / (
+      deltaEntropy(sequence) +
+      gasConstant * Math.log(concentration/2)
+    );
+
+
+  console.log('basicMeltinTemperature', basicMeltingTemperature  - 273.15)
+
+  var R = Math.sqrt(mg2PlusConcentration) / naPlusConcentration;
+
+  var logNaPlus = Math.log(naPlusConcentration);
+  var logMg2Plus = Math.log(mg2PlusConcentration);
+
+  console.log('logNaPlus', logNaPlus)
+  console.log('gcContent', gcContent(sequence))
+
+  var coeffA = function() {
+    return R >= 6 ? 3.92 : 
+      3.92 * (0.843 - 0.352 * Math.sqrt(naPlusConcentration) * logNaPlus);
+  };
+
+  var coeffD = function() {
+    return R >= 6 ? 1.42 : 
+      1.42 * (1.279 - 4.03e-3 * logNaPlus - 8.03e-3 * Math.pow(logNaPlus, 2));
+  };
+
+  var coeffG = function() {
+    return R >= 6 ? 8.31 : 
+      8.31 * (0.486 - 0.258 * logNaPlus + 5.25e-3 * Math.pow(logNaPlus, 3));
+  };
+
+  var correction;
+
+  if(R >= 0.22) {
+    correction = 1e-5 * (
+      coeffA() - 
+      0.911 * logMg2Plus + 
+      gcContent(sequence) * (6.26 + coeffD() * logMg2Plus) + 
+      1 / (2 * (sequence.length - 1)) * (
+        -48.2 + 52.5 * logMg2Plus + 
+        coeffG() * Math.pow(logMg2Plus, 2)
+      )
+    );
+  } else {
+    correction = 1e-5 * (
+      (4.29 * gcContent(sequence) - 3.95) * logNaPlus + 
+      0.940 * Math.pow(logNaPlus, 2)
+    );
+  }
+
+  console.log('correction', correction);
+
+  return 1/(1/basicMeltingTemperature + correction) - 273.15;
 };
 
 
@@ -182,6 +252,7 @@ window.calc = {
   saltCorrection: saltCorrection,
   correctedDeltaEntropy: correctedDeltaEntropy,
   meltingTemperature: meltingTemperature,
+  meltingTemperature2: meltingTemperature2,
   gcContent: gcContent,
   molecularWeight: molecularWeight,
 };
@@ -191,7 +262,7 @@ export default {
   deltaEntropy: deltaEntropy,
   saltCorrection: saltCorrection,
   correctedDeltaEntropy: correctedDeltaEntropy,
-  meltingTemperature: meltingTemperature,
+  meltingTemperature: meltingTemperature2,
   gcContent: gcContent,
   molecularWeight: molecularWeight,
 };
