@@ -35,7 +35,7 @@
         </tr>
         <tr>
           <td><small>Forward primer <small class="text-muted"><em>(exc. sticky ends)</em></small></small></td>
-          <td class="text-right"><small>{{shortFormNumber forwardPrimer.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td class="text-right">
@@ -49,7 +49,7 @@
         <tr>
         <tr>
           <td><small>Reverse primer <small class="text-muted"><em>(exc. sticky ends)</em></small></td>
-          <td class="text-right"><small>{{shortFormNumber reversePrimer.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td class="text-right">

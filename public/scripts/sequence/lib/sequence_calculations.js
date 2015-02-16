@@ -158,9 +158,9 @@ var correctedDeltaEntropy = function(sequence, naPlusConcentration, mg2PlusConce
  * @return {Number (Celsius)} melting temperature
  */
 var meltingTemperature = function(sequence,
-                                  concentration = 50e-6,
+                                  concentration = 0.25e-6,
                                   naPlusConcentration = 50e-3,
-                                  mg2PlusConcentration = 0) {
+                                  mg2PlusConcentration = 2e-3) {
   return 1000 * deltaEnthalpy(sequence) / (
       correctedDeltaEntropy(sequence, naPlusConcentration, mg2PlusConcentration) +
       gasConstant * Math.log(concentration/2)
@@ -175,6 +175,16 @@ var molecularWeight = function(sequence) {
   }, 0);
 
 }
+
+window.calc = {
+  deltaEnthalpy: deltaEnthalpy,
+  deltaEntropy: deltaEntropy,
+  saltCorrection: saltCorrection,
+  correctedDeltaEntropy: correctedDeltaEntropy,
+  meltingTemperature: meltingTemperature,
+  gcContent: gcContent,
+  molecularWeight: molecularWeight,
+};
 
 export default {
   deltaEnthalpy: deltaEnthalpy,
