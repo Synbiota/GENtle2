@@ -145,8 +145,8 @@ var optimalPrimer2 = function(sequence, opts = {}) {
         gcContent: SequenceCalculations.gcContent(optimalPrimer)
       });
 
-    });
-  });
+    }).catch((e) => console.log('insideer', e));
+  }).catch((e) => console.log('outsideer', e));
 };
 
 

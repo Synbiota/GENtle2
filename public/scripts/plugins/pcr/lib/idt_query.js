@@ -13,7 +13,7 @@ var getResults = function(sequence, options) {
     dNTPsConc: options.dNTPsConcentration * 1e3,
     TargetType: 'DNA'
   }).then(function(results) {
-    return results.AnalyzerResult;
+    return _.isObject(results) ? results.AnalyzerResult : {};
   });
 };
 

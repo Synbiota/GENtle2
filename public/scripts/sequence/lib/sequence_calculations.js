@@ -159,25 +159,16 @@ var meltingTemperature2 = function( sequence,
                                     naPlusConcentration = 50e-3,
                                     mg2PlusConcentration = 2e-3) {
 
-
-  console.log('deltaEnthalpy', deltaEnthalpy(sequence))
-  console.log('deltaEntropy', deltaEntropy(sequence))
-  console.log('deltaFreeEnegery', deltaEnthalpy(sequence) - 37 * deltaEntropy(sequence))
   var basicMeltingTemperature = 1000 * deltaEnthalpy(sequence) / (
       deltaEntropy(sequence) +
       gasConstant * Math.log(concentration/2)
     );
 
 
-  console.log('basicMeltinTemperature', basicMeltingTemperature  - 273.15)
-
   var R = Math.sqrt(mg2PlusConcentration) / naPlusConcentration;
 
   var logNaPlus = Math.log(naPlusConcentration);
   var logMg2Plus = Math.log(mg2PlusConcentration);
-
-  console.log('logNaPlus', logNaPlus)
-  console.log('gcContent', gcContent(sequence))
 
   var coeffA = function() {
     return R >= 6 ? 3.92 : 
@@ -212,8 +203,6 @@ var meltingTemperature2 = function( sequence,
       0.940 * Math.pow(logNaPlus, 2)
     );
   }
-
-  console.log('correction', correction);
 
   return 1/(1/basicMeltingTemperature + correction) - 273.15;
 };
