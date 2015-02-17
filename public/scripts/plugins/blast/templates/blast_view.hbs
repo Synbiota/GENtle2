@@ -67,9 +67,11 @@
       <thead>
         <tr> 
           <th></th>
-          <th width="40%"></th>
-          <th>Align length</th>
-          <th>E-value</th>
+          <th width="30%"></th>
+          <th><small>Align length</small></th>
+          <th><small>Identity %</small></th>
+          <th><small>Bit-score</small></th>
+          <th><small>E-value</small></th>
           <th></th>
         </tr>
       </thead>
@@ -77,7 +79,7 @@
         {{#each blastRequest.results}}
           <tr>
             <td><small>{{formatThousands @index 1}}</small></td>
-            <td colspan="4">
+            <td colspan="6">
               {{!-- <div class="pull-right">
                 <a href="#" class="blast-open-sequence" data-result-id="{{id}}">
                   <small>
@@ -98,6 +100,8 @@
                 </div>
               </td>
               <td><small><code>{{shortFormNumber alignLen}}bp</code></small></td>
+              <td><small><code>{{round identityPct 1}}%</code></small></td>
+              <td><small><code>{{round bitScore 0}}</code></small></td>
               <td><small><code>{{evalue}}</code></small></td>
               <td class="text-right">
                 <small class="open-label text-muted">

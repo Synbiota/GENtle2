@@ -257,12 +257,14 @@ var BlastRequest = class {
       output[formatName(name)] = blastHsp['hsp_'+name];
     };
 
+    console.log('hsp', blastHsp)
+
     each([
       'align-len', 'bit-score', 'evalue', 
       'gaps', 'hit-frame', 'hit-from',
       'hit-to', 'identity', 'num',
       'positive', 'query-frame', 'query-from',
-      'query-to', 'score',
+      'query-to', 'score', 'bit-score', 'identity'
     ], extractNumber);
 
     // We use 0-indexed bases
@@ -274,6 +276,7 @@ var BlastRequest = class {
     var sequenceLength = this.sequence.length();
     output.alignFromPct = output.queryFrom / sequenceLength * 100;
     output.alignLenPct = output.alignLen / sequenceLength * 100;
+    output.identityPct = output.identity / output.alignLen * 100;
 
     each([
       'hseq', 'midline'
