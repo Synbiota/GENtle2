@@ -23,13 +23,15 @@
             {{{select databases class="form-control" id="blast-database-select"}}}
           </div>
           <button class="btn btn-primary" id="blast-intro-run">
-            <span class="btn-label">Start</span>
+            <span class="btn-label">Search</span>
             <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
           </button>
+          <button class="btn btn-default cancel-blast-search" style="display: none;">Cancel</button>
           <br><br>
         {{else}}
           {{#unless blastRequest.resultsLoaded}}
             <h4>
+              <button class="btn btn-default btn-xs cancel-blast-search pull-right">Cancel search</button>
               Loading results
               <span class="loader">
                 <i class="glyphicon glyphicon-refresh"></i>

@@ -17,7 +17,8 @@ export default Backbone.View.extend({
     'click .show-align': 'showAlign',
     'click .blast-open-sequence': 'openSequence',
     'click .blast-run-new': 'runNewSearch',
-    'click .blast-clear-search': 'clearSearch'
+    'click .blast-clear-search': 'clearSearch',
+    'click .cancel-blast-search': 'cancelSearch'
   },
 
   initialize: function() {
@@ -73,7 +74,7 @@ export default Backbone.View.extend({
     var $el = this.$('#blast-intro-run');
     $el.attr('disabled', 'disabled');
     $el.find('.btn-label').text('Initiating request with NCBI');
-    this.$('.loader').show();
+    this.$('.loader, .cancel-blast-search').show();
 
     var $databaseInput = this.$('#blast-database-select');
     this.database = $databaseInput.val();
@@ -82,6 +83,7 @@ export default Backbone.View.extend({
     this.$('.alert-danger').hide();
 
     this.blastRequest.getRequestId(this.database).then(() => {
+      if(!this.blastRequest) return;
       this.render();
       this.getResults();
     }).catch(this.handleBlastRequestError);
@@ -91,6 +93,7 @@ export default Backbone.View.extend({
     var sequenceLength = this.model.length();
     // this.incrementProgressBar();
     this.blastRequest.getResults().then((results) => {
+      if(!this.blastRequest) return;
       this.render();
     }).catch(this.handleBlastRequestError);
   },
@@ -148,6 +151,14 @@ export default Backbone.View.extend({
   runNewSearch: function(event) {
     this.clearSearch();
     this.getRID();
+  },
+
+  cancelSearch: function(event) {
+    event.preventDefault();
+    this.blastRequest = null;
+    this.model.clearBlastCache();
+    this.initBlastRequest();
+    this.render();
   }
 
 
