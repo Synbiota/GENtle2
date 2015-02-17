@@ -10,7 +10,7 @@ var getResults = function(sequence, options) {
     OligoConc: options.concentration * 1e6,
     NaConc: options.naPlusConcentration * 1e3,
     MgConc: options.mg2PlusConcentration * 1e3,
-    dNTPsConc: 0,
+    dNTPsConc: options.dNTPsConcentration * 1e3,
     TargetType: 'DNA'
   }).then(function(results) {
     return results.AnalyzerResult;
@@ -24,7 +24,8 @@ export default function(sequence, opts = {}) {
     _.defaults(opts, {
       concentration: 0.25e-6,
       naPlusConcentration: 50e-3,
-      mg2PlusConcentration: 2e-3
+      mg2PlusConcentration: 2e-3,
+      dNTPsConcentration: 0.2e-3
     })
   );
 }
