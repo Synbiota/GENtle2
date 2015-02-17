@@ -1,6 +1,10 @@
 import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import Q from 'q';
+import IDT from './idt_query';
+
+window.IDT = IDT;
 
 var distanceToTarget = function(sequence, targetMeltingTemperature, targetGcContent) {
   return Math.sqrt(
@@ -104,48 +108,141 @@ var optimalPrimer = function(sequence, opts = {}) {
   };
 };
 
+var optimalPrimer2 = function(sequence, opts = {}) {
+  _.defaults(opts, {
+    minPrimerLength: 10,
+    maxPrimerLength: 40,
+    targetMeltingTemperature: 68,
+    targetGcContent: 0.5
+  });
+
+  var potentialPrimers = _.map(_.range(opts.minPrimerLength, opts.maxPrimerLength+1), function(i) {
+    return sequence.substr(0, i);
+  });
+
+  return Q.promise(function(resolve, reject, notify) {
+    var current = 0;
+    var total = potentialPrimers.length;
+
+    Q.all(_.map(potentialPrimers, (primer) => {
+      return IDT(primer).then(function(result) {
+        current++;
+        notify(current/total);
+        return result;
+      });
+    })).then(function(results) {
+
+      var temperatures = _.map(results, (result) => result.MeltTemp);
+
+      var scores = _.map(temperatures, function(temperature) {
+        return -Math.abs(opts.targetMeltingTemperature - temperature);
+      });
+
+      var optimalIndex = _.indexOf(scores, _.max(scores));
+      var optimalPrimer = potentialPrimers[optimalIndex];
+
+      resolve({
+        sequence: optimalPrimer,
+        meltingTemperature: temperatures[optimalIndex],
+        gcContent: SequenceCalculations.gcContent(optimalPrimer)
+      });
+
+    });
+  });
+};
+
 
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
-  var forwardPrimer = optimalPrimer(sequence, opts);
-  var reversePrimer = optimalPrimer(SequenceTransforms.toReverseComplements(sequence), opts);
+  var forwardPrimer = optimalPrimer2(sequence, opts);
+  var reversePrimer = optimalPrimer2(SequenceTransforms.toReverseComplements(sequence), opts);
 
-  _.defaults(opts, {
-    from: 0,
-    to: sequence.length - 1
+  var lastProgress = [0,0];
+
+  return Q.promise(function (resolve, reject, notify) {
+
+
+    Q.all([forwardPrimer, reversePrimer]).progress(function(current) {
+      lastProgress[current.index] = current.value;
+      notify(_.reduce(lastProgress, (memo, i) => memo + i/2, 0));
+    }).then(function(results) {
+
+      var [forwardPrimer, reversePrimer] = results;
+
+      _.defaults(opts, {
+        from: 0,
+        to: sequence.length - 1
+      });
+
+      sequence = sequence.substr(opts.from, opts.to);
+
+      if(opts.stickyEnds) {
+        sequence = opts.stickyEnds.start + sequence + opts.stickyEnds.end;
+      }
+
+      var forwardPrimerFrom = opts.stickyEnds ? opts.stickyEnds.start.length : 0;
+      var reversePrimerFrom = sequence.length - reversePrimer.sequence.length;
+
+      resolve({
+        id: _.uniqueId(),
+        from: opts.from, 
+        to: opts.to,
+        forwardPrimer: _.extend(forwardPrimer, {
+          from: 0,
+          to: forwardPrimer.sequence.length - 1,
+          sequenceLength: forwardPrimer.sequence.length
+        }),
+        reversePrimer: _.extend(reversePrimer, {
+          from: reversePrimerFrom,
+          to: reversePrimerFrom + reversePrimer.sequence.length,
+          sequenceLength: reversePrimer.sequence.length
+        }),
+        sequenceLength: sequence.length,
+        stickyEnds: opts.stickyEnds,
+        meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
+      });
+
+    });
+
   });
 
-  sequence = sequence.substr(opts.from, opts.to);
 
-  if(opts.stickyEnds) {
-    sequence = opts.stickyEnds.start + sequence + opts.stickyEnds.end;
-  }
+  // _.defaults(opts, {
+  //   from: 0,
+  //   to: sequence.length - 1
+  // });
 
-  var forwardPrimerFrom = opts.stickyEnds ? opts.stickyEnds.start.length : 0;
-  var reversePrimerFrom = sequence.length - reversePrimer.sequence.length;
+  // sequence = sequence.substr(opts.from, opts.to);
 
-  console.log('optimalForward', forwardPrimer.sequence)
-  console.log('optimalReverse', reversePrimer.sequence)
+  // if(opts.stickyEnds) {
+  //   sequence = opts.stickyEnds.start + sequence + opts.stickyEnds.end;
+  // }
 
-  return {
-    id: _.uniqueId(),
-    from: opts.from, 
-    to: opts.to,
-    forwardPrimer: _.extend(forwardPrimer, {
-      from: 0,
-      to: forwardPrimer.sequence.length - 1,
-      sequenceLength: forwardPrimer.sequence.length
-    }),
-    reversePrimer: _.extend(reversePrimer, {
-      from: reversePrimerFrom,
-      to: reversePrimerFrom + reversePrimer.sequence.length,
-      sequenceLength: reversePrimer.sequence.length
-    }),
-    sequenceLength: sequence.length,
-    stickyEnds: opts.stickyEnds,
-    meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
-  };
+  // var forwardPrimerFrom = opts.stickyEnds ? opts.stickyEnds.start.length : 0;
+  // var reversePrimerFrom = sequence.length - reversePrimer.sequence.length;
+
+  // console.log('optimalForward', forwardPrimer.sequence)
+  // console.log('optimalReverse', reversePrimer.sequence)
+
+  // return {
+  //   id: _.uniqueId(),
+  //   from: opts.from, 
+  //   to: opts.to,
+  //   forwardPrimer: _.extend(forwardPrimer, {
+  //     from: 0,
+  //     to: forwardPrimer.sequence.length - 1,
+  //     sequenceLength: forwardPrimer.sequence.length
+  //   }),
+  //   reversePrimer: _.extend(reversePrimer, {
+  //     from: reversePrimerFrom,
+  //     to: reversePrimerFrom + reversePrimer.sequence.length,
+  //     sequenceLength: reversePrimer.sequence.length
+  //   }),
+  //   sequenceLength: sequence.length,
+  //   stickyEnds: opts.stickyEnds,
+  //   meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
+  // };
 };
 
 export default {

@@ -61,18 +61,37 @@ export default Backbone.View.extend({
 
     var sequence = this.model;
 
-    var product = _.extend(PrimerDesign.getPCRProduct(sequence, data), {
-      name: data.name
+    this.$('.new-pcr-product-form').hide();
+    this.$('.new-pcr-progress').show();
+    this.$('.new-pcr-progress .progress-bar').css('width', 0);
+
+    PrimerDesign.getPCRProduct(sequence, data).then((product) => {
+
+      _.extend(product, {
+        name: data.name
+      });
+
+      this.products.push(product);
+
+      sequence.set('meta.pcr.products', this.products);
+      sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
+      sequence.throttledSave();
+
+      this.listView.render();
+      this.showCanvas(product);
+
+    }).progress((progress) => {
+
+      this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
+
+    }).finally(() => {
+
+      this.getFieldFor('name').val('');
+      this.$('.new-pcr-product-form').show();
+      this.$('.new-pcr-progress').hide();
+      
     });
-
-    this.products.push(product);
-
-    sequence.set('meta.pcr.products', this.products);
-    sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
-    sequence.throttledSave();
-
-    this.listView.render();
-    this.showCanvas(product);
+    
   },
 
   showCanvas: function(product) {
