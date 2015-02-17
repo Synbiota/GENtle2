@@ -4,8 +4,6 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 
-window.IDT = IDT;
-
 var distanceToTarget = function(sequence, targetMeltingTemperature, targetGcContent) {
   return Math.sqrt(
     Math.pow(targetMeltingTemperature - SequenceCalculations.meltingTemperature(sequence), 2) * 0 + 
@@ -155,20 +153,20 @@ var optimalPrimer2 = function(sequence, opts = {}) {
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
-  var forwardPrimer = optimalPrimer2(sequence, opts);
-  var reversePrimer = optimalPrimer2(SequenceTransforms.toReverseComplements(sequence), opts);
+  var forwardPrimerPromise = optimalPrimer2(sequence, opts);
+  var reversePrimerPromise = optimalPrimer2(SequenceTransforms.toReverseComplements(sequence), opts);
 
   var lastProgress = [0,0];
 
   return Q.promise(function (resolve, reject, notify) {
 
 
-    Q.all([forwardPrimer, reversePrimer]).progress(function(current) {
+    Q.all([forwardPrimerPromise, reversePrimerPromise]).progress(function(current) {
       lastProgress[current.index] = current.value;
       notify(_.reduce(lastProgress, (memo, i) => memo + i/2, 0));
     }).then(function(results) {
 
-      var [forwardPrimer, reversePrimer] = results;
+      var [forwardAnnealingRegion, reverseAnnealingRegion] = results;
 
       _.defaults(opts, {
         from: 0,
@@ -181,29 +179,52 @@ var getPCRProduct = function(sequence, opts = {}) {
         sequence = opts.stickyEnds.start + sequence + opts.stickyEnds.end;
       }
 
-      var forwardPrimerFrom = opts.stickyEnds ? opts.stickyEnds.start.length : 0;
-      var reversePrimerFrom = sequence.length - reversePrimer.sequence.length;
+      var forwardAnnealingFrom = opts.stickyEnds ? opts.stickyEnds.start.length : 0;
+      var reverseAnnealingFrom = sequence.length - reverseAnnealingRegion.sequence.length;
+
+      _.extend(forwardAnnealingRegion, {
+        from: forwardAnnealingFrom,
+        to: forwardAnnealingFrom + forwardAnnealingRegion.sequence.length - 1,
+        sequenceLength: forwardAnnealingRegion.sequence.length
+      });
+
+      _.extend(reverseAnnealingRegion, {
+        from: reverseAnnealingFrom,
+        to: reverseAnnealingFrom + reverseAnnealingRegion.sequence.length,
+        sequenceLength: reverseAnnealingRegion.sequence.length
+      });
+
+      var forwardPrimer = {
+        sequence: (opts.stickyEnds ? opts.stickyEnds.start : '') + forwardAnnealingRegion.sequence,
+        from: 0,
+        to: (opts.stickyEnds ? opts.stickyEnds.start.length : 0) + forwardAnnealingRegion.sequence.length - 1
+      };
+      forwardPrimer.sequenceLength = forwardPrimer.sequence.length;
+      forwardPrimer.gcContent = SequenceCalculations.gcContent(forwardPrimer.sequence);
+
+      var reversePrimer = {
+        sequence: reverseAnnealingRegion.sequence + (opts.stickyEnds ? SequenceTransforms.toReverseComplements(opts.stickyEnds.end) : ''),
+        from: 0,
+        to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1
+      };
+      reversePrimer.sequenceLength = forwardPrimer.sequence.length;
+      reversePrimer.gcContent = SequenceCalculations.gcContent(reversePrimer.sequence);
+
 
       resolve({
         id: _.uniqueId(),
         from: opts.from, 
         to: opts.to,
-        forwardPrimer: _.extend(forwardPrimer, {
-          from: 0,
-          to: forwardPrimer.sequence.length - 1,
-          sequenceLength: forwardPrimer.sequence.length
-        }),
-        reversePrimer: _.extend(reversePrimer, {
-          from: reversePrimerFrom,
-          to: reversePrimerFrom + reversePrimer.sequence.length,
-          sequenceLength: reversePrimer.sequence.length
-        }),
+        forwardAnnealingRegion: forwardAnnealingRegion,
+        reverseAnnealingRegion: reverseAnnealingRegion,
+        forwardPrimer: forwardPrimer,
+        reversePrimer: reversePrimer,
         sequenceLength: sequence.length,
         stickyEnds: opts.stickyEnds,
         meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
       });
 
-    });
+    }).catch((e) => console.log(e));
 
   });
 

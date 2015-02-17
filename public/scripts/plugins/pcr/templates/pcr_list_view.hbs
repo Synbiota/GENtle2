@@ -1,5 +1,6 @@
 <br>
 <h3>PCR Products</h3>
+<br>
 {{#each products}}
   <div class="panel panel-default" data-product-id="{{id}}">
     <div class="panel-heading">
@@ -9,7 +10,7 @@
             <i class="glyphicon glyphicon-trash"></i>
           </button>
           <button class="btn btn-default btn-xs open-pcr-product has-tooltip" title="Open PCR product in new tab">
-            Open
+            Create
             <i class="glyphicon glyphicon-share"></i>
           </button>
           <button class="btn btn-default btn-xs show-pcr-product">Show &rarr;</button>
@@ -21,23 +22,37 @@
       <thead>
         <th></th>
         <th class="text-right"><small>Size</small></th>
-        <th class="text-right"><small>Melting temperature</small></th>
         <th class="text-right"><small>GC content</small></th>
+        <th class="text-right"><small>Melting temperature</small></th>
         <th></th>
       </thead>
       <tbody>
         <tr>
           <td><small><strong>Product</strong></small></td>
           <td class="text-right"><small>{{formatThousands sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round meltingTemperature 1}}&deg;C</small></td>
+          <td></td>
           <td></td>
           <td></td>
         </tr>
         <tr>
-          <td><small>Forward primer <small class="text-muted"><em>(exc. sticky ends)</em></small></small></td>
+          <td><small>Forward annealing region</small></td>
+          <td class="text-right"><small>{{formatThousands forwardAnnealingRegion.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{round forwardAnnealingRegion.gcContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round forwardAnnealingRegion.meltingTemperature 1}}&deg;C</small></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><small>Reverse annealing region</small></td>
+          <td class="text-right"><small>{{formatThousands reverseAnnealingRegion.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{round reverseAnnealingRegion.gcContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round reverseAnnealingRegion.meltingTemperature 1}}&deg;C</small></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><small>Forward primer</small></td>
           <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
+          <td></td>
           <td class="text-right">
             <button class="export-forward-primer btn btn-default btn-xs has-tooltip" data-placement="left" title="Download primer in FASTA format">
               <i class="glyphicon glyphicon-floppy-save"></i>
@@ -45,13 +60,13 @@
           </td>
         </tr>
         <tr>
-          <td colspan="5" class="pcr-primer-sequence">5' – {{forwardPrimer.sequence}} – 3'</td>
+          <td colspan="5" class="pcr-primer-sequence">5' – {{forwardPrimer.sequence}} – 3'</td>
         <tr>
         <tr>
-          <td><small>Reverse primer <small class="text-muted"><em>(exc. sticky ends)</em></small></td>
+          <td><small>Reverse primer</small></td>
           <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
+          <td></td>
           <td class="text-right">
             <button class="export-reverse-primer btn btn-default btn-xs has-tooltip" data-placement="left"  title="Download primer in FASTA format">
               <i class="glyphicon glyphicon-floppy-save"></i>

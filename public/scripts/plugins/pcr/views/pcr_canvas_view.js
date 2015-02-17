@@ -21,18 +21,20 @@ export default Backbone.View.extend({
   },
 
   getSequenceColour: function(base, pos, defaultColor) {
+    defaultColor = defaultColor || LineStyles.complements.text.color;
+
+    if(!this.product) return defaultColor;
+
     var stickyEndOffsets = this.parentView().getStickyEndOffsets(this.product);
     var featuresColors = LineStyles.features.color;
     var sequenceLength = this.model.length();
     var forwardPrimerLength = this.product.forwardPrimer.sequence.length;
     var reversePrimerLength = this.product.reversePrimer.sequence.length;
 
-    defaultColor = defaultColor || LineStyles.complements.text.color;
-
     if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] -1) {
       return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
     } else if(pos < forwardPrimerLength + stickyEndOffsets[0] || pos >= sequenceLength - reversePrimerLength + stickyEndOffsets[1]){
-      return (featuresColors.primer && featuresColors.primer.fill) || defaultColor;
+      return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
     } else {
       return defaultColor;
     }
@@ -41,6 +43,15 @@ export default Backbone.View.extend({
   setProduct: function(product) {
     this.product = product;
     this.model = this.parentView().getSequenceFromProduct(product);
+    this.afterSet();
+  },
+
+  setSequence: function(sequence) {
+    this.model = sequence;
+    this.afterSet();
+  },
+
+  afterSet: function() {
     this.model.save = _.noop;
     this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
   },

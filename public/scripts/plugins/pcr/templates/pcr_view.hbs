@@ -4,58 +4,64 @@
       <div class="col-md-12">
         <div class="pcr-list-container"></div>
         <br>
+        
+        <div class="new-pcr-product-form-container" style="display: none;">
+          <h3>Create new PCR product</h3>
+          <br>
+          <form class="form-horizontal new-pcr-product-form">
 
-        <form class="form-horizontal new-pcr-product-form">
-
-          <div class="form-group">
-            <label class="col-sm-6 control-label" for="newProduct_name"><small>Product name</small></label>
-            <div class="col-sm-6">
-              <input type="text" class="form-control input-sm" id="newProduct_name" maxlength="255" required="required">
+            <div class="form-group">
+              <label class="col-sm-6 control-label" for="newProduct_name"><small>PCR product name</small></label>
+              <div class="col-sm-6">
+                <input type="text" class="form-control input-sm" id="newProduct_name" maxlength="255" required="required">
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="col-sm-6 control-label" for="newProduct_from"><small>From base – To base</small></label>
-            <div class="col-sm-6">
-              <div class="row">
-                <div class="col-sm-6">
-                  <input type="number" class="form-control input-sm" id="newProduct_from" placeholder="{{plus defaults.from 1}}" value="{{plus defaults.from 1}}" required="required">
-                </div>
-                <div class="col-sm-6">
-                  <input type="number" class="form-control input-sm" id="newProduct_to" placeholder="{{plus defaults.to 1}}" value="{{plus defaults.to 1}}" required="required">
+            <div class="form-group">
+              <label class="col-sm-6 control-label" for="newProduct_from"><small>Base pair range for target sequence</small></label>
+              <div class="col-sm-6">
+                <div class="row">
+                  <div class="col-sm-6">
+                    <input type="number" class="form-control input-sm" id="newProduct_from" placeholder="{{plus defaults.from 1}}" value="{{plus defaults.from 1}}" required="required">
+                  </div>
+                  <div class="col-sm-6">
+                    <input type="number" class="form-control input-sm" id="newProduct_to" placeholder="{{plus defaults.to 1}}" value="{{plus defaults.to 1}}" required="required">
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="col-sm-6 control-label" for="newProduct_targetMeltingTemperature"><small>Target melting temperature (&deg;C)</small></label>
-            <div class="col-sm-6">
-              <input type="number" class="form-control input-sm" id="newProduct_targetMeltingTemperature" placeholder="{{defaults.targetMeltingTemperature}}" value="{{defaults.targetMeltingTemperature}}" required="required">
+            
+            <div class="form-group">
+              <label class="col-sm-6 control-label" for="newProduct_targetMeltingTemperature"><small>Target melting temperature (&deg;C)</small></label>
+              <div class="col-sm-6">
+                <input type="number" class="form-control input-sm" id="newProduct_targetMeltingTemperature" placeholder="{{defaults.targetMeltingTemperature}}" value="{{defaults.targetMeltingTemperature}}" required="required">
+              </div>
             </div>
-          </div>
 
-          <div class="form-group">
-            <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>Sticky ends</small></label>
-            <div class="col-sm-6">
-              {{{select availableStickyEnds id="newProduct_stickyEnds" class="col-sm-6 form-control input-sm"}}}
+            <div class="form-group">
+              <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>Sticky ends</small></label>
+              <div class="col-sm-6">
+                {{{select availableStickyEnds id="newProduct_stickyEnds" class="col-sm-6 form-control input-sm"}}}
+              </div>
             </div>
-          </div>
 
-          <button class="create-new-pcr-product btn btn-primary">Create new PCR product</button>
+            <button class="create-new-pcr-product btn btn-primary">Create new PCR product</button>
+            <button class="cancel-new-pcr-product-form btn btn-default" style="display: none;">Cancel</button>
 
-        </form>
+          </form>
 
-        <div class="new-pcr-progress" style="display: none;">
-          <p class="text-muted">
-            Please wait while we compute the PCR product.
-          </p>
-          <div class="progress">
-            <div class="progress-bar" role="progressbar">
-              Loading
+          <div class="new-pcr-progress" style="display: none;">
+            <p class="text-muted">
+              Please wait while we compute the PCR product.
+            </p>
+            <div class="progress">
+              <div class="progress-bar" role="progressbar">
+                Loading
+              </div>
             </div>
           </div>
         </div>
+        <button class="toggle-new-pcr-product-form btn btn-primary">Create new PCR product</button>
         <br>
         <br>
 

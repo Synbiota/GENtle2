@@ -28,7 +28,9 @@ export default Backbone.View.extend({
   },
 
   events: {
-    'submit .new-pcr-product-form': 'createNewPcrProduct'
+    'submit .new-pcr-product-form': 'createNewPcrProduct',
+    'keyup #newProduct_from, #newProduct_to': 'updateTemporarySequence',
+    'click .toggle-new-pcr-product-form, .cancel-new-pcr-product-form': 'toggleForm'
   },
 
   getFieldFor: function(field) {
@@ -77,40 +79,54 @@ export default Backbone.View.extend({
       sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
       sequence.throttledSave();
 
+      this.getFieldFor('name').val('');      
+      this.$('.new-pcr-product-form').show();
+      this.$('.new-pcr-progress').hide();
+
       this.listView.render();
+      this.hideCanvas();
       this.showCanvas(product);
+      this.toggleForm();
 
     }).progress((progress) => {
 
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
 
-    }).finally(() => {
-
-      this.getFieldFor('name').val('');
-      this.$('.new-pcr-product-form').show();
-      this.$('.new-pcr-progress').hide();
-      
-    });
+    }).catch((e) => console.log(e));
     
   },
 
   showCanvas: function(product) {
     var view = new CanvasView();
     this.setView('#pcr-canvas-container', view);
-    view.setProduct(product);
+
+    if(product) {
+      view.setProduct(product);
+      this.showingProductId = product.id;
+      this.listView.$('.panel').removeClass('panel-info');
+      this.listView.$('[data-product-id="'+product.id+'"]').addClass('panel-info');
+    } else if(this.temporarySequence) {
+      view.setSequence(this.temporarySequence);
+    }
+
     view.render();
-    this.showingProductId = product.id;
-    this.listView.$('.panel').removeClass('panel-info');
-    this.listView.$('[data-product-id="'+product.id+'"]').addClass('panel-info');
+  },
+
+  hideCanvas: function() {
+    this.removeView('#pcr-canvas-container');
   },
 
   deleteProduct: function(product) {
     var idx = this.products.indexOf(product);
     if(~idx) {
-      if(this.showingProductId == product.id) this.removeView('#pcr-canvas-container');
+      if(this.showingProductId == product.id) {
+        this.hideCanvas();
+        this.showingProductId = null;
+      }
       this.products.splice(idx, 1);
       this.model.set('meta.pcr.products', this.products).throttledSave();
       this.listView.render();
+      if(_.isEmpty(this.products)) this.toggleForm();
     }
   },
 
@@ -137,31 +153,43 @@ export default Backbone.View.extend({
           from: 0,
           to: product.stickyEnds.start.length-1
         }]
-      }],[{
+      }, {
         name: product.stickyEnds.endName + ' end',
         _type: 'sticky_end',
         ranges: [{
           from: sequence.length - product.stickyEnds.end.length,
           to: sequence.length-1
         }]
+      }, {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: stickyEndOffsets[0],
+          to: stickyEndOffsets[0] + product.forwardPrimer.to,
+        }]
+      }, {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: sequence.length + stickyEndOffsets[1] - product.reversePrimer.sequence.length,
+          to: sequence.length + stickyEndOffsets[1] - 1
+        }]
+      }, {
+        name: 'Forward primer',
+        _type: 'primer',
+        ranges: [{
+          from: 0,
+          to: stickyEndOffsets[0] + product.forwardPrimer.to,
+        }]
+      }, {
+        name: 'Reverse primer',
+        _type: 'primer',
+        ranges: [{
+          from: sequence.length + stickyEndOffsets[1] - product.reversePrimer.sequence.length,
+          to: sequence.length - 1
+        }]
       }]);
     }
-
-    features = features.concat([{
-      name: 'Forward primer',
-      _type: 'primer',
-      ranges: [{
-        from: stickyEndOffsets[0],
-        to: stickyEndOffsets[0] + product.forwardPrimer.to,
-      }]
-    },{
-      name: 'Reverse primer',
-      _type: 'primer',
-      ranges: [{
-        from: sequence.length + stickyEndOffsets[1] - product.reversePrimer.sequence.length,
-        to: sequence.length + stickyEndOffsets[1] - 1
-      }]
-    }]);
 
     return new Sequence({
       sequence: sequence,
@@ -176,6 +204,45 @@ export default Backbone.View.extend({
     this.getFieldFor('name').focus();
   },
 
+  toggleForm: function(event) {
+    var product;
+    if(event) event.preventDefault();
+    this.$('.new-pcr-product-form-container, .pcr-list-container, .toggle-new-pcr-product-form').toggle();
+
+    if(!_.isEmpty(this.products)) {
+      this.$('.cancel-new-pcr-product-form').show();
+    } else {
+      this.$('.cancel-new-pcr-product-form').hide();
+    }
+
+    this.hideCanvas();
+
+    if(!this.temporarySequence) {
+      this.temporarySequence = new Sequence({
+        sequence: this.getTemporarySequence()
+      });
+    } else {
+      this.temporarySequence = null;
+      product = _.find(this.products, {id: this.showingProductId});
+      if(product) {
+        this.showCanvas(product);
+      }
+    }
+
+    if(!product) this.showCanvas();
+  },
+
+  getTemporarySequence: function() {
+    var from = this.getFieldFor('from').val() - 1;
+    var to = this.getFieldFor('to').val() - 1;
+    return this.model.get('sequence').substr(from, to - from + 1);
+  },
+
+  updateTemporarySequence: function(event) {
+    var sequence = this.temporarySequence;
+    if(sequence) sequence.set('sequence', this.getTemporarySequence());
+  },
+
   serialize: function() {
     return {
       availableStickyEnds: _.map(StickyEnds, function(end) {
@@ -186,6 +253,12 @@ export default Backbone.View.extend({
       }),
       defaults: this.defaults
     };
+  },
+
+  afterRender: function() {
+    if(_.isEmpty(this.products)) {
+      this.toggleForm();
+    }
   }
 
 });

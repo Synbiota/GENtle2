@@ -69,7 +69,8 @@ export default Backbone.View.extend({
 
   exportPrimer: function(event) {
     var product = this.getProduct(event);
-    var forward = $(event.target).hasClass('export-forward-primer');
+    console.log('export', $(event.currentTarget))
+    var forward = $(event.currentTarget).hasClass('export-forward-primer');
 
     if(product) {
       Filetypes.exportToFile('fasta', (new Sequence({
