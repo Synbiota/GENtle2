@@ -57,6 +57,7 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
+    if(!this.model) return;
     var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
       view: this,
       $canvas: this.$('.sequence-canvas-container canvas').first(),
