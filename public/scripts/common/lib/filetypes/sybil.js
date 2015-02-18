@@ -2,17 +2,18 @@
 import $ from 'jquery';
 import _ from 'underscore.mixed';
 
+var getArrayElementName = function(key) {
+  return /s$/.test(key) ? 
+    key.substr(0, key.length - 1) : 
+    key + '-item';
+};
+
 var convertToXML = function(data, namespace) {
   var formatKeyName = function(key) { 
     return _.snakify(key).replace(/_/g, '-');
   };
   var createElement = function(key) {
     return $('<'+formatKeyName(key)+'/>');
-  };
-  var singularize = function(key) {
-    return /s$/.test(key) ? 
-      key.substr(0, key.length - 1) : 
-      key + '-item';
   };
   var getHTML = function(elements) {
     return createElement('div').append(elements).html();
@@ -29,7 +30,7 @@ var convertToXML = function(data, namespace) {
     }));
   } else if(_.isObject(data) && !_.isDate(data)) {
     return getHTML(_.map(data, function(value, key) {
-      return createElement(key).append(convertToXML(value, singularize(key)));
+      return createElement(key).append(convertToXML(value, getArrayElementName(key)));
     }));
   } else {
     return data;
@@ -43,9 +44,10 @@ var convertToObject = function(xml) {
   var formatContent = function(string) {
     return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
   };
-  var areArrayElements = function(contents) {
-    var uniqueTagNames = _.uniq(_.pluck(contents, 'tagName'));
-    return uniqueTagNames.length == 1 && contents.length > 1;
+  var areArrayElements = function(parentNodeName, contents) {
+    var uniqueTagNames = _.compact(_.uniq(_.pluck(contents, 'tagName')));
+    return uniqueTagNames.length == 1 && parentNodeName &&
+      getArrayElementName(parentNodeName) == formatKey(uniqueTagNames[0]);
   };
 
   return _.reduce($(xml), function(memo, element) {
@@ -54,7 +56,7 @@ var convertToObject = function(xml) {
 
     if(contents.length == 1 && contents[0].nodeType == 3) {
       memo[key] = formatContent(contents.text());
-    } else if(areArrayElements(contents)){
+    } else if(areArrayElements(key, contents)){
       memo[key] = _.map(contents, function(childElement) {
         return convertToObject($(childElement).contents());
       });
