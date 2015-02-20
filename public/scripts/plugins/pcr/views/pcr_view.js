@@ -88,12 +88,21 @@ export default Backbone.View.extend({
       this.showCanvas(product);
       this.toggleForm();
 
+      this.scrollToProduct(product);
+
     }).progress((progress) => {
 
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
 
     }).catch((e) => console.log(e));
     
+  },
+
+  scrollToProduct: function(product) {
+    var $container = this.$('#pcr-list-outer-container');
+    var $target = this.$('[data-product-id="' + product.id + '"]');
+    $container.scrollTop($target.offset().top);
+    console.log('fine')
   },
 
   showCanvas: function(product) {
@@ -163,29 +172,23 @@ export default Backbone.View.extend({
       }, {
         name: 'Annealing region',
         _type: 'annealing_region',
-        ranges: [{
-          from: stickyEndOffsets[0],
-          to: stickyEndOffsets[0] + product.forwardPrimer.to,
-        }]
+        ranges: [_.pick(product.forwardAnnealingRegion, 'from', 'to')]
       }, {
         name: 'Annealing region',
         _type: 'annealing_region',
-        ranges: [{
-          from: sequence.length + stickyEndOffsets[1] - product.reversePrimer.sequence.length,
-          to: sequence.length + stickyEndOffsets[1] - 1
-        }]
+        ranges: [_.pick(product.reverseAnnealingRegion, 'from', 'to')]
       }, {
         name: 'Forward primer',
         _type: 'primer',
         ranges: [{
           from: 0,
-          to: stickyEndOffsets[0] + product.forwardPrimer.to,
+          to: product.forwardPrimer.to,
         }]
       }, {
         name: 'Reverse primer',
         _type: 'primer',
         ranges: [{
-          from: sequence.length + stickyEndOffsets[1] - product.reversePrimer.sequence.length,
+          from: sequence.length - product.reversePrimer.sequence.length,
           to: sequence.length - 1
         }]
       }]);

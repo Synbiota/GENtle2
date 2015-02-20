@@ -4,6 +4,11 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 
+window.calc =SequenceCalculations;
+
+var meltingTemperature = _.memoize(SequenceCalculations.meltingTemperature);
+
+
 var distanceToTarget = function(sequence, targetMeltingTemperature, targetGcContent) {
   return Math.sqrt(
     Math.pow(targetMeltingTemperature - SequenceCalculations.meltingTemperature(sequence), 2) * 0 + 
@@ -74,6 +79,12 @@ var getPrimersWithinMeltingTemperatureRange = function(primers, opts) {
   }
 
   return filteredPrimers;
+};
+
+var IDTMeltingTemperatureCache = {};
+
+var IDTMeltingTemperature = function(sequence) {
+  return IDT(sequence).then((result) => result.MeltTemp);
 };
 
 var optimalPrimer = function(sequence, opts = {}) {
@@ -149,21 +160,81 @@ var optimalPrimer2 = function(sequence, opts = {}) {
   }).catch((e) => console.log('outsideer', e));
 };
 
+var optimalPrimer3 = function(sequence, opts = {}) {
+  _.defaults(opts, {
+    minPrimerLength: 10,
+    maxPrimerLength: 40,
+    targetMeltingTemperature: 68,
+    targetGcContent: 0.5
+  });
+
+  var meltingTemperatureTolerance = 2;
+
+  var lengthRange = _.range(opts.minPrimerLength, opts.maxPrimerLength);
+
+  var potentialPrimers = _.map(lengthRange, function(i) {
+    var primerSequence = sequence.substr(0, i);
+    return {
+      sequence: primerSequence,
+      meltingTemperature: SequenceCalculations.meltingTemperature(primerSequence)
+    };
+  });
+
+  var filteredPotentialPrimers = _.filter(potentialPrimers, function(primer) {
+    return Math.abs(primer.meltingTemperature - opts.targetMeltingTemperature) <= meltingTemperatureTolerance;
+  });
+
+  if(_.isEmpty(filteredPotentialPrimers)) filteredPotentialPrimers = _.clone(potentialPrimers);
+
+  return Q.promise(function(resolve, reject, notify) {
+    var current = 0;
+    var total = filteredPotentialPrimers.length;
+    var notifyCurrent = function(i) { notify({current: i, total: total}); };
+
+    Q.all(_.map(filteredPotentialPrimers, function(primer) {
+      return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
+        current++;
+        notifyCurrent(current)
+        return _.extend(primer, {IDTMeltingTemperature: temperature});
+      });
+    })).then(function(results) {
+
+      notifyCurrent(total);
+
+      var temperatures = _.pluck(results, 'IDTMeltingTemperature');
+
+      var scores = _.map(temperatures, function(temperature) {
+        return -Math.abs(opts.targetMeltingTemperature - temperature);
+      });
+
+      var optimalIndex = _.indexOf(scores, _.max(scores));
+      var optimalPrimer = filteredPotentialPrimers[optimalIndex];
+
+      resolve({
+        sequence: optimalPrimer.sequence,
+        meltingTemperature: temperatures[optimalIndex],
+        gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence)
+      });
+
+    }).catch((e) => console.log('insideer', e));
+  }).catch((e) => console.log('outsideer', e));
+};
+
 
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
-  var forwardPrimerPromise = optimalPrimer2(sequence, opts);
-  var reversePrimerPromise = optimalPrimer2(SequenceTransforms.toReverseComplements(sequence), opts);
+  var forwardPrimerPromise = optimalPrimer3(sequence, opts);
+  var reversePrimerPromise = optimalPrimer3(SequenceTransforms.toReverseComplements(sequence), opts);
 
-  var lastProgress = [0,0];
+  var lastProgress = [{}, {}];
 
   return Q.promise(function (resolve, reject, notify) {
 
-
     Q.all([forwardPrimerPromise, reversePrimerPromise]).progress(function(current) {
       lastProgress[current.index] = current.value;
-      notify(_.reduce(lastProgress, (memo, i) => memo + i/2, 0));
+      var total = _.reduce(lastProgress, (memo, i) => memo + i.total, 0);
+      notify(total ? _.reduce(lastProgress, (memo, i) => memo + i.current, 0)/total : 0);
     }).then(function(results) {
 
       var [forwardAnnealingRegion, reverseAnnealingRegion] = results;
@@ -180,7 +251,8 @@ var getPCRProduct = function(sequence, opts = {}) {
       }
 
       var forwardAnnealingFrom = opts.stickyEnds ? opts.stickyEnds.start.length : 0;
-      var reverseAnnealingFrom = sequence.length - reverseAnnealingRegion.sequence.length;
+      var reverseAnnealingFrom = sequence.length - reverseAnnealingRegion.sequence.length - 
+        (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + 1;
 
       _.extend(forwardAnnealingRegion, {
         from: forwardAnnealingFrom,
@@ -190,7 +262,7 @@ var getPCRProduct = function(sequence, opts = {}) {
 
       _.extend(reverseAnnealingRegion, {
         from: reverseAnnealingFrom,
-        to: reverseAnnealingFrom + reverseAnnealingRegion.sequence.length,
+        to: reverseAnnealingFrom + reverseAnnealingRegion.sequence.length - 1,
         sequenceLength: reverseAnnealingRegion.sequence.length
       });
 
@@ -203,7 +275,7 @@ var getPCRProduct = function(sequence, opts = {}) {
       forwardPrimer.gcContent = SequenceCalculations.gcContent(forwardPrimer.sequence);
 
       var reversePrimer = {
-        sequence: reverseAnnealingRegion.sequence + (opts.stickyEnds ? SequenceTransforms.toReverseComplements(opts.stickyEnds.end) : ''),
+        sequence: (opts.stickyEnds ? SequenceTransforms.toReverseComplements(opts.stickyEnds.end) : '') +reverseAnnealingRegion.sequence,
         from: 0,
         to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1
       };
