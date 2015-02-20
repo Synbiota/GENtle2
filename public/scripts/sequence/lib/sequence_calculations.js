@@ -83,8 +83,8 @@ var nearestNeighborsData = {
 
 var terminalCorrectionData = {
   enthalpy: {
-    A: 0.1,
-    C: 2.3
+    A: 2.3,
+    C: 0.1
   },
   entropy: {
     C: -2.8,
@@ -243,7 +243,7 @@ window.calc = {
   meltingTemperature: meltingTemperature,
   meltingTemperature2: meltingTemperature2,
   gcContent: gcContent,
-  molecularWeight: molecularWeight,
+  molecularWeight: molecularWeight
 };
 
 export default {
@@ -252,6 +252,8 @@ export default {
   saltCorrection: saltCorrection,
   correctedDeltaEntropy: correctedDeltaEntropy,
   meltingTemperature: meltingTemperature2,
+  meltingTemperature1: meltingTemperature,
   gcContent: gcContent,
   molecularWeight: molecularWeight,
+  nearestNeighborsCalculator: nearestNeighborsCalculator
 };

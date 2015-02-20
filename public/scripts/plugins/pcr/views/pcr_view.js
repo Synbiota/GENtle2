@@ -94,7 +94,7 @@ export default Backbone.View.extend({
 
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
 
-    }).catch((e) => console.log(e));
+    }).catch((e) => console.log('pcr view error', e));
     
   },
 
@@ -102,7 +102,6 @@ export default Backbone.View.extend({
     var $container = this.$('#pcr-list-outer-container');
     var $target = this.$('[data-product-id="' + product.id + '"]');
     $container.scrollTop($target.offset().top);
-    console.log('fine')
   },
 
   showCanvas: function(product) {

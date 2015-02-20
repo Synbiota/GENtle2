@@ -160,6 +160,42 @@ var optimalPrimer2 = function(sequence, opts = {}) {
   }).catch((e) => console.log('outsideer', e));
 };
 
+var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature) {
+  var meltingTemperatureTolerance = 0.6;
+
+  return Q.promise(function(resolve, reject, notify) {
+
+    Q.all(_.map(potentialPrimers, function(primer) {
+      return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
+        notify();
+        return _.extend(primer, {IDTMeltingTemperature: temperature});
+      });
+    })).then(function(results) {
+
+      var temperatures = _.pluck(results, 'IDTMeltingTemperature');
+
+      var scores = _.map(temperatures, function(temperature) {
+        return -Math.abs(targetMeltingTemperature - temperature);
+      });
+
+      var optimalIndex = _.indexOf(scores, _.max(scores));
+      var optimalPrimer = potentialPrimers[optimalIndex];
+      var optimalTemperature = temperatures[optimalIndex];
+
+      if(Math.abs(optimalTemperature - targetMeltingTemperature) <= meltingTemperatureTolerance) {
+        resolve({
+          sequence: optimalPrimer.sequence,
+          meltingTemperature: optimalTemperature,
+          gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence)
+        });
+      } else {
+        reject('NOTHING FOUND');
+      }
+
+    })
+  });
+};
+
 var optimalPrimer3 = function(sequence, opts = {}) {
   _.defaults(opts, {
     minPrimerLength: 10,
@@ -183,41 +219,73 @@ var optimalPrimer3 = function(sequence, opts = {}) {
   var filteredPotentialPrimers = _.filter(potentialPrimers, function(primer) {
     return Math.abs(primer.meltingTemperature - opts.targetMeltingTemperature) <= meltingTemperatureTolerance;
   });
-
+  // var filteredPotentialPrimers
   if(_.isEmpty(filteredPotentialPrimers)) filteredPotentialPrimers = _.clone(potentialPrimers);
 
   return Q.promise(function(resolve, reject, notify) {
     var current = 0;
     var total = filteredPotentialPrimers.length;
     var notifyCurrent = function(i) { notify({current: i, total: total}); };
+    var resolvePrimer;
 
-    Q.all(_.map(filteredPotentialPrimers, function(primer) {
-      return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
-        current++;
-        notifyCurrent(current)
-        return _.extend(primer, {IDTMeltingTemperature: temperature});
-      });
-    })).then(function(results) {
+    queryBestPrimer(filteredPotentialPrimers, opts.targetMeltingTemperature).then(resolve, function() {
+      total += potentialPrimers.length;
+      return queryBestPrimer(potentialPrimers, opts.targetMeltingTemperature).then(resolve);
+    }).progress(function(progress) {
+      current++;
+      notifyCurrent(current);
+    });
+  });
 
-      notifyCurrent(total);
 
-      var temperatures = _.pluck(results, 'IDTMeltingTemperature');
 
-      var scores = _.map(temperatures, function(temperature) {
-        return -Math.abs(opts.targetMeltingTemperature - temperature);
-      });
+  // return Q.promise(function(resolve, reject, notify) {
+  //   var current = 0;
+  //   var total = filteredPotentialPrimers.length;
+  //   var notifyCurrent = function(i) { notify({current: i, total: total}); };
 
-      var optimalIndex = _.indexOf(scores, _.max(scores));
-      var optimalPrimer = filteredPotentialPrimers[optimalIndex];
+  //   Q.all(_.map(filteredPotentialPrimers, function(primer) {
+  //     return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
+  //       current++;
+  //       notifyCurrent(current)
+  //       return _.extend(primer, {IDTMeltingTemperature: temperature});
+  //     });
+  //   })).then(function(results) {
+  //     window.truc = _.map(filteredPotentialPrimers, function(primer) {
+  //       return {
+  //         lastBase: primer.sequence.substr(primer.sequence.length-1, 1),
+  //         meltingTemperature1: SequenceCalculations.meltingTemperature1(primer.sequence),
+  //         meltingTemperature2: primer.meltingTemperature,
+  //         IDTMeltingTemperature: primer.IDTMeltingTemperature
+  //       }
 
-      resolve({
-        sequence: optimalPrimer.sequence,
-        meltingTemperature: temperatures[optimalIndex],
-        gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence)
-      });
+  //     })
+  //     console.log('here',_.map(truc, (p) => Math.abs(p.IDTMeltingTemperature - p.meltingTemperature2)))
 
-    }).catch((e) => console.log('insideer', e));
-  }).catch((e) => console.log('outsideer', e));
+  //       //p.meltingTemperature1, p.meltingTemperature2, p.IDTMeltingTemperature]), 
+
+
+  //     notifyCurrent(total);
+
+  //     var temperatures = _.pluck(results, 'IDTMeltingTemperature');
+
+  //     console.log(potentialPrimers)
+
+  //     var scores = _.map(temperatures, function(temperature) {
+  //       return -Math.abs(opts.targetMeltingTemperature - temperature);
+  //     });
+
+  //     var optimalIndex = _.indexOf(scores, _.max(scores));
+  //     var optimalPrimer = filteredPotentialPrimers[optimalIndex];
+
+  //     resolve({
+  //       sequence: optimalPrimer.sequence,
+  //       meltingTemperature: temperatures[optimalIndex],
+  //       gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence)
+  //     });
+
+  //   }).catch((e) => console.log('insideer', e));
+  // }).catch((e) => console.log('outsideer', e));
 };
 
 
@@ -296,7 +364,7 @@ var getPCRProduct = function(sequence, opts = {}) {
         meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
       });
 
-    }).catch((e) => console.log(e));
+    }).catch((e) => console.log('getpcrproduct err', e));
 
   });
 
