@@ -97,7 +97,7 @@ define(function(require) {
 
       primaryViews.push({
         name: 'edition',
-        title: 'Edition mode',
+        title: 'Edit sequence',
         view: SequenceEditionView
       });
 
