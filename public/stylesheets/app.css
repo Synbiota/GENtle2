@@ -8559,6 +8559,29 @@ button.close {
   width: 100%;
 }
 
+/* line 1, views/_sequencing_primers_view.scss */
+.sequencing-primers,
+.sequencing-primers-products-outer-container,
+.sequencing-primers-canvas-container {
+  bottom: 0;
+  left: 0;
+  overflow: scroll;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/* line 12, views/_sequencing_primers_view.scss */
+.sequencing-primers-products-outer-container {
+  border-right: 1px solid #ddd;
+  width: 50%;
+}
+
+/* line 17, views/_sequencing_primers_view.scss */
+.sequencing-primers-canvas-container {
+  left: 50%;
+}
+
 /* line 1, views/_sidebar_view.scss */
 .sidebar > div {
   position: absolute;

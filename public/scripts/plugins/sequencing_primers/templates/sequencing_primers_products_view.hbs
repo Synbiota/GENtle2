@@ -1,0 +1,61 @@
+<div class="container-fluid">
+<div class="row">
+<div class="col-md-12">
+{{#if products}}
+<br>
+{{#each products}}
+  <div class="panel panel-default" data-product-id="{{id}}">
+    <div class="panel-heading">
+      {{!-- <div class="pull-right">
+        <div class="btn-group">
+          <button class="btn btn-default btn-xs delete-pcr-product">
+            <i class="glyphicon glyphicon-trash"></i>
+          </button>
+          <button class="btn btn-default btn-xs open-pcr-product has-tooltip" title="Open PCR product in new tab">
+            Create
+            <i class="glyphicon glyphicon-share"></i>
+          </button>
+          <button class="btn btn-default btn-xs show-pcr-product">Show &rarr;</button>
+        </div>
+      </div> --}}
+      <h3 class="panel-title">Product {{index}}</h3>
+    </div>
+    <table class="table table-condensed">
+      <thead>
+        <th></th>
+        <th class="text-right"><small>Size</small></th>
+        <th class="text-right"><small>GC content</small></th>
+        <th class="text-right"><small>Melting temperature</small></th>
+        <th></th>
+      </thead>
+      <tbody>
+        {{!-- <tr>
+          <td><small><strong>Product</strong></small></td>
+          <td class="text-right"><small>{{formatThousands sequenceLength}}bp</small></td>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr> --}}
+        <tr>
+          <td><small>Forward primer</small></td>
+          <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
+          <td></td>
+        </tr>
+        <tr>
+          <td><small>Reverse primer</small></td>
+          <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
+          <td></td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+{{/each}}
+{{/if}}
+</div>
+</div>
+</div>

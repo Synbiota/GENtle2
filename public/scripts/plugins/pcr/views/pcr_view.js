@@ -67,7 +67,7 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress').show();
     this.$('.new-pcr-progress .progress-bar').css('width', 0);
 
-    PrimerDesign.getPCRProduct(sequence, data).then((product) => {
+    PrimerDesign(sequence, data).then((product) => {
 
       _.extend(product, {
         name: data.name
