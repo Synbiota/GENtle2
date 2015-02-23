@@ -1,6 +1,6 @@
 import Backbone from 'backbone.mixed';
 import template from '../templates/blast_view.hbs';
-import AlignView from './blast_align_view';
+import CanvasView from './blast_canvas_view';
 import BlastRequest from '../lib/blast_request';
 import NCBIRequest from '../../ncbi/lib/ncbi_request';
 import Gentle from 'gentle';
@@ -14,7 +14,7 @@ export default Backbone.View.extend({
 
   events: {
     'click #blast-intro-run': 'getRID',
-    'click .show-align': 'showAlign',
+    'click .show-canvas': 'showCanvas',
     'click .blast-open-sequence': 'openSequence',
     'click .blast-run-new': 'runNewSearch',
     'click .blast-clear-search': 'clearSearch',
@@ -24,8 +24,8 @@ export default Backbone.View.extend({
   initialize: function() {
     this.currentResultsIteration = 0;
     this.noRID = false;
-    this.alignView = new AlignView();
-    this.setView('#blast-align-container', this.alignView);
+    var view = this.canvasView = new CanvasView();
+    this.setView('#blast-canvas-container', view);
     this.model = Gentle.currentSequence;
     this.initBlastRequest();
     this.initDatabases();
@@ -61,11 +61,11 @@ export default Backbone.View.extend({
     };
   },
 
-  showAlign: function(event) {
+  showCanvas: function(event) {
     var $el = $(event.currentTarget);
     this.resultId = $el.data('resultId');
     this.hspId = $el.data('hspId');
-    this.alignView.render();
+    this.canvasView.render();
     $el.closest('table').find('tr').removeClass('info');
     $el.closest('tr').addClass('info');
   },

@@ -7894,7 +7894,7 @@ button.close {
   }
 }
 /* line 1, views/_blast_view.scss */
-.blast, #blast-intro-container, #blast-align-container {
+.blast, #blast-intro-container, #blast-canvas-container {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -7922,24 +7922,24 @@ button.close {
 }
 
 /* line 31, views/_blast_view.scss */
-#blast-align-container {
+#blast-canvas-container {
   left: 50%;
 }
 /* line 34, views/_blast_view.scss */
-#blast-align-container .blast-align-header {
+#blast-canvas-container .blast-canvas-header {
   line-height: 21px;
   height: 40px;
   border-bottom: 1px solid #ddd;
   padding: 8px 15px;
 }
 /* line 42, views/_blast_view.scss */
-#blast-align-container .sequence-canvas-wrapper .scrolling-parent, #blast-align-container .sequence-canvas-wrapper .sequence-canvas-container {
+#blast-canvas-container .sequence-canvas-wrapper .scrolling-parent, #blast-canvas-container .sequence-canvas-wrapper .sequence-canvas-container {
   top: 40px;
   bottom: 3px;
 }
 
 /* line 49, views/_blast_view.scss */
-.blast-align-match-bar {
+.blast-canvas-match-bar {
   width: 150px;
   height: 10px;
   margin-top: 6px;
@@ -7947,7 +7947,7 @@ button.close {
   border-radius: 0;
 }
 /* line 56, views/_blast_view.scss */
-.blast-align-match-bar .progress-bar {
+.blast-canvas-match-bar .progress-bar {
   min-width: 1px;
 }
 
