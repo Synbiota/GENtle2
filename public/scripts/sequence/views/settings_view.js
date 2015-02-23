@@ -80,6 +80,8 @@ define(function(require) {
         .pluck('data')
         .each(_.bind(this.addTab, this));
 
+      this.listenTo(Gentle.currentSequence, 'change:displaySettings.primaryView', this.closeOpenTabs);
+
     }
 
   });

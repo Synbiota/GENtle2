@@ -37,11 +37,16 @@ define(function(require) {
       });
     },
 
-    closeOpenTabs: function() {
+    closeOpenTabs: function(closeSidebar = false) {
       this.$('.active').removeClass('active');
       _.each(this.tabs, function(tab){
         tab.view.isOpen = false;
       });
+      if(closeSidebar) {
+        this.$el.removeClass('active');
+        this.openTab = undefined;
+        this.initTooltips();
+      }
     },
 
     toggleTabs: function(event) {
@@ -54,12 +59,12 @@ define(function(require) {
       this.$el.removeClass('hovered');
 
       if($link.hasClass('active')) {
-        this.$el.removeClass('active');
-        this.openTab = undefined;
-        this.closeOpenTabs();
+        // this.$el.removeClass('active');
+        // this.openTab = undefined;
+        this.closeOpenTabs(true);
       } else {
-        view = this.getTabFromLinkHref($link.attr('href')).view;
         this.closeOpenTabs();
+        view = this.getTabFromLinkHref($link.attr('href')).view;
         $($link.attr('href') + '-tab').addClass('active');
         this.openTab = $link.attr('href');
         if(!wasActive) {
@@ -68,6 +73,7 @@ define(function(require) {
         $link.addClass('active');
         view.isOpen = true;
         view.render();
+        this.destroyTooltips();
       }
 
       if((wasActive && !this.$el.hasClass('active')) ||
@@ -75,58 +81,58 @@ define(function(require) {
           this.trigger('resize');
     },
 
-    mouseoverTabLink: function(event) {
-      var $link = this.$(event.currentTarget),
-          tab = this.getTabFromLinkHref($link.attr('href'));
+    // mouseoverTabLink: function(event) {
+    //   var $link = this.$(event.currentTarget),
+    //       tab = this.getTabFromLinkHref($link.attr('href'));
 
-      if(!this.$el.hasClass('active')) {
+    //   if(!this.$el.hasClass('active')) {
 
-        if(this.closingTabName == tab.name) {
-          this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
-        } 
+    //     if(this.closingTabName == tab.name) {
+    //       this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
+    //     } 
 
-        if(!$link.hasClass('hovered')) {
-          this.$('.hovered').removeClass('hovered');
-          if(tab.hoverable) {
-            tab.view.isOpen = true;
-            tab.view.$el.parent().parent().addClass('hovered');
-            tab.view.render();
-            this.$el.addClass('hovered');
-            $link.addClass('hovered');
-          }
-        }
-      }
-    },
+    //     if(!$link.hasClass('hovered')) {
+    //       this.$('.hovered').removeClass('hovered');
+    //       if(tab.hoverable) {
+    //         tab.view.isOpen = true;
+    //         tab.view.$el.parent().parent().addClass('hovered');
+    //         tab.view.render();
+    //         this.$el.addClass('hovered');
+    //         $link.addClass('hovered');
+    //       }
+    //     }
+    //   }
+    // },
 
-    mouseoutTabLink: function(event) {
-      var _this = this,
-          tab = this.getTabFromLinkHref($(event.currentTarget).attr('href'));
+    // mouseoutTabLink: function(event) {
+    //   var _this = this,
+    //       tab = this.getTabFromLinkHref($(event.currentTarget).attr('href'));
 
-      event.preventDefault();
-      this.closingTabName = tab.name;
-      this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
-    },
+    //   event.preventDefault();
+    //   this.closingTabName = tab.name;
+    //   this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
+    // },
 
-    mouseoverTab: function(event) {
-      var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
-      if(this.closingTabName == tabName) {
-        this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
-      }
-    },
+    // mouseoverTab: function(event) {
+    //   var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
+    //   if(this.closingTabName == tabName) {
+    //     this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
+    //   }
+    // },
 
-    mouseoutTab: function(event) {
-      var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
-      this.closingTabName = tabName;
-      this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
-    },
+    // mouseoutTab: function(event) {
+    //   var tabName = $(event.currentTarget).attr('id').replace('-tab', '').replace('sequence-', '');
+    //   this.closingTabName = tabName;
+    //   this.closingTabTimeout = setTimeout(_.bind(this.deferredClosePopoutTab, this), 50);
+    // },
 
-    deferredClosePopoutTab: function() {
-      var name = this.closingTabName;
-      if(name) {
-        this.$getTabLink(name).removeClass('hovered');
-        this.$getTab(name).removeClass('hovered');
-      }
-    },
+    // deferredClosePopoutTab: function() {
+    //   var name = this.closingTabName;
+    //   if(name) {
+    //     this.$getTabLink(name).removeClass('hovered');
+    //     this.$getTab(name).removeClass('hovered');
+    //   }
+    // },
 
     getTabFromLinkHref: function(href) {
       return this.tabs[href.replace('#' + this.sidebarName + '-', '')];
@@ -149,6 +155,7 @@ define(function(require) {
     },
 
     restoreOpenTab: function() {
+      console.log('restoringOpenTab', this.openTab)
       if(this.openTab !== undefined) {
         this.$el.addClass('active');
         this.$('[href='+this.openTab+']').addClass('active');
@@ -172,11 +179,20 @@ define(function(require) {
 
     afterRender: function() {
       this.insertTabs();
-      this.restoreOpenTab();
+      // this.restoreOpenTab();
+      this.initTooltips();
+    },
+
+    initTooltips: function() {
       this.$('.sidebar-tab-link').tooltip({
-        container: 'body'
+        container: 'body',
+        animation: false
       });
     },
+
+    destroyTooltips: function() {
+      this.$('.sidebar-tab-link').tooltip('destroy');
+    }
   });
 
   return SidebarView;
