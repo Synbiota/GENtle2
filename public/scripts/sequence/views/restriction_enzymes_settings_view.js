@@ -6,6 +6,8 @@ define(function(require) {
       RestrictionEnzymesSettingsListView = require('./restriction_enzymes_settings_list_view'),
       template = require('../templates/restriction_enzymes_settings_view.hbs');
 
+  var escKey = 27;
+
   return Backbone.View.extend({
     template: template,
     manage: true,
@@ -44,14 +46,19 @@ define(function(require) {
     },
 
     updateFilter: function(event) {
-      this.filter = $(event.currentTarget).val() || '';
-      this.listView.render();
+      if(event.which == escKey) {
+        this.clearFilter(event);
+      } else {
+        this.filter = $(event.currentTarget).val() || '';
+        this.listView.render();
+      }
     },
 
     clearFilter: function(event) {
       event.preventDefault();
       this.filter = '';
-      this.render();
+      this.$('input.res-settings-filter').val('');
+      this.listView.render();
     },
 
     getEnzymes: function() {

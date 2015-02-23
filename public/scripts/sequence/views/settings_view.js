@@ -68,7 +68,6 @@ define(function(require) {
         name: 'resSettings',
         title: 'Restriction enzymes',
         icon: 'sort',
-        maxHeighted: true,
         view: RestrictionEnzymesSettingsView,
         visible: function() {
           return _this.parentView().primaryView.name == 'edition';
