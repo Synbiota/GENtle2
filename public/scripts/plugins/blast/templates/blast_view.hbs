@@ -19,14 +19,25 @@
         {{#unless blastRequest.RIDLoaded}}
           <br>
           <div class="form-group">
+            
+            
             <label class="colcontrol-label" for="blast-database-select">Database</label>
-            {{{select databases class="form-control" id="blast-database-select"}}}
+            <div class="row">
+              <div class="col-xs-8 blast-database-select-container">
+                {{{select databases class="form-control" id="blast-database-select"}}}
+              </div>
+              <div class="col-xs-4 blast-intro-run-container">
+                <button class="btn btn-primary" id="blast-intro-run">
+                  <span class="btn-label">Search</span>
+                  <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
+                </button>
+                <button class="btn btn-default cancel-blast-search" style="display: none;">Cancel</button>
+              </div>
+            </div>
+
+            <div class="blast-db-description-container"></div>
+
           </div>
-          <button class="btn btn-primary" id="blast-intro-run">
-            <span class="btn-label">Search</span>
-            <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
-          </button>
-          <button class="btn btn-default cancel-blast-search" style="display: none;">Cancel</button>
           <br><br>
         {{else}}
           {{#unless blastRequest.resultsLoaded}}

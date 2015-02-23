@@ -7951,6 +7951,16 @@ button.close {
   min-width: 1px;
 }
 
+/* line 62, views/_blast_view.scss */
+.blast-db-description-container dt {
+  text-align: left;
+  width: 85px;
+}
+/* line 67, views/_blast_view.scss */
+.blast-db-description-container dd {
+  margin-left: 95px;
+}
+
 /* line 3, views/_designer_view.scss */
 .designer {
   height: 100%;

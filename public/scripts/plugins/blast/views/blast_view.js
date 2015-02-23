@@ -1,6 +1,7 @@
 import Backbone from 'backbone.mixed';
 import template from '../templates/blast_view.hbs';
 import CanvasView from './blast_canvas_view';
+import DescriptionView from './blast_db_description_view';
 import BlastRequest from '../lib/blast_request';
 import NCBIRequest from '../../ncbi/lib/ncbi_request';
 import Gentle from 'gentle';
@@ -18,15 +19,21 @@ export default Backbone.View.extend({
     'click .blast-open-sequence': 'openSequence',
     'click .blast-run-new': 'runNewSearch',
     'click .blast-clear-search': 'clearSearch',
-    'click .cancel-blast-search': 'cancelSearch'
+    'click .cancel-blast-search': 'cancelSearch',
+    'change #blast-database-select': 'showDbDescription'
   },
 
   initialize: function() {
     this.currentResultsIteration = 0;
     this.noRID = false;
-    var view = this.canvasView = new CanvasView();
-    this.setView('#blast-canvas-container', view);
     this.model = Gentle.currentSequence;
+
+    var canvasView = this.canvasView = new CanvasView();
+    this.setView('#blast-canvas-container', canvasView);
+
+    var descriptionView = this.descriptionView = new DescriptionView();
+    this.setView('.blast-db-description-container', descriptionView);
+
     this.initBlastRequest();
     this.initDatabases();
 
@@ -49,6 +56,10 @@ export default Backbone.View.extend({
         value: value
       };
     });
+  },
+
+  afterRender: function() {
+    // this.showDbDescription();
   },
 
   serialize: function() {
@@ -75,6 +86,8 @@ export default Backbone.View.extend({
     $el.attr('disabled', 'disabled');
     $el.find('.btn-label').text('Initiating request with NCBI');
     this.$('.loader, .cancel-blast-search').show();
+    this.$('.blast-database-select-container').toggleClass('col-xs-8 col-xs-4');
+    this.$('.blast-intro-run-container').toggleClass('col-xs-4 col-xs-8');
 
     var $databaseInput = this.$('#blast-database-select');
     this.database = $databaseInput.val();
@@ -159,6 +172,14 @@ export default Backbone.View.extend({
     this.model.clearBlastCache();
     this.initBlastRequest();
     this.render();
+  },
+
+  getDbName: function() {
+    return this.$('#blast-database-select').val(); 
+  },
+
+  showDbDescription: function() {
+    this.descriptionView.render();
   }
 
 

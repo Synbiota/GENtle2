@@ -1,0 +1,15 @@
+{{#if contents}}
+  <br>
+  {{#each contents}}
+    <dl class="database-description-container dl-horizontal text-muted">
+      {{#if moleculeType}}
+        <dt><small>Molecule type</small></dt>
+        <dd><small class="database-description-molecule-type">{{moleculeType}}</small></dd>
+      {{/if}}
+      {{#if description}}
+        <dt><small>Description</small></dt>
+        <dd><small class="database-description-content">{{description}}</small></dd>
+      {{/if}}
+    </dl>
+  {{/each}}
+{{/if}}
