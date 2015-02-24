@@ -12,7 +12,7 @@ define(function(require) {
       SidebarView         = require('../../common/views/sidebar_view'),
       ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
-      Gentle              = require('gentle')(),
+      Gentle              = require('gentle'),
       SettingsView;
   
   SettingsView = SidebarView.extend({

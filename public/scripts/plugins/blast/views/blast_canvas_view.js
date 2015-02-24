@@ -1,9 +1,7 @@
-import Backbone from 'backbone.mixed';
+import Backbone from 'backbone';
 import template from '../templates/blast_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
-
-Gentle = Gentle();
 
 export default Backbone.View.extend({
   manage: true,

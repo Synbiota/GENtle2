@@ -1,8 +1,8 @@
 define(function(require) {
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       template = require('../templates/designed_sequence_view.hbs'),
       SynbioData = require('../../../common/lib/synbio_data'),
-      Gentle = require('gentle')(),
+      Gentle = require('gentle'),
       DesignedSequenceView;
 
   DesignedSequenceView = Backbone.View.extend({

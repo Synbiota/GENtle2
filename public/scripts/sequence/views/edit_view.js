@@ -5,8 +5,8 @@
 **/
 define(function(require) {
   var template = require('../templates/edit_view.hbs'),
-    Backbone = require('backbone.mixed'),
-    Gentle = require('gentle')(),
+    Backbone = require('backbone'),
+    Gentle = require('gentle'),
     Sequences = require('../models/sequences'),
     EditView;
 

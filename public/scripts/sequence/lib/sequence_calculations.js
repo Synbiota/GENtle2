@@ -1,4 +1,4 @@
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 import SequenceTransforms from './sequence_transforms';
 
 var compose = _.compose;

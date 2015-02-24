@@ -1,7 +1,7 @@
-import Backbone from 'backbone.mixed';
+import Backbone from 'backbone';
 import template from '../templates/blast_db_description_view.hbs';
 import BlastDbDescriptions from '../lib/blast_db_descriptions.json';
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 
 export default Backbone.View.extend({
   template: template,

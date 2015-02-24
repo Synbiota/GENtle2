@@ -1,6 +1,6 @@
 
 import $ from 'jquery';
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 
 var getArrayElementName = function(key) {
   return /s$/.test(key) ? 

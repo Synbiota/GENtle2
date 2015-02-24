@@ -6,11 +6,11 @@
 define(function(require) {
   var template = require('../templates/sequence_edition_view.hbs'),
       SequenceCanvas = require('../lib/sequence_canvas'),
-      Gentle = require('gentle')(),
+      Gentle = require('gentle'),
       ContextMenuView = require('../../common/views/context_menu_view'),
       LinearMapView = require('../../linear_map/views/linear_map_view'),
       PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
-      Backbone = require('backbone.mixed'),
+      Backbone = require('backbone'),
       SequenceEditionView;
 
   SequenceEditionView = Backbone.View.extend({

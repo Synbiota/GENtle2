@@ -4,7 +4,7 @@
 **/
 define(function(require) {
   var template        = require('../templates/context_menu_view.hbs'),
-      Backbone        = require('backbone.mixed'),
+      Backbone        = require('backbone'),
       ContextMenuView;
 
   ContextMenuView = Backbone.View.extend({

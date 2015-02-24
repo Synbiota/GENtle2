@@ -5,9 +5,9 @@
 **/
 define(function(require) {
   var template = require('../templates/features_view.hbs'),
-    Gentle = require('gentle')(),
+    Gentle = require('gentle'),
     SynbioData = require('../../common/lib/synbio_data'),
-    Backbone = require('backbone.mixed'),
+    Backbone = require('backbone'),
     FeaturesView;
 
   FeaturesView = Backbone.View.extend({

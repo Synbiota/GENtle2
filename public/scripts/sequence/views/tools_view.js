@@ -5,7 +5,7 @@
 **/
 define(function(require) {
   var template        = require('../templates/tools_view.hbs'),
-      Backbone        = require('backbone.mixed'),
+      Backbone        = require('backbone'),
       ToolsView;
   
   ToolsView = Backbone.View.extend({

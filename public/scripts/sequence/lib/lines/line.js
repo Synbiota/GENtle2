@@ -6,7 +6,7 @@ Base Line class from which to extend.
 @submodule SequenceCanvas
 **/
 define(function(require) {
-  var _ = require('underscore.mixed'),
+  var _ = require('underscore'),
       Line;
 
   Line = function() {};

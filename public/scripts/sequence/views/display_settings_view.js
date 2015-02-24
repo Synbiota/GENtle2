@@ -5,9 +5,9 @@
 **/
 define(function(require) {
   var template        = require('../templates/display_settings_view.hbs'),
-      Gentle          = require('gentle')(),
-      Backbone        = require('backbone.mixed'),
-      _               = require('underscore.mixed'),
+      Gentle          = require('gentle'),
+      Backbone        = require('backbone'),
+      _               = require('underscore'),
       DisplaySettingsView;
   
   DisplaySettingsView = Backbone.View.extend({

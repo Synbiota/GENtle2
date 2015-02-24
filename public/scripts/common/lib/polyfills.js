@@ -2,7 +2,7 @@
 @module Utilities
 **/
 define(function(require) {
-  var _ = require('underscore.mixed');
+  var _ = require('underscore');
 
   // Object.create polyfill (ES5)
   // from MDN

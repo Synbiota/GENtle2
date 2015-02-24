@@ -1,12 +1,10 @@
-import Backbone from 'backbone.mixed';
+import Backbone from 'backbone';
 import template from '../templates/blast_view.hbs';
 import CanvasView from './blast_canvas_view';
 import DescriptionView from './blast_db_description_view';
 import BlastRequest from '../lib/blast_request';
 import NCBIRequest from '../../ncbi/lib/ncbi_request';
 import Gentle from 'gentle';
-
-Gentle = Gentle();
 
 export default Backbone.View.extend({
   manage: true,

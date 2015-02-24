@@ -1,4 +1,4 @@
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';

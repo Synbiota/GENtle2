@@ -11,7 +11,7 @@ Hashes in arguments refer Handlebars' Hashes, e.g.:
 @module Utilities
 **/
 var Handlebars  = window.hb = require('hbsfy/runtime');
-var _           = require('underscore.mixed');
+var _           = require('underscore');
 
 /**
 Displays select tag with options (and optional optgroups)

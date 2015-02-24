@@ -1,13 +1,11 @@
 import template from '../templates/pcr_view.hbs';
-import Backbone from 'backbone.mixed';
+import Backbone from 'backbone';
 import StickyEnds from '../../../common/lib/sticky_ends';
 import PrimerDesign from '../lib/pcr_primer_design';
 import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
-
-Gentle = Gentle();
 
 export default Backbone.View.extend({
   manage: true,

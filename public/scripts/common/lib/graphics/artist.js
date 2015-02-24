@@ -21,7 +21,7 @@ define(function(require) {
       Arc = require('./arc'),
       TransformationMatrix = require('./transformation_matrix'),
       Q = require('q'),
-      _ = require('underscore.mixed'),
+      _ = require('underscore'),
       // BrowserDetect = require('BrowserDetect'),
       Artist;
 

@@ -1,5 +1,5 @@
 define(function(require) {
-  var Gentle    = require('gentle')(),
+  var Gentle    = require('gentle'),
       DesignerView  = require('./views/designer_view'),
       HomeDesignerView = require('./views/home_designer_view');
 

@@ -4,8 +4,8 @@
 @class SidebarView
 **/
 define(function(require) {
-  var Backbone      = require('backbone.mixed'),
-      _             = require('underscore.mixed'),
+  var Backbone      = require('backbone'),
+      _             = require('underscore'),
       template      = require('../templates/sidebar_view.hbs'),
       SidebarView;
 

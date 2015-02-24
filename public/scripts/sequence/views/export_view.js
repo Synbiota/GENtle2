@@ -4,10 +4,10 @@
 @submodule Views
 **/
 define(function(require) {
-  var Backbone    = require('backbone.mixed'),
+  var Backbone    = require('backbone'),
       template    = require('../templates/export_view.hbs'),
       Filetypes   = require('../../common/lib/filetypes/filetypes'),
-      Gentle      = require('gentle')(),
+      Gentle      = require('gentle'),
       ExportView;
 
   ExportView = Backbone.View.extend({

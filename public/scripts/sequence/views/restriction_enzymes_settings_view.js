@@ -1,7 +1,7 @@
 define(function(require) {
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       DisplaySettingsView = require('./display_settings_view'),
-      Gentle = require('gentle')(),
+      Gentle = require('gentle'),
       RestrictionEnzymes = require('../lib/restriction_enzymes'),
       RestrictionEnzymesSettingsListView = require('./restriction_enzymes_settings_list_view'),
       template = require('../templates/restriction_enzymes_settings_view.hbs');
@@ -41,7 +41,9 @@ define(function(require) {
     },  
 
     updateDisplaySettings: function(event) {
+      var key = 'displaySettings.rows.res';
       DisplaySettingsView.prototype.updateDisplaySettings.call(this, event);
+      Gentle.currentUser.set(key, this.model.get(key));
       this.render();
     },
 

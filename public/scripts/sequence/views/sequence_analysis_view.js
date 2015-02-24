@@ -1,6 +1,6 @@
 define(function(require){
 
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       template = require('../templates/sequence_analysis_view.hbs'),
       _ = require('underscore'),
       SequenceCalculations = require('../lib/sequence_calculations.js'),

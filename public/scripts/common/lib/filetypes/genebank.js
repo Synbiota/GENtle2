@@ -3,7 +3,7 @@ define(function(require) {
   // GeneBank
 
   var FT_base = require('./base'),
-      _       = require('underscore.mixed'),
+      _       = require('underscore'),
       FT_genebank;
 
   FT_genebank = function() {

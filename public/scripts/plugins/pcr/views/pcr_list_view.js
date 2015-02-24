@@ -1,10 +1,8 @@
 import template from '../templates/pcr_list_view.hbs';
-import Backbone from 'backbone.mixed';
+import Backbone from 'backbone';
 import Gentle from 'gentle';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
 import Sequence from '../../../sequence/models/sequence';
-
-Gentle = Gentle();
 
 export default Backbone.View.extend({
   template: template,

@@ -4,10 +4,10 @@
 @class NewSequenceView
 **/
 define(function(require) {
-  var Backbone    = require('backbone.mixed'),
+  var Backbone    = require('backbone'),
       template    = require('../templates/new_sequence_view.hbs'),
       Filetypes   = require('../../common/lib/filetypes/filetypes'),
-      Gentle      = require('gentle')(),
+      Gentle      = require('gentle'),
       NewSequenceView;
 
   NewSequenceView = Backbone.View.extend({
@@ -25,7 +25,8 @@ define(function(require) {
           text      = $form.find('[name=sequence]').val(),
           name      = $form.find('[name=name]').val() || 'Unnamed';
 
-      Filetypes.guessTypeAndParseFromText(text, name).then(Gentle.addSequencesAndNavigate);
+      Filetypes.guessTypeAndParseFromText(text, name).then(Gentle.addSequencesAndNavigate)
+        .catch((e) => console.log(e));
     }
   });
 

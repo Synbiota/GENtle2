@@ -11,6 +11,7 @@ import config from './config.json';
 import Layout from './common/views/layout';
 import Router from './router';
 import Sequences from './sequence/models/sequences';
+import CurrentUser from './user/models/current_user';
 
 import ncbi from './plugins/ncbi/plugin';
 import designer from './plugins/designer/plugin';
@@ -19,14 +20,12 @@ import pcr from './plugins/pcr/plugin';
 
 var plugins = [ncbi, designer, blast, pcr];
 
-
-Gentle = Gentle();
-
 Gentle.config = config;
-  
 Gentle.sequences = new Sequences();
+Gentle.currentUser = new CurrentUser({id: 'current-user'});
 
 Gentle.sequences.fetch();
+Gentle.currentUser.fetch();
 
 Gentle.router = new Router();
 window.gentle = Gentle;
@@ -36,6 +35,6 @@ $(function() {
   Backbone.history.start();
 
   _.each(_.where(Gentle.plugins, {type: 'init'}), function(plugin) {
-    plugin.data.afterDomReady && plugin.data.afterDomReady(Gentle);
+    if(plugin.data.afterDomReady) plugin.data.afterDomReady(Gentle);
   });
 });
