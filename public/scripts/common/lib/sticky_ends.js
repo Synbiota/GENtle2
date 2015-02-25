@@ -1,9 +1,9 @@
 export default [{
-  name: 'Z\'-X\'',
-  startName: 'Z\'',
-  endName: 'X\'',
-  start: 'ATCGAATCG',
-  end: 'GGATCGATC',
-  startOffset: 1,
-  endOffset: -2
+  name: 'X-X\'',
+  startName: 'X',
+  endName: 'Z\'',
+  start: 'CCTGCAGTCAGTGGTCTCTAGAG',
+  end: 'GAGATGAGACCGTCAGTCACGAG',
+  startOffset: 19,
+  endOffset: -19
 }];
