@@ -1,5 +1,5 @@
-var _ = require('underscore.mixed');
-var $ = require('jquery.mixed');
+var _ = require('underscore');
+var $ = require('jquery');
 
 var Backbone = window.Backbone = require('backbone');
 Backbone.$ = $;

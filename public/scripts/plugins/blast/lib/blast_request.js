@@ -1,7 +1,7 @@
 import Proxy from '../../../common/lib/proxy';
 import Q from 'q';
-import _ from 'underscore.mixed';
-import $ from 'jquery.mixed';
+import _ from 'underscore';
+import $ from 'jquery';
 
 var URL = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
 

@@ -1,5 +1,5 @@
 define(function(require) {
-  var Gentle    = require('gentle')(),
+  var Gentle    = require('gentle'),
       NCBIView  = require('./views/ncbi_view');
 
   Gentle.addPlugin('home', {

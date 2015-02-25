@@ -4,10 +4,10 @@
 @class OpenFileView
 **/
 define(function(require) {
-  var Backbone    = require('backbone.mixed'),
+  var Backbone    = require('backbone'),
       template    = require('../templates/open_file_view.hbs'),
       Filetypes   = require('../../common/lib/filetypes/filetypes'),
-      Gentle      = require('gentle')(),
+      Gentle      = require('gentle'),
       OpenFileView;
 
   OpenFileView = Backbone.View.extend({

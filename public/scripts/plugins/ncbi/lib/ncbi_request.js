@@ -1,6 +1,6 @@
 import Proxy from '../../../common/lib/proxy';
-import $ from 'jquery.mixed';
-import _ from 'underscore.mixed';
+import $ from 'jquery';
+import _ from 'underscore';
 import Q from 'q';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
 

@@ -1,9 +1,7 @@
-import Backbone from 'backbone.mixed';
-import template from '../templates/blast_align_view.hbs';
+import Backbone from 'backbone';
+import template from '../templates/blast_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
-
-Gentle = Gentle();
 
 export default Backbone.View.extend({
   manage: true,
@@ -137,76 +135,110 @@ export default Backbone.View.extend({
     }
   },
 
+  initAlignCanvas: function() {
+    var queryFrom = this.hsp.queryFrom;
+    var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
+      view: this,
+      $canvas: this.$('.sequence-canvas-container canvas').first(),
+      lines: {
+        topSeparator: ['Blank', { height: 5 }],
+        position: ['Position', {
+          height: 15,
+          baseLine: 15,
+          textFont: '10px Monospace',
+          textColour: '#005',
+          transform: _.formatThousands,
+        }],
+        dna: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: '15px Monospace',
+          textColour: 'black',
+          selectionColour: 'red',
+          selectionTextColour: 'white'
+        }],
+        midLine: ['DNA', {
+          height: 13,
+          baseLine: 12,
+          leftMargin: 1.5,
+          textFont: '10px Monospace',
+          textColour: '#ccc',
+          getSubSeq: this.getMidLine
+        }],
+        hitDna: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: '15px Monospace',
+          getSubSeq: this.getHitDnaSeq,
+          textColour: this.getHitDnaColour
+        }],
+        features: ['Feature', {
+          unitHeight: 15,
+          baseLine: 10,
+          textFont: '10px Monospace',
+          topMargin: 3,
+          features: [{
+            id: 'matchSequence',
+            name: 'Matched sequence',
+            ranges: [{from: queryFrom, to: this.hsp.queryTo}]
+          }],
+          textColour: '#000',
+          textPadding: 2,
+          margin: 2,
+          lineSize: 2,
+          colour: '#ddd',
+        }],
+        hitPosition: ['Position', {
+          height: 15,
+          baseLine: 13,
+          textFont: '10px Monospace',
+          textColour: 'blue',
+          transform: this.transformHitPosition,
+        }],
+        bottomSeparator: ['Blank', { height: 5 }],
+      },
+    });
+    
+    sequenceCanvas.refresh();
+
+    sequenceCanvas.afterNextRedraw(function() {
+      sequenceCanvas.scrollToBase(queryFrom);
+    });
+  },
+
+  initDefaultCanvas: function() {
+    var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
+      view: this,
+      $canvas: this.$('.sequence-canvas-container canvas').first(),
+      lines: {
+        topSeparator: ['Blank', { height: 5 }],
+        position: ['Position', {
+          height: 15,
+          baseLine: 15,
+          textFont: '10px Monospace',
+          textColour: '#bbb',
+          transform: _.formatThousands,
+        }],
+        dna: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: '15px Monospace',
+          textColour: '#bbb',
+          selectionColour: 'red',
+          selectionTextColour: 'white'
+        }],
+        bottomSeparator: ['Blank', { height: 5 }],
+      },
+    });
+    
+    sequenceCanvas.refresh();
+  },
+
   afterRender: function() {
     if(this.result) {
-      var queryFrom = this.hsp.queryFrom;
-      var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
-        view: this,
-        $canvas: this.$('.sequence-canvas-container canvas').first(),
-        lines: {
-          topSeparator: ['Blank', { height: 5 }],
-          position: ['Position', {
-            height: 15,
-            baseLine: 15,
-            textFont: '10px Monospace',
-            textColour: '#005',
-            transform: _.formatThousands,
-          }],
-          dna: ['DNA', {
-            height: 15,
-            baseLine: 15,
-            textFont: '15px Monospace',
-            textColour: 'black',
-            selectionColour: 'red',
-            selectionTextColour: 'white'
-          }],
-          midLine: ['DNA', {
-            height: 13,
-            baseLine: 12,
-            leftMargin: 1.5,
-            textFont: '10px Monospace',
-            textColour: '#ccc',
-            getSubSeq: this.getMidLine
-          }],
-          hitDna: ['DNA', {
-            height: 15,
-            baseLine: 15,
-            textFont: '15px Monospace',
-            getSubSeq: this.getHitDnaSeq,
-            textColour: this.getHitDnaColour
-          }],
-          features: ['Feature', {
-            unitHeight: 15,
-            baseLine: 10,
-            textFont: '10px Monospace',
-            topMargin: 3,
-            features: [{
-              id: 'matchSequence',
-              name: 'Matched sequence',
-              ranges: [{from: queryFrom, to: this.hsp.queryTo}]
-            }],
-            textColour: '#000',
-            textPadding: 2,
-            margin: 2,
-            lineSize: 2,
-            colour: '#ddd',
-          }],
-          hitPosition: ['Position', {
-            height: 15,
-            baseLine: 13,
-            textFont: '10px Monospace',
-            textColour: 'blue',
-            transform: this.transformHitPosition,
-          }],
-          bottomSeparator: ['Blank', { height: 5 }],
-        },
-      });
-      
-      sequenceCanvas.refresh();
-
-      sequenceCanvas.afterNextRedraw(function() {
-        sequenceCanvas.scrollToBase(queryFrom);
-      });
+      this.initAlignCanvas();
+    } else {
+      this.initDefaultCanvas();
     }
   }
 });

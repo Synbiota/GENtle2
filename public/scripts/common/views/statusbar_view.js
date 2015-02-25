@@ -1,5 +1,5 @@
 define(function(require) {
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       template = require('../templates/statusbar_view.hbs'),
       StatusbarView;
 

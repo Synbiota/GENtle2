@@ -1,6 +1,6 @@
 define(function(require) {
-  var Backbone = require('backbone.mixed'),
-      Gentle = require('gentle')(),
+  var Backbone = require('backbone'),
+      Gentle = require('gentle'),
       template = require('../templates/statusbar_primary_view_view.hbs');
 
   return Backbone.View.extend({

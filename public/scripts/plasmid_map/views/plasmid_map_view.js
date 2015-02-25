@@ -1,6 +1,6 @@
 define(function(require) {
-  var Backbone        = require('backbone.mixed'),
-      Gentle          = require('gentle')(),
+  var Backbone        = require('backbone'),
+      Gentle          = require('gentle'),
       Artist          = require('../../common/lib/graphics/artist'),
       PlasmidMapCanvas = require('../lib/plasmid_map_canvas'),
       PlasmidMapVisibleRangeCanvas = require('../lib/plasmid_map_visible_range_canvas'),

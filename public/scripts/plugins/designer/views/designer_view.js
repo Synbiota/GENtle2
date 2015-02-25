@@ -1,9 +1,9 @@
 define(function(require) {
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       template = require('../templates/designer_view_template.hbs'),
       AvailableSequenceView = require('./available_sequence_view'),
       DesignedSequenceView = require('./designed_sequence_view'),
-      Gentle = require('gentle')(),
+      Gentle = require('gentle'),
       DesignerView;
 
   DesignerView = Backbone.View.extend({

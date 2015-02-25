@@ -1,10 +1,8 @@
-import Backbone    from 'backbone.mixed';
+import Backbone    from 'backbone';
 import template    from '../templates/ncbi_view.hbs';
 import Gentle      from 'gentle';
 import ResultsView from './results_view';
 import NCBIRequest   from '../lib/ncbi_request';
-
-Gentle = Gentle();
 
 var NCBIView = Backbone.View.extend({
   manage: true,
@@ -54,7 +52,6 @@ var NCBIView = Backbone.View.extend({
     this.$('.ncbi-search-results-outlet').html('');
 
     NCBIRequest.search(searchTerm, this.dbName).then((results) => {
-      console.log('NCBI displaying results')
       this.results = results;
       this.$('.searching-ncbi').hide();
       this.resultsView.render();

@@ -5,7 +5,7 @@
 @static
 **/
 import SynbioData from '../../common/lib/synbio_data';
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 
 var iupacToBases, toComplementsMap,
     codonToAALongMap, codonToAAShortMap,

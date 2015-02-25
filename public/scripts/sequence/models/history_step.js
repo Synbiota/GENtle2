@@ -23,7 +23,7 @@ Handling history steps
   which have been inserted or deleted
 **/
 define(function(require){
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       HistoryStep;
 
   HistoryStep = Backbone.Model.extend({

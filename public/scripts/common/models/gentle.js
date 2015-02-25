@@ -3,23 +3,21 @@
 @static
 @module Model
 **/
-define(function(require) {
-  var Backbone  = require('backbone.mixed'),
-      Gentle;
+import Backbone from 'backbone';
 
-  Gentle = Gentle || {};
-  _.extend(Gentle, Backbone.Events);
+var Gentle = {};
 
-  Gentle.plugins = [];
+export default _.extend(Gentle, Backbone.Events, {
+  plugins: [],
 
-  Gentle.addPlugin = function(type, data) {
+  addPlugin(type, data) {
     Gentle.plugins.push({
       type: type,
       data: data
     });
-  };
+  },
 
-  Gentle.addSequences = function(sequences) {
+  addSequences(sequences) {
     if(sequences.length) {
       sequences = _.map(sequences, function(sequence) {
         return Gentle.sequences.create(sequence);
@@ -27,9 +25,9 @@ define(function(require) {
     } else {
       alert('Could not parse the sequence.');
     }
-  };
+  },
 
-  Gentle.addSequencesAndNavigate = function(sequences) {
+  addSequencesAndNavigate(sequences) {
     if(sequences.length) {
       sequences = _.map(sequences, function(sequence) {
         return Gentle.sequences.create(sequence);
@@ -38,9 +36,5 @@ define(function(require) {
     } else {
       alert('Could not parse the sequence.');
     }
-  };
-
-  return function() {
-    return Gentle;
-  };
+  },
 });

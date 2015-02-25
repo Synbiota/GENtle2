@@ -4,10 +4,10 @@
 @class HomeDesignerView
 **/
 define(function(require) {
-  var Backbone    = require('backbone.mixed'),
+  var Backbone    = require('backbone'),
       template    = require('../templates/home_designer_view.hbs'),
       Sequence    = require('../../../sequence/models/sequence'),
-      Gentle      = require('gentle')(),
+      Gentle      = require('gentle'),
       HomeDesignerView;
 
   HomeDesignerView = Backbone.View.extend({

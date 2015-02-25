@@ -1,0 +1,57 @@
+{
+  "nr": {
+    "moleculeType": "Mixed DNA",
+    "description": "The nucleotide collection consists of GenBank+EMBL+DDBJ+PDB+RefSeq sequences, but excludes EST, STS, GSS, WGS, TSA, patent sequences as well as phase 0, 1, and 2 HTGS sequences. The database is partially non-redundant. In some cases identical sequences have been merged into one entry, while preserving the accession, GI, title and taxonomy information for each entry. Merged sequences include GenBank and RefSeq entries with identical sequences. Sequences added to the database since April, 2011 have also been merged with identical existing entries."
+  },
+  "refseq_rna": {
+    "moleculeType": "cDNA",
+    "description": "NCBI Transcript Reference Sequences"
+  },
+  "refseq_genomic": {
+    "moleculeType": "Mixed DNA",
+    "description": "NCBI Genomic Reference Sequences"
+  },
+  "chromosome": {
+    "moleculeType": "Genomic",
+    "description": "NCBI Chromosome Sequences"
+  },
+  "est": {
+    "moleculeType": "cDNA",
+    "description": "Database of GenBank+EMBL+DDBJ sequences from EST Divisions"
+  },
+  "gss": {
+    "moleculeType": "Mixed DNA",
+    "description": "Genome Survey Sequence, includes single-pass genomic data, exon-trapped sequences, and Alu PCR sequences."
+  },
+  "htgs": {
+    "moleculeType": "Genomic",
+    "description": "Unfinished High Throughput Genomic Sequences; Sequences: phases 0,1 and 2"
+  },
+  "pat": {
+    "moleculeType": "Mixed DNA",
+    "description": "Nucleotide sequences derived from the Patent division of GenBank"
+  },
+  "pdb": {
+    "moleculeType": "Mixed DNA",
+    "description": "This database consists of sequences from the Protein Data Bank (PDB), which contains information about experimentally-determined structures of proteins, nucleic acids, and complex assemblies."
+  },
+  "alu": {
+    "moleculeType": "Mixed DNA"
+  },
+  "dbsts": {
+    "moleculeType": "Mixed DNA",
+    "description": "Database of GenBank+EMBL+DDBJ sequences from STS Divisions"
+  },
+  "Whole_Genome_Shotgun_contigs": {
+    "moleculeType": "Mixed DNA",
+    "description": "This database consists of Whole Genome Shotgun (WGS) contigs, but excludes chromosomes associated with WGS projects."
+  },
+  "tsa_nt": {
+    "moleculeType": "cDNA",
+    "description": "The Transcriptome Shotgun Assembly (TSA) database is an archive of computationally assembled mRNA sequences from primary data such as EST and raw sequence reads. See http://www.ncbi.nlm.nih.gov/genbank/TSA.html for details."
+  },
+  "rRNA_typestrains/prokaryotic_16S_ribosomal_RNA": {
+    "moleculeType": "Ribosomal RNA",
+    "description": "16S ribosomal RNA sequences from bacteria and archaea"
+  }
+}

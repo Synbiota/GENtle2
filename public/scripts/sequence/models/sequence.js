@@ -8,10 +8,8 @@ Handling sequences
 import Gentle from 'gentle';
 import SequenceTransforms from '../lib/sequence_transforms';
 import HistorySteps from './history_steps';
-import Backbone from 'backbone.mixed';
-import _ from 'underscore.mixed';
-
-Gentle = Gentle();
+import Backbone from 'backbone';
+import _ from 'underscore';
 
 export default Backbone.DeepModel.extend({
   defaults: function() {
@@ -26,11 +24,7 @@ export default Backbone.DeepModel.extend({
           complements: true,
           aa: 'none',
           aaOffset: 0,
-          res: {
-            display: true,
-            lengths: ['4','5','6'],
-            manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI']
-          }
+          res: Gentle.currentUser.get('displaySettings.rows.res')
         }
       },
       history: new HistorySteps()

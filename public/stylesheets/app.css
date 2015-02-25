@@ -7894,7 +7894,7 @@ button.close {
   }
 }
 /* line 1, views/_blast_view.scss */
-.blast, #blast-intro-container, #blast-align-container {
+.blast, #blast-intro-container, #blast-canvas-container {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -7922,24 +7922,24 @@ button.close {
 }
 
 /* line 31, views/_blast_view.scss */
-#blast-align-container {
+#blast-canvas-container {
   left: 50%;
 }
 /* line 34, views/_blast_view.scss */
-#blast-align-container .blast-align-header {
+#blast-canvas-container .blast-canvas-header {
   line-height: 21px;
   height: 40px;
   border-bottom: 1px solid #ddd;
   padding: 8px 15px;
 }
 /* line 42, views/_blast_view.scss */
-#blast-align-container .sequence-canvas-wrapper .scrolling-parent, #blast-align-container .sequence-canvas-wrapper .sequence-canvas-container {
+#blast-canvas-container .sequence-canvas-wrapper .scrolling-parent, #blast-canvas-container .sequence-canvas-wrapper .sequence-canvas-container {
   top: 40px;
   bottom: 3px;
 }
 
 /* line 49, views/_blast_view.scss */
-.blast-align-match-bar {
+.blast-canvas-match-bar {
   width: 150px;
   height: 10px;
   margin-top: 6px;
@@ -7947,8 +7947,18 @@ button.close {
   border-radius: 0;
 }
 /* line 56, views/_blast_view.scss */
-.blast-align-match-bar .progress-bar {
+.blast-canvas-match-bar .progress-bar {
   min-width: 1px;
+}
+
+/* line 62, views/_blast_view.scss */
+.blast-db-description-container dt {
+  text-align: left;
+  width: 85px;
+}
+/* line 67, views/_blast_view.scss */
+.blast-db-description-container dd {
+  margin-left: 95px;
 }
 
 /* line 3, views/_designer_view.scss */
@@ -8624,21 +8634,38 @@ button.close {
 .sidebar > div .sidebar-tab-link:hover, .sidebar > div .sidebar-tab-link.hovered {
   background: #ddd;
 }
-/* line 31, views/_sidebar_view.scss */
+/* line 32, views/_sidebar_view.scss */
+.sidebar > div .sidebar-tab-link .close-tab {
+  font-size: 21px;
+  line-height: 15px;
+  padding: 0 3px 3px;
+  display: none;
+  margin-top: 1px;
+}
+/* line 38, views/_sidebar_view.scss */
+.sidebar > div .sidebar-tab-link .close-tab:hover {
+  background: white;
+  color: #3276b1;
+}
+/* line 44, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab-link.active {
   background: #3276b1;
   color: white;
   border-bottom-color: white;
 }
-/* line 35, views/_sidebar_view.scss */
+/* line 48, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab-link.active > span {
   display: inline;
 }
-/* line 41, views/_sidebar_view.scss */
+/* line 52, views/_sidebar_view.scss */
+.sidebar > div .sidebar-tab-link.active .close-tab {
+  display: inline-block;
+}
+/* line 58, views/_sidebar_view.scss */
 .sidebar > div > div {
   position: relative;
 }
-/* line 45, views/_sidebar_view.scss */
+/* line 62, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab {
   display: none;
   border-bottom: 2px solid #ddd;
@@ -8646,7 +8673,7 @@ button.close {
   background: white;
   font-size: .9em;
 }
-/* line 52, views/_sidebar_view.scss */
+/* line 69, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab .sidebar-popout-title {
   font-size: 15px;
   color: #888;
@@ -8654,16 +8681,16 @@ button.close {
   margin-top: -5px;
   margin-bottom: 10px;
 }
-/* line 60, views/_sidebar_view.scss */
+/* line 77, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab.active, .sidebar > div .sidebar-tab.hovered {
   display: block;
   overflow-y: auto;
 }
-/* line 64, views/_sidebar_view.scss */
+/* line 81, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab.active.max-heighted, .sidebar > div .sidebar-tab.hovered.max-heighted {
   max-height: 300px;
 }
-/* line 69, views/_sidebar_view.scss */
+/* line 86, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab.hovered {
   display: block;
   position: absolute;
@@ -8675,20 +8702,20 @@ button.close {
   border-right: 1px solid #ddd;
   overflow-x: hidden;
 }
-/* line 79, views/_sidebar_view.scss */
+/* line 96, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab.hovered .sidebar-popout-title {
   display: block;
 }
-/* line 85, views/_sidebar_view.scss */
+/* line 102, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab dl dt {
   width: 85px;
   text-align: left;
 }
-/* line 89, views/_sidebar_view.scss */
+/* line 106, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab dl dd {
   margin-left: 90px;
 }
-/* line 91, views/_sidebar_view.scss */
+/* line 108, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab dl dd .floating {
   float: left;
   margin-top: 0 !important;
@@ -8696,19 +8723,19 @@ button.close {
   min-height: 0;
   height: 17px;
 }
-/* line 97, views/_sidebar_view.scss */
+/* line 114, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab dl dd .floating.floating-half {
   width: 50%;
 }
-/* line 100, views/_sidebar_view.scss */
+/* line 117, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab dl dd .floating.floating-fifth {
   width: 20%;
 }
-/* line 103, views/_sidebar_view.scss */
+/* line 120, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab dl dd .floating.floating-third {
   width: 33%;
 }
-/* line 110, views/_sidebar_view.scss */
+/* line 127, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab kbd {
   word-break: break-word;
   display: inline-block;
@@ -8717,41 +8744,41 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 115, views/_sidebar_view.scss */
+/* line 132, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab kbd[title] {
   cursor: help;
 }
-/* line 121, views/_sidebar_view.scss */
+/* line 138, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab .table-less-borders tbody tr:first-child td {
   border-top: none;
 }
-/* line 126, views/_sidebar_view.scss */
+/* line 143, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab td {
   vertical-align: middle;
 }
-/* line 130, views/_sidebar_view.scss */
+/* line 147, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab .list-group-item {
   border-radius: 0;
   border-left: none;
   border-right: none;
 }
-/* line 134, views/_sidebar_view.scss */
+/* line 151, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab .list-group-item:first-child {
   border-top: none;
 }
-/* line 137, views/_sidebar_view.scss */
+/* line 154, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab .list-group-item:last-child {
   border-bottom: none;
 }
-/* line 140, views/_sidebar_view.scss */
+/* line 157, views/_sidebar_view.scss */
 .sidebar > div .sidebar-tab .list-group-item .list-group-item-heading {
   word-break: break-word;
 }
-/* line 147, views/_sidebar_view.scss */
+/* line 164, views/_sidebar_view.scss */
 .sidebar > div.active {
   width: 350px;
 }
-/* line 150, views/_sidebar_view.scss */
+/* line 167, views/_sidebar_view.scss */
 .sidebar > div.active .sidebar-tab-link > span {
   display: inline;
 }

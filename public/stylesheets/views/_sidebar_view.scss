@@ -28,12 +28,29 @@
       display: none;
     }
     &:hover, &.hovered { background: #ddd; }
+
+    .close-tab {
+      font-size: 21px;
+      line-height: 15px;
+      padding: 0 3px 3px;
+      display: none;
+      margin-top: 1px;
+      &:hover {
+        background: white;
+        color: #3276b1;
+      }
+    }
+
     &.active {
       background: #3276b1; 
       color: white;
       border-bottom-color: white;
       & > span {
         display: inline;
+      }
+
+      .close-tab {
+        display: inline-block;
       }
     }
   }

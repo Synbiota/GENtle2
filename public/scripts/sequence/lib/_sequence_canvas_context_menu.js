@@ -7,7 +7,6 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 @extensionfor SequenceCanvas
 **/
 import Gentle from 'gentle';
-Gentle = Gentle();
 
 var SequenceCanvasContextMenu;
 

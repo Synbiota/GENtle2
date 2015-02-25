@@ -1,4 +1,4 @@
-import $ from 'jquery.mixed';
+import $ from 'jquery';
 import Q from 'q';
 
 export default {

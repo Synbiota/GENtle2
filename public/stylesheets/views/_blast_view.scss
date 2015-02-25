@@ -1,4 +1,4 @@
-.blast, #blast-intro-container, #blast-align-container {
+.blast, #blast-intro-container, #blast-canvas-container {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -28,10 +28,10 @@
   }
 }
 
-#blast-align-container {
+#blast-canvas-container {
   left: 50%;
 
-  .blast-align-header {
+  .blast-canvas-header {
     line-height: 21px;
     height: 40px;
     border-bottom: 1px solid #ddd;
@@ -46,7 +46,7 @@
   }
 }
 
-.blast-align-match-bar {
+.blast-canvas-match-bar {
   width: 150px;
   height: 10px;
   margin-top: 6px;
@@ -55,5 +55,16 @@
 
   .progress-bar {
     min-width: 1px;
+  }
+}
+
+.blast-db-description-container {
+  dt {
+    text-align: left;
+    width: 85px;
+  }
+
+  dd {
+    margin-left: 95px;
   }
 }

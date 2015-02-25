@@ -1,5 +1,5 @@
 import Proxy from '../../../common/lib/proxy';
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 import Q from 'q';
 
 var url = "http://www.idtdna.com/AnalyzerService/AnalyzerService.asmx/Analyze";

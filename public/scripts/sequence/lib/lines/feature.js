@@ -17,7 +17,7 @@ Options are:
 **/
 define(function(require) {
   var Line = require('./line'),
-      _    = require('underscore.mixed'),
+      _    = require('underscore'),
       Sequence = require('../../models/sequence'),
       Feature;
 

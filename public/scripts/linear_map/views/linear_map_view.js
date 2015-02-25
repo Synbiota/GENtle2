@@ -1,6 +1,6 @@
 define(function(require) {
-  var Backbone        = require('backbone.mixed'),
-      Gentle          = require('gentle')(),
+  var Backbone        = require('backbone'),
+      Gentle          = require('gentle'),
       template        = require('../templates/linear_map_view.hbs'),
       LinearMapView;
 

@@ -19,14 +19,25 @@
         {{#unless blastRequest.RIDLoaded}}
           <br>
           <div class="form-group">
+            
+            
             <label class="colcontrol-label" for="blast-database-select">Database</label>
-            {{{select databases class="form-control" id="blast-database-select"}}}
+            <div class="row">
+              <div class="col-xs-8 blast-database-select-container">
+                {{{select databases class="form-control" id="blast-database-select"}}}
+              </div>
+              <div class="col-xs-4 blast-intro-run-container">
+                <button class="btn btn-primary" id="blast-intro-run">
+                  <span class="btn-label">Search</span>
+                  <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
+                </button>
+                <button class="btn btn-default cancel-blast-search" style="display: none;">Cancel</button>
+              </div>
+            </div>
+
+            <div class="blast-db-description-container"></div>
+
           </div>
-          <button class="btn btn-primary" id="blast-intro-run">
-            <span class="btn-label">Search</span>
-            <span class="loader" style="display: none;"><i class="glyphicon glyphicon-refresh"></i></span>
-          </button>
-          <button class="btn btn-default cancel-blast-search" style="display: none;">Cancel</button>
           <br><br>
         {{else}}
           {{#unless blastRequest.resultsLoaded}}
@@ -72,7 +83,7 @@
           <th><small>Alignment identity %</small></th>
           <th><small>Bit-score</small></th>
           <th><small>E-value</small></th>
-          <th class="text-right">
+          <th class="text-right" style="width: 65px;">
             <small>
               <em>
                 <a href="http://www.ncbi.nlm.nih.gov/books/NBK21097/#_A614_" target="_blank">
@@ -101,10 +112,10 @@
             </td>
           </tr>
           {{#each hsps}}
-            <tr class="noborder clickable show-align" data-result-id="{{../id}}" data-hsp-id="{{id}}">
+            <tr class="noborder clickable show-canvas" data-result-id="{{../id}}" data-hsp-id="{{id}}">
               <td></td>
               <td>
-                <div class="progress blast-align-match-bar">
+                <div class="progress blast-canvas-match-bar">
                   <div class="progress-bar progress-bar-info" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="margin-left: {{alignFromPct}}%; width: {{alignLenPct}}%;"></div>
                 </div>
               </td>
@@ -131,4 +142,4 @@
     </table>
   {{/if}}
 </div>
-<div id="blast-align-container"></div>
+<div id="blast-canvas-container"></div>

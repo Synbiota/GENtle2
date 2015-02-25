@@ -6,7 +6,7 @@ define(function(require) {
   var template      = require('../templates/layout.hbs'),
       NavbarView    = require('./navbar_view'),
       ModalView     = require('./modal_view'),
-      Backbone      = require('backbone.mixed'),
+      Backbone      = require('backbone'),
       Layout;
 
   Layout = Backbone.Layout.extend({

@@ -21,7 +21,7 @@ define(function(require) {
     _Handlers = require('./_sequence_canvas_handlers'),
     _Utilities = require('./_sequence_canvas_utilities'),
     _ContextMenu = require('../lib/_sequence_canvas_context_menu'),
-    Backbone = require('backbone.mixed'),
+    Backbone = require('backbone'),
     Styles = require('../../styles.json'),
     Q = require('q'),
     LineStyles, SequenceCanvas;

@@ -12,7 +12,7 @@ define(function(require) {
       SidebarView         = require('../../common/views/sidebar_view'),
       ToolsView           = require('./tools_view'),
       EditView            = require('./edit_view'),
-      Gentle              = require('gentle')(),
+      Gentle              = require('gentle'),
       SettingsView;
   
   SettingsView = SidebarView.extend({
@@ -68,7 +68,6 @@ define(function(require) {
         name: 'resSettings',
         title: 'Restriction enzymes',
         icon: 'sort',
-        maxHeighted: true,
         view: RestrictionEnzymesSettingsView,
         visible: function() {
           return _this.parentView().primaryView.name == 'edition';
@@ -79,6 +78,8 @@ define(function(require) {
         .where({type: 'sequence-settings-tab'})
         .pluck('data')
         .each(_.bind(this.addTab, this));
+
+      this.listenTo(Gentle.currentSequence, 'change:displaySettings.primaryView', this.closeOpenTabs);
 
     }
 

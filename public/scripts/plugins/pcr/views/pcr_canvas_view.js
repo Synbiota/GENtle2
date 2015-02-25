@@ -1,13 +1,11 @@
-import Backbone from 'backbone.mixed';
+import Backbone from 'backbone';
 import template from '../templates/pcr_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 import Styles from '../../../styles.json';
 
 var LineStyles = Styles.sequences.lines;
-
-Gentle = Gentle();
 
 export default Backbone.View.extend({
   manage: true,

@@ -4,7 +4,7 @@
 @class Sequences
 **/
 import Sequence from './sequence';
-import _ from 'underscore.mixed';
+import _ from 'underscore';
 
 
 export default Backbone.Collection.extend({

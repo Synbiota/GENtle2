@@ -5,8 +5,8 @@
 **/
 define(function(require) {
   var template = require('../templates/history_view.hbs'),
-    Gentle = require('gentle')(),
-    Backbone = require('backbone.mixed'),
+    Gentle = require('gentle'),
+    Backbone = require('backbone'),
     HistoryView;
 
   HistoryView = Backbone.View.extend({

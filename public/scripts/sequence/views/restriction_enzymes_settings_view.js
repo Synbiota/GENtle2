@@ -1,10 +1,12 @@
 define(function(require) {
-  var Backbone = require('backbone.mixed'),
+  var Backbone = require('backbone'),
       DisplaySettingsView = require('./display_settings_view'),
-      Gentle = require('gentle')(),
+      Gentle = require('gentle'),
       RestrictionEnzymes = require('../lib/restriction_enzymes'),
       RestrictionEnzymesSettingsListView = require('./restriction_enzymes_settings_list_view'),
       template = require('../templates/restriction_enzymes_settings_view.hbs');
+
+  var escKey = 27;
 
   return Backbone.View.extend({
     template: template,
@@ -39,19 +41,26 @@ define(function(require) {
     },  
 
     updateDisplaySettings: function(event) {
+      var key = 'displaySettings.rows.res';
       DisplaySettingsView.prototype.updateDisplaySettings.call(this, event);
+      Gentle.currentUser.set(key, this.model.get(key));
       this.render();
     },
 
     updateFilter: function(event) {
-      this.filter = $(event.currentTarget).val() || '';
-      this.listView.render();
+      if(event.which == escKey) {
+        this.clearFilter(event);
+      } else {
+        this.filter = $(event.currentTarget).val() || '';
+        this.listView.render();
+      }
     },
 
     clearFilter: function(event) {
       event.preventDefault();
       this.filter = '';
-      this.render();
+      this.$('input.res-settings-filter').val('');
+      this.listView.render();
     },
 
     getEnzymes: function() {

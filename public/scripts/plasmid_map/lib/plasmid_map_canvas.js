@@ -1,7 +1,7 @@
 define(function(require) {
   var Q = require('q'),
       Artist = require('../../common/lib/graphics/artist'),
-      _ = require('underscore.mixed'),
+      _ = require('underscore'),
       RestrictionEnzymes = require('../../sequence/lib/restriction_enzymes'),
       Styles = require('../../styles.json'),
       PlasmidMapCanvas;

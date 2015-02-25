@@ -1,6 +1,7 @@
 {{#each tabs}}
   <div>
     <a href='#{{../sidebarName}}-{{name}}' class='sidebar-tab-link' title="{{title}}" data-placement="right">
+      <div class="pull-right close-tab">&times;</div>
       <i class="glyphicon glyphicon-{{icon}}"></i>&nbsp;
       <span>{{title}}</span>
     </a>

@@ -5,8 +5,8 @@
 **/
 define(function(require) {
   var template        = require('../templates/home_view.hbs'),
-      Backbone        = require('backbone.mixed'),
-      Gentle          = require('gentle')(),
+      Backbone        = require('backbone'),
+      Gentle          = require('gentle'),
       NewSequenceView = require('./new_sequence_view'),
       OpenFileView    = require('./open_file_view'),
       HomeView;
