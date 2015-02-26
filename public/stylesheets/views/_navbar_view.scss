@@ -36,12 +36,15 @@
   margin: 0 10px 0 0;
   height: 50px;
   width: 50px;
-  padding: 14px;
+  color: #888;
+  font-size: 21px;
+  padding: 12px 15px;
   background: white;
 
   &:hover { background-color: #ddd; }
   &.active {
     background: #3276b1;
+    color: white;
     .icon-bar { background-color: white; }
     &:hover { background-color: #3276b1; }
   }
