@@ -7,8 +7,6 @@ import Styles from '../../../styles.json';
 
 var LineStyles = Styles.sequences.lines;
 
-Gentle = Gentle();
-
 export default Backbone.View.extend({
   manage: true,
   template: template,

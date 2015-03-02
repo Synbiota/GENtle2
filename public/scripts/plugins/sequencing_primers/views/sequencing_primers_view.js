@@ -6,8 +6,6 @@ import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 
-Gentle = Gentle();
-
 
 export default Backbone.View.extend({
   manage: true,
