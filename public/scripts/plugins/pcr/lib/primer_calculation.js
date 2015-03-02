@@ -9,7 +9,7 @@ import IDT from './idt_query';
 
 // var distanceToTarget = function(sequence, targetMeltingTemperature, targetGcContent) {
 //   return Math.sqrt(
-//     Math.pow(targetMeltingTemperature - SequenceCalculations.meltingTemperature(sequence), 2) * 0 + 
+//     Math.pow(targetMeltingTemperature - SequenceCalculations.meltingTemperature(sequence), 2) * 0 +
 //     Math.pow((targetGcContent - SequenceCalculations.gcContent(sequence))*50, 2)
 //   );
 // };
@@ -65,7 +65,7 @@ import IDT from './idt_query';
 //   var filteredPrimers = _.reject(primers, function(primer) {
 //     var meltingTemperature = SequenceCalculations.meltingTemperature(primer);
 
-//     deltaTemperatures[primer] = Math.max(meltingTemperature - opts.meltingTemperatureTo, 0) + 
+//     deltaTemperatures[primer] = Math.max(meltingTemperature - opts.meltingTemperatureTo, 0) +
 //       Math.max(opts.meltingTemperatureFrom - meltingTemperature, 0);
 
 //     return meltingTemperature < opts.meltingTemperatureFrom ||
@@ -93,7 +93,7 @@ var IDTMeltingTemperature = function(sequence) {
 //     targetMeltingTemperature: 68,
 //     targetGcContent: 0.5
 //   });
-  
+
 //   var potentialPrimers = _.map(_.range(opts.minPrimerLength, opts.maxPrimerLength+1), function(i) {
 //     return sequence.substr(0, i);
 //   });
@@ -103,7 +103,7 @@ var IDTMeltingTemperature = function(sequence) {
 //   // var scores = _.map(potentialPrimers, function(primer) {
 //   //   return Math.abs(opts.targetGcContent - SequenceCalculations.gcContent(primer));
 //   // });
-  
+
 //   var scores = _.map(potentialPrimers, _.partial(primerScore, _, opts.targetMeltingTemperature));
 
 //   var optimalPrimer = potentialPrimers[_.indexOf(scores, _.max(scores))];
@@ -195,7 +195,7 @@ var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature, useID
         resolve(resolvedPrimer);
       } else {
         reject({
-          message: 'BEST FOUND', 
+          message: 'BEST FOUND',
           primer: resolvedPrimer
         });
       }
@@ -249,8 +249,8 @@ var optimalPrimer3 = function(sequence, opts = {}) {
           .then(resolve, function(data) {
             resolve(data.primer);
           });
-      })
-      
+      });
+
   }, (e) => console.log(e));
 
 
@@ -278,7 +278,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
   //     })
   //     console.log('here',_.map(truc, (p) => Math.abs(p.IDTMeltingTemperature - p.meltingTemperature2)))
 
-  //       //p.meltingTemperature1, p.meltingTemperature2, p.IDTMeltingTemperature]), 
+  //       //p.meltingTemperature1, p.meltingTemperature2, p.IDTMeltingTemperature]),
 
 
   //     notifyCurrent(total);
