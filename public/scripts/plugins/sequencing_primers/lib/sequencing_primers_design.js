@@ -102,9 +102,17 @@ var getAllPrimers = function(sequence) {
         var from = total;
         total += (primer.fullSequence.length - overlap);  // This smells brittle
         var to = total + overlap;
+
+        // Set the names
+        var displayedIndex = i + 1;
+        primer.forwardPrimer.name = `Forward primer ${displayedIndex}`;
+        primer.reversePrimer.name = `Reverse primer ${displayedIndex}`;
+        name = `Product ${displayedIndex}`;
+
         return _.extend(primer, {
           from: from,
           index: i,
+          name: name,
           to: to,
           id: _.uniqueId()
         });

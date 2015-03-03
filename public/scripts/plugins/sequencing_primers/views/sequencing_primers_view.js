@@ -48,21 +48,21 @@ export default Backbone.View.extend({
     _.each(this.products, function(product) {
 
       features = features.concat([{
-        name: 'Product '+product.index,
+        name: product.name,
         _type: 'sequencing_product',
         ranges: [{
           from: product.from,
           to: product.to
         }]
       },{
-        name: 'Forward primer '+product.index,
+        name: product.forwardPrimer.name,
         _type: 'primer',
         ranges: [{
           from: product.from,
           to: product.from + product.forwardPrimer.sequenceLength
         }]
       }, {
-        name: 'Reverse primer  '+product.index,
+        name: product.forwardPrimer.name,
         _type: 'primer',
         ranges: [{
           from: product.to - product.reversePrimer.sequenceLength-1,

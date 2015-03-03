@@ -18,7 +18,7 @@
           <button class="btn btn-default btn-xs show-pcr-product">Show &rarr;</button>
         </div>
       </div> --}}
-      <h3 class="panel-title">Product {{index}}</h3>
+      <h3 class="panel-title">{{name}}</h3>
     </div>
     <table class="table table-condensed">
       <thead>
@@ -37,14 +37,14 @@
           <td></td>
         </tr> --}}
         <tr>
-          <td><small>Forward primer</small></td>
+          <td><small>{{forwardPrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
           <td></td>
         </tr>
         <tr>
-          <td><small>Reverse primer</small></td>
+          <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
