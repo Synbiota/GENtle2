@@ -207,8 +207,10 @@ var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature, useID
 /*
 *  Filter Predicates
 */
-var meltingTemperatureFilterPredicate = function(primer) {
-  return Math.abs(primer.meltingTemperature - opts.targetMeltingTemperature) <= opts.meltingTemperatureTolerance;
+var makeMeltingTemperatureFilterPredicate = function(opts) {
+  return function(primer) {
+    return Math.abs(primer.meltingTemperature - opts.targetMeltingTemperature) <= opts.meltingTemperatureTolerance;
+  };
 };
 
 
@@ -231,6 +233,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
     };
   });
 
+  var meltingTemperatureFilterPredicate = makeMeltingTemperatureFilterPredicate(opts);
   var filteredPotentialPrimers = _.filter(potentialPrimers, meltingTemperatureFilterPredicate);
 
   if(_.isEmpty(filteredPotentialPrimers)) filteredPotentialPrimers = _.clone(potentialPrimers);
