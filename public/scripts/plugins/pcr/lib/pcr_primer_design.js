@@ -54,6 +54,7 @@ var getPCRProduct = function(sequence, opts = {}) {
         from: 0,
         to: (opts.stickyEnds ? opts.stickyEnds.start.length : 0) + forwardAnnealingRegion.sequence.length - 1,
         id: _.uniqueId(),
+        name: 'Forward primer',
       };
       forwardPrimer.sequenceLength = forwardPrimer.sequence.length;
       forwardPrimer.gcContent = SequenceCalculations.gcContent(forwardPrimer.sequence);
@@ -63,10 +64,10 @@ var getPCRProduct = function(sequence, opts = {}) {
         from: 0,
         to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1,
         id: _.uniqueId(),
+        name: 'Reverse primer',
       };
       reversePrimer.sequenceLength = forwardPrimer.sequence.length;
       reversePrimer.gcContent = SequenceCalculations.gcContent(reversePrimer.sequence);
-
 
       resolve({
         id: _.uniqueId(),

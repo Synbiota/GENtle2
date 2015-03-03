@@ -49,7 +49,7 @@
           <td></td>
         </tr>
         <tr>
-          <td><small>Forward primer</small></td>
+          <td><small>{{forwardPrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td></td>
@@ -61,7 +61,7 @@
           <td colspan="5" class="sequence">5' – {{forwardPrimer.sequence}} – 3'</td>
         <tr>
         <tr>
-          <td><small>Reverse primer</small></td>
+          <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td></td>

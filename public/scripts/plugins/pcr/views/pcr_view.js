@@ -170,14 +170,14 @@ export default Backbone.View.extend({
         _type: 'annealing_region',
         ranges: [_.pick(product.reverseAnnealingRegion, 'from', 'to')]
       }, {
-        name: 'Forward primer',
+        name: product.forwardPrimer.name,
         _type: 'primer',
         ranges: [{
           from: 0,
           to: product.forwardPrimer.to,
         }]
       }, {
-        name: 'Reverse primer',
+        name: product.reversePrimer.name,
         _type: 'primer',
         ranges: [{
           from: sequence.length - product.reversePrimer.sequence.length,
