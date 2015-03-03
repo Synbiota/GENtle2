@@ -188,7 +188,8 @@ var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature, useID
       var resolvedPrimer = {
         sequence: optimalPrimer.sequence,
         meltingTemperature: optimalTemperature,
-        gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence)
+        gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence),
+        id: _.uniqueId(),
       };
 
       if(Math.abs(optimalTemperature - targetMeltingTemperature) <= meltingTemperatureTolerance) {
@@ -229,7 +230,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
     var primerSequence = sequence.substr(0, i);
     return {
       sequence: primerSequence,
-      meltingTemperature: SequenceCalculations.meltingTemperature(primerSequence)
+      meltingTemperature: SequenceCalculations.meltingTemperature(primerSequence),
     };
   });
 

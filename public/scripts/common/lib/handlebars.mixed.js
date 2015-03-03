@@ -112,4 +112,11 @@ Handlebars.registerHelper('round', function(number, precision, isPercentage) {
 });
 
 
+Handlebars.registerHelper('sequenceFastAExportButton', function(sequenceID) {
+  var exportFastATemplate = require('../templates/export_fasta.hbs');  // This smells  TODO: review with Alex
+  return exportFastATemplate({sequenceID});
+  // return Handlebars.compile(exportFastATemplate)({sequenceID});
+});
+
+
 module.exports = Handlebars;

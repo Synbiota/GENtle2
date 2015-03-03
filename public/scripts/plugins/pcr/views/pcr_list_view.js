@@ -13,8 +13,7 @@ export default Backbone.View.extend({
     'click .show-pcr-product': 'showPcrProduct',
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
-    'click .export-forward-primer': 'exportPrimer',
-    'click .export-reverse-primer': 'exportPrimer'
+    'click .export-sequence': 'exportSequence',
   },
 
   serialize: function() {
@@ -28,7 +27,7 @@ export default Backbone.View.extend({
   afterRender: function() {
     var showingProductId = this.parentView().showingProductId;
     if(showingProductId) {
-      this.$('[data-product-id="'+showingProductId+'"]').addClass('panel-info');
+      this.$('[data-product_id="'+showingProductId+'"]').addClass('panel-info');
     }
 
     this.$('.has-tooltip').tooltip({
@@ -38,9 +37,9 @@ export default Backbone.View.extend({
 
   getProduct: function(event) {
     var products = this.parentView().products;
-    var productId = $(event.target).closest('.panel').data('productId');
+    var productID = $(event.target).closest('.panel').data('product_id');
     event.preventDefault();
-    return _.find(products, {id: productId});
+    return _.find(products, {id: productID});
   },
 
   showPcrProduct: function(event) {
@@ -65,15 +64,33 @@ export default Backbone.View.extend({
     }
   },
 
-  exportPrimer: function(event) {
-    var product = this.getProduct(event);
-    console.log('export', $(event.currentTarget))
-    var forward = $(event.currentTarget).hasClass('export-forward-primer');
+  getProductAndSequenceForSequenceID: function(sequenceID) {
+    var products = this.parentView().products;
+    // var filteredProduct = _.find(products, {id: sequenceID});
+    // if(filteredProducts.length) return filteredProduct;
+    var fields = ['forwardPrimer', 'reversePrimer'];
+    for (var i = products.length - 1; i >= 0; i--) {
+      var product = products[i];
+      for (var j = fields.length - 1; j >= 0; j--) {
+        var sequence = product[fields[j]];
+        if(sequence && sequence.id && sequence.id === sequenceID) return [product, sequence];
+      }
+    }
+  },
 
-    if(product) {
+  getSequenceID: function(event) {
+    return $(event.target).data('sequence_id');
+  },
+
+  exportSequence: function(event) {
+    var sequenceID = this.getSequenceID(event);
+    var result = this.getProductAndSequenceForSequenceID(sequenceID);
+
+    if(result) {
+      var [product, sequence] = result;
       Filetypes.exportToFile('fasta', (new Sequence({
-        sequence: product[forward ? 'forwardPrimer' : 'reversePrimer'].sequence,
-        name: product.name + ' - ' + (forward ? 'Forward primer' : 'Reverse primer')
+        sequence: sequence.sequence,
+        name: product.name + ' - ' + sequence.name,
       })).toJSON());
     }
   }

@@ -1,3 +1,5 @@
+@import 'shared/sequences';
+
 .pcr, #pcr-list-outer-container, #pcr-canvas-container {
   position: absolute;
   top: 0;
@@ -18,13 +20,4 @@
 
 #pcr-canvas-container {
   left: 50%;
-}
-
-.pcr-primer-sequence {
-  border-top: none !important;
-  color: #bbb;
-  font: 10px Monospace;
-  font-size: 12px;
-  letter-spacing: 1px;
-  padding-top: 0;
 }

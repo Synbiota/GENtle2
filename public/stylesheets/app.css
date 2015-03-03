@@ -8482,33 +8482,8 @@ button.close {
   margin-top: 1px;
 }
 
-/* line 1, views/_pcr_view.scss */
-.pcr, #pcr-list-outer-container, #pcr-canvas-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: scroll;
-}
-/* line 9, views/_pcr_view.scss */
-.pcr label, #pcr-list-outer-container label, #pcr-canvas-container label {
-  text-align: left;
-}
-
-/* line 14, views/_pcr_view.scss */
-#pcr-list-outer-container {
-  width: 50%;
-  border-right: 1px solid #ddd;
-}
-
-/* line 19, views/_pcr_view.scss */
-#pcr-canvas-container {
-  left: 50%;
-}
-
-/* line 23, views/_pcr_view.scss */
-.pcr-primer-sequence {
+/* line 1, views/shared/_sequences.scss */
+.sequence {
   border-top: none !important;
   color: #bbb;
   font: 10px Monospace;
@@ -8517,14 +8492,49 @@ button.close {
   padding-top: 0;
 }
 
-/* line 1, views/_sequence_view.scss */
+/* line 3, views/_pcr_view.scss */
+.pcr, #pcr-list-outer-container, #pcr-canvas-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  overflow: scroll;
+}
+/* line 11, views/_pcr_view.scss */
+.pcr label, #pcr-list-outer-container label, #pcr-canvas-container label {
+  text-align: left;
+}
+
+/* line 16, views/_pcr_view.scss */
+#pcr-list-outer-container {
+  width: 50%;
+  border-right: 1px solid #ddd;
+}
+
+/* line 21, views/_pcr_view.scss */
+#pcr-canvas-container {
+  left: 50%;
+}
+
+/* line 1, views/shared/_sequences.scss */
+.sequence {
+  border-top: none !important;
+  color: #bbb;
+  font: 10px Monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding-top: 0;
+}
+
+/* line 3, views/_sequence_view.scss */
 .sequence-view {
   position: relative;
   height: 100%;
   width: 100%;
 }
 
-/* line 7, views/_sequence_view.scss */
+/* line 9, views/_sequence_view.scss */
 #sequence-primary-view-outlet {
   position: absolute;
   top: 30px;
@@ -8532,7 +8542,7 @@ button.close {
   right: 0;
 }
 
-/* line 15, views/_sequence_view.scss */
+/* line 17, views/_sequence_view.scss */
 .sequence-canvas-wrapper .sequence-canvas-container {
   position: absolute;
   left: 0;
@@ -8540,12 +8550,12 @@ button.close {
   top: 0;
   bottom: 0;
 }
-/* line 22, views/_sequence_view.scss */
+/* line 24, views/_sequence_view.scss */
 .sequence-canvas-wrapper .sequence-canvas-container canvas.sequence-canvas {
   width: 100%;
   height: 100%;
 }
-/* line 28, views/_sequence_view.scss */
+/* line 30, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent {
   position: absolute;
   right: 0;
@@ -8557,12 +8567,12 @@ button.close {
   background: transparent;
   cursor: text;
 }
-/* line 38, views/_sequence_view.scss */
+/* line 40, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent:focus {
   outline: none;
 }
 
-/* line 44, views/_sequence_view.scss */
+/* line 46, views/_sequence_view.scss */
 .sequence-statusbar-outlet {
   position: absolute;
   top: 0;

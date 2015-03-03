@@ -52,7 +52,8 @@ var getPCRProduct = function(sequence, opts = {}) {
       var forwardPrimer = {
         sequence: (opts.stickyEnds ? opts.stickyEnds.start : '') + forwardAnnealingRegion.sequence,
         from: 0,
-        to: (opts.stickyEnds ? opts.stickyEnds.start.length : 0) + forwardAnnealingRegion.sequence.length - 1
+        to: (opts.stickyEnds ? opts.stickyEnds.start.length : 0) + forwardAnnealingRegion.sequence.length - 1,
+        id: _.uniqueId(),
       };
       forwardPrimer.sequenceLength = forwardPrimer.sequence.length;
       forwardPrimer.gcContent = SequenceCalculations.gcContent(forwardPrimer.sequence);
@@ -60,7 +61,8 @@ var getPCRProduct = function(sequence, opts = {}) {
       var reversePrimer = {
         sequence: (opts.stickyEnds ? SequenceTransforms.toReverseComplements(opts.stickyEnds.end) : '') +reverseAnnealingRegion.sequence,
         from: 0,
-        to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1
+        to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1,
+        id: _.uniqueId(),
       };
       reversePrimer.sequenceLength = forwardPrimer.sequence.length;
       reversePrimer.gcContent = SequenceCalculations.gcContent(reversePrimer.sequence);
@@ -70,6 +72,7 @@ var getPCRProduct = function(sequence, opts = {}) {
         id: _.uniqueId(),
         from: opts.from, 
         to: opts.to,
+        name: opts.name,
         forwardAnnealingRegion: forwardAnnealingRegion,
         reverseAnnealingRegion: reverseAnnealingRegion,
         forwardPrimer: forwardPrimer,
