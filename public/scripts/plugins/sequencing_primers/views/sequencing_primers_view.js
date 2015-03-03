@@ -9,7 +9,7 @@ import Sequence from '../../../sequence/models/sequence';
 
 export default Backbone.View.extend({
   manage: true,
-  template: template, 
+  template: template,
 
   events: {
     'click .start-sequencing-primers': 'startCalculation'
@@ -38,7 +38,7 @@ export default Backbone.View.extend({
       console.log('done', results)
       this.products = results;
       this.render();
-    }).catch((e) => console.log(e));
+    }).catch((e) => console.error(e));
   },
 
   getSequence: function() {
