@@ -43,9 +43,7 @@
           <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
           <td>{{{sequenceFastAExportButton forwardPrimer.id }}}</td>
         </tr>
-        <tr>
-          <td colspan="5" class="sequence">5' – {{forwardPrimer.sequence}} – 3'</td>
-        <tr>
+        {{{displaySequence forwardPrimer.sequence}}}
         <tr>
           <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
@@ -53,9 +51,7 @@
           <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
           <td>{{{sequenceFastAExportButton reversePrimer.id }}}</td>
         </tr>
-        <tr>
-          <td colspan="5" class="sequence">5' – {{reversePrimer.sequence}} – 3'</td>
-        <tr>
+        {{{displaySequence reversePrimer.sequence}}}
 
       </tbody>
     </table>

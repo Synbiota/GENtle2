@@ -112,10 +112,16 @@ Handlebars.registerHelper('round', function(number, precision, isPercentage) {
 });
 
 
+// TODO: review with Alex as these smell
 Handlebars.registerHelper('sequenceFastAExportButton', function(sequenceID) {
-  var exportFastATemplate = require('../templates/export_fasta.hbs');  // This smells  TODO: review with Alex
+  var exportFastATemplate = require('../templates/export_fasta.hbs');
   return exportFastATemplate({sequenceID});
   // return Handlebars.compile(exportFastATemplate)({sequenceID});
+});
+
+Handlebars.registerHelper('displaySequence', function(sequence) {
+  var displaySequenceTemplate = require('../templates/display_sequence.hbs');
+  return displaySequenceTemplate({sequence});
 });
 
 
