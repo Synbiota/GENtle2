@@ -114,7 +114,7 @@ var getAllPrimers = function(sequence) {
           index: i,
           name: name,
           to: to,
-          id: _.uniqueId()
+          id: _.uniqueId(),
         });
       }));
     }, (e) => console.log(e));
