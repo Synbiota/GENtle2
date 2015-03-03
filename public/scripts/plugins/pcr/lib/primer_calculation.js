@@ -204,18 +204,24 @@ var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature, useID
   }, (e) => console.log(e));
 };
 
+/*
+*  Filter Predicates
+*/
+var meltingTemperatureFilterPredicate = function(primer) {
+  return Math.abs(primer.meltingTemperature - opts.targetMeltingTemperature) <= opts.meltingTemperatureTolerance;
+};
+
+
 var optimalPrimer3 = function(sequence, opts = {}) {
   _.defaults(opts, {
     minPrimerLength: 10,
     maxPrimerLength: 40,
     targetMeltingTemperature: 68,
+    meltingTemperatureTolerance: 1.5,
     targetGcContent: 0.5,
     useIDT: true
   });
-
-  var meltingTemperatureTolerance = 3;
-
-  var lengthRange = _.range(opts.minPrimerLength, opts.maxPrimerLength);
+  var lengthRange = _.range(opts.minPrimerLength, opts.maxPrimerLength+1);
 
   var potentialPrimers = _.map(lengthRange, function(i) {
     var primerSequence = sequence.substr(0, i);
@@ -225,11 +231,8 @@ var optimalPrimer3 = function(sequence, opts = {}) {
     };
   });
 
-  var filteredPotentialPrimers = _.filter(potentialPrimers, function(primer) {
-    return Math.abs(primer.meltingTemperature - opts.targetMeltingTemperature) <= meltingTemperatureTolerance;
-  });
+  var filteredPotentialPrimers = _.filter(potentialPrimers, meltingTemperatureFilterPredicate);
 
-  // var filteredPotentialPrimers
   if(_.isEmpty(filteredPotentialPrimers)) filteredPotentialPrimers = _.clone(potentialPrimers);
 
   return Q.promise(function(resolve, reject, notify) {
@@ -303,5 +306,45 @@ var optimalPrimer3 = function(sequence, opts = {}) {
   //   }).catch((e) => console.log('insideer', e));
   // }).catch((e) => console.log('outsideer', e));
 };
+
+
+// Some rudimentary tests
+if(false) {
+  import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+  var sequence1 = 'AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGT';
+  var sequence1Reversed = SequenceTransforms.toReverseComplements(sequence1);
+  var sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
+  var sequence2Reversed = SequenceTransforms.toReverseComplements(sequence2);
+  var polyASequence = 'GAAAGAAGAAGAAGAAGAAGAAGAAGAAAAAAA';
+
+  var opts = {
+    targetMeltingTemperature: 63.5,
+    meltingTemperatureTolerance: 1.5,
+    useIDT: false
+  };
+
+  var checkPromisedResults = function(promisedResult, testLabel, options={}) {
+    Q.when(promisedResult).then(function(result) {
+      options = _.defaults(options, {
+        gcContentGreaterThan: 0.3,
+        minimumMeltingTemperature: 62,
+      });
+      console.log(`Testing ${testLabel} with result:`, result);
+      console.assert(result.meltingTemperature <= 65, `meltingTemperature should be <= 65 but is ${result.meltingTemperature}`);
+      console.assert(result.meltingTemperature >= options.minimumMeltingTemperature,
+        `meltingTemperature should be >= ${options.minimumMeltingTemperature} but is ${result.meltingTemperature}`);
+      console.assert(result.gcContent <= 0.7, `gcContent should be <= 0.7 but is ${result.gcContent}`);
+      console.assert(result.gcContent >= options.gcContentGreaterThan, `gcContent should be >= ${options.gcContentGreaterThan} but is ${result.gcContent}`);
+    });
+  };
+
+  // Tests
+  checkPromisedResults(optimalPrimer3(sequence1, opts), 'sequence1', {gcContentGreaterThan: 0.15, minimumMeltingTemperature: 61.8});
+  checkPromisedResults(optimalPrimer3(sequence1Reversed, opts), 'sequence1Reversed');
+  checkPromisedResults(optimalPrimer3(sequence2, opts), 'sequence2');
+  checkPromisedResults(optimalPrimer3(sequence2Reversed, opts), 'sequence2Reversed');
+  checkPromisedResults(optimalPrimer3(polyASequence, opts), 'polyASequence', {gcContentGreaterThan: 0.26});
+}
+
 
 export default optimalPrimer3;
