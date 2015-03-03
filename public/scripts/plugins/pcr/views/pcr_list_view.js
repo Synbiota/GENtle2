@@ -1,21 +1,20 @@
 import template from '../templates/pcr_list_view.hbs';
-import Backbone from 'backbone';
+import AbstractViewContainingSequences from '../../common/views/abstract_view_containing_sequences';
 import Gentle from 'gentle';
-import Filetypes from '../../../common/lib/filetypes/filetypes';
-import Sequence from '../../../sequence/models/sequence';
 
-export default Backbone.View.extend({
+export default AbstractViewContainingSequences.extend({
   template: template,
-  manage: true,
   className: 'pcr-product',
 
-  events: {
-    'click .show-pcr-product': 'showPcrProduct',
-    'click .delete-pcr-product': 'deletePcrProduct',
-    'click .open-pcr-product': 'openPcrProduct',
-    'click .export-sequence': 'exportSequence',
+  events: function () {
+    return _.extend(AbstractViewContainingSequences.prototype.events.call(this),
+    {
+      'click .show-pcr-product': 'showPcrProduct',
+      'click .delete-pcr-product': 'deletePcrProduct',
+      'click .open-pcr-product': 'openPcrProduct',
+    });
   },
-
+    
   serialize: function() {
     var parentView = this.parentView();
 
@@ -36,7 +35,7 @@ export default Backbone.View.extend({
   },
 
   getProduct: function(event) {
-    var products = this.parentView().products;
+    var products = this.getProducts();
     var productID = $(event.target).closest('.panel').data('product_id');
     event.preventDefault();
     return _.find(products, {id: productID});
@@ -64,34 +63,4 @@ export default Backbone.View.extend({
     }
   },
 
-  getProductAndSequenceForSequenceID: function(sequenceID) {
-    var products = this.parentView().products;
-    // var filteredProduct = _.find(products, {id: sequenceID});
-    // if(filteredProducts.length) return filteredProduct;
-    var fields = ['forwardPrimer', 'reversePrimer'];
-    for (var i = products.length - 1; i >= 0; i--) {
-      var product = products[i];
-      for (var j = fields.length - 1; j >= 0; j--) {
-        var sequence = product[fields[j]];
-        if(sequence && sequence.id && sequence.id === sequenceID) return [product, sequence];
-      }
-    }
-  },
-
-  getSequenceID: function(event) {
-    return $(event.target).data('sequence_id');
-  },
-
-  exportSequence: function(event) {
-    var sequenceID = this.getSequenceID(event);
-    var result = this.getProductAndSequenceForSequenceID(sequenceID);
-
-    if(result) {
-      var [product, sequence] = result;
-      Filetypes.exportToFile('fasta', (new Sequence({
-        sequence: sequence.sequence,
-        name: product.name + ' - ' + sequence.name,
-      })).toJSON());
-    }
-  }
 });
