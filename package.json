@@ -61,7 +61,7 @@
     "pretty-error": "^1.1.1"
   },
   "scripts": {
-    "start": "nf start webdev,doc",
+    "start": "nf start webdev,doc,gruntw",
     "postinstall": "./node_modules/grunt-cli/bin/grunt js:min"
   }
 }
