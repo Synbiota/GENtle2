@@ -36,7 +36,8 @@ var aggregateProgress = function(statusesArray) {
 
 var getPrimersPair = function(sequence) {
   var opts = {
-    targetMeltingTemperature: 68,
+    targetMeltingTemperature: 63.5,
+    meltingTemperatureTolerance: 1.5,
     useIDT: false
   };
 
