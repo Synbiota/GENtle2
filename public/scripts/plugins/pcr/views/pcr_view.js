@@ -87,7 +87,7 @@ export default Backbone.View.extend({
 
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
 
-    }).catch((e) => console.log('pcr view error', e));
+    }).catch((e) => console.error('pcr view error', e));
 
   },
 
