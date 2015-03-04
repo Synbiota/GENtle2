@@ -13,7 +13,22 @@ var iupacToBases, toComplementsMap,
 
 SequenceTransforms = SequenceTransforms || {};
 
-toComplementsMap = {'A': 'T', 'C': 'G', 'T': 'A', 'G': 'C'};
+toComplementsMap = {
+  'A': 'T', 
+  'C': 'G', 
+  'T': 'A', 
+  'G': 'C',
+  'N': 'N',
+  'R': 'Y',
+  'Y': 'R',
+  'S': 'S',
+  'W': 'W',
+  'K': 'M',
+  'M': 'K',
+  'B': 'V',
+  'V': 'B',
+  'D': 'H'
+};
 
 export default {
 

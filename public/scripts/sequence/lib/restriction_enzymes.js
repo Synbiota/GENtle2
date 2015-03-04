@@ -33,6 +33,15 @@ define(function(require) {
     return new RegExp(pattern, 'gi');
   });
 
+  RestrictionEnzymes.getComplementEnzyme = _.memoize2(function(enzyme) {
+    return {
+      name: enzyme.name + '←',
+      seq: reverseComplements(enzyme.seq),
+      cut: enzyme.seq.length - enzyme.cut - enzyme.offset,
+      offset: enzyme.offset
+    };
+  }, (enzyme) => enzyme.seq);
+
   RestrictionEnzymes.byBases = function() {
     restrictionEnzymesByBases = restrictionEnzymesByBases || (function() {
       var output = {};
@@ -68,12 +77,23 @@ define(function(require) {
     options = options || {}; 
 
 
-    checkAndAddMatch = function(enzymes, bases) {
-      var regexp = RestrictionEnzymes.getRegExp(bases),
-          result;
+    checkAndAddMatch = function(enzymes, bases, complement = false) {
+      var regexp, result;
+
+      if(!_.isArray(enzymes)) enzymes = [enzymes];
+
+      regexp = RestrictionEnzymes.getRegExp(bases);
 
       while(result = regexp.exec(seq)) {
         matches[result.index] = (matches[result.index] || []).concat(enzymes);
+      }
+
+      if(complement === false) {
+        checkAndAddMatch(
+          _.map(enzymes, RestrictionEnzymes.getComplementEnzyme),
+          reverseComplements(bases), 
+          true
+        );
       }
     };
 
