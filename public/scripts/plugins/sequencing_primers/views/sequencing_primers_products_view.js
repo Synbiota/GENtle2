@@ -10,4 +10,10 @@ export default AbstractViewContainingSequences.extend({
     };
   },
 
+  afterRender: function() {
+    this.$('.has-tooltip').tooltip({
+      container: 'body'
+    });
+  },
+
 });
