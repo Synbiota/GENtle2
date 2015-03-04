@@ -57,7 +57,9 @@
             {{{sequenceFastAExportButton forwardPrimer.id }}}
           </td>
         </tr>
-        {{{displaySequence forwardPrimer.sequence}}}
+        <tr>
+          <td colspan="5" class="sequence">{{{displaySequence forwardPrimer.sequence}}}</td>
+        <tr>
         <tr>
           <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
@@ -67,7 +69,9 @@
             {{{sequenceFastAExportButton reversePrimer.id }}}
           </td>
         </tr>
-        {{{displaySequence reversePrimer.sequence}}}
+        <tr>
+          <td colspan="5" class="sequence">{{{displaySequence reversePrimer.sequence}}}</td>
+        <tr>
         <tr>
           <td><small>Sticky ends</small></td>
           <td colspan="3" class="text-right"><small>{{stickyEnds.name}}</small></td>
