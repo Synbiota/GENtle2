@@ -3,6 +3,8 @@ import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
+import handleError from '../../../common/lib/handle_error';
+
 
 // var meltingTemperature = _.memoize(SequenceCalculations.meltingTemperature);
 
@@ -201,8 +203,8 @@ var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature, useID
         });
       }
 
-    }, (e) => console.log(e))
-  }, (e) => console.log(e));
+    }, handleError);
+  }, handleError);
 };
 
 /*
@@ -258,7 +260,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
           });
       });
 
-  }, (e) => console.log(e));
+  }, handleError);
 
 
 

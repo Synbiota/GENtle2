@@ -9,7 +9,7 @@ var molecularWeights = {
   'C': 289.184,
   'G': 329.208,
   'T': 304.196
-}
+};
 
 var getStringSequence = function(sequence) {
   if(_.isString(sequence)) {
@@ -227,13 +227,11 @@ var meltingTemperature = function(sequence,
 };
 
 var molecularWeight = function(sequence) {
-
-  sequence = getStringSequence(sequence)
+  sequence = getStringSequence(sequence);
   return _.reduce(sequence, function(memo, base){
-    return memo + molecularWeights[base]
+    return memo + molecularWeights[base];
   }, 0);
-
-}
+};
 
 window.calc = {
   deltaEnthalpy: deltaEnthalpy,

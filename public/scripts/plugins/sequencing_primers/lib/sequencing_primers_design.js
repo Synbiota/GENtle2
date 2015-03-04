@@ -2,6 +2,8 @@ import PrimerCalculation from '../../pcr/lib/primer_calculation';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import _ from 'underscore.mixed';
 import Q from 'q';
+import handleError from '../../../common/lib/handle_error';
+
 
 var maxChunkLength = 500;
 var overlap = 30;
@@ -59,14 +61,11 @@ var getPrimersPair = function(sequence) {
         fullSequence: sequence,
       });
 
-    }, (e) => console.log(e));
+    }, handleError);
 
 
-  }, (e) => console.log(e));
+  }, handleError);
 };
-
-
-
 
 
 var getAllPrimers = function(sequence) {
@@ -93,7 +92,7 @@ var getAllPrimers = function(sequence) {
       ).then(function(results_) {
         notify(i/numberBatches);
         return getParallelPrimers(i + maxParallel, results.concat(results_));
-      }, (e) => console.log(e));
+      }, handleError);
     };
 
     return getParallelPrimers().then(function(primers) {
@@ -117,10 +116,9 @@ var getAllPrimers = function(sequence) {
           id: _.uniqueId(),
         });
       }));
-    }, (e) => console.log(e));
+    }, handleError);
 
-  }, (e) => console.log(e));
+  }, handleError);
 };
 
 export default getAllPrimers;
-
