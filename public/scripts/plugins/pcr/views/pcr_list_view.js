@@ -1,20 +1,20 @@
 import template from '../templates/pcr_list_view.hbs';
-import AbstractViewContainingSequences from '../../common/views/abstract_view_containing_sequences';
+import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 
-export default AbstractViewContainingSequences.extend({
+
+export default Backbone.View.extend({
+  manage: true,
   template: template,
   className: 'pcr-product',
 
-  events: function () {
-    return _.extend(AbstractViewContainingSequences.prototype.events.call(this),
-    {
-      'click .show-pcr-product': 'showPcrProduct',
-      'click .delete-pcr-product': 'deletePcrProduct',
-      'click .open-pcr-product': 'openPcrProduct',
-    });
+  events: {
+    'click .show-pcr-product': 'showPcrProduct',
+    'click .delete-pcr-product': 'deletePcrProduct',
+    'click .open-pcr-product': 'openPcrProduct',
+    'click .export-sequence': 'exportSequence',
   },
-    
+
   serialize: function() {
     var parentView = this.parentView();
 
@@ -32,6 +32,10 @@ export default AbstractViewContainingSequences.extend({
     this.$('.has-tooltip').tooltip({
       container: 'body'
     });
+  },
+
+  getProducts: function() {
+    return this.parentView().products;
   },
 
   getProduct: function(event) {
@@ -61,6 +65,12 @@ export default AbstractViewContainingSequences.extend({
       var sequence = this.parentView().getSequenceFromProduct(product);
       Gentle.addSequencesAndNavigate([sequence]);
     }
+  },
+
+  exportSequence: function(event) {
+    var sequenceID = $(event.target).data('sequence_id');
+    var products = this.getProducts();
+    fastAExportSequenceFromID(products, sequenceID);
   },
 
 });
