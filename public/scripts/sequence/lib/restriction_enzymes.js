@@ -12,8 +12,9 @@ define(function(require) {
   RestrictionEnzymes.all = function() {
     restrictionEnzymes = restrictionEnzymes || (function() {
       return _.sortBy(_.map(SynbioData.restriction_enzymes, function(enzyme) {
+        var bases = enzyme.seq;
         return _.extend(enzyme, {
-          // isPalyndromic: bases == reverseComplements(bases)
+          isPalindromic: bases == reverseComplements(bases)
         });
       }), 'name');
     })();
@@ -89,11 +90,18 @@ define(function(require) {
       }
 
       if(complement === false) {
-        checkAndAddMatch(
-          _.map(enzymes, RestrictionEnzymes.getComplementEnzyme),
-          reverseComplements(bases), 
-          true
-        );
+
+        var nonPalindromicEnzymes = _.reject(enzymes, 'isPalindromic');
+
+        if(!_.isEmpty(nonPalindromicEnzymes)) {
+
+          checkAndAddMatch(
+            _.map(nonPalindromicEnzymes, RestrictionEnzymes.getComplementEnzyme),
+            reverseComplements(bases), 
+            true
+          );
+
+        }
       }
     };
 
