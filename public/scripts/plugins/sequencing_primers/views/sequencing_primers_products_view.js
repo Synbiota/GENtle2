@@ -23,7 +23,7 @@ export default Backbone.View.extend({
   },
 
   getProducts: function() {
-    return this.parentView().products;
+    return this.parentView().getProducts();
   },
 
   exportSequence: function(event) {

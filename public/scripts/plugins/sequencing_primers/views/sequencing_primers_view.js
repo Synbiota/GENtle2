@@ -18,14 +18,17 @@ export default Backbone.View.extend({
 
   initialize: function() {
     this.model = Gentle.currentSequence;
-    this.products = [];
     this.setView('.sequencing-primers-products-container', new ProductsView());
     this.setView('.sequencing-primers-canvas-container', new CanvasView());
   },
 
+  getProducts: function () {
+    return this.model.get('meta.sequencingPrimers.products') || [];
+  },
+
   serialize: function() {
     return {
-      products: this.products
+      products: this.getProducts()
     };
   },
 
@@ -37,16 +40,17 @@ export default Backbone.View.extend({
       this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
     }).then((results) => {
       console.log('done', results)
-      this.products = results;
+      this.model.set('meta.sequencingPrimers.products', results).throttledSave();
       this.render();
     }).catch(handleError);
   },
 
   getSequence: function() {
     var features = [];
-    if(_.isEmpty(this.products)) return;
+    var products = this.getProducts();
+    if(_.isEmpty(products)) return;
 
-    _.each(this.products, function(product) {
+    _.each(products, function(product) {
 
       features = features.concat([{
         name: product.name,
