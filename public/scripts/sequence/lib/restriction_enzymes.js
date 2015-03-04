@@ -40,7 +40,7 @@ define(function(require) {
       cut: enzyme.seq.length - enzyme.cut - enzyme.offset,
       offset: enzyme.offset
     };
-  }, (enzyme) => enzyme.seq);
+  }, (enzyme) => enzyme.name);
 
   RestrictionEnzymes.byBases = function() {
     restrictionEnzymesByBases = restrictionEnzymesByBases || (function() {
