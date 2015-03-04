@@ -515,9 +515,7 @@ define(function(require) {
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
       .then(this.redraw)
-      .catch(function(err) {
-        console.log('ERROR', err);
-      });
+      .catch((e) => console.error(e));
   };
 
   /**

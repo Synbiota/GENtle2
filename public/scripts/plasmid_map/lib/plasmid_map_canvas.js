@@ -76,7 +76,7 @@ define(function(require) {
 
   PlasmidMapCanvas.prototype.refresh = function () {
     this.setupCanvas().then(this.render).catch(function(e) {
-      console.log('ERROR', e.stack);
+      console.error(e);
     });
   };
 
