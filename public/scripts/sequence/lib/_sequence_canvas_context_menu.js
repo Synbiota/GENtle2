@@ -37,14 +37,16 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
       menu.add('Analyze Fragment', this.analyzeFragment);
 
       if(!this.readOnly) {
-        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        // menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        menu.add('Add annotation', this.addAnnotationFromMenu);
       }
     }
 
   _.chain(Gentle.plugins).where({type: 'sequence-canvas-context-menu'}).each(function(plugin) {
     var data = plugin.data;
     if (!data.selectionOnly || (data.selectionOnly && _this.selection))
-    menu.add(data.title, data.icon, data.callback)
+    // menu.add(data.title, data.icon, data.callback)
+    menu.add(data.title, data.callback)
   });
 
 
