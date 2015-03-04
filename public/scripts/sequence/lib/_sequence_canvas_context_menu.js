@@ -21,6 +21,7 @@ Shows button to open context menu and adds menu items to context menu view
 **/
 SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY) {
   var menu = this.contextMenu;
+  var _this = this;
 
   this.contextMenuXPos = posX;
   this.contextMenuYPos = posY;
@@ -42,6 +43,7 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
 
   _.chain(Gentle.plugins).where({type: 'sequence-canvas-context-menu'}).each(function(plugin) {
     var data = plugin.data;
+    if (!data.selectionOnly || (data.selectionOnly && _this.selection))
     menu.add(data.title, data.icon, data.callback)
   });
 

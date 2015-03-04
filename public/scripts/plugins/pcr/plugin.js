@@ -11,6 +11,7 @@ Gentle.addPlugin('sequence-canvas-context-menu', {
   name: 'pcr',
   title: 'Create PCR product',
   icon: 'wrench',
+  selectionOnly: true,
   callback: function() {
     // `this` is the SequenceCanvas instance
     var sequenceView = this.view.parentView();
