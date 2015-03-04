@@ -57,21 +57,21 @@ export default Backbone.View.extend({
         _type: 'sequencing_product',
         ranges: [{
           from: product.from,
-          to: product.to
+          to: product.to - 1
         }]
       },{
         name: product.forwardPrimer.name,
         _type: 'primer',
         ranges: [{
           from: product.from,
-          to: product.from + product.forwardPrimer.sequenceLength
+          to: product.from + product.forwardPrimer.sequenceLength - 1,
         }]
       }, {
-        name: product.forwardPrimer.name,
+        name: product.reversePrimer.name,
         _type: 'primer',
         ranges: [{
-          from: product.to - product.reversePrimer.sequenceLength-1,
-          to: product.to
+          from: product.to - product.reversePrimer.sequenceLength,
+          to: product.to - 1,
         }]
       }]);
 
@@ -82,8 +82,5 @@ export default Backbone.View.extend({
       features: features
     });
   }
-
-
-
 
 });
