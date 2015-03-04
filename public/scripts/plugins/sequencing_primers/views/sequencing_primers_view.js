@@ -5,6 +5,7 @@ import ProductsView from './sequencing_primers_products_view';
 import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
+import handleError from '../../../common/lib/handle_error';
 
 
 export default Backbone.View.extend({
@@ -38,7 +39,7 @@ export default Backbone.View.extend({
       console.log('done', results)
       this.products = results;
       this.render();
-    }).catch((e) => console.error(e));
+    }).catch(handleError);
   },
 
   getSequence: function() {

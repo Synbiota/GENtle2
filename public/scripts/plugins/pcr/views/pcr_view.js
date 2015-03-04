@@ -6,6 +6,8 @@ import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
+import handleError from '../../../common/lib/handle_error';
+
 
 export default Backbone.View.extend({
   manage: true,
@@ -87,7 +89,7 @@ export default Backbone.View.extend({
 
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
 
-    }).catch((e) => console.error('pcr view error', e));
+    }).catch(handleError);
 
   },
 
