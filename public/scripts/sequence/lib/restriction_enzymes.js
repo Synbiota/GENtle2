@@ -1,135 +1,160 @@
-define(function(require) {
-  var SynbioData = require('../../common/lib/synbio_data');
-  var SequenceTransforms = require('./sequence_transforms');
-  var restrictionEnzymes;
-  var restrictionEnzymesByBases;
-  var restrictionEnzymesByLength;
-  var iupacToBases = SequenceTransforms.iupacToBases;
-  var reverseComplements = SequenceTransforms.toReverseComplements;
+import SynbioData from '../../common/lib/synbio_data';
+import SequenceTransforms from './sequence_transforms';
+var restrictionEnzymes;
+var restrictionEnzymesByBases;
+var restrictionEnzymesByLength;
+var iupacToBases = SequenceTransforms.iupacToBases;
+var reverseComplements = SequenceTransforms.toReverseComplements;
+var isPalindromic = SequenceTransforms.isPalindromic;
 
-  var RestrictionEnzymes = {};
 
-  RestrictionEnzymes.all = function() {
-    restrictionEnzymes = restrictionEnzymes || (function() {
-      return _.sortBy(_.map(SynbioData.restriction_enzymes, function(enzyme) {
-        var bases = enzyme.seq;
-        return _.extend(enzyme, {
-          isPalindromic: bases == reverseComplements(bases)
-        });
-      }), 'name');
-    })();
+var RestrictionEnzymes = {};
 
-    return restrictionEnzymes;
-  };
+var isEmpty = _.isEmpty;
 
-  RestrictionEnzymes.getRegExp = _.memoize2(function(iupacSequence) {
-    var pattern = '',
-        base;
-
-    for(var i = 0; i < iupacSequence.length; i++) {
-      base = iupacToBases(iupacSequence[i]);
-      pattern += base.length == 1 ? base : '[' + base + ']';
-    }
-
-    return new RegExp(pattern, 'gi');
-  });
-
-  RestrictionEnzymes.getComplementEnzyme = _.memoize2(function(enzyme) {
-    return {
-      name: enzyme.name + '←',
-      seq: reverseComplements(enzyme.seq),
-      cut: enzyme.seq.length - enzyme.cut - enzyme.offset,
-      offset: enzyme.offset
-    };
-  }, (enzyme) => enzyme.name);
-
-  RestrictionEnzymes.byBases = function() {
-    restrictionEnzymesByBases = restrictionEnzymesByBases || (function() {
-      var output = {};
-      _.each(RestrictionEnzymes.all(), function(enzyme) {
-        var bases = enzyme.seq;
-        output[bases] = output[bases] || [];
-        output[bases].push(enzyme);
+RestrictionEnzymes.all = function() {
+  restrictionEnzymes = restrictionEnzymes || (function() {
+    return _.sortBy(_.map(SynbioData.restriction_enzymes, function(enzyme) {
+      return _.extend(enzyme, {
+        isPalindromic: isPalindromic(enzyme.seq)
       });
-      return output;
-    })();
-    return restrictionEnzymesByBases;
-  };
+    }), 'name');
+  })();
 
-  RestrictionEnzymes.byLength = function() {
-    restrictionEnzymesByLength = restrictionEnzymesByLength || (function() {
-      var output = {};
-      _.each(RestrictionEnzymes.all(), function(enzyme) {
-        var length = enzyme.seq.length,
-            bases = enzyme.seq;
-        output[length] = output[length] || {};
-        output[length][bases] = output[length][bases] || [];
-        output[length][bases].push(enzyme);
-      });
-      return output;
-    })();
-    return restrictionEnzymesByLength;
-  };
+  return restrictionEnzymes;
+};
 
-  RestrictionEnzymes.getAllInSeq = function(seq, options) {
-    var matches = {},
-        list,
-        checkAndAddMatch;
-    options = options || {}; 
+RestrictionEnzymes.getRegExp = _.memoize2(function(iupacSequence) {
+  var pattern = '',
+      base;
 
+  for(var i = 0; i < iupacSequence.length; i++) {
+    base = iupacToBases(iupacSequence[i]);
+    pattern += base.length == 1 ? base : '[' + base + ']';
+  }
 
-    checkAndAddMatch = function(enzymes, bases, complement = false) {
-      var regexp, result;
-
-      if(!_.isArray(enzymes)) enzymes = [enzymes];
-
-      regexp = RestrictionEnzymes.getRegExp(bases);
-
-      while(result = regexp.exec(seq)) {
-        matches[result.index] = (matches[result.index] || []).concat(enzymes);
-      }
-
-      if(complement === false) {
-
-        var nonPalindromicEnzymes = _.reject(enzymes, 'isPalindromic');
-
-        if(!_.isEmpty(nonPalindromicEnzymes)) {
-
-          checkAndAddMatch(
-            _.map(nonPalindromicEnzymes, RestrictionEnzymes.getComplementEnzyme),
-            reverseComplements(bases), 
-            true
-          );
-
-        }
-      }
-    };
-
-    if(options.customList && options.customList.length) {
-      list = options.customList;
-      _.each(RestrictionEnzymes.all(), function(enzyme) {
-        if(~list.indexOf(enzyme.name)) checkAndAddMatch(enzyme, enzyme.seq);
-      });
-    } else if(options && options.length) {
-      if(!_.isArray(options.length)) options.length = [options.length];
-      _.each(options.length, function(length) {
-        _.each(RestrictionEnzymes.byLength()[length], checkAndAddMatch);
-      });
-    } else {
-      _.each(RestrictionEnzymes.byBases(), checkAndAddMatch);
-    }
-
-    return matches;
-  };
-
-  RestrictionEnzymes.maxLength = _.memoize(function() {
-    return _.max(_.map(RestrictionEnzymes.all(), function(enzyme) {
-      return enzyme.seq.length;
-    }));
-  });
-
-  window.re = RestrictionEnzymes;
-  window.st = SequenceTransforms;
-
-  return RestrictionEnzymes;
+  return new RegExp(pattern, 'gi');
 });
+
+RestrictionEnzymes.getComplementEnzyme = _.memoize2(function(enzyme) {
+  return {
+    name: enzyme.name + '←',
+    seq: reverseComplements(enzyme.seq),
+    cut: enzyme.seq.length - enzyme.cut - enzyme.offset,
+    offset: enzyme.offset
+  };
+}, (enzyme) => enzyme.name);
+
+RestrictionEnzymes.byBases = function() {
+  restrictionEnzymesByBases = restrictionEnzymesByBases || (function() {
+    var output = {};
+    _.each(RestrictionEnzymes.all(), function(enzyme) {
+      var bases = enzyme.seq;
+      output[bases] = output[bases] || [];
+      output[bases].push(enzyme);
+    });
+    return output;
+  })();
+  return restrictionEnzymesByBases;
+};
+
+RestrictionEnzymes.byLength = function() {
+  restrictionEnzymesByLength = restrictionEnzymesByLength || (function() {
+    var output = {};
+    _.each(RestrictionEnzymes.all(), function(enzyme) {
+      var length = enzyme.seq.length,
+          bases = enzyme.seq;
+      output[length] = output[length] || {};
+      output[length][bases] = output[length][bases] || [];
+      output[length][bases].push(enzyme);
+    });
+    return output;
+  })();
+  return restrictionEnzymesByLength;
+};
+
+RestrictionEnzymes.getAllInSeq = function(seq, options = {}) {
+  var matches = {};
+  var list;
+
+  _.defaults(options, {
+    hideNonPalindromicStickyEndSites: false
+  });
+
+  var isStickyEndPalindromic = function(position, enzyme) {
+    var site = seq.substr(position, enzyme.seq.length);
+    var stickyEnd = site.substr(
+      enzyme.cut - Math.max(0, -enzyme.offset), 
+      Math.abs(enzyme.offset)
+    );
+
+    return isPalindromic(stickyEnd);
+  };
+
+  var getValidEnzymes = function(enzymes, position) {
+    if(options.hideNonPalindromicStickyEndSites) {
+      return _.filter(enzymes, _.partial(isStickyEndPalindromic, position));
+    } else {
+      return enzymes;
+    }
+  };
+
+  var checkAndAddMatch = function(enzymes, bases, complement = false) {
+    var regexp, result;
+
+    if(!_.isArray(enzymes)) enzymes = [enzymes];
+
+    regexp = RestrictionEnzymes.getRegExp(bases);
+
+    while(result = regexp.exec(seq)) {
+      var position = result.index;
+      var validEnzymes = getValidEnzymes(enzymes, position);
+
+      if(!isEmpty(validEnzymes)) {
+        matches[position] = (matches[position] || []).concat(validEnzymes);
+      }
+    }
+
+    if(complement === false) {
+
+      var nonPalindromicEnzymes = _.reject(enzymes, 'isPalindromic');
+
+      if(!isEmpty(nonPalindromicEnzymes)) {
+
+        checkAndAddMatch(
+          _.map(nonPalindromicEnzymes, RestrictionEnzymes.getComplementEnzyme),
+          reverseComplements(bases), 
+          true
+        );
+
+      }
+    }
+  };
+
+  if(options.customList && options.customList.length) {
+    list = options.customList;
+    _.each(RestrictionEnzymes.all(), function(enzyme) {
+      if(~list.indexOf(enzyme.name)) checkAndAddMatch(enzyme, enzyme.seq);
+    });
+  } else if(options && options.length) {
+    if(!_.isArray(options.length)) options.length = [options.length];
+    _.each(options.length, function(length) {
+      _.each(RestrictionEnzymes.byLength()[length], checkAndAddMatch);
+    });
+  } else {
+    _.each(RestrictionEnzymes.byBases(), checkAndAddMatch);
+  }
+
+  return matches;
+};
+
+RestrictionEnzymes.maxLength = _.memoize(function() {
+  return _.max(_.map(RestrictionEnzymes.all(), function(enzyme) {
+    return enzyme.seq.length;
+  }));
+});
+
+window.re = RestrictionEnzymes;
+window.st = SequenceTransforms;
+
+export default RestrictionEnzymes;

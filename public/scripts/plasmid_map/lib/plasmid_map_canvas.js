@@ -159,7 +159,8 @@ define(function(require) {
     var displaySettings = this.model.get('displaySettings.rows.res') || {},
         enzymes = RestrictionEnzymes.getAllInSeq(this.model.get('sequence'), {
           length: displaySettings.lengths || [],
-          customList: displaySettings.custom || []
+          customList: displaySettings.custom || [],
+          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         }),
         len = this.model.length(),
         previousPosition = 0,

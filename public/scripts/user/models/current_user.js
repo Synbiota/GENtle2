@@ -8,7 +8,8 @@ export default Backbone.DeepModel.extend({
         res: {
           display: true,
           lengths: ['4','5','6'],
-          manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI']
+          hideNonPalindromicStickyEndSites: true,
+          manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI', 'BsaI']
         }
       }
     }
