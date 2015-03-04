@@ -49,6 +49,8 @@ export default Backbone.View.extend({
           baseLine: 15,
           textFont: '15px Monospace',
           textColour: '#bbb',
+          selectionColour: 'red',
+          selectionTextColour: 'white',
         }],
         complements: ['DNA', {
           height: 15,
