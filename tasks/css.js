@@ -14,17 +14,18 @@ var filedir = path.dirname(filepath);
 var run = function(watch) {
 
   if(watch) {
-    bundleLogger.watch(filepath, true);
+    bundleLogger.watch(filepath);
+    bundleLogger.start(filepath);
   } else {
     bundleLogger.start(filepath);
   }
 
   gulp.src(filepath)
-    .pipe(cached('styleshets'))
+    .pipe(cached('stylesheets'))
     .pipe(cssGlobbing())
     .pipe(sass({ includePaths: bourbon.includePaths }))
-    .on('end', function() { bundleLogger.end(filepath); })
-    .pipe(remember('styleshets')) 
+    .on('end', function() { bundleLogger.end(filepath.replace('.scss', '.css')); })
+    .pipe(remember('stylesheets')) 
     .pipe(rename({ extname: '.css' }))
     .pipe(gulp.dest('./public/stylesheets/'));
 
