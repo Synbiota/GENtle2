@@ -51,6 +51,7 @@
     "q": "~1.1.2",
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
+    "string-just": "0.0.2",
     "then-jade": "^2.0.0",
     "through2": "^0.6.3",
     "uglifyify": "^3.0.1",
@@ -75,7 +76,7 @@
     "sassyjson": "^1.1.8"
   },
   "scripts": {
-    "start": "nf start webdev,doc,gulp",
+    "start": "nf start webdev,doc",
     "postinstall": "./node_modules/grunt-cli/bin/grunt js:min"
   }
 }
