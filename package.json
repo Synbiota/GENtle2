@@ -4,7 +4,7 @@
   "homepage": "http://gentledna.org/",
   "version": "3.0.0-alpha.1",
   "engines": {
-    "node": "^0.11"
+    "node": "^0.12"
   },
   "browser": {
     "jquery.mixed": "./public/scripts/common/lib/jquery.mixed.js",
@@ -21,7 +21,7 @@
     "backbone.layoutmanager": "~0.9.5",
     "backbone.localstorage": "1.1.16",
     "body-parser": "^1.9.0",
-    "browserify": "^7.1.0",
+    "browserify": "8.0.1",
     "browserify-shim": "^3.8.1",
     "cookie-session": "^1.0.2",
     "deamdify": "Automattic/deamdify.git#master",
@@ -31,6 +31,13 @@
     "grunt": "~0.4.1",
     "grunt-browserify": "^3.2.1",
     "grunt-cli": "0.1.9",
+    "gulp": "^3.8.11",
+    "gulp-cached": "^1.0.2",
+    "gulp-css-globbing": "^0.1.7",
+    "gulp-remember": "^0.3.0",
+    "gulp-rename": "^1.2.0",
+    "gulp-sass": "^1.3.3",
+    "gulp-util": "^3.0.4",
     "handlebars": "~2.0.0",
     "hbsfy": "^2.2.1",
     "jade": "^1.7.0",
@@ -38,13 +45,20 @@
     "jquery-ui": "~1.10.5",
     "jquery-ui-touch-punch": "~0.2.3",
     "morgan": "^1.4.0",
+    "node-bourbon": "^4.2.1-beta1",
+    "node-notifier": "^4.1.2",
+    "pretty-hrtime": "^1.0.0",
     "q": "~1.1.2",
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
     "then-jade": "^2.0.0",
+    "through2": "^0.6.3",
     "uglifyify": "^3.0.1",
     "underscore": "^1.6.0",
     "underscore-deep-extend": "0.0.5",
+    "vinyl-source-stream": "^1.0.0",
+    "vinyl-transform": "^1.0.0",
+    "watchify": "^2.4.0",
     "yuidoc-bootstrap-theme": "^1.0.4"
   },
   "devDependencies": {
@@ -57,11 +71,11 @@
     "grunt-contrib-yuidoc": "~0.5.0",
     "grunt-notify": "0.2.20",
     "grunt-watchify": "^0.1.0",
-    "sassyjson": "^1.1.8",
-    "pretty-error": "^1.1.1"
+    "pretty-error": "^1.1.1",
+    "sassyjson": "^1.1.8"
   },
   "scripts": {
-    "start": "nf start webdev,doc,gruntw",
+    "start": "nf start webdev,doc,gulp",
     "postinstall": "./node_modules/grunt-cli/bin/grunt js:min"
   }
 }
