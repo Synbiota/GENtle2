@@ -65,38 +65,44 @@ export default Backbone.DeepModel.extend({
     var stickyEnds = this.get('stickyEnds');
     var prefix = '';
     var suffix = '';
-    var subSeqStart = startBase;
-    var subSeqEnd = endBase;
     var seqLength = this.length();
 
     endBase = Math.min(endBase, seqLength - 1);
+
+    var subSeqStart = startBase;
+    var subSeqEnd = endBase;
+
+    var stickyEndFrom, stickyEndTo;
 
     if(stickyEnds) {
       var startStickyEnd = stickyEnds && stickyEnds.start;
       var endStickyEnd = stickyEnds && stickyEnds.end;
 
       if(startStickyEnd) {
-        if(startBase < startStickyEnd.to) {
+        stickyEndFrom = startStickyEnd.offset;
+        stickyEndTo = stickyEndFrom + startStickyEnd.size;
+
+        if(startBase < stickyEndTo) {
           if(reverse) {
             if(startStickyEnd.reverse) {
-              subSeqStart = Math.max(startBase, startStickyEnd.from);
+              subSeqStart = Math.max(startBase, stickyEndFrom);
             } else {
-              subSeqStart = startStickyEnd.to;
+              subSeqStart = stickyEndTo;
             }
           } else {
             if(startStickyEnd.reverse) {
-              subSeqStart = startStickyEnd.to;
+              subSeqStart = stickyEndTo;
             } else {
-              subSeqStart = Math.max(startBase, startStickyEnd.from);
+              subSeqStart = Math.max(startBase, stickyEndFrom);
             }
           }
         }
       }
 
       if(endStickyEnd) {
-        var stickyEndFrom = seqLength + endStickyEnd.from;
-        var stickyEndTo = seqLength + endStickyEnd.to;
-
+        stickyEndTo = seqLength - 1 - endStickyEnd.offset;
+        stickyEndFrom = stickyEndTo - endStickyEnd.size;
+        
         if(endBase > stickyEndFrom) {
           if(reverse) {
             if(endStickyEnd.reverse) {
