@@ -36,7 +36,7 @@ export default Backbone.View.extend({
     if(event) event.preventDefault();
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
-    PrimersDesign(this.model).progress((progress) => {
+    PrimersDesign(this.model.sequence.get('sequence'), {}).progress((progress) => {
       this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
     }).then((results) => {
       console.log('done', results)
@@ -52,29 +52,34 @@ export default Backbone.View.extend({
 
     _.each(products, function(product) {
 
-      features = features.concat([{
+      features.push({
         name: product.name,
         _type: 'sequencing_product',
         ranges: [{
           from: product.from,
           to: product.to - 1
         }]
-      },{
-        name: product.forwardPrimer.name,
-        _type: 'primer',
-        ranges: [{
-          from: product.from,
-          to: product.from + product.forwardPrimer.sequenceLength - 1,
-        }]
-      }, {
-        name: product.reversePrimer.name,
-        _type: 'primer',
-        ranges: [{
-          from: product.to - product.reversePrimer.sequenceLength,
-          to: product.to - 1,
-        }]
-      }]);
-
+      });
+      if(product.forwardPrimer) {
+        features.push({
+          name: product.forwardPrimer.name,
+          _type: 'primer',
+          ranges: [{
+            from: product.from,
+            to: product.from + product.forwardPrimer.sequenceLength - 1,
+          }]
+        });
+      }
+      if(product.reversePrimer) {
+        features.push({
+          name: product.reversePrimer.name,
+          _type: 'primer',
+          ranges: [{
+            from: product.to - product.reversePrimer.sequenceLength,
+            to: product.to - 1,
+          }]
+        });
+      }
     });
 
     return new Sequence({

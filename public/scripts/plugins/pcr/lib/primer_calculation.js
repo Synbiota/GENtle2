@@ -4,7 +4,11 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import handleError from '../../../common/lib/handle_error';
+import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults'
 
+
+var checkForPolyN = SequenceCalculations.checkForPolyN;
+var gcContent = SequenceCalculations.gcContent;
 
 // var meltingTemperature = _.memoize(SequenceCalculations.meltingTemperature);
 
@@ -314,9 +318,169 @@ var optimalPrimer3 = function(sequence, opts = {}) {
 };
 
 
+var logger = function(...msg) {
+  if(false) {
+    console.log(...msg);
+  }
+};
+
+
+class PotentialPrimer {
+  constructor (sequence, options, deferred) {
+    this.sequence = sequence;
+    this.opts = options;
+    this.i = 0;
+    this.size = options.minPrimerLength;
+    this.potentialPrimer = undefined;
+
+    this.deferred = deferred;
+  }
+
+  findPrimer () {
+    logger('findPrimer start');
+    while(this.i <= (this.sequence.length - this.opts.minPrimerLength)) {
+      logger('findPrimer loop', this.i, this.size, this.potentialPrimer);
+      if(!this.updatePotentialPrimer()) break; // fail
+
+      var polyNPresent = checkForPolyN(this.potentialPrimer);
+      if(polyNPresent) {
+        this.i += (polyNPresent.location + polyNPresent.repeated - this.opts.maxPolyN);
+        continue;
+      }
+
+      if(this.goodGCContent()) {
+        var ourTm = SequenceCalculations.meltingTemperature(this.potentialPrimer);
+        if(ourTm > (this.opts.targetMeltingTemperature + this.opts.meltingTemperatureTolerance + this.opts.IDTmeltingTemperatureProximity)) {
+          this.i += 1;
+        } else if (ourTm < (this.opts.targetMeltingTemperature - this.opts.meltingTemperatureTolerance - this.opts.IDTmeltingTemperatureProximity)) {
+          this.growOrShiftPotentialPrimer();
+        } else {
+          // Our calculated Tm seems good so check with IDT.
+          // Now we are waiting on IDT to confirm if we have found a primer
+          // with a good Tm.
+          this.checkWithIDT(ourTm);
+          return;
+        }
+      } else {
+        this.growOrShiftPotentialPrimer();
+      }
+    }
+
+    logger('FAIL to findPrimer');
+    // We have failed to find a good primer.
+    this.deferred.reject(undefined);
+    return;
+  }
+
+  updatePotentialPrimer () {
+    if((this.i + this.size) <= this.sequence.length) {
+      this.potentialPrimer = this.sequence.substr(this.i, this.size);
+      return true;
+    }
+    logger('updatePotentialPrimer failed');
+  }
+
+  goodGCContent () {
+    var targetGcContentTolerance = this.opts.targetGcContentTolerance;
+    var targetGcContent = this.opts.targetGcContent;
+
+    var GC = gcContent(this.potentialPrimer);
+    return ((GC <= (targetGcContent + targetGcContentTolerance)) && (GC >= (targetGcContent - targetGcContentTolerance)))
+  }
+
+  growOrShiftPotentialPrimer (incrementSize=1) {
+    this.size += incrementSize;
+    if(this.size > this.opts.maxPrimerLength) {
+      this.size = this.opts.minPrimerLength;
+      this.i += 1;
+    }
+  }
+
+  shiftPotentialPrimer () {
+    this.size = this.opts.minPrimerLength;
+    this.i += 1;
+  }
+
+  checkWithIDT (logOurTm=undefined, logPreviousTmFromIDT=undefined) {
+    var targetMeltingTemperature = this.opts.targetMeltingTemperature;
+    var meltingTemperatureTolerance = this.opts.meltingTemperatureTolerance;
+    var potentialPrimer = this.potentialPrimer;
+
+    // debug logging
+    var msg = `checkWithIDT, primer: ${potentialPrimer}`;
+    if(logOurTm) msg += `, ourTm: ${logOurTm}`;
+    if(logPreviousTmFromIDT) msg += `, previousTmFromIDT: ${logPreviousTmFromIDT}`;
+    logger(msg);
+
+    IDTMeltingTemperature(potentialPrimer)
+    .then((TmFromIDT) => {
+      if(TmFromIDT < (targetMeltingTemperature - meltingTemperatureTolerance)) {
+        this.growOrShiftPotentialPrimer();
+        // TODO there's a potential bug here.  We want to grow the primer and now ignore
+        // our own Tm calcs, and just go with IDT... until the point at which we
+        // shift and shrink back, at which point we then go back to checking with
+        // our own calculation first.
+        this.findPrimer();
+      } else if(TmFromIDT > (targetMeltingTemperature + meltingTemperatureTolerance)) {
+        this.size -= 1;
+        if(this.size < this.opts.minPrimerLength) {
+          // don't grow again, just shift by 1.
+          this.shiftPotentialPrimer();
+          this.findPrimer();
+        } else {
+          // Manually update primer based on new size.  No need to check if
+          // succeeded as size is decreasing
+          // Also no need to check GC and polyN as we'll do this later
+          this.updatePotentialPrimer();
+          this.checkWithIDT(undefined, TmFromIDT);
+        }
+      } else {
+        // Check other parameters are still correct
+        if(!this.goodGCContent()) {
+          logger(`Good Tm ${TmFromIDT} but now GC content wrong: ${gcContent(this.potentialPrimer)}`);
+          this.shiftPotentialPrimer();
+          this.findPrimer();
+        } else if(checkForPolyN(this.potentialPrimer)) {
+          logger(`Good Tm ${TmFromIDT} but now polyN wrong: ${this.potentialPrimer} (n.b. never expecting to see this message)`);
+          this.shiftPotentialPrimer();
+          this.findPrimer();
+        } else {
+          // SUCCESS!
+          logger('SUCCEED to findPrimer');
+          this.deferred.resolve({
+            sequence: this.potentialPrimer,
+            from: this.i,
+            to: this.i + potentialPrimer.length - 1,
+            meltingTemperature: TmFromIDT,
+            // Calculate it again.  We shouldn't need to check as with current
+            // implementation (as of 2015-03-05) you can only reach here if
+            // the gcContent for a shorter primer is valid.
+            gcContent: gcContent(potentialPrimer),
+          });
+        }
+      }
+    }).catch(handleError);
+  }
+
+}
+
+
+var optimalPrimer4 = function(sequence, opts={}) {
+  opts = defaultPCRPrimerOptions(opts);
+
+  var deferredPrimer = Q.defer();
+
+  var potentialPrimer = new PotentialPrimer(sequence, opts, deferredPrimer);
+  potentialPrimer.findPrimer();
+
+  return deferredPrimer.promise;
+};
+
+
 // Some rudimentary tests
 if(false) {
   import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+
   var sequence1 = 'AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGT';
   var sequence1Reversed = SequenceTransforms.toReverseComplements(sequence1);
   var sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
@@ -329,27 +493,119 @@ if(false) {
     useIDT: false
   };
 
-  var checkPromisedResults = function(promisedResult, testLabel, options={}) {
-    Q.when(promisedResult).then(function(result) {
-      options = _.defaults(options, {
-        gcContentGreaterThan: 0.3,
-        minimumMeltingTemperature: 62,
-      });
-      console.log(`Testing ${testLabel} with result:`, result);
-      console.assert(result.meltingTemperature <= 65, `meltingTemperature should be <= 65 but is ${result.meltingTemperature}`);
-      console.assert(result.meltingTemperature >= options.minimumMeltingTemperature,
-        `meltingTemperature should be >= ${options.minimumMeltingTemperature} but is ${result.meltingTemperature}`);
-      console.assert(result.gcContent <= 0.7, `gcContent should be <= 0.7 but is ${result.gcContent}`);
-      console.assert(result.gcContent >= options.gcContentGreaterThan, `gcContent should be >= ${options.gcContentGreaterThan} but is ${result.gcContent}`);
+  var checkResult = function(result, testLabel, options={}) {
+    options = _.defaults(options, {
+      gcContentGreaterThan: 0.3,
+      minimumMeltingTemperature: 62,
     });
+    console.log(`Testing ${testLabel} with result:`, result);
+    console.assert(result.meltingTemperature <= 65, `meltingTemperature should be <= 65 but is ${result.meltingTemperature}`);
+    console.assert(result.meltingTemperature >= options.minimumMeltingTemperature,
+      `meltingTemperature should be >= ${options.minimumMeltingTemperature} but is ${result.meltingTemperature}`);
+    console.assert(result.gcContent <= 0.7, `gcContent should be <= 0.7 but is ${result.gcContent}`);
+    console.assert(result.gcContent >= options.gcContentGreaterThan, `gcContent should be >= ${options.gcContentGreaterThan} but is ${result.gcContent}`);
+    if(options.expectedSequence) {
+      console.assert(result.sequence === options.expectedSequence, `expected sequence: ${options.expectedSequence} but got ${result.sequence}`);
+    }
   };
 
-  // Tests
-  checkPromisedResults(optimalPrimer3(sequence1, opts), 'sequence1', {gcContentGreaterThan: 0.15, minimumMeltingTemperature: 61.8});
-  checkPromisedResults(optimalPrimer3(sequence1Reversed, opts), 'sequence1Reversed');
-  checkPromisedResults(optimalPrimer3(sequence2, opts), 'sequence2');
-  checkPromisedResults(optimalPrimer3(sequence2Reversed, opts), 'sequence2Reversed');
-  checkPromisedResults(optimalPrimer3(polyASequence, opts), 'polyASequence', {gcContentGreaterThan: 0.26});
+  var asyncCheckResultFactory = function(testLabel, options={}) {
+    return function(result) {
+      checkResult(result, testLabel, options);
+    };
+  };
+
+  var checkPromisedResults = function(promisedResult, testLabel, options={}) {
+    Q.when(promisedResult).then(asyncCheckResultFactory(testLabel, options));
+  };
+
+  // Test optimalPrimer3
+  checkPromisedResults(optimalPrimer3(sequence1, opts),
+    'optimalPrimer3 with sequence1',
+    {gcContentGreaterThan: 0.15, minimumMeltingTemperature: 61.8}
+  );
+  checkPromisedResults(optimalPrimer3(sequence1Reversed, opts),
+    'optimalPrimer3 with sequence1Reversed'
+  );
+  checkPromisedResults(optimalPrimer3(sequence2, opts),
+    'optimalPrimer3 with sequence2'
+  );
+  checkPromisedResults(optimalPrimer3(sequence2Reversed, opts),
+    'optimalPrimer3 with sequence2Reversed'
+  );
+  checkPromisedResults(optimalPrimer3(polyASequence, opts),
+    'optimalPrimer3 with polyASequence',
+    {gcContentGreaterThan: 0.26}
+  );
+
+  // Test checkForPolyN
+  console.assert(checkForPolyN('AAAAAA', {maxPolyN: 5}), 'Should have found a polyN sequence');
+  console.assert(checkForPolyN('GGGGGG', {maxPolyN: 5}), 'Should have found a polyN sequence');
+  console.assert(!checkForPolyN('AAAAA', {maxPolyN: 5}), 'Should not have found a polyN sequence');
+  console.assert(!checkForPolyN('GGGGG', {maxPolyN: 5}), 'Should not have found a polyN sequence');
+  console.assert(!checkForPolyN('AAAGAAA', {maxPolyN: 5}), 'Should not have found a polyN sequence');
+
+  // Test checkForPolyN failEarly
+  var result = checkForPolyN('AAAGGG', {maxPolyN: 2});
+  console.assert(result.repeatedBase === 'G', `Should not fail early ${result.repeatedBase}`);
+  console.assert(result.location === 3, `Should not fail early ${result.location}`);
+  console.assert(result.repeated === 3, `Should not fail early ${result.repeated}`);
+  var result = checkForPolyN('AAAGGG', {maxPolyN: 2, failEarly: true});
+  console.assert(result.repeatedBase === 'A', `Should fail early ${result.repeatedBase}`);
+  console.assert(result.location === 0, `Should fail early ${result.location}`);
+  console.assert(result.repeated === 3, `Should fail early ${result.repeated}`);
+
+  // Test gcContent
+  console.assert(gcContent('AA') === 0, 'Expecting 0 GC content');
+  console.assert(gcContent('GG') === 1, 'Expecting 1 GC content');
+  console.assert(gcContent('AG') === 0.5, 'Expecting 0.5 GC content');
+
+
+  // Test optimalPrimer4
+  var oldIDTMeltingTemperature = IDTMeltingTemperature;
+  var stubbedIDTMeltingTemperature = function(potentialPrimer) {
+    return Q.promise(function(resolve) {
+      var Tms = {
+        'GGGGTCCTAAAAATAATAATGGCATACAGG': 65.6,
+        'GGGGTCCTAAAAATAATAATGGCATACAG': 64.2,
+        'GGGTCCTAAAAATAATAATGGCATACAGGG': 65.6,
+        'GGGTCCTAAAAATAATAATGGCATACAGG': 64.2,
+        'AATAATAATGGCATACAGGGTGGTG': 63.3,
+        'CTCTAGTACTACTACTTTTCAACAGGC': 62.6,
+      };
+      var Tm = Tms[potentialPrimer];
+      if(!Tm) throw `Unknown IDT Tm for ${potentialPrimer}.  Look up on https://www.idtdna.com/calc/analyzer with Mg++ Conc of 2mM, and add to \`Tms\` dict.`;
+      console.log(`stubbedIDTMeltingTemperature received: ${potentialPrimer}, responding with Tm: ${Tm}`);
+      resolve(Tm);
+    });
+  };
+  IDTMeltingTemperature = stubbedIDTMeltingTemperature;
+
+  var optimalPrimer4_TestFactory = function(sequence, testLabel, opts) {
+    console.log(`Set up optimalPrimer4 test for ${testLabel}`);
+    var optimalPrimer4_TestFinished = Q.defer();
+
+    optimalPrimer4(sequence, defaultSequencingPrimerOptions()).then(
+    function(optimalPrimer){
+      console.log(`Got optimalPrimer4 results for ${testLabel}, optimalPrimer:`, optimalPrimer);
+      checkResult(optimalPrimer, testLabel, opts);
+      optimalPrimer4_TestFinished.resolve();
+    });
+    return optimalPrimer4_TestFinished.promise;
+  };
+
+  Q.all([
+      optimalPrimer4_TestFactory(sequence1,
+      'optimalPrimer4 with sequence1',
+      {expectedSequence: 'AATAATAATGGCATACAGGGTGGTG'}),
+      optimalPrimer4_TestFactory(sequence2,
+      'optimalPrimer4 with sequence2',
+      {expectedSequence: 'CTCTAGTACTACTACTTTTCAACAGGC'})
+  ]).then(function () {
+    console.log('Restoring IDTMeltingTemperature function');
+    IDTMeltingTemperature = oldIDTMeltingTemperature;
+  });
+
 }
 
 
