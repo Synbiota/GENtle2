@@ -78,7 +78,7 @@ var SettingsView = SidebarView.extend({
       icon: 'align-left',
       view: StickyEndsView,
       visible: function() {
-        return !gentle.currentUser.get('displaySettings.stickyEndsSettings');
+        return Gentle.currentUser.get('displaySettings.stickyEndsSettings');
       }
     }]);
 
