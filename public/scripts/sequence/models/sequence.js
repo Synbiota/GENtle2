@@ -50,7 +50,7 @@ export default Backbone.DeepModel.extend({
   @param {Integer} startBase start of the subsequence (indexed from 0)
   @param {Integer} endBase end of the subsequence (indexed from 0)
   **/
-  getSubSeq: function(startBase, endBase) {
+  getSubSeqWithoutStickyEnds: function(startBase, endBase) {
     if (endBase === undefined)
       endBase = startBase;
     else {
@@ -59,6 +59,74 @@ export default Backbone.DeepModel.extend({
     }
     startBase = Math.min(Math.max(0, startBase), this.length() - 1);
     return this.attributes.sequence.substr(startBase, endBase - startBase + 1);
+  },
+
+  getSubSeq: function(startBase, endBase, reverse = false) {
+    var stickyEnds = this.get('stickyEnds');
+    var prefix = '';
+    var suffix = '';
+    var subSeqStart = startBase;
+    var subSeqEnd = endBase;
+    var seqLength = this.length();
+
+    endBase = Math.min(endBase, seqLength - 1);
+
+    if(stickyEnds) {
+      var startStickyEnd = stickyEnds && stickyEnds.start;
+      var endStickyEnd = stickyEnds && stickyEnds.end;
+
+      if(startStickyEnd) {
+        if(startBase < startStickyEnd.to) {
+          if(reverse) {
+            if(startStickyEnd.reverse) {
+              subSeqStart = Math.max(startBase, startStickyEnd.from);
+            } else {
+              subSeqStart = startStickyEnd.to;
+            }
+          } else {
+            if(startStickyEnd.reverse) {
+              subSeqStart = startStickyEnd.to;
+            } else {
+              subSeqStart = Math.max(startBase, startStickyEnd.from);
+            }
+          }
+        }
+      }
+
+      if(endStickyEnd) {
+        var stickyEndFrom = seqLength + endStickyEnd.from;
+        var stickyEndTo = seqLength + endStickyEnd.to;
+
+        if(endBase > stickyEndFrom) {
+          if(reverse) {
+            if(endStickyEnd.reverse) {
+              subSeqEnd = Math.min(endBase, stickyEndTo);
+            } else {
+              subSeqEnd = Math.max(stickyEndFrom, startBase);
+            }
+          } else {
+            if(endStickyEnd.reverse) {
+              subSeqEnd = Math.max(stickyEndFrom, startBase);
+            } else {
+              subSeqEnd = Math.min(endBase, stickyEndTo);
+            }
+          }
+        }
+      }
+    } 
+
+    if(subSeqStart != startBase) {
+      prefix = ' '.repeat(subSeqStart - startBase);
+    }
+
+    if(subSeqEnd != endBase) {
+      suffix = ' '.repeat(endBase - subSeqEnd);
+    }
+
+    var subSeq = subSeqEnd <= startBase ? '' : 
+      this.getSubSeqWithoutStickyEnds(subSeqStart, Math.max(subSeqEnd, startBase));
+
+    return prefix + subSeq + suffix;
   },
 
   /**
@@ -88,7 +156,7 @@ export default Backbone.DeepModel.extend({
         });
         break;
       case 'complements':
-        output = SequenceTransforms.toComplements(this.getSubSeq(startBase, endBase));
+        output = SequenceTransforms.toComplements(this.getSubSeq(startBase, endBase, true));
         break;
     }
     return output;
