@@ -30,8 +30,8 @@
       padding: 1px 2px;
       position: absolute;
       @include text-overflow();
-      background: map_get(map_get($__colors, '_default'), 'fill');
-      color: map_get(map_get($__colors, '_default'), 'color');
+      background: map_get(map_get($__colors, 'type-_default'), 'fill');
+      color: map_get(map_get($__colors, 'type-_default'), 'color');
       text-align: center;
       text-transform: uppercase;
       white-space: nowrap;

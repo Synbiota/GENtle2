@@ -7,12 +7,14 @@ var startTime;
 var header = function(str, color) {
   // color = 'bg' + color[0].toUpperCase() + color.substr(1, color.length - 1);
   // return gutil.colors.dim(gutil.colors[color](just.ljust('[' + str.toLowerCase() + ']', 11)));
+  color = color || 'magenta';
   return gutil.colors.dim(gutil.colors[color](just.ljust( str, 8)));
 };
 
 var filename = function(str, color) {
+  color = color || 'magenta';
   return '\'' + gutil.colors[color](str)  + '\'';
-}
+};
 
 module.exports = {
   start: function(filepath) {
@@ -31,12 +33,31 @@ module.exports = {
   },
 
   error: function(err) {
+    pluginName = err.plugin || 'browserify';
+
     notifier.notify({
-      'title': 'Browserify error',
+      'title': 'ERROR - ' + pluginName,
       'message': err.message,
       sound: true
     });
-    gutil.log(header('Error', 'magenta'), err.message);
+
+    lineNumber = typeof err.lineNumber === 'undefined' ? '' : 
+      'at line ' + err.lineNumber
+
+    gutil.log(
+      header('Error', 'magenta'), 
+      gutil.colors.magenta(gutil.colors.underline(pluginName))
+    );
+
+    if(lineNumber || err.fileName) {
+      gutil.log(
+        header(''), 
+        err.fileName ? filename(err.fileName) : '', 
+        lineNumber
+      );
+    }
+
+    gutil.log(header(''), err.message);
   },
 
   end: function(filepath, watch) {
@@ -45,7 +66,7 @@ module.exports = {
     gutil.log(
       header('Bundled', 'green'), 
       filename(filepath, 'green'), 
-      'in', gutil.colors.magenta(prettyTime)
+      'after', gutil.colors.magenta(prettyTime)
     );
   }
 };
