@@ -30,8 +30,8 @@ export default Backbone.View.extend({
       enabled: this.getField(position, 'enabled').is(':checked'),
       name: this.getField(position, 'name').val(),
       reverse: this.getField(position, 'reverse').is(':checked'),
-      size: Number(this.getField(position, 'size').val()),
-      offset: Number(this.getField(position, 'offset').val())
+      size: this.getField(position, 'size').val()^0,
+      offset: this.getField(position, 'offset').val()^0
     };
   },
 
@@ -57,15 +57,10 @@ export default Backbone.View.extend({
       return _.pick(data_, 'name', 'reverse', 'offset', 'size');
     };
 
-    if(startData.enabled) {
-      data.start = extract(startData);
-    } 
+    this.model.set('stickyEnds.start', startData.enabled ? extract(startData) : null);
+    this.model.set('stickyEnds.end', endData.enabled ? extract(endData) : null);
 
-    if(endData.enabled) {
-      data.end = extract(endData);
-    }
-
-    this.model.set('stickyEnds', data).throttledSave();
+    this.model.throttledSave();
     this.model.trigger('change:sequence');
   }
 
