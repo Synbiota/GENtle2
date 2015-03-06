@@ -113,7 +113,44 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
     o.text ( sequence.desc ) ;
     s += o[0].outerHTML + "\n" ;
   }
+
+  // Sticky ends
+  var stickyEnds = sequence.stickyEnds;
+  if(stickyEnds) {
+    var oo;
+    var startStickyEnd = stickyEnds.start;
+    var endStickyEnd = stickyEnds.end;
+
+    if(startStickyEnd) {
+      oo = $('<sticky-end/>');
+      oo.text(startStickyEnd.name);
+      oo.attr({
+        position: 'start',
+        offset: startStickyEnd.offset,
+        size: startStickyEnd.size,
+        reverse: (!!startStickyEnd.reverse).toString()
+      });
+
+      s += oo[0].outerHTML + "\n";
+    }
+
+    if(endStickyEnd) {
+      oo = $('<sticky-end/>');
+      oo.text(endStickyEnd.name);
+      oo.attr({
+        position: 'end',
+        offset: endStickyEnd.offset,
+        size: endStickyEnd.size,
+        reverse: (!!endStickyEnd.reverse).toString()
+      });
+
+      s += oo[0].outerHTML + "\n";
+    }
+
+
+  }
   
+  // Features
   $.each ( sequence.features , function ( k , v ) {
     if ( v['_type'].match(/^source$/i) ) return ;
     if ( undefined === v['ranges'] ) return ;
@@ -146,8 +183,9 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
         desc += "<exon start='" + (v2.from+1) + "' to='" + (v2.to+1) + "' />\n" ;
       } ) ;
     }
+
     
-    var o = $('<annotation></annotation>') ;
+    o = $('<annotation></annotation>') ;
     o.text ( desc ) ;
     o.attr ( 'rc' , v['ranges'][0].reverseComplement ? 1 : 0 ) ;
 
@@ -167,7 +205,7 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
 
   } ) ;
   
-  var o = $("<sequence></sequence>") ;
+  o = $("<sequence></sequence>") ;
   o.text ( sequence.sequence ) ;
   o.attr( { type:'dna' , name:sequence.name, circular: sequence.isCircular || 'false' } ) ;
   s += o[0].outerHTML + "\n" ;
@@ -206,6 +244,17 @@ FT_sybil.prototype.parseFile = function () {
         isCircular: s.attr('circular') == "true"
       };
       seq.desc = $(v2).find('general_description').text() ;
+
+      $(v2).find('sticky-end').each( function (i, e) {
+        var $e = $(e);
+        seq.stickyEnds = seq.stickyEnds || {};
+        seq.stickyEnds[$e.attr('position')] = {
+          name: $(e).text(),
+          offset: $(e).attr('offset')^0,
+          size: $(e).attr('size')^0,
+          reverse: ($(e).attr('reverse') || 'false').toLowerCase() === 'true'
+        };
+      });
       
       seq.features = [] ;
       $(v2).find('annotation').each ( function ( k3 , v3 ) {

@@ -91,7 +91,16 @@ define(function(require) {
         @default `this.view.model`
     **/
     this.sequence = options.sequence || this.view.model;
+    var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
+
+    var dnaStickyEndHighlightColour = function(reverse, base, pos) {
+      return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
+    };
+
+    var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
+      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+    };
 
     /**
         @property layoutSettings
@@ -175,7 +184,8 @@ define(function(require) {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
-        textColour: LineStyles.dna.text.color,
+        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+        highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color
       }),
@@ -185,7 +195,8 @@ define(function(require) {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.complements.text.font,
-        textColour: LineStyles.complements.text.color,
+        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
+        highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.complements');

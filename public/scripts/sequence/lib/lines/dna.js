@@ -34,6 +34,10 @@ define(function(require) {
     }
   };
 
+  DNA.prototype.getHighlightColour = function(base, pos) {
+    return this.highlightColour && this.highlightColour(base, pos);
+  };
+
   DNA.prototype.draw = function(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
@@ -77,6 +81,13 @@ define(function(require) {
           }
 
         } else {
+          var highlightColour = this.getHighlightColour(character, k + baseRange[0]);
+          if(highlightColour) {
+            artist.rect(x, y+3, ls.basePairDims.width, this.height, {
+              fillStyle: highlightColour
+            });
+          }
+
           this.setTextColour(character, k+baseRange[0]);
         }
 
