@@ -5,18 +5,17 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 @import '../vendor/bootstrap/css/bootstrap.scss';
 
 // Shared styles
-// @import 'SassyJSON';
-// @import '../scripts/styles.json?shared-styles';
+@import '../scripts/styles.scss';
 
-// Views
+// // Views
 @import "views/*";
 @import "views/shared/*";
 
-// Components
+// // Components
 @import "components/*";
 
-// Animations
-@import "animations/*";
+// // Animations
+// @import "animations/*";
 
 
 body {

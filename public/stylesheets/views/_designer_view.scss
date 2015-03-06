@@ -113,12 +113,12 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
 
     .designer-designed-sequence-chunk {
       position: relative;
-      background: map_get(map_get($__colors, '_default'), 'fill');
-      color: map_get(map_get($__colors, '_default'), 'color');
+      background: map_get(map_get($__colors, 'type-_default'), 'fill');
+      color: map_get(map_get($__colors, 'type-_default'), 'color');
       box-sizing: border-box;
       font-size: 10px;
       text-align: center;
-      border: 1px solid map_get(map_get($__colors, '_default'), 'color');
+      border: 1px solid map_get(map_get($__colors, 'type-_default'), 'color');
       margin-bottom: 7px; 
       cursor: move;
 
@@ -270,9 +270,9 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   .designer-available-sequence-feature {
     position: absolute;
     margin-left: -1px;
-    background: map_get(map_get($__colors, '_default'), 'fill');
-    color: map_get(map_get($__colors, '_default'), 'color');
-    border-color: map_get(map_get($__colors, '_default'), 'color');
+    background: map_get(map_get($__colors, 'type-_default'), 'fill');
+    color: map_get(map_get($__colors, 'type-_default'), 'color');
+    border-color: map_get(map_get($__colors, 'type-_default'), 'color');
     font-size: 10px;
     box-sizing: border-box;
     padding: 5px 3px;
