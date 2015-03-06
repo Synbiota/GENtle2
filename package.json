@@ -79,6 +79,8 @@
   },
   "scripts": {
     "start": "nf start webdev,doc",
-    "postinstall": "./node_modules/grunt-cli/bin/grunt js:min"
+    "build": "./node_modules/.bin/gulp build",
+    "watch": "./node_modules/.bin/gulp",
+    "postinstall": "npm run build"
   }
 }
