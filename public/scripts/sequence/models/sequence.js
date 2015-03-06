@@ -62,77 +62,141 @@ export default Backbone.DeepModel.extend({
   },
 
   getSubSeq: function(startBase, endBase, reverse = false) {
+    // var stickyEnds = this.get('stickyEnds');
+    // var prefix = '';
+    // var suffix = '';
+    // var seqLength = this.length();
+
+    // endBase = Math.min(endBase, seqLength - 1);
+
+    // var subSeqStart = startBase;
+    // var subSeqEnd = endBase;
+
+    // var stickyEndFrom, stickyEndTo;
+
+    // if(stickyEnds) {
+    //   var startStickyEnd = stickyEnds && stickyEnds.start;
+    //   var endStickyEnd = stickyEnds && stickyEnds.end;
+
+    //   if(startStickyEnd) {
+    //     stickyEndFrom = startStickyEnd.offset;
+    //     stickyEndTo = stickyEndFrom + startStickyEnd.size;
+
+    //     if(startBase < stickyEndTo) {
+    //       if(reverse) {
+    //         if(startStickyEnd.reverse) {
+    //           subSeqStart = Math.max(startBase, stickyEndFrom);
+    //         } else {
+    //           subSeqStart = stickyEndTo;
+    //         }
+    //       } else {
+    //         if(startStickyEnd.reverse) {
+    //           subSeqStart = stickyEndTo;
+    //         } else {
+    //           subSeqStart = Math.max(startBase, stickyEndFrom);
+    //         }
+    //       }
+    //     }
+    //   }
+
+    //   if(endStickyEnd) {
+    //     stickyEndTo = seqLength - 1 - endStickyEnd.offset;
+    //     stickyEndFrom = stickyEndTo - endStickyEnd.size;
+        
+    //     if(endBase > stickyEndFrom) {
+    //       if(reverse) {
+    //         if(endStickyEnd.reverse) {
+    //           subSeqEnd = Math.min(endBase, stickyEndTo);
+    //         } else {
+    //           subSeqEnd = Math.max(stickyEndFrom, startBase);
+    //         }
+    //       } else {
+    //         if(endStickyEnd.reverse) {
+    //           subSeqEnd = Math.max(stickyEndFrom, startBase);
+    //         } else {
+    //           subSeqEnd = Math.min(endBase, stickyEndTo);
+    //         }
+    //       }
+    //     }
+    //   }
+    // } 
+
+    // if(subSeqStart != startBase) {
+    //   prefix = ' '.repeat(subSeqStart - startBase);
+    // }
+
+    // if(subSeqEnd != endBase) {
+    //   suffix = ' '.repeat(endBase - subSeqEnd);
+    // }
+
+    // var subSeq = subSeqEnd <= startBase ? '' : 
+    //   this.getSubSeqWithoutStickyEnds(subSeqStart, Math.max(subSeqEnd, startBase));
+
+    // return prefix + subSeq + suffix;
+    return this.getSubSeqWithoutStickyEnds(startBase, endBase);
+  },
+
+  isBeyondStickyEnd: function(pos, reverse = false) {
     var stickyEnds = this.get('stickyEnds');
-    var prefix = '';
-    var suffix = '';
     var seqLength = this.length();
-
-    endBase = Math.min(endBase, seqLength - 1);
-
-    var subSeqStart = startBase;
-    var subSeqEnd = endBase;
-
-    var stickyEndFrom, stickyEndTo;
+    var result = false;
 
     if(stickyEnds) {
-      var startStickyEnd = stickyEnds && stickyEnds.start;
-      var endStickyEnd = stickyEnds && stickyEnds.end;
+      var startStickyEnd = stickyEnds.start;
+      var endStickyEnd = stickyEnds.end;
 
       if(startStickyEnd) {
-        stickyEndFrom = startStickyEnd.offset;
-        stickyEndTo = stickyEndFrom + startStickyEnd.size;
-
-        if(startBase < stickyEndTo) {
-          if(reverse) {
-            if(startStickyEnd.reverse) {
-              subSeqStart = Math.max(startBase, stickyEndFrom);
-            } else {
-              subSeqStart = stickyEndTo;
-            }
+        if(reverse) {
+          if(startStickyEnd.reverse) {
+            if(pos < startStickyEnd.offset) {    
+              result = true;
+            } 
           } else {
-            if(startStickyEnd.reverse) {
-              subSeqStart = stickyEndTo;
-            } else {
-              subSeqStart = Math.max(startBase, stickyEndFrom);
-            }
+            if(pos < startStickyEnd.offset + startStickyEnd.size) {    
+              result = true;
+            } 
+          }
+        } else {
+          if(startStickyEnd.reverse) {
+            if(pos < startStickyEnd.offset + startStickyEnd.size) {    
+              result = true;
+            } 
+          } else {
+            if(pos < startStickyEnd.offset) {    
+              result = true;
+            } 
           }
         }
-      }
+      } 
 
       if(endStickyEnd) {
-        stickyEndTo = seqLength - 1 - endStickyEnd.offset;
-        stickyEndFrom = stickyEndTo - endStickyEnd.size;
-        
-        if(endBase > stickyEndFrom) {
-          if(reverse) {
-            if(endStickyEnd.reverse) {
-              subSeqEnd = Math.min(endBase, stickyEndTo);
-            } else {
-              subSeqEnd = Math.max(stickyEndFrom, startBase);
-            }
+        var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
+        var stickyEndFrom = stickyEndTo - endStickyEnd.size + 1;
+
+        if(reverse) {
+          if(endStickyEnd.reverse) {
+            if(pos > stickyEndTo) {    
+              result = true;
+            } 
           } else {
-            if(endStickyEnd.reverse) {
-              subSeqEnd = Math.max(stickyEndFrom, startBase);
-            } else {
-              subSeqEnd = Math.min(endBase, stickyEndTo);
-            }
+            if(pos >= stickyEndFrom) {    
+              result = true;
+            } 
+          }
+        } else {
+          if(endStickyEnd.reverse) {
+            if(pos >= stickyEndFrom) {    
+              result = true;
+            } 
+          } else {
+            if(pos > stickyEndTo) {    
+              result = true;
+            } 
           }
         }
-      }
+      } 
     } 
-
-    if(subSeqStart != startBase) {
-      prefix = ' '.repeat(subSeqStart - startBase);
-    }
-
-    if(subSeqEnd != endBase) {
-      suffix = ' '.repeat(endBase - subSeqEnd);
-    }
-
-    var subSeq = subSeqEnd <= startBase ? '' : 
-      this.getSubSeqWithoutStickyEnds(subSeqStart, Math.max(subSeqEnd, startBase));
-
-    return prefix + subSeq + suffix;
+    return result;
   },
 
   /**
