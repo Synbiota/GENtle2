@@ -2,11 +2,9 @@
 
 var defaultSequencingPrimerOptions = function(options={}) {
   _.defaults(options, {
-    // -N for sequencing primers, as they have their "universal primers" in
-    // their plasmid
-    firstPrimerPosition: 0,
-    lastReversePrimerPosition: 0,
-
+    // Set to false when we have to find a primer from the start.
+    allowShift: true,
+    reverseSequence: false,
     maxPolyN: 5,
     minPrimerLength: 20,
     maxPrimerLength: 30,
@@ -24,6 +22,9 @@ var defaultSequencingPrimerOptions = function(options={}) {
 
 var defaultPCRPrimerOptions = function(options={}) {
   _.defaults(options, {
+    // Set to false when we have to find a primer from the start.
+    allowShift: true,
+    reverseSequence: false,
     maxPolyN: 10000,
     minPrimerLength: 10,
     maxPrimerLength: 40,

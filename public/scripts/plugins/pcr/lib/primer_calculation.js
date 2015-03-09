@@ -4,7 +4,8 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import handleError from '../../../common/lib/handle_error';
-import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults'
+import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
+import Primer from './primer';
 
 
 var checkForPolyN = SequenceCalculations.checkForPolyN;
@@ -327,8 +328,8 @@ var logger = function(...msg) {
 
 class PotentialPrimer {
   constructor (sequence, options, deferred) {
-    this.sequence = sequence;
     this.opts = options;
+    this.sequence = sequence;
     this.i = 0;
     this.size = options.minPrimerLength;
     this.potentialPrimer = undefined;
@@ -339,12 +340,13 @@ class PotentialPrimer {
   findPrimer () {
     logger('findPrimer start');
     while(this.i <= (this.sequence.length - this.opts.minPrimerLength)) {
-      logger('findPrimer loop', this.i, this.size, this.potentialPrimer);
       if(!this.updatePotentialPrimer()) break; // fail
+      logger('findPrimer loop', this.i, this.size, this.goodGCContent(), this.polyNPresent(), this.potentialPrimer);
+      if(!this.opts.allowShift && (this.i > 0)) break; // fail
 
-      var polyNPresent = checkForPolyN(this.potentialPrimer);
-      if(polyNPresent) {
-        this.i += (polyNPresent.location + polyNPresent.repeated - this.opts.maxPolyN);
+      var polyNIsPresent = this.polyNPresent();
+      if(polyNIsPresent) {
+        this.i += (polyNIsPresent.location + polyNIsPresent.repeated - this.opts.maxPolyN);
         continue;
       }
 
@@ -366,18 +368,29 @@ class PotentialPrimer {
       }
     }
 
-    logger('FAIL to findPrimer');
     // We have failed to find a good primer.
-    this.deferred.reject(undefined);
+    var msg = 'FAIL to findPrimer';
+    logger(msg);
+    this.deferred.reject(msg);
     return;
   }
 
   updatePotentialPrimer () {
     if((this.i + this.size) <= this.sequence.length) {
-      this.potentialPrimer = this.sequence.substr(this.i, this.size);
+      if(this.opts.findFromEnd) {
+        var len = this.sequence.length;
+        this.potentialPrimer = this.sequence.substr(len-this.i-this.size, this.size);
+      } else {
+        this.potentialPrimer = this.sequence.substr(this.i, this.size);
+      }
       return true;
     }
     logger('updatePotentialPrimer failed');
+  }
+
+  polyNPresent () {
+    var present = checkForPolyN(this.potentialPrimer, {maxPolyN: this.opts.maxPolyN});
+    return present;
   }
 
   goodGCContent () {
@@ -385,7 +398,7 @@ class PotentialPrimer {
     var targetGcContent = this.opts.targetGcContent;
 
     var GC = gcContent(this.potentialPrimer);
-    return ((GC <= (targetGcContent + targetGcContentTolerance)) && (GC >= (targetGcContent - targetGcContentTolerance)))
+    return ((GC <= (targetGcContent + targetGcContentTolerance)) && (GC >= (targetGcContent - targetGcContentTolerance)));
   }
 
   growOrShiftPotentialPrimer (incrementSize=1) {
@@ -418,8 +431,10 @@ class PotentialPrimer {
         this.growOrShiftPotentialPrimer();
         // TODO there's a potential bug here.  We want to grow the primer and now ignore
         // our own Tm calcs, and just go with IDT... until the point at which we
-        // shift and shrink back, at which point we then go back to checking with
+        // shift and shrink back, at which point we want to then go back to checking with
         // our own calculation first.
+        // This is currently unimplemented and may result in missing
+        // potential primers.
         this.findPrimer();
       } else if(TmFromIDT > (targetMeltingTemperature + meltingTemperatureTolerance)) {
         this.size -= 1;
@@ -437,29 +452,41 @@ class PotentialPrimer {
       } else {
         // Check other parameters are still correct
         if(!this.goodGCContent()) {
-          logger(`Good Tm ${TmFromIDT} but now GC content wrong: ${gcContent(this.potentialPrimer)}`);
+          logger(`Good Tm ${TmFromIDT} but now GC content wrong: ${gcContent(potentialPrimer)}`);
           this.shiftPotentialPrimer();
           this.findPrimer();
-        } else if(checkForPolyN(this.potentialPrimer)) {
-          logger(`Good Tm ${TmFromIDT} but now polyN wrong: ${this.potentialPrimer} (n.b. never expecting to see this message)`);
+        } else if(this.polyNPresent()) {
+          logger(`Good Tm ${TmFromIDT} but now polyN wrong: ${potentialPrimer} (n.b. never expecting to see this message)`);
           this.shiftPotentialPrimer();
           this.findPrimer();
         } else {
           // SUCCESS!
           logger('SUCCEED to findPrimer');
-          this.deferred.resolve({
-            sequence: this.potentialPrimer,
-            from: this.i,
-            to: this.i + potentialPrimer.length - 1,
-            meltingTemperature: TmFromIDT,
-            // Calculate it again.  We shouldn't need to check as with current
-            // implementation (as of 2015-03-05) you can only reach here if
-            // the gcContent for a shorter primer is valid.
-            gcContent: gcContent(potentialPrimer),
-          });
+          var resultingPrimer = this.toPrimer(TmFromIDT);
+          this.deferred.resolve(resultingPrimer);
         }
       }
     }).catch(handleError);
+  }
+
+  toPrimer (TmFromIDT) {
+    var from = this.i;
+    var to = this.i + this.potentialPrimer.length - 1;
+    if(this.opts.findFromEnd) {
+      var oldTo = to;
+      to = this.sequence.length - from;
+      from = this.sequence.length - oldTo;
+    }
+    return new Primer({
+      sequence: this.potentialPrimer,
+      from: from,
+      to: to,
+      meltingTemperature: TmFromIDT,
+      // Calculate it again.  We shouldn't need to check as with current
+      // implementation (as of 2015-03-05) you can only reach here if
+      // the gcContent for a shorter primer is valid.
+      gcContent: gcContent(this.potentialPrimer),
+    });
   }
 
 }
@@ -477,10 +504,134 @@ var optimalPrimer4 = function(sequence, opts={}) {
 };
 
 
-// Some rudimentary tests
-if(false) {
-  import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+// Stubs for tests
+var stubOutIDTMeltingTemperature = function() {
+  var oldIDTMeltingTemperature = IDTMeltingTemperature;
+  var stubbedIDTMeltingTemperature = function(potentialPrimer) {
+    return Q.promise(function(resolve) {
+      var Tms = {
+        'AAAGGGAAAGGGAAAGGGAAAGGG': 66.6,
+        'GGGGTCCTAAAAATAATAATGGCATACAGG': 65.4,
+        'GGGGTCCTAAAAATAATAATGGCATACAG': 64,
+        'GGGTCCTAAAAATAATAATGGCATACAGGG': 65.4,
+        'GGGTCCTAAAAATAATAATGGCATACAGG': 64,
+        'AATAATAATGGCATACAGGGTGGTG': 63.1,
+        'CTCTAGTACTACTACTTTTCAACAGGC': 62.4,
+        'CGTACAGCACGTATGGTTCA': 61.9,
 
+        'GAGGGAGAGGTTATTTTCCTTATCTATGTG': 64.4,
+        'GTGTATCTATTCCTTTTATTGGAGAGGGAG': 64.4, // inverse sequence
+
+        'ATTGATTACGTACAGCACGTATGG': 62.8,
+        'GGTATGCACGACATGCATTAGTTA': 63.1, // inverse sequence
+        'CCATACGTGCTGTACGTAATCAAT': 62.8,
+        'TAACTAATGCATGTCGTGCATACC': 63.1,
+
+        'CTATCACAAGTGGGAACAATGTGG': 63.4,
+        'AACAATGTGGCAAAAGGTACTCGTT': 65.6,
+        'AAGGTACTCGTTTGACTTTGCA': 62.6,
+        'GCTAAAGGCCGTCAAAGATGT': 62.9,
+        'GCTAAAGGCCGTCAAAGATGTG': 63.6,
+        'GCTAAAGGCCGTCAAAGATGTGT': 65.2,
+        'GCTAAAGGCCGTCAAAGATGTGTA': 64.8,
+        'GCTAAAGGCCGTCAAAGATGTGTAT': 65,
+        'GCTAAAGGCCGTCAAAGATGTGTATA': 64.8,
+        'GCTAAAGGCCGTCAAAGATGTGTATAT': 65,
+        'GCTAAAGGCCGTCAAAGATGTGTATATA': 64.7,
+        'GCTAAAGGCCGTCAAAGATGTGTATATAA': 65.1,
+        'GCTAAAGGCCGTCAAAGATGTGTATATAAG': 65.3,
+        'CTAAAGGCCGTCAAAGATGTGT': 62.8,
+        'CTAAAGGCCGTCAAAGATGTGTA': 62.5,
+        'CTAAAGGCCGTCAAAGATGTGTAT': 62.9,
+        'CTAAAGGCCGTCAAAGATGTGTATA': 62.7,
+        'CTAAAGGCCGTCAAAGATGTGTATATAAGC': 65.3,
+        'TAAAGGCCGTCAAAGATGTGT': 62.2,
+        'TTAAGACGGAGCACTATGCG': 61.7,
+        'TTAAGACGGAGCACTATGCGG': 63.9,
+        'AGAGACTTACCGCCCTCATA': 61.8,
+        'AGAGACTTACCGCCCTCATAC': 62.7,
+        'CCTATCTGACTGGTAATAGTTCGAACTACT': 64.9,
+        'AGTCGTGCTAGATTTCTCAGTAAG': 61.8,
+        'AGTCGTGCTAGATTTCTCAGTAAGA': 63.1,
+        'AAAAGTAGCGAGACCTCACTTATG': 62.3,
+        'CGTCCAATTACAGTACTCTTAAGACC': 62.6,
+        'GCCCAAATTGCGGCTAACTC': 63.9,
+        'AGGAGATTCATTGCACAAACAAGC': 64.2,
+        'GTTAAGGTAAACTACGAGTTTGGTTAGAGG': 64.8,
+        'GGCTTCAACTGATATAGAGTGGAAT': 62.3,
+
+        // double check these
+        'CATCGGGGTTTGGTCCTTTA': 61.9,
+        'CCATCGGGGTTTGGTCCTTTA': 64.1,
+        'CACGACATGCATTAGTTATTATGGG': 62,
+        'TTCACTCCAGAGCGATGAAAA': 61.9,
+        'ATTCACTCCAGAGCGATGAAAA': 62.3,
+        'GAATTCTCATGACATTAACCTGCAG': 62.1,
+        'GAATATAACCTTTCATTCCCAGCGGTC': 65.2,
+        'AATATAACCTTTCATTCCCAGCGGTC': 64.9,
+        'GCATGAGAGGCCATTTAATTATACG': 62,
+        'TGAACGCTTGCTTGGTTCTG': 63.3,
+        'TCGTTAATCGCTTCCATGCG': 62.8,
+        'GGGGATCATTTTGCGCTTCA': 63.3,
+        'GGGCTAGCAGGGAAAATAATGAATA': 62.9,
+        'GTTCCATTATCAGGAGTGACATCT': 62,
+        'CAGCTAGATCGATACGCGAAAATTT': 63.5,
+        'CGAACAAACACGTTACTTAGAGGAAGA': 64.6,
+        'CCGTAGGTGTCGTTAATCTTAGAGAT': 63.4,
+        'GAGGACGTTACAAGTATTACTGTTAAGGAG': 64.4,
+        'GGAAGAGTCTCGAGCAATTACTCAAAA': 64.8,
+        'GGCGTGATTTTGTTTTACAAGGACA': 64.5,
+        'TGGTATTGTTGGAGCACCTATTAC': 62.5,
+        'GAAACCAAAGAACGCTATGCAATTC': 63.3,
+        'GAGAGGGTATGACTGTCCATACTGAATATA': 64.7,
+        'GTTGGAGATTGGTTTGAGCATCAAATG': 65,
+        'TATGCTCGGGCTCTTGATCC': 63.4,
+        'GAGACTGCTCATTGGATATTATCGA': 62.1,
+        'GCCGATGCTTTTGCATACGTAT': 63.7,
+        'TCATAGCTCACGCTGTAGGT': 62.5,
+        'CACGTTAAGGGATTTTGGTCATG': 62,
+        'TATCAAAATTGCTGTCTGCCAGGTG': 65.5,
+        'ATCAAAATTGCTGTCTGCCAGGTG': 65.9,
+        'TCAAAATTGCTGTCTGCCAGGTG': 65.7,
+        'CAAAATTGCTGTCTGCCAGGTG': 64.4,
+        'TAACCTTTCATTCCCAGCGG': 62.2,
+      };
+      var Tm = Tms[potentialPrimer];
+      if(Tm) {
+        console.log(`stubbedIDTMeltingTemperature received: ${potentialPrimer}, responding with Tm: ${Tm}`);
+        resolve(Tm);
+      } else {
+        if(false) {
+          // Go and get the result from IDT and record it so that we can update the Tms dictionary
+          console.warn(`Getting result from IDT for ${potentialPrimer} and storing on \`window.TmsFromIDT\`.  Please update the Tms dictionary.`);
+          if(!window.TmsFromIDT) {
+            window.TmsFromIDT = '';
+          }
+          oldIDTMeltingTemperature(potentialPrimer).then(function(Tm) {
+            window.TmsFromIDT += `'${potentialPrimer}': ${Tm},`;
+            resolve(Tm);
+          });
+        } else {
+          throw `Unknown IDT Tm for ${potentialPrimer}.  Look up on https://www.idtdna.com/calc/analyzer with Mg++ Conc of 2mM, and add to \`Tms\` dict.`;
+        }
+      }
+    });
+  };
+  IDTMeltingTemperature = stubbedIDTMeltingTemperature;
+  return stubbedIDTMeltingTemperature;
+};
+
+
+var restoreIDTMeltingTemperature = function(oldIDTMeltingTemperature) {
+  return function() {
+    console.log('Restoring IDTMeltingTemperature function');
+    IDTMeltingTemperature = oldIDTMeltingTemperature;
+  };
+};
+
+
+// Some tests
+if(false) {
   var sequence1 = 'AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGT';
   var sequence1Reversed = SequenceTransforms.toReverseComplements(sequence1);
   var sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
@@ -562,24 +713,7 @@ if(false) {
 
 
   // Test optimalPrimer4
-  var oldIDTMeltingTemperature = IDTMeltingTemperature;
-  var stubbedIDTMeltingTemperature = function(potentialPrimer) {
-    return Q.promise(function(resolve) {
-      var Tms = {
-        'GGGGTCCTAAAAATAATAATGGCATACAGG': 65.6,
-        'GGGGTCCTAAAAATAATAATGGCATACAG': 64.2,
-        'GGGTCCTAAAAATAATAATGGCATACAGGG': 65.6,
-        'GGGTCCTAAAAATAATAATGGCATACAGG': 64.2,
-        'AATAATAATGGCATACAGGGTGGTG': 63.3,
-        'CTCTAGTACTACTACTTTTCAACAGGC': 62.6,
-      };
-      var Tm = Tms[potentialPrimer];
-      if(!Tm) throw `Unknown IDT Tm for ${potentialPrimer}.  Look up on https://www.idtdna.com/calc/analyzer with Mg++ Conc of 2mM, and add to \`Tms\` dict.`;
-      console.log(`stubbedIDTMeltingTemperature received: ${potentialPrimer}, responding with Tm: ${Tm}`);
-      resolve(Tm);
-    });
-  };
-  IDTMeltingTemperature = stubbedIDTMeltingTemperature;
+  var oldIDTMeltingTemperature = stubOutIDTMeltingTemperature();
 
   var optimalPrimer4_TestFactory = function(sequence, testLabel, opts) {
     console.log(`Set up optimalPrimer4 test for ${testLabel}`);
@@ -601,12 +735,9 @@ if(false) {
       optimalPrimer4_TestFactory(sequence2,
       'optimalPrimer4 with sequence2',
       {expectedSequence: 'CTCTAGTACTACTACTTTTCAACAGGC'})
-  ]).then(function () {
-    console.log('Restoring IDTMeltingTemperature function');
-    IDTMeltingTemperature = oldIDTMeltingTemperature;
-  });
+  ]).then(restoreIDTMeltingTemperature(oldIDTMeltingTemperature));
 
 }
 
 
-export default optimalPrimer3;
+export default {optimalPrimer3, optimalPrimer4, stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature};

@@ -27,3 +27,9 @@ export function fastAExportSequenceFromID (products, sequenceID){
   var result = getProductAndSequenceForSequenceID(products, sequenceID);
   if(result) fastAExportSequence(result);
 }
+
+export function naiveReverseString (string) {
+  // Use this library for unicode strings with special chars
+  // https://github.com/mathiasbynens/esrever
+  return string.split("").reverse().join("");
+}

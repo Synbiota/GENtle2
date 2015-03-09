@@ -8,8 +8,8 @@ import Q from 'q';
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
-  var forwardPrimerPromise = PrimerCalculation(sequence, opts);
-  var reversePrimerPromise = PrimerCalculation(SequenceTransforms.toReverseComplements(sequence), opts);
+  var forwardPrimerPromise = PrimerCalculation.optimalPrimer3(sequence, opts);
+  var reversePrimerPromise = PrimerCalculation.optimalPrimer3(SequenceTransforms.toReverseComplements(sequence), opts);
   var lastProgress = [{}, {}];
 
   return Q.promise(function (resolve, reject, notify) {
