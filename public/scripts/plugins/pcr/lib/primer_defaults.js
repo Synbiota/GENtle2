@@ -2,6 +2,8 @@
 
 var defaultSequencingPrimerOptions = function(options={}) {
   _.defaults(options, {
+    // Set to false if we want to find a primer from the 5' end
+    findFrom3PrimeEnd: true,
     // Set to false when we have to find a primer from the start.
     allowShift: true,
     reverseSequence: false,

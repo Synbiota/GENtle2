@@ -61,8 +61,16 @@ Handlebars.registerHelper('select', function(context, options) {
   return output;
 });
 
+var formatThousands = function(context, offset) {
+  return _.formatThousands(context + (_.isObject(offset) ? 0 : offset))
+};
+
 Handlebars.registerHelper('formatThousands', function(context, offset) {
-  return _.formatThousands(context + (_.isObject(offset) ? 0 : offset));
+  return formatThousands(context, offset);
+});
+
+Handlebars.registerHelper('sequenceLength', function(sequenceModel) {
+  return formatThousands(sequenceModel.length(), 0);
 });
 
 Handlebars.registerHelper('plus', function(number, offset) {

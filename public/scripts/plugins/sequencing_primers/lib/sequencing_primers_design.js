@@ -5,18 +5,22 @@ import Q from 'q';
 import handleError from '../../../common/lib/handle_error';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import Primer from '../../pcr/lib/primer';
+import Product from '../../pcr/lib/product';
+import {mikeForward1} from '../../pcr/lib/universal_primers';
 
 
-var maxChunkLength = 500;
+var MAX_DNA_CHUNK_SIZE = 500;
+var GARBAGE_SEQUENCE_DNA = 80;
 var overlap = 30;
+
 
 var splitSequence = function(sequence) {
   var output = [];
   var len = sequence.length;
 
   // Calculate number of chunks
-  var x = Math.ceil(len/maxChunkLength);
-  var q = x * (maxChunkLength - overlap) + Math.max((x-1),0) * overlap;
+  var x = Math.ceil(len/MAX_DNA_CHUNK_SIZE);
+  var q = x * (MAX_DNA_CHUNK_SIZE - overlap) + Math.max((x-1),0) * overlap;
   var numberOfChunks = Math.ceil((len * x) / q);
   var start;
   var halfOverlap = Math.ceil(overlap/2);
@@ -74,7 +78,7 @@ var logger = function(...msg) {
 var getAllPrimers = function(sequence, options={}) {
   logger('+getAllPrimers');
   if(!_.isString(sequence)) sequence = sequence.get('sequence');
-  _.defaults(options, defaultSequencingPrimerOptions());
+  defaultSequencingPrimerOptions(options);
 
   var sequenceChunks = splitSequence(sequence);
   var maxParallel = 5;
@@ -128,72 +132,91 @@ var getAllPrimers = function(sequence, options={}) {
 };
 
 
-var GARBAGE_SEQUENCE_DNA = 80;
-var MAX_DNA_CHUNK_SIZE = 500;
-
-
-var _func = function(sequence, options, previousPrimer, deferredAllPrimers, primers, offset) {
-  options.findFromEnd = true;
-
+var _getAllPrimersAndProducts = function(sequence, options, previousPrimer, deferredAllPrimersAndProducts, productsAndPrimers, offset) {
   var until = MAX_DNA_CHUNK_SIZE;
 
-  if(previousPrimer) {
-    if(previousPrimer.to > -GARBAGE_SEQUENCE_DNA) {
-      deferredAllPrimers.reject(`previousPrimer must finish far enough back from start of sequence of interest but finishes at ${previousPrimer.to} instead of ${-GARBAGE_SEQUENCE_DNA}`);
-    } else if (previousPrimer.antisense) {
-      deferredAllPrimers.reject(`previousPrimer must be a sense (forwards) Primer`);
-    } else {
-      // previousPrimer.from will be negative relative to sequence of interest
-      until += previousPrimer.from;
-      if(until < options.minPrimerLength) {
-        deferredAllPrimers.reject(`Impossible to find a next primer.  Previous Primer must be closer to start of sequence which is region of interest`);
-      }
-    }
+  if(previousPrimer.to > -GARBAGE_SEQUENCE_DNA) {
+    deferredAllPrimersAndProducts.reject(`previousPrimer must finish far enough back from start of sequence of interest but finishes at ${previousPrimer.to} instead of ${-GARBAGE_SEQUENCE_DNA}`);
+  } else if (previousPrimer.antisense) {
+    deferredAllPrimersAndProducts.reject(`previousPrimer must be a sense (forwards) Primer`);
   } else {
-    options.allowShift = false;
-    options.findFromEnd = false;
+    // previousPrimer.from may be negative relative to sequence passed in above
+    until += previousPrimer.from;
+    if(until < options.minPrimerLength) {
+      deferredAllPrimersAndProducts.reject(`Impossible to find a next primer.  Previous Primer must be closer to start of sequence which is region of interest`);
+    }
   }
 
   var subSequence = sequence.substr(0, until);
-  var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(subSequence, options);
-  forwardPrimerPromise.then(function(forwardPrimer) {
+  PrimerCalculation.optimalPrimer4(subSequence, options).then(
+  function(forwardPrimer) {
+    var result = calculateProductAndModifyPrimer(productsAndPrimers, offset, sequence, forwardPrimer);
+    var newPreviousPrimer = result.newPreviousPrimer;
+    var remainingSequence = result.remainingSequence;
+    offset = result.offset;
 
-    var sequenceCovered = forwardPrimer.to + GARBAGE_SEQUENCE_DNA;
-    var newPreviousPrimer = forwardPrimer.duplicate();
-    newPreviousPrimer.shift(-sequenceCovered);
-    
-    forwardPrimer.shift(offset);
-    primers.push(forwardPrimer);
-
-    offset += sequenceCovered;
-    var remainingSequence = sequence.substr(sequenceCovered);
     if(remainingSequence.length > (MAX_DNA_CHUNK_SIZE + newPreviousPrimer.from)) {
-      _func(remainingSequence, options, newPreviousPrimer, deferredAllPrimers, primers, offset);
+      _getAllPrimersAndProducts(remainingSequence, options, newPreviousPrimer, deferredAllPrimersAndProducts, productsAndPrimers, offset);
     } else {
-      deferredAllPrimers.resolve(primers);
+      deferredAllPrimersAndProducts.resolve(productsAndPrimers);
     }
   }).catch(function(e) {
-    deferredAllPrimers.reject(e);
+    deferredAllPrimersAndProducts.reject(e);
   });
 
 };
 
+var calculateProductAndModifyPrimer = function(productsAndPrimers, offset, sequence, primer) {
+  // TODO:  remove assumption this is a forward primer
+  var index = productsAndPrimers.length;
+
+  var sequenceCovered = primer.to + GARBAGE_SEQUENCE_DNA;
+  var newPreviousPrimer = primer.duplicate();
+  newPreviousPrimer.shift(-sequenceCovered);
+  var remainingSequence = sequence.substr(sequenceCovered);
+  var subSequenceLength = sequence.length - primer.from;
+  var productLength = Math.min(subSequenceLength, MAX_DNA_CHUNK_SIZE);
+
+  // Calculate fields and modify Primer and Product
+  primer.shift(offset);
+  
+  var direction = 'forward';  // TODO: see above.
+  var productName = `Product ${index + 1} (${direction})`;
+  var productFrom = primer.from;
+  var productTo = primer.from + productLength - 1;
+  
+  primer.name = productName + ' - primer';
+  var product = new Product({
+    name: productName,
+    from: productFrom,
+    to: productTo,
+    primer: primer,
+  });
+
+  productsAndPrimers.push(product);
+
+  offset += sequenceCovered;
+
+  return {offset, newPreviousPrimer, remainingSequence};
+};
+
 /**
- * [getAllPrimers2 description]
+ * [getAllPrimersAndProducts description]
  * @param  {[String]} sequence    [description]
- * @param  {Object} options       [description]
  * @param  {[Primer]} firstPrimer  The primer that comes before the sequence begins
+ * @param  {Object} options       [description]
  * @return {[type]}               [description]
  */
-var getAllPrimers2 = function(sequence, options={}, firstPrimer=undefined) {
-  _.defaults(options, defaultSequencingPrimerOptions());
-  var deferredAllPrimers = Q.defer();
-  var primers = [];
-  if(firstPrimer) primers.push(firstPrimer);
-  
-  _func(sequence, options, firstPrimer, deferredAllPrimers, primers, 0);
+var getAllPrimersAndProducts = function(sequence, firstPrimer, options={}) {
+  defaultSequencingPrimerOptions(options);
+  var deferredAllPrimersAndProducts = Q.defer();
+  var productsAndPrimers = [];
 
-  return deferredAllPrimers.promise;
+  calculateProductAndModifyPrimer(productsAndPrimers, 0, sequence, firstPrimer);
+
+  _getAllPrimersAndProducts(sequence, options, firstPrimer, deferredAllPrimersAndProducts, productsAndPrimers, 0);
+
+  return deferredAllPrimersAndProducts.promise;
 };
 
 
@@ -346,38 +369,44 @@ if(false) {
     'CG');
 
 
-  var checkResult = function(testLabel, expectedPrimers, calculatedPrimers) {
-    var fields = ['from', 'to', 'sequence', 'meltingTemperature', 'gcContent'];
-    _.each(expectedPrimers, function(expectedPrimer, i){
-      _.each(fields, function(field, j) {
-        var expected = expectedPrimer[field];
-        var calculated = calculatedPrimers[i][field];
-        console.assert(expected === calculated, `field: ${field} expected: ${expected} and calculated: ${calculated} are not equal.`);
+  var checkResult = function(testLabel, expectedPrimersAndProducts, calculatedPrimersAndProducts) {
+    var productFields = ['from', 'to', 'name'];
+    var primerFields = ['from', 'to', 'name', 'sequence', 'meltingTemperature', 'gcContent'];
+    _.each(expectedPrimersAndProducts, function(expectedProductAndPrimer, i){
+      _.each(productFields, function(productField, j) {
+        var expected = expectedProductAndPrimer[productField];
+        var calculated = calculatedPrimersAndProducts[i][productField];
+        console.assert(expected === calculated, `productField \`${productField}\`: expected ${expected} and calculated ${calculated} are not equal.`);
+      });
+      _.each(primerFields, function(primerField, j) {
+        var expected = expectedProductAndPrimer.primer[primerField];
+        var calculated = calculatedPrimersAndProducts[i].primer[primerField];
+        console.assert(expected === calculated, `primerField \`${primerField}\`: expected ${expected} and calculated ${calculated} are not equal.`);
       });
     });
   };
 
-  var getAllPrimers2_TestFactory = function(sequence, testLabel, firstPrimerDetails, expectedPrimers) {
-    console.log(`Set up getAllPrimers2 test for ${testLabel}`);
-    var getAllPrimers2_TestFinished = Q.defer();
+  var getAllPrimersAndProducts_TestFactory = function(sequence, testLabel, firstPrimerDetails, expectedPrimersAndProducts) {
+    console.log(`Set up getAllPrimersAndProducts test for ${testLabel}`);
+    var getAllPrimersAndProducts_TestFinished = Q.defer();
 
     var firstPrimer = new Primer(firstPrimerDetails);
-    getAllPrimers2(sequence, defaultSequencingPrimerOptions(), firstPrimer)
-    .then(function(optimalPrimers){
-      console.log(`Got getAllPrimers2 results for ${testLabel}, optimalPrimers:`, optimalPrimers);
-      checkResult(testLabel, expectedPrimers, optimalPrimers);
-      getAllPrimers2_TestFinished.resolve();
+    getAllPrimersAndProducts(sequence, firstPrimer, defaultSequencingPrimerOptions())
+    .then(function(calculatedPrimersAndProducts){
+      console.log(`Got getAllPrimersAndProducts results for ${testLabel}, calculatedPrimersAndProducts:`, calculatedPrimersAndProducts);
+      checkResult(testLabel, expectedPrimersAndProducts, calculatedPrimersAndProducts);
+      getAllPrimersAndProducts_TestFinished.resolve();
     }).catch(function(e){
       console.error(e);
-      getAllPrimers2_TestFinished.reject(e);
+      getAllPrimersAndProducts_TestFinished.reject(e);
     });
     
-    return getAllPrimers2_TestFinished.promise;
+    return getAllPrimersAndProducts_TestFinished.promise;
   };
 
   // Tests
-  var testSequence863 = getAllPrimers2_TestFactory(sequence863,
-    'getAllPrimers2 with sequence863',
+  var testSequence863 = getAllPrimersAndProducts_TestFactory(sequence863,
+    'getAllPrimersAndProducts with sequence863',
     {
       sequence: 'AAAGGGAAAGGGAAACCCAAA',
       name: 'First (universal) primer',
@@ -387,155 +416,305 @@ if(false) {
       gcContent: 0.429,
     },
     [{
-      sequence: "AAAGGGAAAGGGAAACCCAAA",
+      name: 'Product 1 (forward)',
       from: -100,
-      to: -80,
-      meltingTemperature: 62.6,
-      gcContent: 0.429,
+      to: 399,
+      primer: {
+        name: 'Product 1 (forward) - primer',
+        from: -100,
+        to: -80,
+        sequence: 'AAAGGGAAAGGGAAACCCAAA',
+        meltingTemperature: 62.6,
+        gcContent: 0.429,
+      }
     },{
-      sequence: "GTGTATCTATTCCTTTTATTGGAGAGGGAG",
-      from: 371,
-      to: 400,
-      meltingTemperature: 64.4,
-      gcContent: 0.4,
+      name: 'Product 2 (forward)',
+      from: 370,
+      to: 869,
+      primer: {
+        name: 'Product 2 (forward) - primer',
+        from: 370,
+        to: 399,
+        sequence: 'GTGTATCTATTCCTTTTATTGGAGAGGGAG',
+        gcContent: 0.4,
+        meltingTemperature: 64.4,
+      }
     },{
-      sequence: "GGTATGCACGACATGCATTAGTTA",
-      from: 848,
-      to: 871,
-      meltingTemperature: 63.1,
-      gcContent: 10/24,
+      name: 'Product 3 (forward)',
+      from: 847,
+      to: 919,
+      primer: {
+        name: 'Product 3 (forward) - primer',
+        from: 847,
+        to: 869,
+        sequence: 'GGTATGCACGACATGCATTAGTT',
+        gcContent: 10/23,
+        meltingTemperature: 63.4,
+      }
     }]);
 
-  var testSequenceFromMike = getAllPrimers2_TestFactory(sequenceFromMike,
-    'getAllPrimers2 with sequenceFromMike',
-    {
-      sequence: 'TGCCACCTGACGTCTAAGAA',
-      name: "First (Mike's universal) primer",
-      from: -148,
-      to: -129,
-      meltingTemperature: 63,
-      gcContent: 0.5,
-    },
+  var testSequenceFromMike = getAllPrimersAndProducts_TestFactory(sequenceFromMike,
+    'getAllPrimersAndProducts with sequenceFromMike',
+    mikeForward1(),
     [{
-      sequence: "TGCCACCTGACGTCTAAGAA",
-      from: -148,
-      to: -129,
-      meltingTemperature: 63,
-      gcContent: 0.5,
-    },{
-      sequence: "CAAAATTGCTGTCTGCCAGGTG",
-      from: 294,
-      to: 315,
-      meltingTemperature: 64.4,
-      gcContent: 0.5,
-    },{
-      sequence: "TAACCTTTCATTCCCAGCGG",
-      from: 746,
-      to: 765,
-      meltingTemperature: 62.2,
-      gcContent: 0.5,
-    },{
-      sequence: "GGGCTAGCAGGGAAAATAATGAATA",
-      from: 1203,
-      to: 1227,
-      meltingTemperature: 62.9,
-      gcContent: 0.4,
-    },{
-      sequence: "GTTCCATTATCAGGAGTGACATCT",
-      from: 1680,
-      to: 1703,
-      meltingTemperature: 62,
-      gcContent: 0.4166666666666667,
-    },{
-      sequence: "CAGCTAGATCGATACGCGAAAATTT",
-      from: 2148,
-      to: 2172,
-      meltingTemperature: 63.5,
-      gcContent: 0.4,
-    },{
-      sequence: "CGAACAAACACGTTACTTAGAGGAAGA",
-      from: 2609,
-      to: 2635,
-      meltingTemperature: 64.6,
-      gcContent: 0.4074074074074074,
-    },{
-      sequence: "CCGTAGGTGTCGTTAATCTTAGAGAT",
-      from: 3084,
-      to: 3109,
-      meltingTemperature: 63.4,
-      gcContent: 0.4230769230769231,
-    },{
-      sequence: "GAGGACGTTACAAGTATTACTGTTAAGGAG",
-      from: 3521,
-      to: 3550,
-      meltingTemperature: 64.4,
-      gcContent: 0.4,
-    },{
-      sequence: "GGAAGAGTCTCGAGCAATTACTCAAAA",
-      from: 3991,
-      to: 4017,
-      meltingTemperature: 64.8,
-      gcContent: 0.4074074074074074,
-    },{
-      sequence: "GGCGTGATTTTGTTTTACAAGGACA",
-      from: 4455,
-      to: 4479,
-      meltingTemperature: 64.5,
-      gcContent: 0.4,
-    },{
-      sequence: "TGGTATTGTTGGAGCACCTATTAC",
-      from: 4884,
-      to: 4907,
-      meltingTemperature: 62.5,
-      gcContent: 0.4166666666666667,
-    },{
-      sequence: "GAAACCAAAGAACGCTATGCAATTC",
-      from: 5332,
-      to: 5356,
-      meltingTemperature: 63.3,
-      gcContent: 0.4,
-    },{
-      sequence: "GAGAGGGTATGACTGTCCATACTGAATATA",
-      from: 5779,
-      to: 5808,
-      meltingTemperature: 64.7,
-      gcContent: 0.4,
-    },{
-      sequence: "GTTGGAGATTGGTTTGAGCATCAAATG",
-      from: 6186,
-      to: 6212,
-      meltingTemperature: 65,
-      gcContent: 0.4074074074074074,
-    },{
-      sequence: "TATGCTCGGGCTCTTGATCC",
-      from: 6666,
-      to: 6685,
-      meltingTemperature: 63.4,
-      gcContent: 0.55,
-    },{
-      sequence: "GAGACTGCTCATTGGATATTATCGA",
-      from: 7135,
-      to: 7159,
-      meltingTemperature: 62.1,
-      gcContent: 0.4,
-    },{
-      sequence: "GCCGATGCTTTTGCATACGTAT",
-      from: 7614,
-      to: 7635,
-      meltingTemperature: 63.7,
-      gcContent: 0.45454545454545453,
-    },{
-      sequence: "TCATAGCTCACGCTGTAGGT",
-      from: 8095,
-      to: 8114,
-      meltingTemperature: 62.5,
-      gcContent: 0.5,
-    },{
-      sequence: "CACGTTAAGGGATTTTGGTCATG",
-      from: 8544,
-      to: 8566,
-      meltingTemperature: 62,
-      gcContent: 0.43478260869565216,
+      "name":"Product 1 (forward)",
+      "from": -148,
+      "to": 351,
+      "primer": {
+        "name":"Product 1 (forward) - primer",
+        "from": -148,
+        "to": -129,
+        "sequence": "TGCCACCTGACGTCTAAGAA",
+        "meltingTemperature": 63,
+        "gcContent": 0.5,
+      },
+    },
+    {
+      "name":"Product 2 (forward)",
+      "from": 293,
+      "to": 792,
+      "primer": {
+        "name":"Product 2 (forward) - primer",
+        "from": 293,
+        "to": 314,
+        "sequence": "CAAAATTGCTGTCTGCCAGGTG",
+        "meltingTemperature": 64.4,
+        "gcContent": 0.5,
+      },
+    },
+    {
+      "name":"Product 3 (forward)",
+      "from": 745,
+      "to": 1244,
+      "primer": {
+        "name":"Product 3 (forward) - primer",
+        "from": 745,
+        "to": 766,
+        "sequence": "TAACCTTTCATTCCCAGCGGTC",
+        "meltingTemperature": 64.4,
+        "gcContent": 0.5,
+      },
+    },
+    {
+      "name":"Product 4 (forward)",
+      "from": 1202,
+      "to": 1701,
+      "primer": {
+        "name":"Product 4 (forward) - primer",
+        "from": 1202,
+        "to": 1226,
+        "sequence": "GGGCTAGCAGGGAAAATAATGAATA",
+        "meltingTemperature": 62.9,
+        "gcContent": 0.4,
+      },
+    },
+    {
+      "name":"Product 5 (forward)",
+      "from": 1678,
+      "to": 2177,
+      "primer": {
+        "name":"Product 5 (forward) - primer",
+        "from": 1678,
+        "to": 1701,
+        "sequence": "TGTTCCATTATCAGGAGTGACATC",
+        "meltingTemperature": 62.2,
+        "gcContent": 0.4166666666666667,
+      },
+    },
+    {
+      "name":"Product 6 (forward)",
+      "from": 2147,
+      "to": 2646,
+      "primer": {
+        "name":"Product 6 (forward) - primer",
+        "from": 2147,
+        "to": 2171,
+        "sequence": "CAGCTAGATCGATACGCGAAAATTT",
+        "meltingTemperature": 63.5,
+        "gcContent": 0.4,
+      },
+    },
+    {
+      "name":"Product 7 (forward)",
+      "from": 2608,
+      "to": 3107,
+      "primer": {
+        "name":"Product 7 (forward) - primer",
+        "from": 2608,
+        "to": 2634,
+        "sequence": "CGAACAAACACGTTACTTAGAGGAAGA",
+        "meltingTemperature": 64.6,
+        "gcContent": 0.4074074074074074,
+      },
+    },
+    {
+      "name":"Product 8 (forward)",
+      "from": 3083,
+      "to": 3582,
+      "primer": {
+        "name":"Product 8 (forward) - primer",
+        "from": 3083,
+        "to": 3107,
+        "sequence": "CCGTAGGTGTCGTTAATCTTAGAGA",
+        "meltingTemperature": 63.1,
+        "gcContent": 0.44,
+      },
+    },
+    {
+      "name":"Product 9 (forward)",
+      "from": 3525,
+      "to": 4024,
+      "primer": {
+        "name":"Product 9 (forward) - primer",
+        "from": 3525,
+        "to": 3551,
+        "sequence": "CGTTACAAGTATTACTGTTAAGGAGCG",
+        "meltingTemperature": 63.4,
+        "gcContent": 0.4074074074074074,
+      },
+    },
+    {
+      "name":"Product 10 (forward)",
+      "from": 3990,
+      "to": 4489,
+      "primer": {
+        "name":"Product 10 (forward) - primer",
+        "from": 3990,
+        "to": 4016,
+        "sequence": "GGAAGAGTCTCGAGCAATTACTCAAAA",
+        "meltingTemperature": 64.8,
+        "gcContent": 0.4074074074074074,
+      },
+    },
+    {
+      "name":"Product 11 (forward)",
+      "from": 4454,
+      "to": 4953,
+      "primer": {
+        "name":"Product 11 (forward) - primer",
+        "from": 4454,
+        "to": 4478,
+        "sequence": "GGCGTGATTTTGTTTTACAAGGACA",
+        "meltingTemperature": 64.5,
+        "gcContent": 0.4,
+      },
+    },
+    {
+      "name":"Product 12 (forward)",
+      "from": 4883,
+      "to": 5382,
+      "primer": {
+        "name":"Product 12 (forward) - primer",
+        "from": 4883,
+        "to": 4906,
+        "sequence": "TGGTATTGTTGGAGCACCTATTAC",
+        "meltingTemperature": 62.5,
+        "gcContent": 0.4166666666666667,
+      },
+    },
+    {
+      "name":"Product 13 (forward)",
+      "from": 5331,
+      "to": 5830,
+      "primer": {
+        "name":"Product 13 (forward) - primer",
+        "from": 5331,
+        "to": 5355,
+        "sequence": "GAAACCAAAGAACGCTATGCAATTC",
+        "meltingTemperature": 63.3,
+        "gcContent": 0.4,
+      },
+    },
+    {
+      "name":"Product 14 (forward)",
+      "from": 5778,
+      "to": 6277,
+      "primer": {
+        "name":"Product 14 (forward) - primer",
+        "from": 5778,
+        "to": 5807,
+        "sequence": "GAGAGGGTATGACTGTCCATACTGAATATA",
+        "meltingTemperature": 64.7,
+        "gcContent": 0.4,
+      },
+    },
+    {
+      "name":"Product 15 (forward)",
+      "from": 6185,
+      "to": 6684,
+      "primer": {
+        "name":"Product 15 (forward) - primer",
+        "from": 6185,
+        "to": 6211,
+        "sequence": "GTTGGAGATTGGTTTGAGCATCAAATG",
+        "meltingTemperature": 65,
+        "gcContent": 0.4074074074074074,
+      },
+    },
+    {
+      "name":"Product 16 (forward)",
+      "from": 6665,
+      "to": 7164,
+      "primer": {
+        "name":"Product 16 (forward) - primer",
+        "from": 6665,
+        "to": 6684,
+        "sequence": "TATGCTCGGGCTCTTGATCC",
+        "meltingTemperature": 63.4,
+        "gcContent": 0.55,
+      },
+    },
+    {
+      "name":"Product 17 (forward)",
+      "from": 7134,
+      "to": 7633,
+      "primer": {
+        "name":"Product 17 (forward) - primer",
+        "from": 7134,
+        "to": 7158,
+        "sequence": "GAGACTGCTCATTGGATATTATCGA",
+        "meltingTemperature": 62.1,
+        "gcContent": 0.4,
+      },
+    },
+    {
+      "name":"Product 18 (forward)",
+      "from": 7613,
+      "to": 8112,
+      "primer": {
+        "name":"Product 18 (forward) - primer",
+        "from": 7613,
+        "to": 7633,
+        "sequence": "GCCGATGCTTTTGCATACGTA",
+        "meltingTemperature": 63.4,
+        "gcContent": 0.47619047619047616,
+      },
+    },
+    {
+      "name":"Product 19 (forward)",
+      "from": 8092,
+      "to": 8591,
+      "primer": {
+        "name":"Product 19 (forward) - primer",
+        "from": 8092,
+        "to": 8112,
+        "sequence": "TCTCATAGCTCACGCTGTAGG",
+        "meltingTemperature": 62.9,
+        "gcContent": 0.5238095238095238,
+      },
+    },
+    {
+      "name":"Product 20 (forward)",
+      "from": 8543,
+      "to": 8792,
+      "primer": {
+        "name":"Product 20 (forward) - primer",
+        "from": 8543,
+        "to": 8565,
+        "sequence": "CACGTTAAGGGATTTTGGTCATG",
+        "meltingTemperature": 62,
+        "gcContent": 0.43478260869565216,
+      }
     }]);
 
   Q.all([
@@ -545,4 +724,4 @@ if(false) {
   .then(PrimerCalculation.restoreIDTMeltingTemperature(oldIDTMeltingTemperature)).done();
 }
 
-export default getAllPrimers;
+export default getAllPrimersAndProducts;

@@ -89,7 +89,7 @@ var gcContent = SequenceCalculations.gcContent;
 var IDTMeltingTemperatureCache = {};
 
 var IDTMeltingTemperature = function(sequence) {
-  return IDT(sequence).then((result) => result.MeltTemp);
+  return IDT(sequence).then((result) => parseFloat(result.MeltTemp));
 };
 
 // var optimalPrimer = function(sequence, opts = {}) {
@@ -377,7 +377,7 @@ class PotentialPrimer {
 
   updatePotentialPrimer () {
     if((this.i + this.size) <= this.sequence.length) {
-      if(this.opts.findFromEnd) {
+      if(this.opts.findFrom3PrimeEnd) {
         var len = this.sequence.length;
         this.potentialPrimer = this.sequence.substr(len-this.i-this.size, this.size);
       } else {
@@ -470,13 +470,15 @@ class PotentialPrimer {
   }
 
   toPrimer (TmFromIDT) {
-    var from = this.i;
-    var to = this.i + this.potentialPrimer.length - 1;
-    if(this.opts.findFromEnd) {
-      var oldTo = to;
-      to = this.sequence.length - from;
-      from = this.sequence.length - oldTo;
+    var to, from;
+    if(this.opts.findFrom3PrimeEnd) {
+      from = this.sequence.length - this.i - this.potentialPrimer.length;
+      to = this.sequence.length - this.i - 1;
+    } else {
+      from = this.i;
+      to = this.i + this.potentialPrimer.length - 1;
     }
+
     return new Primer({
       sequence: this.potentialPrimer,
       from: from,
@@ -595,14 +597,28 @@ var stubOutIDTMeltingTemperature = function() {
         'TCAAAATTGCTGTCTGCCAGGTG': 65.7,
         'CAAAATTGCTGTCTGCCAGGTG': 64.4,
         'TAACCTTTCATTCCCAGCGG': 62.2,
+        'CTCATCCTCGTTTAATTCCACATGA': 62.9,
+        'TATCTATTCCTTTTATTGGAGAGGGAGGAG': 65,
+        'ACTTGGTATGCACGACATGC': 62.9,
+        'GGTATGCACGACATGCATTAGTT': 63.4,
+        'TAACCTTTCATTCCCAGCGGTC': 64.4,
+        'TGTTCCATTATCAGGAGTGACATC': 62.2,
+        'CCGTAGGTGTCGTTAATCTTAGAGA': 63.1,
+        'CGTTACAAGTATTACTGTTAAGGAGCG': 63.4,
+        'GCCGATGCTTTTGCATACGTA': 63.4,
+        'CTCATAGCTCACGCTGTAGG': 61.4,
+        'TCTCATAGCTCACGCTGTAGG': 62.9,
       };
       var Tm = Tms[potentialPrimer];
       if(Tm) {
         console.log(`stubbedIDTMeltingTemperature received: ${potentialPrimer}, responding with Tm: ${Tm}`);
         resolve(Tm);
       } else {
-        if(false) {
-          // Go and get the result from IDT and record it so that we can update the Tms dictionary
+        // Set to true to go and get the result from IDT and record it so that
+        // we can update the Tms dictionary
+        // Default this to false, we don't want to be hammering IDT during tests.
+        var automaticallyGoToIDT = false;
+        if(automaticallyGoToIDT) {
           console.warn(`Getting result from IDT for ${potentialPrimer} and storing on \`window.TmsFromIDT\`.  Please update the Tms dictionary.`);
           if(!window.TmsFromIDT) {
             window.TmsFromIDT = '';
@@ -632,6 +648,7 @@ var restoreIDTMeltingTemperature = function(oldIDTMeltingTemperature) {
 
 // Some tests
 if(false) {
+  var bothEndsSequence = 'ATTGATTACGTACAGCACGTATGG' + 'AAAAAA' + 'GTGTATCTATTCCTTTTATTGGAGAGGGAG';
   var sequence1 = 'AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGT';
   var sequence1Reversed = SequenceTransforms.toReverseComplements(sequence1);
   var sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
@@ -644,20 +661,31 @@ if(false) {
     useIDT: false
   };
 
-  var checkResult = function(result, testLabel, options={}) {
-    options = _.defaults(options, {
+  var checkResult = function(result, testLabel, expectations={}) {
+    expectations = _.defaults(expectations, {
       gcContentGreaterThan: 0.3,
       minimumMeltingTemperature: 62,
     });
     console.log(`Testing ${testLabel} with result:`, result);
     console.assert(result.meltingTemperature <= 65, `meltingTemperature should be <= 65 but is ${result.meltingTemperature}`);
-    console.assert(result.meltingTemperature >= options.minimumMeltingTemperature,
-      `meltingTemperature should be >= ${options.minimumMeltingTemperature} but is ${result.meltingTemperature}`);
+    console.assert(result.meltingTemperature >= expectations.minimumMeltingTemperature,
+      `meltingTemperature should be >= ${expectations.minimumMeltingTemperature} but is ${result.meltingTemperature}`);
     console.assert(result.gcContent <= 0.7, `gcContent should be <= 0.7 but is ${result.gcContent}`);
-    console.assert(result.gcContent >= options.gcContentGreaterThan, `gcContent should be >= ${options.gcContentGreaterThan} but is ${result.gcContent}`);
-    if(options.expectedSequence) {
-      console.assert(result.sequence === options.expectedSequence, `expected sequence: ${options.expectedSequence} but got ${result.sequence}`);
-    }
+    console.assert(result.gcContent >= expectations.gcContentGreaterThan, `gcContent should be >= ${expectations.gcContentGreaterThan} but is ${result.gcContent}`);
+
+    var fieldsToCheck = [
+      ['expectedSequence', 'sequence'],
+      ['expectedFrom', 'from'],
+      ['expectedTo', 'to'],
+    ];
+    _.each(fieldsToCheck, function(fieldPair) {
+      var expectation = expectations[fieldPair[0]];
+      var field = fieldPair[1];
+      var actual = result[field];
+      if(expectation) {
+        console.assert(actual === expectation, `expected ${field}: ${expectation} but got ${actual}`);
+      }
+    });
   };
 
   var asyncCheckResultFactory = function(testLabel, options={}) {
@@ -715,26 +743,49 @@ if(false) {
   // Test optimalPrimer4
   var oldIDTMeltingTemperature = stubOutIDTMeltingTemperature();
 
-  var optimalPrimer4_TestFactory = function(sequence, testLabel, opts) {
+  var optimalPrimer4_TestFactory = function(sequence, testLabel, expectations, options={}) {
     console.log(`Set up optimalPrimer4 test for ${testLabel}`);
     var optimalPrimer4_TestFinished = Q.defer();
 
-    optimalPrimer4(sequence, defaultSequencingPrimerOptions()).then(
+    defaultSequencingPrimerOptions(options);
+
+    optimalPrimer4(sequence, options).then(
     function(optimalPrimer){
       console.log(`Got optimalPrimer4 results for ${testLabel}, optimalPrimer:`, optimalPrimer);
-      checkResult(optimalPrimer, testLabel, opts);
+      checkResult(optimalPrimer, testLabel, expectations);
       optimalPrimer4_TestFinished.resolve();
     });
     return optimalPrimer4_TestFinished.promise;
   };
 
   Q.all([
+      optimalPrimer4_TestFactory(bothEndsSequence,
+      'optimalPrimer4 with bothEndsSequence',
+      {expectedSequence: 'ATTGATTACGTACAGCACGTATGG', expectedFrom: 0, expectedTo: 23},
+      {findFrom3PrimeEnd: false}),
+
+      optimalPrimer4_TestFactory(bothEndsSequence,
+      'optimalPrimer4 with bothEndsSequence',
+      {expectedSequence: 'GTGTATCTATTCCTTTTATTGGAGAGGGAG', expectedFrom: 30, expectedTo: 59},
+      {findFrom3PrimeEnd: true}),
+      
       optimalPrimer4_TestFactory(sequence1,
       'optimalPrimer4 with sequence1',
-      {expectedSequence: 'AATAATAATGGCATACAGGGTGGTG'}),
+      {expectedSequence: 'AATAATAATGGCATACAGGGTGGTG'},
+      {findFrom3PrimeEnd: false}),
+
+      optimalPrimer4_TestFactory(sequence1,
+      'optimalPrimer4 with sequence1',
+      {expectedSequence: 'TATCTATTCCTTTTATTGGAGAGGGAGGAG'}),
+      
       optimalPrimer4_TestFactory(sequence2,
       'optimalPrimer4 with sequence2',
-      {expectedSequence: 'CTCTAGTACTACTACTTTTCAACAGGC'})
+      {expectedSequence: 'CTCTAGTACTACTACTTTTCAACAGGC'},
+      {findFrom3PrimeEnd: false}),
+
+      optimalPrimer4_TestFactory(sequence2,
+      'optimalPrimer4 with sequence2',
+      {expectedSequence: 'ACTTGGTATGCACGACATGC'})
   ]).then(restoreIDTMeltingTemperature(oldIDTMeltingTemperature));
 
 }

@@ -16,8 +16,14 @@ class Sequence {
       if(_.has(data, field)) this[field] = data[field];
     });
 
+    // Run any setup required
+    this.setup();
+
     // Data validation
     this.validate();
+  }
+
+  setup () {
   }
 
   allFields () {
@@ -40,11 +46,13 @@ class Sequence {
     if(this.antisense) {
       assertion(this.from >= this.to, msg);
     } else {
-      assertion(this.from < this.to, msg);
+      assertion(this.from <= this.to, msg);
     }
 
-    var len = (this.sequence || '').length;
-    assertion((Math.abs(this.to - this.from) + 1) <= len, `length ${len} is less than \`from\` ${this.from} and \`to\` ${this.to}`);
+    if(this.sequence) {
+      var len = this.sequence.length;
+      assertion((len >= this.length()), `length of sequence: \`${len}\` is less than length of primer: ${this.length()} (\`from\` ${this.from} and \`to\` ${this.to})`);
+    }
   }
 
   toJSON () {
@@ -54,10 +62,14 @@ class Sequence {
     }), {});
   }
 
+  length () {
+    return Math.abs(this.from - this.to) + 1;
+  }
+
   duplicate () {
     var data = this.toJSON();
     delete data.id;
-    return new Primer(data);
+    return new this.constructor(data);
   }
 
   shift (count) {

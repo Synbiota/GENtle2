@@ -37,24 +37,14 @@
           <td></td>
         </tr> --}}
         <tr>
-          <td><small>{{forwardPrimer.name}}</small></td>
-          <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
-          <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
-          <td>{{{sequenceFastAExportButton forwardPrimer.id}}}</td>
+          <td><small>{{primer.name}}</small></td>
+          <td class="text-right"><small>{{sequenceLength primer}}bp</small></td>
+          <td class="text-right"><small>{{round primer.gcContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round primer.meltingTemperature 1}}&deg;C</small></td>
+          <td>{{{sequenceFastAExportButton primer.id}}}</td>
         </tr>
         <tr>
-          <td colspan="5" class="sequence">{{{displaySequence forwardPrimer.sequence}}}</td>
-        <tr>
-        <tr>
-          <td><small>{{reversePrimer.name}}</small></td>
-          <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
-          <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
-          <td>{{{sequenceFastAExportButton reversePrimer.id}}}</td>
-        </tr>
-        <tr>
-          <td colspan="5" class="sequence">{{{displaySequence reversePrimer.sequence}}}</td>
+          <td colspan="5" class="sequence">{{{displaySequence primer.sequence}}}</td>
         <tr>
         
       </tbody>

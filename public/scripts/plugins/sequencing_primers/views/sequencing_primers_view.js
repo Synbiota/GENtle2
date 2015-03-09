@@ -6,6 +6,9 @@ import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 import handleError from '../../../common/lib/handle_error';
+import Primer from '../../pcr/lib/primer';
+import Product from '../../pcr/lib/product';
+import {mikeForward1} from '../../pcr/lib/universal_primers';
 
 
 export default Backbone.View.extend({
@@ -18,6 +21,9 @@ export default Backbone.View.extend({
 
   initialize: function() {
     this.model = Gentle.currentSequence;
+    var products = this.getProducts();
+    _.map((productData) => new Product(productData), products);
+    this.model.set('meta.sequencingPrimers.products', products);
     this.setView('.sequencing-primers-products-container', new ProductsView());
     this.setView('.sequencing-primers-canvas-container', new CanvasView());
   },
@@ -36,7 +42,11 @@ export default Backbone.View.extend({
     if(event) event.preventDefault();
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
-    PrimersDesign(this.model.sequence.get('sequence'), {}).progress((progress) => {
+
+    // For the moment we default to a forward primer that Mike provided.
+    // This primer will need to be specified in the UI.
+    var universalForwardPrimer = mikeForward1();
+    PrimersDesign(this.model.get('sequence'), universalForwardPrimer).progress((progress) => {
       this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
     }).then((results) => {
       console.log('done', results)
@@ -57,29 +67,21 @@ export default Backbone.View.extend({
         _type: 'sequencing_product',
         ranges: [{
           from: product.from,
-          to: product.to - 1
+          to: product.to
         }]
       });
-      if(product.forwardPrimer) {
+      var primer = product.primer;
+      if(primer) {
         features.push({
-          name: product.forwardPrimer.name,
+          name: primer.name,
           _type: 'primer',
           ranges: [{
-            from: product.from,
-            to: product.from + product.forwardPrimer.sequenceLength - 1,
+            from: primer.from,
+            to: primer.to,
           }]
         });
       }
-      if(product.reversePrimer) {
-        features.push({
-          name: product.reversePrimer.name,
-          _type: 'primer',
-          ranges: [{
-            from: product.to - product.reversePrimer.sequenceLength,
-            to: product.to - 1,
-          }]
-        });
-      }
+
     });
 
     return new Sequence({
