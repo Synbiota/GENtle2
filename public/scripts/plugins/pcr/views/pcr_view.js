@@ -65,7 +65,7 @@ export default Backbone.View.extend({
 
     this.$('.new-pcr-product-form').hide();
     this.$('.new-pcr-progress').show();
-    this.$('.new-pcr-progress .progress-bar').css('width', 0);
+    this.updateProgressBar(0);
 
     PrimerDesign(sequence, data).then((product) => {
       this.products.push(product);
@@ -85,9 +85,21 @@ export default Backbone.View.extend({
       this.scrollToProduct(product);
 
     }).progress((progress) => {
-      this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
-    }).catch((e) => {console.log('pcr view error', e);});
+      this.updateProgressBar(progress);
+    }).catch((e) => {
+      console.error('pcr view error', e);
+      this.$('.new-pcr-progress .progress-bar').css('background-color', '#B00');
+      this.$('.new-pcr-progress .progress-text')
+        .removeClass('text-muted')
+        .addClass('text-danger')
+        .html('Sorry, there was an error running your query.  Please try again.  If this problem persists, please contact <a href="support@synbiota.com">support@synbiota.com</a>');
+      this.updateProgressBar(100);
+    });
 
+  },
+
+  updateProgressBar: function(progress) {
+    this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
   },
 
   scrollToProduct: function(product) {

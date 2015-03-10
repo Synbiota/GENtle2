@@ -19,7 +19,6 @@ var getPCRProduct = function(sequence, opts = {}) {
       var total = _.reduce(lastProgress, (memo, i) => memo + i.total, 0);
       notify(total ? _.reduce(lastProgress, (memo, i) => memo + i.current, 0)/total : 0);
     }).then(function(results) {
-
       var [forwardAnnealingRegion, reverseAnnealingRegion] = results;
 
       _.defaults(opts, {
@@ -83,7 +82,10 @@ var getPCRProduct = function(sequence, opts = {}) {
         meltingTemperature: SequenceCalculations.meltingTemperature(sequence)
       });
 
-    }).catch((e) => console.log('getpcrproduct err', e));
+    }).catch((e) => {
+      console.error('getpcrproduct err', e);
+      reject(e);
+    });
 
   });
 

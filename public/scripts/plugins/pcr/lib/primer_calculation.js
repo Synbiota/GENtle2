@@ -89,7 +89,9 @@ var gcContent = SequenceCalculations.gcContent;
 var IDTMeltingTemperatureCache = {};
 
 var IDTMeltingTemperature = function(sequence) {
-  return IDT(sequence).then((result) => parseFloat(result.MeltTemp));
+  return IDT(sequence).then((result) => {
+    return parseFloat(result.MeltTemp);
+  });
 };
 
 // var optimalPrimer = function(sequence, opts = {}) {
@@ -258,7 +260,6 @@ var optimalPrimer3 = function(sequence, opts = {}) {
     var current = 0;
     var total = filteredPotentialPrimers.length;
     var notifyCurrent = function(i) {
-      console.log(i, '/', total);
       notify({current: i, total: total});
     };
     var resolvePrimer;
@@ -268,7 +269,10 @@ var optimalPrimer3 = function(sequence, opts = {}) {
       current += 1;
       notifyCurrent(current);
     })
-    .then(resolve)
+    .then(function(primer) {
+      console.log('Found a good primer', primer);
+      resolve(primer);
+    })
     .catch(function(reason) {
       // We can fail for 2 reasons:
       // 1.  There's an error in the code
@@ -278,11 +282,22 @@ var optimalPrimer3 = function(sequence, opts = {}) {
       // potential primers
       total += potentialPrimers.length;
       return queryBestPrimer(potentialPrimers, opts.targetMeltingTemperature, opts.useIDT)
-        .then(resolve)
-        .catch(function(data) {
+        .then(function(primer) {
+          console.log('Initially could not find a good primer, but found one in the other potentialPrimers', primer);
+          resolve(primer);
+        })
+        .catch(function(dataOrException) {
           // If we still fail to find any suitable primer (highly likely) then 
           // just return the best we found.
-          resolve(data.primer);
+          //
+          // NOTE:  we may get here due to an error.  In which case we have to
+          // reject not resolve
+          if(dataOrException.primer) {
+            console.log('Could not find a good primer, resolving with the best primer we have', dataOrException.primer);
+            resolve(dataOrException.primer);
+          } else {
+            reject(dataOrException);
+          }
         });
     });
 

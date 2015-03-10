@@ -25,11 +25,16 @@ var getResults = function(sequence, options) {
       TargetType: 'DNA'
     }).then(function(results) {
       if(_.isObject(results)) {
-        return cache[key] = results.AnalyzerResult;
+        cache[key] = results.AnalyzerResult;
+        return cache[key];
       } else {
         return {};
       }
-    }, (e) => console.log(e));
+    })
+    .catch((e) => {
+      console.error('idt_query, getResults:', e);
+      throw e;
+    });
   }
 };
 

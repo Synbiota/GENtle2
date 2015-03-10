@@ -81,15 +81,12 @@ export default {
   MAX_RETRIES: 3,
 
   _retryableYqlQuery: function(queryObject, deferredYqlQuery, triesLeft) {
-    console.log(`yqlQuery (${triesLeft}):`, queryObject.data.q.replace("SELECT * FROM xml WHERE url='http://www.idtdna.com/AnalyzerService/AnalyzerService.asmx/Analyze?Sequence", ''));
-
     var ajaxQuery = $.ajax(queryObject);
 
     Q(ajaxQuery).then((response)  => {
       if(triesLeft < this.MAX_RETRIES) {
-        console.log('We had to retry but...');
+        console.log('Retry successful.');
       }
-      console.log('we have an answer', response, queryObject.data.q.replace("SELECT * FROM xml WHERE url='http://www.idtdna.com/AnalyzerService/AnalyzerService.asmx/Analyze?Sequence", ''));
       deferredYqlQuery.resolve(response);
     }).catch((e) => {
       triesLeft -= 1;
