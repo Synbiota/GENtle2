@@ -82,21 +82,22 @@ export default Backbone.View.extend({
       this.hideCanvas();
       this.showCanvas(product);
       this.toggleForm();
-
       this.scrollToProduct(product);
 
     }).progress((progress) => {
-
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
-
-    }).catch(handleError);
+    }).catch((e) => {console.log('pcr view error', e);});
 
   },
 
   scrollToProduct: function(product) {
     var $container = this.$('#pcr-list-outer-container');
     var $target = this.$('[data-product_id="' + product.id + '"]');
-    $container.scrollTop($target.offset().top);
+    if(!$target.offset()) {
+      console.warn('There is no product with id: ', product.id);
+    } else {
+      $container.scrollTop($target.offset().top);
+    }
   },
 
   showCanvas: function(product) {
