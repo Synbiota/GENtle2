@@ -4,8 +4,11 @@
 @module Model
 **/
 import Backbone from 'backbone';
+import _ from 'underscore';
 
 var Gentle = {};
+
+var featureFlagFunctions = {};
 
 export default _.extend(Gentle, Backbone.Events, {
   plugins: [],
@@ -37,4 +40,19 @@ export default _.extend(Gentle, Backbone.Events, {
       alert('Could not parse the sequence.');
     }
   },
+
+  featureFlag(feature) {
+    return function() {
+      var flag = featureFlagFunctions[feature];
+      return _.isFunction(flag) ? !!flag() : flag;
+    };
+  },
+
+  addFeatureFlag(fn, feature) {
+    if(_.isObject(fn) && !_.isFunction(fn)) {
+      _.each(fn, Gentle.addFeatureFlag);
+    } else {
+      featureFlagFunctions[feature] = fn;
+    }
+  }
 });

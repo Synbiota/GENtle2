@@ -5,6 +5,7 @@ Gentle app definition.
 import $ from 'jquery.mixed';
 import _ from 'underscore.mixed';
 import Backbone from 'backbone.mixed';
+import Q from 'q';
 
 import Gentle from './common/models/gentle';
 import config from './config.json';
@@ -22,10 +23,14 @@ var plugins = [ncbi, designer, blast, pcr];
 
 Gentle.config = config;
 Gentle.sequences = new Sequences();
-Gentle.currentUser = new CurrentUser({id: 'current-user'});
+var currentUser = Gentle.currentUser = new CurrentUser({id: 'current-user'});
 
 Gentle.sequences.fetch();
 Gentle.currentUser.fetch();
+
+Gentle.addFeatureFlag({
+  stickyEndsSettings: () => currentUser.get('displaySettings.stickyEndsSettings')
+});
 
 Gentle.router = new Router();
 window.gentle = Gentle;
