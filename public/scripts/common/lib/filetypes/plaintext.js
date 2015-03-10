@@ -56,7 +56,7 @@ define(function(require) {
   FT_plaintext.prototype.parseFile = function () {
     var seqtext = this.asString().replace ( /[^a-z]/gi , '' ).toUpperCase() ;
     var name = 'Unnamed sequence' ;
-    if ( this.file !== undefined ) name = _.ucFirst ( this.file.name ) ;
+    if ( this.file !== undefined ) name = this.file.name;
 
     return [{
       name: name,
