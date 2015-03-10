@@ -5,7 +5,7 @@ import Primer from './primer';
 
 class Product extends Sequence {
   setup () {
-    super();
+    super.setup();
     if(this.primer.constructor !== Primer) {
       this.primer = new Primer(this.primer);
     }
@@ -19,7 +19,7 @@ class Product extends Sequence {
 
   validate () {
     assertIsInstance(this.primer, Primer, 'primer');
-    super();
+    super.validate();
   }
 }
 
