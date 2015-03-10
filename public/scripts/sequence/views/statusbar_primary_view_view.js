@@ -1,35 +1,35 @@
-define(function(require) {
-  var Backbone = require('backbone'),
-      Gentle = require('gentle'),
-      template = require('../templates/statusbar_primary_view_view.hbs');
+import Backbone from 'backbone';
+import Gentle from 'gentle';
+import template from '../templates/statusbar_primary_view_view.hbs';
 
-  return Backbone.View.extend({
-    template: template,
-    manage: true,
+export default Backbone.View.extend({
+  template: template,
+  manage: true,
 
-    events: {
-      'click #primary-view-list a': 'changePrimaryView'
-    },
+  events: {
+    'click #primary-view-list a': 'changePrimaryView'
+  },
 
-    initialize: function() {
-      this.model = Gentle.currentSequence;
-      this.listenTo(this.model, 'change:displaySettings.primaryView', this.render, this);
-    },
+  initialize: function() {
+    this.model = Gentle.currentSequence;
+    this.listenTo(this.model, 'change:displaySettings.primaryView', this.render, this);
+  },
 
-    serialize: function() {
-      var parentView = this.parentView(2);
+  serialize: function() {
+    var parentView = this.parentView(2);
 
-      return {
-        readOnly: !!Gentle.currentSequence.get('readOnly'),
-        primaryView: parentView.primaryView.title,
-        primaryViews: parentView.primaryViews
-      };
-    },
+    return {
+      readOnly: !!Gentle.currentSequence.get('readOnly'),
+      primaryView: parentView.primaryView.title,
+      primaryViews: _.filter(parentView.primaryViews, function(view) {
+        return _.isUndefined(view.visible) || view.visible();
+      })
+    };
+  },
 
-    changePrimaryView: function(event) {
-      event.preventDefault();
-      var primaryViewName = this.$(event.currentTarget).data('sectionName');
-      this.parentView(2).changePrimaryView(primaryViewName, true);
-    }
-  });
+  changePrimaryView: function(event) {
+    event.preventDefault();
+    var primaryViewName = this.$(event.currentTarget).data('sectionName');
+    this.parentView(2).changePrimaryView(primaryViewName, true);
+  }
 });

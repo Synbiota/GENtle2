@@ -44,15 +44,19 @@ export default _.extend(Gentle, Backbone.Events, {
   featureFlag(feature) {
     return function() {
       var flag = featureFlagFunctions[feature];
-      return _.isFunction(flag) ? !!flag() : flag;
+      if(_.isUndefined(flag)) {
+        return !!Gentle.currentUser.get('featureFlags.'+feature);
+      } else {
+        return _.isFunction(flag) ? !!flag() : flag;
+      }
     };
   },
 
-  addFeatureFlag(fn, feature) {
-    if(_.isObject(fn) && !_.isFunction(fn)) {
-      _.each(fn, Gentle.addFeatureFlag);
-    } else {
-      featureFlagFunctions[feature] = fn;
-    }
+  enableFeature(feature, fn) {
+    featureFlagFunctions[feature] = _.isFunction(fn) ? fn : true;
+  },
+
+  enableFeatures(features) {
+    _.each(features, Gentle.enableFeatures);
   }
 });

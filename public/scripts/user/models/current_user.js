@@ -31,4 +31,12 @@ export default Backbone.DeepModel.extend({
     this.throttledSave = _.throttle(() => this.save(), 200);
     this.on('change', this.throttledSave);
   },
+
+  enableFeature: function(feature) {
+    this.set('featureFlags.' + feature, true).throttledSave();
+  },
+
+  disableFeature: function(feature) {
+    this.set('featureFlags.' + feature, false).throttledSave();
+  }
 });

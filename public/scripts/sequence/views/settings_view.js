@@ -77,7 +77,7 @@ var SettingsView = SidebarView.extend({
       title: 'Sticky ends',
       icon: 'align-left',
       view: StickyEndsView,
-      visible: Gentle.featureFlag('stickyEndsSettings')
+      visible: Gentle.featureFlag('stickyEnds')
     }]);
 
     _.chain(Gentle.plugins)

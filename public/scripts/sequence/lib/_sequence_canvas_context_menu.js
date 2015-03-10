@@ -44,9 +44,10 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
 
   _.chain(Gentle.plugins).where({type: 'sequence-canvas-context-menu'}).each(function(plugin) {
     var data = plugin.data;
-    if (!data.selectionOnly || (data.selectionOnly && _this.selection))
+    if(!(!data.selectionOnly || (data.selectionOnly && _this.selection))) return;
+    if(!_.isUndefined(data.visible) && !data.visible()) return;
     // menu.add(data.title, data.icon, data.callback)
-    menu.add(data.title, data.callback)
+    menu.add(data.title, data.callback);
   });
 
 
