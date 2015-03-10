@@ -10,7 +10,7 @@ class Primer extends Sequence {
   validate () {
     assertIsNumber(this.meltingTemperature, 'meltingTemperature');
     assertIsNumber(this.gcContent, 'gcContent');
-    super();
+    super.validate();
   }
 }
 
