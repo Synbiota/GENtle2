@@ -87,13 +87,14 @@ export default Backbone.View.extend({
     }).progress((progress) => {
       this.updateProgressBar(progress);
     }).catch((e) => {
-      console.error('pcr view error', e);
-      this.$('.new-pcr-progress .progress-bar').css('background-color', '#B00');
-      this.$('.new-pcr-progress .progress-text')
-        .removeClass('text-muted')
-        .addClass('text-danger')
-        .html('Sorry, there was an error running your query.  Please try again.  If this problem persists, please contact <a href="support@synbiota.com">support@synbiota.com</a>');
-      this.updateProgressBar(100);
+      console.error('new PCR, view error:', e);
+      this.$('.new-pcr-progress').slideUp();
+      this.$('.new-pcr-progress-error').slideDown();
+      this.$('.new-pcr-progress-error button').click((event) => {
+        this.$('.new-pcr-progress').show();
+        this.$('.new-pcr-progress-error').hide();
+        this.createNewPcrProduct(event);
+      });
     });
 
   },
