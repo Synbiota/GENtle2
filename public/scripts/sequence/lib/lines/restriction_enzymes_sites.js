@@ -41,7 +41,8 @@ define(function(require) {
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
           length: displaySettings.lengths || [],
-          customList: displaySettings.custom || []
+          customList: displaySettings.custom || [],
+          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
         subSeqPadding = RestrictionEnzymes.maxLength(),
         expandedSubSeq = sequenceCanvas.sequence.getSubSeq(

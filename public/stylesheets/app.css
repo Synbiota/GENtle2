@@ -8419,37 +8419,40 @@ button.close {
   margin: 0 10px 0 0;
   height: 50px;
   width: 50px;
-  padding: 14px;
+  color: #888;
+  font-size: 21px;
+  padding: 12px 15px;
   background: white;
 }
-/* line 42, views/_navbar_view.scss */
+/* line 44, views/_navbar_view.scss */
 #menu-button:hover {
   background-color: #ddd;
 }
-/* line 43, views/_navbar_view.scss */
+/* line 45, views/_navbar_view.scss */
 #menu-button.active {
   background: #3276b1;
+  color: white;
 }
-/* line 45, views/_navbar_view.scss */
+/* line 48, views/_navbar_view.scss */
 #menu-button.active .icon-bar {
   background-color: white;
 }
-/* line 46, views/_navbar_view.scss */
+/* line 49, views/_navbar_view.scss */
 #menu-button.active:hover {
   background-color: #3276b1;
 }
 
-/* line 50, views/_navbar_view.scss */
+/* line 53, views/_navbar_view.scss */
 #sequence-tabs {
   border: none;
   margin-top: 6px;
   overflow: hidden;
 }
-/* line 55, views/_navbar_view.scss */
+/* line 58, views/_navbar_view.scss */
 #sequence-tabs > li {
   min-width: 30px;
 }
-/* line 57, views/_navbar_view.scss */
+/* line 60, views/_navbar_view.scss */
 #sequence-tabs > li > a {
   height: 45px;
   padding-top: 9px;
@@ -8461,19 +8464,19 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 66, views/_navbar_view.scss */
+/* line 69, views/_navbar_view.scss */
 #sequence-tabs > li > a > small.details {
   font-size: 10px;
 }
-/* line 71, views/_navbar_view.scss */
+/* line 74, views/_navbar_view.scss */
 #sequence-tabs > li.hidden-tabs-dropdown {
   min-width: 0;
 }
-/* line 76, views/_navbar_view.scss */
+/* line 79, views/_navbar_view.scss */
 #sequence-tabs .margin-right {
   margin-right: 170px;
 }
-/* line 81, views/_navbar_view.scss */
+/* line 84, views/_navbar_view.scss */
 #sequence-tabs .close-sequence {
   float: right;
   cursor: pointer;

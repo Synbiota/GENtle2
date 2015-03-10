@@ -76,7 +76,7 @@ define(function(require) {
 
   PlasmidMapCanvas.prototype.refresh = function () {
     this.setupCanvas().then(this.render).catch(function(e) {
-      console.log('ERROR', e.stack);
+      console.error(e);
     });
   };
 
@@ -159,7 +159,8 @@ define(function(require) {
     var displaySettings = this.model.get('displaySettings.rows.res') || {},
         enzymes = RestrictionEnzymes.getAllInSeq(this.model.get('sequence'), {
           length: displaySettings.lengths || [],
-          customList: displaySettings.custom || []
+          customList: displaySettings.custom || [],
+          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         }),
         len = this.model.length(),
         previousPosition = 0,

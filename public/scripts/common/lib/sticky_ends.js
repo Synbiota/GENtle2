@@ -1,5 +1,5 @@
 export default [{
-  name: 'X-X\'',
+  name: 'X-Z\'',
   startName: 'X',
   endName: 'Z\'',
   start: 'CCTGCAGTCAGTGGTCTCTAGAG',

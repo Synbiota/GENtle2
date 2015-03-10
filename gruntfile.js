@@ -4,7 +4,7 @@ module.exports = function(grunt) {
   var _           = require('underscore');
 
   var browserifyTransforms = [
-    ['6to5ify', { only: 'public/scripts' }],
+    ['babelify', { only: 'public/scripts' }],
     ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
     'deamdify'
   ];
