@@ -167,49 +167,56 @@ var IDTMeltingTemperature = function(sequence) {
 
 var queryBestPrimer = function(potentialPrimers, targetMeltingTemperature, useIDT = true) {
   var meltingTemperatureTolerance = 0.6;
+  var deferredGettingTms = Q.defer();
 
-  return Q.promise(function(resolve, reject, notify) {
-
-    Q.all(_.map(potentialPrimers, function(primer) {
-      if(useIDT) {
-        return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
-          notify();
-          return _.extend(primer, {IDTMeltingTemperature: temperature});
-        });
-      } else {
-        notify();
-        return Q(primer);
-      }
-    })).then(function(results) {
-
-      var temperatures = _.pluck(results, useIDT ? 'IDTMeltingTemperature' : 'meltingTemperature');
-
-      var scores = _.map(temperatures, function(temperature) {
-        return -Math.abs(targetMeltingTemperature - temperature);
+  var promisesOfPrimerTms = _.map(potentialPrimers, function(primer) {
+    if(useIDT) {
+      return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
+        deferredGettingTms.notify();
+        return _.extend(primer, {IDTMeltingTemperature: temperature});
       });
+    } else {
+      deferredGettingTms.notify();
+      return Q(primer);
+    }
+  });
 
-      var optimalIndex = _.indexOf(scores, _.max(scores));
-      var optimalPrimer = potentialPrimers[optimalIndex];
-      var optimalTemperature = temperatures[optimalIndex];
+  Q.all(promisesOfPrimerTms).then(function(results) {
 
-      var resolvedPrimer = {
-        sequence: optimalPrimer.sequence,
-        meltingTemperature: optimalTemperature,
-        gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence),
-        id: _.uniqueId(),
-      };
+    var temperatures = _.pluck(results, useIDT ? 'IDTMeltingTemperature' : 'meltingTemperature');
 
-      if(Math.abs(optimalTemperature - targetMeltingTemperature) <= meltingTemperatureTolerance) {
-        resolve(resolvedPrimer);
-      } else {
-        reject({
-          message: 'BEST FOUND',
-          primer: resolvedPrimer
-        });
-      }
+    var scores = _.map(temperatures, function(temperature) {
+      return -Math.abs(targetMeltingTemperature - temperature);
+    });
 
-    }, handleError);
-  }, handleError);
+    var optimalIndex = _.indexOf(scores, _.max(scores));
+    var optimalPrimer = potentialPrimers[optimalIndex];
+    var optimalTemperature = temperatures[optimalIndex];
+
+    var resolvedPrimer = {
+      sequence: optimalPrimer.sequence,
+      meltingTemperature: optimalTemperature,
+      gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence),
+      id: _.uniqueId(),
+    };
+
+    if(Math.abs(optimalTemperature - targetMeltingTemperature) <= meltingTemperatureTolerance) {
+      console.log('Resolving with', resolvedPrimer.sequence)
+      deferredGettingTms.resolve(resolvedPrimer);
+    } else {
+      console.log('REJECTING with', resolvedPrimer.sequence)
+      deferredGettingTms.reject({
+        message: 'BEST FOUND',
+        primer: resolvedPrimer
+      });
+    }
+
+  }).catch(function(e) {
+    handleError(e, 'queryBestPrimer inner Tm promises');
+    deferredGettingTms.reject(e);  // This will mean that we handle the error twice
+  }).done();
+
+  return deferredGettingTms.promise;
 };
 
 /*
@@ -223,6 +230,7 @@ var makeMeltingTemperatureFilterPredicate = function(opts) {
 
 
 var optimalPrimer3 = function(sequence, opts = {}) {
+  // TODO:  refactor this and optimalPrimer4 into one function call
   _.defaults(opts, {
     minPrimerLength: 10,
     maxPrimerLength: 40,
@@ -249,23 +257,36 @@ var optimalPrimer3 = function(sequence, opts = {}) {
   return Q.promise(function(resolve, reject, notify) {
     var current = 0;
     var total = filteredPotentialPrimers.length;
-    var notifyCurrent = function(i) { notify({current: i, total: total}); };
+    var notifyCurrent = function(i) {
+      console.log(i, '/', total);
+      notify({current: i, total: total});
+    };
     var resolvePrimer;
 
     queryBestPrimer(filteredPotentialPrimers, opts.targetMeltingTemperature, opts.useIDT)
-      .progress(function() {
-        current++;
-        notifyCurrent(current);
-      })
-      .then(resolve, function() {
-        total += potentialPrimers.length;
-        return queryBestPrimer(potentialPrimers, opts.targetMeltingTemperature, opts.useIDT)
-          .then(resolve, function(data) {
-            resolve(data.primer);
-          });
-      });
+    .progress(function() {
+      current += 1;
+      notifyCurrent(current);
+    })
+    .then(resolve)
+    .catch(function(reason) {
+      // We can fail for 2 reasons:
+      // 1.  There's an error in the code
+      // 2.  No primer within the required parameters was found.
+      // 
+      // In this case let's ignore the 'BEST FOUND' primer and just try all the
+      // potential primers
+      total += potentialPrimers.length;
+      return queryBestPrimer(potentialPrimers, opts.targetMeltingTemperature, opts.useIDT)
+        .then(resolve)
+        .catch(function(data) {
+          // If we still fail to find any suitable primer (highly likely) then 
+          // just return the best we found.
+          resolve(data.primer);
+        });
+    });
 
-  }, handleError);
+  });
 
 
 
