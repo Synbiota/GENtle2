@@ -29,7 +29,7 @@ var getResults = function(sequence, options) {
       } else {
         return {};
       }
-    });
+    }, (e) => console.log(e));
   }
 };
 

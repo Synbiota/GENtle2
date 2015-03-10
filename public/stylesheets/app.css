@@ -8510,16 +8510,6 @@ button.close {
   left: 50%;
 }
 
-/* line 23, views/_pcr_view.scss */
-.pcr-primer-sequence {
-  border-top: none !important;
-  color: #bbb;
-  font: 10px Monospace;
-  font-size: 12px;
-  letter-spacing: 1px;
-  padding-top: 0;
-}
-
 /* line 1, views/_sequence_view.scss */
 .sequence-view {
   position: relative;
@@ -8570,6 +8560,29 @@ button.close {
   position: absolute;
   top: 0;
   width: 100%;
+}
+
+/* line 1, views/_sequencing_primers_view.scss */
+.sequencing-primers,
+.sequencing-primers-products-outer-container,
+.sequencing-primers-canvas-container {
+  bottom: 0;
+  left: 0;
+  overflow: scroll;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+/* line 12, views/_sequencing_primers_view.scss */
+.sequencing-primers-products-outer-container {
+  border-right: 1px solid #ddd;
+  width: 50%;
+}
+
+/* line 17, views/_sequencing_primers_view.scss */
+.sequencing-primers-canvas-container {
+  left: 50%;
 }
 
 /* line 1, views/_sidebar_view.scss */
@@ -8822,6 +8835,16 @@ button.close {
 /* line 54, views/_statusbar_view.scss */
 .statusbar a:hover {
   text-decoration: none;
+}
+
+/* line 1, views/shared/_sequences.scss */
+.sequence {
+  border-top: none !important;
+  color: #bbb;
+  font: 10px Monospace;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding-top: 0;
 }
 
 /* line 1, components/_caret.scss */
@@ -9178,12 +9201,12 @@ button.close {
     transform: rotate(360deg);
   }
 }
-/* line 21, app.scss */
+/* line 22, app.scss */
 body {
   margin: 0;
 }
 
-/* line 25, app.scss */
+/* line 26, app.scss */
 #content {
   position: absolute;
   width: 100%;
@@ -9191,28 +9214,28 @@ body {
   bottom: 0;
 }
 
-/* line 31, app.scss */
+/* line 32, app.scss */
 .container-special {
   margin-left: 50px;
   max-width: 1024px;
 }
 
-/* line 36, app.scss */
+/* line 37, app.scss */
 .noscroll {
   overflow: hidden;
 }
 
-/* line 40, app.scss */
+/* line 41, app.scss */
 .tooltip {
   word-break: break-word;
 }
 
-/* line 44, app.scss */
+/* line 45, app.scss */
 .no-margin {
   margin: 0 !important;
 }
 
-/* line 48, app.scss */
+/* line 49, app.scss */
 .navbar[unselectable] {
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -9220,7 +9243,7 @@ body {
   user-select: none;
 }
 
-/* line 52, app.scss */
+/* line 53, app.scss */
 .separator {
   display: block;
   margin-bottom: .6em;

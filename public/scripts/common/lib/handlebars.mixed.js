@@ -32,13 +32,13 @@ Handlebars.registerHelper('select', function(context, options) {
       output = '';
 
   addOption = function(name, value, selected) {
-    return  '<option value="' + value + '"'+ 
+    return  '<option value="' + value + '"'+
             (value == selected ? ' selected="selected"' : '') +
             '>' + name + '</option>';
   };
 
   addOptions = function(_options, selected) {
-    return _.map(_options, function(option) { 
+    return _.map(_options, function(option) {
       return addOption(option.name, option.value, selected);
     }).join('');
   };
@@ -55,14 +55,22 @@ Handlebars.registerHelper('select', function(context, options) {
       output += '</optgroup>';
     });
   }
-  
+
   output += '</select>';
 
   return output;
 });
 
+var formatThousands = function(context, offset) {
+  return _.formatThousands(context + (_.isObject(offset) ? 0 : offset))
+};
+
 Handlebars.registerHelper('formatThousands', function(context, offset) {
-  return _.formatThousands(context + (_.isObject(offset) ? 0 : offset));
+  return formatThousands(context, offset);
+});
+
+Handlebars.registerHelper('sequenceLength', function(sequenceModel) {
+  return formatThousands(sequenceModel.length(), 0);
 });
 
 Handlebars.registerHelper('plus', function(number, offset) {
@@ -83,8 +91,8 @@ Handlebars.registerHelper('ifOr', function() {
       isTrue;
 
   isTrue =  _.some(
-              _.map(args, function(arg) { 
-                return _.isFunction(arg) ? arg.call(this) : arg; 
+              _.map(args, function(arg) {
+                return _.isFunction(arg) ? arg.call(this) : arg;
               })
             );
 
@@ -97,18 +105,30 @@ Handlebars.registerHelper('ifOr', function() {
 });
 
 Handlebars.registerHelper('pluralize', function(number, singular, plural) {
-  return number === 1 ? 
-    singular : 
+  return number === 1 ?
+    singular :
     (typeof plural === 'string' ? plural : singular + 's');
 });
 
 Handlebars.registerHelper('pluralCount', function(number, singular, plural) {
-  return number + ' ' + Handlebars.helpers.pluralize.apply(this, arguments); 
+  return number + ' ' + Handlebars.helpers.pluralize.apply(this, arguments);
 });
 
 Handlebars.registerHelper('round', function(number, precision, isPercentage) {
   isPercentage = _.isBoolean(isPercentage) && isPercentage;
   return (number * (isPercentage ? 100 : 1)).toFixed(precision) ;
 });
+
+
+Handlebars.registerHelper('sequenceFastAExportButton', function(sequenceID) {
+  var exportFastATemplate = require('../templates/export_fasta.hbs');
+  return exportFastATemplate({sequenceID});
+});
+
+Handlebars.registerHelper('displaySequence', function(sequence) {
+  var displaySequenceTemplate = require('../templates/display_sequence.hbs');
+  return displaySequenceTemplate({sequence});
+});
+
 
 module.exports = Handlebars;
