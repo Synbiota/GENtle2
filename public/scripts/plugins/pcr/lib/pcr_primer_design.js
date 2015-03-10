@@ -8,8 +8,8 @@ import Q from 'q';
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
-  var forwardPrimerPromise = PrimerCalculation(sequence, opts);
-  var reversePrimerPromise = PrimerCalculation(SequenceTransforms.toReverseComplements(sequence), opts);
+  var forwardPrimerPromise = PrimerCalculation.optimalPrimer3(sequence, opts);
+  var reversePrimerPromise = PrimerCalculation.optimalPrimer3(SequenceTransforms.toReverseComplements(sequence), opts);
   var lastProgress = [{}, {}];
 
   return Q.promise(function (resolve, reject, notify) {
@@ -52,7 +52,9 @@ var getPCRProduct = function(sequence, opts = {}) {
       var forwardPrimer = {
         sequence: (opts.stickyEnds ? opts.stickyEnds.start : '') + forwardAnnealingRegion.sequence,
         from: 0,
-        to: (opts.stickyEnds ? opts.stickyEnds.start.length : 0) + forwardAnnealingRegion.sequence.length - 1
+        to: (opts.stickyEnds ? opts.stickyEnds.start.length : 0) + forwardAnnealingRegion.sequence.length - 1,
+        id: _.uniqueId(),
+        name: 'Forward primer',
       };
       forwardPrimer.sequenceLength = forwardPrimer.sequence.length;
       forwardPrimer.gcContent = SequenceCalculations.gcContent(forwardPrimer.sequence);
@@ -60,16 +62,18 @@ var getPCRProduct = function(sequence, opts = {}) {
       var reversePrimer = {
         sequence: (opts.stickyEnds ? SequenceTransforms.toReverseComplements(opts.stickyEnds.end) : '') +reverseAnnealingRegion.sequence,
         from: 0,
-        to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1
+        to: (opts.stickyEnds ? opts.stickyEnds.end.length : 0) + reverseAnnealingRegion.sequence.length - 1,
+        id: _.uniqueId(),
+        name: 'Reverse primer',
       };
       reversePrimer.sequenceLength = forwardPrimer.sequence.length;
       reversePrimer.gcContent = SequenceCalculations.gcContent(reversePrimer.sequence);
-
 
       resolve({
         id: _.uniqueId(),
         from: opts.from, 
         to: opts.to,
+        name: opts.name,
         forwardAnnealingRegion: forwardAnnealingRegion,
         reverseAnnealingRegion: reverseAnnealingRegion,
         forwardPrimer: forwardPrimer,

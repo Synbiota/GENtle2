@@ -65,11 +65,13 @@ _.mixin({
     }
     var memoized = function() {
       var cache = memoized.cache,
-          key = resolver ? resolver.apply(this, arguments) : keyPrefix + arguments[0];
+          key = resolver ? 
+            resolver.apply(this, arguments) : 
+            keyPrefix + arguments[1] ? _.toArray(arguments).join('--') : arguments[0];
 
-      return hasOwnProperty.call(cache, key)
-        ? cache[key]
-        : (cache[key] = func.apply(this, arguments));
+      return hasOwnProperty.call(cache, key) ? 
+        cache[key] : 
+        (cache[key] = func.apply(this, arguments));
     };
     memoized.cache = {};
     memoized.clearCache = function() { memoized.cache = {}; };

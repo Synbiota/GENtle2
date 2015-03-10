@@ -21,6 +21,7 @@ Shows button to open context menu and adds menu items to context menu view
 **/
 SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY) {
   var menu = this.contextMenu;
+  var _this = this;
 
   this.contextMenuXPos = posX;
   this.contextMenuYPos = posY;
@@ -36,13 +37,17 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
       menu.add('Analyze Fragment', this.analyzeFragment);
 
       if(!this.readOnly) {
-        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        // menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        menu.add('Add annotation', this.addAnnotationFromMenu);
       }
     }
 
   _.chain(Gentle.plugins).where({type: 'sequence-canvas-context-menu'}).each(function(plugin) {
     var data = plugin.data;
-    menu.add(data.title, data.icon, data.callback)
+    if(!(!data.selectionOnly || (data.selectionOnly && _this.selection))) return;
+    if(!_.isUndefined(data.visible) && !data.visible()) return;
+    // menu.add(data.title, data.icon, data.callback)
+    menu.add(data.title, data.callback);
   });
 
 

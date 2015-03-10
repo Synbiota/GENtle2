@@ -5,11 +5,15 @@ import ProductsView from './sequencing_primers_products_view';
 import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
+import handleError from '../../../common/lib/handle_error';
+import Primer from '../../pcr/lib/primer';
+import Product from '../../pcr/lib/product';
+import {mikeForward1} from '../../pcr/lib/universal_primers';
 
 
 export default Backbone.View.extend({
   manage: true,
-  template: template, 
+  template: template,
 
   events: {
     'click .start-sequencing-primers': 'startCalculation'
@@ -17,14 +21,20 @@ export default Backbone.View.extend({
 
   initialize: function() {
     this.model = Gentle.currentSequence;
-    this.products = [];
+    var products = this.getProducts();
+    _.map((productData) => new Product(productData), products);
+    this.model.set('meta.sequencingPrimers.products', products);
     this.setView('.sequencing-primers-products-container', new ProductsView());
     this.setView('.sequencing-primers-canvas-container', new CanvasView());
   },
 
+  getProducts: function () {
+    return this.model.get('meta.sequencingPrimers.products') || [];
+  },
+
   serialize: function() {
     return {
-      products: this.products
+      products: this.getProducts()
     };
   },
 
@@ -32,43 +42,45 @@ export default Backbone.View.extend({
     if(event) event.preventDefault();
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
-    PrimersDesign(this.model).progress((progress) => {
+
+    // For the moment we default to a forward primer that Mike provided.
+    // This primer will need to be specified in the UI.
+    var universalForwardPrimer = mikeForward1();
+    PrimersDesign(this.model.get('sequence'), universalForwardPrimer).progress((progress) => {
       this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
     }).then((results) => {
       console.log('done', results)
-      this.products = results;
+      this.model.set('meta.sequencingPrimers.products', results).throttledSave();
       this.render();
-    }).catch((e) => console.log(e));
+    }).catch(handleError);
   },
 
   getSequence: function() {
     var features = [];
-    if(_.isEmpty(this.products)) return;
+    var products = this.getProducts();
+    if(_.isEmpty(products)) return;
 
-    _.each(this.products, function(product) {
+    _.each(products, function(product) {
 
-      features = features.concat([{
-        name: 'Product '+product.index,
+      features.push({
+        name: product.name,
         _type: 'sequencing_product',
         ranges: [{
           from: product.from,
           to: product.to
         }]
-      },{
-        name: 'Forward primer '+product.index,
-        _type: 'primer',
-        ranges: [{
-          from: product.from,
-          to: product.from + product.forwardPrimer.sequenceLength
-        }]
-      }, {
-        name: 'Reverse primer  '+product.index,
-        _type: 'primer',
-        ranges: [{
-          from: product.to - product.reversePrimer.sequenceLength-1,
-          to: product.to
-        }]
-      }]);
+      });
+      var primer = product.primer;
+      if(primer) {
+        features.push({
+          name: primer.name,
+          _type: 'primer',
+          ranges: [{
+            from: primer.from,
+            to: primer.to,
+          }]
+        });
+      }
 
     });
 
@@ -77,8 +89,5 @@ export default Backbone.View.extend({
       features: features
     });
   }
-
-
-
 
 });

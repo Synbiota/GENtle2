@@ -4,7 +4,7 @@
 {{#if products}}
 <br>
 {{#each products}}
-  <div class="panel panel-default" data-product-id="{{id}}">
+  <div class="panel panel-default" data-product_id="{{id}}">
     <div class="panel-heading">
       {{!-- <div class="pull-right">
         <div class="btn-group">
@@ -18,7 +18,7 @@
           <button class="btn btn-default btn-xs show-pcr-product">Show &rarr;</button>
         </div>
       </div> --}}
-      <h3 class="panel-title">Product {{index}}</h3>
+      <h3 class="panel-title">{{name}}</h3>
     </div>
     <table class="table table-condensed">
       <thead>
@@ -37,20 +37,16 @@
           <td></td>
         </tr> --}}
         <tr>
-          <td><small>Forward primer</small></td>
-          <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
-          <td class="text-right"><small>{{round forwardPrimer.meltingTemperature 1}}&deg;C</small></td>
-          <td></td>
+          <td><small>{{primer.name}}</small></td>
+          <td class="text-right"><small>{{sequenceLength primer}}bp</small></td>
+          <td class="text-right"><small>{{round primer.gcContent 1 true}}%</small></td>
+          <td class="text-right"><small>{{round primer.meltingTemperature 1}}&deg;C</small></td>
+          <td>{{{sequenceFastAExportButton primer.id}}}</td>
         </tr>
         <tr>
-          <td><small>Reverse primer</small></td>
-          <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
-          <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
-          <td class="text-right"><small>{{round reversePrimer.meltingTemperature 1}}&deg;C</small></td>
-          <td></td>
-        </tr>
-
+          <td colspan="5" class="sequence">{{{displaySequence primer.sequence}}}</td>
+        <tr>
+        
       </tbody>
     </table>
   </div>

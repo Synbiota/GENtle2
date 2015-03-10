@@ -6,6 +6,8 @@ import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
+import handleError from '../../../common/lib/handle_error';
+
 
 export default Backbone.View.extend({
   manage: true,
@@ -66,18 +68,13 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .progress-bar').css('width', 0);
 
     PrimerDesign(sequence, data).then((product) => {
-
-      _.extend(product, {
-        name: data.name
-      });
-
       this.products.push(product);
 
       sequence.set('meta.pcr.products', this.products);
       sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
       sequence.throttledSave();
 
-      this.getFieldFor('name').val('');      
+      this.getFieldFor('name').val('');
       this.$('.new-pcr-product-form').show();
       this.$('.new-pcr-progress').hide();
 
@@ -92,13 +89,13 @@ export default Backbone.View.extend({
 
       this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
 
-    }).catch((e) => console.log('pcr view error', e));
-    
+    }).catch(handleError);
+
   },
 
   scrollToProduct: function(product) {
     var $container = this.$('#pcr-list-outer-container');
-    var $target = this.$('[data-product-id="' + product.id + '"]');
+    var $target = this.$('[data-product_id="' + product.id + '"]');
     $container.scrollTop($target.offset().top);
   },
 
@@ -110,7 +107,7 @@ export default Backbone.View.extend({
       view.setProduct(product);
       this.showingProductId = product.id;
       this.listView.$('.panel').removeClass('panel-info');
-      this.listView.$('[data-product-id="'+product.id+'"]').addClass('panel-info');
+      this.listView.$('[data-product_id="'+product.id+'"]').addClass('panel-info');
     } else if(this.temporarySequence) {
       view.setSequence(this.temporarySequence);
     }
@@ -175,14 +172,14 @@ export default Backbone.View.extend({
         _type: 'annealing_region',
         ranges: [_.pick(product.reverseAnnealingRegion, 'from', 'to')]
       }, {
-        name: 'Forward primer',
+        name: product.forwardPrimer.name,
         _type: 'primer',
         ranges: [{
           from: 0,
           to: product.forwardPrimer.to,
         }]
       }, {
-        name: 'Reverse primer',
+        name: product.reversePrimer.name,
         _type: 'primer',
         ranges: [{
           from: sequence.length - product.reversePrimer.sequence.length,
@@ -194,7 +191,7 @@ export default Backbone.View.extend({
     return new Sequence({
       sequence: sequence,
       name: product.name,
-      features: features
+      features: features,
     });
   },
 

@@ -90,7 +90,7 @@ define({
     {"name":"BluI","seq":"CTCGAG","cut":0,"offset":4},
     {"name":"Bme216I","seq":"GGWCC","cut":0,"offset":3},
     {"name":"BscI","seq":"ATCGAT","cut":0,"offset":2},
-    {"name":"BsaI","seq":"GGTCTCNNNNCCAGAGNNNNN","cut":7,"offset":4},
+    {"name":"BsaI","seq":"GGTCTCNNNNN","cut":7,"offset":4},
     {"name":"BsmI","seq":"GAATGC","cut":3,"offset":-2},
     {"name":"Bsp105I","seq":"GATC","cut":0,"offset":4},
     {"name":"Bsp106I","seq":"ATCGAT","cut":0,"offset":2},

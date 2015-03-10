@@ -17,6 +17,7 @@ define(function(require) {
       'keyup input.res-settings-filter': 'updateFilter',
       'click .res-settings-selected-clear': 'clearSelected',
       'click .res-settings-filter-clear': 'clearFilter',
+      'change .res-settings-hide-non-palindromic-sticky-end-sites': 'updateDisplaySettings'
     },
 
     initialize: function() {
