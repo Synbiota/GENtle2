@@ -62,7 +62,7 @@ Handlebars.registerHelper('select', function(context, options) {
 });
 
 var formatThousands = function(context, offset) {
-  return _.formatThousands(context + (_.isObject(offset) ? 0 : offset))
+  return _.formatThousands(context + (_.isObject(offset) ? 0 : offset));
 };
 
 Handlebars.registerHelper('formatThousands', function(context, offset) {
@@ -70,7 +70,17 @@ Handlebars.registerHelper('formatThousands', function(context, offset) {
 });
 
 Handlebars.registerHelper('sequenceLength', function(sequenceModel) {
-  return formatThousands(sequenceModel.length(), 0);
+  var length = 0;
+  if(_.isString(sequenceModel)) {
+    length = sequenceModel.length;
+  } else if(_.isObject(sequenceModel)) {
+    if(_.isString(sequenceModel.sequence)) {
+      length = sequenceModel.sequence.length;
+    } else if(_.isFunction(sequenceModel.length)) {
+      length = sequenceModel.length();
+    }
+  }
+  return formatThousands(length, 0);
 });
 
 Handlebars.registerHelper('plus', function(number, offset) {
