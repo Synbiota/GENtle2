@@ -28,6 +28,8 @@ var currentUser = Gentle.currentUser = new CurrentUser({id: 'current-user'});
 Gentle.sequences.fetch();
 Gentle.currentUser.fetch();
 
+Gentle.enableFeatures('pcr', 'blast');
+
 Gentle.router = new Router();
 window.gentle = Gentle;
 
