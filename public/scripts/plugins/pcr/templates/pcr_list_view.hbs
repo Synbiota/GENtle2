@@ -2,7 +2,7 @@
 <h3>PCR Products</h3>
 <br>
 {{#each products}}
-  <div class="panel panel-default" data-product-id="{{id}}">
+  <div class="panel panel-default" data-product_id="{{id}}">
     <div class="panel-heading">
       <div class="pull-right">
         <div class="btn-group">
@@ -49,32 +49,28 @@
           <td></td>
         </tr>
         <tr>
-          <td><small>Forward primer</small></td>
+          <td><small>{{forwardPrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
-            <button class="export-forward-primer btn btn-default btn-xs has-tooltip" data-placement="left" title="Download primer in FASTA format">
-              Export
-            </button>
+            {{{sequenceFastAExportButton forwardPrimer.id }}}
           </td>
         </tr>
         <tr>
-          <td colspan="5" class="pcr-primer-sequence">5' – {{forwardPrimer.sequence}} – 3'</td>
+          <td colspan="5" class="sequence">{{{displaySequence forwardPrimer.sequence}}}</td>
         <tr>
         <tr>
-          <td><small>Reverse primer</small></td>
+          <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
-            <button class="export-reverse-primer btn btn-default btn-xs has-tooltip" data-placement="left"  title="Download primer in FASTA format">
-              Export
-            </button>
+            {{{sequenceFastAExportButton reversePrimer.id }}}
           </td>
         </tr>
         <tr>
-          <td colspan="5" class="pcr-primer-sequence">5' – {{reversePrimer.sequence}} – 3'</td>
+          <td colspan="5" class="sequence">{{{displaySequence reversePrimer.sequence}}}</td>
         <tr>
         <tr>
           <td><small>Sticky ends</small></td>

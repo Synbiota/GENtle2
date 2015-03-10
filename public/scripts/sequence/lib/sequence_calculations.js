@@ -9,7 +9,7 @@ var molecularWeights = {
   'C': 289.184,
   'G': 329.208,
   'T': 304.196
-}
+};
 
 var getStringSequence = function(sequence) {
   if(_.isString(sequence)) {
@@ -18,6 +18,52 @@ var getStringSequence = function(sequence) {
     return sequence.get('sequence');
   }
 };
+
+
+/**
+ * [checkForPolyN description]
+ * @param  sequence {string}
+ * @param  options {object}
+ *    maxPolyN  {integer}
+ *    failEarly  {boolean}
+ * @return {object or undefined}
+ */
+var checkForPolyN = function(sequence, options={}) {
+  _.defaults(options, {
+    maxPolyN: 5,
+    failEarly: false,
+  });
+  var lastBase;
+  var currentCount = 1;
+  var repeatedBase;
+  var repeated;
+  var repeatPosition;
+  _.find(sequence, function(b, i) {
+    if(b === lastBase) {
+      currentCount += 1;
+      if(currentCount > options.maxPolyN) {
+        repeatedBase = b;
+        repeatPosition = i;
+        repeated = currentCount;
+        if(options.failEarly) return true;
+      }
+    } else {
+      lastBase = b;
+      currentCount = 1;
+    }
+  });
+
+  var result;
+  if(repeatedBase) {
+    result = {
+      repeatedBase: repeatedBase,
+      location: repeatPosition + 1 - repeated,
+      repeated: repeated,
+    };
+  }
+  return result;
+};
+
 
 var gcContent = function(sequence) {
   sequence = getStringSequence(sequence);
@@ -227,13 +273,11 @@ var meltingTemperature = function(sequence,
 };
 
 var molecularWeight = function(sequence) {
-
-  sequence = getStringSequence(sequence)
+  sequence = getStringSequence(sequence);
   return _.reduce(sequence, function(memo, base){
-    return memo + molecularWeights[base]
+    return memo + molecularWeights[base];
   }, 0);
-
-}
+};
 
 window.calc = {
   deltaEnthalpy: deltaEnthalpy,
@@ -247,6 +291,7 @@ window.calc = {
 };
 
 export default {
+  checkForPolyN: checkForPolyN,
   deltaEnthalpy: deltaEnthalpy,
   deltaEntropy: deltaEntropy,
   saltCorrection: saltCorrection,

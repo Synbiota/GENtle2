@@ -441,7 +441,7 @@ define(function(require) {
         _this.displayDeferred = Q.defer();
         resolve();
 
-      });
+      }).catch((e) => console.log(e));
     } else {
       return Q.promise(function(resolve, reject) {
         reject();

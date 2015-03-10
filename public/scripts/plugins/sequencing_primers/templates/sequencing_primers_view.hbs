@@ -1,0 +1,23 @@
+<div class="sequencing-primers-products-outer-container">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="sequencing-primers-products-container"></div>
+      {{#unless products}}
+        <div class="sequencing-primers-start-container col-md-12">
+          <br>
+          <button class="start-sequencing-primers btn btn-default">Calculate primers</button>
+
+          <div class="new-sequencing-primers-progress" style="display: none;">
+            <p class="text-muted">
+              Please wait while we calculate the best sequencing primers
+            </p>
+            <div class="progress">
+              <div class="progress-bar" role="progressbar"></div>
+            </div>
+          </div>
+        </div>
+      {{/unless}}
+    </div>
+  </div>
+</div>
+<div class="sequencing-primers-canvas-container"></div>

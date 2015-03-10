@@ -6,6 +6,5 @@ docs
 npm-debug.log
 public/scripts/app.min.js
 *.orig
-stylesheets/app.css
 npm-debug.log
 .sass-cache

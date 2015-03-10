@@ -1,8 +1,8 @@
-import Backbone from 'backbone';
-import template from '../templates/pcr_canvas_view.hbs';
+import Backbone from 'backbone.mixed';
+import template from '../templates/sequencing_primers_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
-import _ from 'underscore';
+import _ from 'underscore.mixed';
 import Styles from '../../../styles.json';
 
 var LineStyles = Styles.sequences.lines;
@@ -12,49 +12,25 @@ export default Backbone.View.extend({
   template: template,
 
   initialize: function() {
-    _.bindAll(this, 'getSequenceColour');
     this.listenTo(Gentle, 'resize', function() {
       this.trigger('resize');
     });
   },
 
-  getSequenceColour: function(base, pos, defaultColor) {
-    defaultColor = defaultColor || LineStyles.complements.text.color;
-
-    if(!this.product) return defaultColor;
-
-    var stickyEndOffsets = this.parentView().getStickyEndOffsets(this.product);
-    var featuresColors = LineStyles.features.color;
-    var sequenceLength = this.model.length();
-    var forwardPrimerLength = this.product.forwardPrimer.sequence.length;
-    var reversePrimerLength = this.product.reversePrimer.sequence.length;
-
-    if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] -1) {
-      return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
-    } else if(pos < forwardPrimerLength || pos >= sequenceLength - reversePrimerLength){
-      return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
-    } else {
-      return defaultColor;
-    }
-  },
-
-  setProduct: function(product) {
-    this.product = product;
-    this.model = this.parentView().getSequenceFromProduct(product);
-    this.afterSet();
-  },
-
-  setSequence: function(sequence) {
-    this.model = sequence;
+  setSequence: function() {
+    this.model = this.parentView().getSequence();
     this.afterSet();
   },
 
   afterSet: function() {
-    this.model.save = _.noop;
-    this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
+    if(this.model) {
+      this.model.save = _.noop;
+      this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
+    }
   },
 
   afterRender: function() {
+    this.setSequence();
     if(!this.model) return;
     var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
       view: this,
@@ -72,7 +48,7 @@ export default Backbone.View.extend({
           height: 15,
           baseLine: 15,
           textFont: '15px Monospace',
-          textColour: this.getSequenceColour,
+          textColour: '#bbb',
           selectionColour: 'red',
           selectionTextColour: 'white',
         }],
@@ -80,8 +56,8 @@ export default Backbone.View.extend({
           height: 15,
           baseLine: 15,
           textFont: LineStyles.complements.text.font,
-          textColour: this.getSequenceColour,
-          getSubSeq: this.getComplements,
+          textColour: '#bbb',
+          // getSubSeq: this.getComplements,
         }],
         features: ['Feature', {
           unitHeight: 15,
