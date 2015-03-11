@@ -128,16 +128,17 @@ _.mixin({
   https://github.com/jashkenas/underscore/blob/95ada0839e5ee206e72d831dd62b5e41f18fdcae/underscore.js
   @method _.deepClone
   **/
-  deepClone: function(obj) {
+  deepClone: function(obj, depthLeft=100) {
+    if (depthLeft <= 0) throw "deepClone recursion limited exceeded";
     if (!_.isObject(obj) || _.isFunction(obj)) return obj;
     if (_.isDate(obj)) return new Date(obj.getTime());
     if (_.isRegExp(obj)) return new RegExp(obj.source, obj.toString().replace(/.*\//, ""));
     var isArr = (_.isArray(obj) || _.isArguments(obj));
     var func = function (memo, value, key) {
       if (isArr)
-        memo.push(_.clone(value, true));
+        memo.push(_.deepClone(value, depthLeft-1));
       else
-        memo[key] = _.clone(value, true);
+        memo[key] = _.deepClone(value, depthLeft-1);
       return memo;
     };
     return _.reduce(obj, func, isArr ? [] : {});
@@ -175,5 +176,13 @@ _.mixin({
     };
   }
 });
+
+// Tests
+if(true) {
+  var a = {c:[{}]};
+  var b = _.deepClone(a);
+  b.c[0].d = 1;
+  console.assert(_.isUndefined(a.c[0].d), 'deepClone has failed');
+}
 
 module.exports = _;
