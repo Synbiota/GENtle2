@@ -24,6 +24,7 @@ define(function(require) {
     Backbone = require('backbone'),
     Styles = require('../../styles.json'),
     Q = require('q'),
+    {namedHandleError} = require('../../common/lib/handle_error'),
     LineStyles, SequenceCanvas;
 
   LineStyles = Styles.sequences.lines;
@@ -441,11 +442,9 @@ define(function(require) {
         _this.displayDeferred = Q.defer();
         resolve();
 
-      }).catch((e) => console.log(e));
+      }).catch(namedHandleError('sequence_canvas, display'));
     } else {
-      return Q.promise(function(resolve, reject) {
-        reject();
-      });
+      return Q.reject();
     }
   };
 

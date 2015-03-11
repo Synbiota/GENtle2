@@ -12,7 +12,7 @@ var cacheKey = function(sequence, options) {
   return _.flatten([sequence, _.pairs(options)]).join('~');
 };
 
-// Call IDT at most twice per second
+// Call IDT at most every N milliseconds
 var rateLimitedYqlGetXml = Proxy.getRateLimitedYqlGetXml(100);
 
 var getResults = function(sequence, options) {

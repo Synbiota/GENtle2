@@ -2,7 +2,7 @@ import PrimerCalculation from '../../pcr/lib/primer_calculation';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import _ from 'underscore.mixed';
 import Q from 'q';
-import handleError from '../../../common/lib/handle_error';
+import {namedHandleError} from '../../../common/lib/handle_error';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import Primer from '../../pcr/lib/primer';
 import Product from '../../pcr/lib/product';
@@ -61,10 +61,10 @@ var getPrimersPair = function(options, sequence) {
         fullSequence: sequence,
       });
 
-    }, handleError);
+    }).catch(namedHandleError('getPrimersPair, inner: finding primers'));
 
 
-  }, handleError);
+  }).catch(namedHandleError('getPrimersPair, outer'));
 };
 
 
@@ -102,7 +102,7 @@ var getAllPrimers = function(sequence, options={}) {
       ).then(function(results_) {
         notify(i/numberBatches);
         return getParallelPrimers(i + maxParallel, results.concat(results_));
-      }, handleError);
+      });
     };
 
     return getParallelPrimers().then(function(primers) {
@@ -126,7 +126,8 @@ var getAllPrimers = function(sequence, options={}) {
           id: _.uniqueId(),
         });
       }));
-    }, handleError);
+    })
+    .catch(namedHandleError('getParallelPrimers'));
 
   });
 };

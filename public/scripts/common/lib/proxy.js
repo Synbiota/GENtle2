@@ -83,7 +83,7 @@ export default {
   MAX_RETRIES: 3,
 
   _retryableYqlQuery: function(queryObject, deferredYqlQuery, triesLeft) {
-    // Uncomment the following to similate endpoint erroring
+    // Uncomment the following to simulate endpoint erroring
     // var delay = 1000 + Math.random()*2000;
     // setTimeout(() => deferredYqlQuery.reject({status: 503, statusText: "Bang"}), delay);
     // return;

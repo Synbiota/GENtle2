@@ -5,7 +5,7 @@ import ProductsView from './sequencing_primers_products_view';
 import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
-import handleError from '../../../common/lib/handle_error';
+import {namedHandleError} from '../../../common/lib/handle_error';
 import Primer from '../../pcr/lib/primer';
 import Product from '../../pcr/lib/product';
 import {mikeForward1} from '../../pcr/lib/universal_primers';
@@ -52,7 +52,7 @@ export default Backbone.View.extend({
       console.log('done', results)
       this.model.set('meta.sequencingPrimers.products', results).throttledSave();
       this.render();
-    }).catch(handleError);
+    }).catch(namedHandleError('startCalculation'));
   },
 
   getSequence: function() {

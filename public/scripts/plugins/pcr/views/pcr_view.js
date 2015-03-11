@@ -6,7 +6,7 @@ import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
-import handleError from '../../../common/lib/handle_error';
+import {handleError} from '../../../common/lib/handle_error';
 
 
 export default Backbone.View.extend({
@@ -87,7 +87,7 @@ export default Backbone.View.extend({
     }).progress((progress) => {
       this.updateProgressBar(progress);
     }).catch((e) => {
-      console.error('new PCR, view error:', e);
+      handleError('new PCR, view error:', e);
       this.$('.new-pcr-progress').slideUp();
       this.$('.new-pcr-progress-error').slideDown();
       this.$('.new-pcr-progress-error button').click((event) => {

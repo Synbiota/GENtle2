@@ -3,7 +3,7 @@ import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
-import handleError from '../../../common/lib/handle_error';
+import {handleError, namedHandleError} from '../../../common/lib/handle_error';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
@@ -502,7 +502,7 @@ class PotentialPrimer {
           this.deferred.resolve(resultingPrimer);
         }
       }
-    }).catch(handleError);
+    }).catch(namedHandleError('primer_calculation, checkWithIDT'));
   }
 
   toPrimer (TmFromIDT) {

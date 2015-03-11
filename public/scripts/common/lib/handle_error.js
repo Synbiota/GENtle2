@@ -7,4 +7,10 @@ var handleError = function (exception, codeLabel=undefined) {
   }
 };
 
-export default handleError;
+var namedHandleError = function(codeLabel) {
+  return function(exception) {
+    handleError(exception, codeLabel);
+  };
+};
+
+export default {handleError, namedHandleError};
