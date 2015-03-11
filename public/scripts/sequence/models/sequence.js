@@ -11,7 +11,8 @@ import HistorySteps from './history_steps';
 import Backbone from 'backbone';
 import _ from 'underscore';
 
-export default Backbone.DeepModel.extend({
+
+var SequenceModel = Backbone.DeepModel.extend({
   defaults: function() {
     return {
       id: _.uniqueId(),
@@ -35,10 +36,12 @@ export default Backbone.DeepModel.extend({
     var defaults = this.defaults();
     Backbone.DeepModel.apply(this, arguments);
     this.sortFeatures();
-    if(this.get('displaySettings.rows.res.lengths') === undefined) 
+    if(this.get('displaySettings.rows.res.lengths') === undefined) {
       this.set('displaySettings.rows.res.lengths', defaults.displaySettings.rows.res.lengths);
-    if(this.get('displaySettings.rows.res.custom') === undefined) 
+    }
+    if(this.get('displaySettings.rows.res.custom') === undefined) {
       this.set('displaySettings.rows.res.custom', defaults.displaySettings.rows.res.manual);
+    }
     this.maxOverlappingFeatures = _.memoize2(this._maxOverlappingFeatures);
     this.nbFeaturesInRange = _.memoize2(this.nbFeaturesInRange);
     this.listenTo(this, 'change:sequence', this.clearBlastCache);
@@ -51,9 +54,9 @@ export default Backbone.DeepModel.extend({
   @param {Integer} endBase end of the subsequence (indexed from 0)
   **/
   getSubSeqWithoutStickyEnds: function(startBase, endBase) {
-    if (endBase === undefined)
+    if (endBase === undefined){
       endBase = startBase;
-    else {
+    } else {
       if (endBase >= this.length() && startBase >= this.length()) return '';
       endBase = Math.min(this.length() - 1, endBase);
     }
@@ -137,13 +140,24 @@ export default Backbone.DeepModel.extend({
   },
 
   isBeyondStickyEnd: function(pos, reverse = false) {
+    return this.isBeyondStartStickyEnd(pos, reverse) || this.isBeyondEndStickyEnd(pos, reverse);
+  },
+
+  isBeyondStartStickyEndOnBothStrands: function(pos) {
+    return this.isBeyondStartStickyEnd(pos, true) && this.isBeyondStartStickyEnd(pos, false);
+  },
+
+  isBeyondEndStickyEndOnBothStrands: function(pos) {
+    return this.isBeyondEndStickyEnd(pos, true) && this.isBeyondEndStickyEnd(pos, false);
+  },
+
+  isBeyondStartStickyEnd: function(pos, reverse = false) {
     var stickyEnds = this.get('stickyEnds');
     var seqLength = this.length();
     var result = false;
 
     if(stickyEnds) {
       var startStickyEnd = stickyEnds.start;
-      var endStickyEnd = stickyEnds.end;
 
       if(startStickyEnd) {
         if(reverse) {
@@ -167,7 +181,18 @@ export default Backbone.DeepModel.extend({
             } 
           }
         }
-      } 
+      }
+    }
+    return result;
+  },
+
+  isBeyondEndStickyEnd: function(pos, reverse = false) {
+    var stickyEnds = this.get('stickyEnds');
+    var seqLength = this.length();
+    var result = false;
+
+    if(stickyEnds) {
+      var endStickyEnd = stickyEnds.end;
 
       if(endStickyEnd) {
         var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
@@ -197,6 +222,54 @@ export default Backbone.DeepModel.extend({
       } 
     } 
     return result;
+  },
+
+  getStickyEndSequence: function(getStartStickyEnd) {
+    var wholeSequence = this.get('sequence');
+    var stickyEnds = this.get('stickyEnds');
+    var isOnReverseStrand;
+    var sequence = '';
+    var stickyEnd;
+
+    if(getStartStickyEnd) {
+      stickyEnd = stickyEnds.start;
+      if(stickyEnd) {
+        sequence = wholeSequence.substr(stickyEnd.offset, stickyEnd.size);
+      }
+    } else {
+      stickyEnd = stickyEnds.end;
+      if (stickyEnd) {
+        var offset = wholeSequence.length - (stickyEnd.offset + stickyEnd.size);
+        sequence = wholeSequence.substr(offset, stickyEnd.size);
+      }
+    }
+
+    if(stickyEnd) {
+      isOnReverseStrand = stickyEnd.reverse;
+      if(isOnReverseStrand) {
+        sequence = SequenceTransforms.toComplements(sequence);
+      }
+    }
+    return {sequence, isOnReverseStrand};
+  },
+
+  getStartStickyEndSequence: function() {
+    return this.getStickyEndSequence(true);
+  },
+
+  getEndStickyEndSequence: function() {
+    return this.getStickyEndSequence(false);
+  },
+
+  stickyEndConnects: function (sequence) {
+    if(sequence.constructor !== SequenceModel) throw 'Sequence must be a SequenceModel';
+    var thisEndStickySequence = this.getEndStickyEndSequence();
+    var otherStartStickySequence = sequence.getStartStickyEndSequence();
+
+    var canConnect = ((thisEndStickySequence.isOnReverseStrand != otherStartStickySequence.isOnReverseStrand) &&
+      SequenceTransforms.areComplementary(thisEndStickySequence.sequence, otherStartStickySequence.sequence));
+
+    return canConnect;
   },
 
   /**
@@ -746,7 +819,7 @@ export default Backbone.DeepModel.extend({
   },
 
 
-   deleteFeature: function(feature, record) {
+  deleteFeature: function(feature, record) {
     var featureId;
     featureId = (feature._id===undefined)?feature.id : feature._id;
     this.clearFeatureCache();
@@ -864,6 +937,283 @@ export default Backbone.DeepModel.extend({
     this.set('meta.blast.results', results);
     this.throttledSave();
     return this;
-  }
+  },
 
 });
+
+
+SequenceModel.concatenateSequences = function(sequences, circularise=false) {
+  // TODO:  fully support circularise, currently only features are
+  // accepted/rejected because of it.
+  var previousSequence;
+  var previousStickyEnds;
+
+  var newSequenceAttributes = _.reduce(sequences, function(attributes, sequence, i) {
+    var isFirst = i === 0;
+    var isLast = i === (sequences.length - 1);
+    var stickyEnds = sequence.get('stickyEnds');
+    var sequenceBases = sequence.get('sequence');
+
+    // Add sticky ends
+    if(isFirst) {
+      if(stickyEnds.start) {
+        // Add sticky end at start
+        attributes.stickyEnds.start = stickyEnds.start;
+      }
+    }
+    if(isLast) {
+      if(stickyEnds.end) {
+        // Add sticky end at end
+        attributes.stickyEnds.end = stickyEnds.end;
+      }
+    }
+
+    var appendSequence = sequenceBases;
+    var offset = 0;
+    if(!isFirst) {
+      // Check sticky ends are compatible
+      if(previousSequence.stickyEndConnects(sequence)) {
+        attributes.sequence = attributes.sequence.substr(0, attributes.sequence.length - previousStickyEnds.end.offset);
+        var toRemove = stickyEnds.start.offset + stickyEnds.start.size;
+        offset = attributes.sequence.length - toRemove;
+        appendSequence = appendSequence.substr(toRemove);
+      } else {
+        throw `Can not concatenate sequences ${previousSequence.get('id')} and ${sequence.get('id')} as they have incompatible sticky ends: \`${previousSequence.getEndStickyEndSequence().sequence}\` and \`${previousSequence.getStartStickyEndSequence().sequence}\``;
+      }
+    }
+    // Add the suitable sequence bases
+    attributes.sequence += appendSequence;
+
+    // Add features
+    _.each(sequence.get('features'), (feature) => {
+      var positions = _.flatten(_.map(feature.ranges, (range) => [range.to, range.from]));
+      var maxPos = Math.max(...positions);
+      var minPos = Math.min(...positions);
+      var accepted = true;
+      if((circularise || !isFirst) && sequence.isBeyondStartStickyEndOnBothStrands(minPos)) {
+        accepted = false;
+      }
+      if((circularise || !isLast) && sequence.isBeyondEndStickyEndOnBothStrands(maxPos)) {
+        accepted = false;
+      }
+      if(accepted) {
+        var copiedFeature = _.deepClone(feature);
+        _.each(copiedFeature.ranges, (range) => {
+          range.from += offset;
+          range.to += offset;
+        });
+        attributes.features.push(copiedFeature);
+      }
+    });
+
+    previousSequence = sequence;
+    previousStickyEnds = stickyEnds;
+    return attributes;
+  }, {
+    sequence: '',
+    stickyEnds: {},
+    features: [],
+  });
+  return new SequenceModel(newSequenceAttributes);
+};
+
+
+if(false) {
+  class StubCurrentUser {
+    get () {
+      return '';
+    }
+  }
+  var currentUser = new StubCurrentUser();
+  Gentle.currentUser = currentUser;
+
+  var sequence1 = new SequenceModel({
+    sequence: 'CCCCCCCCCCCGGTTCC',
+    id: 1,
+    stickyEnds: {
+      // Leave a TT sticky end
+      end: {
+        reverse: false,
+        offset: 2,
+        size: 2,
+      }
+    },
+    features: [{
+      name: 'Sequence1Annotation',
+      _type: 'sequence',
+      ranges: [{
+        from: 3,
+        to: 8,
+      }]
+    },
+    {
+      name: 'Sequence1EndAnnotation',
+      _type: 'sequence',
+      ranges: [{
+        from: 11, // let's say the GGTT is the RE site
+        to: 14,
+      }]
+    }]
+  });
+
+  var sequence2 = new SequenceModel({
+    sequence: 'CCTTCCCCCCCCCCC',
+    id: 2,
+    stickyEnds: {
+      // Leave a AA sticky end
+      start: {
+        reverse: true,
+        offset: 2,
+        size: 2,
+      }
+    },
+    features: [
+    {
+      name: 'Sequence2AnnotationShouldStay',
+      _type: 'sequence',
+      ranges: [{
+        from: 2,
+        to: 2,
+      }]
+    },
+    {
+      name: 'Sequence2AnnotationShouldBeRemoved',
+      _type: 'sequence',
+      ranges: [{
+        from: 1,
+        to: 2, // let's say the CCTT is the RE site
+      }]
+    }
+    ]
+  });
+
+  var sequence3 = new SequenceModel({
+    sequence: 'TTCCGGGGGGGGGTTGG',
+    id: 3,
+    stickyEnds: {
+      // Leave a AA sticky end
+      start: {
+        reverse: true,
+        offset: 0,
+        size: 2,
+      },
+      // Leave a TT sticky end
+      end: {
+        reverse: false,
+        offset: 2,
+        size: 2,
+      }
+    },
+    features: [{
+      name: 'Sequence3Annotation',
+      _type: 'sequence',
+      ranges: [{
+        from: 14,
+        to: 14,
+      }]
+    },
+    {
+      name: 'Sequence3AnnotationShouldBeRemoved',
+      _type: 'sequence',
+      ranges: [{
+        from: 14,
+        to: 15,
+      }]
+    },
+    {
+      name: 'Sequence3AnnotationShouldAlsoBeRemoved',
+      _type: 'sequence',
+      ranges: [{
+        from: 15,
+        to: 14,
+      }]
+    }]
+  });
+
+
+  // Test sticky end functions
+  // Test isBeyondEndStickyEnd
+  console.assert(sequence1.isBeyondEndStickyEnd(15));
+  console.assert(sequence1.isBeyondEndStickyEnd(14, true));
+  console.assert(!sequence1.isBeyondEndStickyEnd(14));
+  console.assert(!sequence1.isBeyondEndStickyEnd(14, false));
+
+  // Test isBeyondEndStickyEndOnBothStrands
+  console.assert(sequence1.isBeyondEndStickyEndOnBothStrands(15));
+  console.assert(!sequence1.isBeyondEndStickyEndOnBothStrands(14));
+
+  // Test isBeyondStartStickyEnd
+  console.assert(sequence2.isBeyondStartStickyEnd(1));
+  console.assert(!sequence2.isBeyondStartStickyEnd(2, true));
+  console.assert(sequence2.isBeyondStartStickyEnd(2));
+  console.assert(sequence2.isBeyondStartStickyEnd(2, false));
+
+  // Test isBeyondStartStickyEndOnBothStrands
+  console.assert(sequence2.isBeyondStartStickyEndOnBothStrands(1));
+  console.assert(!sequence2.isBeyondStartStickyEndOnBothStrands(2));
+
+  // Test getStartStickyEndSequence
+  console.assert(sequence1.getStartStickyEndSequence().sequence === '');
+  console.assert(sequence1.getStartStickyEndSequence().isOnReverseStrand === undefined);
+  console.assert(sequence2.getStartStickyEndSequence().sequence === 'AA');
+  console.assert(sequence2.getStartStickyEndSequence().isOnReverseStrand);
+
+  // Test getEndStickyEndSequence
+  console.assert(sequence1.getEndStickyEndSequence().sequence === 'TT');
+  console.assert(!sequence1.getEndStickyEndSequence().isOnReverseStrand);
+  console.assert(sequence2.getEndStickyEndSequence().sequence === '');
+  console.assert(sequence2.getEndStickyEndSequence().isOnReverseStrand === undefined);
+
+  // Test stickyEndConnects
+  console.assert(sequence1.stickyEndConnects(sequence2), 'sequence1 should be able to connect with sequence2');
+  console.assert(!sequence2.stickyEndConnects(sequence1), 'sequence2 should not be able to connect with sequence1 (they are blunt ends)');
+
+  // Test concatenateSequences
+  var concatenatedSequence;
+  var features;
+
+  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence2]);
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTT' + 'CCCCCCCCCCC');
+  features = concatenatedSequence.get('features');
+  console.assert(features.length === 3);
+  console.assert(features[0].name === 'Sequence1Annotation');
+  console.assert(features[0].ranges[0].from === 3);
+  console.assert(features[0].ranges[0].to === 8);
+  console.assert(features[1].name === 'Sequence1EndAnnotation');
+  console.assert(features[1].ranges[0].from === 11);
+  console.assert(features[1].ranges[0].to === 14);
+  console.assert(features[2].name === 'Sequence2AnnotationShouldStay');
+  console.assert(features[2].ranges[0].from === 13);
+  console.assert(features[2].ranges[0].to === 13);
+
+  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2]);
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTT' + 'CCGGGGGGGGGTT' + 'CCCCCCCCCCC');
+  features = concatenatedSequence.get('features');
+  console.assert(features.length === 4);
+  console.assert(features[0].name === 'Sequence1Annotation');
+  console.assert(features[0].ranges[0].from === 3);
+  console.assert(features[0].ranges[0].to === 8);
+  console.assert(features[1].name === 'Sequence1EndAnnotation');
+  console.assert(features[1].ranges[0].from === 11);
+  console.assert(features[1].ranges[0].to === 14);
+  console.assert(features[2].name === 'Sequence2AnnotationShouldStay');
+  console.assert(features[2].ranges[0].from === 26);
+  console.assert(features[2].ranges[0].to === 26);
+  console.assert(features[3].name === 'Sequence3Annotation');
+  console.assert(features[3].ranges[0].from === 27);
+  console.assert(features[3].ranges[0].to === 27);
+
+  var error;
+  try {
+    SequenceModel.concatenateSequences([sequence1, sequence2, sequence2]);
+  } catch (e) {
+    error = e;
+  }
+  console.assert(error === 'Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AA`');
+
+
+  delete Gentle.currentUser;
+}
+
+
+export default SequenceModel;

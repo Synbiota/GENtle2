@@ -94,11 +94,22 @@ var isPalindromic = function(sequence) {
   return sequence == toReverseComplements(sequence);
 };
 
+
+var areComplementary = function(sequence1, sequence2) {
+  // TODO: support partial complementary sequences
+  if(sequence1.length !== sequence2.length) return false;
+  return !_.find(sequence1, function(base1, i) {
+    return toComplementsMap[base1] !== sequence2[i];
+  });
+};
+
+
 export default {
-  codonToAALong: codonToAALong,
-  codonToAAShort: codonToAAShort,
-  toComplements: toComplements,
-  iupacToBases: iupacToBases,
-  toReverseComplements: toReverseComplements,
-  isPalindromic: isPalindromic
+  codonToAALong,
+  codonToAAShort,
+  toComplements,
+  iupacToBases,
+  toReverseComplements,
+  isPalindromic,
+  areComplementary,
 };

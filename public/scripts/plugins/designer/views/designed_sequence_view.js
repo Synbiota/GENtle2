@@ -41,18 +41,16 @@ define(function(require) {
         _.each(feature.ranges, function(range) {
 
           if(feature._type !== 'Sequence'){
-
-
-          features.push({
-             name: feature.name,
-             id: ++id,
-             featureId: feature._id,
-             from: range.from,
-             to: range.to,
-             reverseComplement: range.reverseComplement,
-            _type: feature._type.toLowerCase()
-          });
-        }
+            features.push({
+               name: feature.name,
+               id: ++id,
+               featureId: feature._id,
+               from: range.from,
+               to: range.to,
+               reverseComplement: range.reverseComplement,
+              _type: feature._type.toLowerCase()
+            });
+          }
         });
       });
 
