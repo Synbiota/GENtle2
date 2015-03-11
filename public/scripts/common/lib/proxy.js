@@ -1,5 +1,7 @@
 import $ from 'jquery';
 import Q from 'q';
+import RateLimit from './rate_limit';
+
 
 export default {
   get: function(url, data, method) {
@@ -81,11 +83,17 @@ export default {
   MAX_RETRIES: 3,
 
   _retryableYqlQuery: function(queryObject, deferredYqlQuery, triesLeft) {
+    // Uncomment the following to similate endpoint erroring
+    // var delay = 1000 + Math.random()*2000;
+    // setTimeout(() => deferredYqlQuery.reject({status: 503, statusText: "Bang"}), delay);
+    // return;
+
+    console.log('Sending query', queryObject)
     var ajaxQuery = $.ajax(queryObject);
 
     Q(ajaxQuery).then((response)  => {
       if(triesLeft < this.MAX_RETRIES) {
-        console.log('Retry successful.');
+        console.log('Retry successful.')
       }
       deferredYqlQuery.resolve(response);
     }).catch((e) => {
@@ -104,5 +112,10 @@ export default {
         deferredYqlQuery.reject(e);
       }
     });
+  },
+
+  getRateLimitedYqlGetXml: function(msDelay) {
+    return RateLimit(this.yqlGetXml, msDelay, this);
   }
+
 };
