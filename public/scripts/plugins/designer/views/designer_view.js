@@ -13,7 +13,11 @@ define(function(require) {
 
     initialize: function() {
       this.model = Gentle.currentSequence;
-      this.availableSequences = Gentle.sequences.without(this.model);
+      this.availableSequences = Gentle.sequences.without(this.model)
+        .filter((seq) => {
+          var stickyEnds = seq.get('stickyEnds');
+          return stickyEnds.start && stickyEnds.end;
+        });
     },
 
     serialize: function() {
