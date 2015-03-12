@@ -1028,10 +1028,10 @@ if(false) {
   Gentle.currentUser = currentUser;
 
   var sequence1 = new SequenceModel({
-    sequence: 'CCCCCCCCCCCGGTTCC',
+    sequence: 'CCCCCCCCCCCGGTACC',
     id: 1,
     stickyEnds: {
-      // Leave a TT sticky end
+      // Leave a TA sticky end
       end: {
         reverse: false,
         offset: 2,
@@ -1057,10 +1057,10 @@ if(false) {
   });
 
   var sequence2 = new SequenceModel({
-    sequence: 'CCTTCCCCCCCCCCC',
+    sequence: 'CCTACCCCCCCCCCC',
     id: 2,
     stickyEnds: {
-      // Leave a AA sticky end
+      // Leave a AT sticky end
       start: {
         reverse: true,
         offset: 2,
@@ -1088,16 +1088,16 @@ if(false) {
   });
 
   var sequence3 = new SequenceModel({
-    sequence: 'TTCCGGGGGGGGGTTGG',
+    sequence: 'TACCGGGGGGGGGTAGG',
     id: 3,
     stickyEnds: {
-      // Leave a AA sticky end
+      // Leave a AT sticky end
       start: {
         reverse: true,
         offset: 0,
         size: 2,
       },
-      // Leave a TT sticky end
+      // Leave a TA sticky end
       end: {
         reverse: false,
         offset: 2,
@@ -1155,11 +1155,11 @@ if(false) {
   // Test getStartStickyEndSequence
   console.assert(sequence1.getStartStickyEndSequence().sequence === '');
   console.assert(sequence1.getStartStickyEndSequence().isOnReverseStrand === undefined);
-  console.assert(sequence2.getStartStickyEndSequence().sequence === 'AA');
+  console.assert(sequence2.getStartStickyEndSequence().sequence === 'AT');
   console.assert(sequence2.getStartStickyEndSequence().isOnReverseStrand);
 
   // Test getEndStickyEndSequence
-  console.assert(sequence1.getEndStickyEndSequence().sequence === 'TT');
+  console.assert(sequence1.getEndStickyEndSequence().sequence === 'TA');
   console.assert(!sequence1.getEndStickyEndSequence().isOnReverseStrand);
   console.assert(sequence2.getEndStickyEndSequence().sequence === '');
   console.assert(sequence2.getEndStickyEndSequence().isOnReverseStrand === undefined);
@@ -1173,7 +1173,7 @@ if(false) {
   var features;
 
   concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence2]);
-  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTT' + 'CCCCCCCCCCC');
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTA' + 'CCCCCCCCCCC');
   features = concatenatedSequence.get('features');
   console.assert(features.length === 3);
   console.assert(features[0].name === 'Sequence1Annotation');
@@ -1187,7 +1187,7 @@ if(false) {
   console.assert(features[2].ranges[0].to === 13);
 
   concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2]);
-  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTT' + 'CCGGGGGGGGGTT' + 'CCCCCCCCCCC');
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
   features = concatenatedSequence.get('features');
   console.assert(features.length === 4);
   console.assert(features[0].name === 'Sequence1Annotation');
@@ -1209,7 +1209,7 @@ if(false) {
   } catch (e) {
     error = e;
   }
-  console.assert(error === 'Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AA`');
+  console.assert(error === 'Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AT`');
 
 
   delete Gentle.currentUser;
