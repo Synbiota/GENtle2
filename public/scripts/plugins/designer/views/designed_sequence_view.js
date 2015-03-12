@@ -157,11 +157,10 @@ export default Backbone.View.extend({
   processSequences: function() {
     return _.map(this.sequences, function(sequence, i) {
       var features = sequence.get('features');
-      var name = sequence.get('name')
+      var name = sequence.get('name');
       var type;
 
       if(features.length == 1) {
-        console.log(features, sequence.length(), features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length())
         if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length() -1) {
           name = features[0].name;
           type = features[0].type;

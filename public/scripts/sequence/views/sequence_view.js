@@ -125,14 +125,27 @@ define(function(require) {
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
 
+      
+
       if(render !== false) {
         actualView.render();
+        this.maximizePrimaryView();
         this.sequenceSettingsView.render();
+      }
+    },
+
+    maximizePrimaryView: function() {
+      var $outlet = $('#sequence-primary-view-outlet');
+      if(this.primaryView.maximize) {
+        $outlet.addClass('maximize');
+      } else {
+        $outlet.removeClass('maximize');
       }
     },
 
     afterRender: function() {
       this.handleResize(false);
+      this.maximizePrimaryView();
     },
 
     handleResize: function(trigger) {

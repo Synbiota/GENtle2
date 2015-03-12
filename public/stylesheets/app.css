@@ -8507,9 +8507,16 @@ button.close {
   top: 30px;
   bottom: 0;
   right: 0;
+  background: white;
+}
+/* line 14, views/_sequence_view.scss */
+#sequence-primary-view-outlet.maximize {
+  left: 0 !important;
+  top: 0 !important;
+  z-index: 1;
 }
 
-/* line 15, views/_sequence_view.scss */
+/* line 22, views/_sequence_view.scss */
 .sequence-canvas-wrapper .sequence-canvas-container {
   position: absolute;
   left: 0;
@@ -8517,12 +8524,12 @@ button.close {
   top: 0;
   bottom: 0;
 }
-/* line 22, views/_sequence_view.scss */
+/* line 29, views/_sequence_view.scss */
 .sequence-canvas-wrapper .sequence-canvas-container canvas.sequence-canvas {
   width: 100%;
   height: 100%;
 }
-/* line 28, views/_sequence_view.scss */
+/* line 35, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent {
   position: absolute;
   right: 0;
@@ -8534,12 +8541,12 @@ button.close {
   background: transparent;
   cursor: text;
 }
-/* line 38, views/_sequence_view.scss */
+/* line 45, views/_sequence_view.scss */
 .sequence-canvas-wrapper .scrolling-parent:focus {
   outline: none;
 }
 
-/* line 44, views/_sequence_view.scss */
+/* line 51, views/_sequence_view.scss */
 .sequence-statusbar-outlet {
   position: absolute;
   top: 0;

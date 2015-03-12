@@ -9,6 +9,13 @@
   top: 30px;
   bottom: 0;
   right: 0;
+  background: white;
+
+  &.maximize {
+    left: 0 !important;
+    top: 0 !important;
+    z-index: 1;
+  }
 }
 
 .sequence-canvas-wrapper {
