@@ -13,7 +13,6 @@ define(function(require) {
 
     initialize: function(){
       this.listenTo(Gentle.currentSequence, 'change', this.render, this);
-      this.model = Gentle.currentSequence;
       this.features = [];
       this.availableSequences = Gentle.sequences.without(this.model);
     },
@@ -109,15 +108,17 @@ define(function(require) {
       var _this = this;
       this.positionFeatures();
 
-      this.$('.designer-available-sequence-feature').draggable({
-        revert: 'invalid',
-        helper: 'clone',
-        cursorAt: {
-          top: 5,
-          left: 5
-        }
-      });
+      // this.$('.designer-available-sequence-feature').draggable({
+      //   refreshPositions: true,
+      //   revert: 'invalid',
+      //   helper: 'clone',
+      //   cursorAt: {
+      //     top: 5,
+      //     left: 5
+      //   }
+      // });
        this.$('.designer-available-sequence-entireseq').draggable({
+        refreshPositions: true,
         revert: 'invalid',
         helper: 'clone',
         cursorAt: {
