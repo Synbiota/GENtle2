@@ -958,13 +958,13 @@ SequenceModel.concatenateSequences = function(sequences, circularise=false) {
     if(isFirst) {
       if(stickyEnds.start) {
         // Add sticky end at start
-        attributes.stickyEnds.start = stickyEnds.start;
+        attributes.stickyEnds.start = _.deepClone(stickyEnds.start);
       }
     }
     if(isLast) {
       if(stickyEnds.end) {
         // Add sticky end at end
-        attributes.stickyEnds.end = stickyEnds.end;
+        attributes.stickyEnds.end = _.deepClone(stickyEnds.end);
       }
     }
 
