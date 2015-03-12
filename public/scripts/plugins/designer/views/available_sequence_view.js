@@ -3,6 +3,7 @@ define(function(require) {
       template = require('../templates/available_sequence_view.hbs'),
       SynbioData = require('../../../common/lib/synbio_data'),
       Gentle = require('gentle'),
+      draggableCleanup = require('../lib/draggable_cleanup'),
       AvailableSequenceView;
 
   AvailableSequenceView = Backbone.View.extend({
@@ -126,6 +127,22 @@ define(function(require) {
           left: 5
         }
       });
+    },
+
+    cleanUpDraggable: function() {
+      draggableCleanup(
+        this, 
+        '.designer-available-sequence-entireseq'
+      );
+    },
+
+    beforeRender: function() {
+      this.cleanUpDraggable();
+    },
+
+    remove: function() {
+      this.cleanUpDraggable();
+      Backbone.View.prototype.remove.apply(this, arguments);
     },
 
   });

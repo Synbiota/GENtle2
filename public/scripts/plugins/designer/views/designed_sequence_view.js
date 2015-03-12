@@ -3,6 +3,7 @@ import template from '../templates/designed_sequence_view.hbs';
 import SynbioData from '../../../common/lib/synbio_data';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
+import draggableCleanup from '../lib/draggable_cleanup';
 
 export default Backbone.View.extend({
   template: template,
@@ -275,7 +276,7 @@ export default Backbone.View.extend({
   insertFromAvailableSequence: function($draggable, beforeIndex = 0) {
     var sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
     this.sequences.splice(beforeIndex, 0, sequence);
-    this.render();
+    $draggable.on('dragstop', () => this.render());
   },
 
   moveSequence: function($draggable, index) {
@@ -284,12 +285,12 @@ export default Backbone.View.extend({
     this.sequences[oldIndex] = null;
     this.sequences.splice(index, 0, sequence);
     this.sequences = _.compact(this.sequences);
-    this.render();
+    $draggable.on('dragstop', () => this.render());
   },
 
-  removeSequence: function(index) {
+  removeSequence: function($draggable, index) {
     this.sequences.splice(index, 1);
-    this.render();
+    $draggable.on('dragstop', () => this.render());
   },
 
   getSequenceIndexFromDraggableChunk: function($draggable) {
@@ -337,6 +338,10 @@ export default Backbone.View.extend({
     var sequence;
     var output = true;
 
+    if(beforeIndex === previousIndex || beforeIndex - 1 === previousIndex) {
+      return false;
+    } 
+    
     if($draggable.hasClass('designer-designed-sequence-chunk')) {
       sequence = this.getSequenceFromDraggableChunk($draggable);
     } else {
@@ -353,7 +358,7 @@ export default Backbone.View.extend({
       }
 
       if(previousIndex && previousIndex > 0 && previousIndex < this.sequences.length -1) {
-        output = output && this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]) 
+        output = output && this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]);
       }
     }
 
@@ -365,13 +370,32 @@ export default Backbone.View.extend({
         this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]) ;
   },
 
+  cleanUpDraggable: function() {
+    draggableCleanup(
+      this, 
+      '.designer-designed-sequence-chunk',
+      'div.designer-designed-sequence-chunk-trash',
+      '.designer-designed-sequence-chunk-droppable',
+      '.designer-designed-sequence-empty-placeholder'
+    );
+  },
+
+  beforeRender: function() {
+    this.cleanUpDraggable();
+  },
+
+  remove: function() {
+    this.cleanUpDraggable();
+    Backbone.View.prototype.remove.apply(this, arguments);
+  },
+
   afterRender: function() {
     var _this = this;
     // this.styleChunks();
 
     this.$('.designer-designed-sequence-chunk').draggable({
       zIndex: 2000, 
-      revert: true, 
+      revert: 'invalid', 
       helper: 'clone',
       refreshPositions: true,
       cursorAt: {
@@ -389,8 +413,9 @@ export default Backbone.View.extend({
         return index == $(this).data('sequenceIndex') && _this.canTrash($draggable, index);
       },
       drop: function(event, ui) {
-        var index = ui.draggable.data('sequenceIndex');
-        _this.removeSequence(index);
+        var $draggable = ui.draggable;
+        var index = $draggable.data('sequenceIndex');
+        _this.removeSequence($draggable, index);
       }
     });
 
