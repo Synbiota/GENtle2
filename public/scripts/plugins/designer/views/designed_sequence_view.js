@@ -11,6 +11,7 @@ export default Backbone.View.extend({
 
   events: {
     'click .assemble-sequence-btn': 'assembleSequence',
+    'change #circularise-dna': 'updateCirculariseDna',
   },
 
   initialize: function() {
@@ -21,17 +22,32 @@ export default Backbone.View.extend({
 
   assembleSequence: function(event) {
     event.preventDefault();
-    var finalSequence = Sequence.concatenateSequences(this.sequences);
-    Gentle.currentSequence.set({
-      sequence: finalSequence.get('sequence'),
-      features: finalSequence.get('features'),
-      stickyEnds: finalSequence.get('stickyEnds')
-    });
-    this.parentView(2).changePrimaryView('edition');
+    if(this.incompatibleStickyEnds()) {
+      alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
+    } else {
+      var finalSequence = Sequence.concatenateSequences(this.sequences);
+      Gentle.currentSequence.set({
+        sequence: finalSequence.get('sequence'),
+        features: finalSequence.get('features'),
+        stickyEnds: finalSequence.get('stickyEnds')
+      });
+      this.parentView(1).remove();
+      this.parentView(2).changePrimaryView('edition');
+    }
+  },
+
+  updateCirculariseDna: function(event) {
+    event.preventDefault();
+    this.model.set('isCircular', event.target.checked).throttledSave();
+    this.render();
   },
 
   serialize: function() {
-    var output = {sequenceName: Gentle.currentSequence.get('name')};
+    var output = {
+      sequenceName: Gentle.currentSequence.get('name'),
+      circulariseDna: this.model.get('isCircular'),
+      incompatibleStickyEnds: this.incompatibleStickyEnds(), // TODO, refactor this to be generic.
+    };
     if(this.sequences.length) {
       output.sequences = this.processSequences();
       output.lastId = this.sequences.length;
@@ -39,6 +55,15 @@ export default Backbone.View.extend({
       output.empty = true;
     }
     return output;
+  },
+
+  incompatibleStickyEnds: function() {
+    var incompatibleEnds = false;
+    if(this.model.get('isCircular') && this.sequences.length > 0) {
+      var lastSequence = this.sequences[this.sequences.length-1];
+      incompatibleEnds = !lastSequence.stickyEndConnects(this.sequences[0]);
+    }
+    return incompatibleEnds;
   },
 
   processSequences: function() {

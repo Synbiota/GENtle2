@@ -40,13 +40,13 @@ define(function(require) {
 
     analyzeFragment: function(fragment){
 
-      var sequenceAnalysisView = new SequenceAnalysisView()
+      var sequenceAnalysisView = new SequenceAnalysisView();
       var canvasView = this.actualPrimaryView.sequenceCanvas;
 
       Modal.modalTitle = 'Analysis';
       Modal.setView('.modal-body', sequenceAnalysisView);
 
-      sequenceAnalysisView.calculateResults(fragment)
+      sequenceAnalysisView.calculateResults(fragment);
       sequenceAnalysisView.render();
 
       canvasView.hideCaret();
@@ -103,8 +103,9 @@ define(function(require) {
 
       currentView = this.model.get('displaySettings.primaryView');
 
-      if(!~_.pluck(primaryViews, 'name').indexOf(currentView))
+      if(!~_.pluck(primaryViews, 'name').indexOf(currentView)) {
         currentView = 'edition';
+      }
 
       this.primaryViews = primaryViews;
       this.changePrimaryView(currentView, false);
@@ -113,7 +114,6 @@ define(function(require) {
     changePrimaryView: function(viewName, render) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
           actualView = new primaryView.view();
-
 
       _.each(this.primaryViews, function(view) {
         view.current = false;
@@ -124,8 +124,6 @@ define(function(require) {
       this.actualPrimaryView = actualView;
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
-
-      
 
       if(render !== false) {
         actualView.render();

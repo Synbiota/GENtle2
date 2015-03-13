@@ -8034,15 +8034,19 @@ button.close {
   transition-timing-function: ease-out;
 }
 /* line 65, views/_designer_view.scss */
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.incompatible-ends {
+  background-color: #ffdada;
+}
+/* line 69, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.highlighted, .designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.active {
   background-color: #daffd5;
 }
-/* line 69, views/_designer_view.scss */
+/* line 73, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.hover {
   border-color: #428bca;
   color: #2a6496;
 }
-/* line 78, views/_designer_view.scss */
+/* line 82, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-trash {
   visibility: hidden;
   float: left;
@@ -8056,15 +8060,15 @@ button.close {
   text-align: center;
   font-size: 1.5em;
 }
-/* line 91, views/_designer_view.scss */
+/* line 95, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-trash.enabled {
   visibility: visible;
 }
-/* line 94, views/_designer_view.scss */
+/* line 98, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-trash.active {
   color: red;
 }
-/* line 99, views/_designer_view.scss */
+/* line 103, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk-position {
   float: left;
   margin-left: -50px;
@@ -8077,7 +8081,7 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 110, views/_designer_view.scss */
+/* line 114, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk {
   position: relative;
   background: #a12e29;
@@ -8089,86 +8093,86 @@ button.close {
   margin-bottom: 7px;
   cursor: move;
 }
-/* line 121, views/_designer_view.scss */
+/* line 125, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk .designer-designed-sequence-chunk-title {
   padding: 13px 10px;
 }
-/* line 125, views/_designer_view.scss */
+/* line 129, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.ui-draggable-dragging {
   box-shadow: 0 0 3px rgba(34, 34, 34, 0.5);
 }
-/* line 169, views/_designer_view.scss */
+/* line 173, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-empty {
   background: #ddd;
   color: #888;
   border: 1px solid #888;
 }
-/* line 175, views/_designer_view.scss */
+/* line 179, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.ui-draggable-dragging {
   width: 200px !important;
 }
-/* line 177, views/_designer_view.scss */
+/* line 181, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.ui-draggable-dragging .designer-designed-sequence-chunk-title {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-CDS {
   color: white;
   border-color: white;
   background: #3c4589;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-terminator {
   color: white;
   border-color: white;
   background: #1c1c25;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-oriT {
   color: #3e0208;
   border-color: #3e0208;
   background: #d5cb4a;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-promoter {
   color: white;
   border-color: white;
   background: #a12e29;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-rbs {
   color: white;
   border-color: white;
   background: #a12e29;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-protein_bind {
   color: white;
   border-color: white;
   background: #a12e29;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-note {
   color: white;
   border-color: white;
   background: #3c6e39;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-primer {
   color: white;
   border-color: white;
   background: blue;
 }
-/* line 184, views/_designer_view.scss */
+/* line 188, views/_designer_view.scss */
 .designer-designed-sequence-outlet .designer-designed-sequence-chunk-container .designer-designed-sequence-chunk.designer-designed-sequence-chunk-sticky_end {
   color: white;
   border-color: white;
   background: green;
 }
 
-/* line 195, views/_designer_view.scss */
+/* line 199, views/_designer_view.scss */
 .designer-available-sequences {
   position: absolute;
   left: 0;
@@ -8180,27 +8184,27 @@ button.close {
   overflow-y: auto;
 }
 
-/* line 206, views/_designer_view.scss */
+/* line 210, views/_designer_view.scss */
 .designer-available-sequence-outlet {
   padding: 10px 20px;
   border-bottom: 1px solid #ddd;
 }
-/* line 210, views/_designer_view.scss */
+/* line 214, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence {
   position: relative;
 }
-/* line 214, views/_designer_view.scss */
+/* line 218, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-name {
   display: inline-block;
 }
-/* line 218, views/_designer_view.scss */
+/* line 222, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-entireseq {
   display: inline-block;
   margin-left: 20px;
   cursor: move;
   text-align: center;
 }
-/* line 223, views/_designer_view.scss */
+/* line 227, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-entireseq.ui-draggable-dragging {
   padding: 5px 10px;
   background: #ddd;
@@ -8208,54 +8212,54 @@ button.close {
   box-shadow: 0 0 3px rgba(34, 34, 34, 0.5);
   z-index: 2000;
 }
-/* line 232, views/_designer_view.scss */
+/* line 236, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features {
   position: relative;
   border-left: 1px dashed #444;
   border-right: 1px dashed #444;
   margin-top: 10px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-0 {
   height: 16px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-1 {
   height: 43px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-2 {
   height: 70px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-3 {
   height: 97px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-4 {
   height: 124px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-5 {
   height: 151px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-6 {
   height: 178px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-7 {
   height: 205px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-8 {
   height: 232px;
 }
-/* line 239, views/_designer_view.scss */
+/* line 243, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-features.designer-available-sequence-features-max-overlap-9 {
   height: 259px;
 }
-/* line 245, views/_designer_view.scss */
+/* line 249, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature {
   position: absolute;
   margin-left: -1px;
@@ -8270,7 +8274,7 @@ button.close {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-/* line 258, views/_designer_view.scss */
+/* line 262, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.ui-draggable-dragging {
   padding: 5px 10px;
   background: #ddd;
@@ -8279,95 +8283,95 @@ button.close {
   box-shadow: 0 0 3px rgba(34, 34, 34, 0.5);
   z-index: 2000;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-0 {
   top: 10px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-1 {
   top: 37px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-2 {
   top: 64px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-3 {
   top: 91px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-4 {
   top: 118px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-5 {
   top: 145px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-6 {
   top: 172px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-7 {
   top: 199px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-8 {
   top: 226px;
 }
-/* line 268, views/_designer_view.scss */
+/* line 272, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-stacked-9 {
   top: 253px;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-CDS {
   border-color: white;
   color: white;
   background: #3c4589;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-terminator {
   border-color: white;
   color: white;
   background: #1c1c25;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-oriT {
   border-color: #3e0208;
   color: #3e0208;
   background: #d5cb4a;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-promoter {
   border-color: white;
   color: white;
   background: #a12e29;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-rbs {
   border-color: white;
   color: white;
   background: #a12e29;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-protein_bind {
   border-color: white;
   color: white;
   background: #a12e29;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-note {
   border-color: white;
   color: white;
   background: #3c6e39;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-primer {
   border-color: white;
   color: white;
   background: blue;
 }
-/* line 275, views/_designer_view.scss */
+/* line 279, views/_designer_view.scss */
 .designer-available-sequence-outlet .designer-available-sequence-feature.designer-available-sequence-feature-sticky_end {
   border-color: white;
   color: white;

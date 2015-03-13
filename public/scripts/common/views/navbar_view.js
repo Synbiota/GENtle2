@@ -58,10 +58,11 @@ define(function(require) {
         }
         sequence.destroy();
         nextSequence = Gentle.sequences.last();
-        if(nextSequence)
+        if(nextSequence) {
           Gentle.router.sequence(nextSequence.get('id'));
-        else
+        } else {
           Gentle.router.home();
+        }
       }
     },
 

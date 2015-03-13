@@ -34,8 +34,9 @@ define(function(require) {
 
     sequence: function(id) {
       var fragment = 'sequence/'+id;
-      if(Backbone.history.fragment != fragment) this.navigate(fragment, {trigger: true});
-      else {
+      if(Backbone.history.fragment != fragment) {
+        this.navigate(fragment, {trigger: true});
+      } else {
         Gentle.currentSequence = Gentle.sequences.get(id);
         if(Gentle.currentSequence) {
           document.title = Gentle.currentSequence.get('name') + ' / Gentle';

@@ -50,6 +50,8 @@ define(function(require) {
       var _this = this,
           designedSequenceView;
 
+      this.removeAllViews();
+
       _.each(this.availableSequences, function(sequence) {
         var outletSelector = 
               '.designer-available-sequence-outlet[data-sequence_id="' +
@@ -90,6 +92,10 @@ define(function(require) {
       showAnnotations = _.isUndefined(showAnnotations) ? true : !showAnnotations;
       Gentle.currentUser.set('displaySettings.designerView.showAnnotations', showAnnotations);
       this.render();
+    },
+
+    changeSecondaryView: function() {
+      // Currently NoOp
     },
 
   });

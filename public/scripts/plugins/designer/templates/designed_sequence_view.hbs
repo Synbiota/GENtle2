@@ -62,7 +62,7 @@
           </div>
       
         {{/each}}
-        <div class="designer-designed-sequence-chunk-droppable" data-before_index="{{lastId}}">
+        <div class="designer-designed-sequence-chunk-droppable {{#if incompatibleStickyEnds}}incompatible-ends{{/if}}" data-before_index="{{lastId}}">
             Drop sequence here
         </div>
         <div class="clearfix"></div>
@@ -70,6 +70,8 @@
       
       <br>
       <button class="btn btn-primary assemble-sequence-btn">Assemble sequence</button>
+      <label for="circularise-dna">Circularise</label>
+      <input id="circularise-dna" type="checkbox" {{#if circulariseDna}}checked="1"{{/if}}></input>
 
     {{/if}}
 
