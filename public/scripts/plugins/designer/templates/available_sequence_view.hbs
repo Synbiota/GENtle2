@@ -1,11 +1,10 @@
 <h6 class="designer-available-sequence-name">
-{{#if sequence.usable}}&#10003;{{else}}&nbsp;&nbsp;&nbsp;{{/if}}&nbsp;
 {{sequence.name}}
 </h6>
 
 {{#unless sequence.hidden}}
-  <div class="designer-available-sequence-entireseq btn btn-sm btn-default">
-    Entire Sequence ({{formatThousands sequence.length}}bp)
+  <div class="designer-available-sequence-entireseq btn btn-sm btn-default {{#unless sequence.usable}}disabled{{/unless}}">
+    Entire Sequence ({{formatThousands sequence.length}}bp) {{#unless sequence.usable}}&#x20E0;{{/unless}}
   </div>
 {{/unless}}
 

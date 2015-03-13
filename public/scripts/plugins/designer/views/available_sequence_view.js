@@ -109,7 +109,6 @@ define(function(require) {
     },
 
     afterRender: function() {
-      var _this = this;
       this.positionFeatures();
 
       // this.$('.designer-available-sequence-feature').draggable({
@@ -121,7 +120,8 @@ define(function(require) {
       //     left: 5
       //   }
       // });
-       this.$('.designer-available-sequence-entireseq').draggable({
+      var sequenceId = this.model.get('id');
+      this.$('.designer-available-sequence-entireseq').draggable({
         refreshPositions: true,
         revert: 'invalid',
         helper: 'clone',
@@ -129,6 +129,12 @@ define(function(require) {
           top: 5,
           left: 5
         }
+      }).hover(
+      (event) => {
+        this.parentView().hoveredOverSequence(sequenceId);
+      },
+      (event) => {
+        this.parentView().unhoveredOverSequence(sequenceId);
       });
     },
 

@@ -52,7 +52,7 @@ define(function(require) {
 
       _.each(this.availableSequences, function(sequence) {
         var outletSelector = 
-              '.designer-available-sequence-outlet[data-sequence-id="' + 
+              '.designer-available-sequence-outlet[data-sequence_id="' +
               sequence.id +
               '"]',
             availableSequenceView = new AvailableSequenceView();
@@ -71,9 +71,18 @@ define(function(require) {
 
     getAvailableSequenceViewFromSequenceId: function(sequenceId) {
       return this.getView(
-        '.designer-available-sequence-outlet[data-sequence-id="' + 
+        '.designer-available-sequence-outlet[data-sequence_id="' +
         sequenceId +
         '"]');
+    },
+
+    hoveredOverSequence: function(sequenceId) {
+      var indices = this.droppabilityState[sequenceId];
+      this.designedSequenceView.highlightDropSites(indices);
+    },
+
+    unhoveredOverSequence: function(sequenceId) {
+      this.designedSequenceView.unhighlightDropSites();
     },
 
     toggleAnnotations: function(event) {

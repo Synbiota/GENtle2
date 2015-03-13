@@ -37,7 +37,7 @@ define(function(require) {
 
       if(!$target.parent().hasClass('hidden-tabs-dropdown') && !$refTarget.hasClass('close-sequence')) {
         event.preventDefault();
-        Gentle.router.sequence($target.data('sequence-id'));
+        Gentle.router.sequence($target.data('sequence_id'));
       }
     },
 
@@ -48,7 +48,7 @@ define(function(require) {
 
     closeSequence: function(event) {
       event.preventDefault();
-      var sequence = Gentle.sequences.get($(event.currentTarget).closest('a').data('sequence-id')),
+      var sequence = Gentle.sequences.get($(event.currentTarget).closest('a').data('sequence_id')),
           nextSequence, visibleTabIdsIdx;
 
       if(sequence) {

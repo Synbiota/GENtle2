@@ -102,7 +102,7 @@ export default Backbone.View.extend({
 
   getSequenceFromAvailableSequenceDraggable: function($draggable) {
     var sequenceId, availableSequenceView, feature;
-    sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
+    sequenceId = $draggable.closest('[data-sequence_id]').data('sequence_id');
 
     availableSequenceView = this.parentView()
       .getAvailableSequenceViewFromSequenceId(sequenceId);
@@ -215,6 +215,14 @@ export default Backbone.View.extend({
         top: 5, 
         left: 5
       },
+    }).hover(
+    (event) => {
+      var sequence = this.getSequenceFromDraggableChunk($(event.target));
+      this.parentView().hoveredOverSequence(sequence.get('id'));
+    },
+    (event) => {
+      var sequence = this.getSequenceFromDraggableChunk($(event.target));
+      this.parentView().unhoveredOverSequence(sequence.get('id'));
     });
 
     this.$('div.designer-designed-sequence-chunk-trash').droppable({
@@ -254,6 +262,22 @@ export default Backbone.View.extend({
       tolerance: 'pointer',
       drop: (event, ui) => this.insertFromAvailableSequence(ui.draggable)
     });
+  },
+
+  highlightDropSites: function(indices) {
+    if(this.sequences.length === 0) {
+      this.$el.find('.designer-designed-sequence-empty-placeholder').addClass('highlighted');
+    } else {
+      _.each(indices, (index) => {
+        var selector = `.designer-designed-sequence-chunk-droppable[data-before_index="${index}"]`;
+        this.$el.find(selector).addClass('highlighted');
+      });
+    }
+  },
+
+  unhighlightDropSites: function() {
+    this.$el.find('.designer-designed-sequence-chunk-droppable').removeClass('highlighted');
+    this.$el.find('.designer-designed-sequence-empty-placeholder').removeClass('highlighted');
   },
 
 });
