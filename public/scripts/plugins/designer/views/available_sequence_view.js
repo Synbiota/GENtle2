@@ -104,7 +104,7 @@ define(function(require) {
       return {
         sequence: this.sequenceInfo,
         features: this.features,
-        hideAnnotations: Gentle.currentUser.get('displaySettings.designerView.hideAnnotations') || false,
+        showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
       };
     },
 

@@ -27,7 +27,7 @@ define(function(require) {
     serialize: function() {
       return {
         availableSequences: _.pluck(this.availableSequences, 'id'),
-        hideAnnotations: Gentle.currentUser.get('displaySettings.designerView.hideAnnotations') || false,
+        showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
       };
     },
 
@@ -86,9 +86,9 @@ define(function(require) {
     },
 
     toggleAnnotations: function(event) {
-      var hideAnnotations = Gentle.currentUser.get('displaySettings.designerView.hideAnnotations');
-      hideAnnotations = _.isUndefined(hideAnnotations) ? true : !hideAnnotations;
-      Gentle.currentUser.set('displaySettings.designerView.hideAnnotations', hideAnnotations);
+      var showAnnotations = Gentle.currentUser.get('displaySettings.designerView.showAnnotations');
+      showAnnotations = _.isUndefined(showAnnotations) ? true : !showAnnotations;
+      Gentle.currentUser.set('displaySettings.designerView.showAnnotations', showAnnotations);
       this.render();
     },
 
