@@ -8034,7 +8034,7 @@ button.close {
   transition-timing-function: ease-out;
 }
 /* line 65, views/_designer_view.scss */
-.designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.highlighted {
+.designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.highlighted, .designer-designed-sequence-outlet .designer-designed-sequence-chunk-droppable.active {
   background-color: #daffd5;
 }
 /* line 69, views/_designer_view.scss */

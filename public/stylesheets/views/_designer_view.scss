@@ -62,7 +62,7 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
     @include transition-duration(.2s);
     @include transition-timing-function(ease-out);
 
-    &.highlighted {
+    &.highlighted, &.active {
       background-color: #daffd5;
     }
 

@@ -90,7 +90,7 @@ define(function(require) {
       hideAnnotations = _.isUndefined(hideAnnotations) ? true : !hideAnnotations;
       Gentle.currentUser.set('displaySettings.designerView.hideAnnotations', hideAnnotations);
       this.render();
-    }
+    },
 
   });
 
