@@ -98,6 +98,21 @@ define(function(require) {
       // Currently NoOp
     },
 
+    cleanup: function() {
+      this.removeAllViews();
+    },
+
+    removeAllViews: function() {
+      if(this.views && !_.isEmpty(this.views)) {
+        _.each(this.views, (view, selector) => {
+          view.remove();
+        });
+      }
+      if(this.designedSequenceView) {
+        this.designedSequenceView.remove();
+      }
+    },
+
   });
 
   return DesignerView;
