@@ -63,7 +63,8 @@ export default Backbone.View.extend({
   },
 
   renderAndSave: function () {
-    this.render();
+    // Perhaps change this back to `this.render()`, as whole view flickers.
+    this.parentView().render();
     Gentle.currentSequence.set('meta.assembleSequences', JSON.stringify(this.sequences));
     Gentle.currentSequence.throttledSave();
   },
