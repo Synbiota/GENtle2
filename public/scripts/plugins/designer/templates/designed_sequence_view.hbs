@@ -1,4 +1,4 @@
-<h5>{{sequence.name}} ({{formatThousands sequence.length}}bp)</h5>
+<h5>{{sequenceName}}</h5>
 
 {{#if readOnly}}
 
@@ -32,40 +32,48 @@
     {{#if empty}}
 
       <div class="designer-designed-sequence-empty-placeholder">
-        Drag annotations from the right-hand list.
+        Drag sequences from the right-hand list.
       </div>
+      <br>
+      <button class="btn btn-primary assemble-sequence-btn disabled">Assemble sequence</button>
 
     {{else}}
 
       <div class="designer-designed-sequence-chunks">
-        {{#each chunks}}
-          <div class="designer-designed-sequence-chunk-container" data-chunk-id="{{id}}">
+
+        {{#each sequences}}
+          <div class="designer-designed-sequence-chunk-droppable" data-before_index="{{index}}">
+            Drop sequence
+          </div>
+          <div class="designer-designed-sequence-chunk-container" data-sequence_index="{{index}}">
             <div class="designer-designed-sequence-chunk-position">
-              {{formatThousands from 1}}
+              {{plus index 1}}
             </div>
-            <div class="designer-designed-sequence-chunk-trash" data-trash-id="{{id}}">
+            <div class="designer-designed-sequence-chunk-trash" data-sequence_index="{{index}}">
               <i class="glyphicon glyphicon-trash"></i>
             </div>
-            <div class="designer-designed-sequence-chunk designer-designed-sequence-chunk-{{feature._type}}" data-chunk-id="{{id}}">
-              <div class="designer-designed-sequence-chunk-title" {{#unless empty}}title="{{feature.name}}{{#if feature.reverseComplement}} &larr;{{else}} &rarr;{{/if}}{{/unless}}">
-                {{#if empty}}
-                  Unannotated
-                {{else}}
-                  {{feature.name}}
-                  {{#if feature.reverseComplement}} &larr;{{else}} &rarr;{{/if}}
-                {{/if}}
-                <br>
-                <em>({{formatThousands length}}bp)</em>
+            <div class="designer-designed-sequence-chunk designer-designed-sequence-chunk-{{type}}"  data-sequence_index="{{index}}">
+              <div class="designer-designed-sequence-chunk-title" title="{{name}}">
+                {{name}}
+                {{!-- <br>
+                <em>({{formatThousands length}}bp)</em> --}}
               </div>
-              <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-before">&nbsp;</div>
-              <div class="designer-designed-sequence-chunk-droppable designer-designed-sequence-chunk-droppable-after">&nbsp;</div>
             </div>
           </div>
+      
         {{/each}}
+        <div class="designer-designed-sequence-chunk-droppable" data-before_index="{{lastId}}">
+            Drop sequence
+        </div>
         <div class="clearfix"></div>
       </div>
+      
+      <br>
+      <button class="btn btn-primary assemble-sequence-btn">Assemble sequence</button>
 
     {{/if}}
+
+
 
   {{/if}}
 

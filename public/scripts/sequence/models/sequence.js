@@ -144,17 +144,33 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   isBeyondStartStickyEndOnBothStrands: function(pos) {
-    return this.isBeyondStartStickyEnd(pos, true) && this.isBeyondStartStickyEnd(pos, false);
+    return this.overhangBeyondStartStickyEndOnBothStrands(pos) > 0;
   },
 
   isBeyondEndStickyEndOnBothStrands: function(pos) {
-    return this.isBeyondEndStickyEnd(pos, true) && this.isBeyondEndStickyEnd(pos, false);
+    return this.overhangBeyondEndStickyEndOnBothStrands(pos) > 0;
+  },
+
+  overhangBeyondStartStickyEndOnBothStrands: function(pos) {
+    return Math.min(this.overhangBeyondStartStickyEnd(pos, true), this.overhangBeyondStartStickyEnd(pos, false));
+  },
+
+  overhangBeyondEndStickyEndOnBothStrands: function(pos) {
+    return Math.min(this.overhangBeyondEndStickyEnd(pos, true), this.overhangBeyondEndStickyEnd(pos, false));
   },
 
   isBeyondStartStickyEnd: function(pos, reverse = false) {
+    return this.overhangBeyondStartStickyEnd(pos, reverse) > 0;
+  },
+
+  isBeyondEndStickyEnd: function(pos, reverse = false) {
+    return this.overhangBeyondEndStickyEnd(pos, reverse) > 0;
+  },
+
+  overhangBeyondStartStickyEnd: function(pos, reverse = false) {
     var stickyEnds = this.get('stickyEnds');
     var seqLength = this.length();
-    var result = false;
+    var result = 0;
 
     if(stickyEnds) {
       var startStickyEnd = stickyEnds.start;
@@ -162,23 +178,15 @@ var SequenceModel = Backbone.DeepModel.extend({
       if(startStickyEnd) {
         if(reverse) {
           if(startStickyEnd.reverse) {
-            if(pos < startStickyEnd.offset) {    
-              result = true;
-            } 
+            result = startStickyEnd.offset - pos;
           } else {
-            if(pos < startStickyEnd.offset + startStickyEnd.size) {    
-              result = true;
-            } 
+            result = (startStickyEnd.offset + startStickyEnd.size) - pos;
           }
         } else {
           if(startStickyEnd.reverse) {
-            if(pos < startStickyEnd.offset + startStickyEnd.size) {    
-              result = true;
-            } 
+            result = (startStickyEnd.offset + startStickyEnd.size) - pos;
           } else {
-            if(pos < startStickyEnd.offset) {    
-              result = true;
-            } 
+            result = startStickyEnd.offset - pos;
           }
         }
       }
@@ -186,10 +194,10 @@ var SequenceModel = Backbone.DeepModel.extend({
     return result;
   },
 
-  isBeyondEndStickyEnd: function(pos, reverse = false) {
+  overhangBeyondEndStickyEnd: function(pos, reverse = false) {
     var stickyEnds = this.get('stickyEnds');
     var seqLength = this.length();
-    var result = false;
+    var result = 0;
 
     if(stickyEnds) {
       var endStickyEnd = stickyEnds.end;
@@ -200,23 +208,15 @@ var SequenceModel = Backbone.DeepModel.extend({
 
         if(reverse) {
           if(endStickyEnd.reverse) {
-            if(pos > stickyEndTo) {    
-              result = true;
-            } 
+            result = pos - stickyEndTo;
           } else {
-            if(pos >= stickyEndFrom) {    
-              result = true;
-            } 
+            result = (pos + 1) - stickyEndFrom;
           }
         } else {
           if(endStickyEnd.reverse) {
-            if(pos >= stickyEndFrom) {    
-              result = true;
-            } 
+            result = (pos + 1) - stickyEndFrom;
           } else {
-            if(pos > stickyEndTo) {    
-              result = true;
-            } 
+            result = pos - stickyEndTo;
           }
         }
       } 
@@ -942,7 +942,14 @@ var SequenceModel = Backbone.DeepModel.extend({
 });
 
 
-SequenceModel.concatenateSequences = function(sequences, circularise=false) {
+var calculateOverhang = function(sequence, pos) {
+  var overhangStart = sequence.overhangBeyondStartStickyEndOnBothStrands(pos);
+  var overhangEnd = sequence.overhangBeyondEndStickyEndOnBothStrands(pos);
+  return Math.max(overhangStart, 0) - Math.max(overhangEnd, 0);
+};
+
+
+SequenceModel.concatenateSequences = function(sequences, circularise=false, truncateFeatures=true) {
   // TODO:  fully support circularise, currently only features are
   // accepted/rejected because of it.
   var previousSequence;
@@ -990,18 +997,33 @@ SequenceModel.concatenateSequences = function(sequences, circularise=false) {
       var maxPos = Math.max(...positions);
       var minPos = Math.min(...positions);
       var accepted = true;
-      if((circularise || !isFirst) && sequence.isBeyondStartStickyEndOnBothStrands(minPos)) {
+      var overhangStart = sequence.overhangBeyondStartStickyEndOnBothStrands(minPos);
+      var overhangEnd = sequence.overhangBeyondEndStickyEndOnBothStrands(maxPos);
+      if((circularise || !isFirst) && (overhangStart > 0)) {
         accepted = false;
       }
-      if((circularise || !isLast) && sequence.isBeyondEndStickyEndOnBothStrands(maxPos)) {
+      if((circularise || !isLast) && (overhangEnd > 0)) {
         accepted = false;
       }
-      if(accepted) {
+      if(accepted || truncateFeatures) {
         var copiedFeature = _.deepClone(feature);
+
         _.each(copiedFeature.ranges, (range) => {
+          // TODO improve.  Is partial truncate implementation.  If there is a
+          // range completely outside the seqeunce, it will be truncate to be
+          // 1 long at the start / end of the sequence, which is a) stupid and
+          // b) might overlap with another truncated range.  The range should
+          // just be dropped completely.
+          var overhangOnFrom = calculateOverhang(sequence, range.from);
+          var overhangOnTo = calculateOverhang(sequence, range.to);
           range.from += offset;
           range.to += offset;
+          if(truncateFeatures) {
+            range.from += overhangOnFrom;
+            range.to += overhangOnTo;
+          }
         });
+
         attributes.features.push(copiedFeature);
       }
     });
@@ -1028,10 +1050,10 @@ if(false) {
   Gentle.currentUser = currentUser;
 
   var sequence1 = new SequenceModel({
-    sequence: 'CCCCCCCCCCCGGTTCC',
+    sequence: 'CCCCCCCCCCCGGTACC',
     id: 1,
     stickyEnds: {
-      // Leave a TT sticky end
+      // Leave a TA sticky end
       end: {
         reverse: false,
         offset: 2,
@@ -1057,10 +1079,10 @@ if(false) {
   });
 
   var sequence2 = new SequenceModel({
-    sequence: 'CCTTCCCCCCCCCCC',
+    sequence: 'CCTACCCCCCCCCCC',
     id: 2,
     stickyEnds: {
-      // Leave a AA sticky end
+      // Leave a AT sticky end
       start: {
         reverse: true,
         offset: 2,
@@ -1088,16 +1110,16 @@ if(false) {
   });
 
   var sequence3 = new SequenceModel({
-    sequence: 'TTCCGGGGGGGGGTTGG',
+    sequence: 'TACCGGGGGGGGGTAGG',
     id: 3,
     stickyEnds: {
-      // Leave a AA sticky end
+      // Leave a AT sticky end
       start: {
         reverse: true,
         offset: 0,
         size: 2,
       },
-      // Leave a TT sticky end
+      // Leave a TA sticky end
       end: {
         reverse: false,
         offset: 2,
@@ -1155,11 +1177,11 @@ if(false) {
   // Test getStartStickyEndSequence
   console.assert(sequence1.getStartStickyEndSequence().sequence === '');
   console.assert(sequence1.getStartStickyEndSequence().isOnReverseStrand === undefined);
-  console.assert(sequence2.getStartStickyEndSequence().sequence === 'AA');
+  console.assert(sequence2.getStartStickyEndSequence().sequence === 'AT');
   console.assert(sequence2.getStartStickyEndSequence().isOnReverseStrand);
 
   // Test getEndStickyEndSequence
-  console.assert(sequence1.getEndStickyEndSequence().sequence === 'TT');
+  console.assert(sequence1.getEndStickyEndSequence().sequence === 'TA');
   console.assert(!sequence1.getEndStickyEndSequence().isOnReverseStrand);
   console.assert(sequence2.getEndStickyEndSequence().sequence === '');
   console.assert(sequence2.getEndStickyEndSequence().isOnReverseStrand === undefined);
@@ -1172,8 +1194,8 @@ if(false) {
   var concatenatedSequence;
   var features;
 
-  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence2]);
-  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTT' + 'CCCCCCCCCCC');
+  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence2], false, false);
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTA' + 'CCCCCCCCCCC');
   features = concatenatedSequence.get('features');
   console.assert(features.length === 3);
   console.assert(features[0].name === 'Sequence1Annotation');
@@ -1186,8 +1208,8 @@ if(false) {
   console.assert(features[2].ranges[0].from === 13);
   console.assert(features[2].ranges[0].to === 13);
 
-  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2]);
-  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTT' + 'CCGGGGGGGGGTT' + 'CCCCCCCCCCC');
+  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2], false, false);
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
   features = concatenatedSequence.get('features');
   console.assert(features.length === 4);
   console.assert(features[0].name === 'Sequence1Annotation');
@@ -1203,13 +1225,40 @@ if(false) {
   console.assert(features[3].ranges[0].from === 27);
   console.assert(features[3].ranges[0].to === 27);
 
+  concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2], false, true);
+  console.assert(concatenatedSequence.get('sequence') === 'CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
+  features = concatenatedSequence.get('features');
+  console.assert(features.length === 7);
+  console.assert(features[0].name === 'Sequence1Annotation');
+  console.assert(features[0].ranges[0].from === 3);
+  console.assert(features[0].ranges[0].to === 8);
+  console.assert(features[1].name === 'Sequence1EndAnnotation');
+  console.assert(features[1].ranges[0].from === 11);
+  console.assert(features[1].ranges[0].to === 14);
+  console.assert(features[2].name === 'Sequence2AnnotationShouldBeRemoved');
+  console.assert(features[2].ranges[0].from === 26);
+  console.assert(features[2].ranges[0].to === 26);
+  console.assert(features[3].name === 'Sequence2AnnotationShouldStay');
+  console.assert(features[3].ranges[0].from === 26);
+  console.assert(features[3].ranges[0].to === 26);
+  console.assert(features[4].name === 'Sequence3Annotation');
+  console.assert(features[4].ranges[0].from === 27);
+  console.assert(features[4].ranges[0].to === 27);
+  console.assert(features[5].name === 'Sequence3AnnotationShouldBeRemoved');
+  console.assert(features[5].ranges[0].from === 27);
+  console.assert(features[5].ranges[0].to === 27);
+  console.assert(features[6].name === 'Sequence3AnnotationShouldAlsoBeRemoved');
+  console.assert(features[6].ranges[0].from === 27);
+  console.assert(features[6].ranges[0].to === 27);
+
+
   var error;
   try {
     SequenceModel.concatenateSequences([sequence1, sequence2, sequence2]);
   } catch (e) {
     error = e;
   }
-  console.assert(error === 'Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AA`');
+  console.assert(error === 'Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AT`');
 
 
   delete Gentle.currentUser;

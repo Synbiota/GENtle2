@@ -1,8 +1,15 @@
 <div class="designer-available-sequences">
+  <div class="designer-options">
+    <button class="btn btn-default toggle-annotations">
+    {{#if hideAnnotations}}Show{{else}}Hide{{/if}} annotations
+    </button>
+  </div>
+  <div class="designer-available-sequence-outlet-container">
   {{#each availableSequences}}
     <div class="designer-available-sequence-outlet" data-sequence-id="{{.}}">
     </div>
   {{/each}}
+  </div>
 </div>
 <div class="designer-designed-sequence-outlet">
 </div>

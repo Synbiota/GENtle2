@@ -3,6 +3,7 @@ define(function(require) {
       template = require('../templates/available_sequence_view.hbs'),
       SynbioData = require('../../../common/lib/synbio_data'),
       Gentle = require('gentle'),
+      draggableCleanup = require('../lib/draggable_cleanup'),
       AvailableSequenceView;
 
   AvailableSequenceView = Backbone.View.extend({
@@ -13,7 +14,6 @@ define(function(require) {
 
     initialize: function(){
       this.listenTo(Gentle.currentSequence, 'change', this.render, this);
-      this.model = Gentle.currentSequence;
       this.features = [];
       this.availableSequences = Gentle.sequences.without(this.model);
     },
@@ -47,15 +47,17 @@ define(function(require) {
         return feature.from;
       });
 
+      var sequenceId = this.model.get('id');
       this.sequenceInfo = {
         name: this.model.get('name'),
-        id: 0,
+        id: sequenceId,
         from: 0,
         to: this.model.length()-1,
         length: this.model.length(),
         type: 'Sequence',
         features: this.model.get('features'),
-        hidden: this.model.maxOverlappingFeatures()>1
+        hidden: this.model.maxOverlappingFeatures()>1,
+        usable: this.parentView().isUsable(sequenceId),
       };
     },
 
@@ -101,7 +103,8 @@ define(function(require) {
       this.processFeatures();
       return {
         sequence: this.sequenceInfo,
-        features: this.features
+        features: this.features,
+        hideAnnotations: Gentle.currentUser.get('displaySettings.designerView.hideAnnotations') || false,
       };
     },
 
@@ -109,15 +112,17 @@ define(function(require) {
       var _this = this;
       this.positionFeatures();
 
-      this.$('.designer-available-sequence-feature').draggable({
-        revert: 'invalid',
-        helper: 'clone',
-        cursorAt: {
-          top: 5,
-          left: 5
-        }
-      });
+      // this.$('.designer-available-sequence-feature').draggable({
+      //   refreshPositions: true,
+      //   revert: 'invalid',
+      //   helper: 'clone',
+      //   cursorAt: {
+      //     top: 5,
+      //     left: 5
+      //   }
+      // });
        this.$('.designer-available-sequence-entireseq').draggable({
+        refreshPositions: true,
         revert: 'invalid',
         helper: 'clone',
         cursorAt: {
@@ -125,6 +130,22 @@ define(function(require) {
           left: 5
         }
       });
+    },
+
+    cleanUpDraggable: function() {
+      draggableCleanup(
+        this, 
+        '.designer-available-sequence-entireseq'
+      );
+    },
+
+    beforeRender: function() {
+      this.cleanUpDraggable();
+    },
+
+    remove: function() {
+      this.cleanUpDraggable();
+      Backbone.View.prototype.remove.apply(this, arguments);
     },
 
   });

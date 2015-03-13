@@ -11,15 +11,33 @@ define(function(require) {
     manage: true,
     className: 'designer',
 
+    events: {
+      'click .toggle-annotations': 'toggleAnnotations',
+    },
+
     initialize: function() {
       this.model = Gentle.currentSequence;
-      this.availableSequences = Gentle.sequences.without(this.model);
+      this.availableSequences = Gentle.sequences.without(this.model)
+        .filter((seq) => {
+          var stickyEnds = seq.get('stickyEnds');
+          return stickyEnds.start && stickyEnds.end;
+        });
     },
 
     serialize: function() {
       return {
-        availableSequences: _.pluck(this.availableSequences, 'id')
+        availableSequences: _.pluck(this.availableSequences, 'id'),
+        hideAnnotations: Gentle.currentUser.get('displaySettings.designerView.hideAnnotations') || false,
       };
+    },
+
+    updateDroppabilityState: function() {
+      // Dictionary of sequence ids and the positions they can drop too.
+      this.droppabilityState = this.designedSequenceView.getDroppabilityState(this.availableSequences);
+    },
+
+    isUsable: function(sequenceId) {
+      return this.droppabilityState[sequenceId].length > 0;
     },
 
     afterRender: function() {
@@ -44,11 +62,11 @@ define(function(require) {
         availableSequenceView.render();
       });
 
-      designedSequenceView = new DesignedSequenceView();
-      designedSequenceView.model = this.model;
+      designedSequenceView = new DesignedSequenceView({model: this.model});
       this.setView('.designer-designed-sequence-outlet', designedSequenceView);
-      designedSequenceView.render();
       this.designedSequenceView = designedSequenceView;
+      this.updateDroppabilityState();
+      designedSequenceView.render();
     }, 
 
     getAvailableSequenceViewFromSequenceId: function(sequenceId) {
@@ -56,6 +74,13 @@ define(function(require) {
         '.designer-available-sequence-outlet[data-sequence-id="' + 
         sequenceId +
         '"]');
+    },
+
+    toggleAnnotations: function(event) {
+      var hideAnnotations = Gentle.currentUser.get('displaySettings.designerView.hideAnnotations');
+      hideAnnotations = _.isUndefined(hideAnnotations) ? true : !hideAnnotations;
+      Gentle.currentUser.set('displaySettings.designerView.hideAnnotations', hideAnnotations);
+      this.render();
     }
 
   });
