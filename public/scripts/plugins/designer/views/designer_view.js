@@ -103,14 +103,9 @@ define(function(require) {
     },
 
     removeAllViews: function() {
-      if(this.views && !_.isEmpty(this.views)) {
-        _.each(this.views, (view, selector) => {
-          view.remove();
-        });
-      }
-      if(this.designedSequenceView) {
-        this.designedSequenceView.remove();
-      }
+      this.getViews().each((view) => {
+        view.remove();
+      });
     },
 
   });
