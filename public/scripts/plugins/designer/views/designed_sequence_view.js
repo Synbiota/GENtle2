@@ -148,7 +148,7 @@ export default Backbone.View.extend({
   _canDrop: function(sequence, beforeIndex, previousIndex) {
     var output = true;
 
-    // if(sequence) {
+    if(sequence) {
       if(beforeIndex > 0) {
         output = output && this.sequences[beforeIndex-1].stickyEndConnects(sequence);
       }
@@ -160,7 +160,7 @@ export default Backbone.View.extend({
       if(previousIndex && previousIndex > 0 && previousIndex < this.sequences.length -1) {
         output = output && this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]);
       }
-    // }
+    }
 
     return output;
   },
