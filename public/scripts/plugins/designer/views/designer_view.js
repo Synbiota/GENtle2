@@ -20,7 +20,7 @@ define(function(require) {
       this.availableSequences = Gentle.sequences.without(this.model)
         .filter((seq) => {
           var stickyEnds = seq.get('stickyEnds');
-          return stickyEnds.start && stickyEnds.end;
+          return stickyEnds && stickyEnds.start && stickyEnds.end;
         });
     },
 
