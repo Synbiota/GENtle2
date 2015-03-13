@@ -101,7 +101,8 @@ define(function(require) {
       this.processFeatures();
       return {
         sequence: this.sequenceInfo,
-        features: this.features
+        features: this.features,
+        hideAnnotations: Gentle.currentUser.get('displaySettings.designerView.hideAnnotations') || false,
       };
     },
 

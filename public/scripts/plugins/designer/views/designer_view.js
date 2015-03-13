@@ -11,6 +11,10 @@ define(function(require) {
     manage: true,
     className: 'designer',
 
+    events: {
+      'click .toggle-annotations': 'toggleAnnotations',
+    },
+
     initialize: function() {
       this.model = Gentle.currentSequence;
       this.availableSequences = Gentle.sequences.without(this.model)
@@ -22,7 +26,8 @@ define(function(require) {
 
     serialize: function() {
       return {
-        availableSequences: _.pluck(this.availableSequences, 'id')
+        availableSequences: _.pluck(this.availableSequences, 'id'),
+        hideAnnotations: Gentle.currentUser.get('displaySettings.designerView.hideAnnotations') || false,
       };
     },
 
@@ -60,6 +65,13 @@ define(function(require) {
         '.designer-available-sequence-outlet[data-sequence-id="' + 
         sequenceId +
         '"]');
+    },
+
+    toggleAnnotations: function (event) {
+      var hideAnnotations = Gentle.currentUser.get('displaySettings.designerView.hideAnnotations');
+      hideAnnotations = _.isUndefined(hideAnnotations) ? true : !hideAnnotations;
+      Gentle.currentUser.set('displaySettings.designerView.hideAnnotations', hideAnnotations);
+      this.render();
     }
 
   });

@@ -16,13 +16,13 @@ define(function(require) {
 
     initialize: function() {
       this.model = Gentle.currentSequence;
-      this.deyaledReadAndUpdate = _.afterLastCall(this.readAndUpdate, 1000);
+      this.delayedReadAndUpdate = _.afterLastCall(this.readAndUpdate, 1000);
     },
 
     events: {
       'click input[type=button]': 'readAndUpdate',
-      'keydown :input' : 'deyaledReadAndUpdate',
-      'click input[type=radio]' : 'deyaledReadAndUpdate',
+      'keydown :input' : 'delayedReadAndUpdate',
+      'click input[type=radio]' : 'delayedReadAndUpdate',
     },
 
     readAndUpdate: function(event) {
@@ -41,19 +41,19 @@ define(function(require) {
         validate: true
       });
 
-      if (this.model.validationError != null) {
-        if (this.model.validationError[0] == 'name') {
+      if (this.model.validationError !== null) {
+        if (this.model.validationError[0] === 'name') {
           this.model.errors.name = true;
           this.model.set('name', this.model.nameBefore);
           document.title = this.model.nameBefore + " / Gentle";
           this.model.set('desc', this.$('#desc').val());
         }
-        if (this.model.validationError[0] == 'desc') {
+        if (this.model.validationError[0] === 'desc') {
           this.model.set('desc', descript);
           this.model.set('name', this.$('#name').val());
           document.title = this.$('#name').val() + " / Gentle";
         }
-        if (this.model.validationError.length == 2) {
+        if (this.model.validationError.length === 2) {
           this.model.set('name', this.model.nameBefore);
           this.model.set('desc', descript);
           document.title = this.model.nameBefore + " / Gentle";

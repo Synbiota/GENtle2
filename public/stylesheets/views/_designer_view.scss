@@ -4,6 +4,17 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   height: 100%;
 }
 
+.designer-options {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+
+.designer-available-sequence-outlet-container {
+  position: relative;
+  top: 30px;
+}
+
 .designer-designed-sequence-outlet {
   padding: 10px 20px;
   border-right: 2px solid #ddd;
