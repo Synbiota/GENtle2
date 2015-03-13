@@ -37,7 +37,7 @@ define(function(require) {
 
     getFeatureFromElement: function(element) {
       var $element = $(element),
-        featureId = $element.data('featureId');
+        featureId = $element.data('feature_id');
 
       return _.find(this.model.get('features'), function(_feature) {
         return _feature._id == featureId;
@@ -113,7 +113,7 @@ define(function(require) {
 
     deleteRange: function(event) {
       var $element = $(event.currentTarget),
-        rangeId = $element.data('rangeId');
+        rangeId = $element.data('range_id');
 
       event.preventDefault();
 

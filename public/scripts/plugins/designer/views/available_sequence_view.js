@@ -75,7 +75,7 @@ define(function(require) {
           Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
         );
-        $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
+        $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
 
         $featureElement.css({
           left: Math.floor(feature.from / maxBase * viewWidth),

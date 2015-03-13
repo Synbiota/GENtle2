@@ -12,7 +12,7 @@ define(function(require) {
 
     openSequence: function(event) {
       var $element = $(event.currentTarget),
-          id = $element.data('ncbiId');
+          id = $element.data('ncbi_id');
 
       event.preventDefault();
       $element.find('.open-label').hide();
@@ -21,7 +21,7 @@ define(function(require) {
       this.parentView().openFromId.call(this.parentView(), id, false).then(function() {
         $element.find('.success-label').show();
         $element.find('.loading-label').hide();
-        $element.addClass('btn-success')
+        $element.addClass('btn-success');
       }, function() {
         $element.find('.loading-label').hide();
         $element.find('.open-label').show();

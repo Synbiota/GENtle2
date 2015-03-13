@@ -29,7 +29,7 @@ export default Backbone.View.extend({
 
   changePrimaryView: function(event) {
     event.preventDefault();
-    var primaryViewName = this.$(event.currentTarget).data('sectionName');
+    var primaryViewName = this.$(event.currentTarget).data('section_name');
     this.parentView(2).changePrimaryView(primaryViewName, true);
   }
 });

@@ -64,7 +64,7 @@ define(function(require) {
           Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
           this.minFeatureWidth
         );
-        $featureElement = this.$('[data-feature-id="'+feature.id+'"]');
+        $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
 
         $featureElement.css({
           width: featureWidth,
@@ -87,7 +87,7 @@ define(function(require) {
     },
 
     goToFeature: function(event) {
-      var featureId = $(event.currentTarget).data('featureId'),
+      var featureId = $(event.currentTarget).data('feature_id'),
           feature = _.findWhere(this.features, {id: featureId});
 
       this.sequenceCanvas.scrollToBase(feature.from);

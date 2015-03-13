@@ -38,7 +38,7 @@ define(function(require) {
     onClick: function(event) {
       var $link = $(event.currentTarget);
       event.preventDefault();
-      this.getPrimaryView().changeSecondaryView($link.data('sectionName'), true);
+      this.getPrimaryView().changeSecondaryView($link.data('section_name'), true);
     }
     
   });

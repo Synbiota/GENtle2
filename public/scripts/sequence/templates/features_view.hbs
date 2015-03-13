@@ -52,14 +52,14 @@
                 </td>
                 <td>
                   {{#if _canDelete}}
-                    <a href="#" class="btn btn-warning btn-xs sequence-feature-edit-ranges-delete-button" data-range-id="{{_id}}">
+                    <a href="#" class="btn btn-warning btn-xs sequence-feature-edit-ranges-delete-button" data-range_id="{{_id}}">
                       <i class="glyphicon glyphicon-minus"></i>
                     </a>
                   {{/if}}
                 </td>
                 <td>
                   {{#if _canAdd}}
-                    <a href="#" class="btn btn-primary btn-xs sequence-feature-edit-ranges-add-button" data-range-id="{{_id}}">
+                    <a href="#" class="btn btn-primary btn-xs sequence-feature-edit-ranges-add-button" data-range_id="{{_id}}">
                       <i class="glyphicon glyphicon-plus"></i>
                     </a>
                   {{/if}}
@@ -72,7 +72,7 @@
     </form>
     <div class="pull-right">
       {{#unless creating}}
-        <button class="btn btn-danger sequence-feature-delete-button" data-feature-id="{{editedFeature._id}}">
+        <button class="btn btn-danger sequence-feature-delete-button" data-feature_id="{{editedFeature._id}}">
           <i class="glyphicon glyphicon-trash"></i>
         </button>
       {{/unless}}
@@ -99,10 +99,10 @@
         </div>
       {{/unless}}
       {{#each features}}
-        <a href="#" class="list-group-item sequence-feature-link" data-feature-id="{{_id}}">
+        <a href="#" class="list-group-item sequence-feature-link" data-feature_id="{{_id}}">
           <div class="media">
             {{#unless ../readOnly}}
-              <button class="pull-left btn btn-default btn-sm sequence-feature-edit-button" data-feature-id="{{_id}}">
+              <button class="pull-left btn btn-default btn-sm sequence-feature-edit-button" data-feature_id="{{_id}}">
                 <i class="media-object glyphicon glyphicon-pencil"></i>
               </button>
             {{/unless}}

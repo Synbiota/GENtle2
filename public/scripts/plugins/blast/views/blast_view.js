@@ -72,8 +72,8 @@ export default Backbone.View.extend({
 
   showCanvas: function(event) {
     var $el = $(event.currentTarget);
-    this.resultId = $el.data('resultId');
-    this.hspId = $el.data('hspId');
+    this.resultId = $el.data('result_id');
+    this.hspId = $el.data('hsp_id');
     this.canvasView.render();
     $el.closest('table').find('tr').removeClass('info');
     $el.closest('tr').addClass('info');
@@ -145,7 +145,7 @@ export default Backbone.View.extend({
   openSequence: function(event) {
     event.preventDefault();
 
-    var resultId = $(event.currentTarget).data('resultId');
+    var resultId = $(event.currentTarget).data('result_id');
     var result = _.find(this.blastRequest.results, {id: resultId});
 
     NCBIRequest
