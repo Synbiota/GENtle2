@@ -48,23 +48,16 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
 
   .designer-designed-sequence-chunk-droppable {
     font-size: 10px;
-    height: 0;
     overflow: hidden;
     text-align: center;
     border: 1px dashed transparent;
     display: block;
-    @include transition-property(height, padding, border-width, border-color, color);
-    @include transition-duration(.2s);
-    @include transition-timing-function(ease-out);
-
-    &.active {
-      height: 40px;
-      margin: 10px 0;
-      padding: 12px 30px;
-      border-color:  #ddd;
-      color: #999;
-      background: white;
-    }
+    height: 40px;
+    margin: 10px 0;
+    padding: 12px 30px;
+    border-color:  #ddd;
+    color: #999;
+    background: white;
 
     &.hover {
       border-color: $link-color;
