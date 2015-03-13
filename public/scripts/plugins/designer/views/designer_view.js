@@ -31,6 +31,15 @@ define(function(require) {
       };
     },
 
+    updateDroppabilityState: function() {
+      // Dictionary of sequence ids and the positions they can drop too.
+      this.droppabilityState = this.designedSequenceView.getDroppabilityState(this.availableSequences);
+    },
+
+    isUsable: function(sequenceId) {
+      return this.droppabilityState[sequenceId].length > 0;
+    },
+
     afterRender: function() {
       this.insertSequenceViews();
       this.stopListening();
@@ -53,11 +62,11 @@ define(function(require) {
         availableSequenceView.render();
       });
 
-      designedSequenceView = new DesignedSequenceView();
-      designedSequenceView.model = this.model;
+      designedSequenceView = new DesignedSequenceView({model: this.model});
       this.setView('.designer-designed-sequence-outlet', designedSequenceView);
-      designedSequenceView.render();
       this.designedSequenceView = designedSequenceView;
+      this.updateDroppabilityState();
+      designedSequenceView.render();
     }, 
 
     getAvailableSequenceViewFromSequenceId: function(sequenceId) {
@@ -67,7 +76,7 @@ define(function(require) {
         '"]');
     },
 
-    toggleAnnotations: function (event) {
+    toggleAnnotations: function(event) {
       var hideAnnotations = Gentle.currentUser.get('displaySettings.designerView.hideAnnotations');
       hideAnnotations = _.isUndefined(hideAnnotations) ? true : !hideAnnotations;
       Gentle.currentUser.set('displaySettings.designerView.hideAnnotations', hideAnnotations);

@@ -27,7 +27,6 @@ export default Backbone.View.extend({
       features: finalSequence.get('features'),
       stickyEnds: finalSequence.get('stickyEnds')
     });
-
     this.parentView(2).changePrimaryView('edition');
   },
 
@@ -97,7 +96,7 @@ export default Backbone.View.extend({
 
   getSequenceIndexFromDraggableChunk: function($draggable) {
     var $container = $draggable.closest('.designer-designed-sequence-chunk-container');
-    return $container.data('sequenceIndex');
+    return $container.data('sequence_index');
   },
 
   getSequenceFromAvailableSequenceDraggable: function($draggable) {
@@ -111,7 +110,7 @@ export default Backbone.View.extend({
       return availableSequenceView.model;
     } else {
       feature = _.findWhere(availableSequenceView.features, {
-        id: $draggable.data('featureId')
+        id: $draggable.data('feature_id')
       });
 
       return {
@@ -126,21 +125,29 @@ export default Backbone.View.extend({
     return this.sequences[this.getSequenceIndexFromDraggableChunk($container)];
   },
 
-  canDrop: function($draggable, beforeIndex, previousIndex) {
-    var sequence;
-    var output = true;
+  canDrop: function($draggable, beforeIndex) {
+    var previousIndex;
+    if($draggable.hasClass('designer-designed-sequence-chunk')) {
+      previousIndex = this.getSequenceIndexFromDraggableChunk($draggable);
+    }
 
     if(beforeIndex === previousIndex || beforeIndex - 1 === previousIndex) {
       return false;
-    } 
-    
+    }
+
+    var sequence;
     if($draggable.hasClass('designer-designed-sequence-chunk')) {
       sequence = this.getSequenceFromDraggableChunk($draggable);
     } else {
       sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
     }
+    return this._canDrop(sequence, beforeIndex, previousIndex);
+  },
 
-    if(sequence) {
+  _canDrop: function(sequence, beforeIndex, previousIndex) {
+    var output = true;
+
+    // if(sequence) {
       if(beforeIndex > 0) {
         output = output && this.sequences[beforeIndex-1].stickyEndConnects(sequence);
       }
@@ -152,9 +159,24 @@ export default Backbone.View.extend({
       if(previousIndex && previousIndex > 0 && previousIndex < this.sequences.length -1) {
         output = output && this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]);
       }
-    }
+    // }
 
     return output;
+  },
+
+  getDroppabilityState: function(availableSequences) {
+    // Dictionary of sequence ids and the positions they can drop too.
+    var droppabilityState = {};
+    _.each(availableSequences, (availableSequence) => {
+      var acceptableDropIndices = [];
+      _.each(_.range(this.sequences.length+1), (index) => {
+        if(this._canDrop(availableSequence, index)) {
+          acceptableDropIndices.push(index);
+        }
+      });
+      droppabilityState[availableSequence.get('id')] = acceptableDropIndices;
+    });
+    return droppabilityState;
   },
 
   canTrash: function($draggable, previousIndex) {
@@ -187,7 +209,7 @@ export default Backbone.View.extend({
       zIndex: 2000, 
       revert: 'invalid', 
       helper: 'clone',
-      refreshPositions: true,
+      // refreshPositions: true,
       cursorAt: {
         top: 5, 
         left: 5
@@ -199,12 +221,12 @@ export default Backbone.View.extend({
       hoverClass: 'active',
       tolerance: 'pointer',
       accept: function($draggable) {
-        var index = $draggable.data('sequenceIndex');
-        return index == $(this).data('sequenceIndex') && _this.canTrash($draggable, index);
+        var index = $draggable.data('sequence_index');
+        return index == $(this).data('sequence_index') && _this.canTrash($draggable, index);
       },
       drop: function(event, ui) {
         var $draggable = ui.draggable;
-        var index = $draggable.data('sequenceIndex');
+        var index = $draggable.data('sequence_index');
         _this.removeSequence($draggable, index);
       }
     });
@@ -213,15 +235,11 @@ export default Backbone.View.extend({
       activeClass: 'active',
       hoverClass: 'hover',
       tolerance: 'pointer',
-      accept: function(draggable){
-        var previousIndex;
-        if(draggable.hasClass('designer-designed-sequence-chunk')) {
-          previousIndex = _this.getSequenceIndexFromDraggableChunk(draggable);
-        }
-        return _this.canDrop(draggable, $(this).data('beforeIndex'), previousIndex);
+      accept: function($draggable){
+        return _this.canDrop($draggable, $(this).data('before_index'));
       },
       drop: function(event, ui) {
-        var index = $(this).data('beforeIndex');
+        var index = $(this).data('before_index');
         if(ui.draggable.hasClass('designer-designed-sequence-chunk')) {
           _this.moveSequence(ui.draggable, index);
         } else {
