@@ -264,12 +264,6 @@ export default Backbone.View.extend({
         _this.removeSequence($draggable, index);
       }
     });
-    if(!window.badcids) {
-      window.badcids = [];
-    }
-    if(~window.badcids.indexOf(this.cid)) debugger;
-    window.badcids.push(this.cid);
-    console.log('calling droppable', this.cid)
 
     this.$('.designer-designed-sequence-chunk-droppable').droppable({
       activeClass: 'active',

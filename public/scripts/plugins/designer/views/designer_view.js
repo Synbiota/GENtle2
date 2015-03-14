@@ -40,6 +40,10 @@ define(function(require) {
       return this.droppabilityState[sequenceId].length > 0;
     },
 
+    beforeRender: function() {
+      this.removeAllViews();
+    },
+
     afterRender: function() {
       this.insertSequenceViews();
       this.stopListening();
@@ -49,8 +53,6 @@ define(function(require) {
     insertSequenceViews: function() {
       var _this = this,
           designedSequenceView;
-
-      this.removeAllViews();
 
       _.each(this.availableSequences, function(sequence) {
         var outletSelector = 
@@ -103,6 +105,7 @@ define(function(require) {
     },
 
     removeAllViews: function() {
+      this.designedSequenceView = undefined;
       this.getViews().each((view) => {
         view.remove();
       });
