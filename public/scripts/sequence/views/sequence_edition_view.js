@@ -11,6 +11,7 @@ define(function(require) {
       LinearMapView = require('../../linear_map/views/linear_map_view'),
       PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
       Backbone = require('backbone'),
+      Q = require('q'),
       SequenceEditionView;
 
   SequenceEditionView = Backbone.View.extend({
@@ -62,16 +63,15 @@ define(function(require) {
     },
 
     handleResizeRight: function(trigger) {
-
       $('#sequence-canvas-primary-view-outlet').css({
-        'right': this.actualSecondaryView.$el.width(),
+        'right': this.secondaryView.$el.width(),
       });
       $('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.actualSecondaryView.$el.width(),
+        'right': this.secondaryView.$el.width(),
       });
       if(trigger !== false) {
         this.trigger('resize');
-        this.actualSecondaryView.trigger('resize');
+        this.secondaryView.trigger('resize');
       }
     },
 
@@ -85,31 +85,33 @@ define(function(require) {
 
 
     changeSecondaryView: function(viewName, render) {
-      var secondaryView = _.findWhere(this.secondaryViews, {name: viewName});
-      var actualView = new secondaryView.view();
+      var secondaryViewClass = _.findWhere(this.secondaryViews, {name: viewName});
+      if(this.secondaryView) this.secondaryView.remove();
+      this.secondaryView = new secondaryViewClass.view();
 
-      this.secondaryView = secondaryView;
-      this.actualSecondaryView = actualView;
-      this.model.actualSecondaryView = this.actualSecondaryView;
       this.model.set('displaySettings.secondaryView', viewName).throttledSave();
 
-      this.setView('#sequence-canvas-secondary-view-outlet', this.actualSecondaryView);
-
+      this.setView('#sequence-canvas-secondary-view-outlet', this.secondaryView);
+      var secondaryViewPromise;
       if(render !== false) {
-        this.actualSecondaryView.render();
+        secondaryViewPromise = this.secondaryView.render();
+      } else {
+        secondaryViewPromise = Q.resolve();
       }
-      this.handleResizeRight(false);
-      if(render !== false) {
-       this.sequenceCanvas.refresh();
-      }
-      //trying to remove the previous view
-      this.previousSecondaryView = this.actualSecondaryView;
+      // `handleResizeRight` requires `this.secondaryView.$el.width()` to be
+      // rendered so that it is the correct size.
+      secondaryViewPromise.then(() => {
+        this.handleResizeRight(false);
+        if(render !== false) {
+         this.sequenceCanvas.refresh();
+        }
+      });
     },
 
 
     afterRender: function() {
       this.$('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.actualSecondaryView.$el.width(),
+        'right': this.secondaryView.$el.width(),
       });
       this.sequenceCanvas = new SequenceCanvas({
         view: this,
