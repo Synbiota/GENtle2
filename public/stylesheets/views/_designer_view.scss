@@ -211,6 +211,27 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   padding: 10px 20px;
   border-bottom: 1px solid #ddd;
 
+
+  &.unusable-sequence {
+    color: #BBB;
+  }
+
+  &.incompatible-sequences {
+    i.incompatible-sequences {
+      display: initial;
+    }  
+  }
+
+  &.lacks-sticky-end-sequences {
+    i.lacks-sticky-end-sequences {
+      display: initial;
+    }
+  }
+
+  i {
+    display: none;
+  }
+
   .designer-available-sequence {
     position: relative;
   }

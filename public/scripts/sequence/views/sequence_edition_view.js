@@ -27,11 +27,9 @@ define(function(require) {
       this.contextMenuView = new ContextMenuView({context: 'sequence'});
       this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
       this.initSecondaryViews();
-
     },
 
-
-   initSecondaryViews: function(trigger) {
+    initSecondaryViews: function(trigger) {
       var secondaryViews,
           currentView;
 
@@ -59,7 +57,6 @@ define(function(require) {
 
       this.secondaryViews = secondaryViews;
       this.changeSecondaryView(currentView, false);
-
     },
 
     handleResizeRight: function(trigger) {
@@ -83,7 +80,6 @@ define(function(require) {
       return $('#sequence-primary-view-outlet').width();
     },
 
-
     changeSecondaryView: function(viewName, render) {
       var secondaryViewClass = _.findWhere(this.secondaryViews, {name: viewName});
       if(this.secondaryView) this.secondaryView.remove();
@@ -98,8 +94,8 @@ define(function(require) {
       } else {
         secondaryViewPromise = Q.resolve();
       }
-      // `handleResizeRight` requires `this.secondaryView.$el.width()` to be
-      // rendered so that it is the correct size.
+      // `handleResizeRight` requires secondaryView to be rendered so that
+      // it (`this.secondaryView.$el.width()`) is the correct value.
       secondaryViewPromise.then(() => {
         this.handleResizeRight(false);
         if(render !== false) {
@@ -107,7 +103,6 @@ define(function(require) {
         }
       });
     },
-
 
     afterRender: function() {
       this.$('.sequence-canvas-container, .scrolling-parent').css({

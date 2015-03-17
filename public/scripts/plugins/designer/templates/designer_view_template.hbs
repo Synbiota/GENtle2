@@ -5,11 +5,24 @@
     </button>
   </div>
   <div class="designer-available-sequence-outlet-container">
-  {{#each availableSequences}}
-    <div class="designer-available-sequence-outlet" data-sequence_id="{{.}}">
+  {{#each insertableSequences}}
+    <div class="designer-available-sequence-outlet usable-sequence" data-sequence_id="{{.}}">
     </div>
   {{/each}}
-  </div>
+
+  {{#if uninsertableSequences}}
+  <br><br>
+  <h5>&nbsp; {{uninsertableSequences}} unusable sequence(s)</h5>
+  {{/if}}
+  {{#each incompatibleSequences}}
+    <div class="designer-available-sequence-outlet unusable-sequence incompatible-sequences" data-sequence_id="{{.}}">
+    </div>
+  {{/each}}
+  {{#each lackStickyEndSequences}}
+    <div class="designer-available-sequence-outlet unusable-sequence lacks-sticky-end-sequences" data-sequence_id="{{.}}">
+    </div>
+  {{/each}}
+
 </div>
 <div class="designer-designed-sequence-outlet">
 </div>

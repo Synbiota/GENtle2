@@ -14,23 +14,12 @@ export default Backbone.View.extend({
     'change #circularise-dna': 'updateCirculariseDna',
   },
 
-  initialize: function() {
-    var assembleSequencesJSON = Gentle.currentSequence.get('meta.assembleSequences') || '[]';
-    var assembleSequences = JSON.parse(assembleSequencesJSON);
-    this.sequences = _.map(assembleSequences, (sequenceAttributes) => new Sequence(sequenceAttributes));
-  },
-
   assembleSequence: function(event) {
     event.preventDefault();
     if(this.incompatibleStickyEnds()) {
       alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
     } else {
-      var finalSequence = Sequence.concatenateSequences(this.sequences);
-      Gentle.currentSequence.set({
-        sequence: finalSequence.get('sequence'),
-        features: finalSequence.get('features'),
-        stickyEnds: finalSequence.get('stickyEnds')
-      });
+      this.model.assembleSequences().throttledSave();
       this.parentView(1).remove();
       this.parentView(2).changePrimaryView('edition');
     }
@@ -44,78 +33,44 @@ export default Backbone.View.extend({
 
   serialize: function() {
     var output = {
-      sequenceName: Gentle.currentSequence.get('name'),
+      sequenceName: this.model.get('name'),
       circulariseDna: this.model.get('isCircular'),
-      incompatibleStickyEnds: this.incompatibleStickyEnds(), // TODO, refactor this to be generic.
+      incompatibleStickyEnds: this.model.incompatibleStickyEnds(),
     };
-    if(this.sequences.length) {
-      output.sequences = this.processSequences();
-      output.lastId = this.sequences.length;
+    if(this.model.sequences.length) {
+      output.sequences = this.model.processSequences();
+      output.lastId = this.model.sequences.length;
     } else {
       output.empty = true;
     }
     return output;
   },
 
-  incompatibleStickyEnds: function() {
-    var incompatibleEnds = false;
-    if(this.model.get('isCircular') && this.sequences.length > 0) {
-      var lastSequence = this.sequences[this.sequences.length-1];
-      incompatibleEnds = !lastSequence.stickyEndConnects(this.sequences[0]);
-    }
-    return incompatibleEnds;
-  },
-
-  processSequences: function() {
-    return _.map(this.sequences, function(sequence, i) {
-      var features = sequence.get('features');
-      var name = sequence.get('name');
-      var type;
-
-      if(false && features.length == 1) { // temporarily disabled
-        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length() -1) {
-          name = features[0].name;
-          type = features[0].type;
-        }
-      }
-
-      return {
-        name: name,
-        type: type,
-        index: i
-      };
-    });
-  },
-
   renderAndSave: function () {
     // Perhaps change this back to `this.render()`, as whole view flickers.
     this.parentView().render();
-    Gentle.currentSequence.set('meta.assembleSequences', JSON.stringify(this.sequences));
-    Gentle.currentSequence.throttledSave();
+    this.model.throttledSave();
   },
 
   insertFromAvailableSequence: function($draggable, beforeIndex = 0) {
     $draggable.on('dragstop', () => {
       var sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
-      this.sequences.splice(beforeIndex, 0, sequence);
+      this.model.insertSequence(beforeIndex, sequence);
       this.renderAndSave();
     });
   },
 
-  moveSequence: function($draggable, index) {
+  moveSequence: function($draggable, newIndex) {
     $draggable.on('dragstop', () => {
       var oldIndex = this.getSequenceIndexFromDraggableChunk($draggable);
-      var sequence = this.sequences[oldIndex];
-      this.sequences[oldIndex] = null;
-      this.sequences.splice(index, 0, sequence);
-      this.sequences = _.compact(this.sequences);
+      this.model.moveSequence(oldIndex, newIndex);
       this.renderAndSave();
     });
   },
 
   removeSequence: function($draggable, index) {
     $draggable.on('dragstop', () => {
-      this.sequences.splice(index, 1);
+      this.model.removeSequenceAtIndex(index);
       this.renderAndSave();
     });
   },
@@ -148,7 +103,8 @@ export default Backbone.View.extend({
 
   getSequenceFromDraggableChunk: function($draggable) {
     var $container = $draggable.closest('.designer-designed-sequence-chunk-container');
-    return this.sequences[this.getSequenceIndexFromDraggableChunk($container)];
+    var index = this.getSequenceIndexFromDraggableChunk($container);
+    return this.model.sequences[index];
   },
 
   canDrop: function($draggable, beforeIndex) {
@@ -167,47 +123,7 @@ export default Backbone.View.extend({
     } else {
       sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
     }
-    return this._canDrop(sequence, beforeIndex, previousIndex);
-  },
-
-  _canDrop: function(sequence, beforeIndex, previousIndex) {
-    var output = true;
-
-    if(sequence) {
-      if(beforeIndex > 0) {
-        output = output && this.sequences[beforeIndex-1].stickyEndConnects(sequence);
-      }
-
-      if(beforeIndex < this.sequences.length) {
-        output = output && sequence.stickyEndConnects(this.sequences[beforeIndex]);
-      }
-
-      if(previousIndex && previousIndex > 0 && previousIndex < this.sequences.length -1) {
-        output = output && this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]);
-      }
-    }
-
-    return output;
-  },
-
-  getDroppabilityState: function(availableSequences) {
-    // Dictionary of sequence ids and the positions they can drop too.
-    var droppabilityState = {};
-    _.each(availableSequences, (availableSequence) => {
-      var acceptableDropIndices = [];
-      _.each(_.range(this.sequences.length+1), (index) => {
-        if(this._canDrop(availableSequence, index)) {
-          acceptableDropIndices.push(index);
-        }
-      });
-      droppabilityState[availableSequence.get('id')] = acceptableDropIndices;
-    });
-    return droppabilityState;
-  },
-
-  canTrash: function($draggable, previousIndex) {
-    return previousIndex <= 0 || previousIndex >= this.sequences.length -1 ||
-        this.sequences[previousIndex - 1].stickyEndConnects(this.sequences[previousIndex + 1]);
+    return this.model._canInsert(sequence, beforeIndex, previousIndex);
   },
 
   cleanUpDraggable: function() {
@@ -256,7 +172,7 @@ export default Backbone.View.extend({
       tolerance: 'pointer',
       accept: function($draggable) {
         var index = $draggable.data('sequence_index');
-        return index == $(this).data('sequence_index') && _this.canTrash($draggable, index);
+        return index == $(this).data('sequence_index') && _this.model.canTrash(index);
       },
       drop: function(event, ui) {
         var $draggable = ui.draggable;
@@ -290,7 +206,7 @@ export default Backbone.View.extend({
   },
 
   highlightDropSites: function(indices) {
-    if(this.sequences.length === 0) {
+    if(this.model.sequences.length === 0) {
       this.$el.find('.designer-designed-sequence-empty-placeholder').addClass('highlighted');
     } else {
       _.each(indices, (index) => {

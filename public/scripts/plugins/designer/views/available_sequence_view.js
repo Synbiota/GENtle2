@@ -15,7 +15,6 @@ define(function(require) {
     initialize: function(){
       this.listenTo(Gentle.currentSequence, 'change', this.render, this);
       this.features = [];
-      this.availableSequences = Gentle.sequences.without(this.model);
     },
 
     processFeatures: function() {
@@ -57,7 +56,7 @@ define(function(require) {
         type: 'Sequence',
         features: this.model.get('features'),
         hidden: this.model.maxOverlappingFeatures()>1,
-        usable: this.parentView().isUsable(sequenceId),
+        usable: this.parentView().isInsertable(this.model),
       };
     },
 

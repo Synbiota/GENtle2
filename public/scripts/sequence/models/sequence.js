@@ -226,7 +226,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   getStickyEndSequence: function(getStartStickyEnd) {
     var wholeSequence = this.get('sequence');
-    var stickyEnds = this.get('stickyEnds');
+    var stickyEnds = this.get('stickyEnds') || {};
     var isOnReverseStrand;
     var sequence = '';
     var stickyEnd;
@@ -270,6 +270,11 @@ var SequenceModel = Backbone.DeepModel.extend({
       SequenceTransforms.areComplementary(thisEndStickySequence.sequence, otherStartStickySequence.sequence));
 
     return canConnect;
+  },
+
+  hasStickyEnds: function() {
+    var stickyEnds = this.get('stickyEnds');
+    return stickyEnds && stickyEnds.start && stickyEnds.end;
   },
 
   /**
