@@ -14,6 +14,7 @@ define(function(require) {
 
     events: {
       'click .toggle-annotations': 'toggleAnnotations',
+      'click .toggle-uninsertable-sequences': 'toggleUninsertableSequences',
     },
 
     initialize: function() {
@@ -27,6 +28,7 @@ define(function(require) {
         incompatibleSequences: _.pluck(this.model.incompatibleSequences, 'id'),
         lackStickyEndSequences: _.pluck(this.model.lackStickyEndSequences, 'id'),
         showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
+        showUninsertableSequences: Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences') || false,
       };
     },
 
@@ -75,6 +77,13 @@ define(function(require) {
       var showAnnotations = Gentle.currentUser.get('displaySettings.designerView.showAnnotations');
       showAnnotations = _.isUndefined(showAnnotations) ? true : !showAnnotations;
       Gentle.currentUser.set('displaySettings.designerView.showAnnotations', showAnnotations);
+      this.render();
+    },
+
+    toggleUninsertableSequences: function(event) {
+      var showUninsertableSequences = Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences');
+      showUninsertableSequences = _.isUndefined(showUninsertableSequences) ? true : !showUninsertableSequences;
+      Gentle.currentUser.set('displaySettings.designerView.showUninsertableSequences', showUninsertableSequences);
       this.render();
     },
 

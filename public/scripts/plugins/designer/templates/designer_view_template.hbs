@@ -11,17 +11,22 @@
   {{/each}}
 
   {{#if uninsertableSequences}}
-  <br><br>
-  <h5>&nbsp; {{uninsertableSequences}} unusable sequence(s)</h5>
+    <br><br>
+    <h5>
+      &nbsp; {{uninsertableSequences}} unusable sequence(s)
+      &nbsp;<a class="toggle-uninsertable-sequences">{{#if showUninsertableSequences}}hide{{else}}show{{/if}}</a>
+    </h5>
   {{/if}}
-  {{#each incompatibleSequences}}
-    <div class="designer-available-sequence-outlet unusable-sequence incompatible-sequences" data-sequence_id="{{.}}">
-    </div>
-  {{/each}}
-  {{#each lackStickyEndSequences}}
-    <div class="designer-available-sequence-outlet unusable-sequence lacks-sticky-end-sequences" data-sequence_id="{{.}}">
-    </div>
-  {{/each}}
+  <div {{#unless showUninsertableSequences}}style="display: none;"{{/unless}}>
+    {{#each incompatibleSequences}}
+      <div class="designer-available-sequence-outlet unusable-sequence incompatible-sequences" data-sequence_id="{{.}}">
+      </div>
+    {{/each}}
+    {{#each lackStickyEndSequences}}
+      <div class="designer-available-sequence-outlet unusable-sequence lacks-sticky-end-sequences" data-sequence_id="{{.}}">
+      </div>
+    {{/each}}
+  </div>
 
 </div>
 <div class="designer-designed-sequence-outlet">
