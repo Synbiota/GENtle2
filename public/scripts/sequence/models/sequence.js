@@ -919,8 +919,13 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   throttledSave: function() {
-    return _.throttle(_.bind(this.save, this), 100)();
+    if(!this._throttledSave) {
+      this._throttledSave = _.throttle(_.bind(this.save, this), 100);
+    }
+    this._throttledSave();
   },
+
+  _throttledSave: undefined,
 
   clearBlastCache: function() {
     if(this.get('meta.blast')) {
