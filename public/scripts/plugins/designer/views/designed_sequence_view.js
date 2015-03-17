@@ -16,7 +16,7 @@ export default Backbone.View.extend({
 
   assembleSequence: function(event) {
     event.preventDefault();
-    if(this.incompatibleStickyEnds()) {
+    if(this.model.incompatibleStickyEnds()) {
       alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
     } else {
       this.model.assembleSequences().throttledSave();
