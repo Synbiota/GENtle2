@@ -36,7 +36,7 @@
       "features": {
         "font": "11px Monospace",
         "color": {
-          "type-_default": {
+          "_default": {
             "fill": "#a12e29",
             "color": "white"
           },
