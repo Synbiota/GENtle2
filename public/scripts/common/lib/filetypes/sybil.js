@@ -76,7 +76,7 @@ var FT_base = require('./base'),
 
 FT_sybil = function() {
   this.typeName = 'SYBIL' ;
-}
+};
 
 
 FT_sybil.prototype = new FT_base() ;
@@ -90,6 +90,11 @@ FT_sybil.prototype.constructor = FT_sybil ;
 
 FT_sybil.prototype.getFileExtension = function () {
   return 'sybil' ;
+};
+
+var coerceRangeToWithinSequenceLength = function(sequence, value) {
+  var length = sequence.length - 1;
+  return Math.max(0, Math.min(length, value));
 };
 
 /**
@@ -152,42 +157,44 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
   
   // Features
   $.each ( sequence.features , function ( k , v ) {
-    if ( v['_type'].match(/^source$/i) ) return ;
-    if ( undefined === v['ranges'] ) return ;
-    if ( 0 == v['ranges'].length ) return ;
+    if ( v._type.match(/^source$/i) ) return ;
+    if ( undefined === v.ranges ) return ;
+    if ( 0 == v.ranges.length ) return ;
     
     // Misc
-    var type = v['_type'] ;
-    var start = v['ranges'][0].from ;
-    var stop = v['ranges'][v['ranges'].length-1].to;
+    var type = v._type ;
+    var start = v.ranges[0].from ;
+    var stop = v.ranges[v.ranges.length-1].to ;
 
     // Name
     var name = '' ;
-    if ( v['gene'] !== undefined ) name = v['gene'] ;
-    else if ( v['product'] !== undefined ) name = v['product'] ;
-    else if ( v['name'] !== undefined ) name = v['name'] ;
+    if ( v.gene !== undefined ) name = v.gene ;
+    else if ( v.product !== undefined ) name = v.product ;
+    else if ( v.name !== undefined ) name = v.name ;
     name = name.replace(/^"/,'').replace(/"$/,'') ;
     
     // Description
     var desc = '' ;
-    if ( v['note'] !== undefined ) desc = v['note'] ;
-    else if ( v['protein'] !== undefined ) desc = v['protein'] ;
-    else if ( v['product'] !== undefined ) desc = v['product'] ;
-    else if ( v['bound_moiety'] !== undefined ) desc = v['bound_moiety'] ;
+    if ( v.note !== undefined ) desc = v.note ;
+    else if ( v.protein !== undefined ) desc = v.protein ;
+    else if ( v.product !== undefined ) desc = v.product ;
+    else if ( v.bound_moiety !== undefined ) desc = v.bound_moiety ;
     desc = desc.replace(/^"/,'').replace(/"$/,'') ;
     if ( desc != '' ) desc = "\n" + _.ucFirst ( desc ) ;
     desc = desc.trim() ;
     
-    if ( 1 != v['ranges'].length ) {
-      $.each ( v['ranges'] , function ( k2 , v2 ) {
-        desc += "<exon start='" + (v2.from+1) + "' to='" + (v2.to+1) + "' />\n" ;
+    if (v.ranges.length !== 1) {
+      $.each ( v.ranges , function ( k2 , v2 ) {
+        var frm = v2.from + 1;
+        var to = v2.to + 1;
+        desc += "<exon start='" + frm + "' to='" + to + "' />\n" ;
       } ) ;
     }
 
     
-    o = $('<annotation></annotation>') ;
+    var o = $('<annotation></annotation>') ;
     o.text ( desc ) ;
-    o.attr ( 'rc' , v['ranges'][0].reverseComplement ? 1 : 0 ) ;
+    o.attr ( 'rc' , v.ranges[0].reverseComplement ? 1 : 0 ) ;
 
     $.each ( v , function ( k2 , v2 ) {
       if ( k2.substr ( 0 , 1 ) == '_' ) return ;
@@ -212,7 +219,7 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
 
   var validMetaKeys = ['pcr'];
   if(_.isObject(sequence.meta) && _.has.apply(null, [sequence.meta].concat(validMetaKeys))) {
-    var data = _.pick.apply(null, [sequence.meta].concat(validMetaKeys))
+    var data = _.pick.apply(null, [sequence.meta].concat(validMetaKeys));
     s += convertToXML({metadata: data});
   }
 
