@@ -218,9 +218,9 @@ define(function(require) {
         artist.rotate(-Math.PI);
 
         artist.washer(0, 0, r, R, startAngle, endAngle, false, arrowHead, false, feature.name, {
-          fillStyle: (colors[type] && colors[type].fill) || colors._default.fill,
+          fillStyle: (colors[type] && colors[`type-${type}`].fill) || colors['type-_default'].fill,
           font: '9px Monospace',
-          textStyle: (colors[type] && colors[type].color) || colors._default.color,
+          textStyle: (colors[type] && colors[`type-${type}`].color) || colors['type-_default'].color,
           textAlign: 'center'
         });
 

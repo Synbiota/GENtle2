@@ -212,7 +212,7 @@ define(function(require) {
         topMargin: 3,
         textColour: function(type) {
           var colors = LineStyles.features.color;
-          type = type.toLowerCase();
+          type = 'type-'+type.toLowerCase();
           return (colors[type] && colors[type].color) || colors._default.color;
         },
         textPadding: 2,
@@ -220,7 +220,7 @@ define(function(require) {
         lineSize: 2,
         colour: function(type) {
           var colors = LineStyles.features.color;
-          type = type.toLowerCase();
+          type = 'type-'+type.toLowerCase();
           return (colors[type] && colors[type].fill) || colors._default.fill;
         },
         visible: _.memoize2(function() {

@@ -93,12 +93,12 @@ export default Backbone.View.extend({
           lineSize: 2,
           textColour: function(type) {
             var colors = LineStyles.features.color;
-            type = type.toLowerCase();
+            type = 'type-'+type.toLowerCase();
             return (colors[type] && colors[type].color) || colors._default.color;
           },
           colour: function(type) {
             var colors = LineStyles.features.color;
-            type = type.toLowerCase();
+            type = 'type-'+type.toLowerCase();
             return (colors[type] && colors[type].fill) || colors._default.fill;
           },
         }],

@@ -40,39 +40,39 @@
             "fill": "#a12e29",
             "color": "white"
           },
-          "CDS": {
+          "type-CDS": {
             "fill": "#3c4589",
             "color": "white"
           },
-          "terminator": {
+          "type-terminator": {
             "fill": "#1c1c25",
             "color": "white"
           },
-          "oriT": {
+          "type-oriT": {
             "fill": "#d5cb4a",
             "color": "#3e0208"
           },
-          "promoter": { 
+          "type-promoter": { 
             "fill": "#a12e29",
             "color": "white"
           },
-          "rbs": {
+          "type-rbs": {
             "fill": "#a12e29",
             "color": "white"
           },
-          "protein_bind": {
+          "type-protein_bind": {
             "fill": "#a12e29",
             "color": "white"
           },
-          "note": {
+          "type-note": {
             "fill": "#3c6e39",
             "color": "white"
           },
-          "primer": {
+          "type-primer": {
             "fill": "blue",
             "color": "white"
           },
-          "sticky_end": {
+          "type-sticky_end": {
             "fill": "green",
             "color": "white"
           }
