@@ -9,6 +9,7 @@ var bundleLogger = require('./utils/bundle_logger');
 var watchify = require('watchify');
 var _ = require('underscore');
 var path = require('path');
+var gzip = require('gulp-gzip');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -22,7 +23,7 @@ if(isDev) {
   browserifyOptions.debug = true;
 }
 
-var run = function(watch) {
+var run = function(watch, gzipped) {
   var browserified = watch ? 
     watchify(browserify(scriptFile, _.extend(browserifyOptions, watchify.args))) :
     browserify(scriptFile, browserifyOptions);
@@ -38,29 +39,44 @@ var run = function(watch) {
 
   if(watch) {
     bundleLogger.watch(scriptFile);
-    browserified.on('update', _.partial(bundle, browserified, true));
+    browserified.on('update', _.partial(bundle, browserified, gzipped, true));
   } 
 
-  bundle(browserified); 
+  bundle(browserified, gzipped); 
 };
 
-var bundle = function(browserified, watch, filepath) {
+var bundle = function(browserified, gzipped, watch, filepath) {
+  var target = scriptFile + (gzipped && !watch ? ' (gzipped)' : '');
+
   if(watch) {
-    bundleLogger.rebuild(path.relative(scriptPath, filepath[0]));
+    bundleLogger.rebuild(path.relative(target, filepath[0]));
   } else {
-    bundleLogger.start(scriptFile);
+    bundleLogger.start(target);
   }
 
-  return browserified.bundle()
+  browserified = browserified.bundle()
     .on('error', bundleLogger.error)
-    .on('end', function() { bundleLogger.end(scriptFile, watch); })
+    .on('end', function() { bundleLogger.end(target, watch); })
     .pipe(source(scriptFile))
-    .pipe(rename({extname: destExtname}))
-    .pipe(gulp.dest(destPath));
+    .pipe(rename({extname: destExtname}));
+
+  if(gzipped) {
+    browserified = browserified.pipe(gzip());
+  }
+
+  return browserified.pipe(gulp.dest(destPath));
 };
 
-gulp.task('js', function() { run(false); });
-gulp.task('js:watch', function() { run(true); });
+gulp.task('js', function() { 
+  run(false, false); 
+  if(!isDev) {
+    run(false, true);
+  }
+});
+
+gulp.task('js:watch', function() { 
+  run(true, false); 
+});
 
 
 

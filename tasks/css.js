@@ -7,12 +7,14 @@ var cached = require('gulp-cached');
 var remember = require('gulp-remember');
 var path = require('path');
 var fs = require('fs');
+var _ = require('underscore');
 var jsonSass = require('json-sass');
 var source = require('vinyl-source-stream');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var minifyCss = require('gulp-minify-css');
 var plumber = require('gulp-plumber');
+var gzip = require('gulp-gzip');
 
 var isDev = process.env.NODE_ENV !== 'production';
 
@@ -42,13 +44,14 @@ var autoprefixerOptions = {
   cascade: false
 };
 
-var run = function(watch) {
+var run = function(watch, gzipped) {
+  var target = filepath + (gzipped && !watch ? ' (gzipped)' : '');
 
   if(watch) {
-    bundleLogger.watch(filepath);
-    bundleLogger.start(filepath);
+    bundleLogger.watch(target);
+    bundleLogger.start(target);
   } else {
-    bundleLogger.start(filepath);
+    bundleLogger.start(target);
   }
 
   var bundle = gulp.src(filepath)
@@ -69,13 +72,21 @@ var run = function(watch) {
   }
 
   bundle = bundle
-    .on('end', function() { bundleLogger.end(filepath.replace('.scss', '.css')); })
+    .on('end', function() { bundleLogger.end(target.replace('.scss', '.css')); })
     .on('error', bundleLogger.error)
     .pipe(remember('stylesheets')) 
-    .pipe(rename({ extname: '.css' }))
-    .pipe(gulp.dest('./public/stylesheets/'));
+    .pipe(rename({ extname: '.css' }));
+
+  if(!watch && gzipped) {
+    bundle = bundle.pipe(gzip());
+  }
+
+  bundle.pipe(gulp.dest('./public/stylesheets/'));
 
 };
+
+var runAndWatch = _.partial(run, true, false);
+var runAndGzip = _.partial(run, false, true);
 
 var buildTheme = function(cb) {
   bundleLogger.start(themeJsonPath);
@@ -95,12 +106,19 @@ var buildTheme = function(cb) {
 
 gulp.task('theme', buildTheme);
 
-gulp.task('css', function() { buildTheme(function() { run(false); }); });
+gulp.task('css', function() { 
+  buildTheme(function() { 
+    run(); 
+    if(!isDev) {
+      runAndGzip();
+    }
+  }); 
+});
 
-gulp.task('css-only', function() { run(false); });
+gulp.task('css-only', function() { run(); });
 
 gulp.task('css:watch', function() { 
-  run(true);
+  runAndWatch();
 
   gulp.watch('./public/scripts/styles.json', ['theme']);
 
