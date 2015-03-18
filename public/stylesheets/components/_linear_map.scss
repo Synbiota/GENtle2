@@ -36,8 +36,8 @@
       text-transform: uppercase;
       white-space: nowrap;
       border: 1px solid white;
-      @include transform(rotate(90deg));
-      @include transform-origin(top left);
+      transform: rotate(90deg);
+      transform-origin: top left;
       // TODO: IE8 vertical text
 
       @for $i from 0 to 4 {
