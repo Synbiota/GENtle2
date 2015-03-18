@@ -1,6 +1,5 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
-// var bourbon = require('node-bourbon');
 var rename = require('gulp-rename');
 var cssGlobbing = require('gulp-css-globbing');
 var bundleLogger = require('./utils/bundle_logger');
@@ -13,6 +12,7 @@ var source = require('vinyl-source-stream');
 var autoprefixer = require('gulp-autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var minifyCss = require('gulp-minify-css');
+var plumber = require('gulp-plumber');
 
 var isDev = process.env.NODE_ENV !== 'production';
 
@@ -52,6 +52,7 @@ var run = function(watch) {
   }
 
   var bundle = gulp.src(filepath)
+    .pipe(plumber({errorHandler: bundleLogger.error}))
     .pipe(cached('stylesheets'))
     .pipe(cssGlobbing(cssGlobbingOptions));
 
@@ -79,6 +80,7 @@ var run = function(watch) {
 var buildTheme = function(cb) {
   bundleLogger.start(themeJsonPath);
   fs.createReadStream(themeJsonPath)
+    .pipe(plumber())
     .pipe(jsonSass({
       prefix: '$shared-styles: ',
     }))
