@@ -54,7 +54,6 @@
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
     "string-just": "0.0.2",
-    "then-jade": "^2.0.0",
     "through2": "^0.6.3",
     "uglifyify": "^3.0.1",
     "underscore": "^1.6.0",
@@ -67,15 +66,7 @@
   "devDependencies": {
     "amdefine": "~0.1.0",
     "benchmark": "~1.0.0",
-    "grunt-concurrent": "^1.0.0",
-    "grunt-contrib-compass": "^0.8.0",
-    "grunt-contrib-sass": "^0.7.3",
-    "grunt-contrib-watch": "~0.5.3",
-    "grunt-contrib-yuidoc": "~0.5.0",
-    "grunt-notify": "0.2.20",
-    "grunt-watchify": "^0.1.0",
-    "pretty-error": "^1.1.1",
-    "sassyjson": "^1.1.8"
+    "pretty-error": "^1.1.1"
   },
   "scripts": {
     "start": "nf start webdev,doc",

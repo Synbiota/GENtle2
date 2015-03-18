@@ -32,13 +32,11 @@
 In order to run GENtle locally in development mode, you need to follow these
 steps:
 
-1. Install node in version `^0.11`. See [n](https://github.com/visionmedia/n) 
-  for managing node versions. Version `^0.11` is necessary because we use 
-  [koa](koajs.com) which relies on ES6
-1. Install the `node-foreman` and `nodemon` node packages globally
+1. Install node in version `^0.12`. If you have [nvm](https://github.com/creationix/nvm) installed, you can run `nvm use`.
+1. Install the `node-foreman`, `nodemon` and `gulp` node packages globally
 
     ```shell
-    npm install -g foreman nodemon
+    npm install -g foreman nodemon gulp
     ```
   
 1. Install local npm packages
@@ -46,17 +44,6 @@ steps:
     ```shell
     npm install
     ```
-
-1. Install rubygems dependencies* (you'll need Ruby installed locally,
-preferrably using `rbenv`)
-
-    ```shell
-    bundle install
-    ```
-
-_*While unfortunate, the ruby dependencies lets us import JSON files in SCSS
-stylesheets using [SassyJSON](https://github.com/HugoGiraudel/SassyJSON)._
-
 
 ### Running the servers
 
@@ -66,15 +53,15 @@ Run both the GENtle server and the documentation server
 npm start
 ```
 
-Doc will be accessible at [http://localhost:8082](http://localhost:8082). It
+Docs will be accessible at [http://localhost:8082](http://localhost:8082). It
 will be automatically refreshed when comments in source files are modified.
 
 GENtle will be accessible at [http://localhost:8081](http://localhost:8081)
 
 ### Recompiling assets
 
-All compilation tasks use [grunt](http://gruntjs.com) and are defined in 
-`gruntfile.js`. 
+All compilation tasks use [gulp](http://gulpjs.com) and are defined in 
+`gulpfile.js` and the `tasks/` folder. 
 
 #### Stylesheets
 
@@ -82,8 +69,10 @@ Stylesheets are writen in [SCSS](http://sass-lang.com). To compile new changes,
 run:
 
 ```shell
-grunt css
+gulp css
 ```
+
+The compiled stylesheet (`public/stylesheets/app.css`) is ignored by git. 
 
 #### Javascripts
 
@@ -93,30 +82,28 @@ templates, transform ES6 files and generate the bundle, `app.min.js`.
 To generate an unminified bundle, run:
 
 ```shell 
-grunt js
+gulp js
 ```
-
-To generate a minified bundle, run:
-
-```shell
-grunt js:min
-```
+The javascript bundle will automatically be minified in production.
 
 The compiled script (`public/scripts/app.min.js`) is ignored by git. 
 
-__The app is automatically compiled and minified when deploying via the `postinstall` npm hook.__
+
+__The javascript bundle and stylesheets are automatically compiled and minified when deploying, via the `postinstall` npm hook.__
 
 #### Continuous compilation
 
 To automatically recompile assets when sources change, run:
 
 ```shell
+# Compile everything
+npm run build
 # Watch and recompile everything
-grunt w 
+npm run watch
 # Watch and recompile stylesheets
-grunt watch:css 
+gulp css:watch 
 # Watch and recompile javascripts
-grunt browserify:watch
+gulp js:watch
 ```
 
 JS continuous compilation uses watchify which makes it very quick to update when 
@@ -141,11 +128,11 @@ Specs are run in PhantomJS so all happens in the CLI.
 
 ## Server
 
-We use [koa](koajs.com) to route and serve the assets. For now, there is only
+We use [express](http://expressjs.com) to route and serve the assets. For now, there is only
 one route: `routes/index.js`, serving the `views/index.jade` [jade](http://jade-lang.com)
 file.
 
-Any change to koa routes or views will trigger a refresh of the server 
+Any change to express routes or views will trigger a refresh of the server 
 since we use `nodemon`.
 
 
@@ -155,7 +142,8 @@ The app itself uses `browserify` to load the different
 source files and manage dependency injection.
 
 We now use the [ES6 module syntax](http://24ways.org/2014/javascript-modules-the-es6-way/) to load modules. 
-Legacy modules using AMD-syntax are still compatible.
+
+Legacy modules using AMD syntax are still compatible.
 
 Non-NPM module aliases are defined in the `package.json` file.
 
@@ -191,26 +179,10 @@ We use [backbone](http://backbonejs.org) along with the following plugins:
 * [deepmodel](https://github.com/powmedia/backbone-deep-model) to handle nested
   attributes in models, as a simpler alternative to formal associations
 
-To ensure backbone dependencies are properly loaded in your files, require 
-`backbone.mixed` instead of `backbone`.
-
-```js
-import Backbone from 'backbone.mixed';
-var Backbone = require('backbone.mixed');
-```
-
 #### Underscore
 
 [Underscore](http://underscorejs.org) is a backbone dependency but also 
-quite a powerful tool. Custom methods are defined in `common/lib/underscore.mixed.js`.
-
-To ensure custom methods are properly mixed in, require `underscore.mixed` instead
-of `underscore`.
-
-```js
-import _ from 'underscore.mixed';
-var _ = require('underscore.mixed');
-```
+quite a powerful tool. Custom methods are defined in `common/lib/underscore.mixed.js` and are automatically mixed in
 
 #### Handlebars
 
