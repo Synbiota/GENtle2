@@ -10,6 +10,7 @@ export default Backbone.View.extend({
 
   events: {
     'click .show-pcr-product': 'showPcrProduct',
+    'click .panel-title': 'showPcrProduct',
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
     'click .export-sequence': 'exportSequence',
