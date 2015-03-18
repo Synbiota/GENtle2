@@ -23,7 +23,7 @@ if(isDev) {
   browserifyOptions.debug = true;
 }
 
-var run = function(watch, gzipped) {
+var run = function(watch) {
   var browserified = watch ? 
     watchify(browserify(scriptFile, _.extend(browserifyOptions, watchify.args))) :
     browserify(scriptFile, browserifyOptions);
@@ -39,14 +39,14 @@ var run = function(watch, gzipped) {
 
   if(watch) {
     bundleLogger.watch(scriptFile);
-    browserified.on('update', _.partial(bundle, browserified, gzipped, true));
+    browserified.on('update', _.partial(bundle, browserified, true));
   } 
 
-  bundle(browserified, gzipped); 
+  bundle(browserified); 
 };
 
-var bundle = function(browserified, gzipped, watch, filepath) {
-  var target = scriptFile + (gzipped && !watch ? ' (gzipped)' : '');
+var bundle = function(browserified, watch, filepath) {
+  var target = scriptFile;
 
   if(watch) {
     bundleLogger.rebuild(path.relative(target, filepath[0]));
@@ -58,25 +58,20 @@ var bundle = function(browserified, gzipped, watch, filepath) {
     .on('error', bundleLogger.error)
     .on('end', function() { bundleLogger.end(target, watch); })
     .pipe(source(scriptFile))
-    .pipe(rename({extname: destExtname}));
+    .pipe(rename({extname: destExtname}))
+    .pipe(gulp.dest(destPath));
 
-  if(gzipped) {
-    browserified = browserified.pipe(gzip());
+  if(!isDev) {
+    browserified = browserified
+      .pipe(gzip())
+      .pipe(gulp.dest(destPath));
   }
 
-  return browserified.pipe(gulp.dest(destPath));
+  return browserified;
 };
 
-gulp.task('js', function() { 
-  run(false, false); 
-  if(!isDev) {
-    run(false, true);
-  }
-});
-
-gulp.task('js:watch', function() { 
-  run(true, false); 
-});
+gulp.task('js', function() { run(false); });
+gulp.task('js:watch', function() { run(true); });
 
 
 

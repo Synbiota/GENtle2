@@ -23,6 +23,7 @@ var filedir = path.dirname(filepath);
 
 var themeJsonPath = './public/scripts/styles.json';
 var themeScssDest = './';
+var destPath = './public/stylesheets/';
 
 var sassOptions = {
   // includePaths: bourbon.includePaths,
@@ -44,8 +45,8 @@ var autoprefixerOptions = {
   cascade: false
 };
 
-var run = function(watch, gzipped) {
-  var target = filepath + (gzipped && !watch ? ' (gzipped)' : '');
+var run = function(watch) {
+  var target = filepath;
 
   if(watch) {
     bundleLogger.watch(target);
@@ -75,18 +76,19 @@ var run = function(watch, gzipped) {
     .on('end', function() { bundleLogger.end(target.replace('.scss', '.css')); })
     .on('error', bundleLogger.error)
     .pipe(remember('stylesheets')) 
-    .pipe(rename({ extname: '.css' }));
+    .pipe(rename({ extname: '.css' }))
+    .pipe(gulp.dest(destPath));
 
-  if(!watch && gzipped) {
-    bundle = bundle.pipe(gzip());
+  if(!isDev) {
+    bundle = bundle
+      .pipe(gzip())
+      .pipe(gulp.dest(destPath));
   }
 
-  bundle.pipe(gulp.dest('./public/stylesheets/'));
-
+  return bundle;
 };
 
-var runAndWatch = _.partial(run, true, false);
-var runAndGzip = _.partial(run, false, true);
+var runAndWatch = _.partial(run, true);
 
 var buildTheme = function(cb) {
   bundleLogger.start(themeJsonPath);
@@ -108,10 +110,7 @@ gulp.task('theme', buildTheme);
 
 gulp.task('css', function() { 
   buildTheme(function() { 
-    run(); 
-    if(!isDev) {
-      runAndGzip();
-    }
+    run();
   }); 
 });
 
