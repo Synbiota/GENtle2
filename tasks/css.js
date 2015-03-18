@@ -15,6 +15,8 @@ var sourcemaps = require('gulp-sourcemaps');
 var minifyCss = require('gulp-minify-css');
 var plumber = require('gulp-plumber');
 var gzip = require('gulp-gzip');
+var rev = require('gulp-rev');
+var replace = require('gulp-replace');
 
 var isDev = process.env.NODE_ENV !== 'production';
 
@@ -23,7 +25,7 @@ var filedir = path.dirname(filepath);
 
 var themeJsonPath = './public/scripts/styles.json';
 var themeScssDest = './';
-var destPath = './public/stylesheets/';
+var destPath = './public';
 
 var sassOptions = {
   // includePaths: bourbon.includePaths,
@@ -55,7 +57,7 @@ var run = function(watch) {
     bundleLogger.start(target);
   }
 
-  var bundle = gulp.src(filepath)
+  var bundle = gulp.src(filepath, {base: './public'})
     .pipe(plumber({errorHandler: bundleLogger.error}))
     .pipe(cached('stylesheets'))
     .pipe(cssGlobbing(cssGlobbingOptions));
@@ -81,8 +83,14 @@ var run = function(watch) {
 
   if(!isDev) {
     bundle = bundle
+      .pipe(rev())
+      .pipe(gulp.dest(destPath)) 
       .pipe(gzip())
-      .pipe(gulp.dest(destPath));
+      .pipe(gulp.dest(destPath))
+      .pipe(rev.manifest({merge: true}))
+      .pipe(replace('.gz', ''))
+      .pipe(replace('public/', ''))
+      .pipe(gulp.dest(destPath + '../../')); 
   }
 
   return bundle;

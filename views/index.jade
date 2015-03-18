@@ -1,7 +1,7 @@
 doctype html
 html(lang="en")
   head
-    link(rel="stylesheet" media="all" href="stylesheets/app.css")
+    link(rel="stylesheet" media="all" href=stylePath)
     meta(name="viewport" content="width=device-width, user-scalable=no, initial-scale=1")
     title GENtle 3
   body#wrapper
@@ -11,7 +11,7 @@ html(lang="en")
         i.glyphicon.glyphicon-refresh
 
 
-    script(type="text/javascript" src="scripts/app.min.js")
+    script(type="text/javascript" src=scriptPath)
 
     //- if env == 'development'
     //-   script(data-main="scripts/app" src="vendor/scripts/require.js")

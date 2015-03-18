@@ -1,6 +1,4 @@
 var gulp = require('gulp');
-// var uglify = require('gulp-uglify');
-// var sourcemaps = require('gulp-sourcemaps');
 var rename = require('gulp-rename');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
@@ -10,6 +8,9 @@ var watchify = require('watchify');
 var _ = require('underscore');
 var path = require('path');
 var gzip = require('gulp-gzip');
+var rev = require('gulp-rev');
+var buffer = require('gulp-buffer');
+var replace = require('gulp-replace');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -63,11 +64,16 @@ var bundle = function(browserified, watch, filepath) {
 
   if(!isDev) {
     browserified = browserified
+      .pipe(buffer())
+      .pipe(rev())
+      .pipe(gulp.dest(destPath)) 
       .pipe(gzip())
-      .pipe(gulp.dest(destPath));
+      .pipe(gulp.dest(destPath))
+      .pipe(rev.manifest({merge: true}))
+      .pipe(replace('.gz', ''))
+      .pipe(replace('public/', ''))
+      .pipe(gulp.dest(destPath)); 
   }
-
-  return browserified;
 };
 
 gulp.task('js', function() { run(false); });
