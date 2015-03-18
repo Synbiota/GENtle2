@@ -152,28 +152,32 @@ define(function(require) {
 
     saveFeature: function() {
       var ranges;
+      var acceptedRanges;
+      var length = this.model.length();
 
       this.readValues();
       this.errors = {};
 
-      ranges = _.map(_.reject(this.editedFeature.ranges, function(range) {
-        return range.from === '' || range.from < 0 ||
-          range.to === '' || range.to < 0;
-      }), function(range) {
-        delete range._canDelete;
-        delete range._canAdd;
-        return range;
+      acceptedRanges = _.reject(this.editedFeature.ranges, (range, i) => {
+        range._fromIsInvalid = (range.from === '' || range.from < 0 || range.from >= length);
+        range._toIsInvalid = (range.to === '' || range.to < 0 || range.to >= length);
+        var reject = range._fromIsInvalid || range._toIsInvalid;
+        if(reject) this.errors.ranges = true;
+        return reject;
       });
 
       if (this.editedFeature.name === undefined || this.editedFeature.name === '') {
         this.errors.name = true;
       }
 
-      if (!ranges.length) {
-        this.errors.ranges = true;
-      }
-
-      if (!_.keys(this.errors).length) {
+      if (_.isEmpty(this.errors)) {
+        ranges = _.map(acceptedRanges, function(range) {
+          delete range._canDelete;
+          delete range._canAdd;
+          delete range._fromIsInvalid;
+          delete range._toIsInvalid;
+          return range;
+        });
         this.editedFeature.ranges = ranges;
         if (this.creating) {
           this.model.createFeature(this.editedFeature, true);

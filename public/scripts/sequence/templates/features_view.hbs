@@ -38,12 +38,12 @@
             {{#each editedFeature.ranges}}
               <tr>
                 <td>
-                  <div class="form-group no-margin{{#if ../errors.ranges}} has-error{{/if}}">
+                  <div class="form-group no-margin{{#if _fromIsInvalid}} has-error{{/if}}">
                     <input type="number" class="form-control input-sm" value="{{from}}" name="from">
                   </div>
                 </td>
                 <td>
-                  <div class="form-group no-margin{{#if ../errors.ranges}} has-error{{/if}}">
+                  <div class="form-group no-margin{{#if _toIsInvalid}} has-error{{/if}}">
                     <input type="number" class="form-control input-sm" value="{{to}}" name="to">
                   </div>
                 </td>
