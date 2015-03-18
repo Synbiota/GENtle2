@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
-var bourbon = require('node-bourbon');
+// var bourbon = require('node-bourbon');
 var rename = require('gulp-rename');
 var cssGlobbing = require('gulp-css-globbing');
 var bundleLogger = require('./utils/bundle_logger');
@@ -10,7 +10,11 @@ var path = require('path');
 var fs = require('fs');
 var jsonSass = require('json-sass');
 var source = require('vinyl-source-stream');
-// var plumber = require('gulp-plumber');
+var autoprefixer = require('gulp-autoprefixer');
+var sourcemaps = require('gulp-sourcemaps');
+var minifyCss = require('gulp-minify-css');
+
+var isDev = process.env.NODE_ENV !== 'production';
 
 var filepath = './public/stylesheets/app.scss';
 var filedir = path.dirname(filepath);
@@ -19,12 +23,23 @@ var themeJsonPath = './public/scripts/styles.json';
 var themeScssDest = './';
 
 var sassOptions = {
-  includePaths: bourbon.includePaths,
+  // includePaths: bourbon.includePaths,
   errLogToConsole: false,
 };
 
 var cssGlobbingOptions = {
   extensions: ['.css', '.scss']
+};
+
+var autoprefixerOptions = {
+  browsers: [
+    '> 1%', 
+    'last 2 versions', 
+    'Firefox ESR', 
+    'Opera 12.1',
+    'ie > 8'
+  ],
+  cascade: false
 };
 
 var run = function(watch) {
@@ -36,10 +51,23 @@ var run = function(watch) {
     bundleLogger.start(filepath);
   }
 
-  gulp.src(filepath)
+  var bundle = gulp.src(filepath)
     .pipe(cached('stylesheets'))
-    .pipe(cssGlobbing(cssGlobbingOptions))
-    .pipe(sass(sassOptions))
+    .pipe(cssGlobbing(cssGlobbingOptions));
+
+  if(isDev) {
+    bundle = bundle
+      .pipe(sourcemaps.init())
+      .pipe(sass(sassOptions))
+      .pipe(sourcemaps.write());
+  } else {
+    bundle = bundle
+      .pipe(sass(sassOptions))
+      .pipe(autoprefixer(autoprefixerOptions))
+      .pipe(minifyCss());
+  }
+
+  bundle = bundle
     .on('end', function() { bundleLogger.end(filepath.replace('.scss', '.css')); })
     .on('error', bundleLogger.error)
     .pipe(remember('stylesheets')) 
@@ -57,7 +85,7 @@ var buildTheme = function(cb) {
     .pipe(source(themeJsonPath))
     .pipe(rename({extname: '.scss'}))
     .on('end', function() { 
-      bundleLogger.end(themeJsonPath.replace('.json', '.scss')) 
+      bundleLogger.end(themeJsonPath.replace('.json', '.scss'));
       cb();
     })
     .pipe(gulp.dest(themeScssDest));
@@ -65,7 +93,7 @@ var buildTheme = function(cb) {
 
 gulp.task('theme', buildTheme);
 
-gulp.task('css', function() { buildTheme(function() { run(false); }); })
+gulp.task('css', function() { buildTheme(function() { run(false); }); });
 
 gulp.task('css-only', function() { run(false); });
 

@@ -129,7 +129,6 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       &.ui-draggable-dragging {
         box-shadow: 0 0 3px transparentize(#222, .5);
       }
-
       // .designer-designed-sequence-chunk-droppable {
       //   position: absolute;
       //   top: 0;
@@ -137,7 +136,7 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       //   width: 100%;
       //   height: 50%;
       //   &.active {
-      //     @include linear-gradient(0deg, transparent, rgba(255,255,255,.7));
+      //     background: linear-gradient(0deg, transparent, rgba(255,255,255,.7));
       //     &::before {
       //       content: "Insert before";
       //       display: block;
@@ -159,7 +158,7 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       //   top: auto;
       //   bottom: 0;
       //   &.active {
-      //     @include linear-gradient(transparent, rgba(255,255,255,.7));
+      //     background: linear-gradient(transparent, rgba(255,255,255,.7));
       //     &::before {
       //       top: auto;
       //       bottom: 0;

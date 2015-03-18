@@ -1,7 +1,6 @@
 $icon-font-path: '../vendor/bootstrap/fonts/';
 
 // Libraries
-@import 'bourbon';
 @import '../vendor/bootstrap/css/bootstrap.scss';
 
 // Shared styles
@@ -15,7 +14,7 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 @import "components/*";
 
 // // Animations
-// @import "animations/*";
+@import "animations/*";
 
 
 body {
