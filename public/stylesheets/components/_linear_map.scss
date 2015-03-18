@@ -36,8 +36,8 @@
       text-transform: uppercase;
       white-space: nowrap;
       border: 1px solid white;
-      @include transform(rotate(90deg));
-      @include transform-origin(top left);
+      transform: rotate(90deg);
+      transform-origin: top left;
       // TODO: IE8 vertical text
 
       @for $i from 0 to 4 {
@@ -46,9 +46,9 @@
         }
       }
 
-      @each $feature_type, $v in $__colors {
-        @if $feature_type != '_default' {
-          &.linear-map-feature-#{$feature_type} {
+      @each $feature-type, $v in $__colors {
+        @if $feature-type != '_default' {
+          &.linear-map-feature-#{$feature-type} {
             color: map_get($v, 'color');
             background: map_get($v, 'fill');
           }

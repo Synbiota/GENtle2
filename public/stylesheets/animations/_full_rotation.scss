@@ -1,8 +1,8 @@
-@include keyframes(full-rotation) {
+keyframes(full-rotation) {
   from {
-    @include transform(rotate(0deg));
+    transform: rotate(0deg);
   }
   to {
-    @include transform(rotate(360deg));
+    transform: rotate(360deg);
   }
 }
