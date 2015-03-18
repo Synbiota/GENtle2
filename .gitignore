@@ -5,6 +5,7 @@ docs
 *.sublime-workspace
 npm-debug.log
 public/scripts/app.min.js
+public/stylesheets/app.css
 *.orig
 npm-debug.log
 .sass-cache
