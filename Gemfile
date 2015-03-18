@@ -1,6 +1,0 @@
-source 'http://production.cf.rubygems.org'
-gem 'sass', '~> 3.3'
-gem 'SassyJSON'
-gem 'bourbon'
-gem 'compass', '~> 0.13.alpha'
-gem 'sass-globbing'

@@ -5,9 +5,14 @@ docs
 *.sublime-workspace
 npm-debug.log
 public/scripts/app.min.js
+public/scripts/app.min-*.js
 public/stylesheets/app.css
+public/stylesheets/app-*.css
 public/scripts/app.min.js.gz
+public/scripts/app.min-*.js.gz
 public/stylesheets/app.css.gz
+public/stylesheets/app-*.css.gz
+rev-manifest.json
 *.orig
 npm-debug.log
 .sass-cache
