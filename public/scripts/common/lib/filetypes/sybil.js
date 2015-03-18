@@ -163,8 +163,9 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
     
     // Misc
     var type = v._type ;
-    var start = v.ranges[0].from ;
-    var stop = v.ranges[v.ranges.length-1].to ;
+    var coerceRange = _.partial(coerceRangeToWithinSequenceLength, sequence.sequence);
+    var start = coerceRange(v.ranges[0].from) ;
+    var stop = coerceRange(v.ranges[v.ranges.length-1].to);
 
     // Name
     var name = '' ;
@@ -185,8 +186,8 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
     
     if (v.ranges.length !== 1) {
       $.each ( v.ranges , function ( k2 , v2 ) {
-        var frm = v2.from + 1;
-        var to = v2.to + 1;
+        var frm = coerceRange(v2.from) + 1;
+        var to = coerceRange(v2.to) + 1;
         desc += "<exon start='" + frm + "' to='" + to + "' />\n" ;
       } ) ;
     }
@@ -245,9 +246,10 @@ FT_sybil.prototype.parseFile = function () {
     $(v1).find('circuit').each ( function ( k2 , v2 ) {
       var s = $(v2).find('sequence').get(0) ;
       s = $(s) ;
+      var sequence = s.text().toUpperCase();
       var seq = { 
         name: s.attr('name'), 
-        sequence: s.text().toUpperCase(),
+        sequence: sequence,
         isCircular: s.attr('circular') == "true"
       };
       seq.desc = $(v2).find('general_description').text() ;
@@ -263,6 +265,7 @@ FT_sybil.prototype.parseFile = function () {
         };
       });
       
+      var coerceRange = _.partial(coerceRangeToWithinSequenceLength, sequence);
       seq.features = [] ;
       $(v2).find('annotation').each ( function ( k3 , v3 ) {
         var attrs = _.pluck(_.objectToArray(v3.attributes), 'name');
@@ -273,8 +276,8 @@ FT_sybil.prototype.parseFile = function () {
         feature._id = _.uniqueId();
         $.each ( attrs , function ( dummy , ak ) {
           var av = $(v3).attr(ak) ;
-          if ( ak == 'start' ) start = av*1 - 1 ;
-          else if ( ak == 'stop' ) stop = av*1 - 1 ;
+          if ( ak == 'start' ) start = coerceRange(av*1 - 1) ;
+          else if ( ak == 'stop' ) stop = coerceRange(av*1 - 1) ;
           else if ( ak == 'rc' ) rc = ( av == 1 ) ;
           else if ( ak == 'type' ) feature._type = av ;
           else feature[ak] = av ;
