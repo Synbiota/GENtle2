@@ -256,7 +256,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
 
   if(_.isEmpty(filteredPotentialPrimers)) filteredPotentialPrimers = _.clone(potentialPrimers);
 
-  return Q.promise(function(resolve, reject, notify) {
+  var promisePrimers = Q.promise(function(resolve, reject, notify) {
     var currentProgress = 0;
     var currentFallbackProgress = 0;
     var total = filteredPotentialPrimers.length;
@@ -306,58 +306,9 @@ var optimalPrimer3 = function(sequence, opts = {}) {
           }
         });
     });
-
   });
 
-
-
-  // return Q.promise(function(resolve, reject, notify) {
-  //   var current = 0;
-  //   var total = filteredPotentialPrimers.length;
-  //   var notifyCurrent = function(i) { notify({current: i, total: total}); };
-
-  //   Q.all(_.map(filteredPotentialPrimers, function(primer) {
-  //     return IDTMeltingTemperature(primer.sequence).then(function(temperature) {
-  //       current++;
-  //       notifyCurrent(current)
-  //       return _.extend(primer, {IDTMeltingTemperature: temperature});
-  //     });
-  //   })).then(function(results) {
-  //     window.truc = _.map(filteredPotentialPrimers, function(primer) {
-  //       return {
-  //         lastBase: primer.sequence.substr(primer.sequence.length-1, 1),
-  //         meltingTemperature1: SequenceCalculations.meltingTemperature1(primer.sequence),
-  //         meltingTemperature2: primer.meltingTemperature,
-  //         IDTMeltingTemperature: primer.IDTMeltingTemperature
-  //       }
-
-  //     })
-  //     console.log('here',_.map(truc, (p) => Math.abs(p.IDTMeltingTemperature - p.meltingTemperature2)))
-
-  //       //p.meltingTemperature1, p.meltingTemperature2, p.IDTMeltingTemperature]),
-
-
-  //     notifyCurrent(total);
-
-  //     var temperatures = _.pluck(results, 'IDTMeltingTemperature');
-
-  //     console.log(potentialPrimers)
-
-  //     var scores = _.map(temperatures, function(temperature) {
-  //       return -Math.abs(opts.targetMeltingTemperature - temperature);
-  //     });
-
-  //     var optimalIndex = _.indexOf(scores, _.max(scores));
-  //     var optimalPrimer = filteredPotentialPrimers[optimalIndex];
-
-  //     resolve({
-  //       sequence: optimalPrimer.sequence,
-  //       meltingTemperature: temperatures[optimalIndex],
-  //       gcContent: SequenceCalculations.gcContent(optimalPrimer.sequence)
-  //     });
-
-  //   }).catch((e) => console.log('insideer', e));
-  // }).catch((e) => console.log('outsideer', e));
+  return promisePrimers;
 };
 
 
