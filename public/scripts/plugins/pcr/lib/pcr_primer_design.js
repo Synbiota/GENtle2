@@ -2,6 +2,7 @@ import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import PrimerCalculation from './primer_calculation';
+import {defaultPCRPrimerOptions} from './primer_defaults';
 import Q from 'q';
 
 
@@ -80,8 +81,9 @@ var processPrimerResults = function(sequence, opts, primerResults) {
 };
 
 
-var getPCRProduct = function(sequence, opts = {}) {
+var getPCRProduct = function(sequence, opts) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
+  opts = defaultPCRPrimerOptions(opts);
 
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer3(sequence, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer3(SequenceTransforms.toReverseComplements(sequence), opts);
