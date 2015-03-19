@@ -257,17 +257,19 @@ var optimalPrimer3 = function(sequence, opts = {}) {
   if(_.isEmpty(filteredPotentialPrimers)) filteredPotentialPrimers = _.clone(potentialPrimers);
 
   return Q.promise(function(resolve, reject, notify) {
-    var current = 0;
+    var currentProgress = 0;
+    var currentFallbackProgress = 0;
     var total = filteredPotentialPrimers.length;
-    var notifyCurrent = function(i) {
-      notify({current: i, total: total});
+    var totalFallback = potentialPrimers.length;
+    var notifyCurrent = function(i, totl, isFallback=false) {
+      notify({current: i, total: totl, isFallback: isFallback});
     };
     var resolvePrimer;
 
     queryBestPrimer(filteredPotentialPrimers, opts.targetMeltingTemperature, opts.useIDT)
     .progress(function() {
-      current += 1;
-      notifyCurrent(current);
+      currentProgress += 1;
+      notifyCurrent(currentProgress, total, false);
     })
     .then(function(primer) {
       console.log('Found a good primer', primer);
@@ -280,8 +282,11 @@ var optimalPrimer3 = function(sequence, opts = {}) {
       // 
       // In this case let's ignore the 'BEST FOUND' primer and just try all the
       // potential primers
-      total += potentialPrimers.length;
       return queryBestPrimer(potentialPrimers, opts.targetMeltingTemperature, opts.useIDT)
+        .progress(function() {
+          currentFallbackProgress += 1;
+          notifyCurrent(currentFallbackProgress, totalFallback, true);
+        })
         .then(function(primer) {
           console.log('Initially could not find a good primer, but found one in the other potentialPrimers', primer);
           resolve(primer);
@@ -296,6 +301,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
             console.log('Could not find a good primer, resolving with the best primer we have', dataOrException.primer);
             resolve(dataOrException.primer);
           } else {
+            console.error('Had an error whilst finding good primer, rejecting with exception:', dataOrException);
             reject(dataOrException);
           }
         });

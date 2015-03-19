@@ -4,10 +4,20 @@
   <p class="progress-text text-muted">
     Please wait while we calculate the best primers for the new PCR product
   </p>
-  <div class="progress">
+  <div class="progress initial-progress">
     <div class="progress-bar" role="progressbar"></div>
   </div>
+
+  <div class="fallback-progress" style="display: none;">
+    <p class="progress-text text-muted">
+      Attempting second search for optimal primer
+    </p>
+    <div class="progress">
+      <div class="progress-bar" role="progressbar"></div>
+    </div>
+  </div>
 </div>
+
 <div class="new-pcr-progress-error text-danger" style="display: none;">
   Sorry, there was an error creating your PCR product primers.  Please try again.  If this problem persists, please contact <a href="support@synbiota.com">support@synbiota.com</a>
   <br>

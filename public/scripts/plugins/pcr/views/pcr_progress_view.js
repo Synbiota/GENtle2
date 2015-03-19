@@ -16,7 +16,12 @@ export default Backbone.View.extend({
   },
 
   updateProgressBar: function(progress) {
-    this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
+    this.$('.new-pcr-progress .initial-progress .progress-bar').css('width', progress*100+'%');
+  },
+
+  updateFallbackProgressBar:  function(progress) {
+    this.$('.fallback-progress').show();
+    this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
   makePrimer: function(data) {
@@ -33,13 +38,20 @@ export default Backbone.View.extend({
       parentView.saveProducts(products);
       parentView.showProducts(product);
 
-    }).progress((progress) => {
-      this.updateProgressBar(progress);
+    }).progress(({lastProgress, lastFallbackProgress}) => {
+      this.updateProgressBar(this.calcTotal(lastProgress));
+      if(lastFallbackProgress.total) {
+        this.updateFallbackProgressBar(this.calcTotal(lastFallbackProgress));
+      }
     }).catch((e) => {
       handleError('new PCR, view error:', e);
       this.$('.new-pcr-progress').slideUp();
       this.$('.new-pcr-progress-error').slideDown();
     });
+  },
+
+  calcTotal: function({current, total}) {
+    return total ? current / total : 0;
   },
 
   retryCreatingPcrPrimer: function() {

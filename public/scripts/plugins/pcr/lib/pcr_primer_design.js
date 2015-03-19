@@ -5,19 +5,34 @@ import PrimerCalculation from './primer_calculation';
 import Q from 'q';
 
 
+var processReports = function(progressReports) {
+  var i = progressReports.length-1;
+  var currentCompletion = progressReports[i].current;
+  var currentTotal = progressReports[i].total;
+  return {current: currentCompletion, total: currentTotal, entries: progressReports.length};
+};
+
+
 var getPCRProduct = function(sequence, opts = {}) {
   sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
 
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer3(sequence, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer3(SequenceTransforms.toReverseComplements(sequence), opts);
-  var lastProgress = [{}, {}];
+  var progressReports = [{current: 0, total: 0, isFallback: false}];
+  var fallbackProgressReports = [{current: 0, total: 0, isFallback: true}];
 
   return Q.promise(function (resolve, reject, notify) {
 
     Q.all([forwardPrimerPromise, reversePrimerPromise]).progress(function(current) {
-      lastProgress[current.index] = current.value;
-      var total = _.reduce(lastProgress, (memo, i) => memo + i.total, 0);
-      notify(total ? _.reduce(lastProgress, (memo, i) => memo + i.current, 0)/total : 0);
+      if(current.value.isFallback) {
+        fallbackProgressReports.push(current.value);
+      } else {
+        progressReports.push(current.value);
+      }
+      var lastProgress = processReports(progressReports);
+      var lastFallbackProgress = processReports(fallbackProgressReports);
+
+      notify({lastProgress, lastFallbackProgress});
     }).then(function(results) {
       var [forwardAnnealingRegion, reverseAnnealingRegion] = results;
 
