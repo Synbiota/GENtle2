@@ -30,7 +30,6 @@ define(function(require) {
       $('body').on('click', this.hide);
 
       this.context = options && options.context;
-
     },
 
     reset: function() {
@@ -83,25 +82,38 @@ define(function(require) {
     show: function() {
       var itemNb = this.menuItems.length;
 
-      if (this.menuItems.length || this.menuIcons.length){
+      if(this.menuItems.length || this.menuIcons.length) {
         var $parent = this.$assumedParent,
             parentWidth = $parent.width(),
             parentHeight = $parent.height();
 
-        this.display = true;
         this.pullRight = this.posX - $parent.position().left - this.width > 0;
         this.dropup = this.posY + this.menuItemHeight * itemNb + 40 >= parentHeight;
 
-        this.render();
-        $parent.focus();
+        _.defer(() => {
+          // RACY  this `defer`, and the conditional in hide for `this.display`
+          // ensures `show` is run after the `hide` function which 
+          // erroneously gets triggered on the 'click' event from a selection 
+          // operation...??!!  This was introduced somewhere between:
+          //  BAD:  0b9f24a
+          //        468a904
+          //        37d5e1c  // <- likely "culprit":  `Using gulp instead of grunt (TBC)`
+          //  GOOD: 92737fb
+          this.render();
+          $parent.focus();
+          this.display = true;
+        });
       }
+
       return this;
     },
 
     hide: function() {
-      this.display = false;
-      this.reset();
-      this.render();
+      if(this.display) {
+        this.display = false;
+        this.reset();
+        this.render();
+      }
       return this;
     },
 
