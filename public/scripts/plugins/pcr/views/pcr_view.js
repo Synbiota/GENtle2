@@ -210,8 +210,8 @@ export default Backbone.View.extend({
   },
 
   updateRange: function(frm, to) {
-    this.getFieldFor('from').val(frm);
-    this.getFieldFor('to').val(to);
+    this.getFieldFor('from').val(frm+1);
+    this.getFieldFor('to').val(to+1);
     this.getFieldFor('name').focus();
   },
 
