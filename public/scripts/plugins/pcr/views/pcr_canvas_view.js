@@ -2,6 +2,7 @@ import Backbone from 'backbone';
 import template from '../templates/pcr_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import _ from 'underscore';
 import Styles from '../../../styles.json';
 
@@ -40,18 +41,13 @@ export default Backbone.View.extend({
 
   setProduct: function(product) {
     this.product = product;
-    this.model = this.parentView().getSequenceFromProduct(product);
-    this.afterSet();
+    var sequence = this.parentView().getSequenceFromProduct(product);
+    this.setSequence(sequence);
   },
 
   setSequence: function(sequence) {
+    sequence = TemporarySequence.ensureTemporary(sequence);
     this.model = sequence;
-    this.afterSet();
-  },
-
-  afterSet: function() {
-    this.model.save = _.noop;
-    this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
   },
 
   afterRender: function() {
@@ -81,7 +77,7 @@ export default Backbone.View.extend({
           baseLine: 15,
           textFont: LineStyles.complements.text.font,
           textColour: this.getSequenceColour,
-          getSubSeq: this.getComplements,
+          getSubSeq: this.model.getComplements,
         }],
         features: ['Feature', {
           unitHeight: 15,

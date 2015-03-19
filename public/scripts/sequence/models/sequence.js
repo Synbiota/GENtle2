@@ -45,6 +45,8 @@ var SequenceModel = Backbone.DeepModel.extend({
     this.maxOverlappingFeatures = _.memoize2(this._maxOverlappingFeatures);
     this.nbFeaturesInRange = _.memoize2(this.nbFeaturesInRange);
     this.listenTo(this, 'change:sequence', this.clearBlastCache);
+
+    this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
   },
 
   /**

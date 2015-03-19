@@ -1,12 +1,19 @@
 import template from '../templates/pcr_view.hbs';
 import Backbone from 'backbone';
-import StickyEnds from '../../../common/lib/sticky_ends';
-import PrimerDesign from '../lib/pcr_primer_design';
+import FormView from './pcr_form_view';
+import ProgressView from './pcr_progress_view';
 import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import Sequence from '../../../sequence/models/sequence';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {handleError} from '../../../common/lib/handle_error';
+
+
+var viewStates = {
+  form: 'form',
+  products: 'products',
+  progress: 'progress',
+};
 
 
 export default Backbone.View.extend({
@@ -14,106 +21,54 @@ export default Backbone.View.extend({
   template: template,
   className: 'pcr',
 
-  initialize: function() {
-    this.model = Gentle.currentSequence;
-    this.products = this.model.get('meta.pcr.products') || [];
-    this.defaults = _.defaults(this.model.get('meta.pcr.defaults') || {}, {
-      from: 0,
-      to: this.model.length()-1,
-      targetMeltingTemperature: 68
-    });
-
-    this.listView = new ListView();
-    this.setView('.pcr-list-container', this.listView);
-  },
-
   events: {
-    'submit .new-pcr-product-form': 'createNewPcrProduct',
-    'keyup #newProduct_from, #newProduct_to': 'updateTemporarySequence',
-    'click .toggle-new-pcr-product-form, .cancel-new-pcr-product-form': 'toggleForm'
+    'click .show-new-pcr-product-form': 'showFormFn',
   },
 
-  getFieldFor: function(field) {
-    return this.$('#newProduct_'+field);
+  initialize: function({showForm}, argumentsForFormView={}) {
+    this.model = Gentle.currentSequence;
+
+    var products = this.getProducts();
+    this.saveProducts(products);
+
+    this.viewState = (showForm || !products.length) ? viewStates.form : viewStates.products;
+
+    var args = {model: this.model};
+    this.formView = new FormView(_.extend(argumentsForFormView, args));
+    this.listView = new ListView(args);
+    this.progressView = new ProgressView(args);
   },
 
-  extractFieldsData: function() {
-    return _.reduce(_.toArray(arguments), (memo, field) => {
-      var $field = this.getFieldFor(field);
-      memo[field] = $field.val();
-      if($field.attr('type') == 'number') memo[field] = memo[field]^0;
-      return memo;
-    }, {});
-  },
-
-  getFormData: function() {
-    var data = this.extractFieldsData(
-      'from', 'to', 'name', 'targetMeltingTemperature'
-    );
-    return _.extend(data, {
-      from: data.from - 1,
-      to: data.to - 1,
-      stickyEnds: _.find(StickyEnds, {name: this.$('#newProduct_stickyEnds').val()})
-    });
-  },
-
-  createNewPcrProduct: function(event) {
-    event.preventDefault();
-    var data = this.getFormData();
-
-    var sequence = this.model;
-
-    this.$('.new-pcr-product-form').hide();
-    this.$('.new-pcr-progress').show();
-    this.updateProgressBar(0);
-
-    PrimerDesign(sequence, data).then((product) => {
-      this.products.push(product);
-
-      sequence.set('meta.pcr.products', this.products);
-      sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
-      sequence.throttledSave();
-
-      this.getFieldFor('name').val('');
-      this.$('.new-pcr-product-form').show();
-      this.$('.new-pcr-progress').hide();
-
-      this.listView.render();
-      this.hideCanvas();
-      this.showCanvas(product);
-      this.toggleForm();
-      this.scrollToProduct(product);
-
-    }).progress((progress) => {
-      this.updateProgressBar(progress);
-    }).catch((e) => {
-      handleError('new PCR, view error:', e);
-      this.$('.new-pcr-progress').slideUp();
-      this.$('.new-pcr-progress-error').slideDown();
-      this.$('.new-pcr-progress-error button').click((event) => {
-        this.$('.new-pcr-progress').show();
-        this.$('.new-pcr-progress-error').hide();
-        this.createNewPcrProduct(event);
-      });
-    });
-
-  },
-
-  updateProgressBar: function(progress) {
-    this.$('.new-pcr-progress .progress-bar').css('width', progress*100+'%');
-  },
-
-  scrollToProduct: function(product) {
-    var $container = this.$('#pcr-list-outer-container');
-    var $target = this.$('[data-product_id="' + product.id + '"]');
-    if(!$target.offset()) {
-      console.warn('There is no product with id: ', product.id);
-    } else {
-      $container.scrollTop($target.offset().top);
+  beforeRender: function() {
+    if(this.viewState === viewStates.form) {
+      this.setView('.pcr-view-container', this.formView);
+    } else if(this.viewState === viewStates.products) {
+      this.setView('.pcr-view-container', this.listView);
+    } else if(this.viewState === viewStates.progress) {
+      this.setView('.pcr-view-container', this.progressView);
     }
   },
 
-  showCanvas: function(product) {
+  showFormFn: function(event) {
+    if(event) event.preventDefault();
+    this.viewState = viewStates.form;
+    this.render();
+  },
+
+  showProducts: function(product) {
+    this.hideCanvas();
+    this.listView.showProduct(product);
+    this.viewState = viewStates.products;
+    this.render();
+  },
+
+  makePrimer: function(data) {
+    this.progressView.makePrimer(data);
+    this.viewState = viewStates.progress;
+    this.render();
+  },
+
+  showCanvas: function(product, temporarySequence) {
     var view = new CanvasView();
     this.setView('#pcr-canvas-container', view);
 
@@ -122,8 +77,8 @@ export default Backbone.View.extend({
       this.showingProductId = product.id;
       this.listView.$('.panel').removeClass('panel-info');
       this.listView.$('[data-product_id="'+product.id+'"]').addClass('panel-info');
-    } else if(this.temporarySequence) {
-      view.setSequence(this.temporarySequence);
+    } else if(temporarySequence) {
+      view.setSequence(temporarySequence);
     }
 
     view.render();
@@ -133,17 +88,23 @@ export default Backbone.View.extend({
     this.removeView('#pcr-canvas-container');
   },
 
+  getProducts: function() {
+    return this.model.get('meta.pcr.products') || [];
+  },
+
+  saveProducts: function(products) {
+    return this.model.set('meta.pcr.products', products).throttledSave();
+  },
+
   deleteProduct: function(product) {
-    var idx = this.products.indexOf(product);
-    if(~idx) {
-      if(this.showingProductId == product.id) {
-        this.hideCanvas();
-        this.showingProductId = null;
-      }
-      this.products.splice(idx, 1);
-      this.model.set('meta.pcr.products', this.products).throttledSave();
-      this.listView.render();
-      if(_.isEmpty(this.products)) this.toggleForm();
+    var products = this.getProducts();
+    var idx = products.indexOf(product);
+    products.splice(idx, 1);
+    this.saveProducts('meta.pcr.products', products);
+    if(_.isEmpty(products)) {
+      this.showFormFn();
+    } else {
+      this.showProducts();
     }
   },
 
@@ -155,13 +116,12 @@ export default Backbone.View.extend({
   },
 
   getSequenceFromProduct: function(product) {
-
-    var sequence = Gentle.currentSequence.getSubSeq(product.from, product.to);
+    var sequenceNts = Gentle.currentSequence.getSubSeq(product.from, product.to);
     var stickyEndOffsets = this.getStickyEndOffsets(product);
     var features = [];
 
     if(product.stickyEnds) {
-      sequence = product.stickyEnds.start + sequence + product.stickyEnds.end;
+      sequenceNts = product.stickyEnds.start + sequenceNts + product.stickyEnds.end;
 
       features = features.concat([{
         name: product.stickyEnds.startName + ' end',
@@ -174,8 +134,8 @@ export default Backbone.View.extend({
         name: product.stickyEnds.endName + ' end',
         _type: 'sticky_end',
         ranges: [{
-          from: sequence.length - product.stickyEnds.end.length,
-          to: sequence.length-1
+          from: sequenceNts.length - product.stickyEnds.end.length,
+          to: sequenceNts.length-1
         }]
       }, {
         name: 'Annealing region',
@@ -196,80 +156,16 @@ export default Backbone.View.extend({
         name: product.reversePrimer.name,
         _type: 'primer',
         ranges: [{
-          from: sequence.length - product.reversePrimer.sequence.length,
-          to: sequence.length - 1
+          from: sequenceNts.length - product.reversePrimer.sequence.length,
+          to: sequenceNts.length - 1
         }]
       }]);
     }
 
-    return new Sequence({
-      sequence: sequence,
+    return new TemporarySequence({
+      sequence: sequenceNts,
       name: product.name,
       features: features,
     });
   },
-
-  updateRange: function(frm, to) {
-    this.getFieldFor('from').val(frm+1);
-    this.getFieldFor('to').val(to+1);
-    this.getFieldFor('name').focus();
-  },
-
-  toggleForm: function(event) {
-    var product;
-    if(event) event.preventDefault();
-    this.$('.new-pcr-product-form-container, .pcr-list-container, .toggle-new-pcr-product-form').toggle();
-
-    if(!_.isEmpty(this.products)) {
-      this.$('.cancel-new-pcr-product-form').show();
-    } else {
-      this.$('.cancel-new-pcr-product-form').hide();
-    }
-
-    this.hideCanvas();
-
-    if(!this.temporarySequence) {
-      this.temporarySequence = new Sequence({
-        sequence: this.getTemporarySequence()
-      });
-    } else {
-      this.temporarySequence = null;
-      product = _.find(this.products, {id: this.showingProductId});
-      if(product) {
-        this.showCanvas(product);
-      }
-    }
-
-    if(!product) this.showCanvas();
-  },
-
-  getTemporarySequence: function() {
-    var from = this.getFieldFor('from').val() - 1;
-    var to = this.getFieldFor('to').val() - 1;
-    return this.model.get('sequence').substr(from, to - from + 1);
-  },
-
-  updateTemporarySequence: function(event) {
-    var sequence = this.temporarySequence;
-    if(sequence) sequence.set('sequence', this.getTemporarySequence());
-  },
-
-  serialize: function() {
-    return {
-      availableStickyEnds: _.map(StickyEnds, function(end) {
-        return {
-          name: end.name,
-          value: end.name
-        };
-      }),
-      defaults: this.defaults
-    };
-  },
-
-  afterRender: function() {
-    if(_.isEmpty(this.products)) {
-      this.toggleForm();
-    }
-  }
-
 });
