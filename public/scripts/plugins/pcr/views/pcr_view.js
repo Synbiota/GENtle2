@@ -100,7 +100,7 @@ export default Backbone.View.extend({
     var products = this.getProducts();
     var idx = products.indexOf(product);
     products.splice(idx, 1);
-    this.saveProducts('meta.pcr.products', products);
+    this.saveProducts(products);
     if(_.isEmpty(products)) {
       this.showFormFn();
     } else {
