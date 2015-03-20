@@ -27,7 +27,11 @@ class Sequence {
   }
 
   allFields () {
-    return this.requiredFields().concat(['id', 'name', 'antisense']);
+    return this.requiredFields().concat(this.optionalFields());
+  }
+
+  optionalFields () {
+    return ['id', 'name', 'antisense'];
   }
 
   requiredFields () {

@@ -272,6 +272,7 @@ var optimalPrimer3 = function(sequence, opts = {}) {
       notifyCurrent(currentProgress, total, false);
     })
     .then(function(primer) {
+      primer.optimal = true;
       console.log('Found a good primer', primer);
       resolve(primer);
     })
@@ -297,9 +298,11 @@ var optimalPrimer3 = function(sequence, opts = {}) {
           //
           // NOTE:  we may get here due to an error.  In which case we have to
           // reject not resolve
-          if(dataOrException.primer) {
-            console.log('Could not find a good primer, resolving with the best primer we have', dataOrException.primer);
-            resolve(dataOrException.primer);
+          var primer = dataOrException.primer;
+          if(primer) {
+            primer.optimal = false;
+            console.log('Could not find a good primer, resolving with the best primer we have', primer);
+            resolve(primer);
           } else {
             console.error('Had an error whilst finding good primer, rejecting with exception:', dataOrException);
             reject(dataOrException);
@@ -324,10 +327,15 @@ class PotentialPrimer {
     this.opts = options;
     this.sequence = sequence;
     this.i = 0;
-    this.size = options.minPrimerLength;
+    this.size = this.opts.minPrimerLength;
+    this.allowShift = this.opts.allowShift;
     this.potentialPrimer = undefined;
 
     this.deferred = deferred;
+
+    this.returnNearestIfNotBest = this.opts.returnNearestIfNotBest;
+    this.assessedPrimersSequences = {};
+    this.assessedPrimers = [];
   }
 
   findPrimer () {
@@ -335,10 +343,11 @@ class PotentialPrimer {
     while(this.i <= (this.sequence.length - this.opts.minPrimerLength)) {
       if(!this.updatePotentialPrimer()) break; // fail
       logger('findPrimer loop', this.i, this.size, this.goodGCContent(), this.polyNPresent(), this.potentialPrimer);
-      if(!this.opts.allowShift && (this.i > 0)) break; // fail
+      if(!this.allowShift && (this.i > 0)) break; // fail
+      this.assessedPrimersSequences[this.potentialPrimer] = undefined;
 
       var polyNIsPresent = this.polyNPresent();
-      if(polyNIsPresent) {
+      if(polyNIsPresent && !this.returnNearestIfNotBest) {
         this.i += (polyNIsPresent.location + polyNIsPresent.repeated - this.opts.maxPolyN);
         continue;
       }
@@ -362,9 +371,17 @@ class PotentialPrimer {
     }
 
     // We have failed to find a good primer.
-    var msg = 'FAIL to findPrimer';
-    logger(msg);
-    this.deferred.reject(msg);
+    if(this.returnNearestIfNotBest) {
+      logger('FAILED to find a perfect primer, returning the best primer we have');
+      this.nearestBestPrimer().then((nearestBestPrimer) => {
+        nearestBestPrimer.optimal = false;
+        this.deferred.resolve(nearestBestPrimer);
+      }).done();
+    } else {
+      var msg = 'FAIL to findPrimer';
+      logger(msg);
+      this.deferred.reject(msg);
+    }
     return;
   }
 
@@ -420,6 +437,9 @@ class PotentialPrimer {
 
     IDTMeltingTemperature(potentialPrimer)
     .then((TmFromIDT) => {
+      this.storePrimer(potentialPrimer, TmFromIDT, logOurTm);
+      // TODO remove assumption that increasing/decreasing potential primer size
+      // increases/decreases Tm.
       if(TmFromIDT < (targetMeltingTemperature - meltingTemperatureTolerance)) {
         this.growOrShiftPotentialPrimer();
         // TODO there's a potential bug here.  We want to grow the primer and now ignore
@@ -455,33 +475,84 @@ class PotentialPrimer {
         } else {
           // SUCCESS!
           logger('SUCCEED to findPrimer');
-          var resultingPrimer = this.toPrimer(TmFromIDT);
+          var resultingPrimer = this.toPrimer(potentialPrimer, TmFromIDT);
+          resultingPrimer.optimal = true;
           this.deferred.resolve(resultingPrimer);
         }
       }
     }).catch(namedHandleError('primer_calculation, checkWithIDT'));
   }
 
-  toPrimer (TmFromIDT) {
-    var to, from;
+  storePrimer (primerSequence, TmFromIDT, ourTm) {
+    this.assessedPrimers.push(this.toPrimer(primerSequence, TmFromIDT, ourTm));
+    delete this.assessedPrimersSequences[primerSequence];
+  }
+
+  nearestBestPrimer () {
+    // Get the Tm any potential primer sequences that lack them so that they can
+    // all be scored
+    var potentialSequences = _.keys(this.assessedPrimersSequences);
+    var num = potentialSequences.length;
+    var sequencesWithOurTms = _.map(potentialSequences, (primerSequence) => {
+      var ourTm = SequenceCalculations.meltingTemperature(primerSequence);
+      var score = this.scoreTm(ourTm);
+      return {primerSequence, ourTm, score};
+    });
+    var sortedSequencesWithOurTms = _.sortBy(sequencesWithOurTms, ({score}) => score);
+    sortedSequencesWithOurTms.reverse();
+
+    var maxIdtQueries = 30;
+    var bestSequencesWithOurTms = sortedSequencesWithOurTms.slice(0, maxIdtQueries);
+    if(num > maxIdtQueries) console.warn(`We were about to send ${num} queries to IDT but will only send ${sortedSequencesWithOurTms.length}`);
+
+    var primerTmPromises = _.map(bestSequencesWithOurTms, ({primerSequence}) => {
+      return IDTMeltingTemperature(primerSequence);
+    });
+
+    var promiseNearestBestPrimer = Q.all(primerTmPromises).then((temperatures) => {
+      _.each(temperatures, (IdtTemp, i) => {
+        var primerAttributes = bestSequencesWithOurTms[i];
+        this.storePrimer(primerAttributes.primerSequence, IdtTemp, primerAttributes.ourTm);
+      });
+    }).then(() => {
+      // Score them by the Tm values from IDT
+      var scores = _.map(this.assessedPrimers, _.bind(this.scorePrimer, this));
+      var optimalIndex = _.indexOf(scores, _.max(scores));
+      return this.assessedPrimers[optimalIndex];
+    });
+    return promiseNearestBestPrimer;
+  }
+
+  scorePrimer (primer) {
+    return this.scoreTm(primer.meltingTemperature);
+  }
+
+  scoreTm (Tm) {
+    return -Math.abs(this.opts.targetMeltingTemperature - Tm);
+  }
+
+  toPrimer (primerSequence, TmFromIDT, ourTm) {
+    var to, frm;
     if(this.opts.findFrom3PrimeEnd) {
-      from = this.sequence.length - this.i - this.potentialPrimer.length;
+      frm = this.sequence.length - this.i - primerSequence.length;
       to = this.sequence.length - this.i - 1;
     } else {
-      from = this.i;
-      to = this.i + this.potentialPrimer.length - 1;
+      frm = this.i;
+      to = this.i + primerSequence.length - 1;
     }
 
-    return new Primer({
-      sequence: this.potentialPrimer,
-      from: from,
+    var primer = new Primer({
+      sequence: primerSequence,
+      from: frm,
       to: to,
       meltingTemperature: TmFromIDT,
+      ourMeltingTemperature: ourTm,
       // Calculate it again.  We shouldn't need to check as with current
       // implementation (as of 2015-03-05) you can only reach here if
       // the gcContent for a shorter primer is valid.
-      gcContent: gcContent(this.potentialPrimer),
+      gcContent: gcContent(primerSequence),
     });
+    return primer;
   }
 
 }
@@ -555,7 +626,6 @@ var stubOutIDTMeltingTemperature = function() {
         'GTTAAGGTAAACTACGAGTTTGGTTAGAGG': 64.8,
         'GGCTTCAACTGATATAGAGTGGAAT': 62.3,
 
-        // double check these
         'CATCGGGGTTTGGTCCTTTA': 61.9,
         'CCATCGGGGTTTGGTCCTTTA': 64.1,
         'CACGACATGCATTAGTTATTATGGG': 62,
@@ -601,6 +671,23 @@ var stubOutIDTMeltingTemperature = function() {
         'GCCGATGCTTTTGCATACGTA': 63.4,
         'CTCATAGCTCACGCTGTAGG': 61.4,
         'TCTCATAGCTCACGCTGTAGG': 62.9,
+
+        'ATTTTGCACATAACTCTAGT': 55.2,
+        'AATTTTGCACATAACTCTAGT': 56.1,
+        'TAATTTTGCACATAACTCTAGT': 56.2,
+        'CTAATTTTGCACATAACTCTAGT': 57.1,
+        'GCTAATTTTGCACATAACTCTAGT': 59.7,
+        'AAAAAAATGATTTTTTTGGC': 53.2,
+        'AAAAAAATGATTTTTTTGGCA': 55.3,
+        'AAAAAAATGATTTTTTTGGCAA': 56.3,
+        'AAAAAAATGATTTTTTTGGCAAT': 56.9,
+        'AAAAAAATGATTTTTTTGGCAATT': 57.7,
+        'AAAAAAATGATTTTTTTGGCAATTT': 58.5,
+        'AAAAAAATGATTTTTTTGGCAATTTT': 59.2,
+        'AAAAAAATGATTTTTTTGGCAATTTTA': 59.2,
+        'AAAAAAATGATTTTTTTGGCAATTTTAG': 59.9,
+        'AAAAAAATGATTTTTTTGGCAATTTTAGA': 61.1,
+        'AAAAAAATGATTTTTTTGGCAATTTTAGAT': 61.5,
       };
       var Tm = Tms[potentialPrimer];
       if(Tm) {
@@ -654,17 +741,22 @@ if(false) {
     useIDT: false
   };
 
-  var checkResult = function(result, testLabel, expectations={}) {
+  var checkResult = function(primer, testLabel, expectations={}) {
     expectations = _.defaults(expectations, {
       gcContentGreaterThan: 0.3,
+      gcContentLessThan: 0.7,
       minimumMeltingTemperature: 62,
+      maximumMeltingTemperature: 65,
+      optimal: true,
     });
-    console.log(`Testing ${testLabel} with result:`, result);
-    console.assert(result.meltingTemperature <= 65, `meltingTemperature should be <= 65 but is ${result.meltingTemperature}`);
-    console.assert(result.meltingTemperature >= expectations.minimumMeltingTemperature,
-      `meltingTemperature should be >= ${expectations.minimumMeltingTemperature} but is ${result.meltingTemperature}`);
-    console.assert(result.gcContent <= 0.7, `gcContent should be <= 0.7 but is ${result.gcContent}`);
-    console.assert(result.gcContent >= expectations.gcContentGreaterThan, `gcContent should be >= ${expectations.gcContentGreaterThan} but is ${result.gcContent}`);
+    console.log(`Testing ${testLabel} with primer:`, primer);
+    console.assert(primer.meltingTemperature >= expectations.minimumMeltingTemperature,
+      `meltingTemperature should be >= ${expectations.minimumMeltingTemperature} but is ${primer.meltingTemperature}`);
+    console.assert(primer.meltingTemperature <= expectations.maximumMeltingTemperature,
+      `meltingTemperature should be <= ${expectations.maximumMeltingTemperature} but is ${primer.meltingTemperature}`);
+    console.assert(primer.gcContent >= expectations.gcContentGreaterThan, `gcContent should be >= ${expectations.gcContentGreaterThan} but is ${primer.gcContent}`);
+    console.assert(primer.gcContent <= expectations.gcContentLessThan, `gcContent should be <= ${expectations.gcContentLessThan} but is ${primer.gcContent}`);
+    console.assert(primer.optimal === expectations.optimal, "Should have " + (expectations.optimal ? "" : "not ") + "been an optimal primer but was" + (expectations.optimal ? " not." : "."));
 
     var fieldsToCheck = [
       ['expectedSequence', 'sequence'],
@@ -674,7 +766,7 @@ if(false) {
     _.each(fieldsToCheck, function(fieldPair) {
       var expectation = expectations[fieldPair[0]];
       var field = fieldPair[1];
-      var actual = result[field];
+      var actual = primer[field];
       if(expectation) {
         console.assert(actual === expectation, `expected ${field}: ${expectation} but got ${actual}`);
       }
@@ -691,10 +783,15 @@ if(false) {
     Q.when(promisedResult).then(asyncCheckResultFactory(testLabel, options));
   };
 
+
+
+  /******************************
+   * TESTS
+   ******************************/
   // Test optimalPrimer3
   checkPromisedResults(optimalPrimer3(sequence1, opts),
     'optimalPrimer3 with sequence1',
-    {gcContentGreaterThan: 0.15, minimumMeltingTemperature: 61.8}
+    {gcContentGreaterThan: 0.15, minimumMeltingTemperature: 61.8, optimal: false}
   );
   checkPromisedResults(optimalPrimer3(sequence1Reversed, opts),
     'optimalPrimer3 with sequence1Reversed'
@@ -707,7 +804,7 @@ if(false) {
   );
   checkPromisedResults(optimalPrimer3(polyASequence, opts),
     'optimalPrimer3 with polyASequence',
-    {gcContentGreaterThan: 0.26}
+    {gcContentGreaterThan: 0.26, optimal: false}
   );
 
   // Test checkForPolyN
@@ -743,42 +840,54 @@ if(false) {
     defaultSequencingPrimerOptions(options);
 
     optimalPrimer4(sequence, options).then(
-    function(optimalPrimer){
-      console.log(`Got optimalPrimer4 results for ${testLabel}, optimalPrimer:`, optimalPrimer);
-      checkResult(optimalPrimer, testLabel, expectations);
+    function(primer){
+      console.log(`Got optimalPrimer4 results for ${testLabel}, primer:`, primer);
+      checkResult(primer, testLabel, expectations);
       optimalPrimer4_TestFinished.resolve();
-    });
+    }).done();
     return optimalPrimer4_TestFinished.promise;
   };
 
   Q.all([
       optimalPrimer4_TestFactory(bothEndsSequence,
-      'optimalPrimer4 with bothEndsSequence',
+      'optimalPrimer4 for Sequencing primer with bothEndsSequence',
       {expectedSequence: 'ATTGATTACGTACAGCACGTATGG', expectedFrom: 0, expectedTo: 23},
       {findFrom3PrimeEnd: false}),
 
       optimalPrimer4_TestFactory(bothEndsSequence,
-      'optimalPrimer4 with bothEndsSequence',
+      'optimalPrimer4 for Sequencing primer with bothEndsSequence',
       {expectedSequence: 'GTGTATCTATTCCTTTTATTGGAGAGGGAG', expectedFrom: 30, expectedTo: 59},
       {findFrom3PrimeEnd: true}),
       
       optimalPrimer4_TestFactory(sequence1,
-      'optimalPrimer4 with sequence1',
+      'optimalPrimer4 for Sequencing primer with sequence1',
       {expectedSequence: 'AATAATAATGGCATACAGGGTGGTG'},
       {findFrom3PrimeEnd: false}),
 
       optimalPrimer4_TestFactory(sequence1,
-      'optimalPrimer4 with sequence1',
+      'optimalPrimer4 for Sequencing primer with sequence1',
       {expectedSequence: 'TATCTATTCCTTTTATTGGAGAGGGAGGAG'}),
       
       optimalPrimer4_TestFactory(sequence2,
-      'optimalPrimer4 with sequence2',
+      'optimalPrimer4 for Sequencing primer with sequence2',
       {expectedSequence: 'CTCTAGTACTACTACTTTTCAACAGGC'},
       {findFrom3PrimeEnd: false}),
 
       optimalPrimer4_TestFactory(sequence2,
-      'optimalPrimer4 with sequence2',
-      {expectedSequence: 'ACTTGGTATGCACGACATGC'})
+      'optimalPrimer4 for Sequencing primer with sequence2',
+      {expectedSequence: 'ACTTGGTATGCACGACATGC'}),
+
+      optimalPrimer4_TestFactory(sequence1,
+      'optimalPrimer4 for PCR primer with sequence1 so limiting to not allowShift from start base',
+      {
+        expectedSequence: 'AAAAAAATGATTTTTTTGGCAATTTTAG',
+        gcContentGreaterThan: 0.1,
+        minimumMeltingTemperature: 59.5,
+        maximumMeltingTemperature: 60.5,
+        optimal: false,
+      },
+      defaultPCRPrimerOptions())
+
   ]).then(restoreIDTMeltingTemperature(oldIDTMeltingTemperature));
 
 }
