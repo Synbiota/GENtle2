@@ -5,6 +5,7 @@
 **/
 define(function(require) {
   var HistoryStep   = require('./history_step'),
+      Backbone      = require('backbone'),
       History;
 
   var HistorySteps = Backbone.Collection.extend({
