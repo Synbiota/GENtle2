@@ -29,6 +29,12 @@ define(function(require) {
       });
     },
 
+    afterRender: function() {
+      this.$('.has-tooltip').tooltip({
+        container: 'body'
+      });
+    },
+
     serialize: function() {
       return {
         results: this.parentView().results || []
