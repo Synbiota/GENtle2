@@ -128,7 +128,7 @@ class AssembleSequenceModel {
       var name = sequence.get('name');
       var type;
 
-      if(false && features.length == 1) { // temporarily disabled
+      if(features.length == 1) {
         if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length() -1) {
           name = features[0].name;
           type = features[0].type;

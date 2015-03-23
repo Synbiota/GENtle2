@@ -245,6 +245,7 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
     margin-left: 20px;
     cursor: move;
     text-align: center;
+    margin-top: -22px;
     &.ui-draggable-dragging {
       padding: 5px 10px;
       background: #ddd;
