@@ -142,13 +142,13 @@ var getPCRProduct = function(sequence, opts) {
 
 
 // Tests
-if(false) {
+if(true) {
   var startOffsetSequence = 'AGAGCAAGA';
-  var GCTGAGCCATTCCCCTTCA = 'GCTGAGCCATTCCCCTTCA';
+  var forwardAnnealingRegionSequence = 'GCTGAGCCATTCCCCTTCA';
   var interveningSequence = 'GATTTTGACCCGTCGG' +
   'CGGCCGCGCCGCCGGCGGGTGTCGATTGAATGAACCAAGGAATTTCGTGATGAAGCACTCTTCGGATATT' +
   'GCGCCGGAATCAGCGGCTA';
-  var TGAGCTGCGCGACGTAT = 'TGAGCTGCGCGACGTAT';
+  var reverseAnnealingRegionSequence = 'TGAGCTGCGCGACGTAT';
   var remainingSequence = 'TTGCTGGAATCGCCCGCCTGCCGCG' +
   'GCGGATTTTCGACATGCAGACGGAGGCGGGGGGACGCATCCGCTCGAAAAACCTGGACGGCAAGGCCGCG' +
   'ATAGAGCTGGGTGCCGGCCGCTACTCGCCGCAACTGCACCCGCAGTTCCAGAGCGTGATGCAAAGCTACA' +
@@ -156,13 +156,13 @@ if(false) {
 
   var sequence = (
     startOffsetSequence +
-    GCTGAGCCATTCCCCTTCA +
+    forwardAnnealingRegionSequence +
     interveningSequence +
-    TGAGCTGCGCGACGTAT +
+    reverseAnnealingRegionSequence +
     remainingSequence
   );
 
-  var ATACGTCGCGCAGCTCA = SequenceTransforms.toReverseComplements(TGAGCTGCGCGACGTAT);
+  var reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
 
   var frm = 9;
   var to = 149;
@@ -189,7 +189,7 @@ if(false) {
   };
 
   var primerResults = [{
-    "sequence": GCTGAGCCATTCCCCTTCA,
+    "sequence": forwardAnnealingRegionSequence,
     "from":0,
     "to":18,
     "meltingTemperature":64.1,
@@ -198,7 +198,7 @@ if(false) {
     "name":"Sequence 1426877294103-16080",
     "ourMeltingTemperature":64.77312154400113
   },{
-    "sequence": ATACGTCGCGCAGCTCA,  // complementary to  TGAGCTGCGCGACGTAT
+    "sequence": reverseAnnealingRegionSequenceComplement,
     "from":0,
     "to":16,
     "meltingTemperature":63.5,
@@ -211,33 +211,33 @@ if(false) {
 
   // Test forwardAnnealingRegion
   var forwardAnnealingRegion = pcrProduct.forwardAnnealingRegion;
-  console.assert(forwardAnnealingRegion.sequence === GCTGAGCCATTCCCCTTCA);
+  console.assert(forwardAnnealingRegion.sequence === forwardAnnealingRegionSequence);
   console.assert(forwardAnnealingRegion.from === 23);
   console.assert(forwardAnnealingRegion.to === 41);
 
   // Test reverseAnnealingRegion
   var reverseAnnealingRegion = pcrProduct.reverseAnnealingRegion;
-  console.assert(reverseAnnealingRegion.sequence === ATACGTCGCGCAGCTCA);
+  console.assert(reverseAnnealingRegion.sequence === reverseAnnealingRegionSequenceComplement);
   console.assert(reverseAnnealingRegion.from === (
     opts.stickyEnds.start.length +
-    GCTGAGCCATTCCCCTTCA.length +
+    forwardAnnealingRegionSequence.length +
     interveningSequence.length +
-    TGAGCTGCGCGACGTAT.length - 1)
+    reverseAnnealingRegionSequence.length - 1)
   );
   console.assert(reverseAnnealingRegion.to === (
     reverseAnnealingRegion.from -
-    TGAGCTGCGCGACGTAT.length)
+    reverseAnnealingRegionSequence.length)
   );
 
   // Test forwardPrimer
   var forwardPrimer = pcrProduct.forwardPrimer;
-  console.assert(forwardPrimer.sequence === opts.stickyEnds.start + GCTGAGCCATTCCCCTTCA);
+  console.assert(forwardPrimer.sequence === opts.stickyEnds.start + forwardAnnealingRegionSequence);
   console.assert(forwardPrimer.from === 0);
   console.assert(forwardPrimer.to === 41);
 
   // Test reversePrimer
   var reversePrimer = pcrProduct.reversePrimer;
-  console.assert(reversePrimer.sequence === SequenceTransforms.toReverseComplements(opts.stickyEnds.end) + ATACGTCGCGCAGCTCA);
+  console.assert(reversePrimer.sequence === SequenceTransforms.toReverseComplements(opts.stickyEnds.end) + reverseAnnealingRegionSequenceComplement);
   console.assert(reversePrimer.from === pcrProduct.sequence.length - 1);
   console.assert(reversePrimer.to === reversePrimer.from - reversePrimer.sequence.length);
 
