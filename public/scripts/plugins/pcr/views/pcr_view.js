@@ -109,13 +109,6 @@ export default Backbone.View.extend({
     }
   },
 
-  getStickyEndOffsets: function(product) {
-    return product.stickyEnds ? [
-      product.stickyEnds.start.length,
-      -product.stickyEnds.end.length
-    ] : [0, 0];
-  },
-
   getSequenceAttributesFromProduct: function(product) {
     var sequenceNts = product.sequence;
     var features = [];

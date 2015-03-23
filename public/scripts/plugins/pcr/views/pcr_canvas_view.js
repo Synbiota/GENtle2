@@ -24,18 +24,14 @@ export default Backbone.View.extend({
 
     if(!this.product) return defaultColor;
 
-    var stickyEndOffsets = this.parentView().getStickyEndOffsets(this.product);
     var featuresColors = LineStyles.features.color;
-    var sequenceLength = this.model.length();
-    var forwardPrimerLength = this.product.forwardPrimer.sequence.length;
-    var reversePrimerLength = this.product.reversePrimer.sequence.length;
 
-    if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] - 1) {
-      return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
-    } else if(pos < forwardPrimerLength || pos >= sequenceLength - reversePrimerLength){
+    if(pos > this.product.forwardPrimer.to && pos <= this.product.reversePrimer.to) {
+      return defaultColor;
+    } else if(pos >= this.product.forwardAnnealingRegion.from && pos <= this.product.reverseAnnealingRegion.from){
       return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
     } else {
-      return defaultColor;
+      return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
     }
   },
 
