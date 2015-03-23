@@ -14,6 +14,7 @@ define(function(require) {
   HomeView = Backbone.View.extend({
     manage: true,
     template: template,
+    className: 'home',
 
     initialize: function() {
 
@@ -21,7 +22,7 @@ define(function(require) {
 
       defaultTabs = [{
         name: 'new-sequence',
-        title: 'New sequence',
+        title: 'New',
         view: NewSequenceView,
         active: true
       }, {
