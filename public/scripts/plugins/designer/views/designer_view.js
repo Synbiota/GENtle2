@@ -19,6 +19,7 @@ define(function(require) {
 
     initialize: function() {
       this.model = new AssembleSequence(Gentle.currentSequence);
+      Gentle.sequences.on('add remove reset sort', this.render, this);
     },
 
     serialize: function() {
@@ -93,7 +94,6 @@ define(function(require) {
 
     getDescriptiveAnnotationContent: function(sequence) {
       var features = sequence.get('features');
-      console.log(sequence)
       if(features.length == 1) {
         var feature = features[0];
         var range = feature.ranges[0];
@@ -117,6 +117,11 @@ define(function(require) {
         view.remove();
       });
     },
+
+    remove: function() {
+      Gentle.sequences.off(null, null, this);
+      Backbone.View.prototype.remove.apply(this, arguments);
+    }
 
   });
 
