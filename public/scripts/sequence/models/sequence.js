@@ -1052,6 +1052,7 @@ SequenceModel.concatenateSequences = function(sequences, circularise=false, trun
 };
 
 
+
 if(false) {
   class StubCurrentUser {
     get () {
