@@ -72,6 +72,33 @@ var calculatePcrProduct = function(sequence, opts, primerResults) {
 };
 
 
+var getSequencesToSearch = function(sequence, opts) {
+  sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
+  opts = defaultPCRPrimerOptions(opts);
+
+  _.defaults(opts, {
+    from: 0,
+    to: sequence.length - 1
+  });
+
+  var frm = opts.from;
+  var to = sequence.length - opts.to - 1;
+  if(opts.to < opts.from) {
+    throw "getPCRProduct `to` is smaller than `from`";
+  } else if((sequence.length - frm) < opts.minPrimerLength) {
+    throw "getPCRProduct `from` is too large to leave enough sequence length to find the primer";
+  } else if (to < opts.minPrimerLength) {
+    throw "getPCRProduct `to` is too small to leave enough sequence length to find the primer";
+  }
+
+  var forwardSequenceToSearch = sequence.substr(frm, opts.maxPrimerLength);
+  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequence);
+  reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
+
+  return [forwardSequenceToSearch, reverseSequenceToSearch];
+};
+
+
 /**
  * getPCRProduct
  * @param  {[type]} sequence
@@ -85,27 +112,7 @@ var calculatePcrProduct = function(sequence, opts, primerResults) {
  * @return {[promise]}       resolves with a hash containing pcrProduct attributes
  */
 var getPCRProduct = function(sequence, opts) {
-  sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
-  opts = defaultPCRPrimerOptions(opts);
-
-  _.defaults(opts, {
-    from: 0,
-    to: sequence.length - 1
-  });
-
-  var frm = opts.from;
-  var to = sequence.length - opts.to;
-  if(opts.to < opts.from) {
-    throw "getPCRProduct `to` is smaller than `from`";
-  } else if((sequence.length - frm) < opts.minPrimerLength) {
-    throw "getPCRProduct `from` is too large to leave enough sequence length to find the primer";
-  } else if (to < opts.minPrimerLength) {
-    throw "getPCRProduct `to` is too small to leave enough sequence length to find the primer";
-  }
-
-  var forwardSequenceToSearch = sequence.substr(frm, opts.maxPrimerLength);
-  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequence);
-  reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
+  var [forwardSequenceToSearch, reverseSequenceToSearch] = getSequencesToSearch(sequence, opts);
 
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
@@ -251,6 +258,12 @@ if(true) {
   );
   console.assert(pcrProduct.meltingTemperature > 91.0);
   console.assert(pcrProduct.meltingTemperature < 91.1);
+
+
+  // Test `getSequencesToSearch()`
+  var [forwardSequenceToSearch, reverseSequenceToSearch] = getSequencesToSearch(sequence, opts);
+  console.assert(forwardSequenceToSearch.indexOf(forwardAnnealingRegionSequence) === 0);
+  console.assert(reverseSequenceToSearch.indexOf(reverseAnnealingRegionSequenceComplement) === 0);
 
 }
 
