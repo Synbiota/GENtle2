@@ -105,12 +105,18 @@ define(function(require) {
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
     },
 
+    showAnnotations: function() {
+      return Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false;
+    },
+
     serialize: function() {
+      var showAnnotations = this.showAnnotations();
       this.processFeatures();
       return {
         sequence: this.sequenceInfo,
+        descriptiveAnnotationContent: this.parentView().getDescriptiveAnnotationContent(this.model),
         features: this.features,
-        showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
+        showAnnotations: showAnnotations,
       };
     },
 

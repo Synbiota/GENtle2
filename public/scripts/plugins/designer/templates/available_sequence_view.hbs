@@ -1,8 +1,13 @@
-<h6 class="designer-available-sequence-name">
+<h5 class="designer-available-sequence-name">
   <i class="glyphicon glyphicon-info-sign incompatible-sequences" title="Sticky ends are not complementary with ends in assembled sequence."></i>
   <i class="glyphicon glyphicon-warning-sign lacks-sticky-end-sequences" title="One or both ends lack sticky ends."></i>
   {{sequence.name}}
-</h6>
+
+  {{#if descriptiveAnnotationContent}}
+    <br>
+    <small>{{descriptiveAnnotationContent}}</small>
+  {{/if}}
+</h5>
 
 {{#unless sequence.hidden}}
   <div class="designer-available-sequence-entireseq btn btn-sm btn-default {{#unless sequence.usable}}disabled{{/unless}}">

@@ -95,6 +95,18 @@ define(function(require) {
       return this.model.isInsertable(sequence);
     },
 
+    getDescriptiveAnnotationContent: function(sequence) {
+      var features = sequence.get('features');
+      console.log(sequence)
+      if(features.length == 1) {
+        var feature = features[0];
+        var range = feature.ranges[0];
+        if(range.from === 0 && range.to >= sequence.length()-1) {
+          return feature.name;
+        }
+      }
+    },
+
     changeSecondaryView: function() {
       // Currently NoOp
     },
