@@ -8,11 +8,18 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   position: absolute;
   right: 10px;
   top: 10px;
+  z-index: 1;
 }
 
 .designer-available-sequence-outlet-container {
-  position: relative;
-  top: 30px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: auto;
+  padding-top: 30px;
+  padding-left: 300px;
 }
 
 .designer-designed-sequence-outlet {
