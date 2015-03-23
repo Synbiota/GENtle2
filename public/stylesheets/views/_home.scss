@@ -1,0 +1,20 @@
+.home {
+  .tab-content {
+    border: 1px solid #ddd;
+    margin-left: -30px;
+    padding-left: 30px;
+    padding-bottom: 30px;
+    padding-top: 5px;
+    min-height: 250px;
+  }
+
+  .tabs-left {
+    border-color: red;
+    border-right: 0;
+
+    li.active a {
+      border-right-color: white;
+      z-index: 1;
+    }
+  }
+}
