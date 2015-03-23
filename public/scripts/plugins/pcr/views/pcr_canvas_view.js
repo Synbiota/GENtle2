@@ -30,7 +30,7 @@ export default Backbone.View.extend({
     var forwardPrimerLength = this.product.forwardPrimer.sequence.length;
     var reversePrimerLength = this.product.reversePrimer.sequence.length;
 
-    if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] -1) {
+    if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] - 1) {
       return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
     } else if(pos < forwardPrimerLength || pos >= sequenceLength - reversePrimerLength){
       return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
@@ -41,7 +41,7 @@ export default Backbone.View.extend({
 
   setProduct: function(product) {
     this.product = product;
-    var sequence = this.parentView().getSequenceFromProduct(product);
+    var sequence = this.parentView().getTemporarySequenceFromProduct(product);
     this.setSequence(sequence);
   },
 

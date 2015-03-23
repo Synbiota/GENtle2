@@ -5,6 +5,7 @@ import ProgressView from './pcr_progress_view';
 import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
+import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {handleError} from '../../../common/lib/handle_error';
 
@@ -109,20 +110,17 @@ export default Backbone.View.extend({
   },
 
   getStickyEndOffsets: function(product) {
-    return !product.stickyEnds ? [0, 0] : [
+    return product.stickyEnds ? [
       product.stickyEnds.start.length,
       -product.stickyEnds.end.length
-    ];
+    ] : [0, 0];
   },
 
-  getSequenceFromProduct: function(product) {
-    var sequenceNts = Gentle.currentSequence.getSubSeq(product.from, product.to);
-    var stickyEndOffsets = this.getStickyEndOffsets(product);
+  getSequenceAttributesFromProduct: function(product) {
+    var sequenceNts = product.sequence;
     var features = [];
 
     if(product.stickyEnds) {
-      sequenceNts = product.stickyEnds.start + sequenceNts + product.stickyEnds.end;
-
       features = features.concat([{
         name: product.stickyEnds.startName + ' end',
         _type: 'sticky_end',
@@ -130,42 +128,50 @@ export default Backbone.View.extend({
           from: 0,
           to: product.stickyEnds.start.length-1
         }]
-      }, {
+      },
+      {
         name: product.stickyEnds.endName + ' end',
         _type: 'sticky_end',
         ranges: [{
-          from: sequenceNts.length - product.stickyEnds.end.length,
-          to: sequenceNts.length-1
+          from: sequenceNts.length - 1,
+          to: sequenceNts.length - 1 - product.stickyEnds.end.length,
         }]
-      }, {
+      },
+      {
         name: 'Annealing region',
         _type: 'annealing_region',
         ranges: [_.pick(product.forwardAnnealingRegion, 'from', 'to')]
-      }, {
+      },
+      {
         name: 'Annealing region',
         _type: 'annealing_region',
         ranges: [_.pick(product.reverseAnnealingRegion, 'from', 'to')]
-      }, {
+      },
+      {
         name: product.forwardPrimer.name,
         _type: 'primer',
-        ranges: [{
-          from: 0,
-          to: product.forwardPrimer.to,
-        }]
-      }, {
+        ranges: [_.pick(product.forwardPrimer, 'from', 'to')]
+      },
+      {
         name: product.reversePrimer.name,
         _type: 'primer',
-        ranges: [{
-          from: sequenceNts.length - product.reversePrimer.sequence.length,
-          to: sequenceNts.length - 1
-        }]
-      }]);
+        ranges: [_.pick(product.reversePrimer, 'from', 'to')]
+      }
+      ]);
     }
 
-    return new TemporarySequence({
+    return {
       sequence: sequenceNts,
       name: product.name,
       features: features,
-    });
+    };
+  },
+
+  getSequenceFromProduct: function(product) {
+    return new Sequence(this.getSequenceAttributesFromProduct(product));
+  },
+
+  getTemporarySequenceFromProduct: function(product) {
+    return new TemporarySequence(this.getSequenceAttributesFromProduct(product));
   },
 });
