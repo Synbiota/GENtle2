@@ -15,7 +15,10 @@ var processReports = function(progressReports) {
 
 
 var calculatePcrProduct = function(sequence, opts, primerResults) {
-  var [forwardAnnealingRegion, reverseAnnealingRegion] = primerResults;
+  var {
+    forwardAnnealingRegion: forwardAnnealingRegion,
+    reverseAnnealingRegion: reverseAnnealingRegion,
+  } = primerResults;
 
   var regionOfInterest = sequence.slice(opts.from, opts.to + 1);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
@@ -95,7 +98,7 @@ var getSequencesToSearch = function(sequence, opts) {
   var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequence);
   reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
 
-  return [forwardSequenceToSearch, reverseSequenceToSearch];
+  return {forwardSequenceToSearch, reverseSequenceToSearch};
 };
 
 
@@ -112,7 +115,10 @@ var getSequencesToSearch = function(sequence, opts) {
  * @return {[promise]}       resolves with a hash containing pcrProduct attributes
  */
 var getPCRProduct = function(sequence, opts) {
-  var [forwardSequenceToSearch, reverseSequenceToSearch] = getSequencesToSearch(sequence, opts);
+  var {
+    forwardSequenceToSearch: forwardSequenceToSearch,
+    reverseSequenceToSearch: reverseSequenceToSearch
+  } = getSequencesToSearch(sequence, opts);
 
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
@@ -135,7 +141,9 @@ var getPCRProduct = function(sequence, opts) {
     //   notify({lastProgress, lastFallbackProgress});
     // })
     .then(function(primerResults) {
-      var pcrProduct = calculatePcrProduct(sequence, opts, primerResults);
+      var forwardAnnealingRegion = primerResults[0];
+      var reverseAnnealingRegion = primerResults[1];
+      var pcrProduct = calculatePcrProduct(sequence, opts, {forwardAnnealingRegion, reverseAnnealingRegion});
       resolve(pcrProduct);
     })
     .catch((e) => {
@@ -149,7 +157,7 @@ var getPCRProduct = function(sequence, opts) {
 
 
 // Tests
-if(true) {
+if(false) {
   var startOffsetSequence = 'AGAGCAAGA';
   var forwardAnnealingRegionSequence = 'GCTGAGCCATTCCCCTTCA';
   var interveningSequence = 'GATTTTGACCCGTCGG' +
@@ -195,24 +203,27 @@ if(true) {
     useIDT: true,
   };
 
-  var primerResults = [{
-    "sequence": forwardAnnealingRegionSequence,
-    "from":0,
-    "to":18,
-    "meltingTemperature":64.1,
-    "gcContent":0.5789473684210527,
-    "id":"1426877294103-16080",
-    "name":"Sequence 1426877294103-16080",
-    "ourMeltingTemperature":64.77312154400113
-  },{
-    "sequence": reverseAnnealingRegionSequenceComplement,
-    "from":0,
-    "to":16,
-    "meltingTemperature":63.5,
-    "gcContent":0.5882352941176471,
-    "id":"1426877290866-1893c",
-    "name":"Sequence 1426877290866-1893c",
-  }];
+  var primerResults = {
+    forwardAnnealingRegion: {
+      sequence: forwardAnnealingRegionSequence,
+      from: 0,
+      to: 18,
+      meltingTemperature: 64.1,
+      gcContent: 0.5789473684210527,
+      id: "1426877294103-16080",
+      name: "Sequence 1426877294103-16080",
+      ourMeltingTemperature: 64.77312154400113,
+    },
+    reverseAnnealingRegion: {
+      sequence: reverseAnnealingRegionSequenceComplement,
+      from: 0,
+      to: 16,
+      meltingTemperature: 63.5,
+      gcContent: 0.5882352941176471,
+      id: "1426877290866-1893c",
+      name: "Sequence 1426877290866-1893c",
+    },
+  };
 
   var pcrProduct = calculatePcrProduct(sequence, opts, _.deepClone(primerResults));
 
@@ -261,7 +272,10 @@ if(true) {
 
 
   // Test `getSequencesToSearch()`
-  var [forwardSequenceToSearch, reverseSequenceToSearch] = getSequencesToSearch(sequence, opts);
+  var {
+    forwardSequenceToSearch: forwardSequenceToSearch,
+    reverseSequenceToSearch: reverseSequenceToSearch,
+  } = getSequencesToSearch(sequence, opts);
   console.assert(forwardSequenceToSearch.indexOf(forwardAnnealingRegionSequence) === 0);
   console.assert(reverseSequenceToSearch.indexOf(reverseAnnealingRegionSequenceComplement) === 0);
 
