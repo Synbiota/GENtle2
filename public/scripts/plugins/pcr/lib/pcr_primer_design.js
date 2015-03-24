@@ -2,6 +2,7 @@ import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import PrimerCalculation from './primer_calculation';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {defaultPCRPrimerOptions} from './primer_defaults';
 import Q from 'q';
 
@@ -14,13 +15,63 @@ var processReports = function(progressReports) {
 };
 
 
+var calculateFeatures = function(pcrProduct) {
+  var features = [];
+  var productAttributes = pcrProduct.attributes;
+
+  if(productAttributes.stickyEnds) {
+    var sequenceNts = productAttributes.sequence;
+    features = [{
+      name: productAttributes.stickyEnds.startName + ' end',
+      _type: 'sticky_end',
+      ranges: [{
+        from: 0,
+        to: productAttributes.stickyEnds.start.length-1
+      }]
+    },
+    {
+      name: productAttributes.stickyEnds.endName + ' end',
+      _type: 'sticky_end',
+      ranges: [{
+        from: sequenceNts.length - 1,
+        to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.length,
+      }]
+    },
+    {
+      name: 'Annealing region',
+      _type: 'annealing_region',
+      ranges: [_.pick(productAttributes.forwardAnnealingRegion, 'from', 'to')]
+    },
+    {
+      name: 'Annealing region',
+      _type: 'annealing_region',
+      ranges: [_.pick(productAttributes.reverseAnnealingRegion, 'from', 'to')]
+    },
+    {
+      name: productAttributes.forwardPrimer.name,
+      _type: 'primer',
+      ranges: [_.pick(productAttributes.forwardPrimer, 'from', 'to')]
+    },
+    {
+      name: productAttributes.reversePrimer.name,
+      _type: 'primer',
+      ranges: [_.pick(productAttributes.reversePrimer, 'from', 'to')]
+    }
+    ];
+  }
+  debugger;
+  return features;
+};
+
+
 var calculatePcrProduct = function(sequence, opts, primerResults) {
+  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
     reverseAnnealingRegion: reverseAnnealingRegion,
   } = primerResults;
 
-  var regionOfInterest = sequence.slice(opts.from, opts.to + 1);
+  var regionOfInterest = sequenceNts.slice(opts.from, opts.to + 1);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
   var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end || '';
 
@@ -58,44 +109,45 @@ var calculatePcrProduct = function(sequence, opts, primerResults) {
     gcContent: SequenceCalculations.gcContent(reversePrimerSequence),
   };
 
-  return {
+  var pcrProduct = new TemporarySequence({
     id: _.uniqueId(),
     name: opts.name,
     // `from` and `to` refer to the parent sequence this PCR product came from
     from: opts.from,
     to: opts.to,
+    sequence: pcrProductSequence,
     forwardAnnealingRegion: forwardAnnealingRegion,
     reverseAnnealingRegion: reverseAnnealingRegion,
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
-    sequence: pcrProductSequence,
     stickyEnds: opts.stickyEnds,
     meltingTemperature: SequenceCalculations.meltingTemperature(pcrProductSequence)
-  };
+  });
+  pcrProduct.set('features', calculateFeatures(pcrProduct));
+  return pcrProduct;
 };
 
 
 var getSequencesToSearch = function(sequence, opts) {
-  sequence = _.isString(sequence) ? sequence : sequence.get('sequence');
+  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   opts = defaultPCRPrimerOptions(opts);
 
   _.defaults(opts, {
     from: 0,
-    to: sequence.length - 1
+    to: sequenceNts.length - 1
   });
 
-  var frm = opts.from;
-  var to = sequence.length - opts.to - 1;
   if(opts.to < opts.from) {
-    throw "getPCRProduct `to` is smaller than `from`";
-  } else if((sequence.length - frm) < opts.minPrimerLength) {
-    throw "getPCRProduct `from` is too large to leave enough sequence length to find the primer";
-  } else if (to < opts.minPrimerLength) {
-    throw "getPCRProduct `to` is too small to leave enough sequence length to find the primer";
+    throw "getPCRProduct `opts.to` is smaller than `opts.from`";
+  } else if((sequenceNts.length - opts.from) < opts.minPrimerLength) {
+    throw "getPCRProduct `opts.from` is too large to leave enough sequence length to find the primer";
+  } else if (opts.to < opts.minPrimerLength) {
+    throw "getPCRProduct `opts.to` is too small to leave enough sequence length to find the primer";
   }
 
-  var forwardSequenceToSearch = sequence.substr(frm, opts.maxPrimerLength);
-  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequence);
+  var forwardSequenceToSearch = sequenceNts.substr(opts.from, opts.maxPrimerLength);
+  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequenceNts);
+  var to = sequenceNts.length - opts.to - 1;
   reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
 
   return {forwardSequenceToSearch, reverseSequenceToSearch};
@@ -226,6 +278,7 @@ if(false) {
   };
 
   var pcrProduct = calculatePcrProduct(sequence, opts, _.deepClone(primerResults));
+  pcrProduct = pcrProduct.attributes;
 
   // Test forwardAnnealingRegion
   var forwardAnnealingRegion = pcrProduct.forwardAnnealingRegion;
