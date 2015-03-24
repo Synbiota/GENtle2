@@ -91,11 +91,15 @@ export default Backbone.View.extend({
   },
 
   getProducts: function() {
-    var productsJson = this.model.get('meta.pcr.products') || [];
+    var attributesOfProducts = this.model.get('meta.pcr.products') || [];
     return _.map(attributesOfProducts, (productAttributes) => new TemporarySequence(productAttributes));
   },
 
   saveProducts: function(products) {
+    // Originally the model attributes were just stored and handled as a hash,
+    // we know want to use a model to handle them.
+    // We call stringify -> parse, to convert everything: vanilla hashes and
+    // backbone models into vanilla hashes.
     var serialisedProducts = JSON.parse(JSON.stringify(products));
     return this.model.set('meta.pcr.products', serialisedProducts).throttledSave();
   },

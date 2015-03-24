@@ -59,7 +59,6 @@ var calculateFeatures = function(pcrProduct) {
     }
     ];
   }
-  debugger;
   return features;
 };
 
