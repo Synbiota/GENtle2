@@ -28,15 +28,15 @@ export default Backbone.View.extend({
     this.pcrPrimerData = data;
     var sequence = this.model;
 
-    PrimerDesign(sequence, data).then((product) => {
+    PrimerDesign(sequence, data).then((pcrProduct) => {
       var parentView = this.parentView();
 
       sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
 
       var products = parentView.getProducts();
-      products.push(product);
+      products.push(pcrProduct);
       parentView.saveProducts(products);
-      parentView.showProducts(product);
+      parentView.showProducts(pcrProduct);
 
     }).progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));

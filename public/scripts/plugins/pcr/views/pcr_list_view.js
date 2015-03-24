@@ -18,7 +18,7 @@ export default Backbone.View.extend({
 
   serialize: function() {
     return {
-      products: this.getProducts(),
+      products: _.map(this.getProducts(), (product) => product.toJSON()),
     };
   },
 
@@ -29,8 +29,9 @@ export default Backbone.View.extend({
   afterRender: function() {
     var showingProduct = this.showingProduct;
     if(showingProduct) {
-      this.$(`[data-product_id="${showingProduct.id}"]`).addClass('panel-info');
-      this.scrollToProduct(showingProduct.id);
+      var id = showingProduct.get('id');
+      this.$(`[data-product_id="${id}"]`).addClass('panel-info');
+      this.scrollToProduct(id);
       this.parentView().showCanvas(showingProduct, false);
     }
 
@@ -44,10 +45,10 @@ export default Backbone.View.extend({
   },
 
   getProduct: function(event) {
-    var products = this.getProducts();
-    var product = $(event.target).closest('.panel').data('product_id');
     event.preventDefault();
-    return _.find(products, {id: product});
+    var products = this.getProducts();
+    var productId = $(event.target).closest('.panel').data('product_id');
+    return _.find(products, (product) => product.get('id') === productId);
   },
 
   showPcrProduct: function(event) {
@@ -67,8 +68,8 @@ export default Backbone.View.extend({
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
     if(product) {
-      var sequence = this.parentView().getSequenceFromProduct(product);
-      Gentle.addSequencesAndNavigate([sequence]);
+      // var sequence = this.parentView().getSequenceFromProduct(product);
+      Gentle.addSequencesAndNavigate([product.asSequence()]);
     }
   },
 

@@ -26,9 +26,9 @@ export default Backbone.View.extend({
 
     var featuresColors = LineStyles.features.color;
 
-    if(pos > this.product.forwardPrimer.to && pos <= this.product.reversePrimer.to) {
+    if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
       return defaultColor;
-    } else if(pos >= this.product.forwardAnnealingRegion.from && pos <= this.product.reverseAnnealingRegion.from){
+    } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
       return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
     } else {
       return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
@@ -36,11 +36,12 @@ export default Backbone.View.extend({
   },
 
   setProduct: function(product) {
+    // var sequence = this.parentView().getTemporarySequenceFromProduct(product);
+    this.setSequence(product);
     this.product = product;
-    var sequence = this.parentView().getTemporarySequenceFromProduct(product);
-    this.setSequence(sequence);
   },
 
+  //TODO refactor this
   setSequence: function(sequence) {
     sequence = TemporarySequence.ensureTemporary(sequence);
     this.model = sequence;

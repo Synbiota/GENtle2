@@ -74,12 +74,13 @@ export default Backbone.View.extend({
     this.setView('#pcr-canvas-container', view);
 
     if(product) {
-      view.setProduct(product);
-      this.showingProductId = product.id;
+      var id = product.get('id');
+      view.setProduct(product);  //TODO refactor
+      this.showingProductId = id;
       this.listView.$('.panel').removeClass('panel-info');
-      this.listView.$('[data-product_id="'+product.id+'"]').addClass('panel-info');
+      this.listView.$('[data-product_id="'+id+'"]').addClass('panel-info');
     } else if(temporarySequence) {
-      view.setSequence(temporarySequence);
+      view.setSequence(temporarySequence);  //TODO refactor
     }
 
     view.render();
@@ -90,11 +91,13 @@ export default Backbone.View.extend({
   },
 
   getProducts: function() {
-    return this.model.get('meta.pcr.products') || [];
+    var productsJson = this.model.get('meta.pcr.products') || [];
+    return _.map(attributesOfProducts, (productAttributes) => new TemporarySequence(productAttributes));
   },
 
   saveProducts: function(products) {
-    return this.model.set('meta.pcr.products', products).throttledSave();
+    var serialisedProducts = JSON.parse(JSON.stringify(products));
+    return this.model.set('meta.pcr.products', serialisedProducts).throttledSave();
   },
 
   deleteProduct: function(product) {
@@ -109,62 +112,4 @@ export default Backbone.View.extend({
     }
   },
 
-  getSequenceAttributesFromProduct: function(product) {
-    var sequenceNts = product.sequence;
-    var features = [];
-
-    if(product.stickyEnds) {
-      features = features.concat([{
-        name: product.stickyEnds.startName + ' end',
-        _type: 'sticky_end',
-        ranges: [{
-          from: 0,
-          to: product.stickyEnds.start.length-1
-        }]
-      },
-      {
-        name: product.stickyEnds.endName + ' end',
-        _type: 'sticky_end',
-        ranges: [{
-          from: sequenceNts.length - 1,
-          to: sequenceNts.length - 1 - product.stickyEnds.end.length,
-        }]
-      },
-      {
-        name: 'Annealing region',
-        _type: 'annealing_region',
-        ranges: [_.pick(product.forwardAnnealingRegion, 'from', 'to')]
-      },
-      {
-        name: 'Annealing region',
-        _type: 'annealing_region',
-        ranges: [_.pick(product.reverseAnnealingRegion, 'from', 'to')]
-      },
-      {
-        name: product.forwardPrimer.name,
-        _type: 'primer',
-        ranges: [_.pick(product.forwardPrimer, 'from', 'to')]
-      },
-      {
-        name: product.reversePrimer.name,
-        _type: 'primer',
-        ranges: [_.pick(product.reversePrimer, 'from', 'to')]
-      }
-      ]);
-    }
-
-    return {
-      sequence: sequenceNts,
-      name: product.name,
-      features: features,
-    };
-  },
-
-  getSequenceFromProduct: function(product) {
-    return new Sequence(this.getSequenceAttributesFromProduct(product));
-  },
-
-  getTemporarySequenceFromProduct: function(product) {
-    return new TemporarySequence(this.getSequenceAttributesFromProduct(product));
-  },
 });
