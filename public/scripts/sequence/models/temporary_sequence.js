@@ -8,6 +8,10 @@ var TemporarySequenceModel = Sequence.extend({
     return this;
   },
 
+  asSequence: function () {
+    return new Sequence(this.attributes);
+  },
+
 });
 
 

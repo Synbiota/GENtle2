@@ -372,18 +372,33 @@ var SequenceModel = Backbone.DeepModel.extend({
   @method featuresInRange
   @param {integer} startBase
   @param {integer} endBase
-  @returns {array} all features present in the range
+  @returns {array} all features present between start and end base
   **/
   featuresInRange: function(startBase, endBase) {
     if (_.isArray(this.attributes.features)) {
-      return _(this.attributes.features).filter(function(feature) {
-        return !!~_.map(feature.ranges, function(range) {
-          return range.from <= endBase && range.to >= startBase;
-        }).indexOf(true);
+      return _(this.attributes.features).filter((feature) => {
+        return this.filterRanges(startBase, endBase, feature.ranges).length > 0;
       });
     } else {
       return [];
     }
+  },
+
+  /**
+   * @method filterRanges
+   * @param  {integer} startBase
+   * @param  {integer} endBase
+   * @param  {array} list of feature ranges
+   * @return {array} all ranges overlapping start and end base
+   */
+  filterRanges: function(startBase, endBase, ranges) {
+    return _.filter(ranges, function(range) {
+      if(range.from < range.to) {
+        return range.from <= endBase && range.to >= startBase;
+      } else {
+        return range.to <= endBase && range.from >= startBase;
+      }
+    });
   },
 
   /**
@@ -1263,6 +1278,15 @@ if(false) {
   console.assert(features[6].name === 'Sequence3AnnotationShouldAlsoBeRemoved');
   console.assert(features[6].ranges[0].from === 27);
   console.assert(features[6].ranges[0].to === 27);
+
+  // Test featuresInRange
+  var features;
+  features = sequence3.featuresInRange(0, 1);
+  console.assert(features.length === 0);
+  features = sequence3.featuresInRange(10, 16);
+  console.assert(features.length === 3);
+  features = sequence3.featuresInRange(15, 15);
+  console.assert(features.length === 2);
 
 
   var error;
