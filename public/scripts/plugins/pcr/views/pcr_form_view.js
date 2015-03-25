@@ -37,7 +37,6 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    // OPTIMIZE: calling `getTemporarySequence` may not be very efficient for long sequences.
     this.renderCanvasSequence();
   },
 
@@ -65,8 +64,10 @@ export default Backbone.View.extend({
   },
 
   renderCanvasSequence: function() {
-    var sequence = this.getTemporarySequence();
-    this.parentView().showCanvas(false, sequence);
+    var sequenceAttributes = this.getSequenceAttributes();
+    // OPTIMIZE: creating a new TemporarySequence each time may not be very efficient for long sequences.
+    var temporarySequence = new TemporarySequence(sequenceAttributes);
+    this.parentView().showCanvas(false, temporarySequence);
   },
 
   updateState: function() {
@@ -84,12 +85,12 @@ export default Backbone.View.extend({
     this.getFieldFor('name').focus();
   },
 
-  getTemporarySequence: function() {
+  getSequenceAttributes: function() {
     // OPTIMIZE: this may not be very efficient for long sequences.
     var frm = this.state.from;
     var to = this.state.to;
     var sequenceNts = this.model.get('sequence').substr(frm, to - frm + 1);
-    return new TemporarySequence({sequence: sequenceNts});
+    return {sequence: sequenceNts, from: frm, to: to};
   },
 
   extractFieldsData: function() {

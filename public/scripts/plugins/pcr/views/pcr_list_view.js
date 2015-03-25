@@ -1,6 +1,7 @@
 import template from '../templates/pcr_list_view.hbs';
 import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
+import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 
 
 export default Backbone.View.extend({
@@ -32,7 +33,7 @@ export default Backbone.View.extend({
       var id = showingProduct.get('id');
       this.$(`[data-product_id="${id}"]`).addClass('panel-info');
       this.scrollToProduct(id);
-      this.parentView().showCanvas(showingProduct, false);
+      this.parentView().showCanvas(showingProduct);
     }
 
     this.$('.has-tooltip').tooltip({
@@ -41,14 +42,14 @@ export default Backbone.View.extend({
   },
 
   getProducts: function() {
-    return this.parentView().getProducts();
+    return getPcrProductsFromSequence(this.model);
   },
 
   getProduct: function(event) {
     event.preventDefault();
     var products = this.getProducts();
     var productId = $(event.target).closest('.panel').data('product_id');
-    return _.find(products, (product) => product.get('id') === productId);
+    return _.find(products, (product) => product.id === productId);
   },
 
   showPcrProduct: function(event) {
@@ -68,7 +69,6 @@ export default Backbone.View.extend({
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
     if(product) {
-      // var sequence = this.parentView().getSequenceFromProduct(product);
       Gentle.addSequencesAndNavigate([product.asSequence()]);
     }
   },

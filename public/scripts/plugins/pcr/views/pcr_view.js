@@ -5,8 +5,7 @@ import ProgressView from './pcr_progress_view';
 import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import Sequence from '../../../sequence/models/sequence';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
+import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 import {handleError} from '../../../common/lib/handle_error';
 
 
@@ -29,8 +28,8 @@ export default Backbone.View.extend({
   initialize: function({showForm}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
 
-    var products = this.getProducts();
-    this.saveProducts(products);
+    var products = getPcrProductsFromSequence(this.model);
+    savePcrProductsToSequence(this.model, products);
 
     this.viewState = (showForm || !products.length) ? viewStates.form : viewStates.products;
 
@@ -69,18 +68,19 @@ export default Backbone.View.extend({
     this.render();
   },
 
+  //TODO refactor
   showCanvas: function(product, temporarySequence) {
     var view = new CanvasView();
     this.setView('#pcr-canvas-container', view);
 
     if(product) {
       var id = product.get('id');
-      view.setProduct(product);  //TODO refactor
+      view.setProduct(product);
       this.showingProductId = id;
       this.listView.$('.panel').removeClass('panel-info');
       this.listView.$('[data-product_id="'+id+'"]').addClass('panel-info');
     } else if(temporarySequence) {
-      view.setSequence(temporarySequence);  //TODO refactor
+      view.setSequence(temporarySequence);
     }
 
     view.render();
@@ -90,25 +90,11 @@ export default Backbone.View.extend({
     this.removeView('#pcr-canvas-container');
   },
 
-  getProducts: function() {
-    var attributesOfProducts = this.model.get('meta.pcr.products') || [];
-    return _.map(attributesOfProducts, (productAttributes) => new TemporarySequence(productAttributes));
-  },
-
-  saveProducts: function(products) {
-    // Originally the model attributes were just stored and handled as a hash,
-    // we know want to use a model to handle them.
-    // We call stringify -> parse, to convert everything: vanilla hashes and
-    // backbone models into vanilla hashes.
-    var serialisedProducts = JSON.parse(JSON.stringify(products));
-    return this.model.set('meta.pcr.products', serialisedProducts).throttledSave();
-  },
-
   deleteProduct: function(product) {
-    var products = this.getProducts();
+    var products = getPcrProductsFromSequence(this.model);
     var idx = products.indexOf(product);
     products.splice(idx, 1);
-    this.saveProducts(products);
+    savePcrProductsToSequence(this.model, products);
     if(_.isEmpty(products)) {
       this.showFormFn();
     } else {

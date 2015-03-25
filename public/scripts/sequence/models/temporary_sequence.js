@@ -20,7 +20,11 @@ TemporarySequenceModel.ensureTemporary = function(sequence, silenceWarning=false
     if(!silenceWarning) {
       console.warn('Sequence should be a TemporarySequence');
     }
-    sequence = new TemporarySequenceModel(_.deepClone(sequence.attributes));
+    if(sequence.attributes) {
+      sequence = new TemporarySequenceModel(_.deepClone(sequence.attributes));
+    } else {
+      throw "Must provide a Backbone model instance";
+    }
   }
   return sequence;
 };

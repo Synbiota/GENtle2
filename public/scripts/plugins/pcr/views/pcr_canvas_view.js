@@ -36,7 +36,6 @@ export default Backbone.View.extend({
   },
 
   setProduct: function(product) {
-    // var sequence = this.parentView().getTemporarySequenceFromProduct(product);
     this.setSequence(product);
     this.product = product;
   },

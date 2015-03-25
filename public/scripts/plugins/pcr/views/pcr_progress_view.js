@@ -1,6 +1,7 @@
 import template from '../templates/pcr_progress_view.hbs';
 import Gentle from 'gentle';
 import PrimerDesign from '../lib/pcr_primer_design';
+import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 
 
 export default Backbone.View.extend({
@@ -33,9 +34,9 @@ export default Backbone.View.extend({
 
       sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
 
-      var products = parentView.getProducts();
+      var products = getPcrProductsFromSequence(sequence);
       products.push(pcrProduct);
-      parentView.saveProducts(products);
+      savePcrProductsToSequence(sequence, products);
       parentView.showProducts(pcrProduct);
 
     }).progress(({lastProgress, lastFallbackProgress}) => {

@@ -15,9 +15,8 @@ var processReports = function(progressReports) {
 };
 
 
-var calculateFeatures = function(pcrProduct) {
+var calculateFeatures = function(productAttributes) {
   var features = [];
-  var productAttributes = pcrProduct.attributes;
 
   if(productAttributes.stickyEnds) {
     var sequenceNts = productAttributes.sequence;
@@ -122,7 +121,7 @@ var calculatePcrProduct = function(sequence, opts, primerResults) {
     stickyEnds: opts.stickyEnds,
     meltingTemperature: SequenceCalculations.meltingTemperature(pcrProductSequence)
   });
-  pcrProduct.set('features', calculateFeatures(pcrProduct));
+  pcrProduct.set('features', calculateFeatures(pcrProduct.attributes));
   return pcrProduct;
 };
 
