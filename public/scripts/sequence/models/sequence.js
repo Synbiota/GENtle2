@@ -1067,6 +1067,18 @@ SequenceModel.concatenateSequences = function(sequences, circularise=false, trun
 };
 
 
+SequenceModel.calculateSequence = function(sequenceNts, opts) {
+  if(_.isUndefined(opts.from) || _.isUndefined(opts.to)) {
+    throw "Must specify `opts.from` and `opts.to`";
+  }
+  var regionOfInterest = sequenceNts.slice(opts.from, opts.to + 1);
+  var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
+  var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end || '';
+
+  var productSequence = startStickyEnd + regionOfInterest + endStickyEnd;
+  return {productSequence, regionOfInterest, startStickyEnd, endStickyEnd};
+}
+
 
 if(false) {
   class StubCurrentUser {

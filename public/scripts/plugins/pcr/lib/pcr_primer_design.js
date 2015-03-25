@@ -2,6 +2,7 @@ import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import PrimerCalculation from './primer_calculation';
+import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {defaultPCRPrimerOptions} from './primer_defaults';
 import Q from 'q';
@@ -69,11 +70,12 @@ var calculatePcrProduct = function(sequence, opts, primerResults) {
     reverseAnnealingRegion: reverseAnnealingRegion,
   } = primerResults;
 
-  var regionOfInterest = sequenceNts.slice(opts.from, opts.to + 1);
-  var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
-  var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end || '';
-
-  var pcrProductSequence = startStickyEnd + regionOfInterest + endStickyEnd;
+  var {
+    productSequence: pcrProductSequence,
+    regionOfInterest: regionOfInterest,
+    startStickyEnd: startStickyEnd,
+    endStickyEnd: endStickyEnd,
+  } = Sequence.calculateSequence(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegion, {
     from: startStickyEnd.length,
