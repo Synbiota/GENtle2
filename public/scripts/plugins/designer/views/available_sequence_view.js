@@ -68,32 +68,39 @@ define(function(require) {
           maxOverlapStackIndex = 0, length,
           $featuresElem;
 
-       for(var i = 0; i < this.features.length; i++) {
+      for(var i = 0; i < this.features.length; i++) {
         feature = this.features[i];
+        var frm = feature.from;
+        var to = feature.to;
+        if(frm>to){
+          to = frm;
+          frm = feature.to;
+        }
         featureWidth = Math.max(
-          Math.floor((feature.to - feature.from + 1) / maxBase * viewWidth), 
+          Math.floor((to - frm + 1) / maxBase * viewWidth), 
           this.minFeatureWidth
         );
         $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
 
         $featureElement.css({
-          left: Math.floor(feature.from / maxBase * viewWidth),
+          left: Math.floor(frm / maxBase * viewWidth),
           width: featureWidth
         });
 
         overlapIndex = overlapStack.length;
 
         for(var j = overlapStack.length - 1; j >= 0; j--) {
-          if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
+          if(overlapStack[j] === undefined || overlapStack[j][1] <= frm) {
             overlapStack[j] = undefined;
             overlapIndex = j;
           }
         }
 
         $featureElement.addClass('designer-available-sequence-feature-stacked-'+overlapIndex);
-        overlapStack[overlapIndex] = [feature.from, feature.to];
+        overlapStack[overlapIndex] = [frm, to];
         maxOverlapStackIndex = Math.max(maxOverlapStackIndex, overlapStack.length);
       }
+
       $featuresElem = this.$('.designer-available-sequence-features');
       $featuresElem.addClass('designer-available-sequence-features-max-overlap-' + maxOverlapStackIndex);
     },
