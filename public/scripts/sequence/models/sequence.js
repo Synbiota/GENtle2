@@ -264,7 +264,6 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   stickyEndConnects: function (sequence) {
-    if(sequence.constructor !== SequenceModel) throw 'Sequence must be a SequenceModel';
     var thisEndStickySequence = this.getEndStickyEndSequence();
     var otherStartStickySequence = sequence.getStartStickyEndSequence();
 
@@ -276,7 +275,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   hasStickyEnds: function() {
     var stickyEnds = this.get('stickyEnds');
-    return stickyEnds && stickyEnds.start && stickyEnds.end;
+    return !!(stickyEnds && stickyEnds.start && stickyEnds.end);
   },
 
   /**
@@ -1077,7 +1076,7 @@ SequenceModel.calculateSequence = function(sequenceNts, opts) {
 
   var productSequence = startStickyEnd + regionOfInterest + endStickyEnd;
   return {productSequence, regionOfInterest, startStickyEnd, endStickyEnd};
-}
+};
 
 
 if(false) {
