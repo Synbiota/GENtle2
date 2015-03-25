@@ -4,8 +4,8 @@
 
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_name"><small>PCR product name</small></label>
-    <div class="col-sm-6">
-      <input type="text" class="form-control input-sm" id="newProduct_name" maxlength="255" required="required">
+    <div class="col-sm-6 {{#if state.invalid.name}}has-error{{/if}}">
+      <input type="text" class="form-control input-sm form-control" id="newProduct_name" maxlength="255" required="required">
     </div>
   </div>
 
@@ -13,11 +13,11 @@
     <label class="col-sm-6 control-label" for="newProduct_from"><small>Base pair range for target sequence</small></label>
     <div class="col-sm-6">
       <div class="row">
-        <div class="col-sm-6">
-          <input type="number" class="form-control input-sm" id="newProduct_from" placeholder="{{plus state.from 1}}" value="{{plus state.from 1}}" required="required">
+        <div class="col-sm-6 {{#if state.invalid.from}}has-error{{/if}}">
+          <input type="number" class="form-control input-sm form-control" id="newProduct_from" placeholder="{{plus state.from 1}}" value="{{plus state.from 1}}" required="required">
         </div>
-        <div class="col-sm-6">
-          <input type="number" class="form-control input-sm" id="newProduct_to" placeholder="{{plus state.to 1}}" value="{{plus state.to 1}}" required="required">
+        <div class="col-sm-6 {{#if state.invalid.to}}has-error{{/if}}">
+          <input type="number" class="form-control input-sm form-control" id="newProduct_to" placeholder="{{plus state.to 1}}" value="{{plus state.to 1}}" required="required">
         </div>
       </div>
     </div>
@@ -32,8 +32,8 @@
 
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_targetMeltingTemperature"><small>Target melting temperature (&deg;C)</small></label>
-    <div class="col-sm-6">
-      <input type="number" class="form-control input-sm" id="newProduct_targetMeltingTemperature" placeholder="{{state.targetMeltingTemperature}}" value="{{state.targetMeltingTemperature}}" required="required">
+    <div class="col-sm-6 {{#if state.invalid.targetMeltingTemperature}}has-error{{/if}}">
+      <input type="number" class="form-control input-sm form-control" id="newProduct_targetMeltingTemperature" placeholder="{{state.targetMeltingTemperature}}" value="{{state.targetMeltingTemperature}}" required="required">
     </div>
   </div>
 

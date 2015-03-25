@@ -10,6 +10,7 @@ export default Backbone.View.extend({
   className: 'new-pcr-product-form-container',
 
   events: {
+    'change input': 'updateState',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'createNewPcrProduct',
@@ -21,7 +22,12 @@ export default Backbone.View.extend({
       from: selectionFrom || 0,
       to: selectionTo || this.model.length()-1,
     }, this.model.get('meta.pcr.defaults') || {},
-    {targetMeltingTemperature: 68});
+    {targetMeltingTemperature: 68.5});
+    this.validateState();
+  },
+
+  validateFields: function() {
+    return ['name', 'from', 'to', 'targetMeltingTemperature'];
   },
 
   serialize: function() {
@@ -47,20 +53,9 @@ export default Backbone.View.extend({
 
   updateStateAndRenderSequence: function(event) {
     this.updateState();
-    var errors = this.validate().errors;
-    if(errors) {
-      this.displayErrors(errors);
-    } else {
+    if(!(this.state.invalid.from || this.state.invalid.to)) {
       this.renderCanvasSequence();
     }
-  },
-
-  validate: function() {
-    // TODO add validation of inputs (currently can enter:
-    //   *  negative numbers
-    //   *  from > to
-    //   *  invalid numbers
-    return {};
   },
 
   renderCanvasSequence: function() {
@@ -71,18 +66,46 @@ export default Backbone.View.extend({
   },
 
   updateState: function() {
+    this.state.name = this.getFieldFor('name').val();
     this.state.from = this.getFieldFor('from').val() - 1;
     this.state.to = this.getFieldFor('to').val() - 1;
+    this.state.targetMeltingTemperature = +this.getFieldFor('targetMeltingTemperature').val();
+    this.validateState();
+    this.updateFormErrors();
+  },
+
+  validateState: function() {
+    var isInteger = (val) => _.isNumber(val) && !_.isNaN(val) && val >= 0;
+    var validBp = (val) => isInteger(val) && val < this.model.get('sequence').length;
+
+    this.state.invalid = {};
+    this.state.invalid.name = !this.state.name;
+    this.state.invalid.from = !validBp(this.state.from);
+    this.state.invalid.to = !validBp(this.state.to);
+    this.state.invalid.targetMeltingTemperature = !isInteger(this.state.targetMeltingTemperature);
+
+    this.state.invalid.any = _.reduce(this.validateFields(), (memo, field) => memo || this.state.invalid[field], false);
+
+    if(this.state.from > this.state.to) {
+      var frm = this.state.from;
+      this.state.from = this.state.to;
+      this.state.to = frm;
+    }
+  },
+
+  updateFormErrors: function() {
+    _.each(this.validateFields(), (field) => {
+      var $field = this.getFieldFor(field).parent();
+      if(this.state.invalid[field]) {
+        $field.addClass('has-error');
+      } else {
+        $field.removeClass('has-error');
+      }
+    });
   },
 
   getFieldFor: function(field) {
     return this.$('#newProduct_'+field);
-  },
-
-  updateRange: function(frm, to) {
-    this.getFieldFor('from').val(frm+1);
-    this.getFieldFor('to').val(to+1);
-    this.getFieldFor('name').focus();
   },
 
   getSequenceAttributes: function() {
@@ -93,30 +116,24 @@ export default Backbone.View.extend({
     return {sequence: sequenceNts, from: frm, to: to};
   },
 
-  extractFieldsData: function() {
-    return _.reduce(_.toArray(arguments), (memo, field) => {
-      var $field = this.getFieldFor(field);
-      memo[field] = $field.val();
-      if($field.attr('type') == 'number') memo[field] = memo[field]^0;
-      return memo;
-    }, {});
-  },
-
   getFormData: function() {
-    var data = this.extractFieldsData(
-      'from', 'to', 'name', 'targetMeltingTemperature'
-    );
-    return _.extend(data, {
-      from: data.from - 1,
-      to: data.to - 1,
-      stickyEnds: _.find(StickyEnds, {name: this.$('#newProduct_stickyEnds').val()})
-    });
+    return {
+      name: this.state.name,
+      from: this.state.from,
+      to: this.state.to,
+      targetMeltingTemperature: this.state.targetMeltingTemperature,
+      stickyEnds: _.find(StickyEnds, {name: this.getFieldFor('stickyEnds').val()})
+    };
   },
 
   createNewPcrProduct: function(event) {
     event.preventDefault();
-    var data = this.getFormData();
-    this.parentView().makePrimer(data);
+    if(this.state.invalid.any) {
+      alert("Some PCR primer details are incorrect or missing.  Please correct them first.");
+    } else {
+      var data = this.getFormData();
+      this.parentView().makePrimer(data);
+    }
   },
 
 });
