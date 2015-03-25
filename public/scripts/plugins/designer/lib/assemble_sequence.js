@@ -1,6 +1,6 @@
-
 import Gentle from 'gentle';
 import SequenceModel from '../../../sequence/models/sequence';
+import {getPcrProductsFromSequence} from '../../pcr/lib/utils';
 
 
 class AssembleSequenceModel {
@@ -30,6 +30,11 @@ class AssembleSequenceModel {
 
   updateInsertabilityState () {
     this.allSequences = Gentle.sequences.without(this.model);
+    // Add any PCR product sequences within the model
+    this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {
+      var pcrProducts = getPcrProductsFromSequence(sequence);
+      return memo.concat(pcrProducts);
+    }, this.allSequences);
     [this.availableSequences, this.lackStickyEndSequences] = _.partition(this.allSequences, (seq) => seq.hasStickyEnds());
 
     _.each(this.availableSequences, (availableSequence) => {
@@ -50,7 +55,7 @@ class AssembleSequenceModel {
     this[methodName] = (...args) => {
       var returnValue = this.model[methodName](...args);
       return (returnValue === this.model) ? this : returnValue;
-    }
+    };
   }
 
   throttledSave () {

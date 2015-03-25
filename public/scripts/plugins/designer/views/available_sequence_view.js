@@ -55,7 +55,7 @@ define(function(require) {
         length: this.model.length(),
         type: 'Sequence',
         features: this.model.get('features'),
-        hidden: this.model.maxOverlappingFeatures()>1,
+        // hidden: this.model.maxOverlappingFeatures()>1,
         usable: this.parentView().isInsertable(this.model),
       };
     },
