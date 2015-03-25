@@ -42,7 +42,7 @@
       <div class="designer-designed-sequence-chunks">
 
         {{#each sequences}}
-          <div class="designer-designed-sequence-chunk-droppable" data-before_index="{{index}}">
+          <div class="designer-designed-sequence-chunk-droppable {{#if ../incompatibleStickyEnds}}{{#if @first}}incompatible-ends{{/if}}{{/if}}" data-before_index="{{index}}">
             Drop sequence here
           </div>
           <div class="designer-designed-sequence-chunk-container" data-sequence_index="{{index}}">
