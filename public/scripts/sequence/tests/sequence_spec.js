@@ -28,6 +28,7 @@ beforeEach(function() {
   spyOn(sequence, 'save'); // Disable save function
 });
 
+
 describe('creating and reading a sequence', function() {
   it('should be able to get the name', function() {
     expect(sequence.get('name')).toEqual('Test sequence');
@@ -63,6 +64,7 @@ describe('when inserting bases into a sequence', function() {
   });
 });
 
+
 describe('when deleting bases from a sequence in the middle of a feature', function() {
 
   beforeEach(function() {
@@ -85,6 +87,7 @@ describe('when deleting bases from a sequence in the middle of a feature', funct
     expect(featureRange.to).toEqual(5);
   });
 });
+
 
 describe('when deleting bases containing an entire sequence', function() {
 

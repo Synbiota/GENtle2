@@ -15,6 +15,7 @@ var gcContent = SequenceCalculations.gcContent;
 var IDTMeltingTemperatureCache = {};
 
 var IDTMeltingTemperature = function(sequence) {
+  // throw "NOT STUBBED!"  // TODO, make this conditional on tests running
   return IDT(sequence).then((result) => {
     return parseFloat(result.MeltTemp);
   });
