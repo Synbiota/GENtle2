@@ -975,56 +975,61 @@ var calculateOverhang = function(sequence, pos) {
 };
 
 
-SequenceModel.concatenateSequences = function(sequences, circularise=false, truncateFeatures=true) {
-  // TODO:  fully support circularise, currently only features are
-  // accepted/rejected because of it.
-  var previousSequence;
+SequenceModel.concatenateSequences = function(sequenceModels, circularise=false, truncateFeatures=true) {
+  var previousSequenceModel;
   var previousStickyEnds;
 
-  var newSequenceAttributes = _.reduce(sequences, function(attributes, sequence, i) {
+  var newSequenceAttributes = _.reduce(sequenceModels, function(attributes, sequenceModel, i) {
     var isFirst = i === 0;
-    var isLast = i === (sequences.length - 1);
-    var stickyEnds = sequence.get('stickyEnds');
-    var sequenceBases = sequence.get('sequence');
+    var isLast = i === (sequenceModels.length - 1);
+    var stickyEnds = sequenceModel.get('stickyEnds');
+    var sequenceNts = sequenceModel.get('sequence');
 
     // Add sticky ends
-    if(isFirst) {
+    if(isFirst && !circularise) {
       if(stickyEnds.start) {
         // Add sticky end at start
         attributes.stickyEnds.start = _.deepClone(stickyEnds.start);
       }
     }
-    if(isLast) {
+    if(isLast && !circularise) {
       if(stickyEnds.end) {
         // Add sticky end at end
         attributes.stickyEnds.end = _.deepClone(stickyEnds.end);
       }
     }
 
-    var appendSequence = sequenceBases;
+    var appendSequenceNts = sequenceNts;
     var offset = 0;
-    if(!isFirst) {
+    if(isFirst && circularise) {
+      previousSequenceModel = sequenceModels[sequenceModels.length-1];
+      previousStickyEnds = previousSequenceModel.get('stickyEnds');
+    }
+    if(previousSequenceModel) {
       // Check sticky ends are compatible
-      if(previousSequence.stickyEndConnects(sequence)) {
+      if(previousSequenceModel.stickyEndConnects(sequenceModel)) {
         attributes.sequence = attributes.sequence.substr(0, attributes.sequence.length - previousStickyEnds.end.offset);
         var toRemove = stickyEnds.start.offset + stickyEnds.start.size;
+        appendSequenceNts = appendSequenceNts.substr(toRemove);
         offset = attributes.sequence.length - toRemove;
-        appendSequence = appendSequence.substr(toRemove);
       } else {
-        throw `Can not concatenate sequences ${previousSequence.get('id')} and ${sequence.get('id')} as they have incompatible sticky ends: \`${previousSequence.getEndStickyEndSequence().sequence}\` and \`${previousSequence.getStartStickyEndSequence().sequence}\``;
+        throw `Can not concatenate sequences ${previousSequenceModel.get('id')} and ${sequenceModel.get('id')} as they have incompatible sticky ends: \`${previousSequenceModel.getEndStickyEndSequence().sequence}\` and \`${sequenceModel.getStartStickyEndSequence().sequence}\``;
       }
     }
+    if(isLast && circularise) {
+      appendSequenceNts = appendSequenceNts.substr(0, appendSequenceNts.length - stickyEnds.end.offset);
+    }
     // Add the suitable sequence bases
-    attributes.sequence += appendSequence;
+    attributes.sequence += appendSequenceNts;
 
     // Add features
-    _.each(sequence.get('features'), (feature) => {
+    _.each(sequenceModel.get('features'), (feature) => {
       var positions = _.flatten(_.map(feature.ranges, (range) => [range.to, range.from]));
       var maxPos = Math.max(...positions);
       var minPos = Math.min(...positions);
       var accepted = true;
-      var overhangStart = sequence.overhangBeyondStartStickyEndOnBothStrands(minPos);
-      var overhangEnd = sequence.overhangBeyondEndStickyEndOnBothStrands(maxPos);
+      var overhangStart = sequenceModel.overhangBeyondStartStickyEndOnBothStrands(minPos);
+      var overhangEnd = sequenceModel.overhangBeyondEndStickyEndOnBothStrands(maxPos);
       if((circularise || !isFirst) && (overhangStart > 0)) {
         accepted = false;
       }
@@ -1040,8 +1045,8 @@ SequenceModel.concatenateSequences = function(sequences, circularise=false, trun
           // 1 long at the start / end of the sequence, which is a) stupid and
           // b) might overlap with another truncated range.  The range should
           // just be dropped completely.
-          var overhangOnFrom = calculateOverhang(sequence, range.from);
-          var overhangOnTo = calculateOverhang(sequence, range.to);
+          var overhangOnFrom = calculateOverhang(sequenceModel, range.from);
+          var overhangOnTo = calculateOverhang(sequenceModel, range.to);
           range.from += offset;
           range.to += offset;
           if(truncateFeatures) {
@@ -1054,7 +1059,7 @@ SequenceModel.concatenateSequences = function(sequences, circularise=false, trun
       }
     });
 
-    previousSequence = sequence;
+    previousSequenceModel = sequenceModel;
     previousStickyEnds = stickyEnds;
     return attributes;
   }, {
@@ -1077,6 +1082,7 @@ SequenceModel.calculateSequence = function(sequenceNts, opts) {
   var productSequence = startStickyEnd + regionOfInterest + endStickyEnd;
   return {productSequence, regionOfInterest, startStickyEnd, endStickyEnd};
 };
+
 
 
 if(false) {
@@ -1149,13 +1155,13 @@ if(false) {
   });
 
   var sequence3 = new SequenceModel({
-    sequence: 'TACCGGGGGGGGGTAGG',
+    sequence: 'GGGTACCGGGGGGGGGTAGG',
     id: 3,
     stickyEnds: {
       // Leave a AT sticky end
       start: {
         reverse: true,
-        offset: 0,
+        offset: 3,
         size: 2,
       },
       // Leave a TA sticky end
@@ -1169,24 +1175,24 @@ if(false) {
       name: 'Sequence3Annotation',
       _type: 'sequence',
       ranges: [{
-        from: 14,
-        to: 14,
+        from: 17,
+        to: 17,
       }]
     },
     {
       name: 'Sequence3AnnotationShouldBeRemoved',
       _type: 'sequence',
       ranges: [{
-        from: 14,
-        to: 15,
+        from: 17,
+        to: 18,
       }]
     },
     {
       name: 'Sequence3AnnotationShouldAlsoBeRemoved',
       _type: 'sequence',
       ranges: [{
-        from: 15,
-        to: 14,
+        from: 18,
+        to: 17,
       }]
     }]
   });
@@ -1290,24 +1296,45 @@ if(false) {
   console.assert(features[6].ranges[0].from === 27);
   console.assert(features[6].ranges[0].to === 27);
 
+  concatenatedSequence = SequenceModel.concatenateSequences([sequence3, sequence3], true, false);
+  console.assert(concatenatedSequence.get('sequence') === 'CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
+  console.assert(_.isEmpty(concatenatedSequence.get('stickyEnds')));
+  features = concatenatedSequence.get('features');
+  console.assert(features.length === 2);
+  console.assert(features[0].name === 'Sequence3Annotation');
+  console.assert(features[0].ranges[0].from === 12);
+  console.assert(features[0].ranges[0].to === 12);
+  console.assert(features[1].name === 'Sequence3Annotation');
+  console.assert(features[1].ranges[0].from === 25);
+  console.assert(features[1].ranges[0].to === 25);
+
+
   // Test featuresInRange
   var features;
   features = sequence3.featuresInRange(0, 1);
   console.assert(features.length === 0);
-  features = sequence3.featuresInRange(10, 16);
+  features = sequence3.featuresInRange(13, 19);
   console.assert(features.length === 3);
-  features = sequence3.featuresInRange(15, 15);
+  features = sequence3.featuresInRange(18, 18);
   console.assert(features.length === 2);
 
 
   var error;
   try {
-    SequenceModel.concatenateSequences([sequence1, sequence2, sequence2]);
+    SequenceModel.concatenateSequences([sequence1, sequence2, sequence2], false);
   } catch (e) {
     error = e;
   }
   console.assert(error === 'Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AT`');
+  error = undefined;
 
+  try {
+    SequenceModel.concatenateSequences([sequence1, sequence2], true);
+  } catch (e) {
+    error = e;
+  }
+  console.assert(error === 'Can not concatenate sequences 2 and 1 as they have incompatible sticky ends: `` and ``');
+  error = undefined;
 
   delete Gentle.currentUser;
 }

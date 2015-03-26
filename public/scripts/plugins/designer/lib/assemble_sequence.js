@@ -118,7 +118,7 @@ class AssembleSequenceModel {
   }
 
   assembleSequences () {
-    var finalSequence = SequenceModel.concatenateSequences(this.sequences);
+    var finalSequence = SequenceModel.concatenateSequences(this.sequences, this.model.get('isCircular'));
     this.set({
       sequence: finalSequence.get('sequence'),
       features: finalSequence.get('features'),
