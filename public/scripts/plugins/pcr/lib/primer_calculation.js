@@ -1,10 +1,9 @@
 import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import {handleError, namedHandleError} from '../../../common/lib/handle_error';
-import {filterPrimerOptions, defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
+import {filterPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
 
@@ -15,6 +14,7 @@ var gcContent = SequenceCalculations.gcContent;
 var IDTMeltingTemperatureCache = {};
 
 var _IDTMeltingTemperature = function(sequence) {
+  //TODO make this work
   if(window.TESTS_RUNNING) throw "NOT STUBBED!";
   return IDT(sequence).then((result) => {
     return parseFloat(result.MeltTemp);
@@ -287,6 +287,7 @@ var optimalPrimer4 = function(sequence, opts={}) {
 
 // Stubs for tests
 var stubOutIDTMeltingTemperature = function(newFunction) {
+  if(!_.isFunction(newFunction)) console.error('newFunction is not a function!', newFunction);
   IDTMeltingTemperature = newFunction;
 };
 

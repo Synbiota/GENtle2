@@ -3,6 +3,7 @@ import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import getAllPrimersAndProducts from '../lib/sequencing_primers_design';
 import Primer from '../../pcr/lib/primer';
 
+import idtMeltingTemperatureStub from '../../pcr/tests/idt_stub';
 import {mikeForward1} from '../../pcr/lib/universal_primers';
 import {sequence863, sequenceFromMike} from './test_sequences';
 import {expected863Primers, expectedMikePrimers} from './test_expected_primers';
@@ -43,13 +44,10 @@ var getAllPrimersAndProducts_TestFactory = function(sequence, testLabel, firstPr
 };
 
 
-var oldIDTMeltingTemperature;
 
 describe('finding Sequencing Primers', function() {
   beforeEach(function(done) {
-    if(!oldIDTMeltingTemperature) {
-      oldIDTMeltingTemperature = PrimerCalculation.stubOutIDTMeltingTemperature();
-    }
+    PrimerCalculation.stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
     done();
   });
 
@@ -77,7 +75,7 @@ describe('finding Sequencing Primers', function() {
   });
 
   it('finally: teardown', function(done) {
-    PrimerCalculation.restoreIDTMeltingTemperature(oldIDTMeltingTemperature);
+    PrimerCalculation.restoreIDTMeltingTemperature();
     done();
   });
 });

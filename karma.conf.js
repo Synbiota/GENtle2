@@ -1,4 +1,3 @@
-window.TESTS_RUNNING = true;
 var _ = require('underscore');
 
 
