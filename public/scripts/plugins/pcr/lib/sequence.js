@@ -55,7 +55,7 @@ class Sequence {
 
     if(this.sequence) {
       var len = this.sequence.length;
-      assertion((len >= this.length()), `length of sequence: \`${len}\` is less than length of primer: ${this.length()} (\`from\` ${this.from} and \`to\` ${this.to})`);
+      assertion((len >= this.length()), `length of sequence '${len}' is less than length of primer '${this.length()}' (\`from\` ${this.from} and \`to\` ${this.to})`);
     }
   }
 
