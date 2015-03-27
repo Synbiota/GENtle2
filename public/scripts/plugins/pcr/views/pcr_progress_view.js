@@ -1,6 +1,6 @@
 import template from '../templates/pcr_progress_view.hbs';
 import Gentle from 'gentle';
-import PrimerDesign from '../lib/pcr_primer_design';
+import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 
 
@@ -29,7 +29,7 @@ export default Backbone.View.extend({
     this.pcrPrimerData = data;
     var sequence = this.model;
 
-    PrimerDesign(sequence, data).then((pcrProduct) => {
+    getPcrProductAndPrimers(sequence, data).then((pcrProduct) => {
       var parentView = this.parentView();
 
       sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
@@ -48,7 +48,7 @@ export default Backbone.View.extend({
       handleError('new PCR, view error:', e);
       this.$('.new-pcr-progress').slideUp();
       this.$('.new-pcr-progress-error').slideDown();
-    });
+    }).done();
   },
 
   calcTotal: function({current, total}) {

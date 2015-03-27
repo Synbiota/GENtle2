@@ -63,7 +63,17 @@ var calculateFeatures = function(productAttributes) {
 };
 
 
-var calculatePcrProduct = function(sequence, opts, primerResults) {
+/**
+ * calculatePcrProductFromPrimers
+ * @param  {string} sequence nucleotides
+ * @param  {hash}   opts must contain `name`, `from`, `to`, `stickyEnds`
+ * @param  {hash}   primerResults must contain `forwardAnnealingRegion`, `reverseAnnealingRegion`
+ * @return {TemporarySequence}
+ *
+ * We export it to be accessible to tests
+ */
+var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
+  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
   var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
@@ -138,11 +148,11 @@ var getSequencesToSearch = function(sequence, opts) {
   });
 
   if(opts.to < opts.from) {
-    throw "getPCRProduct `opts.to` is smaller than `opts.from`";
+    throw "getPcrProductAndPrimers `opts.to` is smaller than `opts.from`";
   } else if((sequenceNts.length - opts.from) < opts.minPrimerLength) {
-    throw "getPCRProduct `opts.from` is too large to leave enough sequence length to find the primer";
+    throw "getPcrProductAndPrimers `opts.from` is too large to leave enough sequence length to find the primer";
   } else if (opts.to < opts.minPrimerLength) {
-    throw "getPCRProduct `opts.to` is too small to leave enough sequence length to find the primer";
+    throw "getPcrProductAndPrimers `opts.to` is too small to leave enough sequence length to find the primer";
   }
 
   var forwardSequenceToSearch = sequenceNts.substr(opts.from, opts.maxPrimerLength);
@@ -155,7 +165,7 @@ var getSequencesToSearch = function(sequence, opts) {
 
 
 /**
- * getPCRProduct
+ * getPcrProductAndPrimers
  * @param  {[type]} sequence
  * @param  {[type]} opts     opts.from and opts.to specify the start and the end
  *                           of the ROI (Region of interest, the desired sequence)
@@ -166,7 +176,7 @@ var getSequencesToSearch = function(sequence, opts) {
  *                           sequence.
  * @return {[promise]}       resolves with a hash containing pcrProduct attributes
  */
-var getPCRProduct = function(sequence, opts) {
+var getPcrProductAndPrimers = function(sequence, opts) {
   var {
     forwardSequenceToSearch: forwardSequenceToSearch,
     reverseSequenceToSearch: reverseSequenceToSearch
@@ -195,11 +205,11 @@ var getPCRProduct = function(sequence, opts) {
     .then(function(primerResults) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];
-      var pcrProduct = calculatePcrProduct(sequence, opts, {forwardAnnealingRegion, reverseAnnealingRegion});
+      var pcrProduct = calculatePcrProductFromPrimers(sequence, opts, {forwardAnnealingRegion, reverseAnnealingRegion});
       resolve(pcrProduct);
     })
     .catch((e) => {
-      console.error('getpcrproduct err', e);
+      console.error('getPcrProductAndPrimers err', e);
       reject(e);
     });
 
@@ -208,130 +218,8 @@ var getPCRProduct = function(sequence, opts) {
 };
 
 
-// Tests
-if(false) {
-  var startOffsetSequence = 'AGAGCAAGA';
-  var forwardAnnealingRegionSequence = 'GCTGAGCCATTCCCCTTCA';
-  var interveningSequence = 'GATTTTGACCCGTCGG' +
-  'CGGCCGCGCCGCCGGCGGGTGTCGATTGAATGAACCAAGGAATTTCGTGATGAAGCACTCTTCGGATATT' +
-  'GCGCCGGAATCAGCGGCTA';
-  var reverseAnnealingRegionSequence = 'TGAGCTGCGCGACGTAT';
-  var remainingSequence = 'TTGCTGGAATCGCCCGCCTGCCGCG' +
-  'GCGGATTTTCGACATGCAGACGGAGGCGGGGGGACGCATCCGCTCGAAAAACCTGGACGGCAAGGCCGCG' +
-  'ATAGAGCTGGGTGCCGGCCGCTACTCGCCGCAACTGCACCCGCAGTTCCAGAGCGTGATGCAAAGCTACA' +
-  'GCCAGCGCAGCGAACGCTATCCCTTCACCCAGCTGAAATTCAAGAACCGCGTCCAGCAAACGCTGAAAAG';
-
-  var sequence = (
-    startOffsetSequence +
-    forwardAnnealingRegionSequence +
-    interveningSequence +
-    reverseAnnealingRegionSequence +
-    remainingSequence
-  );
-
-  var reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
-
-  var frm = 9;
-  var to = 149;
-
-  var opts = {
-    from: frm,
-    to: to,
-    name: "vioA",
-    targetMeltingTemperature: 65,
-    stickyEnds: {
-      name: "X-Z'",
-      startName: "X",
-      endName: "Z'",
-      start: "CCTGCAGTCAGTGGTCTCTAGAG",
-      end: "GAGATGAGACCGTCAGTCACGAG",
-      startOffset: 19,
-      endOffset: -19
-    },
-    minPrimerLength: 10,
-    maxPrimerLength: 40,
-    meltingTemperatureTolerance: 1.5,
-    targetGcContent: 0.5,
-    useIDT: true,
-  };
-
-  var primerResults = {
-    forwardAnnealingRegion: {
-      sequence: forwardAnnealingRegionSequence,
-      from: 0,
-      to: 18,
-      meltingTemperature: 64.1,
-      gcContent: 0.5789473684210527,
-      id: "1426877294103-16080",
-      name: "Sequence 1426877294103-16080",
-      ourMeltingTemperature: 64.77312154400113,
-    },
-    reverseAnnealingRegion: {
-      sequence: reverseAnnealingRegionSequenceComplement,
-      from: 0,
-      to: 16,
-      meltingTemperature: 63.5,
-      gcContent: 0.5882352941176471,
-      id: "1426877290866-1893c",
-      name: "Sequence 1426877290866-1893c",
-    },
-  };
-
-  var pcrProduct = calculatePcrProduct(sequence, opts, _.deepClone(primerResults));
-  pcrProduct = pcrProduct.attributes;
-
-  // Test forwardAnnealingRegion
-  var forwardAnnealingRegion = pcrProduct.forwardAnnealingRegion;
-  console.assert(forwardAnnealingRegion.sequence === forwardAnnealingRegionSequence);
-  console.assert(forwardAnnealingRegion.from === 23);
-  console.assert(forwardAnnealingRegion.to === 41);
-
-  // Test reverseAnnealingRegion
-  var reverseAnnealingRegion = pcrProduct.reverseAnnealingRegion;
-  console.assert(reverseAnnealingRegion.sequence === reverseAnnealingRegionSequenceComplement);
-  console.assert(reverseAnnealingRegion.from === (
-    opts.stickyEnds.start.length +
-    forwardAnnealingRegionSequence.length +
-    interveningSequence.length +
-    reverseAnnealingRegionSequence.length - 1)
-  );
-  console.assert(reverseAnnealingRegion.to === (
-    reverseAnnealingRegion.from -
-    reverseAnnealingRegionSequence.length)
-  );
-
-  // Test forwardPrimer
-  var forwardPrimer = pcrProduct.forwardPrimer;
-  console.assert(forwardPrimer.sequence === opts.stickyEnds.start + forwardAnnealingRegionSequence);
-  console.assert(forwardPrimer.from === 0);
-  console.assert(forwardPrimer.to === 41);
-
-  // Test reversePrimer
-  var reversePrimer = pcrProduct.reversePrimer;
-  console.assert(reversePrimer.sequence === SequenceTransforms.toReverseComplements(opts.stickyEnds.end) + reverseAnnealingRegionSequenceComplement);
-  console.assert(reversePrimer.from === pcrProduct.sequence.length - 1);
-  console.assert(reversePrimer.to === reversePrimer.from - reversePrimer.sequence.length);
-
-  console.assert(pcrProduct.to === to);
-  console.assert(pcrProduct.from === frm);
-  console.assert(pcrProduct.name === 'vioA');
-  console.assert(pcrProduct.sequence === (
-    forwardPrimer.sequence +
-    interveningSequence +
-    SequenceTransforms.toReverseComplements(reversePrimer.sequence))
-  );
-  console.assert(pcrProduct.meltingTemperature > 91.0);
-  console.assert(pcrProduct.meltingTemperature < 91.1);
-
-
-  // Test `getSequencesToSearch()`
-  var {
-    forwardSequenceToSearch: forwardSequenceToSearch,
-    reverseSequenceToSearch: reverseSequenceToSearch,
-  } = getSequencesToSearch(sequence, opts);
-  console.assert(forwardSequenceToSearch.indexOf(forwardAnnealingRegionSequence) === 0);
-  console.assert(reverseSequenceToSearch.indexOf(reverseAnnealingRegionSequenceComplement) === 0);
-
-}
-
-export default getPCRProduct;
+export {
+  calculatePcrProductFromPrimers,
+  getPcrProductAndPrimers,
+  getSequencesToSearch
+};
