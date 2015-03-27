@@ -36,7 +36,6 @@ var splitSequence = function(sequence) {
 };
 
 var aggregateProgress = function(statusesArray) {
-  console.log(status)
   var total = _.reduce(statusesArray, (memo, i) => memo + i.total, 0);
   return total ? _.reduce(statusesArray, (memo, i) => memo + i.current, 0)/total : 0;
 };
@@ -199,6 +198,7 @@ var calculateProductAndModifyPrimer = function(productsAndPrimers, offset, seque
 
   return {offset, newPreviousPrimer, remainingSequence};
 };
+
 
 /**
  * [getAllPrimersAndProducts description]

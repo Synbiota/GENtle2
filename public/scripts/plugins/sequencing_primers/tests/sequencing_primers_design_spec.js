@@ -11,30 +11,32 @@ import {expected863Primers, expectedMikePrimers} from './test_expected_primers';
 var checkResult = function(testLabel, expectedPrimersAndProducts, calculatedPrimersAndProducts) {
   var productFields = ['from', 'to', 'name'];
   var primerFields = ['from', 'to', 'name', 'sequence', 'meltingTemperature', 'gcContent'];
-  _.each(expectedPrimersAndProducts, function(expectedProductAndPrimer, i){
+  _.each(expectedPrimersAndProducts, function(expectedProductAndPrimer, i) {
     _.each(productFields, function(productField, j) {
       var expected = expectedProductAndPrimer[productField];
       var calculated = calculatedPrimersAndProducts[i][productField];
-      expect(expected).toEqual(calculated); //, `productField \`${productField}\`: expected ${expected} and calculated ${calculated} are not equal.`);
+      expect(expected).toEqual(calculated);
     });
     _.each(primerFields, function(primerField, j) {
       var expected = expectedProductAndPrimer.primer[primerField];
       var calculated = calculatedPrimersAndProducts[i].primer[primerField];
-      expect(expected).toEqual(calculated); //, `primerField \`${primerField}\`: expected ${expected} and calculated ${calculated} are not equal.`);
+      expect(expected).toEqual(calculated);
     });
   });
 };
+
 
 var getAllPrimersAndProducts_TestFactory = function(sequence, testLabel, firstPrimerDetails, expectedPrimersAndProducts) {
   // console.log(`Set up getAllPrimersAndProducts test for ${testLabel}`);
 
   var firstPrimer = new Primer(firstPrimerDetails);
   var promisePrimersAndProducts = getAllPrimersAndProducts(sequence, firstPrimer, defaultSequencingPrimerOptions())
-  .then(function(calculatedPrimersAndProducts){
+  .then(function(calculatedPrimersAndProducts) {
     // console.log(`Got getAllPrimersAndProducts results for ${testLabel}, calculatedPrimersAndProducts:`, calculatedPrimersAndProducts);
     checkResult(testLabel, expectedPrimersAndProducts, calculatedPrimersAndProducts);
-  }).catch(function(e){
+  }).catch(function(e) {
     console.error(e);
+    expect('Ensure tests fail on error').toEqual(false);
   });
   
   return promisePrimersAndProducts;
@@ -43,17 +45,15 @@ var getAllPrimersAndProducts_TestFactory = function(sequence, testLabel, firstPr
 
 var oldIDTMeltingTemperature;
 
-beforeEach(function(done) {
-  if(!oldIDTMeltingTemperature) {
-    oldIDTMeltingTemperature = PrimerCalculation.stubOutIDTMeltingTemperature();
-  }
-  done();
-});
-
-
 describe('finding Sequencing Primers', function() {
-  it('find primers for sequence863', function(done) {
+  beforeEach(function(done) {
+    if(!oldIDTMeltingTemperature) {
+      oldIDTMeltingTemperature = PrimerCalculation.stubOutIDTMeltingTemperature();
+    }
+    done();
+  });
 
+  it('find primers for sequence863', function(done) {
     var firstPrimerDetails = {
       sequence: 'AAAGGGAAAGGGAAACCCAAA',
       name: 'First (universal) primer',
@@ -80,6 +80,4 @@ describe('finding Sequencing Primers', function() {
     PrimerCalculation.restoreIDTMeltingTemperature(oldIDTMeltingTemperature);
     done();
   });
-
 });
-
