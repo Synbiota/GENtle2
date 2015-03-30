@@ -85,7 +85,7 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
     endStickyEnd: endStickyEnd,
-  } = Sequence.calculateSequence(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
+  } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegion, {
     from: startStickyEnd.length,

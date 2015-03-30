@@ -35,7 +35,7 @@ var getPcrProductsFromSequence = function(sequenceModel) {
     if(!productAttributes.sequence) {
       var sequenceNts = sequenceModel.get('sequence');
       var opts = _.pick(productAttributes, ['from', 'to', 'stickyEnds']);
-      var {productSequence: productSequenceNts} = TemporarySequence.calculateSequence(sequenceNts, opts);
+      var {productSequence: productSequenceNts} = TemporarySequence.calculateProduct(sequenceNts, opts);
       productAttributes.sequence = productSequenceNts;
     }
 

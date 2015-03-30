@@ -1071,7 +1071,7 @@ SequenceModel.concatenateSequences = function(sequenceModels, circularise=false,
 };
 
 
-SequenceModel.calculateSequence = function(sequenceNts, opts) {
+SequenceModel.calculateProduct = function(sequenceNts, opts) {
   if(_.isUndefined(opts.from) || _.isUndefined(opts.to)) {
     throw "Must specify `opts.from` and `opts.to`";
   }
