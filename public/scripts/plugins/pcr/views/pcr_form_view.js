@@ -33,7 +33,7 @@ export default Backbone.View.extend({
   serialize: function() {
     return {
       state: this.state,
-      availableStickyEnds: _.map(StickyEnds, function(end) {
+      availableStickyEnds: _.map(StickyEnds(), function(end) {
         return {
           name: end.name,
           value: end.name
@@ -122,7 +122,7 @@ export default Backbone.View.extend({
       from: this.state.from,
       to: this.state.to,
       targetMeltingTemperature: this.state.targetMeltingTemperature,
-      stickyEnds: _.find(StickyEnds, {name: this.getFieldFor('stickyEnds').val()})
+      stickyEnds: _.find(StickyEnds(), {name: this.getFieldFor('stickyEnds').val()})
     };
   },
 

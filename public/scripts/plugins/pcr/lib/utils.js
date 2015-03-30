@@ -7,7 +7,7 @@ var transformStickyEndData = function(stickyEndAttributes) {
   if(_.isString(stickyEndAttributes.start)) {
     // We're dealing with an old stickyEnd.  Try to transform it into the
     // new form
-    var matchedStickyEnds = _.filter(stickyEnds, (stickyEnd) => {
+    var matchedStickyEnds = _.filter(stickyEnds(), (stickyEnd) => {
       return (
         stickyEnd.start.sequence === stickyEndAttributes.start &&
         stickyEnd.end.sequence === stickyEndAttributes.end &&
@@ -58,42 +58,8 @@ var savePcrProductsToSequence = function(sequenceModel, products) {
 };
 
 
-// Testing
-if(false) {
-  var getOldStickyEndAttributes = function() {
-    return {
-      name: "X-Z'",
-      startName: "X",
-      endName: "Z'",
-      start: "CCTGCAGTCAGTGGTCTCTAGAG",
-      end: "GAGATGAGACCGTCAGTCACGAG",
-      startOffset: 19,
-      endOffset: -19
-    };
-  };
-  var getExpectedStickyEndAttributes = function() {
-    return {
-      name: "X-Z'",
-      start: {
-        sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
-        reverse: false,
-        offset: 19,
-        size: 4,
-        name: "X",
-      },
-      end: {
-        sequence: 'GAGATGAGACCGTCAGTCACGAG',
-        reverse: true,
-        offset: 19,
-        size: 4,
-        name: "Z'",
-      }
-    };
-  };
-
-  var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributes());
-  console.assert(_.isEqual(transformedStickyEndData, getExpectedStickyEndAttributes()));
-}
-
-
-export default {getPcrProductsFromSequence, savePcrProductsToSequence};
+export default {
+  getPcrProductsFromSequence,
+  savePcrProductsToSequence,
+  transformStickyEndData, // exposed for testing.
+};
