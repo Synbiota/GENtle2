@@ -2,7 +2,7 @@ import {transformStickyEndData} from '../lib/utils';
 import stickyEnds from '../../../common/lib/sticky_ends';
 
 
-var getOldStickyEndAttributes = function() {
+var getOldStickyEndAttributesXZp = function() {
   return {
     name: "X-Z'",
     startName: "X",
@@ -15,10 +15,28 @@ var getOldStickyEndAttributes = function() {
 };
 
 
+var getOldStickyEndAttributesZXp = function() {
+  return {
+    name: "Z-X'",
+    startName: "Z",
+    endName: "X'",
+    start: "GAGATGAGACCGTCAGTCACGAG",
+    end: "CCTGCAGTCAGTGGTCTCTAGAG",
+    startOffset: 0,
+    endOffset: 0
+  };
+};
+
+
 describe('pcr utils', function() {
-  it('should correctly transform old stickyEnd data', function() {
-    var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributes());
+  it("should correctly transform old X-Z' stickyEnd data", function() {
+    var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributesXZp());
     expect(transformedStickyEndData).toEqual(stickyEnds()[0]);
+  });
+
+  it("should correctly transform old Z-X' stickyEnd data", function() {
+    var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributesZXp());
+    expect(transformedStickyEndData).toEqual(stickyEnds()[1]);
   });
 
   it('should leave already correct stickyEnd data unaltered', function() {

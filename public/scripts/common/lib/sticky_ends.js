@@ -14,7 +14,24 @@ var stickyEnds = [{
     size: 4,
     name: "Z'",
   }
-}];
+},
+{
+  start: {
+    sequence: 'GAGATGAGACCGTCAGTCACGAG',
+    reverse: false,
+    offset: 0,
+    size: 4,
+    name: "Z",
+  },
+  end: {
+    sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+    reverse: true,
+    offset: 0,
+    size: 4,
+    name: "X'",
+  }
+}
+];
 
 _.each(stickyEnds, (stickyEnd) => stickyEnd.name = `${stickyEnd.start.name}-${stickyEnd.end.name}`);
 
