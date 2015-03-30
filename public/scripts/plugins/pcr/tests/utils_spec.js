@@ -1,5 +1,5 @@
 import {transformStickyEndData} from '../lib/utils';
-import {stickyEnds} from '../../../common/lib/sticky_ends';
+import stickyEnds from '../../../common/lib/sticky_ends';
 
 
 var getOldStickyEndAttributes = function() {
