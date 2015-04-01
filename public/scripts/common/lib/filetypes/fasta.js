@@ -1,61 +1,65 @@
-define(function(require) {
-  //________________________________________________________________________________________
-  // FASTA
 
-  var FT_base = require('./base'),
-      FT_fasta;
+//________________________________________________________________________________________
+// FASTA
 
-  FT_fasta = function() {
-    this.typeName = 'FASTA' ;
-  };
+import FT_base from './base';
 
-  FT_fasta.prototype = new FT_base() ;
+var FT_fasta = function() {
+  this.typeName = 'FASTA' ;
+};
 
-  /**
-    Implements a FASTA file reader/writer.
-    @class FT_fasta
-    @extends Filetype
-  */
-  FT_fasta.prototype.constructor = FT_fasta ;
 
-  FT_fasta.prototype.getFileExtension = function () {
-    return 'fasta' ;
-  };
+FT_fasta.prototype = new FT_base() ;
 
-  FT_fasta.prototype.getExportString = function ( sequence ) {
-    var ret = '' ;
-    ret += ">" + sequence.name + "\n" ;
-    var s = sequence.sequence ;
-    while ( s !== '' ) {
-      ret += s.substr ( 0 , 60 ) + "\n" ;
-      s = s.substr ( 60 , s.length-60 ) ;
+/**
+  Implements a FASTA file reader/writer.
+  @class FT_fasta
+  @extends Filetype
+*/
+FT_fasta.prototype.constructor = FT_fasta ;
+
+
+FT_fasta.prototype.getFileExtension = function () {
+  return 'fasta' ;
+};
+
+
+FT_fasta.prototype.getExportString = function ( sequence ) {
+  var ret = '' ;
+  ret += ">" + sequence.name + "\n" ;
+  var s = sequence.sequence ;
+  while ( s !== '' ) {
+    ret += s.substr ( 0 , 60 ) + "\n" ;
+    s = s.substr ( 60 , s.length-60 ) ;
+  }
+  return ret ;
+};
+
+
+FT_fasta.prototype.parseFile = function () {
+  var ret = [] ;
+  var lines = this.asString().replace(/\r/g,'').split ( "\n" ) ;
+  var name = '' ;
+  var seq = '' ;
+  $.each ( lines , function ( k , v ) {
+    if ( v.match ( /^>/ ) ) {
+      if ( seq !== '' ) ret.push ( { name:name , sequence:seq } ) ;
+      name = v.replace ( /^>\s*/ , '' ) ;
+      seq = '' ;
+    } else {
+      seq += v.replace ( /\s/g , '' ).toUpperCase() ;
     }
-    return ret ;
-  };
+  } ) ;
+  if ( seq !== '' ) ret.push ( { name:name , sequence:seq } ) ;
 
-  FT_fasta.prototype.parseFile = function () {
-    var ret = [] ;
-    var lines = this.asString().replace(/\r/g,'').split ( "\n" ) ;
-    var name = '' ;
-    var seq = '' ;
-    $.each ( lines , function ( k , v ) {
-      if ( v.match ( /^>/ ) ) {
-        if ( seq !== '' ) ret.push ( { name:name , sequence:seq } ) ;
-        name = v.replace ( /^>\s*/ , '' ) ;
-        seq = '' ;
-      } else {
-        seq += v.replace ( /\s/g , '' ).toUpperCase() ;
-      }
-    } ) ;
-    if ( seq !== '' ) ret.push ( { name:name , sequence:seq } ) ;
-    
-    return ret ;
-  };
+  return ret ;
+};
 
-  FT_fasta.prototype.textHeuristic = function () {
-    if ( this.asString().match ( /^\>/ ) ) return true ;
-    return false ;
-  };
 
-  return FT_fasta;
-});
+FT_fasta.prototype.textHeuristic = function () {
+  if ( this.asString().match ( /^\>/ ) ) return true ;
+  return false ;
+};
+
+
+export default FT_fasta;

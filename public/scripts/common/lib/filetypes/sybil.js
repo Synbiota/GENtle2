@@ -2,14 +2,16 @@
 import $ from 'jquery';
 import _ from 'underscore';
 
+
 var getArrayElementName = function(key) {
-  return /s$/.test(key) ? 
-    key.substr(0, key.length - 1) : 
+  return /s$/.test(key) ?
+    key.substr(0, key.length - 1) :
     key + '-item';
 };
 
+
 var convertToXML = function(data, namespace) {
-  var formatKeyName = function(key) { 
+  var formatKeyName = function(key) {
     return _.snakify(key).replace(/_/g, '-');
   };
   var createElement = function(key) {
@@ -36,6 +38,7 @@ var convertToXML = function(data, namespace) {
     return data;
   }
 };
+
 
 var convertToObject = function(xml) {
   var formatKey = function(string) {
@@ -67,6 +70,7 @@ var convertToObject = function(xml) {
     return memo;
   }, {});
 };
+
 
 //________________________________________________________________________________________
 // SYBIL - SYnthetic Biology Interchange Language
@@ -104,15 +108,15 @@ var coerceRangeToWithinSequenceLength = function(sequence, value) {
 **/
 FT_sybil.prototype.getExportString = function ( sequence ) {
   var s = '' ;
-  
+
   s += "<sybil>\n" ;
   s += "<session>\n" ;
-  
+
   // TODO repo
   // TODO history
-  
+
   s += "<circuit>\n" ;
-  
+
   if ( '' != ( sequence.desc || '' ) ) {
     var o = $('<general_description></general_description>') ;
     o.text ( sequence.desc ) ;
@@ -154,13 +158,13 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
 
 
   }
-  
+
   // Features
   $.each ( sequence.features , function ( k , v ) {
     if ( v._type.match(/^source$/i) ) return ;
     if ( undefined === v.ranges ) return ;
     if ( 0 == v.ranges.length ) return ;
-    
+
     // Misc
     var type = v._type ;
     var coerceRange = _.partial(coerceRangeToWithinSequenceLength, sequence.sequence);
@@ -173,7 +177,7 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
     else if ( v.product !== undefined ) name = v.product ;
     else if ( v.name !== undefined ) name = v.name ;
     name = name.replace(/^"/,'').replace(/"$/,'') ;
-    
+
     // Description
     var desc = '' ;
     if ( v.note !== undefined ) desc = v.note ;
@@ -183,7 +187,7 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
     desc = desc.replace(/^"/,'').replace(/"$/,'') ;
     if ( desc != '' ) desc = "\n" + _.ucFirst ( desc ) ;
     desc = desc.trim() ;
-    
+
     if (v.ranges.length !== 1) {
       $.each ( v.ranges , function ( k2 , v2 ) {
         var frm = coerceRange(v2.from) + 1;
@@ -192,7 +196,7 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
       } ) ;
     }
 
-    
+
     var o = $('<annotation></annotation>') ;
     o.text ( desc ) ;
     o.attr ( 'rc' , v.ranges[0].reverseComplement ? 1 : 0 ) ;
@@ -212,7 +216,7 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
     s += o[0].outerHTML + "\n" ;
 
   } ) ;
-  
+
   o = $("<sequence></sequence>") ;
   o.text ( sequence.sequence ) ;
   o.attr( { type:'dna' , name:sequence.name, circular: sequence.isCircular || 'false' } ) ;
@@ -227,12 +231,13 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
   s += "</circuit>\n" ;
   s += "</session>\n" ;
   s += "</sybil>" ;
-  
+
   // TODO me should do some serious "illegal XML characters" filtering here, but...
   s = s.replace ( /\u0004/g , '' ) ;
 
   return s ;
 };
+
 
 /**
 @method parseFile
@@ -247,8 +252,8 @@ FT_sybil.prototype.parseFile = function () {
       var s = $(v2).find('sequence').get(0) ;
       s = $(s) ;
       var sequence = s.text().toUpperCase();
-      var seq = { 
-        name: s.attr('name'), 
+      var seq = {
+        name: s.attr('name'),
         sequence: sequence,
         isCircular: s.attr('circular') == "true"
       };
@@ -264,7 +269,7 @@ FT_sybil.prototype.parseFile = function () {
           reverse: ($(e).attr('reverse') || 'false').toLowerCase() === 'true'
         };
       });
-      
+
       var coerceRange = _.partial(coerceRangeToWithinSequenceLength, sequence);
       seq.features = [] ;
       $(v2).find('annotation').each ( function ( k3 , v3 ) {
@@ -282,11 +287,11 @@ FT_sybil.prototype.parseFile = function () {
           else if ( ak == 'type' ) feature._type = av ;
           else feature[ak] = av ;
         } ) ;
-        
+
         if ( feature.ranges.length === 0 ) {
           feature.ranges = [ { from:start , to:stop , reverseComplement:rc } ] ;
         }
-        
+
         seq.features.push ( feature ) ;
       } ) ;
 
@@ -294,13 +299,14 @@ FT_sybil.prototype.parseFile = function () {
       if($metadata.length) {
         seq.meta = convertToObject($metadata);
       }
-      
+
       sequences.push ( seq ) ;
     } ) ;
   } ) ;
 
   return sequences;
 };
+
 
 /**
 Checks if a given file matches the filetype.

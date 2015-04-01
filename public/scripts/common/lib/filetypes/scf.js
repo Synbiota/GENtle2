@@ -1,68 +1,72 @@
-define(function(require) {
-  //________________________________________________________________________________________
-  // SCF
- // See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
- // For V3.1 RfC, see http://staden.sourceforge.net/scf-rfc.html
 
-  var FT_base = require('./base'),
-      FT_scf;
+//________________________________________________________________________________________
+// SCF
+// See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
+// For V3.1 RfC, see http://staden.sourceforge.net/scf-rfc.html
 
-  FT_scf = function() {
-    this.typeName = 'SCF' ;
-this.read_binary = true ;
-this.binary = true ;
-  }
+import FT_base from './base';
 
-  FT_scf.prototype = new FT_base() ;
+var FT_scf = function() {
+  this.typeName = 'SCF' ;
+  this.read_binary = true ;
+  this.binary = true ;
+};
 
-  /**
-    Implements a scf file reader/writer.
-    @class FT_scf
-    @extends Filetype
-  */
-  FT_scf.prototype.constructor = FT_scf ;
 
+FT_scf.prototype = new FT_base() ;
+
+
+/**
+  Implements a scf file reader/writer.
+  @class FT_scf
+  @extends Filetype
+*/
+FT_scf.prototype.constructor = FT_scf ;
 
 
 FT_scf.prototype.getBigEndianUnsignedWord = function ( bytes , p ) {
 	var n1 = bytes[p+0] * 256 + bytes[p+1] ;
 	return n1 ;
-}
+};
+
 
 FT_scf.prototype.getBigEndianSignedWord = function ( bytes , p ) {
 	var x = bytes[p+0] * 256 + bytes[p+1] ;
 	return x >= 32768 ? x-65536 : x ;
-}
+};
+
 
 FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	var n1 = bytes[p+0] *256*256*256 + bytes[p+1] *256*256 + bytes[p+2] * 256 + bytes[p+3] ;
 	return n1 ;
-}
+};
 
 
-  FT_scf.prototype.getFileExtension = function () {
-    return 'scf' ;
-  }
+FT_scf.prototype.getFileExtension = function () {
+  return 'scf' ;
+};
 
-  FT_scf.prototype.getExportString = function ( sequence ) {
-    return 'NOT IMPLEMENTED YET';
-  }
 
-  FT_scf.prototype.parseFile = function ( just_check_format ) {
+FT_scf.prototype.getExportString = function ( sequence ) {
+  return 'NOT IMPLEMENTED YET';
+};
+
+
+FT_scf.prototype.parseFile = function ( just_check_format ) {
 	var me = this ;
 
 	// START SCF PARSING HERE
 
 	var text_array = me.asArrayBuffer() ;
 	if ( typeof text_array == 'undefined' ) return false ;
-//	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
+  //	var me_text = String.fromCharCode.apply(null, new Uint16Array(text_array)) ;
 	var bytes = new Uint8Array(text_array);
-	
+
 
 	// HEADER
 	var p = 0 ;
 	var scf = {} ;
-	scf.magic_number = String.fromCharCode ( bytes[p++] ) + 
+	scf.magic_number = String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) ;
@@ -78,25 +82,25 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	scf.bases_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	scf.comments_size = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	scf.comments_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
-	
-	scf.version = String.fromCharCode ( bytes[p++] ) + 
+
+	scf.version = String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) ;
 	scf.num_version = scf.version * 1 ;
-	
+
 	scf.sample_size = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ; // 2=two bytes
 	scf.code_set = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	scf.private_size = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	scf.private_offset = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
-	
+
 	for ( var i = 0 ; i < 18 ; i++ ) {
 		var dummy = me.getBigEndianUnsignedLong ( bytes , p ) ; p += 4 ;
 	}
-	
-	
+
+
 	if ( scf.num_version >= 3 ) { // V 3.0 and above
-	
+
 		var bytesize = scf.num_version == 1 ? 1 : 2 ;
 		scf.data = [] ; // Raw point data
 		var p = scf.samples_offset ;
@@ -116,12 +120,12 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 		var num_samples = scf.samples ;
 		$.each ( ['A','C','G','T'] , function ( dummy , base ) {
 			var p_sample = 0 ;
-			for (var i=0;i<num_samples;i++) {
+			for (let i=0;i<num_samples;i++) {
 				scf.data[i][base] += p_sample ;
 				p_sample = scf.data[i][base] ;
 			}
-			var p_sample = 0 ;
-			for (var i=0;i<num_samples;i++) {
+			p_sample = 0 ;
+		  for (let i=0;i<num_samples;i++) {
 				scf.data[i][base] += p_sample ;
 				p_sample = scf.data[i][base] ;
 			}
@@ -141,12 +145,12 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 			} ;
 		}
 
-	
+
 	} else { // V 1.0 or 2.0
-		
+
 		// Points
 		scf.data = [] ; // Raw point data
-		
+
 		var p = scf.samples_offset ;
 		for ( var point = 0 ; point < scf.samples ; point++ ) {
 			var o = {} ;
@@ -166,7 +170,7 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 			scf.data[point] = o ;
 			p += 4 * scf.sample_size ;
 		}
-		
+
 		// Bases
 		p = scf.bases_offset ;
 		scf.base_data = [] ;
@@ -181,7 +185,7 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 			} ;
 			p += 12 ;
 		}
-		
+
 	}
 
 	// Highest peak
@@ -191,16 +195,14 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 			if ( scf.max_data < scf.data[point][base] ) scf.max_data = scf.data[point][base] ;
 		} ) ;
 	}
-	
-	// PARSING INCOMPLETE! Private data, comments not parsed
 
-	
+	// PARSING INCOMPLETE! Private data, comments not parsed
 
 
 	// END SCF PARSING
-	
+
 	// NOW TURNING SCF OBJECT INTO OVERSIMPLIFIED DISPLAY STRUCTURE
-	
+
 	var max = 1000 ; // scf.max_data
 	var n = scf.num_version >= 3 ? 10 : 10 ;
 	var tempseq = [] ;
@@ -224,7 +226,7 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	var seqtext = '';
 
 	for (i in tempseq) {
-		seqtext += tempseq[i]['base'];
+		seqtext += tempseq[i].base;
 	}
 
 	var name = "Chromatogram" ;
@@ -232,27 +234,28 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 		name: "Chromatogram",
 		desc: '',
 		is_circular: false,
-		features: [], 
+		features: [],
 		sequence: seqtext,
 		tempseq: tempseq, // Chromatogram
 		scf:scf // KEEP THE FULL, PARSED DATA
 	} ;
-	
+
 	return [ seq ] ;
-	}
+};
 
-  FT_scf.prototype.parseText = function ( text ) {
-    this.text = text ;
-    this.fileTypeValidated = true ;
+
+FT_scf.prototype.parseText = function ( text ) {
+  this.text = text ;
+  this.fileTypeValidated = true ;
   //  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
-    this.parseFile () ;
-  }
+  this.parseFile () ;
+};
 
-  FT_scf.prototype.textHeuristic = function () {
+
+FT_scf.prototype.textHeuristic = function () {
 	var res = this.parseFile ( true ) ;
 	return res ;
-}
+};
 
-  return FT_scf
 
-});
+export default FT_scf;
