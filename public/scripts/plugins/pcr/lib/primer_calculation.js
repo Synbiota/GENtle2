@@ -2,7 +2,7 @@ import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import Q from 'q';
 import IDT from './idt_query';
-import {handleError, namedHandleError} from '../../../common/lib/handle_error';
+import {namedHandleError} from '../../../common/lib/handle_error';
 import {filterPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
@@ -14,8 +14,10 @@ var gcContent = SequenceCalculations.gcContent;
 var IDTMeltingTemperatureCache = {};
 
 var _IDTMeltingTemperature = function(sequence) {
-  //TODO make this work
-  if(window.TESTS_RUNNING) throw "NOT STUBBED!";
+  var cached = IDTMeltingTemperatureCache[sequence];
+  if(cached) return cached;
+
+  if(window.TESTS_RUNNING) throw "IDTMeltingTemperature NOT STUBBED!";
   return IDT(sequence).then((result) => {
     return parseFloat(result.MeltTemp);
   });
