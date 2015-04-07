@@ -1,4 +1,7 @@
-import _ from 'underscore.mixed';
+//TODO: fix this to use 'underscore.mixed' alias import path
+// import _ from 'underscore.mixed';
+import _ from './../../../common/lib/underscore.mixed';
+
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import Q from 'q';
 import IDT from './idt_query';

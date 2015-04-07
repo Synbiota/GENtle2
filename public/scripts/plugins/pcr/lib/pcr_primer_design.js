@@ -172,7 +172,7 @@ var getSequencesToSearch = function(sequence, opts) {
  *                           not the primer sequences,
  *                           for these, `from` specifies the start of the forward
  *                           primer sequence and `to` specifies the start on the
- *                           antisense/reverse strand of the reverse primer
+ *                           sense/forward strand of the reverse primer
  *                           sequence.
  * @return {[promise]}       resolves with a hash containing pcrProduct attributes
  */
@@ -211,7 +211,7 @@ var getPcrProductAndPrimers = function(sequence, opts) {
     .catch((e) => {
       console.error('getPcrProductAndPrimers err', e);
       reject(e);
-    });
+    }).done();
 
   });
 
@@ -223,3 +223,5 @@ export {
   getPcrProductAndPrimers,
   getSequencesToSearch
 };
+
+export default getPcrProductAndPrimers;
