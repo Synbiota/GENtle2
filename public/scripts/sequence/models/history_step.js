@@ -22,36 +22,35 @@ Handling history steps
 @param {string} [values] when `model.type` is `insert` or `delete`, bases
   which have been inserted or deleted
 **/
-define(function(require){
-  var Backbone = require('backbone'),
-      HistoryStep;
 
-  HistoryStep = Backbone.Model.extend({
-    defaults: function() {
-      return {
-        timestamp: +(new Date()),
-        hidden: false,
-        linked: []
-      };
-    },
+import Backbone from 'backbone';
 
-    serialize: function() {
-      var type = this.get('type');
-      return _.extend(Backbone.Model.prototype.toJSON.call(this), {
-        isInsertion: type == 'insert',
-        isDeletion: type == 'delete',
-        isFeatureInsertion: type == 'featureIns',
-        isFeatureEdition: type == 'featureEdit', 
-        isFeatureDeletion: type == 'featureDel',
-        isFeatureDeletedDesignEdit: type == 'design-feature-delete',
-        isFeatureCreatedDesignEdit: type == 'design-feature-create',
-        isInsertionDesignEdit: type == 'design-insert',
-        isDeletionDesignEdit: type == 'design-delete',
 
-        isFeature: /^feature/.test(type)
-      });
-    }
-  });
+var HistoryStep = Backbone.Model.extend({
+  defaults: function() {
+    return {
+      timestamp: +(new Date()),
+      hidden: false,
+      linked: []
+    };
+  },
 
-  return HistoryStep;
+  serialize: function() {
+    var type = this.get('type');
+    return _.extend(Backbone.Model.prototype.toJSON.call(this), {
+      isInsertion: type == 'insert',
+      isDeletion: type == 'delete',
+      isFeatureInsertion: type == 'featureIns',
+      isFeatureEdition: type == 'featureEdit',
+      isFeatureDeletion: type == 'featureDel',
+      isFeatureDeletedDesignEdit: type == 'design-feature-delete',
+      isFeatureCreatedDesignEdit: type == 'design-feature-create',
+      isInsertionDesignEdit: type == 'design-insert',
+      isDeletionDesignEdit: type == 'design-delete',
+
+      isFeature: /^feature/.test(type)
+    });
+  }
 });
+
+export default HistoryStep;

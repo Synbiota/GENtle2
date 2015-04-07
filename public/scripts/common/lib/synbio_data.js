@@ -1,4 +1,4 @@
-define({
+var data = {
   "restriction_enzymes":[
     {"name":"BspMI","seq":"ACCTGC","cut":1,"offset":4},
     {"name":"EcoNI","seq":"CCTNNNNNAGG","cut":1,"offset":1},
@@ -490,4 +490,7 @@ define({
     
 
     }
-})
+};
+
+
+export default data;
