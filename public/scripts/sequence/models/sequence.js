@@ -5,7 +5,6 @@ Handling sequences
 @submodule Models
 @main Models
 **/
-import Gentle from 'gentle';
 import SequenceTransforms from '../lib/sequence_transforms';
 import HistorySteps from './history_steps';
 import Backbone from 'backbone';
@@ -25,7 +24,7 @@ var SequenceModel = Backbone.DeepModel.extend({
           complements: true,
           aa: 'none',
           aaOffset: 0,
-          res: Gentle.currentUser.get('displaySettings.rows.res')
+          res: this.Gentle && this.Gentle.currentUser && this.Gentle.currentUser.get('displaySettings.rows.res') || {}
         }
       },
       history: new HistorySteps()
@@ -33,6 +32,11 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   constructor: function() {
+    //TODO: remove this hack.  Originally we had an official dependency on
+    // Gentle, however this does not make sense when using this sequence model
+    // in a node command line script outside of Gentle.
+    this.Gentle = window.gentle;
+
     var defaults = this.defaults();
     Backbone.DeepModel.apply(this, arguments);
     this.sortFeatures();
@@ -929,7 +933,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   serialize: function() {
     return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
-      isCurrent: (Gentle.currentSequence && Gentle.currentSequence.get('id') == this.get('id')),
+      isCurrent: (this.Gentle && this.Gentle.currentSequence && this.Gentle.currentSequence.get('id') == this.get('id')),
       length: this.length()
     });
   },
