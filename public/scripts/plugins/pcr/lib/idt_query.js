@@ -27,12 +27,13 @@ var getResults = function(sequence, options) {
       MgConc: options.mg2PlusConcentration * 1e3,
       dNTPsConc: options.dNTPsConcentration * 1e3,
       TargetType: 'DNA'
-    }).then(function(results) {
+    })
+    .then(function(results) {
       if(_.isObject(results)) {
         cache[key] = results.AnalyzerResult;
         return cache[key];
       } else {
-        return {};
+        throw new Error(`Did not received object from IDT query using YQL: ${results}`);
       }
     })
     .catch((e) => {
