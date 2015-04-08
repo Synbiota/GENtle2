@@ -1,0 +1,15 @@
+{
+  "name": "GENtle2-pcr",
+  "version": "0.0.1",
+  "description": "Tools for PCR.",
+  "main": "",
+  "preferGlobal": false,
+  "bin": {
+    "pcr": "index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

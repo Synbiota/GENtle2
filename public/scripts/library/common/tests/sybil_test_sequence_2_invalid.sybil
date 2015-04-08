@@ -1,0 +1,73 @@
+<sybil>
+  <session>
+    <circuit>
+      <sticky-end position="start" offset="0" size="2" reverse="true">RE_GT</sticky-end>
+      <sticky-end position="end" offset="0" size="2" reverse="false">RE_AG</sticky-end>
+      <annotation rc="0" name="Promoter" desc="" type="note" start="5" stop="11"></annotation>
+      <annotation rc="0" name="RBS" desc="" type="rbs" start="13" stop="17"></annotation>
+      <annotation rc="0" name="GFP" desc="" type="protein_domain" start="19" stop="26"></annotation>
+      <sequence type="dna" name="Sequence 58 from patent US 8609936." circular="false">AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC</sequence>
+      <metadata>
+        <pcr>
+          <products>
+            <product>
+              <id>1425387181153-11a3e</id>
+              <from>0</from>
+              <to>856</to>
+              <forward-annealing-region>
+                <sequence>AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTT</sequence>
+                <melting-temperature>65.7</melting-temperature>
+                <gc-content>0.15</gc-content>
+                <from>23</from>
+                <to>62</to>
+                <sequence-length>40</sequence-length>
+              </forward-annealing-region>
+              <reverse-annealing-region>
+                <sequence>GCATGTCGTGCATACCAAGTTTTTTCAATTG</sequence>
+                <melting-temperature>67.6</melting-temperature>
+                <gc-content>0.3870967741935484</gc-content>
+                <from>849</from>
+                <to>879</to>
+                <sequence-length>31</sequence-length>
+              </reverse-annealing-region>
+              <forward-primer>
+                <sequence>CCTGCAGTCAGTGGTCTCTAGAGAAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTT</sequence>
+                <from>0</from>
+                <to>62</to>
+                <sequence-length>63</sequence-length>
+                <gc-content>0.30158730158730157</gc-content>
+              </forward-primer>
+              <reverse-primer>
+                <sequence>CTCGTGACTGACGGTCTCATCTCGCATGTCGTGCATACCAAGTTTTTTCAATTG</sequence>
+                <from>0</from>
+                <to>53</to>
+                <sequence-length>63</sequence-length>
+                <gc-content>0.46296296296296297</gc-content>
+              </reverse-primer>
+              <sequence-length>902</sequence-length>
+              <sticky-ends>
+                <name>X-X'</name>
+                <start-name>X</start-name>
+                <end-name>Z'</end-name>
+                <start>CCTGCAGTCAGTGGTCTCTAGAG</start>
+                <end>GAGATGAGACCGTCAGTCACGAG</end>
+                <start-offset>19</start-offset>
+                <end-offset>-19</end-offset>
+              </sticky-ends>
+              <melting-temperature>81.46835449490322</melting-temperature>
+              <name>asdasd</name>
+            </product>
+          </products>
+          <defaults>
+            <target-melting-temperature>68</target-melting-temperature>
+            <min-primer-length>10</min-primer-length>
+            <max-primer-length>40</max-primer-length>
+            <melting-temperature-tolerance>1.5</melting-temperature-tolerance>
+            <target-gc-content>0.5</target-gc-content>
+            <use-idt>true</use-idt>
+          </defaults>
+        </pcr>
+      </metadata>
+    </circuit>
+  </session>
+</sybil>
