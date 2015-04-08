@@ -16,7 +16,7 @@ var assertion = function(test, message) {
 };
 
 var assertIsNumber = function(value, fieldName) {
-  _assertion(_.isNumber(value) && !_.isNaN(value), `\`${fieldName}\` should be a number`);
+  _assertion(_.isNumber(value) && !_.isNaN(value), `\`${fieldName}\` should be a number but is: ${value} (${typeof value})`);
 };
 
 var assertIsInstance = function(value, klass, fieldName) {
