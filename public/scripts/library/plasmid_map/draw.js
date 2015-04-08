@@ -1,10 +1,9 @@
-import getSequenceFromFile from '../common/get_sequence_from_file';
 
-var drawPlasmidMap = function({inputFile, outputFile}) {
-  getSequenceFromFile(inputFile).then(function(sequences) {
-    console.log('sequences', JSON.stringify(sequences));
-    // TODO draw the plasmid
-  }).done();
+
+var drawPlasmidMap = function(sequence) {
+  console.log('TODO replace this file with the code that draws plasmids');
+  var pngOfPlasmidMap;
+  return pngOfPlasmidMap;
 };
 
 export default drawPlasmidMap;
