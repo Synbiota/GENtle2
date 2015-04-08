@@ -12,6 +12,14 @@ discussion
 
 var _ = window._ = require('underscore');
 
+if(!window.RUNNING_IN_BROWSER && !window.TESTS_RUNNING) {
+  // We expose _ into the global scope as the backbone underscore mixin
+  // requires it.
+  // TODO remove this hack... needed as backbone doesn't declare
+  // dependency in `backbone-deep-model/lib/underscore.mixin.deepExtend.js`
+  GLOBAL._ = _;
+}
+
 require('backbone-deep-model/lib/underscore.mixin.deepExtend');
 
 

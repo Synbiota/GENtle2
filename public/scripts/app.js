@@ -2,6 +2,8 @@
 Gentle app definition.
 **/
 
+window.RUNNING_IN_BROWSER = true;
+
 import $ from 'jquery.mixed';
 import _ from 'underscore.mixed';
 import Backbone from 'backbone.mixed';
