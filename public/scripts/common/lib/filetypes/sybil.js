@@ -1,6 +1,6 @@
-
-import $ from 'jquery';
 import _ from 'underscore';
+import $ from 'jquery';
+import FT_base from './base';
 
 
 var getArrayElementName = function(key) {
@@ -75,10 +75,7 @@ var convertToObject = function(xml) {
 //________________________________________________________________________________________
 // SYBIL - SYnthetic Biology Interchange Language
 
-var FT_base = require('./base'),
-    FT_sybil;
-
-FT_sybil = function() {
+var FT_sybil = function() {
   this.typeName = 'SYBIL' ;
 };
 

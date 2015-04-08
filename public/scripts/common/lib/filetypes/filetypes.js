@@ -4,6 +4,11 @@
 @main Filetypes
 **/
 
+var saveAs;
+if(window.RUNNING_IN_BROWSER) {
+  saveAs = require('filesaver.js');
+}
+
 import FT_plaintext from './plaintext';
 import FT_fasta     from './fasta';
 import FT_sybil     from './sybil';
@@ -13,7 +18,6 @@ import FT_abi       from './abi';
 import FT_cm5       from './cm5';
 import FT_cm5_text  from './cm5_text';
 import Q            from 'q';
-import saveAs       from 'filesaver.js';
 
 
 var Filetypes = function() {};
@@ -50,6 +54,7 @@ Filetypes.guessTypeAndParseFromText = function(text, name) {
         sequences = file.checkAndParseText(text);
         if(sequences.length) break;
       } catch (err) {
+        console.error(`Error with ${filetypeName} guessTypeAndParseFromText:`, err.stack || err);
         reject(err);
       }
     }
