@@ -53,7 +53,7 @@ var savePcrProductsToSequence = function(sequenceModel, products) {
   // we now want to use a model to handle them.
   // We call `stringify` then `parse`, to convert both vanilla hashes and
   // backbone models into vanilla hashes.
-  var attributesOfPcrProducts = JSON.parse(JSON.stringify(products));
+  var attributesOfPcrProducts = (products.toJSON && products.toJSON()) || products;
   return sequenceModel.set('meta.pcr.products', attributesOfPcrProducts).throttledSave();
 };
 
