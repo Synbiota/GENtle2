@@ -1,4 +1,17 @@
 {
   "esnext": true,
-  "noyield": true
+  "noyield": true,
+  "undef": true,
+  "unused": true,
+
+  // GLOBALS
+  "predef": [
+    "alert"
+  ],
+
+
+  // ENV
+  "browser": true,
+  "browserify": true,
+  "node": true
 }
