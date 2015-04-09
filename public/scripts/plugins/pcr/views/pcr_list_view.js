@@ -1,6 +1,7 @@
 import template from '../templates/pcr_list_view.hbs';
 import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
+import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 
 
 export default Backbone.View.extend({
@@ -10,23 +11,29 @@ export default Backbone.View.extend({
 
   events: {
     'click .show-pcr-product': 'showPcrProduct',
+    'click .panel-title': 'showPcrProduct',
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
     'click .export-sequence': 'exportSequence',
   },
 
   serialize: function() {
-    var parentView = this.parentView();
-
     return {
-      products: parentView.products,
+      products: _.map(this.getProducts(), (product) => product.toJSON()),
     };
   },
 
+  showProduct: function(product) {
+    this.showingProduct = product;
+  },
+
   afterRender: function() {
-    var showingProductId = this.parentView().showingProductId;
-    if(showingProductId) {
-      this.$('[data-product_id="'+showingProductId+'"]').addClass('panel-info');
+    var showingProduct = this.showingProduct;
+    if(showingProduct) {
+      var id = showingProduct.get('id');
+      this.$(`[data-product_id="${id}"]`).addClass('panel-info');
+      this.scrollToProduct(id);
+      this.parentView().showCanvas(showingProduct);
     }
 
     this.$('.has-tooltip').tooltip({
@@ -35,14 +42,14 @@ export default Backbone.View.extend({
   },
 
   getProducts: function() {
-    return this.parentView().products;
+    return getPcrProductsFromSequence(this.model);
   },
 
   getProduct: function(event) {
-    var products = this.getProducts();
-    var productID = $(event.target).closest('.panel').data('product_id');
     event.preventDefault();
-    return _.find(products, {id: productID});
+    var products = this.getProducts();
+    var productId = $(event.target).closest('.panel').data('product_id');
+    return _.find(products, (product) => product.id === productId);
   },
 
   showPcrProduct: function(event) {
@@ -62,8 +69,7 @@ export default Backbone.View.extend({
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
     if(product) {
-      var sequence = this.parentView().getSequenceFromProduct(product);
-      Gentle.addSequencesAndNavigate([sequence]);
+      Gentle.addSequencesAndNavigate([product.asSequence()]);
     }
   },
 
@@ -71,6 +77,12 @@ export default Backbone.View.extend({
     var sequenceID = $(event.target).data('sequence_id');
     var products = this.getProducts();
     fastAExportSequenceFromID(products, sequenceID);
+  },
+
+  scrollToProduct: function(productId) {
+    var $container = this.$('#pcr-list-outer-container');
+    var $target = this.$('[data-product_id="' + productId + '"]');
+    $container.scrollTop($target.offset().top);
   },
 
 });

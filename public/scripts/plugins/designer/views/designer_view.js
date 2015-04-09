@@ -19,6 +19,10 @@ define(function(require) {
 
     initialize: function() {
       this.model = new AssembleSequence(Gentle.currentSequence);
+      // Default to `circular` true
+      if(this.model.sequences.length === 0) {
+        this.model.set({'isCircular': true}, {silent: true});
+      }
       Gentle.sequences.on('add remove reset sort', this.render, this);
     },
 

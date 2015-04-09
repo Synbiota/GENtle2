@@ -17,8 +17,13 @@ Gentle.addPlugin('sequence-canvas-context-menu', {
     // `this` is the SequenceCanvas instance
     var sequenceView = this.view.parentView();
     var [selectionFrom, selectionTo] = this.selection;
-    sequenceView.changePrimaryView('pcr');
-    sequenceView.actualPrimaryView.updateRange(selectionFrom, selectionTo);
+    var argumentsForView = [{
+      showForm: true,
+    }, {
+      selectionFrom: selectionFrom,
+      selectionTo: selectionTo,
+    }];
+    sequenceView.changePrimaryView('pcr', true, argumentsForView);
   },
   visible: Gentle.featureFlag('pcr')
 });

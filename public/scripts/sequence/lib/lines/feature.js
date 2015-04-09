@@ -62,10 +62,6 @@ define(function(require) {
     });
   };
 
-  Feature.prototype.featuresInRange = function(fn, args) {
-
-  };
-
   var switchContext = function(fn) {
     var args = _.toArray(arguments);
     var sequence = this.sequenceCanvas.sequence;
@@ -82,6 +78,7 @@ define(function(require) {
 
   Feature.prototype.featuresInRange = _.partial(switchContext, 'featuresInRange');
   Feature.prototype.nbFeaturesInRange = _.partial(switchContext, 'nbFeaturesInRange');
+  Feature.prototype.filterRanges = _.partial(switchContext, 'filterRanges');
 
   /**
   Checks whether one of the ranges of a feature ends in a give base range
@@ -153,27 +150,36 @@ define(function(require) {
           j = 0;
 
       // Features can have multiple ranges
-      for(j = 0; j < feature.ranges.length; j++) {
-        var range = feature.ranges[j];
-        if(range.from > baseRange[1] || range.to < baseRange[0]) return;
+      var ranges = this.filterRanges(baseRange[0], baseRange[1], feature.ranges);
+      for(j = 0; j < ranges.length; j++) {
+        var range = ranges[j];
 
-        startX = sequenceCanvas.getXPosFromBase(Math.max(range.from, baseRange[0]));
-        endX   = sequenceCanvas.getXPosFromBase(Math.min(range.to, baseRange[1]));
+        var frm = range.from;
+        var to = range.to;
+        var reversed = false;
+        if(range.from > range.to) {
+          frm = range.to + 1;
+          to = range.from;
+          reversed = true;
+        }
+
+        startX = sequenceCanvas.getXPosFromBase(Math.max(frm, baseRange[0]));
+        endX   = sequenceCanvas.getXPosFromBase(Math.min(to, baseRange[1]));
         deltaX = endX - startX + 1 + baseWidth;
 
         backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
         textColour  = _.isFunction(this.textColour) ? this.textColour(feature._type) : this.textColour;
 
-        artist.rect(startX, 
-                    y + this.margin + i*this.unitHeight, 
-                    deltaX, 
-                    this.lineSize, 
+        artist.rect(startX,
+                    y + this.margin + i*this.unitHeight,
+                    deltaX,
+                    this.lineSize,
                     {
                       fillStyle: backgroundFillStyle
                     });
 
-        artist.text(feature.name, 
-                    startX, 
+        artist.text(feature.name,
+                    startX,
                     y + this.margin + i * this.unitHeight,
                     {
                       font: this.textFont,
@@ -183,7 +189,7 @@ define(function(require) {
                       textPadding: this.textPadding,
                       backgroundFillStyle: backgroundFillStyle
                     });
-        
+
       }
 
     }

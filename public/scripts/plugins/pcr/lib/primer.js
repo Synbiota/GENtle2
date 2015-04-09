@@ -3,6 +3,12 @@ import Sequence from './sequence';
 
 
 class Primer extends Sequence {
+  optionalFields () {
+    var fields =  super.optionalFields();
+    fields.push('ourMeltingTemperature');
+    return fields;
+  }
+
   requiredFields () {
     return ['sequence', 'from', 'to', 'meltingTemperature', 'gcContent'];
   }

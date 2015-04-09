@@ -2,6 +2,7 @@ import Backbone from 'backbone';
 import template from '../templates/pcr_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import _ from 'underscore';
 import Styles from '../../../styles.json';
 
@@ -23,35 +24,26 @@ export default Backbone.View.extend({
 
     if(!this.product) return defaultColor;
 
-    var stickyEndOffsets = this.parentView().getStickyEndOffsets(this.product);
     var featuresColors = LineStyles.features.color;
-    var sequenceLength = this.model.length();
-    var forwardPrimerLength = this.product.forwardPrimer.sequence.length;
-    var reversePrimerLength = this.product.reversePrimer.sequence.length;
 
-    if(pos < stickyEndOffsets[0] || pos > sequenceLength + stickyEndOffsets[1] -1) {
-      return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
-    } else if(pos < forwardPrimerLength || pos >= sequenceLength - reversePrimerLength){
+    if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
+      return defaultColor;
+    } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
       return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
     } else {
-      return defaultColor;
+      return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
     }
   },
 
   setProduct: function(product) {
+    this.setSequence(product);
     this.product = product;
-    this.model = this.parentView().getSequenceFromProduct(product);
-    this.afterSet();
   },
 
+  //TODO refactor this
   setSequence: function(sequence) {
+    sequence = TemporarySequence.ensureTemporary(sequence);
     this.model = sequence;
-    this.afterSet();
-  },
-
-  afterSet: function() {
-    this.model.save = _.noop;
-    this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
   },
 
   afterRender: function() {
@@ -81,7 +73,7 @@ export default Backbone.View.extend({
           baseLine: 15,
           textFont: LineStyles.complements.text.font,
           textColour: this.getSequenceColour,
-          getSubSeq: this.getComplements,
+          getSubSeq: this.model.getComplements,
         }],
         features: ['Feature', {
           unitHeight: 15,

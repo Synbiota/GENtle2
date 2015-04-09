@@ -13,6 +13,7 @@ define(function(require) {
       StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
       // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone'),
+      Q                       = require('q'),
       SequenceView;
 
   SequenceView = Backbone.View.extend({
@@ -111,9 +112,10 @@ define(function(require) {
       this.changePrimaryView(currentView, false);
     },
 
-    changePrimaryView: function(viewName, render) {
-      var primaryView = _.findWhere(this.primaryViews, {name: viewName}),
-          actualView = new primaryView.view();
+    changePrimaryView: function(viewName, render, argumentsForView=[]) {
+      var primaryView = _.findWhere(this.primaryViews, {name: viewName});
+      // TODO replace this with `new primaryView.view(...argumentsForview)`
+      var actualView = new primaryView.view(argumentsForView[0], argumentsForView[1], argumentsForView[2]);
 
       _.each(this.primaryViews, function(view) {
         view.current = false;
@@ -125,11 +127,15 @@ define(function(require) {
       this.model.set('displaySettings.primaryView', viewName).throttledSave();
       this.setView('#sequence-primary-view-outlet', actualView);
 
-      if(render !== false) {
-        actualView.render();
+      var promiseRender;
+      if(render === false) {
+        promiseRender = Q.resolve();
+      } else {
+        promiseRender = actualView.render();
         this.maximizePrimaryView();
         this.sequenceSettingsView.render();
       }
+      return promiseRender;
     },
 
     maximizePrimaryView: function() {

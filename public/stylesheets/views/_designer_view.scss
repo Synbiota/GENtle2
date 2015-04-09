@@ -136,7 +136,6 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       &.ui-draggable-dragging {
         box-shadow: 0 0 3px transparentize(#222, .5);
       }
-
       // .designer-designed-sequence-chunk-droppable {
       //   position: absolute;
       //   top: 0;

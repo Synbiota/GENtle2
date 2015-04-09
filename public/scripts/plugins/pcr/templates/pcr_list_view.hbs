@@ -29,28 +29,28 @@
       <tbody>
         <tr>
           <td><small><strong>Product</strong></small></td>
-          <td class="text-right"><small>{{formatThousands sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{sequenceLength sequence}}bp</small></td>
           <td></td>
           <td></td>
           <td></td>
         </tr>
         <tr>
           <td><small>Forward annealing region</small></td>
-          <td class="text-right"><small>{{formatThousands forwardAnnealingRegion.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{sequenceLength forwardAnnealingRegion.sequence}}bp</small></td>
           <td class="text-right"><small>{{round forwardAnnealingRegion.gcContent 1 true}}%</small></td>
           <td class="text-right"><small>{{round forwardAnnealingRegion.meltingTemperature 1}}&deg;C</small></td>
           <td></td>
         </tr>
         <tr>
           <td><small>Reverse annealing region</small></td>
-          <td class="text-right"><small>{{formatThousands reverseAnnealingRegion.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{sequenceLength reverseAnnealingRegion.sequence}}bp</small></td>
           <td class="text-right"><small>{{round reverseAnnealingRegion.gcContent 1 true}}%</small></td>
           <td class="text-right"><small>{{round reverseAnnealingRegion.meltingTemperature 1}}&deg;C</small></td>
           <td></td>
         </tr>
         <tr>
           <td><small>{{forwardPrimer.name}}</small></td>
-          <td class="text-right"><small>{{formatThousands forwardPrimer.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{sequenceLength forwardPrimer.sequence}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
@@ -62,7 +62,7 @@
         <tr>
         <tr>
           <td><small>{{reversePrimer.name}}</small></td>
-          <td class="text-right"><small>{{formatThousands reversePrimer.sequenceLength}}bp</small></td>
+          <td class="text-right"><small>{{sequenceLength reversePrimer.sequence}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
@@ -82,3 +82,6 @@
     </table>
   </div>
 {{/each}}
+<button class="show-new-pcr-product-form btn btn-primary">
+  Create new PCR product
+</button>
