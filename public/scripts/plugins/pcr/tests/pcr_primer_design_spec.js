@@ -136,7 +136,7 @@ describe('getSequencesToSearch', function() {
   it('correct sequences', function() {
     var {
       forwardSequenceToSearch: forwardSequenceToSearch,
-      reverseSequenceToSearch: reverseSequenceToSearch,
+      reverseSequenceToSearch: reverseSequenceToSearch
     } = getSequencesToSearch(sequence, opts);
     expect(forwardSequenceToSearch.indexOf(forwardAnnealingRegionSequence)).toEqual(0);
     expect(reverseSequenceToSearch.indexOf(reverseAnnealingRegionSequenceComplement)).toEqual(0);
