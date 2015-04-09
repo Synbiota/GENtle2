@@ -1,18 +1,24 @@
 .context-menu {
-  position: absolute; 
+  position: absolute;
   z-index: 1000;
 
   border-radius: 3px;
   @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
 
-  & > .dropdown-menu {
-    width: 220px;
+  .menu-item {
+    width: 150px;
+  }
+
+  .dropdown-menu {
+    .menu-item {
+      width: 177px;
+    }
   }
 
   &.open {
 
     &.no-dropup {
-      & > .btn { 
+      & > .btn {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
       }
@@ -28,7 +34,7 @@
         &.pull-right {
           border-top-right-radius: 0;
         }
-      } 
+      }
     }
 
      &.dropup {
@@ -48,7 +54,7 @@
         &.pull-right {
           border-bottom-right-radius: 0;
         }
-      } 
+      }
     }
   }
 }

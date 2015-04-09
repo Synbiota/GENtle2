@@ -37,8 +37,8 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
       menu.add('Analyze Fragment', this.analyzeFragment);
 
       if(!this.readOnly) {
-        // menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
-        menu.add('Add annotation', this.addAnnotationFromMenu);
+        menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
+        // menu.add('Add annotation', this.addAnnotationFromMenu);
       }
     }
 
