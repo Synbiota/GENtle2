@@ -7,7 +7,7 @@ var transformStickyEndData = function(stickyEndAttributes) {
   if(_.isString(stickyEndAttributes.start)) {
     // We're dealing with an old stickyEnd.  Try to transform it into the
     // new form
-    var matchedStickyEnds = _.filter(stickyEnds, (stickyEnd) => {
+    var matchedStickyEnds = _.filter(stickyEnds(), (stickyEnd) => {
       return (
         stickyEnd.start.sequence === stickyEndAttributes.start &&
         stickyEnd.end.sequence === stickyEndAttributes.end &&
@@ -51,49 +51,15 @@ var getPcrProductsFromSequence = function(sequenceModel) {
 var savePcrProductsToSequence = function(sequenceModel, products) {
   // Originally the model attributes were just stored and handled as a hash,
   // we now want to use a model to handle them.
-  // We call `stringify` then `parse`, to convert both vanilla hashes and
+  // We use Backbone's toJSON to convert both the vanilla hashes and
   // backbone models into vanilla hashes.
   var attributesOfPcrProducts = (products.toJSON && products.toJSON()) || products;
   return sequenceModel.set('meta.pcr.products', attributesOfPcrProducts).throttledSave();
 };
 
 
-// Testing
-if(false) {
-  var getOldStickyEndAttributes = function() {
-    return {
-      name: "X-Z'",
-      startName: "X",
-      endName: "Z'",
-      start: "CCTGCAGTCAGTGGTCTCTAGAG",
-      end: "GAGATGAGACCGTCAGTCACGAG",
-      startOffset: 19,
-      endOffset: -19
-    };
-  };
-  var getExpectedStickyEndAttributes = function() {
-    return {
-      name: "X-Z'",
-      start: {
-        sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
-        reverse: false,
-        offset: 19,
-        size: 4,
-        name: "X",
-      },
-      end: {
-        sequence: 'GAGATGAGACCGTCAGTCACGAG',
-        reverse: true,
-        offset: 19,
-        size: 4,
-        name: "Z'",
-      }
-    };
-  };
-
-  var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributes());
-  console.assert(_.isEqual(transformedStickyEndData, getExpectedStickyEndAttributes()));
-}
-
-
-export default {getPcrProductsFromSequence, savePcrProductsToSequence};
+export default {
+  getPcrProductsFromSequence,
+  savePcrProductsToSequence,
+  transformStickyEndData, // exposed for testing.
+};

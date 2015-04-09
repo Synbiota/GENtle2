@@ -129,7 +129,7 @@ _.mixin({
   @method _.deepClone
   **/
   deepClone: function(obj, depthLeft=100) {
-    if (depthLeft <= 0) throw "deepClone recursion limited exceeded";
+    if (depthLeft <= 0) throw "deepClone recursion limit exceeded";
     if (!_.isObject(obj) || _.isFunction(obj)) return obj;
     if (_.isDate(obj)) return new Date(obj.getTime());
     if (_.isRegExp(obj)) return new RegExp(obj.source, obj.toString().replace(/.*\//, ""));
@@ -177,12 +177,5 @@ _.mixin({
   }
 });
 
-// Tests
-if(true) {
-  var a = {c:[{}]};
-  var b = _.deepClone(a);
-  b.c[0].d = 1;
-  console.assert(_.isUndefined(a.c[0].d), 'deepClone has failed');
-}
 
 module.exports = _;

@@ -1,4 +1,6 @@
 import Sequence from '../models/sequence';
+import {stubCurrentUser} from '../../common/tests/stubs';
+
 
 var initialSequenceContent = 'ATCGATCGATCGATCG';
 var initialSequenceLength = initialSequenceContent.length;
@@ -20,9 +22,12 @@ var fixtures = [{
 var sequence;
 
 beforeEach(function() {
+  stubCurrentUser();
   sequence = new Sequence(fixtures[0]);
+
   spyOn(sequence, 'save'); // Disable save function
 });
+
 
 describe('creating and reading a sequence', function() {
   it('should be able to get the name', function() {
@@ -59,6 +64,7 @@ describe('when inserting bases into a sequence', function() {
   });
 });
 
+
 describe('when deleting bases from a sequence in the middle of a feature', function() {
 
   beforeEach(function() {
@@ -81,6 +87,7 @@ describe('when deleting bases from a sequence in the middle of a feature', funct
     expect(featureRange.to).toEqual(5);
   });
 });
+
 
 describe('when deleting bases containing an entire sequence', function() {
 
