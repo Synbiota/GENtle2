@@ -84,7 +84,7 @@ define(function(require) {
     var _this = this,
         artist = _this.artist;
 
-    return Q.promise(function(resolve, reject) {
+    return Q.promise(function(resolve) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       _this.$canvas.width(_this.$el.width());
 

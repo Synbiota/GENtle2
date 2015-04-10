@@ -76,4 +76,36 @@
       }
     }
   }
+
+  $res-color: map_get(map_get(map_get(map_get(map_get($shared-styles, 'sequences'), 'lines'), 'RES'), 'text'), 'color');
+
+  .linear-map-enzymes {
+    position: relative;
+    height: 100%;
+    z-index: -1;
+  }
+
+  .linear-map-enzyme {
+    position: absolute;
+    right: 0;
+    left: 35px;
+    font-size: 10px;
+    color: $res-color;
+    text-shadow: 1px 1px 0 white;
+
+    & > span {
+      display: inline-block;
+      width: 50px;
+      text-align: right;
+      @include text-overflow();
+    }
+
+    &:before {
+      display: block;
+      content: "";
+      margin-left: 54px;
+      margin-bottom: -8px;
+      border-bottom: 1px solid $res-color;
+    }
+  }
 }

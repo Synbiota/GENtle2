@@ -59,7 +59,7 @@ var run = function(watch) {
 
   var bundle = gulp.src(filepath, {base: './public'})
     .pipe(plumber({errorHandler: bundleLogger.error}))
-    .pipe(cached('stylesheets'))
+    // .pipe(cached('stylesheets'))
     .pipe(cssGlobbing(cssGlobbingOptions));
 
   if(isDev) {
@@ -77,7 +77,7 @@ var run = function(watch) {
   bundle = bundle
     .on('end', function() { bundleLogger.end(target.replace('.scss', '.css')); })
     .on('error', bundleLogger.error)
-    .pipe(remember('stylesheets')) 
+    // .pipe(remember('stylesheets')) 
     .pipe(rename({ extname: '.css' }))
     .pipe(gulp.dest(destPath));
 
