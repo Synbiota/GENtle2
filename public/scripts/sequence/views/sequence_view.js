@@ -14,6 +14,7 @@ define(function(require) {
       // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone'),
       Q                       = require('q'),
+      MatchedEnzymesView = require('./matched_enzymes_view'),
       SequenceView;
 
   SequenceView = Backbone.View.extend({
@@ -28,6 +29,9 @@ define(function(require) {
       this.model = Gentle.currentSequence;
       this.sequenceSettingsView = new SequenceSettingsView();
       this.setView('.sequence-sidebar', this.sequenceSettingsView);
+
+      this.matchedEnzymesView = new MatchedEnzymesView();
+      this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
 
       this.handleResize = _.bind(this.handleResize, this);
       this.listenTo(this.sequenceSettingsView, 'resize', this.handleResize, this);

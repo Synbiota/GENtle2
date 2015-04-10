@@ -1,0 +1,10 @@
+{{#if enzymesCount}}
+  <small class="text-danger">
+    <strong>
+      Found {{pluralCount enzymesCount 'restriction enzyme site' 'restriction enzyme sites'}}
+    <strong>
+  </small>
+  <a href="#" class="next-enzyme btn btn-default btn-xs">Scroll to next enzyme</a>
+{{else}}
+  <small class="text-muted">Found 0 enzymes.</small>
+{{/if}}

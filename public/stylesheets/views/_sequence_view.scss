@@ -23,7 +23,7 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: 0;
+    top: 30px;
     bottom: 0;
 
     canvas.sequence-canvas {
@@ -52,4 +52,15 @@
   position: absolute;
   top: 0;
   width: 100%;
+}
+
+.sequence-matched-enzymes-outlet {
+  position: absolute;
+  left: 50px;
+  right: 0;
+  top: 30px;
+  height: 30px;
+  background: white;
+  border-bottom: 1px solid #ddd;
+  padding: 5px 19px;
 }
