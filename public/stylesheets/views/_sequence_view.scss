@@ -54,7 +54,7 @@
   width: 100%;
 }
 
-.sequence-matched-enzymes-outlet {
+.sequence-matched-enzymes {
   position: absolute;
   left: 50px;
   right: 0;
@@ -63,4 +63,9 @@
   background: white;
   border-bottom: 1px solid #ddd;
   padding: 4px 19px;
+  display: none;
+
+  &.visible {
+    display: block;
+  }
 }

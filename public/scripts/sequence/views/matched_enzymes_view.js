@@ -49,6 +49,11 @@ export default Backbone.View.extend({
     };
   },
 
+  afterRender: function() {
+    var displaySettings = this.model.get('displaySettings.rows.res') || {};
+    this.$el.toggleClass('visible', displaySettings.display);
+  },
+
   getSequenceCanvas: function() {
     return this.parentView().actualPrimaryView.sequenceCanvas;
   },
@@ -81,7 +86,7 @@ export default Backbone.View.extend({
 
   handleResize: function() {
     var leftPos = this.parentView().primaryViewLeftPos() + 1;
-    $('.sequence-matched-enzymes-outlet').css('left', leftPos);
+    this.$el.css('left', leftPos);
   },
 
   openSettings: function(event) {

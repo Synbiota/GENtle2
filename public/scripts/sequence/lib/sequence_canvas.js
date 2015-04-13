@@ -149,6 +149,9 @@ define(function(require) {
         unitHeight: 10,
         textFont: LineStyles.RES.text.font,
         textColour: LineStyles.RES.text.color,
+        visible: _.memoize2(function() {
+          return _this.sequence.get('displaySettings.rows.res.display');
+        })
       }),
 
       // Position numbering
@@ -238,7 +241,10 @@ define(function(require) {
 
       // Restriction Enzyme Sites
       restrictionEnzymeSites: new Lines.RestrictionEnzymeSites(this, {
-        floating: true
+        floating: true,
+        visible: _.memoize2(function() {
+          return _this.sequence.get('displaySettings.rows.res.display');
+        })
       })
 
     };

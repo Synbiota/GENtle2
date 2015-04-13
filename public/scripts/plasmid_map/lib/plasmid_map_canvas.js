@@ -168,6 +168,8 @@ define(function(require) {
         radii = this.radii.RES,
         angle = 0;
 
+    if(!displaySettings.display) return;
+
     // artist.setLineDash([1.5,3]);
 
     artist.updateStyle({

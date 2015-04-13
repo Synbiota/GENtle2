@@ -107,10 +107,19 @@ export default Backbone.View.extend({
     }
   },
 
+  displayEnzymes: function() {
+    return this.model.get('displaySettings.rows.res.display');
+  },
+
   refresh: function(render) {
     this.processFeatures();
     this.processPositionMarks();
-    this.processEnzymes();
+    if(this.displayEnzymes()) {
+      this.processEnzymes();
+    } else {
+      this.enzymes = [];
+    }
+    
     if(render !== false) this.render();
   },
 
@@ -234,7 +243,7 @@ export default Backbone.View.extend({
 
       this.setupScrollHelper();
       this.positionFeatures();
-      this.positionEnzymes();
+      if(this.displayEnzymes()) this.positionEnzymes();
 
       // When SequenceCanvas' layoutHelpers are calculated, we fetch the
       // max base number (>= sequence length)
