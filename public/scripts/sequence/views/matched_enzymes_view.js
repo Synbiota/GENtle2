@@ -10,7 +10,8 @@ export default Backbone.View.extend({
   className: 'sequence-matched-enzymes',
 
   events: {
-    'click .next-enzyme': 'highlightNextEnzyme'
+    'click .next-enzyme': 'highlightNextEnzyme',
+    'click .open-settings': 'openSettings'
   },
 
   initialize: function() {
@@ -81,5 +82,10 @@ export default Backbone.View.extend({
   handleResize: function() {
     var leftPos = this.parentView().primaryViewLeftPos() + 1;
     $('.sequence-matched-enzymes-outlet').css('left', leftPos);
+  },
+
+  openSettings: function(event) {
+    if(event) event.preventDefault();
+    this.parentView().sequenceSettingsView.tabs.resSettings.view.openTab();
   }
 });
