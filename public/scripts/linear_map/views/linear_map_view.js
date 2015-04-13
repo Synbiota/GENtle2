@@ -156,7 +156,7 @@ export default Backbone.View.extend({
   },
 
   positionEnzymes: function() {
-    var maxBase = this.maxBaseForCalc || this.model.length();
+    var maxBase = this.sequenceCanvas.maxVisibleBase();
 
     _.each(this.$('.linear-map-enzyme'), (element) => {
       var $element = this.$(element);
