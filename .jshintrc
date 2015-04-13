@@ -6,7 +6,8 @@
 
   // GLOBALS
   "predef": [
-    "alert"
+    "alert",
+    "$"
   ],
 
 

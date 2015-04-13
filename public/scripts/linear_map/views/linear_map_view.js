@@ -23,7 +23,7 @@ export default Backbone.View.extend({
 
     this.listenTo(
       this.model, 
-      'change:sequence change:features.* change:features',
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
       _.debounce(this.refresh, 500),
       this
     );
@@ -114,7 +114,7 @@ export default Backbone.View.extend({
     if(render !== false) this.render();
   },
 
-  processPositionMarks: function(layoutHelpers) {
+  processPositionMarks: function() {
     var sequenceCanvas = this.sequenceCanvas,
         height = this.$el.height(),
         maxBase = sequenceCanvas.maxVisibleBase(),
@@ -202,7 +202,7 @@ export default Backbone.View.extend({
     }
   },
 
-  scrollSequenceCanvas: function(event, ui) {
+  scrollSequenceCanvas: function() {
     this.sequenceCanvas.scrollTo(Math.floor(
       this.$scrollHelper.position().top /
       this.$el.height() * 

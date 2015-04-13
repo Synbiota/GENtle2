@@ -15,6 +15,15 @@ export default Backbone.View.extend({
 
   initialize: function() {
     this.model = Gentle.currentSequence;
+    
+    this.listenTo(
+      this.model, 
+      'change:sequence change:displaySettings.rows.res.*',
+      this.render,
+      this
+    );
+
+    this.listenTo(Gentle, 'resize', this.handleResize, this);
   },
 
   serialize: function() {
@@ -55,13 +64,11 @@ export default Backbone.View.extend({
 
     var currentEnzymePosition = this.enzymePositions[this.currentEnzymeIndex];
 
-    // sequenceCanvas.highlightBaseRange(currentEnzymePosition, currentEnzymePosition+1);
+    sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);
+  },
 
-    // sequenceCanvas.afterNextRedraw(function() {
-      sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);
-    // });
-
-
-
+  handleResize: function() {
+    var leftPos = this.parentView().primaryViewLeftPos() + 1;
+    $('.sequence-matched-enzymes-outlet').css('left', leftPos);
   }
 });
