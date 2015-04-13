@@ -1,85 +1,77 @@
-<dl class="dl-horizontal">
-  <dt>Rows</dt>
-  <dd>
-    <div class="checkbox floating floating-half">
-      <label>
-        <input type="checkbox" name="displaySettings.rows.numbering" value="true"/>
-        Numbering
-      </label>
-    </div>
-    <div class="checkbox floating floating-half">
-      <label>
-        <input type="checkbox" name="displaySettings.rows.features" value="true"/>
-        Annotations
-      </label>
-    </div>
-    <div class="checkbox floating floating-half">
-      <label>
-        <input type="checkbox" name="displaySettings.rows.complements" value="true"/>
-        Complements
-      </label>
-    </div>
-    <div class="checkbox floating floating-half">
-      <label>
-        <input type="checkbox" name="displaySettings.rows.separators" value="true"/>
-        Separators
-      </label>
-    </div>
-  </dd>
-</dl>
+<label>
+  <input type="checkbox" name="displaySettings.rows.features" value="true"/>
+  Annotations
+</label>
+
+<br>
+<label>
+  <input type="checkbox" name="displaySettings.rows.res.display" value="false"/>
+  Restriction enzyme sites
+</label>
+
+<br>
+<label>
+  <input type="checkbox" name="displaySettings.rows.complements" value="true"/>
+  Complementary strand
+</label>
+
+<br>
+<br>
+<strong>
+  Amino acids
+</strong>
+
+<div style="margin-left: 20px;">
+  <div style="float: left; width: 30%">
+    Labels: 
+    <br>
+    <label>
+      <input type="radio" name="displaySettings.rows.aa" value="none"/>
+      None
+    </label>
+    <br>
+    <label>
+      <input type="radio" name="displaySettings.rows.aa" value="long"/>
+      Long
+    </label>
+    <br>
+    <label>
+      <input type="radio" name="displaySettings.rows.aa" value="short"/>
+      Short
+    </label>
+  </div>
+
+  <div style="float: left; width: 30%;">
+    Offsets: 
+    <br>
+    <label>
+      <input type="radio" name="displaySettings.rows.aaOffset" value="0"/>
+      0
+    </label>
+    <br>
+    <label>
+      <input type="radio" name="displaySettings.rows.aaOffset" value="1"/>
+      1
+    </label>
+    <br>
+    <label>
+      <input type="radio" name="displaySettings.rows.aaOffset" value="2"/>
+      2
+    </label>
+  </div>
+</div>
+
 <div class="clearfix"></div>
-<dl class="dl-horizontal">
-  <dt>Aminoacids</dt>
-  <dd>
-    <div class="radio floating floating-third">
-      <label>
-        <input type="radio" name="displaySettings.rows.aa" value="none"/>
-        None
-      </label>
-    </div>
-    <div class="radio floating floating-third">
-      <label>
-        <input type="radio" name="displaySettings.rows.aa" value="long"/>
-        Long
-      </label>
-    </div>
-    <div class="radio floating floating-third">
-      <label>
-        <input type="radio" name="displaySettings.rows.aa" value="short"/>
-        Short
-      </label>
-    </div>
-    <div class="floating floating-third">Offset:</div>
-    <div class="radio floating floating-fifth">
-      <label>
-        <input type="radio" name="displaySettings.rows.aaOffset" value="0"/>
-        0
-      </label>
-    </div>
-    <div class="radio floating floating-fifth">
-      <label>
-        <input type="radio" name="displaySettings.rows.aaOffset" value="1"/>
-        1
-      </label>
-    </div>
-    <div class="radio floating floating-fifth">
-      <label>
-        <input type="radio" name="displaySettings.rows.aaOffset" value="2"/>
-        2
-      </label>
-    </div>
-  </dd>
-</dl>
-<div class="clearfix"></div>
-{{!-- <dl class="dl-horizontal">
-  <dt>RES</dt>
-  <dd>
-    <div class="checkbox floating">
-      <label>
-        <input type="checkbox" name="displaySettings.rows.res.display" value="false"/>
-        Display
-      </label>
-    </div>
-  </dd>
-</dl>
-<div class="clearfix"></div> --}}
+
+<br>
+<strong>Rows</strong>
+<br>
+<label>
+  <input type="checkbox" name="displaySettings.rows.numbering" value="true"/>
+  Numbering
+</label>
+<br>
+<label>
+  <input type="checkbox" name="displaySettings.rows.separators" value="true"/>
+  Spacing between rows
+</label>
