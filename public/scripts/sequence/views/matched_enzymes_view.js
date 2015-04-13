@@ -35,11 +35,13 @@ export default Backbone.View.extend({
       hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
     });
 
-    var enzymesCount = _.reduce(enzymes, function(memo, enzymesArray) {
-      return memo + enzymesArray.length;
-    }, 0);
+    var enzymesCount = 0;
 
-    this.enzymePositions = _.keys(enzymes);
+    this.enzymePositions = _.reduce(enzymes, function(memo, enzymesArray, position) {
+      enzymesCount += enzymesArray.length;
+      memo[position ^ 0] = _.max(_.map(enzymesArray, (enzyme) => enzyme.seq.length));
+      return memo;
+    }, {});
 
     return {
       enzymesCount
@@ -55,16 +57,25 @@ export default Backbone.View.extend({
 
     var step = 1;
     var sequenceCanvas = this.getSequenceCanvas();
+    var positions = _.keys(this.enzymePositions);
 
     if(_.isUndefined(this.currentEnzymeIndex)) {
       this.currentEnzymeIndex = 0;
     } else {
-      this.currentEnzymeIndex = (this.currentEnzymeIndex + step) % this.enzymePositions.length;
+      this.currentEnzymeIndex = (this.currentEnzymeIndex + step) % positions.length;
     }
 
-    var currentEnzymePosition = this.enzymePositions[this.currentEnzymeIndex];
+    var currentEnzymePosition = positions[this.currentEnzymeIndex] ^ 0;
+    var length = this.enzymePositions[currentEnzymePosition];
 
-    sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);
+    sequenceCanvas.highlightBaseRange(
+      currentEnzymePosition, 
+      currentEnzymePosition + length
+    );
+
+    sequenceCanvas.afterNextRedraw(function() {
+      sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);
+    });
   },
 
   handleResize: function() {
