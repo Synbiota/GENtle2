@@ -23,8 +23,6 @@ export default Backbone.View.extend({
       this.render,
       this
     );
-
-    this.listenTo(Gentle, 'resize', this.handleResize, this);
   },
 
   serialize: function() {
@@ -84,13 +82,8 @@ export default Backbone.View.extend({
     });
   },
 
-  handleResize: function() {
-    var leftPos = this.parentView().primaryViewLeftPos() + 1;
-    this.$el.css('left', leftPos);
-  },
-
   openSettings: function(event) {
     if(event) event.preventDefault();
-    this.parentView().sequenceSettingsView.tabs.resSettings.view.openTab();
+    this.parentView(2).sequenceSettingsView.tabs.resSettings.view.openTab();
   }
 });
