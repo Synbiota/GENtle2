@@ -78,7 +78,7 @@ class PotentialPrimer {
           // Our calculated Tm seems good so check with IDT.
           // Now we are waiting on IDT to confirm if we have found a primer
           // with a good Tm.
-          this.checkWithIDT(ourTm);
+          this.checkWithIDT(ourTm).then(() => this.notifyProgress());
           return;
         }
       } else {
@@ -135,6 +135,7 @@ class PotentialPrimer {
   growOrShiftPotentialPrimer (incrementSize=1) {
     this.size += incrementSize;
     if(this.size > this.opts.maxPrimerLength) {
+      this.notifyProgress();
       this.incrementProgressTotal(this.progress.initialTotal);
       this.size = this.opts.minPrimerLength;
       this.i += 1;
@@ -157,7 +158,7 @@ class PotentialPrimer {
     if(logPreviousTmFromIDT) msg += `, previousTmFromIDT: ${logPreviousTmFromIDT}`;
     logger(msg);
 
-    IDTMeltingTemperature(potentialPrimer)
+    return IDTMeltingTemperature(potentialPrimer)
     .then((TmFromIDT) => {
       this.storePrimer(potentialPrimer, TmFromIDT, logOurTm);
       // TODO remove assumption that increasing/decreasing potential primer size
@@ -308,7 +309,6 @@ var optimalPrimer4 = function(sequence, opts={}) {
 
   var potentialPrimer = new PotentialPrimer(sequence, opts, deferredPrimer);
   potentialPrimer.findPrimer();
-
   return deferredPrimer.promise;
 };
 

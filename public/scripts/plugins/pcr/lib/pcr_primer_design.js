@@ -191,7 +191,6 @@ var getPcrProductAndPrimers = function(sequence, opts) {
 
     Q.all([forwardPrimerPromise, reversePrimerPromise])
     .progress(function(current) {
-      // TODO fix me by reimplementing `progress` in `optimalPrimer4`
       if(current.value.isFallback) {
         fallbackProgressReports.push(current.value);
       } else {
