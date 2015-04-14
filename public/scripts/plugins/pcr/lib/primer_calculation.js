@@ -44,7 +44,7 @@ class PotentialPrimer {
     this.assessedPrimersSequences = {};
     this.assessedPrimers = [];
 
-    var totalProgress = options.maxPrimerLength - options.minPrimerLength - 1;
+    var totalProgress = options.maxPrimerLength - options.minPrimerLength + 1;
     this.progress = {
       current: 0,
       total: 0,
@@ -52,6 +52,7 @@ class PotentialPrimer {
       initialTotal: totalProgress * 3/2
     };
     this.incrementProgressTotal(this.progress.initialTotal);
+    deferred.notify(this.progress);
   }
 
   findPrimer () {

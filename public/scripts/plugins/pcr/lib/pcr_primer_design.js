@@ -9,9 +9,13 @@ import Q from 'q';
 
 
 var processReports = function(progressReports) {
-  var i = progressReports.length-1;
-  var currentCompletion = progressReports[i].current;
-  var currentTotal = progressReports[i].total;
+  var sumPick = function(array, keyName) {
+    return _.reduce(array, function(memo, report) {
+      return memo + report[keyName];
+    }, 0);
+  };
+  var currentCompletion = sumPick(progressReports, 'current');
+  var currentTotal = sumPick(progressReports, 'total');
   return {current: currentCompletion, total: currentTotal, entries: progressReports.length};
 };
 
@@ -185,16 +189,24 @@ var getPcrProductAndPrimers = function(sequence, opts) {
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
 
-  var progressReports = [{current: 0, total: 0, isFallback: false}];
-  var fallbackProgressReports = [{current: 0, total: 0, isFallback: true}];
+  var initTotal = opts.maxPrimerLength - opts.minPrimerLength + 1;
+
+  var progressReports = [
+    {current: 0, total: initTotal, isFallback: false},
+    {current: 0, total: initTotal, isFallback: false}
+  ];
+  var fallbackProgressReports = [
+    {current: 0, total: initTotal, isFallback: true}, 
+    {current: 0, total: initTotal, isFallback: true}
+  ];
   return Q.promise(function (resolve, reject, notify) {
 
     Q.all([forwardPrimerPromise, reversePrimerPromise])
     .progress(function(current) {
       if(current.value.isFallback) {
-        fallbackProgressReports.push(current.value);
+        fallbackProgressReports[current.index] = current.value;
       } else {
-        progressReports.push(current.value);
+        progressReports[current.index] = current.value;
       }
       var lastProgress = processReports(progressReports);
       var lastFallbackProgress = processReports(fallbackProgressReports);
