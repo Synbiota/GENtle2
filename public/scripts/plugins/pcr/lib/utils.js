@@ -1,5 +1,6 @@
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import stickyEnds from '../../../common/lib/sticky_ends';
+import _ from 'underscore';
 
 
 var transformStickyEndData = function(stickyEndAttributes) {
@@ -48,12 +49,17 @@ var getPcrProductsFromSequence = function(sequenceModel) {
 };
 
 
-var savePcrProductsToSequence = function(sequenceModel, products) {
-  // Originally the model attributes were just stored and handled as a hash,
-  // we now want to use a model to handle them.
-  // We use Backbone's toJSON to convert both the vanilla hashes and
-  // backbone models into vanilla hashes.
-  var attributesOfPcrProducts = (products.toJSON && products.toJSON()) || products;
+var savePcrProductsToSequence = function(sequenceModel, products = []) {
+  if(!_.isArray(products)) throw `Expected an array: ${JSON.stringify(products)}`;
+
+  var attributesOfPcrProducts = _.map(products, function(product) {
+    // Originally the model attributes were just stored and handled as a hash,
+    // we now want to use a model to handle them.
+    // We use Backbone's toJSON to convert both the vanilla hashes and
+    // backbone models into vanilla hashes.
+    return (product.toJSON && product.toJSON()) || product;
+  });
+
   return sequenceModel.set('meta.pcr.products', attributesOfPcrProducts).throttledSave();
 };
 
