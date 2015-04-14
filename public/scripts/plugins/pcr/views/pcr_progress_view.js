@@ -1,7 +1,7 @@
 import template from '../templates/pcr_progress_view.hbs';
-import Gentle from 'gentle';
 import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import {handleError} from '../../../common/lib/handle_error';
 
 
 export default Backbone.View.extend({
