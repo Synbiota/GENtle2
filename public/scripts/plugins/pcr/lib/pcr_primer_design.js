@@ -77,14 +77,14 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
   var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
-    reverseAnnealingRegion: reverseAnnealingRegion,
+    reverseAnnealingRegion: reverseAnnealingRegion
   } = primerResults;
 
   var {
     productSequence: pcrProductSequence,
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
-    endStickyEnd: endStickyEnd,
+    endStickyEnd: endStickyEnd
   } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegion, {
@@ -185,23 +185,23 @@ var getPcrProductAndPrimers = function(sequence, opts) {
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
 
-  // var progressReports = [{current: 0, total: 0, isFallback: false}];
-  // var fallbackProgressReports = [{current: 0, total: 0, isFallback: true}];
+  var progressReports = [{current: 0, total: 0, isFallback: false}];
+  var fallbackProgressReports = [{current: 0, total: 0, isFallback: true}];
   return Q.promise(function (resolve, reject, notify) {
 
     Q.all([forwardPrimerPromise, reversePrimerPromise])
-    // .progress(function(current) {
-    //   // TODO fix me by reimplementing `progress` in `optimalPrimer4`
-    //   if(current.value.isFallback) {
-    //     fallbackProgressReports.push(current.value);
-    //   } else {
-    //     progressReports.push(current.value);
-    //   }
-    //   var lastProgress = processReports(progressReports);
-    //   var lastFallbackProgress = processReports(fallbackProgressReports);
+    .progress(function(current) {
+      // TODO fix me by reimplementing `progress` in `optimalPrimer4`
+      if(current.value.isFallback) {
+        fallbackProgressReports.push(current.value);
+      } else {
+        progressReports.push(current.value);
+      }
+      var lastProgress = processReports(progressReports);
+      var lastFallbackProgress = processReports(fallbackProgressReports);
 
-    //   notify({lastProgress, lastFallbackProgress});
-    // })
+      notify({lastProgress, lastFallbackProgress});
+    })
     .then(function(primerResults) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];

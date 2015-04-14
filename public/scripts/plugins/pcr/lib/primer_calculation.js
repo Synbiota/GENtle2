@@ -2,7 +2,7 @@ import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import Q from 'q';
 import IDT from './idt_query';
-import {handleError, namedHandleError} from '../../../common/lib/handle_error';
+import {namedHandleError} from '../../../common/lib/handle_error';
 import {filterPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
@@ -10,8 +10,6 @@ import Primer from './primer';
 var checkForPolyN = SequenceCalculations.checkForPolyN;
 var gcContent = SequenceCalculations.gcContent;
 
-
-var IDTMeltingTemperatureCache = {};
 
 var _IDTMeltingTemperature = function(sequence) {
   //TODO make this work
@@ -45,6 +43,15 @@ class PotentialPrimer {
     this.returnNearestIfNotBest = this.opts.returnNearestIfNotBest;
     this.assessedPrimersSequences = {};
     this.assessedPrimers = [];
+
+    var totalProgress = options.maxPrimerLength - options.minPrimerLength - 1;
+    this.progress = {
+      current: 0,
+      total: 0,
+      isFallback: false,
+      initialTotal: totalProgress * 3/2
+    };
+    this.incrementProgressTotal(this.progress.initialTotal);
   }
 
   findPrimer () {
@@ -128,6 +135,7 @@ class PotentialPrimer {
   growOrShiftPotentialPrimer (incrementSize=1) {
     this.size += incrementSize;
     if(this.size > this.opts.maxPrimerLength) {
+      this.incrementProgressTotal(this.progress.initialTotal);
       this.size = this.opts.minPrimerLength;
       this.i += 1;
     }
@@ -218,8 +226,14 @@ class PotentialPrimer {
     var bestSequencesWithOurTms = sortedSequencesWithOurTms.slice(0, maxIdtQueries);
     if(sortedSequencesWithOurTms.length > maxIdtQueries) console.warn(`We were about to send ${sortedSequencesWithOurTms.length} queries to IDT but will only send ${bestSequencesWithOurTms.length}`);
 
+    this.incrementProgressTotal(bestSequencesWithOurTms.length);
+
     var primerTmPromises = _.map(bestSequencesWithOurTms, ({primerSequence}) => {
-      return IDTMeltingTemperature(primerSequence);
+      return IDTMeltingTemperature(primerSequence)
+        .then((data) => {
+          this.notifyProgress();
+          return data;
+        });
     });
 
     var promiseNearestBestPrimer = Q.all(primerTmPromises).then((temperatures) => {
@@ -267,6 +281,20 @@ class PotentialPrimer {
       gcContent: gcContent(primerSequence),
     });
     return primer;
+  }
+
+  notifyProgress() {
+    this.progress.current ++;
+    this.deferred.notify(this.progress);
+  }
+
+  incrementProgressTotal(totalIncrement) {
+    var progress = this.progress;
+    var current = progress.current;
+    var total = progress.total;
+    var newCurrent = current > 0 ? current * totalIncrement / (total - current) : 0;
+    progress.total = totalIncrement + newCurrent;
+    progress.current = newCurrent;
   }
 
 }
