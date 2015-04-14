@@ -1,6 +1,7 @@
-import Gentle from 'gentle';
 import SequenceModel from '../../../sequence/models/sequence';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {getPcrProductsFromSequence} from '../../pcr/lib/utils';
+import _ from 'underscore';
 
 
 class AssembleSequenceModel {
@@ -29,7 +30,10 @@ class AssembleSequenceModel {
   }
 
   updateInsertabilityState () {
-    this.allSequences = Gentle.sequences.without(this.model);
+    // 
+    // this.allSequences = Gentle.sequences.without(this.model);
+    this.allSequences = _.map(this.model.get('meta.designerSequences'), (sequence) => new TemporarySequence(sequence));
+    console.log(this.allSequences);
     // Add any PCR product sequences within the model
     this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {
       var pcrProducts = getPcrProductsFromSequence(sequence);
