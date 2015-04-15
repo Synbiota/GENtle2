@@ -26,19 +26,19 @@ var calculateFeatures = function(productAttributes) {
   if(productAttributes.stickyEnds) {
     var sequenceNts = productAttributes.sequence;
     features = [{
-      name: productAttributes.stickyEnds.startName + ' end',
+      name: productAttributes.stickyEnds.start.name + ' end',
       _type: 'sticky_end',
       ranges: [{
         from: 0,
-        to: productAttributes.stickyEnds.start.length-1
+        to: productAttributes.stickyEnds.start.sequence.length-1
       }]
     },
     {
-      name: productAttributes.stickyEnds.endName + ' end',
+      name: productAttributes.stickyEnds.end.name + ' end',
       _type: 'sticky_end',
       ranges: [{
         from: sequenceNts.length - 1,
-        to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.length,
+        to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.sequence.length,
       }]
     },
     {
