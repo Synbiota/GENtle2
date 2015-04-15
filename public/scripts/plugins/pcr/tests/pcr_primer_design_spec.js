@@ -62,13 +62,20 @@ describe('calculating PCR product from primers', function() {
         name: "vioA",
         targetMeltingTemperature: 65,
         stickyEnds: {
-          name: "X-Z'",
-          startName: "X",
-          endName: "Z'",
-          start: "CCTGCAGTCAGTGGTCTCTAGAG",
-          end: "GAGATGAGACCGTCAGTCACGAG",
-          startOffset: 19,
-          endOffset: -19
+          start: {
+            sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+            reverse: false,
+            offset: 19,
+            size: 4,
+            name: "X",
+          },
+          end: {
+            sequence: 'GAGATGAGACCGTCAGTCACGAG',
+            reverse: true,
+            offset: 19,
+            size: 4,
+            name: "Z'",
+          }
         },
         minPrimerLength: 10,
         maxPrimerLength: 40,
@@ -107,7 +114,7 @@ describe('calculating PCR product from primers', function() {
     var reverseAnnealingRegion = pcrProduct.reverseAnnealingRegion;
     expect(reverseAnnealingRegion.sequence).toEqual(reverseAnnealingRegionSequenceComplement);
     expect(reverseAnnealingRegion.from).toEqual((
-      opts.stickyEnds.start.length +
+      opts.stickyEnds.start.sequence.length +
       forwardAnnealingRegionSequence.length +
       interveningSequence.length +
       reverseAnnealingRegionSequence.length - 1)
@@ -119,13 +126,13 @@ describe('calculating PCR product from primers', function() {
   });
 
   it('correct forward Primer', function() {
-    expect(forwardPrimer.sequence).toEqual(opts.stickyEnds.start + forwardAnnealingRegionSequence);
+    expect(forwardPrimer.sequence).toEqual(opts.stickyEnds.start.sequence + forwardAnnealingRegionSequence);
     expect(forwardPrimer.from).toEqual(0);
     expect(forwardPrimer.to).toEqual(41);
   });
 
   it('correct reverse Primer', function() {
-    expect(reversePrimer.sequence).toEqual(SequenceTransforms.toReverseComplements(opts.stickyEnds.end) + reverseAnnealingRegionSequenceComplement);
+    expect(reversePrimer.sequence).toEqual(SequenceTransforms.toReverseComplements(opts.stickyEnds.end.sequence) + reverseAnnealingRegionSequenceComplement);
     expect(reversePrimer.from).toEqual(pcrProduct.sequence.length - 1);
     expect(reversePrimer.to).toEqual(reversePrimer.from - reversePrimer.sequence.length);
   });
