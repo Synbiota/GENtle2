@@ -20,6 +20,7 @@ export default Backbone.View.extend({
       alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
     } else {
       this.model.assembleSequences().throttledSave();
+      this.model.set('meta.designer', {});
       this.parentView(1).remove();
       this.parentView(2).changePrimaryView('edition');
     }

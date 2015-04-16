@@ -34,7 +34,9 @@ define(function(require) {
               primaryView: 'designer'
             },
             meta: {
-              designerSequences: loadedSequences, 
+              designer: {
+                sequences: loadedSequences, 
+              },
             }
             
           });

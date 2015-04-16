@@ -24,7 +24,7 @@ class AssembleSequenceModel {
   }
 
   _parseAssembleSequences () {
-    var assembleSequencesJSON = this.get('meta.assembleSequences') || '[]';
+    var assembleSequencesJSON = this.get('meta.designer.assembleSequences') || '[]';
     var attributesOfSequences = JSON.parse(assembleSequencesJSON);
     return _.map(attributesOfSequences, (sequenceAttributes) => new SequenceModel(sequenceAttributes));
   }
@@ -32,7 +32,7 @@ class AssembleSequenceModel {
   updateInsertabilityState () {
     // 
     // this.allSequences = Gentle.sequences.without(this.model);
-    this.allSequences = _.map(this.model.get('meta.designerSequences'), (sequence) => new TemporarySequence(sequence));
+    this.allSequences = _.map(this.model.get('meta.designer.sequences'), (sequence) => new TemporarySequence(sequence));
     console.log(this.allSequences);
     // Add any PCR product sequences within the model
     this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {
@@ -63,7 +63,7 @@ class AssembleSequenceModel {
   }
 
   throttledSave () {
-    this.model.set('meta.assembleSequences', JSON.stringify(this.sequences));
+    this.model.set('meta.designer.assembleSequences', JSON.stringify(this.sequences));
     return this.model.throttledSave();
   }
   
