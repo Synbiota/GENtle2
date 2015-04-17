@@ -33,7 +33,7 @@ class AssembleSequenceModel {
     // 
     // this.allSequences = Gentle.sequences.without(this.model);
     this.allSequences = _.map(this.model.get('meta.designer.sequences'), (sequence) => new TemporarySequence(sequence));
-    console.log(this.allSequences);
+    
     // Add any PCR product sequences within the model
     this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {
       var pcrProducts = getPcrProductsFromSequence(sequence);
@@ -63,7 +63,8 @@ class AssembleSequenceModel {
   }
 
   throttledSave () {
-    this.model.set('meta.designer.assembleSequences', JSON.stringify(this.sequences));
+    if(!this.get('sequence'))
+      this.model.set('meta.designer.assembleSequences', JSON.stringify(this.sequences));
     return this.model.throttledSave();
   }
   
@@ -123,11 +124,14 @@ class AssembleSequenceModel {
 
   assembleSequences () {
     var finalSequence = SequenceModel.concatenateSequences(this.sequences, this.model.get('isCircular'));
+
     this.set({
       sequence: finalSequence.get('sequence'),
       features: finalSequence.get('features'),
       stickyEnds: finalSequence.get('stickyEnds'),
+      meta: undefined
     });
+
     return this;
   }
 

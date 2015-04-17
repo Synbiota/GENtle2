@@ -3,94 +3,82 @@
 @submodule Views
 @class HomeDesignerView
 **/
-define(function(require) {
-  var Backbone    = require('backbone'),
-      template    = require('../templates/home_designer_view.hbs'),
-      Sequence    = require('../../../sequence/models/sequence'),
-      TemporarySequence = require('../../../sequence/models/temporary_sequence'),
-      Filetypes   = require('../../../common/lib/filetypes/filetypes'),
-      Gentle      = require('gentle'),
-      Q = require('q'),
-      HomeDesignerView;
+import Backbone from 'backbone';
+import template from '../templates/home_designer_view.hbs';
+import Sequence from '../../../sequence/models/sequence';
+import Filetypes from '../../../common/lib/filetypes/filetypes';
+import Gentle from 'gentle';
+import Q from 'q';
+import _ from 'underscore';
 
-  HomeDesignerView = Backbone.View.extend({
-    manage: true,
-    template: template,
-    className: 'home-designer',
+export default Backbone.View.extend({
+  manage: true,
+  template: template,
+  className: 'home-designer',
 
-    events: {
-      'submit .home-designer-form': 'clickInputElement',
-      'change .home-designer-form input[name=file]': 'openSequenceFromFile',
-    },
-    
-    createNewSequence: function(event, loadedSequences) {
-      event.preventDefault();
-      var $form     = this.$('form').first(),
-          name      = $form.find('[name=name]').val() || 'Unnamed',
-          sequence  = new Sequence({
-            name: name,
-            sequence: '',
-            displaySettings: {
-              primaryView: 'designer'
+  events: {
+    'submit .home-designer-form': 'clickInputElement',
+    'change .home-designer-form input[name=file]': 'openSequenceFromFile',
+  },
+  
+  createNewSequence: function(event, loadedSequences) {
+    event.preventDefault();
+    var $form     = this.$('form').first(),
+        name      = $form.find('[name=name]').val() || 'Unnamed',
+        sequence  = new Sequence({
+          name: name,
+          sequence: '',
+          displaySettings: {
+            primaryView: 'designer'
+          },
+          meta: {
+            designer: {
+              sequences: loadedSequences, 
             },
-            meta: {
-              designer: {
-                sequences: loadedSequences, 
-              },
-            }
-            
-          });
-
-      Gentle.addSequencesAndNavigate([sequence]);
-    },
-
-    openSequenceFromFile: function(event) {
-      console.log("runs");
-      event.preventDefault();
-      var $form     = $('.home-designer-form').first(),
-          input     = $form.find('input[name=file]')[0],
-          loadedSequences = [],
-          _this     = this;
-
-      var onLoad = function(result) {
-        return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
-          console.log('done sequence')
-          if ( sequences.length ) {
-            loadedSequences = loadedSequences.concat(sequences);
-          } else{
-           alert('Could not parse the sequence.');
           }
-          console.log('loadedSequences', loadedSequences)
-        }, function (err) {
-          console.log(err);
-          alert('Could not parse the sequence.');
+          
         });
-      };
 
-      var onError = function(filename) {
-        alert('Could not load file ' + filename);
-      };
+    Gentle.addSequencesAndNavigate([sequence]);
+  },
 
-      var onLoadPromises = _.map(input.files, function(file) {
-        return Filetypes.loadFile(file,true).then(onLoad, onError);
+  openSequenceFromFile: function(event) {
+    event.preventDefault();
+    var $form     = $('.home-designer-form').first(),
+        input     = $form.find('input[name=file]')[0],
+        loadedSequences = [];
+
+    var onLoad = function(result) {
+      return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
+        if ( sequences.length ) {
+          loadedSequences = loadedSequences.concat(sequences);
+        } else{
+         alert('Could not parse the sequence.');
+        }
+      }, function (err) {
+        console.log(err);
+        alert('Could not parse the sequence.');
       });
+    };
 
-      Q.all(onLoadPromises).then(() => {
-        console.log('done all sequences', this)
-        this.createNewSequence(event, loadedSequences);
-      }).done()
+    var onError = function(filename) {
+      alert('Could not load file ' + filename);
+    };
 
-    },
+    var onLoadPromises = _.map(input.files, function(file) {
+      return Filetypes.loadFile(file,true).then(onLoad, onError);
+    });
 
-    clickInputElement: function(event) {
-      event.preventDefault();
-      console.log("runs click event");
+    Q.all(onLoadPromises).then(() => {
+      this.createNewSequence(event, loadedSequences);
+    }).done();
 
-      this.$('.home-designer-form input[name=file]').click();
-    }
+  },
 
-   
-  });
+  clickInputElement: function(event) {
+    event.preventDefault();
+    this.$('.home-designer-form input[name=file]').click();
+  }
 
-  return HomeDesignerView;
+ 
 });
