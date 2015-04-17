@@ -95,7 +95,6 @@ export default {
       if(triesLeft < this.MAX_RETRIES) {
         console.log('Retry successful.')
       }
-      console.log('yql query successful')
       deferredYqlQuery.resolve(response);
     }).catch((e) => {
       triesLeft -= 1;

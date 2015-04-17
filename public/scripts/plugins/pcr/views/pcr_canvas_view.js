@@ -7,6 +7,19 @@ import _ from 'underscore';
 import Styles from '../../../styles.json';
 
 var LineStyles = Styles.sequences.lines;
+var featuresColors = LineStyles.features.color;
+var defaultColor = LineStyles.complements.text.color;
+var colors = {
+  default: {
+    text: defaultColor
+  },
+  annealingRegion: {
+    fill: (featuresColors['type-annealing_region'] && featuresColors['type-annealing_region'].fill) || featuresColors._default.fill
+  },
+  stickyEnd: {
+    fill: (featuresColors['type-sticky_end'] && featuresColors['type-sticky_end'].fill) || defaultColor
+  }
+};
 
 export default Backbone.View.extend({
   manage: true,
@@ -20,18 +33,16 @@ export default Backbone.View.extend({
   },
 
   getSequenceColour: function(base, pos, defaultColor) {
-    defaultColor = defaultColor || LineStyles.complements.text.color;
+    defaultColor = defaultColor || colors.default.text;
 
     if(!this.product) return defaultColor;
-
-    var featuresColors = LineStyles.features.color;
 
     if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
       return defaultColor;
     } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
-      return (featuresColors.annealing_region && featuresColors.annealing_region.fill) || featuresColors._default.fill;
+      return colors.annealingRegion.fill;
     } else {
-      return (featuresColors.sticky_end && featuresColors.sticky_end.fill) || defaultColor;
+      return colors.stickyEnd.fill;
     }
   },
 

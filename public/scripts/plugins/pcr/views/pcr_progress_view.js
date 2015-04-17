@@ -31,6 +31,7 @@ export default Backbone.View.extend({
 
     getPcrProductAndPrimers(sequence, data).then((pcrProduct) => {
       var parentView = this.parentView();
+      this.updateProgressBar(1);
 
       sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
 
@@ -41,7 +42,7 @@ export default Backbone.View.extend({
 
     }).progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));
-      if(lastFallbackProgress.total) {
+      if(lastFallbackProgress.total && lastFallbackProgress.current !== 0) {
         this.updateFallbackProgressBar(this.calcTotal(lastFallbackProgress));
       }
     }).catch((e) => {

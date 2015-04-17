@@ -1,3 +1,4 @@
+Object.assign = require('object-assign');
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var rename = require('gulp-rename');
@@ -96,8 +97,6 @@ var run = function(watch) {
   return bundle;
 };
 
-var runAndWatch = _.partial(run, true);
-
 var buildTheme = function(cb) {
   bundleLogger.start(themeJsonPath);
   fs.createReadStream(themeJsonPath)
@@ -112,7 +111,9 @@ var buildTheme = function(cb) {
       cb();
     })
     .pipe(gulp.dest(themeScssDest));
-  };
+};
+
+var runAndWatch = _.partial(buildTheme, _.partial(run, true));
 
 gulp.task('theme', buildTheme);
 

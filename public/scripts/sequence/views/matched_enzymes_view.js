@@ -53,7 +53,7 @@ export default Backbone.View.extend({
   },
 
   getSequenceCanvas: function() {
-    return this.parentView().actualPrimaryView.sequenceCanvas;
+    return this.parentView(2).actualPrimaryView.sequenceCanvas;
   },
 
   highlightNextEnzyme: function(event) {

@@ -8,7 +8,7 @@ export function getProductAndSequenceForSequenceID (products, sequenceID) {
   var sequence;
   var product = _.find(products, function(product) {
     _.each(fields, function(field) {
-      var _sequence = product[field];
+      var _sequence = product.attributes[field];
       if(!sequence && _sequence && _sequence.id && _sequence.id === sequenceID) sequence = _sequence;
     });
     return sequence; // if `sequence` is found, stops find loop with matching `product`
