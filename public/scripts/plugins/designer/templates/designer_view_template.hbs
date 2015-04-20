@@ -1,34 +1,8 @@
 <div class="designer-available-sequences">
-  <div class="designer-options">
-    <button class="btn btn-default toggle-annotations">
-    {{#if showAnnotations}}Hide{{else}}Show{{/if}} annotations
-    </button>
-  </div>
-  <div class="designer-available-sequence-outlet-container">
-  {{#each insertableSequences}}
-    <div class="designer-available-sequence-outlet usable-sequence" data-sequence_id="{{.}}">
+  {{#each availableSequences}}
+    <div class="designer-available-sequence-outlet" data-sequence-id="{{.}}">
     </div>
   {{/each}}
-
-  {{#if uninsertableSequences}}
-    <br><br>
-    <h5>
-      &nbsp; {{uninsertableSequences}} unusable sequence(s)
-      &nbsp;<a class="toggle-uninsertable-sequences">{{#if showUninsertableSequences}}hide{{else}}show{{/if}}</a>
-    </h5>
-  {{/if}}
-  <div {{#unless showUninsertableSequences}}style="display: none;"{{/unless}}>
-    {{#each incompatibleSequences}}
-      <div class="designer-available-sequence-outlet unusable-sequence incompatible-sequences" data-sequence_id="{{.}}">
-      </div>
-    {{/each}}
-    {{#each lackStickyEndSequences}}
-      <div class="designer-available-sequence-outlet unusable-sequence lacks-sticky-end-sequences" data-sequence_id="{{.}}">
-      </div>
-    {{/each}}
-  </div>
-  </div>
-
 </div>
 <div class="designer-designed-sequence-outlet">
 </div>

@@ -1,27 +1,17 @@
 <form class="home-designer-form">
-  <h3>Create a new RDP circuit by opening sequences from disk</h3>
-  <p>
-    Select RDP part sequences to add to the circuit in SYBIL format. Hold down the Shift key to select more than one SYBIL file.
-  </p>
-  <p>
-    Sequences that are not RDP parts will appear in GENtle Designer, but you cannot use them to build the RDP circuit 
-  </p>
-  <p>
-    (You can also create a new RDP circuit from the Sequences section of Synbiota)  
-  </p>
+  <h3>Create a new sequence in the designer</h3>
   <br/>
   <div>
     <div class="row">
       <div class="col-md-7">
-        <input type="text" name="name" placeholder="RDP circuit name" autofocus class="form-control" required="required"/>
+        <input type="text" name="name" placeholder="Sequence name" class="form-control"/>
       </div>
     </div>
     <br/>
-
+    </div>
     <div class="row">
-      <div class='col-md-7'>
-        <button href="#" class="btn btn-default">Select RDP part sequences to assemble new RDP circuit</button>
-        <input type="file" novalidate name="file" class="form-control" multiple style="display: none;"/>
+      <div class="col-md-7">
+        <input type="submit" value="Create sequence" class="btn btn-default"/>
       </div>
     </div>
   </div>
