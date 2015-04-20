@@ -45,9 +45,12 @@ var getPrimersPair = function(options, sequence) {
   var reversePromise = PrimerCalculation.optimalPrimer4(SequenceTransforms.toReverseComplements(sequence), options);
   var lastProgress = [{}, {}];
 
+  forwardPromise.progress(() => { console.log('lapin') })
+
   return Q.promise(function(resolve, reject, notify) {
 
     Q.all([forwardPromise, reversePromise]).progress(function(current) {
+      console.log('getprimerspair progress', current)
       lastProgress[current.index] = current.value;
       notify(aggregateProgress(lastProgress));
     }).then(function(results) {
@@ -93,10 +96,11 @@ var getAllPrimers = function(sequence, options={}) {
       if(i > numberBatches) return Q(results);
 
       return Q.all(promises
-      // ).progress(function(current) {
-      //   lastProgress[current.index] = current.value;
-      //   notify(aggregateProgress(lastProgress));
-      // }
+      ).progress(function(current) {
+        console.log('progress')
+        lastProgress[current.index] = current.value;
+        notify(aggregateProgress(lastProgress));
+      }
       ).then(function(results_) {
         notify(i/numberBatches);
         return getParallelPrimers(i + maxParallel, results.concat(results_));
@@ -147,21 +151,25 @@ var _getAllPrimersAndProducts = function(sequence, options, previousPrimer, defe
   }
 
   var subSequence = sequence.substr(0, until);
-  PrimerCalculation.optimalPrimer4(subSequence, options).then(
-  function(forwardPrimer) {
-    var result = calculateProductAndModifyPrimer(productsAndPrimers, offset, sequence, forwardPrimer);
-    var newPreviousPrimer = result.newPreviousPrimer;
-    var remainingSequence = result.remainingSequence;
-    offset = result.offset;
+  PrimerCalculation.optimalPrimer4(subSequence, options)
+    .then(function(forwardPrimer) {
+      var result = calculateProductAndModifyPrimer(productsAndPrimers, offset, sequence, forwardPrimer);
+      var newPreviousPrimer = result.newPreviousPrimer;
+      var remainingSequence = result.remainingSequence;
 
-    if(remainingSequence.length > (MAX_DNA_CHUNK_SIZE + newPreviousPrimer.from)) {
-      _getAllPrimersAndProducts(remainingSequence, options, newPreviousPrimer, deferredAllPrimersAndProducts, productsAndPrimers, offset);
-    } else {
-      deferredAllPrimersAndProducts.resolve(productsAndPrimers);
-    }
-  }).catch(function(e) {
-    deferredAllPrimersAndProducts.reject(e);
-  });
+      deferredAllPrimersAndProducts.notify(result.offset / (sequence.length + offset));
+
+      offset = result.offset;
+
+      if(remainingSequence.length > (MAX_DNA_CHUNK_SIZE + newPreviousPrimer.from)) {
+        _getAllPrimersAndProducts(remainingSequence, options, newPreviousPrimer, deferredAllPrimersAndProducts, productsAndPrimers, offset);
+      } else {
+        deferredAllPrimersAndProducts.resolve(productsAndPrimers);
+      }
+    })
+    .catch(function(e) {
+      deferredAllPrimersAndProducts.reject(e);
+    });
 
 };
 

@@ -41,7 +41,7 @@ var NCBIView = Backbone.View.extend({
 
   openFromId: function(id) {
     return NCBIRequest.loadFromId(id, this.dbName)
-      .then(Gentle.addSequences)
+      .then(Gentle.addSequencesAndNavigate)
       .catch(function() {
         alert('The sequence could not be parsed.');
       });

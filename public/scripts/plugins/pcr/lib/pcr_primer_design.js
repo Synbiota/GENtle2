@@ -9,9 +9,13 @@ import Q from 'q';
 
 
 var processReports = function(progressReports) {
-  var i = progressReports.length-1;
-  var currentCompletion = progressReports[i].current;
-  var currentTotal = progressReports[i].total;
+  var sumPick = function(array, keyName) {
+    return _.reduce(array, function(memo, report) {
+      return memo + report[keyName];
+    }, 0);
+  };
+  var currentCompletion = sumPick(progressReports, 'current');
+  var currentTotal = sumPick(progressReports, 'total');
   return {current: currentCompletion, total: currentTotal, entries: progressReports.length};
 };
 
@@ -22,19 +26,19 @@ var calculateFeatures = function(productAttributes) {
   if(productAttributes.stickyEnds) {
     var sequenceNts = productAttributes.sequence;
     features = [{
-      name: productAttributes.stickyEnds.startName + ' end',
+      name: productAttributes.stickyEnds.start.name + ' end',
       _type: 'sticky_end',
       ranges: [{
         from: 0,
-        to: productAttributes.stickyEnds.start.length-1
+        to: productAttributes.stickyEnds.start.sequence.length-1
       }]
     },
     {
-      name: productAttributes.stickyEnds.endName + ' end',
+      name: productAttributes.stickyEnds.end.name + ' end',
       _type: 'sticky_end',
       ranges: [{
         from: sequenceNts.length - 1,
-        to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.length,
+        to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.sequence.length,
       }]
     },
     {
@@ -77,14 +81,14 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
   var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
-    reverseAnnealingRegion: reverseAnnealingRegion,
+    reverseAnnealingRegion: reverseAnnealingRegion
   } = primerResults;
 
   var {
     productSequence: pcrProductSequence,
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
-    endStickyEnd: endStickyEnd,
+    endStickyEnd: endStickyEnd
   } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegion, {
@@ -185,23 +189,30 @@ var getPcrProductAndPrimers = function(sequence, opts) {
   var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
   var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
 
-  // var progressReports = [{current: 0, total: 0, isFallback: false}];
-  // var fallbackProgressReports = [{current: 0, total: 0, isFallback: true}];
+  var initTotal = opts.maxPrimerLength - opts.minPrimerLength + 1;
+
+  var progressReports = [
+    {current: 0, total: initTotal, isFallback: false},
+    {current: 0, total: initTotal, isFallback: false}
+  ];
+  var fallbackProgressReports = [
+    {current: 0, total: initTotal, isFallback: true}, 
+    {current: 0, total: initTotal, isFallback: true}
+  ];
   return Q.promise(function (resolve, reject, notify) {
 
     Q.all([forwardPrimerPromise, reversePrimerPromise])
-    // .progress(function(current) {
-    //   // TODO fix me by reimplementing `progress` in `optimalPrimer4`
-    //   if(current.value.isFallback) {
-    //     fallbackProgressReports.push(current.value);
-    //   } else {
-    //     progressReports.push(current.value);
-    //   }
-    //   var lastProgress = processReports(progressReports);
-    //   var lastFallbackProgress = processReports(fallbackProgressReports);
+    .progress(function(current) {
+      if(current.value.isFallback) {
+        fallbackProgressReports[current.index] = current.value;
+      } else {
+        progressReports[current.index] = current.value;
+      }
+      var lastProgress = processReports(progressReports);
+      var lastFallbackProgress = processReports(fallbackProgressReports);
 
-    //   notify({lastProgress, lastFallbackProgress});
-    // })
+      notify({lastProgress, lastFallbackProgress});
+    })
     .then(function(primerResults) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];

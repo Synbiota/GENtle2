@@ -6,9 +6,7 @@ define(function(require) {
   Gentle.addPlugin('sequence-primary-view', {
     name: 'designer',
     title: 'Assemble sequences',
-    view: DesignerView,
-    maximize: true,
-    visible: () => false
+    view: DesignerView
   });
 
   Gentle.addPlugin('home', {

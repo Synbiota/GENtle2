@@ -2,5 +2,18 @@
   "esnext": true,
   "noyield": true,
   "undef": true,
-  "unused": true
+  "unused": true,
+
+  // GLOBALS
+  "predef": [
+    "alert",
+    "$"
+  ],
+
+
+  // ENV
+  "browser": true,
+  "browserify": true,
+  "node": true,
+  "jasmine": true
 }

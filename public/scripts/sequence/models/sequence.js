@@ -1083,6 +1083,9 @@ SequenceModel.calculateProduct = function(sequenceNts, opts) {
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
   var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end || '';
 
+  if(!_.isString(startStickyEnd)) startStickyEnd = startStickyEnd.sequence;
+  if(!_.isString(endStickyEnd)) endStickyEnd = endStickyEnd.sequence;
+
   var productSequence = startStickyEnd + regionOfInterest + endStickyEnd;
   return {productSequence, regionOfInterest, startStickyEnd, endStickyEnd};
 };

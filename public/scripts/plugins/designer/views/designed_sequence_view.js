@@ -1,224 +1,286 @@
-import Backbone from 'backbone';
-import template from '../templates/designed_sequence_view.hbs';
-import SynbioData from '../../../common/lib/synbio_data';
-import Gentle from 'gentle';
-import Sequence from '../../../sequence/models/sequence';
-import draggableCleanup from '../lib/draggable_cleanup';
+define(function(require) {
+  var Backbone = require('backbone'),
+      template = require('../templates/designed_sequence_view.hbs'),
+      SynbioData = require('../../../common/lib/synbio_data'),
+      Gentle = require('gentle'),
+      DesignedSequenceView;
 
-export default Backbone.View.extend({
-  template: template,
-  manage: true,
+  DesignedSequenceView = Backbone.View.extend({
+    template: template,
+    manage: true,
 
-  events: {
-    'click .assemble-sequence-btn': 'assembleSequence',
-    'change #circularise-dna': 'updateCirculariseDna',
-  },
+    initialize: function() {
+      this.listenTo(Gentle.currentSequence, 'change', this.render, this);
+    },
 
-  assembleSequence: function(event) {
-    event.preventDefault();
-    if(this.model.incompatibleStickyEnds()) {
-      alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
-    } else {
-      this.model.assembleSequences().throttledSave();
-      this.parentView(1).remove();
-      this.parentView(2).changePrimaryView('edition');
-    }
-  },
+    trashFeatureOrBases: function(chunk){
+      var currentChunk = _.findWhere(this.model.chunks,{id: chunk}), featureObj;
 
-  updateCirculariseDna: function(event) {
-    event.preventDefault();
-    this.model.set('isCircular', event.target.checked).throttledSave();
-    this.render();
-  },
+      this.model.deleteBases(
+        currentChunk.from,
+        -currentChunk.from+currentChunk.to+1, 
+        true
+      );
+    },
 
-  serialize: function() {
-    var output = {
-      sequenceName: this.model.get('name'),
-      circulariseDna: this.model.get('isCircular'),
-      incompatibleStickyEnds: this.model.incompatibleStickyEnds(),
-    };
-    if(this.model.sequences.length) {
-      output.sequences = this.model.processSequences();
-      output.lastId = this.model.sequences.length;
-    } else {
-      output.empty = true;
-    }
-    return output;
-  },
+    processChunks: function() {
+      var id = 0,
+          features = [],
+          chunks = [],
+          chunkId = -1,
+          lastChunkEndBase = -1,
+          lastBase = this.model.length() - 1,
+          _this = this,
+          type;
 
-  renderAndSave: function () {
-    // Perhaps change this back to `this.render()`, as whole view flickers.
-    this.parentView().render();
-    this.model.throttledSave();
-  },
+      _.each(_.reject(this.model.get('features'), function(feature) {
+        var featureTypeData = SynbioData.featureTypes[feature._type];
+        return false;
+        return !featureTypeData || !featureTypeData.is_main_type;
+      }), function(feature) {
+        _.each(feature.ranges, function(range) {
 
-  insertFromAvailableSequence: function($draggable, beforeIndex = 0) {
-    $draggable.on('dragstop', () => {
-      var sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
-      this.model.insertSequence(beforeIndex, sequence);
-      this.renderAndSave();
-    });
-  },
+          if(feature._type !== 'Sequence'){
 
-  moveSequence: function($draggable, newIndex) {
-    $draggable.on('dragstop', () => {
-      var oldIndex = this.getSequenceIndexFromDraggableChunk($draggable);
-      this.model.moveSequence(oldIndex, newIndex);
-      this.renderAndSave();
-    });
-  },
 
-  removeSequence: function($draggable, index) {
-    $draggable.on('dragstop', () => {
-      this.model.removeSequenceAtIndex(index);
-      this.renderAndSave();
-    });
-  },
-
-  getSequenceIndexFromDraggableChunk: function($draggable) {
-    var $container = $draggable.closest('.designer-designed-sequence-chunk-container');
-    return $container.data('sequence_index');
-  },
-
-  getSequenceFromAvailableSequenceDraggable: function($draggable) {
-    var sequenceId, availableSequenceView, feature;
-    sequenceId = $draggable.closest('[data-sequence_id]').data('sequence_id');
-
-    availableSequenceView = this.parentView()
-      .getAvailableSequenceViewFromSequenceId(sequenceId);
-
-    if($draggable.hasClass('designer-available-sequence-entireseq')) {
-      return availableSequenceView.model;
-    } else {
-      feature = _.findWhere(availableSequenceView.features, {
-        id: $draggable.data('feature_id')
+          features.push({
+             name: feature.name,
+             id: ++id,
+             featureId: feature._id,
+             from: range.from,
+             to: range.to,
+             reverseComplement: range.reverseComplement,
+            _type: feature._type.toLowerCase()
+          });
+        }
+        });
       });
 
-      return {
-        feature: feature,
-        subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
-      };
-    }
-  },
+      features = _.sortBy(features, function(feature) {
+        return feature.from;
+      });
 
-  getSequenceFromDraggableChunk: function($draggable) {
-    var $container = $draggable.closest('.designer-designed-sequence-chunk-container');
-    var index = this.getSequenceIndexFromDraggableChunk($container);
-    return this.model.sequences[index];
-  },
+      _.each(features, function(feature) {
+        if(feature.from > lastChunkEndBase + 1) {
+          chunks.push({
+            id: ++chunkId,
+            _type: 'sequence',
+            empty: true,
+            from: lastChunkEndBase + 1,
+            to: feature.from - 1,
+            length: feature.from - 1 - lastChunkEndBase - 1 + 1
+          });
+        }
 
-  canDrop: function($draggable, beforeIndex) {
-    var previousIndex;
-    if($draggable.hasClass('designer-designed-sequence-chunk')) {
-      previousIndex = this.getSequenceIndexFromDraggableChunk($draggable);
-    }
+        chunks.push({
+          id: ++chunkId,
+          empty: false,
+          from: feature.from,
+          to: feature.to,
+          length: feature.to - feature.from + 1,
+          feature: feature
+        });
 
-    if(beforeIndex === previousIndex || beforeIndex - 1 === previousIndex) {
-      return false;
-    }
+          lastChunkEndBase = feature.to;
+      });
 
-    var sequence;
-    if($draggable.hasClass('designer-designed-sequence-chunk')) {
-      sequence = this.getSequenceFromDraggableChunk($draggable);
-    } else {
-      sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
-    }
-    return this.model._canInsert(sequence, beforeIndex, previousIndex);
-  },
-
-  cleanUpDraggable: function() {
-    draggableCleanup(
-      this, 
-      '.designer-designed-sequence-chunk',
-      'div.designer-designed-sequence-chunk-trash',
-      '.designer-designed-sequence-chunk-droppable',
-      '.designer-designed-sequence-empty-placeholder'
-    );
-  },
-
-  beforeRender: function() {
-    this.cleanUpDraggable();
-  },
-
-  remove: function() {
-    this.cleanUpDraggable();
-    Backbone.View.prototype.remove.apply(this, arguments);
-  },
-
-  afterRender: function() {
-    var _this = this;
-    this.$('.designer-designed-sequence-chunk').draggable({
-      zIndex: 2000, 
-      revert: 'invalid', 
-      helper: 'clone',
-      // refreshPositions: true,
-      cursorAt: {
-        top: 5, 
-        left: 5
-      },
-    }).hover(
-    (event) => {
-      var sequence = this.getSequenceFromDraggableChunk($(event.target));
-      this.parentView().hoveredOverSequence(sequence.get('id'));
-    },
-    (event) => {
-      var sequence = this.getSequenceFromDraggableChunk($(event.target));
-      this.parentView().unhoveredOverSequence(sequence.get('id'));
-    });
-
-    this.$('div.designer-designed-sequence-chunk-trash').droppable({
-      activeClass: 'enabled',
-      hoverClass: 'active',
-      tolerance: 'pointer',
-      accept: function($draggable) {
-        var index = $draggable.data('sequence_index');
-        return index == $(this).data('sequence_index') && _this.model.canTrash(index);
-      },
-      drop: function(event, ui) {
-        var $draggable = ui.draggable;
-        var index = $draggable.data('sequence_index');
-        _this.removeSequence($draggable, index);
+      if(lastChunkEndBase < lastBase) {
+        chunks.push({
+          id: ++chunkId,
+          _type: 'sequence',
+          empty: true,
+          from: lastChunkEndBase + 1,
+          to: lastBase,
+          length: lastBase - lastChunkEndBase
+        });
       }
-    });
 
-    this.$('.designer-designed-sequence-chunk-droppable').droppable({
-      activeClass: 'active',
-      hoverClass: 'hover',
-      tolerance: 'pointer',
-      accept: function($draggable){
-        return _this.canDrop($draggable, $(this).data('before_index'));
-      },
-      drop: function(event, ui) {
-        var index = $(this).data('before_index');
-        if(ui.draggable.hasClass('designer-designed-sequence-chunk')) {
-          _this.moveSequence(ui.draggable, index);
+      this.chunks = chunks;
+      this.model.chunks = this.chunks;
+      return chunks;
+    },
+
+    styleChunks: function() {
+      var availableWidth = this.$('.designer-designed-sequence-chunks').width(),
+          sequenceLength = this.model.length(),
+          chunks = this.chunks;
+
+      _.each(this.$('.designer-designed-sequence-chunk'), function(chunkElem) {
+        var $chunkElem = $(chunkElem),
+            chunk = _.findWhere(chunks, {id: $chunkElem.data('chunkId')});
+
+        // $chunkElem
+        //   .css('width',Math.floor(availableWidth * chunk.length / sequenceLength))
+        $chunkElem.addClass(chunk.empty ?
+          'designer-designed-sequence-chunk-empty' :
+          'designer-designed-sequence-chunk-' + chunk.feature.type
+        );
+      });
+    },
+
+    serialize: function() {
+      var output = {
+          sequence: this.model.serialize(),
+          readOnly: this.model.get('readOnly')
+      };
+
+      if(this.model.maxOverlappingFeatures() > 1) {
+        output.disabled = true;
+      } else {
+        if(this.model.length()) {
+          output.chunks = this.processChunks();
         } else {
-          _this.insertFromAvailableSequence(ui.draggable, index);
+          output.empty = true;
         }
       }
-    });
 
-    this.$('.designer-designed-sequence-empty-placeholder').droppable({
-      activeClass: 'active',
-      tolerance: 'pointer',
-      drop: (event, ui) => this.insertFromAvailableSequence(ui.draggable)
-    });
-  },
+      return output;
+    },
 
-  highlightDropSites: function(indices) {
-    if(this.model.sequences.length === 0) {
-      this.$el.find('.designer-designed-sequence-empty-placeholder').addClass('highlighted');
-    } else {
-      _.each(indices, (index) => {
-        var selector = `.designer-designed-sequence-chunk-droppable[data-before_index="${index}"]`;
-        this.$el.find(selector).addClass('highlighted');
+    insertFromAvailableSequence: function($droppable, $draggable) {
+      var featureAndSubSeq, chunk, insertBeforeBase, bases, basesRange, seqBases, featureObj;
+          featureAndSubSeq = this.getFeatureFromAvailableSequenceDraggable($draggable);
+     
+      chunk = _.findWhere(this.chunks, {
+        id: $droppable.closest("[data-chunk-id]").data('chunkId')
+      });
+
+      insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
+        chunk.from : 
+        chunk.to + 1;
+
+      if(featureAndSubSeq.feature.type == 'Sequence') { 
+        this.model.insertSequenceAndCreateFeatures(
+          insertBeforeBase, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.features, 
+          true
+        );
+      } else {
+        this.model.insertBasesAndCreateFeatures(
+          insertBeforeBase, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.feature, 
+          true
+        );
+      }
+    },
+
+    insertFirstAnnotationFromAvailableSequence: function($draggable) {
+      var featureAndSubSeq = this.getFeatureFromAvailableSequenceDraggable($draggable);
+
+      if(featureAndSubSeq.feature.type == 'Sequence') { 
+        this.model.insertSequenceAndCreateFeatures(
+          0, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.features, 
+          true
+        );
+      } else {
+        this.model.insertBasesAndCreateFeatures(
+          0, 
+          featureAndSubSeq.subSeq, 
+          featureAndSubSeq.feature.feature, 
+          true
+        );
+      }
+    },
+
+    getFeatureFromAvailableSequenceDraggable: function($draggable) {
+      var sequenceId, availableSequenceView, feature, sequence;
+
+      sequenceId = $draggable.closest('[data-sequence-id]').data('sequenceId');
+
+      availableSequenceView = this.parentView()
+        .getAvailableSequenceViewFromSequenceId(sequenceId);
+
+      if($draggable.hasClass('designer-available-sequence-entireseq')) {
+
+        sequence = availableSequenceView.sequenceInfo;
+
+        return {
+          feature: sequence,
+          subSeq: availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
+        }; 
+
+      } else {
+
+        feature = _.findWhere(availableSequenceView.features, {
+          id: $draggable.data('featureId')
+        });
+
+        return {
+          feature: feature,
+          subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
+        };
+      }
+    },
+
+    moveChunk: function($droppable, $draggable) {
+      var targetChunk = _.findWhere(this.chunks, {
+            id: $droppable.closest('[data-chunk-id]').data('chunkId')
+          }),
+          movingChunk = _.findWhere(this.chunks, {id: $draggable.data('chunkId')}),
+          movingTo = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
+            targetChunk.from : 
+            targetChunk.to + 1;
+
+      if(movingTo !== movingChunk.from && movingTo !== movingChunk.to + 1) {
+        this.model.moveBases(
+          movingChunk.from, 
+          movingChunk.length, 
+          movingTo
+        );
+      }
+    },
+
+    afterRender: function() {
+      var _this = this;
+      this.styleChunks();
+
+      this.$('.designer-designed-sequence-chunk').draggable({
+        zIndex: 2000, 
+        revert: true, 
+        helper: 'clone',
+        cursorAt: {
+          top: 5, 
+          left: 5
+        },
+      });
+
+      this.$('div.designer-designed-sequence-chunk-trash').droppable({
+        activeClass: 'enabled',
+        hoverClass: 'active',
+        tolerance: 'pointer',
+        accept: function($draggable) {
+          return $draggable.data('chunkId') == $(this).data('trashId');
+        },
+        drop: function(event, ui) {
+          _this.trashFeatureOrBases(ui.draggable.data('chunkId'));
+        }
+      });
+
+      this.$('.designer-designed-sequence-chunk-droppable').droppable({
+        hoverClass: 'active',
+        tolerance: 'pointer',
+        drop: function(event, ui) {
+          if(ui.draggable.hasClass('designer-designed-sequence-chunk')) {
+            _this.moveChunk($(this), ui.draggable);
+          } else {
+            _this.insertFromAvailableSequence($(this), ui.draggable);
+          }
+        }
+      });
+
+      this.$('.designer-designed-sequence-empty-placeholder').droppable({
+        activeClass: 'active',
+        tolerance: 'pointer',
+        drop: function(event, ui) {
+          _this.insertFirstAnnotationFromAvailableSequence(ui.draggable);
+        }
       });
     }
-  },
+  });
 
-  unhighlightDropSites: function() {
-    this.$el.find('.designer-designed-sequence-chunk-droppable').removeClass('highlighted');
-    this.$el.find('.designer-designed-sequence-empty-placeholder').removeClass('highlighted');
-  },
-
+  return DesignedSequenceView;
 });

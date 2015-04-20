@@ -10,6 +10,7 @@ define(function(require) {
       ContextMenuView = require('../../common/views/context_menu_view'),
       LinearMapView = require('../../linear_map/views/linear_map_view'),
       PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
+      MatchedEnzymesView = require('./matched_enzymes_view'),
       Backbone = require('backbone'),
       Q = require('q'),
       SequenceEditionView;
@@ -26,6 +27,10 @@ define(function(require) {
 
       this.contextMenuView = new ContextMenuView({context: 'sequence'});
       this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
+
+      this.matchedEnzymesView = new MatchedEnzymesView();
+      this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
+
       this.initSecondaryViews();
     },
 
