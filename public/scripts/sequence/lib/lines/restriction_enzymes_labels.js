@@ -26,9 +26,9 @@ define(function(require) {
         subSeqPadding   = RestrictionEnzymes.maxLength(),
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
-          length: displaySettings.lengths || [],
-          customList: displaySettings.custom || '',
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          // length: displaySettings.lengths || [],
+          customList: displaySettings.custom || [],
+          // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
         subSeq, enzymes, countEnzymes, i;
 
@@ -72,9 +72,9 @@ define(function(require) {
         subSeqPadding = RestrictionEnzymes.maxLength(),
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
-          length: displaySettings.lengths || [],
+          // length: displaySettings.lengths || [],
           customList: displaySettings.custom || '',
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
         expandedSubSeq = sequenceCanvas.sequence.getSubSeq(
           baseRange[0] - subSeqPadding,

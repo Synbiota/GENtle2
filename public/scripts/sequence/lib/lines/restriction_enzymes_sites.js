@@ -39,10 +39,13 @@ define(function(require) {
         complementsY = layoutHelpers.lineOffsets.complements,
         complementsHeight = layoutSettings.lines.complements.height,
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        // enzymeOptions = {
+        //   length: displaySettings.lengths || [],
+        //   customList: displaySettings.custom || [],
+        //   hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+        // },
         enzymeOptions = {
-          length: displaySettings.lengths || [],
-          customList: displaySettings.custom || [],
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          customList: displaySettings.custom || []
         },
         subSeqPadding = RestrictionEnzymes.maxLength(),
         expandedSubSeq = sequenceCanvas.sequence.getSubSeq(

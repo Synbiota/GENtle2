@@ -156,9 +156,10 @@ export default class PlasmidMapCanvas {
   drawRES() {
     var displaySettings = this.model.get('displaySettings.rows.res') || {},
         enzymes = RestrictionEnzymes.getAllInSeq(this.model.get('sequence'), {
-          length: displaySettings.lengths || [],
+          // length: displaySettings.lengths || [],
           customList: displaySettings.custom || [],
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          hideNonPalindromicStickyEndSites: false
         }),
         len = this.model.length(),
         previousPosition = 0,
