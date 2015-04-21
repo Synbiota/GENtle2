@@ -1,5 +1,5 @@
 import {assertIsNumber} from '../../../common/lib/testing_utils';
-import Sequence from './sequence';
+import Sequence from '../../../library/models/sequence';
 
 
 class Primer extends Sequence {

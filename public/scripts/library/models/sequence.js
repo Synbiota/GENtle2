@@ -1,4 +1,5 @@
-import {assertion, assertIsNumber} from '../../../common/lib/testing_utils';
+import {assertion, assertIsNumber} from '../../common/lib/testing_utils';
+import _ from 'underscore';
 
 
 class Sequence {

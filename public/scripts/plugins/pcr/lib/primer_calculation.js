@@ -14,6 +14,8 @@ var checkForPolyN = SequenceCalculations.checkForPolyN;
 var gcContent = SequenceCalculations.gcContent;
 
 
+var IDTMeltingTemperatureCache = {};
+
 var _IDTMeltingTemperature = function(sequence) {
   var cached = IDTMeltingTemperatureCache[sequence];
   if(cached) return cached;
