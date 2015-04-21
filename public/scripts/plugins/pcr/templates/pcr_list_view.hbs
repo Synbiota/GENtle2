@@ -54,7 +54,8 @@
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
-            {{{sequenceFastAExportButton forwardPrimer.id }}}
+            <button class="btn btn-default btn-xs export-sequence" title="Copied!" data-trigger="manual" data-clipboard-text="{{forwardPrimer.sequence}}">Copy</button>
+            {{!-- {{{sequenceFastAExportButton forwardPrimer.id }}} --}}
           </td>
         </tr>
         <tr>
@@ -66,7 +67,8 @@
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
-            {{{sequenceFastAExportButton reversePrimer.id }}}
+          <button class="btn btn-default btn-xs export-sequence" title="Copied!" data-trigger="manual" data-clipboard-text="{{reversePrimer.sequence}}">Copy</button>
+            {{!-- {{{sequenceFastAExportButton reversePrimer.id }}} --}}
           </td>
         </tr>
         <tr>

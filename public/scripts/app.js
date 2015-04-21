@@ -5,7 +5,7 @@ Gentle app definition.
 import $ from 'jquery.mixed';
 import _ from 'underscore.mixed';
 import Backbone from 'backbone.mixed';
-import Q from 'q';
+import ZeroClipboard from 'zeroclipboard';
 
 import Gentle from './common/models/gentle';
 import config from './config.json';
@@ -33,6 +33,10 @@ Gentle.enableFeatures('pcr', 'blast', 'sequencingPrimers');
 
 Gentle.router = new Router();
 window.gentle = Gentle;
+
+ZeroClipboard.config({
+  swfPath: "images/ZeroClipboard.swf"
+});
 
 $(function() {
   Gentle.layout = new Layout();

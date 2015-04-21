@@ -2,6 +2,8 @@ import template from '../templates/pcr_list_view.hbs';
 import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import _ from 'underscore';
+import ZeroClipboard from 'zeroclipboard';
 
 
 export default Backbone.View.extend({
@@ -14,7 +16,7 @@ export default Backbone.View.extend({
     'click .panel-title': 'showPcrProduct',
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
-    'click .export-sequence': 'exportSequence',
+    // 'click .export-sequence': 'exportSequence',
   },
 
   serialize: function() {
@@ -39,6 +41,19 @@ export default Backbone.View.extend({
     this.$('.has-tooltip').tooltip({
       container: 'body'
     });
+
+    var clients = this.zeroClipboardClients = new ZeroClipboard(this.$('.export-sequence'));
+
+    clients.on('aftercopy', (event) => {
+      var $target = this.$(event.target);
+      $target.tooltip('show');
+      setTimeout(function() { $target.tooltip('hide'); }, 700);
+    });
+  },
+
+  remove: function() {
+    ZeroClipboard.destroy();
+    Backbone.View.prototype.remove.apply(this, arguments);
   },
 
   getProducts: function() {
