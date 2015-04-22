@@ -25,7 +25,8 @@ var SequenceModel = Backbone.DeepModel.extend({
           complements: true,
           aa: 'none',
           aaOffset: 0,
-          res: Gentle.currentUser.get('displaySettings.rows.res')
+          res: Gentle.currentUser.get('displaySettings.rows.res'),
+          hasGutters: true
         }
       },
       history: new HistorySteps()
@@ -107,7 +108,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     //   if(endStickyEnd) {
     //     stickyEndTo = seqLength - 1 - endStickyEnd.offset;
     //     stickyEndFrom = stickyEndTo - endStickyEnd.size;
-        
+
     //     if(endBase > stickyEndFrom) {
     //       if(reverse) {
     //         if(endStickyEnd.reverse) {
@@ -124,7 +125,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     //       }
     //     }
     //   }
-    // } 
+    // }
 
     // if(subSeqStart != startBase) {
     //   prefix = ' '.repeat(subSeqStart - startBase);
@@ -134,7 +135,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     //   suffix = ' '.repeat(endBase - subSeqEnd);
     // }
 
-    // var subSeq = subSeqEnd <= startBase ? '' : 
+    // var subSeq = subSeqEnd <= startBase ? '' :
     //   this.getSubSeqWithoutStickyEnds(subSeqStart, Math.max(subSeqEnd, startBase));
 
     // return prefix + subSeq + suffix;
@@ -221,8 +222,8 @@ var SequenceModel = Backbone.DeepModel.extend({
             result = pos - stickyEndTo;
           }
         }
-      } 
-    } 
+      }
+    }
     return result;
   },
 
@@ -463,7 +464,7 @@ var SequenceModel = Backbone.DeepModel.extend({
      //    value: bases,
      //    operation: '@' + beforeBase + '+' + bases
      //  });
-    
+
     this.set('sequence',
       seq.substr(0, beforeBase) +
       bases +
@@ -491,7 +492,7 @@ var SequenceModel = Backbone.DeepModel.extend({
         history = this.getHistory(),
         _this = this,
         featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
-    
+
     if(updateHistory === undefined) updateHistory = true;
 
     featuresInRange = _.deepClone(_.filter(this.get('features'), function(feature) {
@@ -504,9 +505,9 @@ var SequenceModel = Backbone.DeepModel.extend({
 
     deletionTimestamp = this.deleteBases(firstBase, length, updateHistory);
     insertionTimestamp = this.insertBases(
-      subSeq, 
-      newFirstBase < firstBase ? 
-        newFirstBase : 
+      subSeq,
+      newFirstBase < firstBase ?
+        newFirstBase :
         newFirstBase - length
     );
 
@@ -514,8 +515,8 @@ var SequenceModel = Backbone.DeepModel.extend({
       feature.ranges = _.map(_.filter(feature.ranges, function(range) {
         return range.from >= firstBase && range.to <= lastBase;
       }), function(range) {
-        var offset = newFirstBase < firstBase ? 
-          newFirstBase - firstBase : 
+        var offset = newFirstBase < firstBase ?
+          newFirstBase - firstBase :
           newFirstBase - length - firstBase;
 
         return {
@@ -532,7 +533,7 @@ var SequenceModel = Backbone.DeepModel.extend({
   insertBasesAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
     var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
         _this = this;
-    
+
     this.insertBases(bases, beforeBase, updateHistory);
 
     _.each(newFeatures,function(feature){
@@ -545,14 +546,14 @@ var SequenceModel = Backbone.DeepModel.extend({
       delete feature.from;
       delete feature.to;
 
-      _this.createFeature(feature, updateHistory); 
+      _this.createFeature(feature, updateHistory);
     });
   },
 
   insertSequenceAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
     var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
         _this = this;
-    
+
     this.insertBases(bases, beforeBase, updateHistory);
 
     _.each(newFeatures,function(feature){
@@ -564,9 +565,9 @@ var SequenceModel = Backbone.DeepModel.extend({
         };
       });
 
-      _this.createFeature(feature, updateHistory); 
+      _this.createFeature(feature, updateHistory);
     });
-  }, 
+  },
 
   deleteBases: function(firstBase, length, updateHistory) {
     var seq = this.get('sequence'),
@@ -632,7 +633,7 @@ var SequenceModel = Backbone.DeepModel.extend({
           var range = feature.ranges[j];
 
           if (offset > 0) {
-            
+
             if (range.from >= base) range.from += offset;
             if (range.to >= base) range.to += offset;
             if (range.from >= base || range.to >= base) trigger = true;
@@ -694,8 +695,8 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   /**
-  Revert the last {{#crossLink "HistoryStep"}}{{/crossLink}} instance in 
-  {{#crossLink "Sequence/getHistory"}}{{/crossLink}} for which `hidden` is not 
+  Revert the last {{#crossLink "HistoryStep"}}{{/crossLink}} instance in
+  {{#crossLink "Sequence/getHistory"}}{{/crossLink}} for which `hidden` is not
   `true`
   @method undo
   **/
@@ -721,7 +722,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   /**
   Reverts all {{#crossLink "HistoryStep"}}{{/crossLink}} instances after `timestamp`
-  in {{#crossLink "Sequence/getHistory"}}Sequence#getHistory{{/crossLink}} for which `hidden` is not 
+  in {{#crossLink "Sequence/getHistory"}}Sequence#getHistory{{/crossLink}} for which `hidden` is not
   `true`
   @method undoAfter
   @param {integer} timestamp
@@ -811,7 +812,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
     if (record === true) {
       this.recordFeatureHistoryIns(newFeature);
-    } 
+    }
     // if (record === 'design-true')
     // this.getHistory().add({
     //   type: 'design-feature-create',
@@ -823,7 +824,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     //     from: newFeature.ranges[0].from,
     //     to: newFeature.ranges[0].to
     //   }]
-    // }).get('timestamp');  
+    // }).get('timestamp');
 
     if (id === 0) {
       newFeature._id = 0;
@@ -832,7 +833,7 @@ var SequenceModel = Backbone.DeepModel.extend({
       len = sortedIdList.length;
       newFeature._id = sortedIdList[len-1]+1;
     }
-  
+
     this.clearFeatureCache();
     this.set('features.' + id, newFeature);
     this.sortFeatures();
@@ -864,7 +865,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     this.set('features', _.reject(this.get('features'), function(_feature) {
       return _feature._id == featureId;
     }));
-   
+
     this.sortFeatures();
     this.throttledSave();
   },
