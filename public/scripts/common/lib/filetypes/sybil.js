@@ -42,13 +42,14 @@ var convertToObject = function(xml) {
     return _.camelize(string.toLowerCase());
   };
   var formatContent = function(string) {
-    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
+    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : removeUnicodeQuotes(string);
   };
   var areArrayElements = function(parentNodeName, contents) {
     var uniqueTagNames = _.compact(_.uniq(_.pluck(contents, 'tagName')));
     return uniqueTagNames.length == 1 && parentNodeName &&
       getArrayElementName(parentNodeName) == formatKey(uniqueTagNames[0]);
   };
+  
 
   return _.reduce($(xml), function(memo, element) {
     var key = formatKey(element.nodeName);
