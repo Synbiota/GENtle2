@@ -42,7 +42,7 @@ var convertToObject = function(xml) {
     return _.camelize(string.toLowerCase());
   };
   var formatContent = function(string) {
-    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string)
+    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
   };
   var areArrayElements = function(parentNodeName, contents) {
     var uniqueTagNames = _.compact(_.uniq(_.pluck(contents, 'tagName')));
