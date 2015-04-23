@@ -823,8 +823,8 @@ define(function(require) {
 
     if(this.selection) {
       console.log("true");
-      var start = this.selection[0];
-      var end = this.selection[1];
+      var start = this.selection[0]+1;
+      var end = this.selection[1]+1;
       var size = (end - start);
 
       if(size==0) {
@@ -835,7 +835,7 @@ define(function(require) {
       
     } else {
       console.log("false")
-      info = this.caretPosition.toString()
+      info = (this.caretPosition+1).toString()
     }
 
 
