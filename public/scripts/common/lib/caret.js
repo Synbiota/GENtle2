@@ -42,11 +42,10 @@ define(function(require) {
         left: this.posX
       })
       .show()
-      //.find('.caret-info').text(_.formatThousands(base+1));
+      
   };
 
   Caret.prototype.setInfo = function(text) { 
-    console.log("setInfo")
     this.$element.find(".caret-info").text(text);
   }
 

@@ -643,13 +643,7 @@ define(function(require) {
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
-    console.log("sequence_canvas displayCaret");
-    console.log(this.sequence);
-
-    if(this.selection) {
-      console.log(this.selection);
-    }
-
+    
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
@@ -818,11 +812,9 @@ define(function(require) {
   };
 
   SequenceCanvas.prototype.determineCaretInfo = function() {
-    console.log("determineCaretInfo")
     var info = "";
 
     if(this.selection) {
-      console.log("true");
       var start = this.selection[0]+1;
       var end = this.selection[1]+1;
       var size = (end - start);
@@ -834,7 +826,6 @@ define(function(require) {
       }
       
     } else {
-      console.log("false")
       info = (this.caretPosition+1).toString()
     }
 
