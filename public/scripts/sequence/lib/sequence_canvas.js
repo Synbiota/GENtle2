@@ -643,6 +643,13 @@ define(function(require) {
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
+    console.log("sequence_canvas displayCaret");
+    console.log(this.sequence);
+
+    if(this.selection) {
+      console.log(this.selection);
+    }
+
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
@@ -665,7 +672,7 @@ define(function(require) {
       _this.caret.move(posX, posY, base);
       _this.caretPosition = base;
       _this.showContextMenuButton(posX, posY + 20);
-
+      _this.caret.setInfo(_this.determineCaretInfo());
     });
 
   };
@@ -809,6 +816,31 @@ define(function(require) {
   SequenceCanvas.prototype.focus = function() {
     this.$scrollingParent.focus();
   };
+
+  SequenceCanvas.prototype.determineCaretInfo = function() {
+    console.log("determineCaretInfo")
+    var info = "";
+
+    if(this.selection) {
+      console.log("true");
+      var start = this.selection[0];
+      var end = this.selection[1];
+      var size = (end - start);
+
+      if(size==0) {
+        info = start.toString() + " (1 bp)";
+      } else {
+        info = start.toString() + " to " + end.toString() + " (" + (size+1).toString() +  " bp)";
+      }
+      
+    } else {
+      console.log("false")
+      info = this.caretPosition.toString()
+    }
+
+
+    return info;
+  }
 
 
 
