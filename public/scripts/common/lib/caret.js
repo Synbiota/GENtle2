@@ -51,7 +51,7 @@ define(function(require) {
   };
 
   Caret.prototype.remove = function() {
-    console.log("hide caret")
+   
     this.$element.hide();
     this.posX = this.posY = this.base = undefined;
   };
