@@ -94,6 +94,9 @@ define(function(require) {
     this.sequence = options.sequence || this.view.model;
     var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
+    this.drawSingleStickyEnds = _.isUndefined(options.drawSingleStickyEnds) ?
+                                true :
+                                options.drawSingleStickyEnds;
 
     var dnaStickyEndHighlightColour = function(reverse, base, pos) {
       return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
@@ -187,19 +190,19 @@ define(function(require) {
       dna: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
-        drawSingleStickyEnds: true,
+        drawSingleStickyEnds: this.drawSingleStickyEnds,
         textFont: LineStyles.dna.text.font,
         textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
-        selectionTextColour: LineStyles.dna.selection.color
+        selectionTextColour: LineStyles.dna.selection.color,
       }),
 
       // Complements
       complements: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
-        drawSingleStickyEnds: true,
+        drawSingleStickyEnds: this.drawSingleStickyEnds,
         isComplement: true,
         textFont: LineStyles.complements.text.font,
         textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.complements.text.color),
@@ -804,6 +807,7 @@ define(function(require) {
         }
       }
     }
+
     this.displayCaret(newCaret);
   };
 

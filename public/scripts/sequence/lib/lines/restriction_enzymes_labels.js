@@ -103,14 +103,14 @@ define(function(require) {
       x = _this.getBaseX(position, baseRange, true);
       artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
       artist.path(
-        x, y + _this.unitHeight + 3, 
+        x, y + _this.unitHeight + 3,
         x, initY + layoutHelpers.lineOffsets.dna - layoutHelpers.lineOffsets.restrictionEnzymesLabels
       );
       y += _this.unitHeight;
     });
 
     artist.setLineDash([]);
-    
+
   };
 
   return RestrictionEnzymesLabels;
