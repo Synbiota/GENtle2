@@ -7,7 +7,7 @@ import Q from 'q';
 import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';
 import {filterPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
-import Primer from './primer';
+import PcrPrimerModel from './primer';
 
 
 var checkForPolyN = SequenceCalculations.checkForPolyN;
@@ -278,7 +278,7 @@ class PotentialPrimer {
       to = this.i + primerSequence.length - 1;
     }
 
-    var primer = new Primer({
+    var primer = new PcrPrimerModel({
       sequence: primerSequence,
       from: frm,
       to: to,

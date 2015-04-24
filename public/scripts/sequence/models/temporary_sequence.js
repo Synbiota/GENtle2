@@ -11,7 +11,6 @@ var TemporarySequenceModel = Sequence.extend({
   asSequence: function () {
     return new Sequence(this.attributes);
   },
-
 });
 
 

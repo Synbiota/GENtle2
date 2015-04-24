@@ -1,7 +1,10 @@
+import _ from 'underscore';
+
 
 // Allows us to stub out in tests
 var _assertion = function(test, message) {
-  console.assert(test, message);
+  // console.assert does not work in karma tests run in Node.
+  if(!test) throw new Error(message);
 };
 
 var stubAssertion = function(newAssertion) {
@@ -20,7 +23,7 @@ var assertIsNumber = function(value, fieldName) {
 };
 
 var assertIsInstance = function(value, klass, fieldName) {
-  _assertion(value.constructor === klass, `\`${fieldName}\` should be a instance of ${klass} but is ${value}`);
+  _assertion((value && value.constructor) === klass, `\`${fieldName}\` should be a instance of ${klass.className || klass} but is ${value}`);
 };
 
 

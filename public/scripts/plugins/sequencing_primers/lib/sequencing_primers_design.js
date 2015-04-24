@@ -5,7 +5,7 @@ import Q from 'q';
 import {namedHandleError} from '../../../common/lib/handle_error';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import Primer from '../../pcr/lib/primer';
-import Product from '../../pcr/lib/product';
+import PcrProductSequenceModel from '../../pcr/lib/product';
 
 
 var MAX_DNA_CHUNK_SIZE = 500;
@@ -140,8 +140,8 @@ var _getAllPrimersAndProducts = function(sequence, options, previousPrimer, defe
 
   if(previousPrimer.to > -GARBAGE_SEQUENCE_DNA) {
     deferredAllPrimersAndProducts.reject(`previousPrimer must finish far enough back from start of sequence of interest but finishes at ${previousPrimer.to} instead of ${-GARBAGE_SEQUENCE_DNA}`);
-  } else if (previousPrimer.antisense) {
-    deferredAllPrimersAndProducts.reject(`previousPrimer must be a sense (forwards) Primer`);
+  } else if (previousPrimer.reverse) {
+    deferredAllPrimersAndProducts.reject(`previousPrimer must be a forwards Primer`);
   } else {
     // previousPrimer.from may be negative relative to sequence passed in above
     until += previousPrimer.from;
@@ -193,7 +193,7 @@ var calculateProductAndModifyPrimer = function(productsAndPrimers, offset, seque
   var productTo = primer.from + productLength - 1;
   
   primer.name = productName + ' - primer';
-  var product = new Product({
+  var product = new PcrProductSequenceModel({
     name: productName,
     from: productFrom,
     to: productTo,

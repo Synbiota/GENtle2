@@ -37,9 +37,9 @@ export default Backbone.View.extend({
 
     if(!this.product) return defaultColor;
 
-    if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
+    if(pos > this.product.forwardPrimer.to && pos <= this.product.reversePrimer.to) {
       return defaultColor;
-    } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
+    } else if(pos >= this.product.forwardAnnealingRegionPrimerModel.from && pos <= this.product.reverseAnnealingRegionPrimerModel.from){
       return colors.annealingRegion.fill;
     } else {
       return colors.stickyEnd.fill;
@@ -52,9 +52,10 @@ export default Backbone.View.extend({
   },
 
   //TODO refactor this
-  setSequence: function(sequence) {
-    sequence = TemporarySequence.ensureTemporary(sequence);
-    this.model = sequence;
+  setSequence: function(seqeuenceOrSequenceModel) {
+    // TODO fix this, seqeuenceOrSequenceModel may now be a `PcrPrimerModel` not `TemporarySequence`
+    seqeuenceModel = TemporarySequence.ensureTemporary(seqeuenceOrSequenceModel);
+    this.model = seqeuenceModel;
   },
 
   afterRender: function() {

@@ -2,7 +2,8 @@ import _ from 'underscore';
 
 
 var testAllSequenceModels = function(SequenceModel) {
-  describe('all sequence models', function() {
+  var n = SequenceModel.name + " ";
+  describe(n + 'all sequence models', function() {
     var sequence1;
     var sequence2;
     var sequence3;
@@ -12,6 +13,8 @@ var testAllSequenceModels = function(SequenceModel) {
       sequence1 = new SequenceModel({
         sequence: 'CCCCCCCCCCCGGTACC',
         id: 1,
+        from: 0,
+        to: 16,
         stickyEnds: {
           // Leave a TA sticky end
           end: {
@@ -36,11 +39,13 @@ var testAllSequenceModels = function(SequenceModel) {
             to: 14,
           }]
         }]
-      });
+      }).getBaseSequenceModel();
 
       sequence2 = new SequenceModel({
         sequence: 'CCTACCCCCCCCCCC',
         id: 2,
+        from: 0,
+        to: 14,
         stickyEnds: {
           // Leave a AT sticky end
           start: {
@@ -67,11 +72,13 @@ var testAllSequenceModels = function(SequenceModel) {
           }]
         }
         ]
-      });
+      }).getBaseSequenceModel();
 
       sequence3 = new SequenceModel({
         sequence: 'GGGTACCGGGGGGGGGTAGG',
         id: 3,
+        from: 0,
+        to: 19,
         stickyEnds: {
           // Leave a AT sticky end
           start: {
@@ -110,60 +117,81 @@ var testAllSequenceModels = function(SequenceModel) {
             to: 17,
           }]
         }]
-      });
+      }).getBaseSequenceModel();
 
     }); //-beforeEach
-    
-    describe('sticky end functions', function() {
-      it('isBeyondEndStickyEnd', function() {
+
+    describe(n + 'basic behaviour', function() {
+      it(n + 'should require a sequence', function() {
+        var error;
+        try {
+          new SequenceModel();
+        } catch (e) {
+          error = e.toString();
+        }
+        expect(error).toEqual('Error: Field `sequence` is absent');
+      });
+
+      it(n + 'should instantiate', function() {
+        var sequence = new SequenceModel({
+          sequence: 'ATCGGGC'
+        }).getBaseSequenceModel();
+
+        expect(sequence).toBeTruthy();
+        expect(sequence.sequence).toEqual('ATCGGGC');
+      });
+    });
+
+    describe(n + 'sticky end functions', function() {
+      it(n + 'isBeyondEndStickyEnd', function() {
         expect(sequence1.isBeyondEndStickyEnd(15)).toEqual(true);
         expect(sequence1.isBeyondEndStickyEnd(14, true)).toEqual(true);
         expect(sequence1.isBeyondEndStickyEnd(14)).toEqual(false);
         expect(sequence1.isBeyondEndStickyEnd(14, false)).toEqual(false);
       });
 
-      it('isBeyondEndStickyEndOnBothStrands', function() {
+      it(n + 'isBeyondEndStickyEndOnBothStrands', function() {
         expect(sequence1.isBeyondEndStickyEndOnBothStrands(15)).toEqual(true);
-        expect(sequence1.isBeyondEndStickyEndOnBothStrands(14)).toEqual(false);        
+        expect(sequence1.isBeyondEndStickyEndOnBothStrands(14)).toEqual(false);
       });
 
-      it('isBeyondStartStickyEnd', function() {
+      it(n + 'isBeyondStartStickyEnd', function() {
         expect(sequence2.isBeyondStartStickyEnd(1)).toEqual(true);
         expect(sequence2.isBeyondStartStickyEnd(2, true)).toEqual(false);
         expect(sequence2.isBeyondStartStickyEnd(2)).toEqual(true);
         expect(sequence2.isBeyondStartStickyEnd(2, false)).toEqual(true);
       });
 
-      it('isBeyondStartStickyEndOnBothStrands', function() {
+      it(n + 'isBeyondStartStickyEndOnBothStrands', function() {
         expect(sequence2.isBeyondStartStickyEndOnBothStrands(1)).toEqual(true);
         expect(sequence2.isBeyondStartStickyEndOnBothStrands(2)).toEqual(false);
       });
 
-      it('getStartStickyEndSequence', function() {
+      it(n + 'getStartStickyEndSequence', function() {
         expect(sequence1.getStartStickyEndSequence().sequence).toEqual('');
         expect(sequence1.getStartStickyEndSequence().isOnReverseStrand).toEqual(undefined);
         expect(sequence2.getStartStickyEndSequence().sequence).toEqual('AT');
         expect(sequence2.getStartStickyEndSequence().isOnReverseStrand).toEqual(true);
       });
 
-      it('getEndStickyEndSequence', function() {
+      it(n + 'getEndStickyEndSequence', function() {
         expect(sequence1.getEndStickyEndSequence().sequence).toEqual('TA');
         expect(sequence1.getEndStickyEndSequence().isOnReverseStrand).toEqual(false);
         expect(sequence2.getEndStickyEndSequence().sequence).toEqual('');
         expect(sequence2.getEndStickyEndSequence().isOnReverseStrand).toEqual(undefined);
       });
 
-      it('stickyEndConnects', function() {
+      it(n + 'stickyEndConnects', function() {
         expect(sequence1.stickyEndConnects(sequence2)).toEqual(true);
         expect(sequence2.stickyEndConnects(sequence1)).toEqual(false);
       });
     }); //-describe('sticky end functions')
 
-    describe('concatenateSequences', function() {
-      it('concatenates sequence1, sequence2', function() {
-        var concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence2], false, false);
-        expect(concatenatedSequence.get('sequence')).toEqual('CCCCCCCCCCCGGTA' + 'CCCCCCCCCCC');
-        var features = concatenatedSequence.get('features');
+    describe(n + 'concatenateSequences', function() {
+      it(n + 'concatenates sequence1, sequence2', function() {
+        var concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence2], false, false).getBaseSequenceModel();
+        expect(concatenatedSequence.sequence).toEqual('CCCCCCCCCCCGGTA' + 'CCCCCCCCCCC');
+        var features = concatenatedSequence.features;
         expect(features.length).toEqual(3);
         expect(features[0].name).toEqual('Sequence1Annotation');
         expect(features[0].ranges[0].from).toEqual(3);
@@ -176,10 +204,10 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(features[2].ranges[0].to).toEqual(13);
       });
 
-      it('concatenates sequence1, sequence3, sequence2', function() {
-        var concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2], false, false);
-        expect(concatenatedSequence.get('sequence')).toEqual('CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
-        var features = concatenatedSequence.get('features');
+      it(n + 'concatenates sequence1, sequence3, sequence2', function() {
+        var concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2], false, false).getBaseSequenceModel();
+        expect(concatenatedSequence.sequence).toEqual('CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
+        var features = concatenatedSequence.features;
         expect(features.length).toEqual(4);
         expect(features[0].name).toEqual('Sequence1Annotation');
         expect(features[0].ranges[0].from).toEqual(3);
@@ -194,11 +222,11 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(features[3].ranges[0].from).toEqual(27);
         expect(features[3].ranges[0].to).toEqual(27);
       });
-      
-      it('concatenates (and truncates features) sequence1, sequence3, sequence2', function() {
-        var concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2], false, true);
-        expect(concatenatedSequence.get('sequence')).toEqual('CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
-        var features = concatenatedSequence.get('features');
+
+      it(n + 'concatenates (and truncates features) sequence1, sequence3, sequence2', function() {
+        var concatenatedSequence = SequenceModel.concatenateSequences([sequence1, sequence3, sequence2], false, true).getBaseSequenceModel();
+        expect(concatenatedSequence.sequence).toEqual('CCCCCCCCCCCGGTA' + 'CCGGGGGGGGGTA' + 'CCCCCCCCCCC');
+        var features = concatenatedSequence.features;
         expect(features.length).toEqual(7);
         expect(features[0].name).toEqual('Sequence1Annotation');
         expect(features[0].ranges[0].from).toEqual(3);
@@ -222,12 +250,12 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(features[6].ranges[0].from).toEqual(27);
         expect(features[6].ranges[0].to).toEqual(27);
       });
-      
-      it('concatenates (and circularises) sequence1, sequence3, sequence2', function() {
-        var concatenatedSequence = SequenceModel.concatenateSequences([sequence3, sequence3], true, false);
-        expect(concatenatedSequence.get('sequence')).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
-        expect(_.isEmpty(concatenatedSequence.get('stickyEnds')));
-        var features = concatenatedSequence.get('features');
+
+      it(n + 'concatenates (and circularises) sequence1, sequence3, sequence2', function() {
+        var concatenatedSequence = SequenceModel.concatenateSequences([sequence3, sequence3], true, false).getBaseSequenceModel();
+        expect(concatenatedSequence.sequence).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
+        expect(_.isEmpty(concatenatedSequence.stickyEnds));
+        var features = concatenatedSequence.features;
         expect(features.length).toEqual(2);
         expect(features[0].name).toEqual('Sequence3Annotation');
         expect(features[0].ranges[0].from).toEqual(12);
@@ -237,20 +265,20 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(features[1].ranges[0].to).toEqual(25);
       });
 
-      it('errors concatenating incompatible sequences', function() {
+      it(n + 'errors concatenating incompatible sequences', function() {
         var error;
         try {
-          SequenceModel.concatenateSequences([sequence1, sequence2, sequence2], false);
+          SequenceModel.concatenateSequences([sequence1, sequence2, sequence2], false).getBaseSequenceModel();
         } catch (e) {
           error = e;
         }
         expect(error).toEqual('Can not concatenate sequences 2 and 2 as they have incompatible sticky ends: `` and `AT`');
       });
 
-      it('errors concatenating and circularising incompatible sequences', function() {
+      it(n + 'errors concatenating and circularising incompatible sequences', function() {
         var error;
         try {
-          SequenceModel.concatenateSequences([sequence1, sequence2], true);
+          SequenceModel.concatenateSequences([sequence1, sequence2], true).getBaseSequenceModel();
         } catch (e) {
           error = e;
         }
@@ -258,9 +286,9 @@ var testAllSequenceModels = function(SequenceModel) {
       });
 
     }); //-describe('concatenateSequences')
-    
-    describe('featuresInRange', function() {
-      it('finds correct number of features', function() {
+
+    describe(n + 'featuresInRange', function() {
+      it(n + 'finds correct number of features', function() {
         var features;
         features = sequence3.featuresInRange(0, 1);
         expect(features.length).toEqual(0);

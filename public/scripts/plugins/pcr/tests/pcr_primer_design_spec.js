@@ -1,5 +1,7 @@
+// TODO add dependency on underscore.mixin
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import {calculatePcrProductFromPrimers, getSequencesToSearch} from '../lib/pcr_primer_design';
+import PcrPrimerModel from '../lib/primer';
 
 
 var startOffsetSequence = 'AGAGCAAGA';
@@ -30,32 +32,36 @@ var reverseAnnealingRegionSequenceComplement;
 var forwardPrimer;
 var reversePrimer;
 
+var forwardAnnealingRegion = function() {
+  return new PcrPrimerModel({
+    sequence: forwardAnnealingRegionSequence,
+    from: 0,
+    to: 18,
+    meltingTemperature: 64.1,
+    gcContent: 0.5789473684210527,
+    id: "1426877294103-16080",
+    name: "Sequence 1426877294103-16080",
+    ourMeltingTemperature: 64.77312154400113,
+  });
+};
+
+var reverseAnnealingRegion = function() {
+  return new PcrPrimerModel({
+    sequence: reverseAnnealingRegionSequenceComplement,
+    from: 0,
+    to: 16,
+    meltingTemperature: 63.5,
+    gcContent: 0.5882352941176471,
+    id: "1426877290866-1893c",
+    name: "Sequence 1426877290866-1893c",
+  });
+};
+
 
 describe('calculating PCR product from primers', function() {
   beforeEach(function() {
     if(!pcrProduct) {
       reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
-      var primerResults = {
-        forwardAnnealingRegion: {
-          sequence: forwardAnnealingRegionSequence,
-          from: 0,
-          to: 18,
-          meltingTemperature: 64.1,
-          gcContent: 0.5789473684210527,
-          id: "1426877294103-16080",
-          name: "Sequence 1426877294103-16080",
-          ourMeltingTemperature: 64.77312154400113,
-        },
-        reverseAnnealingRegion: {
-          sequence: reverseAnnealingRegionSequenceComplement,
-          from: 0,
-          to: 16,
-          meltingTemperature: 63.5,
-          gcContent: 0.5882352941176471,
-          id: "1426877290866-1893c",
-          name: "Sequence 1426877290866-1893c",
-        },
-      };
       opts = {
         from: frm,
         to: to,
@@ -84,7 +90,8 @@ describe('calculating PCR product from primers', function() {
         useIDT: true,
       };
 
-      pcrProduct = calculatePcrProductFromPrimers(sequence, opts, _.deepClone(primerResults)).attributes;
+      pcrProduct = calculatePcrProductFromPrimers(sequence, opts, forwardAnnealingRegion(), reverseAnnealingRegion());
+      pcrProduct = pcrProduct.getBaseSequenceModel();
       forwardPrimer = pcrProduct.forwardPrimer;
       reversePrimer = pcrProduct.reversePrimer;
     }
@@ -104,23 +111,23 @@ describe('calculating PCR product from primers', function() {
   });
 
   it('correct forward Annealing Region', function() {
-    var forwardAnnealingRegion = pcrProduct.forwardAnnealingRegion;
-    expect(forwardAnnealingRegion.sequence).toEqual(forwardAnnealingRegionSequence);
-    expect(forwardAnnealingRegion.from).toEqual(23);
-    expect(forwardAnnealingRegion.to).toEqual(41);
+    var forwardAnnealingRegionPrimerModel = pcrProduct.forwardAnnealingRegionPrimerModel;
+    expect(forwardAnnealingRegionPrimerModel.sequence).toEqual(forwardAnnealingRegionSequence);
+    expect(forwardAnnealingRegionPrimerModel.from).toEqual(23);
+    expect(forwardAnnealingRegionPrimerModel.to).toEqual(41);
   });
 
   it('correct reverse Annealing Region', function() {
-    var reverseAnnealingRegion = pcrProduct.reverseAnnealingRegion;
-    expect(reverseAnnealingRegion.sequence).toEqual(reverseAnnealingRegionSequenceComplement);
-    expect(reverseAnnealingRegion.from).toEqual((
+    var reverseAnnealingRegionPrimerModel = pcrProduct.reverseAnnealingRegionPrimerModel;
+    expect(reverseAnnealingRegionPrimerModel.sequence).toEqual(reverseAnnealingRegionSequenceComplement);
+    expect(reverseAnnealingRegionPrimerModel.from).toEqual((
       opts.stickyEnds.start.sequence.length +
       forwardAnnealingRegionSequence.length +
       interveningSequence.length +
       reverseAnnealingRegionSequence.length - 1)
     );
-    expect(reverseAnnealingRegion.to).toEqual((
-      reverseAnnealingRegion.from -
+    expect(reverseAnnealingRegionPrimerModel.to).toEqual((
+      reverseAnnealingRegionPrimerModel.from -
       reverseAnnealingRegionSequence.length)
     );
   });

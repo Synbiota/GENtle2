@@ -58,8 +58,7 @@ _.mixin({
 
   Example: 
   ```javascript
-  var memoizedFunc = _(func).memo
-  ize2(),
+  var memoizedFunc = _(func).memoize2(),
       result = memoizedFunc('test'); 
   memoizedFunc.cache.test;  // Returns cached value
   ```

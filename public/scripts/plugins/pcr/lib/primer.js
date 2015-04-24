@@ -1,24 +1,37 @@
+import _ from 'underscore';
 import {assertIsNumber} from '../../../common/lib/testing_utils';
-import Sequence from '../../../library/models/sequence';
+import ChildSequenceModel from '../../../library/models/child_sequence';
 
+/*
+ * Used for both the annealing region and
+ * the full pcr primer (annealing region + stickyends)
+ */
+class PcrPrimerModel extends ChildSequenceModel {
+  requiredFields() {
+    var fields = super.requiredFields();
+    return _.unique(fields.concat([
+      'meltingTemperature',
+      'gcContent',
+    ]));
+  }
 
-class Primer extends Sequence {
-  optionalFields () {
-    var fields =  super.optionalFields();
+  optionalFields() {
+    var fields = super.optionalFields();
     fields.push('ourMeltingTemperature');
-    return fields;
+    return _.unique(fields);
   }
 
-  requiredFields () {
-    return ['sequence', 'from', 'to', 'meltingTemperature', 'gcContent'];
-  }
-
-  validate () {
+  validate() {
+    super.validate();
+    assertIsNumber(this.from, 'from');
+    assertIsNumber(this.to, 'to');
     assertIsNumber(this.meltingTemperature, 'meltingTemperature');
     assertIsNumber(this.gcContent, 'gcContent');
-    super.validate();
   }
 }
 
 
-export default Primer;
+PcrPrimerModel.className = 'PcrPrimerModel';
+
+
+export default PcrPrimerModel;

@@ -1,11 +1,13 @@
 import _ from 'underscore';
+import Q from 'q';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import PrimerCalculation from './primer_calculation';
 import Sequence from '../../../sequence/models/sequence';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
+import PcrProductModel from './pcr_product';
+import PcrPrimerModel from './primer';
 import {defaultPCRPrimerOptions} from './primer_defaults';
-import Q from 'q';
+import {assertIsInstance} from '../../../common/lib/testing_utils';
 
 
 var processReports = function(progressReports) {
@@ -23,46 +25,44 @@ var processReports = function(progressReports) {
 var calculateFeatures = function(productAttributes) {
   var features = [];
 
-  if(productAttributes.stickyEnds) {
-    var sequenceNts = productAttributes.sequence;
-    features = [{
-      name: productAttributes.stickyEnds.start.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: 0,
-        to: productAttributes.stickyEnds.start.sequence.length-1
-      }]
-    },
-    {
-      name: productAttributes.stickyEnds.end.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: sequenceNts.length - 1,
-        to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.sequence.length,
-      }]
-    },
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [_.pick(productAttributes.forwardAnnealingRegion, 'from', 'to')]
-    },
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [_.pick(productAttributes.reverseAnnealingRegion, 'from', 'to')]
-    },
-    {
-      name: productAttributes.forwardPrimer.name,
-      _type: 'primer',
-      ranges: [_.pick(productAttributes.forwardPrimer, 'from', 'to')]
-    },
-    {
-      name: productAttributes.reversePrimer.name,
-      _type: 'primer',
-      ranges: [_.pick(productAttributes.reversePrimer, 'from', 'to')]
-    }
-    ];
+  var sequenceNts = productAttributes.sequence;
+  features = [{
+    name: productAttributes.stickyEnds.start.name + ' end',
+    _type: 'sticky_end',
+    ranges: [{
+      from: 0,
+      to: productAttributes.stickyEnds.start.sequence.length-1
+    }]
+  },
+  {
+    name: productAttributes.stickyEnds.end.name + ' end',
+    _type: 'sticky_end',
+    ranges: [{
+      from: sequenceNts.length - 1,
+      to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.sequence.length,
+    }]
+  },
+  {
+    name: 'Annealing region',
+    _type: 'annealing_region',
+    ranges: [_.pick(productAttributes.forwardAnnealingRegionPrimerModel, 'from', 'to')]
+  },
+  {
+    name: 'Annealing region',
+    _type: 'annealing_region',
+    ranges: [_.pick(productAttributes.reverseAnnealingRegionPrimerModel, 'from', 'to')]
+  },
+  {
+    name: productAttributes.forwardPrimer.name,
+    _type: 'primer',
+    ranges: [_.pick(productAttributes.forwardPrimer, 'from', 'to')]
+  },
+  {
+    name: productAttributes.reversePrimer.name,
+    _type: 'primer',
+    ranges: [_.pick(productAttributes.reversePrimer, 'from', 'to')]
   }
+  ];
   return features;
 };
 
@@ -71,39 +71,39 @@ var calculateFeatures = function(productAttributes) {
  * calculatePcrProductFromPrimers
  * @param  {string} sequence nucleotides
  * @param  {hash}   opts must contain `name`, `from`, `to`, `stickyEnds`
- * @param  {hash}   primerResults must contain `forwardAnnealingRegion`, `reverseAnnealingRegion`
+ * @param  {PcrPrimerModel}  forwardAnnealingRegionPrimerModel
+ * @param  {PcrPrimerModel}  reverseAnnealingRegionPrimerModel`
  * @return {TemporarySequence}
  *
  * We export it to be accessible to tests
  */
-var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
+var calculatePcrProductFromPrimers = function(sequence, opts, forwardAnnealingRegionPrimerModel, reverseAnnealingRegionPrimerModel) {
+  assertIsInstance(forwardAnnealingRegionPrimerModel, PcrPrimerModel, 'calculatePcrProductFromPrimers with forwardAnnealingRegionPrimerModel');
+  assertIsInstance(reverseAnnealingRegionPrimerModel, PcrPrimerModel, 'calculatePcrProductFromPrimers with reverseAnnealingRegionPrimerModel');
   opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
   var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
-  var {
-    forwardAnnealingRegion: forwardAnnealingRegion,
-    reverseAnnealingRegion: reverseAnnealingRegion
-  } = primerResults;
 
   var {
-    productSequence: pcrProductSequence,
+    productSequence: pcrProductSequenceNts,
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
     endStickyEnd: endStickyEnd
   } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
-  _.extend(forwardAnnealingRegion, {
+  _.extend(forwardAnnealingRegionPrimerModel, {
     from: startStickyEnd.length,
-    to: startStickyEnd.length + forwardAnnealingRegion.sequence.length - 1,
+    to: startStickyEnd.length + forwardAnnealingRegionPrimerModel.sequence.length - 1,
   });
 
   var lengthOfRoi = regionOfInterest.length;
   var reverseAnnealingFrom = startStickyEnd.length + lengthOfRoi - 1;
-  _.extend(reverseAnnealingRegion, {
+  _.extend(reverseAnnealingRegionPrimerModel, {
     from: reverseAnnealingFrom,
-    to: reverseAnnealingFrom - reverseAnnealingRegion.sequence.length,
+    to: reverseAnnealingFrom - reverseAnnealingRegionPrimerModel.sequence.length,
   });
 
-  var forwardPrimerSequence = startStickyEnd + forwardAnnealingRegion.sequence;
+  var forwardPrimerSequence = startStickyEnd + forwardAnnealingRegionPrimerModel.sequence;
+  // TODO change this to a forwardPrimerModel
   var forwardPrimer = {
     name: 'Forward primer',
     sequence: forwardPrimerSequence,
@@ -113,31 +113,35 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
     gcContent: SequenceCalculations.gcContent(forwardPrimerSequence),
   };
 
-  var reversePrimerSequence = SequenceTransforms.toReverseComplements(endStickyEnd) + reverseAnnealingRegion.sequence;
+  var reversePrimerSequence = SequenceTransforms.toReverseComplements(endStickyEnd) + reverseAnnealingRegionPrimerModel.sequence;
+  // TODO change this to a reversePrimerModel
   var reversePrimer = {
     name: 'Reverse primer',
     sequence: reversePrimerSequence,
-    from: pcrProductSequence.length - 1,
-    to: pcrProductSequence.length - 1 - reversePrimerSequence.length,
+    from: pcrProductSequenceNts.length - 1,
+    to: pcrProductSequenceNts.length - 1 - reversePrimerSequence.length,
     id: _.uniqueId(),
     gcContent: SequenceCalculations.gcContent(reversePrimerSequence),
   };
 
-  var pcrProduct = new TemporarySequence({
+  var attributes = {
     id: _.uniqueId(),
     name: opts.name,
     // `from` and `to` refer to the parent sequence this PCR product came from
     from: opts.from,
     to: opts.to,
-    sequence: pcrProductSequence,
-    forwardAnnealingRegion: forwardAnnealingRegion,
-    reverseAnnealingRegion: reverseAnnealingRegion,
+    sequence: pcrProductSequenceNts,
+    forwardAnnealingRegionPrimerModel: forwardAnnealingRegionPrimerModel,
+    reverseAnnealingRegionPrimerModel: reverseAnnealingRegionPrimerModel,
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
     stickyEnds: opts.stickyEnds,
-    meltingTemperature: SequenceCalculations.meltingTemperature(pcrProductSequence)
-  });
-  pcrProduct.set('features', calculateFeatures(pcrProduct.attributes));
+    meltingTemperature: SequenceCalculations.meltingTemperature(pcrProductSequenceNts)
+  };
+  var features = calculateFeatures(attributes);
+  attributes.features = features;
+  var pcrProduct = new PcrProductModel(attributes);
+
   return pcrProduct;
 };
 
@@ -196,7 +200,7 @@ var getPcrProductAndPrimers = function(sequence, opts) {
     {current: 0, total: initTotal, isFallback: false}
   ];
   var fallbackProgressReports = [
-    {current: 0, total: initTotal, isFallback: true}, 
+    {current: 0, total: initTotal, isFallback: true},
     {current: 0, total: initTotal, isFallback: true}
   ];
   return Q.promise(function (resolve, reject, notify) {
@@ -214,9 +218,9 @@ var getPcrProductAndPrimers = function(sequence, opts) {
       notify({lastProgress, lastFallbackProgress});
     })
     .then(function(primerResults) {
-      var forwardAnnealingRegion = primerResults[0];
-      var reverseAnnealingRegion = primerResults[1];
-      var pcrProduct = calculatePcrProductFromPrimers(sequence, opts, {forwardAnnealingRegion, reverseAnnealingRegion});
+      var forwardAnnealingRegionPrimerModel = primerResults[0];
+      var reverseAnnealingRegionPrimerModel = primerResults[1];
+      var pcrProduct = calculatePcrProductFromPrimers(sequence, opts, forwardAnnealingRegionPrimerModel, reverseAnnealingRegionPrimerModel);
       resolve(pcrProduct);
     })
     .catch((e) => {

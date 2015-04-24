@@ -1,9 +1,9 @@
 
 var handleError = function (exception, codeLabel=undefined) {
   if(codeLabel) {
-    console.error(codeLabel, exception);
+    console.error(codeLabel, exception, exception.stack);
   } else {
-    console.error(exception);
+    console.error(exception, exception.stack);
   }
 };
 
