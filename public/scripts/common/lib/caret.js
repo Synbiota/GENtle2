@@ -42,16 +42,29 @@ define(function(require) {
         left: this.posX
       })
       .show()
-      
+    
+    console.log("show caret")
   };
 
   Caret.prototype.setInfo = function(text) { 
     this.$element.find(".caret-info").text(text);
-  }
+  };
 
   Caret.prototype.remove = function() {
+    console.log("hide caret")
     this.$element.hide();
     this.posX = this.posY = this.base = undefined;
+  };
+
+  Caret.prototype.showHighlight = function() {
+    console.log("showHighlight");
+    this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0.25)"});
+    
+  };
+
+  Caret.prototype.hideHighlight = function() {
+    this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0)"});
+    
   };
 
   return Caret;

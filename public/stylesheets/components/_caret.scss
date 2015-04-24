@@ -1,13 +1,16 @@
 .caret {
   position: absolute;
-  margin-top: -6px;
-  margin-left: -6px;
+  margin-top: -8px;
+  margin-left: -5px;
 
   .caret-caret {
-    width: 3px;
-    height: 15px;
-    background: black;
-    border: 1px solid white;
+    width: 12px;
+    height: 17px;
+    background: rgba(0,0,255,0.25f);
+    //border: 1px solid white;
+    border-left: 1px solid black;
+    padding-left: 1px;
+
 
     &.caret-blinking {
       @include animation(blink 1s linear infinite);
@@ -27,7 +30,7 @@
     //-moz-box-sizing: border-box;
     //-webkit-box-sizing: border-box;
     white-space: nowrap;
-    top: -16px;
+    top: -19px;
     border: 1px solid white;
     border-bottom: none;
     max-width: 200px;

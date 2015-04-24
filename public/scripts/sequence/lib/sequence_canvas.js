@@ -660,6 +660,8 @@ define(function(require) {
 
     this.scrollBaseToVisibility(base).then(function() {
 
+
+
       posX = _this.getXPosFromBase(base);
       posY = _this.getYPosFromBase(base) + lineOffsets.dna;
 
@@ -667,6 +669,12 @@ define(function(require) {
       _this.caretPosition = base;
       _this.showContextMenuButton(posX, posY + 20);
       _this.caret.setInfo(_this.determineCaretInfo());
+
+      if(_this.selection) {
+        _this.caret.hideHighlight();
+      } else {
+        _this.caret.showHighlight();
+      }
     });
 
   };
