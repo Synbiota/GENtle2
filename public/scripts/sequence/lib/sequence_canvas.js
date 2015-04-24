@@ -100,7 +100,7 @@ define(function(require) {
     };
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+      return sequence.isBeyondStickyEnd(pos, reverse) ? 'green' : defaultColour;
     };
 
     /**
@@ -187,8 +187,9 @@ define(function(require) {
       dna: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
+        drawSingleStickyEnds: true,
         textFont: LineStyles.dna.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color
@@ -198,8 +199,10 @@ define(function(require) {
       complements: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
+        drawSingleStickyEnds: true,
+        isComplement: true,
         textFont: LineStyles.complements.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.complements.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
