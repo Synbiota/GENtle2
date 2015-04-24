@@ -42,9 +42,12 @@ var getPcrProductsFromSequence = function(sequenceModel) {
 
     //Backwards compatibility.  Some of the pcr products were stored with incomplete stickyEnd data.
     productAttributes.stickyEnds = transformStickyEndData(productAttributes.stickyEnds);
+    productAttributes._type = 'pcr_product';
   });
 
   var products = _.map(attributesOfPcrProducts, (productAttributes) => new TemporarySequence(productAttributes));
+
+  // if(products.length) debugger
   return products;
 };
 

@@ -29,6 +29,7 @@ define(function(require) {
         return false;
         return !featureTypeData || !featureTypeData.is_main_type;
       }), function(feature) {
+        var _type = feature._type || '';
         _.each(feature.ranges, function(range) {
           _this.features.push({
             name: feature.name,
@@ -36,7 +37,7 @@ define(function(require) {
             from: range.from,
             to: range.to,
             reverseComplement: range.reverseComplement,
-            _type: feature._type.toLowerCase(),
+            _type: _type.toLowerCase(),
             feature: feature
           });
         });
@@ -112,11 +113,13 @@ define(function(require) {
     serialize: function() {
       var showAnnotations = this.showAnnotations();
       this.processFeatures();
+      console.log(this.model)
       return {
         sequence: this.sequenceInfo,
         descriptiveAnnotationContent: this.parentView().getDescriptiveAnnotationContent(this.model),
         features: this.features,
         showAnnotations: showAnnotations,
+        isPcrProduct: this.model.get('_type') === 'pcr_product'
       };
     },
 
