@@ -72,10 +72,12 @@ export default Backbone.View.extend({
     var currentEnzymePosition = positions[this.currentEnzymeIndex] ^ 0;
     var length = this.enzymePositions[currentEnzymePosition];
 
-    sequenceCanvas.highlightBaseRange(
+    sequenceCanvas.select(
       currentEnzymePosition, 
-      currentEnzymePosition + length
+      (currentEnzymePosition + length - 1)
     );
+
+    sequenceCanvas.displayCaret(sequenceCanvas.caretPosition);
 
     sequenceCanvas.afterNextRedraw(function() {
       sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);

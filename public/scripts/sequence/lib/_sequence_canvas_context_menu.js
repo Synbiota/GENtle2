@@ -7,10 +7,60 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 @extensionfor SequenceCanvas
 **/
 import Gentle from 'gentle';
+import RestrictionEnzymes from './restriction_enzymes';
+import SequenceTranforms from './sequence_transforms'
 
 var SequenceCanvasContextMenu;
 
 SequenceCanvasContextMenu = function() {};
+
+var hasRelevantRES = function(sequence) {
+  debugger
+  var matches = RestrictionEnzymes.getAllInSeq(sequence, {customList: ['BsaI', "NotI"]});  
+  return !_.isUndefined(matches[0]);
+};
+
+// Takes the existing selection and checks for [BAS1, Stop Codons and Not1]
+SequenceCanvasContextMenu.prototype.autoCorrectable = function(){
+  return this.selection && hasRelevantRES(this.sequence.getSubSeq(...this.selection));
+};
+
+SequenceCanvasContextMenu.prototype.autoCorrectFor = function(selection){
+  // TODO: Get correct reading frame
+  var paddedSubSeq= this.sequence.getPaddedSubSeq(selection[0], selection[1], 3, 0);
+  var subSeq = paddedSubSeq.subSeq;
+  var getAASubSeq = function(sequence) { 
+    return _.map(sequence.match(/.{1,3}/g), SequenceTranforms.codonToAALong).join();
+  };
+
+  var baseAA= getAASubSeq(subSeq);
+  var trialBases= ['a', 't', 'c', 'g'];
+  this._selectionAutocorrect = null;
+
+  for (var bp=0; bp < subSeq.length; bp++){
+    for (var i=0; i<trialBases.length; i++) {
+      if(trialBases[i] == subSeq[bp] ){
+        continue;
+      }
+      let newSubSeq = subSeq.substr(0, bp) + trialBases[i] + subSeq.substr(bp + 1, subSeq.length - bp);
+      let newAASubSeq = getAASubSeq(newSubSeq);
+      let newUnpaddedSubSeq = newSubSeq.substr(paddedSubSeq.startBase, paddedSubSeq.endBase - paddedSubSeq.startBase + 1);
+      let hasRES = hasRelevantRES(newUnpaddedSubSeq);
+      if (newAASubSeq === baseAA && !hasRES){
+        this._selectionAutocorrect = newUnpaddedSubSeq;
+        break; 
+      }
+    }
+    if(this._selectionAutocorrect){
+      break;
+    }
+  }
+  return this._selectionAutocorrect || 'Not Found';
+};
+
+SequenceCanvasContextMenu.prototype.replaceSelection = function(){
+  alert(this._selectionAutocorrect)
+};
 
 /**
 Shows button to open context menu and adds menu items to context menu view
@@ -36,6 +86,10 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
       // menu.add('Copy', this.copyFromMenu);
       menu.add('Analyze Fragment', this.analyzeFragment);
 
+      if(this.autoCorrectable()) {
+        menu.add(this.autoCorrectFor(this.selection), this.replaceSelection);
+      }
+  
       if(!this.readOnly) {
         menu.add('Add annotation', 'edit', this.addAnnotationFromMenu);
         // menu.add('Add annotation', this.addAnnotationFromMenu);
