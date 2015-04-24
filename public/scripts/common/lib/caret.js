@@ -57,7 +57,7 @@ define(function(require) {
   };
 
   Caret.prototype.showHighlight = function() {
-    console.log("showHighlight");
+    
     this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0.25)"});
     
   };
