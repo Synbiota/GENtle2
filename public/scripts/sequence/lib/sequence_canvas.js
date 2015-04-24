@@ -100,7 +100,7 @@ define(function(require) {
     };
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+      return sequence.isBeyondStickyEnd(pos, reverse) ? 'green' : defaultColour;
     };
 
     /**
@@ -187,8 +187,9 @@ define(function(require) {
       dna: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
+        drawSingleStickyEnds: true,
         textFont: LineStyles.dna.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color
@@ -198,8 +199,10 @@ define(function(require) {
       complements: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
+        drawSingleStickyEnds: true,
+        isComplement: true,
         textFont: LineStyles.complements.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.complements.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
@@ -328,12 +331,15 @@ define(function(require) {
 
     return Q.promise(function(resolve, reject) {
 
+
+      var gutterWidth = ls.gutterWidth = _this.sequence.get('displaySettings.rows.hasGutters') ? 30 : 0;
+
       //basesPerRow
-      blocks_per_row = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / (ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth));
+      blocks_per_row = Math.floor((ls.canvasDims.width + gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / (ls.basesPerBlock * ls.basePairDims.width + gutterWidth));
       if (blocks_per_row !== 0) {
         lh.basesPerRow = ls.basesPerBlock * blocks_per_row;
       } else {
-        lh.basesPerRow = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / ls.basePairDims.width);
+        lh.basesPerRow = Math.floor((ls.canvasDims.width + gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / ls.basePairDims.width);
         //we want bases per row to be a multiple of 10 (DOESNT WORK)
         if (lh.basesPerRow > 5) {
           lh.basesPerRow = 5;
