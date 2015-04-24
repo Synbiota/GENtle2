@@ -331,12 +331,15 @@ define(function(require) {
 
     return Q.promise(function(resolve, reject) {
 
+
+      var gutterWidth = ls.gutterWidth = _this.sequence.get('displaySettings.rows.hasGutters') ? 30 : 0;
+
       //basesPerRow
-      blocks_per_row = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / (ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth));
+      blocks_per_row = Math.floor((ls.canvasDims.width + gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / (ls.basesPerBlock * ls.basePairDims.width + gutterWidth));
       if (blocks_per_row !== 0) {
         lh.basesPerRow = ls.basesPerBlock * blocks_per_row;
       } else {
-        lh.basesPerRow = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / ls.basePairDims.width);
+        lh.basesPerRow = Math.floor((ls.canvasDims.width + gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / ls.basePairDims.width);
         //we want bases per row to be a multiple of 10 (DOESNT WORK)
         if (lh.basesPerRow > 5) {
           lh.basesPerRow = 5;
