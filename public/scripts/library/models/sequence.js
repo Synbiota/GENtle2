@@ -39,35 +39,61 @@ class BaseSequenceModel {
     this.nbFeaturesInRange = _.memoize2(this.nbFeaturesInRange);
   }
 
+  /**
+   * @method allFields
+   * @return {Array<String>}
+   */
   allFields() {
     return _.unique(this.requiredFields().concat(this.optionalFields()));
   }
 
+  /**
+   * @method requiredFields
+   * @return {Array<String>}
+   */
   requiredFields() {
     return ['sequence'];
   }
 
+  /**
+   * @method optionalFields
+   * @return {Array<String>}
+   */
   optionalFields() {
     return ['id', 'name', 'stickyEnds', 'features'];
   }
 
-  /*
-   @method _setupNestedClasses  Private method.  All the data preparation needed
-                                for the instance to pass validation
+  /**
+   * @method _setupNestedClasses  Private method.  All the data preparation
+   *                              needed for the instance to pass validation
+   * @return {undefined}
    */
   _setupNestedClasses() {
   }
 
+  /**
+   * @method validate
+   * @return {undefined}
+   * @throws {Error}  If any validation fails
+   */
   validate() {
     _.each(this.requiredFields(), (field) => {
       assertion(_.has(this, field), `Field \`${field}\` is absent`);
     });
   }
 
+  /**
+   * @method getBaseSequenceModel
+   * @return {SequenceModel}  this SequenceModel instance
+   */
   getBaseSequenceModel() {
     return this;
   }
 
+  /**
+   * @method sortFeatures
+   * @return {undefined}
+   */
   sortFeatures() {
     if(!this.features) return;
     var features = _.map(this.features, function(feature) {
@@ -78,6 +104,10 @@ class BaseSequenceModel {
     this.features = _.sortBy(features, (feature) => feature.ranges[0].from);
   }
 
+  /**
+   * @method toJSON
+   * @return {Object} attributes of this sequenceModel
+   */
   toJSON() {
     return _.reduce(this.allFields(), ((memo, field) => {
       memo[field] = this[field];
@@ -85,16 +115,28 @@ class BaseSequenceModel {
     }), {});
   }
 
+  /**
+   * @method length  Length of this SequenceModels sequenceBases
+   * @return {Integer}
+   */
   length() {
     return this.sequence.length;
   }
 
+  /**
+   * @method duplicate
+   * @return {SequenceModel} copy of this SequenceModel
+   */
   duplicate() {
     var data = this.toJSON();
     delete data.id;
     return new this.constructor(data);
   }
 
+  /**
+   * @method clearFeatureCache
+   * @return {undefined}
+   */
   clearFeatureCache() {
     this.maxOverlappingFeatures.clearCache();
     this.nbFeaturesInRange.clearCache();
@@ -102,9 +144,9 @@ class BaseSequenceModel {
 
 
   /**
-  @method maxOverlappingFeatures
-  @return {Integer}
-  **/
+   * @method maxOverlappingFeatures
+   * @return {Integer}
+   */
   maxOverlappingFeatures() {
     var ranges = _.flatten(_.pluck(this.attributes.features, 'ranges')),
       previousRanges = [],
@@ -126,9 +168,9 @@ class BaseSequenceModel {
   }
 
   /**
-  @method featuresCountInRange
-  @return {Integer}
-  **/
+   * @method featuresCountInRange
+   * @return {Integer}
+   */
   nbFeaturesInRange(startBase, endBase) {
     return _.filter(this.features, function(feature) {
       return _.some(feature.ranges, function(range) {
@@ -139,34 +181,78 @@ class BaseSequenceModel {
 
 
   //+stickyEnd methods
+  /**
+   * @method isBeyondStickyEnd
+   * @param  {Integer}  pos
+   * @param  {Boolean} reverse
+   * @return {Boolean}
+   */
   isBeyondStickyEnd(pos, reverse = false) {
     return this.isBeyondStartStickyEnd(pos, reverse) || this.isBeyondEndStickyEnd(pos, reverse);
   }
 
+  /**
+   * @method isBeyondStartStickyEndOnBothStrands
+   * @param  {Integer}  pos
+   * @return {Boolean}
+   */
   isBeyondStartStickyEndOnBothStrands(pos) {
     return this.overhangBeyondStartStickyEndOnBothStrands(pos) > 0;
   }
 
+  /**
+   * @method isBeyondEndStickyEndOnBothStrands
+   * @param  {Integer}  pos
+   * @return {Boolean}
+   */
   isBeyondEndStickyEndOnBothStrands(pos) {
     return this.overhangBeyondEndStickyEndOnBothStrands(pos) > 0;
   }
 
+  /**
+   * @method overhangBeyondStartStickyEndOnBothStrands
+   * @param  {Integer} pos
+   * @return {Integer}
+   */
   overhangBeyondStartStickyEndOnBothStrands(pos) {
     return Math.min(this.overhangBeyondStartStickyEnd(pos, true), this.overhangBeyondStartStickyEnd(pos, false));
   }
 
+  /**
+   * @method overhangBeyondEndStickyEndOnBothStrands
+   * @param  {Integer} pos
+   * @return {Integer}
+   */
   overhangBeyondEndStickyEndOnBothStrands(pos) {
     return Math.min(this.overhangBeyondEndStickyEnd(pos, true), this.overhangBeyondEndStickyEnd(pos, false));
   }
 
+  /**
+   * @method isBeyondStartStickyEnd
+   * @param  {Integer}  pos
+   * @param  {Boolean} reverse
+   * @return {Boolean}
+   */
   isBeyondStartStickyEnd(pos, reverse = false) {
     return this.overhangBeyondStartStickyEnd(pos, reverse) > 0;
   }
 
+  /**
+   * @method isBeyondEndStickyEnd
+   * @param  {Integer}  pos
+   * @param  {Boolean} reverse
+   * @return {Boolean}
+   */
   isBeyondEndStickyEnd(pos, reverse = false) {
     return this.overhangBeyondEndStickyEnd(pos, reverse) > 0;
   }
 
+  /**
+   * @method overhangBeyondStartStickyEnd
+   * @param  {Integer}  pos
+   * @param  {Boolean} reverse
+   * @return {Integer}
+   */
   overhangBeyondStartStickyEnd(pos, reverse = false) {
     var stickyEnds = this.stickyEnds;
     var result = 0;
@@ -193,6 +279,12 @@ class BaseSequenceModel {
     return result;
   }
 
+  /**
+   * @method overhangBeyondEndStickyEnd
+   * @param  {Integer}  pos
+   * @param  {Boolean} reverse
+   * @return {Integer}
+   */
   overhangBeyondEndStickyEnd(pos, reverse = false) {
     var stickyEnds = this.stickyEnds;
     var seqLength = this.length();
@@ -223,53 +315,81 @@ class BaseSequenceModel {
     return result;
   }
 
+  /**
+   * @method getStickyEndSequence
+   * @param  {Boolean} getStartStickyEnd
+   * @return {Object}
+   *        sequenceBases: {String}  sequence bases of stickyEnd (if on reverse
+   *                                 strand then complement is taken but not
+   *                                 reverse complement)
+   *        isOnReverseStrand:  {Boolean}  true if sequence is on reverse strand
+   */
   getStickyEndSequence(getStartStickyEnd) {
-    var wholeSequence = this.sequence;
+    var wholeSequenceBases = this.sequence;
     var stickyEnds = this.stickyEnds || {};
     var isOnReverseStrand;
-    var sequence = '';
+    var sequenceBases = '';
     var stickyEnd;
 
     if(getStartStickyEnd) {
       stickyEnd = stickyEnds.start;
       if(stickyEnd) {
-        sequence = wholeSequence.substr(stickyEnd.offset, stickyEnd.size);
+        sequenceBases = wholeSequenceBases.substr(stickyEnd.offset, stickyEnd.size);
       }
     } else {
       stickyEnd = stickyEnds.end;
       if (stickyEnd) {
-        var offset = wholeSequence.length - (stickyEnd.offset + stickyEnd.size);
-        sequence = wholeSequence.substr(offset, stickyEnd.size);
+        var offset = wholeSequenceBases.length - (stickyEnd.offset + stickyEnd.size);
+        sequenceBases = wholeSequenceBases.substr(offset, stickyEnd.size);
       }
     }
 
     if(stickyEnd) {
       isOnReverseStrand = stickyEnd.reverse;
       if(isOnReverseStrand) {
-        sequence = SequenceTransforms.toComplements(sequence);
+        sequenceBases = SequenceTransforms.toComplements(sequenceBases);
       }
     }
-    return {sequence, isOnReverseStrand};
+    return {sequenceBases, isOnReverseStrand};
   }
 
+  /**
+   * @method getStartStickyEndSequence
+   * @return {Object}  see `getStickyEndSequence` for description of return type
+   */
   getStartStickyEndSequence() {
     return this.getStickyEndSequence(true);
   }
 
+  /**
+   * @method getEndStickyEndSequence
+   * @return {Object}  see `getStickyEndSequence` for description of return type
+   */
   getEndStickyEndSequence() {
     return this.getStickyEndSequence(false);
   }
 
-  stickyEndConnects(sequence) {
+  /**
+   * @method stickyEndConnects  Returns True if this sequenceModel has a
+   *                            complementary end stickyEnd to the supplied
+   *                            sequenceModel's start stickyEnd
+   * @param  {SequenceModel} sequenceModel
+   * @return {Boolean}
+   */
+  stickyEndConnects(sequenceModel) {
     var thisEndStickySequence = this.getEndStickyEndSequence();
-    var otherStartStickySequence = sequence.getStartStickyEndSequence();
+    var otherStartStickySequence = sequenceModel.getStartStickyEndSequence();
 
     var canConnect = ((thisEndStickySequence.isOnReverseStrand != otherStartStickySequence.isOnReverseStrand) &&
-      SequenceTransforms.areComplementary(thisEndStickySequence.sequence, otherStartStickySequence.sequence));
+      SequenceTransforms.areComplementary(thisEndStickySequence.sequenceBases, otherStartStickySequence.sequenceBases));
 
     return canConnect;
   }
 
+  /**
+   * @method hasStickyEnd
+   * @return {Boolean}
+   */
   hasStickyEnds() {
     var stickyEnds = this.stickyEnds;
     return !!(stickyEnds && stickyEnds.start && stickyEnds.end);
@@ -277,16 +397,16 @@ class BaseSequenceModel {
   //-stickyEnd methods
 
   /**
-  @method getSubSeq
-  @param {Integer} startBase start of the subsequence (indexed from 0)
-  @param {Integer} endBase end of the subsequence (indexed from 0)
-  @return {String} the subsequence between the bases startBase and end Base
-  **/
+   * @method getSubSeq
+   * @param {Integer} startBase start of the subsequence (indexed from 0)
+   * @param {Integer} endBase end of the subsequence (indexed from 0)
+   * @return {String} the subsequence between the bases startBase and end Base
+   */
   getSubSeqWithoutStickyEnds(startBase, endBase) {
-    if (endBase === undefined){
+    if(endBase === undefined) {
       endBase = startBase;
     } else {
-      if (endBase >= this.length() && startBase >= this.length()) return '';
+      if(endBase >= this.length() && startBase >= this.length()) return '';
       endBase = Math.min(this.length() - 1, endBase);
     }
     startBase = Math.min(Math.max(0, startBase), this.length() - 1);
@@ -297,12 +417,12 @@ class BaseSequenceModel {
     return this.getSubSeqWithoutStickyEnds(startBase, endBase);
   }
 
-  /*
-  @method insertBases  Inserts a string of bases before a particular base
-                       position in the sequence.
-  @param  {String}  nucleotide bases to insert
-  @param  {Integer}  base to insert bases before (0 indexed)
-  @return {Undefined}
+  /**
+   * @method insertBases  Inserts a string of bases before a particular base
+   *                    position in the sequence.
+   * @param  {String}  nucleotide bases to insert
+   * @param  {Integer}  base to insert bases before (0 indexed)
+   * @return {Undefined}
    */
   insertBases(bases, beforeBase) {
     this.sequence = (
@@ -314,13 +434,13 @@ class BaseSequenceModel {
     this.moveFeatures(beforeBase, bases.length);
   }
 
-  /*
-  @method deleteBases  Deletes K bases from base postion N
-  @param  {Integer}  base N to start deleting from
-  @param  {Integer}  delete K bases
-  @return {Object}
-          sequenceBasesRemoved: {String}  The sequence of bases deleted
-          moveFeaturesResult:   {Object}  see method signature
+  /**
+   * @method deleteBases  Deletes K bases from base postion N
+   * @param  {Integer}  base N to start deleting from
+   * @param  {Integer}  delete K bases
+   * @return {Object}
+   *         sequenceBasesRemoved: {String}  The sequence of bases deleted
+   *         moveFeaturesResult:   {Object}  see method signature
    */
   deleteBases(firstBase, length) {
     var sequenceBasesRemoved = this.sequence.substr(firstBase, length);
@@ -334,15 +454,15 @@ class BaseSequenceModel {
     return {sequenceBasesRemoved, moveFeaturesResult};
   }
 
-  /*
-  @method moveFeatures  Moves all features after position N, by K offset.
-  @param  {Integer}  move features from position N (0 indexed)
-  @param  {Integer}  move features by K offset, may be negative
-  @return {Array<Object{state,feature}>}  array of objects with state of
-                                          edited/deleted features and copy of
-                                          feature before change
-          state: {String}  one of [`edited`, `deleted`]
-          feature: {Object}
+  /**
+   * @method moveFeatures  Moves all features after position N, by K offset.
+   * @param  {Integer}  move features from position N (0 indexed)
+   * @param  {Integer}  move features by K offset, may be negative
+   * @return {Array<Object{state,feature}>}  array of objects with state of
+   *                                      edited/deleted features and copy of
+   *                                      feature before change
+   *      state: {String}  one of [`edited`, `deleted`]
+   *      feature: {Object}
    */
   moveFeatures(base, offset) {
     var features = this.features,
@@ -400,11 +520,11 @@ class BaseSequenceModel {
   }
 
   /**
-  @method featuresInRange
-  @param {integer} startBase
-  @param {integer} endBase
-  @return {array} all features present between start and end base
-  **/
+   * @method featuresInRange
+   * @param {integer} startBase
+   * @param {integer} endBase
+   * @return {array} all features present between start and end base
+   */
   featuresInRange(startBase, endBase) {
     if (_.isArray(this.features)) {
       return _(this.features).filter((feature) => {

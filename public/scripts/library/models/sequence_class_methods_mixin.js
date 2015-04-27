@@ -46,7 +46,7 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
         appendSequenceNts = appendSequenceNts.substr(toRemove);
         offset = attributes.sequence.length - toRemove;
       } else {
-        throw `Can not concatenate sequences ${previousSequenceModel.id} and ${sequenceModel.id} as they have incompatible sticky ends: \`${previousSequenceModel.getEndStickyEndSequence().sequence}\` and \`${sequenceModel.getStartStickyEndSequence().sequence}\``;
+        throw `Can not concatenate sequences ${previousSequenceModel.id} and ${sequenceModel.id} as they have incompatible sticky ends: \`${previousSequenceModel.getEndStickyEndSequence().sequenceBases}\` and \`${sequenceModel.getStartStickyEndSequence().sequenceBases}\``;
       }
     }
     if(isLast && circularise) {

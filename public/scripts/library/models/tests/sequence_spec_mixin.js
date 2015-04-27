@@ -168,16 +168,16 @@ var testAllSequenceModels = function(SequenceModel) {
       });
 
       it(n + 'getStartStickyEndSequence', function() {
-        expect(sequence1.getStartStickyEndSequence().sequence).toEqual('');
+        expect(sequence1.getStartStickyEndSequence().sequenceBases).toEqual('');
         expect(sequence1.getStartStickyEndSequence().isOnReverseStrand).toEqual(undefined);
-        expect(sequence2.getStartStickyEndSequence().sequence).toEqual('AT');
+        expect(sequence2.getStartStickyEndSequence().sequenceBases).toEqual('AT');
         expect(sequence2.getStartStickyEndSequence().isOnReverseStrand).toEqual(true);
       });
 
       it(n + 'getEndStickyEndSequence', function() {
-        expect(sequence1.getEndStickyEndSequence().sequence).toEqual('TA');
+        expect(sequence1.getEndStickyEndSequence().sequenceBases).toEqual('TA');
         expect(sequence1.getEndStickyEndSequence().isOnReverseStrand).toEqual(false);
-        expect(sequence2.getEndStickyEndSequence().sequence).toEqual('');
+        expect(sequence2.getEndStickyEndSequence().sequenceBases).toEqual('');
         expect(sequence2.getEndStickyEndSequence().isOnReverseStrand).toEqual(undefined);
       });
 
