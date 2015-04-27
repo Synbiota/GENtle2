@@ -66,6 +66,7 @@ define(function(require) {
 
   RestrictionEnzymesLabels.prototype.draw = function(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
+        sequence        = sequenceCanvas.sequence,
         artist = sequenceCanvas.artist,
         layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
@@ -86,6 +87,13 @@ define(function(require) {
         x, text;
 
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
+
+    if (sequenceCanvas.drawSingleStickyEnds){
+      enzymes = _.filter(enzymes, function(enzyme, position){
+        var absolutePosition = position - (baseRange[0] === 0 ? 0 : subSeqPadding) + baseRange[0];
+        return !sequence.isBeyondStickyEnd(absolutePosition, this.isComplement);
+      });
+    }
 
     y += this.height - _.keys(enzymes).length * this.unitHeight;
 

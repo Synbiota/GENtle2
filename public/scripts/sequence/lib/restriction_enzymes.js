@@ -86,7 +86,7 @@ RestrictionEnzymes.getAllInSeq = function(seq, options = {}) {
   var isStickyEndPalindromic = function(position, enzyme) {
     var site = seq.substr(position, enzyme.seq.length);
     var stickyEnd = site.substr(
-      enzyme.cut - Math.max(0, -enzyme.offset), 
+      enzyme.cut - Math.max(0, -enzyme.offset),
       Math.abs(enzyme.offset)
     );
 
@@ -128,7 +128,7 @@ RestrictionEnzymes.getAllInSeq = function(seq, options = {}) {
 
         checkAndAddMatch(
           _.map(nonPalindromicEnzymes, RestrictionEnzymes.getComplementEnzyme),
-          reverseComplements(bases), 
+          reverseComplements(bases),
           true
         );
 

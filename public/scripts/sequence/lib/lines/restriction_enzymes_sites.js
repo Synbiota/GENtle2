@@ -22,7 +22,7 @@ define(function(require) {
     relativeBase = Math.max(0, Math.min(baseRange[1]+1, base + baseRange[0]) - baseRange[0]);
     x = layoutSettings.pageMargins.left + relativeBase * layoutSettings.basePairDims.width;
     x += layoutSettings.gutterWidth * Math.floor(Math.max(0, relativeBase - 1) / basesPerBlock);
-    
+
     if(!!isStart && relativeBase % basesPerBlock === 0 && relativeBase != layoutHelpers.basesPerRow && relativeBase !== 0) {
       x += layoutSettings.gutterWidth;
     }
@@ -32,6 +32,7 @@ define(function(require) {
 
   RestrictionEnzymeSites.prototype.draw = function(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
+        sequence = sequenceCanvas.sequence,
         artist = sequenceCanvas.artist,
         layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
@@ -63,6 +64,13 @@ define(function(require) {
       strokeStyle: '#59955C',
       lineWidth: 1
     });
+
+    if (sequenceCanvas.drawSingleStickyEnds){
+      enzymes = _.filter(enzymes, function(enzyme, position){
+        var absolutePosition = position - (baseRange[0] === 0 ? 0 : subSeqPadding) + baseRange[0];
+        return !sequence.isBeyondStickyEnd(absolutePosition, this.isComplement);
+      });
+    }
 
     _.each(enzymes, function(enzymes_, position) {
       position = +position - (baseRange[0] === 0 ? 0 : subSeqPadding);
@@ -117,9 +125,9 @@ define(function(require) {
           x2 = _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange);
           if(x !== x2) {
             points = points.concat(
-              _this.getBaseX(position, baseRange), 
+              _this.getBaseX(position, baseRange),
               y + complementsY + complementsHeight,
-              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
+              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange),
               y + complementsY + complementsHeight
             );
           }
