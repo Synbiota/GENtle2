@@ -461,11 +461,96 @@ class BaseSequenceModel {
    *         {Integer} startBase The actual start of the subsequence returned.
    *         {Integer} endBase   The actual end of the subsequence returned.
    */
-  getPaddedSubSeq(startBase, endBase, padding, offset=0) {
+  getPaddedSubSeq(startBase, endBase, padding, offset = 0) {
     startBase = Math.max(startBase - ((startBase - offset) % padding), 0);
     endBase = Math.min(endBase - ((endBase - offset) % padding) + padding - 1, this.length());
     var subSeq = this.getSubSeq(startBase, endBase);
     return {subSeq, startBase, endBase};
+  }
+
+  /**
+   * Returns a transformed subsequence between the bases `startBase` and `endBase`
+   * @method getTransformedSubSeq
+   * @param {String} variation Name of the transformation.  Available
+   *                           transformations: [`aa-long`, `aa-short`, `complements`]
+   * @param {Object} options
+   *   @param {Integer} options.offset  TODO: explain when and how this is used.
+   *   @param {Boolean} options.complements
+   * @param {Integer} startBase start of the subsequence (indexed from 0)
+   * @param {Integer} endBase end of the subsequence (indexed from 0)
+   * @return {String}
+   */
+  getTransformedSubSeq(variation, options, startBase, endBase) {
+    options = options || {};
+    var output = '';
+    switch (variation) {
+      case 'aa-long':
+      case 'aa-short':
+        var paddedSubSeq = this.getPaddedSubSeq(startBase, endBase, 3, options.offset || 0);
+        output = _.map(paddedSubSeq.subSeq.match(/.{1,3}/g) || [], function(codon) {
+          if (options.complements === true) codon = SequenceTransforms.toComplements(codon);
+          return SequenceTransforms[variation === 'aa-long' ? 'codonToAALong' : 'codonToAAShort'](codon);
+        }).join('');
+        var offset = Math.max(0, paddedSubSeq.startBase - startBase);
+        output = output.substr(Math.max(0, startBase - paddedSubSeq.startBase), endBase - startBase + 1 - offset);
+        _.times(Math.max(0, offset), function() {
+          output = ' ' + output;
+        });
+        break;
+      case 'complements':
+        output = SequenceTransforms.toComplements(this.getSubSeq(startBase, endBase, true));
+        break;
+      default:
+        throw new Error(`Unsupported sequence transform '${variation}'`);
+    }
+    return output;
+  }
+
+  /**
+   * Codon to which the base belongs and position of the base in the codon.
+   * @method getCodon
+   * @param {Integer} base Indexed from 0.
+   * @param {Integer} offset=0
+   * @return {Object}
+   *         sequence: {String}
+   *         position: {Integer}
+   */
+  getCodon(base, offset = 0) {
+    if(base < 0) throw new Error(`'base' must be >= 0 but was '${base}'`);
+    var subSeq = this.getPaddedSubSeq(base, base, 3, offset);
+    if (subSeq.startBase > base) {
+      return {
+        sequence: this.sequence[base],
+        position: 1
+      };
+    } else {
+      return {
+        sequence: subSeq.subSeq,
+        position: (base - offset) % 3
+      };
+    }
+  }
+
+  /**
+   * Returns the amino acid for a given based
+   * @method getAA
+   * @param {String} variation Name of the transformation.  Available
+   *                           transformations: [`short`, `long`]
+   * @param  {Integer} base
+   * @param  {Integer} offset=0
+   * @return {Object}
+   *         sequence: {String}  The amino acid (TODO: rename this key from
+   *                             `sequence` to `aminoAcid`)
+   *         position: {Integer}
+   */
+  getAA(variation, base, offset = 0) {
+    var codon = this.getCodon(base, offset);
+    var transform = variation === 'short' ? 'codonToAAShort' : 'codonToAALong';
+    var aa = SequenceTransforms[transform](codon.sequence) || '   ';
+    return {
+      sequence: aa,
+      position: codon.position
+    };
   }
 
   /**

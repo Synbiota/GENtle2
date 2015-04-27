@@ -132,7 +132,6 @@ var testAllSequenceModels = function(SequenceModel) {
         }
         expect(error).toEqual('Error: Field `sequence` is absent');
       });
-
     });
 
     describe('basic behaviour', function() {
@@ -157,6 +156,18 @@ var testAllSequenceModels = function(SequenceModel) {
       it('should be able to get a subsequence', function() {
         expect(sequence.getSubSeq(2,5)).toEqual('CGGG');
       });
+    });
+
+    describe('getting transformed and subsequences', function() {
+      var sequence;
+      var bases = 'ATCGGGCTTAAGCGTA';
+      it('should instantiate', function() {
+        sequence = new SequenceModel({
+          name: 'Test Sequence',
+          sequence: bases
+        }).getBaseSequenceModel();
+        expect(sequence).toBeTruthy();
+      });
 
       it('should be able to get a padded subsequence', function() {
         var result = sequence.getPaddedSubSeq(3, 8, 3);
@@ -178,6 +189,99 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(result.subSeq).toEqual(bases.substr(1, 9));
         expect(result.startBase).toEqual(1);
         expect(result.endBase).toEqual(9);
+      });
+
+      it('should be able get a transformed subsequence', function() {
+        var transformedSubSequence, error;
+        try {
+          transformedSubSequence = sequence.getTransformedSubSeq('WRonG', {}, 3, 8);
+        } catch (e) {
+          error = e.toString();
+        }
+        expect(error).toEqual("Error: Unsupported sequence transform 'WRonG'");
+
+        transformedSubSequence = sequence.getTransformedSubSeq('aa-long', {}, 8, 3);
+        expect(transformedSubSequence).toEqual('');
+
+        transformedSubSequence = sequence.getTransformedSubSeq('aa-long', {}, 3, 8);
+        expect(transformedSubSequence).toEqual('GlyLeu');
+
+        transformedSubSequence = sequence.getTransformedSubSeq('aa-short', {}, 3, 8);
+        expect(transformedSubSequence).toEqual('G  L  ');
+
+        transformedSubSequence = sequence.getTransformedSubSeq('aa-short', {offset: 2}, 3, 8);
+        expect(transformedSubSequence).toEqual('  A  X');
+
+        transformedSubSequence = sequence.getTransformedSubSeq('aa-short', {complements: true}, 3, 8);
+        expect(transformedSubSequence).toEqual('P  E  ');
+      });
+
+      it('should be able get a codon', function() {
+        var codon, error;
+        try {
+          codon = sequence.getCodon(-1);
+        } catch (e) {
+          error = e.toString();
+        }
+        expect(error).toEqual("Error: 'base' must be >= 0 but was '-1'");
+
+        codon = sequence.getCodon(0);
+        expect(codon.sequence).toEqual(bases.substr(0, 3));
+        expect(codon.position).toEqual(0);
+
+        codon = sequence.getCodon(1);
+        expect(codon.sequence).toEqual(bases.substr(0, 3));
+        expect(codon.position).toEqual(1);
+
+        codon = sequence.getCodon(2);
+        expect(codon.sequence).toEqual(bases.substr(0, 3));
+        expect(codon.position).toEqual(2);
+
+        codon = sequence.getCodon(3);
+        expect(codon.sequence).toEqual(bases.substr(3, 3));
+        expect(codon.position).toEqual(0);
+
+        codon = sequence.getCodon(3, 2);
+        expect(codon.sequence).toEqual(bases.substr(2, 3));
+        expect(codon.position).toEqual(1);
+
+        codon = sequence.getCodon(3, 4);
+        expect(codon.sequence).toEqual(bases[3]);
+        expect(codon.position).toEqual(1);
+
+        codon = sequence.getCodon(3, -4);
+        expect(codon.sequence).toEqual(bases.substr(2, 3));
+        expect(codon.position).toEqual(1);
+      });
+
+      it('should be able get an amino acid', function() {
+        var aminoAcid = sequence.getAA('long', 0);
+        expect(aminoAcid.sequence).toEqual('Ile');
+        expect(aminoAcid.position).toEqual(0);
+
+        aminoAcid = sequence.getAA('short', 0);
+        expect(aminoAcid.sequence).toEqual('I  ');
+        expect(aminoAcid.position).toEqual(0);
+
+        aminoAcid = sequence.getAA('short', 1);
+        expect(aminoAcid.sequence).toEqual('I  ');
+        expect(aminoAcid.position).toEqual(1);
+
+        aminoAcid = sequence.getAA('short', 2);
+        expect(aminoAcid.sequence).toEqual('I  ');
+        expect(aminoAcid.position).toEqual(2);
+
+        aminoAcid = sequence.getAA('short', 3);
+        expect(aminoAcid.sequence).toEqual('G  ');
+        expect(aminoAcid.position).toEqual(0);
+
+        aminoAcid = sequence.getAA('short', 3, 2);
+        expect(aminoAcid.sequence).toEqual('R  ');
+        expect(aminoAcid.position).toEqual(1);
+
+        aminoAcid = sequence.getAA('short', 3, -4);
+        expect(aminoAcid.sequence).toEqual('R  ');
+        expect(aminoAcid.position).toEqual(1);
       });
     });
 

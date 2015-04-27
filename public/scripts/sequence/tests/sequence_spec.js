@@ -47,14 +47,6 @@ describe('BackboneSequenceModel', function() {
       expect(sequence.get('sequence')).toBeUndefined();
       expect(baseSequenceModel.sequence).toEqual(initialSequenceContent);
     });
-
-    it('should not have getSubSeq', function() {
-      expect(sequence.getSubSeq).toBeUndefined();
-    });
-
-    it('should not have getPaddedSubSeq', function() {
-      expect(sequence.getPaddedSubSeq).toBeUndefined();
-    });
   });
 
   describe('when inserting bases into a sequence', function() {
