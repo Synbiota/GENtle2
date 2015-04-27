@@ -1,10 +1,16 @@
+/**
+ * @module gentle-plugins
+ * @submodule pcr
+ */
 import _ from 'underscore';
 import {assertIsNumber} from '../../../common/lib/testing_utils';
 import ChildSequenceModel from '../../../library/models/child_sequence';
 
-/*
- * Used for both the annealing region and
- * the full pcr primer (annealing region + stickyends)
+/**
+ * Used for both the annealing region and the full pcr primer (annealing
+ * region + stickyends)
+ * @class PcrPrimerModel
+ * @constructor
  */
 class PcrPrimerModel extends ChildSequenceModel {
   requiredFields() {

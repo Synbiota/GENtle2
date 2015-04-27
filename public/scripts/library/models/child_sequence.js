@@ -1,10 +1,15 @@
+/**
+ * @module gentle-models
+ */
 import _ from 'underscore';
 import BaseSequenceModel from './sequence';
 import {assertion, assertIsNumber} from '../../common/lib/testing_utils';
 
 /**
  * A SequenceModel that is a child (belongs to) another SequenceModel.  For
- * example a PcrPrimerSequenceModel or a PcrProductSequenceModel.
+ * example a `PcrPrimerModel` or a `PcrProductSequenceModel`.
+ * @class  ChildSequenceModel
+ * @constructor
  */
 class ChildSequenceModel extends BaseSequenceModel {
   requiredFields () {

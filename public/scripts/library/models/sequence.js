@@ -1,8 +1,6 @@
 /**
-@module GENtle-Models
-@class BaseSequenceModel
-**/
-
+ * @module gentle-models
+ */
 import {assertion} from '../../common/lib/testing_utils';
 import SequenceTransforms from '../../sequence/lib/sequence_transforms';
 // TODO add dependency for underscore.mixin
@@ -10,6 +8,11 @@ import _ from 'underscore';
 import sequenceClassMethodsMixin from './sequence_class_methods_mixin';
 
 
+/**
+ * Represents a sequence of nucleotides (DNA bases).
+ * @class  BaseSequenceModel
+ * @constructor
+ */
 class BaseSequenceModel {
   constructor(attributes) {
     var id = _.uniqueId();

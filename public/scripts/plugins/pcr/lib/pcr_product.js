@@ -1,9 +1,17 @@
+/**
+ * @module gentle-plugins
+ * @submodule pcr
+ */
 import _ from 'underscore';
 import {assertIsInstance} from '../../../common/lib/testing_utils';
 import ChildSequenceModel from '../../../library/models/child_sequence';
 import PcrPrimerModel from './primer';
 
-
+/**
+ * Represents a PCR product including it's nucleotide sequence (DNA bases).
+ * @class PcrProductSequenceModel
+ * @constructor
+ */
 class PcrProductSequenceModel extends ChildSequenceModel {
   requiredFields() {
     var fields = super.requiredFields();
@@ -11,7 +19,7 @@ class PcrProductSequenceModel extends ChildSequenceModel {
       'meltingTemperature',
       'forwardAnnealingRegionPrimerModel',
       'reverseAnnealingRegionPrimerModel',
-      'forwardPrimer', 
+      'forwardPrimer',
       'reversePrimer',
     ]));
   }
@@ -21,7 +29,7 @@ class PcrProductSequenceModel extends ChildSequenceModel {
       'forwardAnnealingRegionPrimerModel',
       'reverseAnnealingRegionPrimerModel',
       //TODO: use Models to represent primers
-      // 'forwardPrimer', 
+      // 'forwardPrimer',
       // 'reversePrimer',
     ];
   }
