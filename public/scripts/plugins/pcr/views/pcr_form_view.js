@@ -112,8 +112,8 @@ export default Backbone.View.extend({
     // OPTIMIZE: this may not be very efficient for long sequences.
     var frm = this.state.from;
     var to = this.state.to;
-    var sequenceNts = this.model.get('sequence').substr(frm, to - frm + 1);
-    return {sequence: sequenceNts, from: frm, to: to};
+    var sequenceBases = this.model.get('sequence').substr(frm, to - frm + 1);
+    return {sequence: sequenceBases, from: frm, to: to};
   },
 
   getFormData: function() {

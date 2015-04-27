@@ -25,7 +25,7 @@ var processReports = function(progressReports) {
 var calculateFeatures = function(productAttributes) {
   var features = [];
 
-  var sequenceNts = productAttributes.sequence;
+  var sequenceBases = productAttributes.sequence;
   features = [{
     name: productAttributes.stickyEnds.start.name + ' end',
     _type: 'sticky_end',
@@ -38,8 +38,8 @@ var calculateFeatures = function(productAttributes) {
     name: productAttributes.stickyEnds.end.name + ' end',
     _type: 'sticky_end',
     ranges: [{
-      from: sequenceNts.length - 1,
-      to: sequenceNts.length - 1 - productAttributes.stickyEnds.end.sequence.length,
+      from: sequenceBases.length - 1,
+      to: sequenceBases.length - 1 - productAttributes.stickyEnds.end.sequence.length,
     }]
   },
   {
@@ -81,14 +81,14 @@ var calculatePcrProductFromPrimers = function(sequence, opts, forwardAnnealingRe
   assertIsInstance(forwardAnnealingRegionPrimerModel, PcrPrimerModel, 'calculatePcrProductFromPrimers with forwardAnnealingRegionPrimerModel');
   assertIsInstance(reverseAnnealingRegionPrimerModel, PcrPrimerModel, 'calculatePcrProductFromPrimers with reverseAnnealingRegionPrimerModel');
   opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
+  var sequenceBases = _.isString(sequence) ? sequence : sequence.get('sequence');
 
   var {
-    productSequence: pcrProductSequenceNts,
+    productSequence: pcrProductSequenceBases,
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
     endStickyEnd: endStickyEnd
-  } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
+  } = Sequence.calculateProduct(sequenceBases, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegionPrimerModel, {
     from: startStickyEnd.length,
@@ -118,8 +118,8 @@ var calculatePcrProductFromPrimers = function(sequence, opts, forwardAnnealingRe
   var reversePrimer = {
     name: 'Reverse primer',
     sequence: reversePrimerSequence,
-    from: pcrProductSequenceNts.length - 1,
-    to: pcrProductSequenceNts.length - 1 - reversePrimerSequence.length,
+    from: pcrProductSequenceBases.length - 1,
+    to: pcrProductSequenceBases.length - 1 - reversePrimerSequence.length,
     id: _.uniqueId(),
     gcContent: SequenceCalculations.gcContent(reversePrimerSequence),
   };
@@ -130,13 +130,13 @@ var calculatePcrProductFromPrimers = function(sequence, opts, forwardAnnealingRe
     // `from` and `to` refer to the parent sequence this PCR product came from
     from: opts.from,
     to: opts.to,
-    sequence: pcrProductSequenceNts,
+    sequence: pcrProductSequenceBases,
     forwardAnnealingRegionPrimerModel: forwardAnnealingRegionPrimerModel,
     reverseAnnealingRegionPrimerModel: reverseAnnealingRegionPrimerModel,
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
     stickyEnds: opts.stickyEnds,
-    meltingTemperature: SequenceCalculations.meltingTemperature(pcrProductSequenceNts)
+    meltingTemperature: SequenceCalculations.meltingTemperature(pcrProductSequenceBases)
   };
   var features = calculateFeatures(attributes);
   attributes.features = features;
@@ -147,25 +147,25 @@ var calculatePcrProductFromPrimers = function(sequence, opts, forwardAnnealingRe
 
 
 var getSequencesToSearch = function(sequence, opts) {
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
+  var sequenceBases = _.isString(sequence) ? sequence : sequence.get('sequence');
   opts = defaultPCRPrimerOptions(opts);
 
   _.defaults(opts, {
     from: 0,
-    to: sequenceNts.length - 1
+    to: sequenceBases.length - 1
   });
 
   if(opts.to < opts.from) {
     throw "getPcrProductAndPrimers `opts.to` is smaller than `opts.from`";
-  } else if((sequenceNts.length - opts.from) < opts.minPrimerLength) {
+  } else if((sequenceBases.length - opts.from) < opts.minPrimerLength) {
     throw "getPcrProductAndPrimers `opts.from` is too large to leave enough sequence length to find the primer";
   } else if (opts.to < opts.minPrimerLength) {
     throw "getPcrProductAndPrimers `opts.to` is too small to leave enough sequence length to find the primer";
   }
 
-  var forwardSequenceToSearch = sequenceNts.substr(opts.from, opts.maxPrimerLength);
-  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequenceNts);
-  var to = sequenceNts.length - opts.to - 1;
+  var forwardSequenceToSearch = sequenceBases.substr(opts.from, opts.maxPrimerLength);
+  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequenceBases);
+  var to = sequenceBases.length - opts.to - 1;
   reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
 
   return {forwardSequenceToSearch, reverseSequenceToSearch};

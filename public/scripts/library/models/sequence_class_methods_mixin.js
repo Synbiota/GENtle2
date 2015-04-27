@@ -16,7 +16,7 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
     var isFirst = i === 0;
     var isLast = i === (sequenceModels.length - 1);
     var stickyEnds = sequenceModel.stickyEnds;
-    var sequenceNts = sequenceModel.sequence;
+    var sequenceBases = sequenceModel.sequence;
 
     // Add sticky ends
     if(isFirst && !circularise) {
@@ -32,7 +32,7 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
       }
     }
 
-    var appendSequenceNts = sequenceNts;
+    var appendSequenceBases = sequenceBases;
     var offset = 0;
     if(isFirst && circularise) {
       previousSequenceModel = sequenceModels[sequenceModels.length-1];
@@ -43,17 +43,17 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
       if(previousSequenceModel.stickyEndConnects(sequenceModel)) {
         attributes.sequence = attributes.sequence.substr(0, attributes.sequence.length - previousStickyEnds.end.offset);
         var toRemove = stickyEnds.start.offset + stickyEnds.start.size;
-        appendSequenceNts = appendSequenceNts.substr(toRemove);
+        appendSequenceBases = appendSequenceBases.substr(toRemove);
         offset = attributes.sequence.length - toRemove;
       } else {
         throw `Can not concatenate sequences ${previousSequenceModel.id} and ${sequenceModel.id} as they have incompatible sticky ends: \`${previousSequenceModel.getEndStickyEndSequence().sequenceBases}\` and \`${sequenceModel.getStartStickyEndSequence().sequenceBases}\``;
       }
     }
     if(isLast && circularise) {
-      appendSequenceNts = appendSequenceNts.substr(0, appendSequenceNts.length - stickyEnds.end.offset);
+      appendSequenceBases = appendSequenceBases.substr(0, appendSequenceBases.length - stickyEnds.end.offset);
     }
     // Add the suitable sequence bases
-    attributes.sequence += appendSequenceNts;
+    attributes.sequence += appendSequenceBases;
 
     // Add features
     _.each(sequenceModel.features, (feature) => {

@@ -571,11 +571,11 @@ var SequenceModel = Backbone.DeepModel.extend({
 });
 
 
-SequenceModel.calculateProduct = function(sequenceNts, opts) {
+SequenceModel.calculateProduct = function(sequenceBases, opts) {
   if(_.isUndefined(opts.from) || _.isUndefined(opts.to)) {
     throw "Must specify `opts.from` and `opts.to`";
   }
-  var regionOfInterest = sequenceNts.slice(opts.from, opts.to + 1);
+  var regionOfInterest = sequenceBases.slice(opts.from, opts.to + 1);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
   var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end || '';
 

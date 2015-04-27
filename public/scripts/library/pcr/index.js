@@ -31,7 +31,7 @@ prepareEnvironment.then(function() {
     throw new Error('Expecting one sequence in ' + inputFile + ' but found ' + num);
   }
   var sequence = sequences[0];
-  var sequenceNts = sequence.sequence;
+  var sequenceBases = sequence.sequence;
 
   var primerFrom = program.from;
   var primerEnd = program.end;
@@ -40,15 +40,15 @@ prepareEnvironment.then(function() {
   if(_.isNaN(primerFrom)) throw "'from' value must be specified but was: " + primerFrom;
   var to = primerTo;
   if(_.isNaN(to)) {
-    to = sequenceNts.length - 1 - primerEnd;
+    to = sequenceBases.length - 1 - primerEnd;
   }
   if(_.isNaN(to)) throw "'to' or 'end' value must be specified but were: " + primerTo + " " + primerEnd;
 
   var options = {from: primerFrom, to: to};
-  console.log("calculating pcr product " + JSON.stringify(options) + " for sequence:\n", sequenceNts, '\n');
+  console.log("calculating pcr product " + JSON.stringify(options) + " for sequence:\n", sequenceBases, '\n');
 
   var getPcrProductAndPrimers = require('../../plugins/pcr/lib/pcr_primer_design').getPcrProductAndPrimers;
-  return getPcrProductAndPrimers(sequenceNts, options);
+  return getPcrProductAndPrimers(sequenceBases, options);
 })
 .then(function(pcrProduct){
 
