@@ -23,7 +23,8 @@ var assertIsNumber = function(value, fieldName) {
 };
 
 var assertIsInstance = function(value, klass, fieldName) {
-  _assertion((value && value.constructor) === klass, `\`${fieldName}\` should be a instance of ${klass.className || klass} but is ${value}`);
+  // N.B. klass.className is manually set on backbone models
+  _assertion((value && value.constructor) === klass, `\`${fieldName}\` should be a instance of ${klass.className || klass.name || klass} but is ${value}`);
 };
 
 

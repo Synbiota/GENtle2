@@ -34,7 +34,4 @@ class DeprecatedPcrProductSequenceModel extends Sequence {
 }
 
 
-DeprecatedPcrProductSequenceModel.className = 'DeprecatedPcrProductSequenceModel';
-
-
 export default DeprecatedPcrProductSequenceModel;

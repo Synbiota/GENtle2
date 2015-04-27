@@ -37,7 +37,4 @@ class PcrPrimerModel extends ChildSequenceModel {
 }
 
 
-PcrPrimerModel.className = 'PcrPrimerModel';
-
-
 export default PcrPrimerModel;

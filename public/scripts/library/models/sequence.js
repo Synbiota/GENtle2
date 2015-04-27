@@ -29,7 +29,7 @@ class BaseSequenceModel {
     _.each(this.allFields(), (field) => {
       if(_.has(attributes, field)) {
         if(!_.isUndefined(this[field])) {
-          throw `'${this.constructor.className}' (Sequence) Model already has the '${field}' attribute set.`;
+          throw `'${this.constructor.name}' (Sequence) Model already has the '${field}' attribute set.`;
         }
         this[field] = attributes[field];
         delete attributes[field];
@@ -580,9 +580,6 @@ class BaseSequenceModel {
   }
 
 }
-
-
-BaseSequenceModel.className = 'BaseSequenceModel';
 
 
 sequenceClassMethodsMixin(BaseSequenceModel);

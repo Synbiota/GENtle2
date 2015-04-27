@@ -50,7 +50,4 @@ class ChildSequenceModel extends BaseSequenceModel {
 }
 
 
-ChildSequenceModel.className = 'ChildSequenceModel';
-
-
 export default ChildSequenceModel;

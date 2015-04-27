@@ -14,7 +14,7 @@ import BaseSequenceBackboneWrapper from './sequence_backbone_wrapper';
 import sequenceClassMethodsMixin from '../../library/models/sequence_class_methods_mixin';
 
 
-var SequenceModel = Backbone.DeepModel.extend({
+var BackboneSequenceModel = Backbone.DeepModel.extend({
   defaults: function() {
     return {
       displaySettings: {
@@ -571,7 +571,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 });
 
 
-SequenceModel.calculateProduct = function(sequenceBases, opts) {
+BackboneSequenceModel.calculateProduct = function(sequenceBases, opts) {
   if(_.isUndefined(opts.from) || _.isUndefined(opts.to)) {
     throw "Must specify `opts.from` and `opts.to`";
   }
@@ -587,10 +587,12 @@ SequenceModel.calculateProduct = function(sequenceBases, opts) {
 };
 
 
-SequenceModel.className = 'SequenceModel';
+// Required for getting name of class as BackboneSequenceModel.name returns 'constructor'
+BackboneSequenceModel.className = 'BackboneSequenceModel';
 
 
-//TODO remove this
-sequenceClassMethodsMixin(SequenceModel);
+//TODO preferably remove this and refactor sequenceClassMethodsMixin into
+//  BaseSequenceModel
+sequenceClassMethodsMixin(BackboneSequenceModel);
 
-export default SequenceModel;
+export default BackboneSequenceModel;

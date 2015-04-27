@@ -52,7 +52,4 @@ class PcrProductSequenceModel extends ChildSequenceModel {
 }
 
 
-PcrProductSequenceModel.className = 'PcrProductSequenceModel';
-
-
 export default PcrProductSequenceModel;
