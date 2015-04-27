@@ -16,7 +16,7 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
     var isFirst = i === 0;
     var isLast = i === (sequenceModels.length - 1);
     var stickyEnds = sequenceModel.stickyEnds;
-    var sequenceBases = sequenceModel.sequence;
+    var appendSequenceBases = sequenceModel.sequence;
 
     // Add sticky ends
     if(isFirst && !circularise) {
@@ -32,7 +32,6 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
       }
     }
 
-    var appendSequenceBases = sequenceBases;
     var offset = 0;
     if(isFirst && circularise) {
       previousSequenceModel = sequenceModels[sequenceModels.length-1];

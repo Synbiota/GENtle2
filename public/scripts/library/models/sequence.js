@@ -1,3 +1,8 @@
+/**
+@module GENtle-Models
+@class BaseSequenceModel
+**/
+
 import {assertion} from '../../common/lib/testing_utils';
 import SequenceTransforms from '../../sequence/lib/sequence_transforms';
 // TODO add dependency for underscore.mixin
@@ -40,6 +45,7 @@ class BaseSequenceModel {
   }
 
   /**
+   * Return a list of all possible attribute fields on this model.
    * @method allFields
    * @return {Array<String>}
    */
@@ -48,6 +54,7 @@ class BaseSequenceModel {
   }
 
   /**
+   * Return a list of all required attribute fields on this model.
    * @method requiredFields
    * @return {Array<String>}
    */
@@ -56,6 +63,7 @@ class BaseSequenceModel {
   }
 
   /**
+   * Return a list of all optional attribute fields on this model.
    * @method optionalFields
    * @return {Array<String>}
    */
@@ -64,8 +72,11 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method _setupNestedClasses  Private method.  All the data preparation
-   *                              needed for the instance to pass validation
+   * Private method.  All the data preparation needed for the instance to pass
+   * validation.
+   *
+   * @private
+   * @method _setupNestedClasses
    * @return {undefined}
    */
   _setupNestedClasses() {
@@ -74,7 +85,7 @@ class BaseSequenceModel {
   /**
    * @method validate
    * @return {undefined}
-   * @throws {Error}  If any validation fails
+   * @throws {Error}  If any validation fails,
    */
   validate() {
     _.each(this.requiredFields(), (field) => {
@@ -84,7 +95,7 @@ class BaseSequenceModel {
 
   /**
    * @method getBaseSequenceModel
-   * @return {SequenceModel}  this SequenceModel instance
+   * @return {SequenceModel}  This SequenceModel instance.
    */
   getBaseSequenceModel() {
     return this;
@@ -106,7 +117,7 @@ class BaseSequenceModel {
 
   /**
    * @method toJSON
-   * @return {Object} attributes of this sequenceModel
+   * @return {Object} Attributes of this sequenceModel,
    */
   toJSON() {
     return _.reduce(this.allFields(), ((memo, field) => {
@@ -116,7 +127,8 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method length  Length of this SequenceModels sequenceBases
+   * Length of this SequenceModels sequenceBases.
+   * @method length
    * @return {Integer}
    */
   length() {
@@ -125,7 +137,7 @@ class BaseSequenceModel {
 
   /**
    * @method duplicate
-   * @return {SequenceModel} copy of this SequenceModel
+   * @return {SequenceModel} Copy of this SequenceModel.
    */
   duplicate() {
     var data = this.toJSON();
@@ -168,7 +180,11 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method featuresCountInRange
+   * Number of features with at least range completely in the range given.
+   * Does not count partially overlapping feature range(s).
+   * @method  nbFeaturesInRange
+   * @param  {Integer} startBase
+   * @param  {Integer} endBase
    * @return {Integer}
    */
   nbFeaturesInRange(startBase, endBase) {
@@ -183,8 +199,8 @@ class BaseSequenceModel {
   //+stickyEnd methods
   /**
    * @method isBeyondStickyEnd
-   * @param  {Integer}  pos
-   * @param  {Boolean} reverse
+   * @param  {Integer} pos
+   * @param  {Boolean} reverse=false If true, assesses reverse strand.
    * @return {Boolean}
    */
   isBeyondStickyEnd(pos, reverse = false) {
@@ -193,7 +209,7 @@ class BaseSequenceModel {
 
   /**
    * @method isBeyondStartStickyEndOnBothStrands
-   * @param  {Integer}  pos
+   * @param  {Integer} pos
    * @return {Boolean}
    */
   isBeyondStartStickyEndOnBothStrands(pos) {
@@ -202,7 +218,7 @@ class BaseSequenceModel {
 
   /**
    * @method isBeyondEndStickyEndOnBothStrands
-   * @param  {Integer}  pos
+   * @param  {Integer} pos
    * @return {Boolean}
    */
   isBeyondEndStickyEndOnBothStrands(pos) {
@@ -229,8 +245,8 @@ class BaseSequenceModel {
 
   /**
    * @method isBeyondStartStickyEnd
-   * @param  {Integer}  pos
-   * @param  {Boolean} reverse
+   * @param  {Integer} pos
+   * @param  {Boolean} reverse=false  If true, assesses reverse strand.
    * @return {Boolean}
    */
   isBeyondStartStickyEnd(pos, reverse = false) {
@@ -239,8 +255,8 @@ class BaseSequenceModel {
 
   /**
    * @method isBeyondEndStickyEnd
-   * @param  {Integer}  pos
-   * @param  {Boolean} reverse
+   * @param  {Integer} pos
+   * @param  {Boolean} reverse=false  If true, assesses reverse strand.
    * @return {Boolean}
    */
   isBeyondEndStickyEnd(pos, reverse = false) {
@@ -249,8 +265,8 @@ class BaseSequenceModel {
 
   /**
    * @method overhangBeyondStartStickyEnd
-   * @param  {Integer}  pos
-   * @param  {Boolean} reverse
+   * @param  {Integer} pos
+   * @param  {Boolean} reverse=false  If true, assesses reverse strand.
    * @return {Integer}
    */
   overhangBeyondStartStickyEnd(pos, reverse = false) {
@@ -281,8 +297,8 @@ class BaseSequenceModel {
 
   /**
    * @method overhangBeyondEndStickyEnd
-   * @param  {Integer}  pos
-   * @param  {Boolean} reverse
+   * @param  {Integer} pos
+   * @param  {Boolean} reverse=false  If true, assesses reverse strand.
    * @return {Integer}
    */
   overhangBeyondEndStickyEnd(pos, reverse = false) {
@@ -370,9 +386,9 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method stickyEndConnects  Returns True if this sequenceModel has a
-   *                            complementary end stickyEnd to the supplied
-   *                            sequenceModel's start stickyEnd
+   * Returns True if this sequenceModel has a complementary end stickyEnd to the
+   * supplied sequenceModel's start stickyEnd
+   * @method stickyEndConnects
    * @param  {SequenceModel} sequenceModel
    * @return {Boolean}
    */
@@ -387,7 +403,7 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method hasStickyEnd
+   * @method hasStickyEnds
    * @return {Boolean}
    */
   hasStickyEnds() {
@@ -397,9 +413,9 @@ class BaseSequenceModel {
   //-stickyEnd methods
 
   /**
-   * @method getSubSeq
-   * @param {Integer} startBase start of the subsequence (indexed from 0)
-   * @param {Integer} endBase end of the subsequence (indexed from 0)
+   * @method getSubSeqWithoutStickyEnds
+   * @param {Integer} startBase Start of the subsequence (indexed from 0)
+   * @param {Integer} endBase   End of the subsequence (indexed from 0)
    * @return {String} the subsequence between the bases startBase and end Base
    */
   getSubSeqWithoutStickyEnds(startBase, endBase) {
@@ -413,15 +429,23 @@ class BaseSequenceModel {
     return this.sequence.substr(startBase, endBase - startBase + 1);
   }
 
-  getSubSeq(startBase, endBase, reverse = false) {
+  /**
+   * Returns part of sequence bases.
+   * @method getSubSeq
+   * @param  {Integer}  startBase
+   * @param  {Integer}  endBase
+   * @return {String}  Sequence bases.
+   */
+  getSubSeq(startBase, endBase) {
     return this.getSubSeqWithoutStickyEnds(startBase, endBase);
   }
 
   /**
-   * @method insertBases  Inserts a string of bases before a particular base
-   *                    position in the sequence.
-   * @param  {String}  nucleotide bases to insert
-   * @param  {Integer}  base to insert bases before (0 indexed)
+   * Inserts a string of bases before a particular base position in the
+   * sequence.
+   * @method insertBases
+   * @param  {String} bases  Nucleotide bases to insert.
+   * @param  {Integer} beforeBase  Base to insert bases before (0 indexed).
    * @return {Undefined}
    */
   insertBases(bases, beforeBase) {
@@ -435,9 +459,10 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method deleteBases  Deletes K bases from base postion N
-   * @param  {Integer}  base N to start deleting from
-   * @param  {Integer}  delete K bases
+   * Deletes K bases from base postion N.
+   * @method deleteBases
+   * @param  {Integer} firstBase Base N to start deleting from.
+   * @param  {Integer} length    Delete K bases.
    * @return {Object}
    *         sequenceBasesRemoved: {String}  The sequence of bases deleted
    *         moveFeaturesResult:   {Object}  see method signature
@@ -455,14 +480,13 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method moveFeatures  Moves all features after position N, by K offset.
-   * @param  {Integer}  move features from position N (0 indexed)
-   * @param  {Integer}  move features by K offset, may be negative
-   * @return {Array<Object{state,feature}>}  array of objects with state of
-   *                                      edited/deleted features and copy of
-   *                                      feature before change
-   *      state: {String}  one of [`edited`, `deleted`]
-   *      feature: {Object}
+   * Moves all features after position N, by K offset.
+   * @method moveFeatures
+   * @param  {Integer} base   Move features from position N (0 indexed).
+   * @param  {Integer} offset Move features by K offset, may be negative.
+   * @return {Array}  Array of objects `<Object{state,feature}>`
+   *      state: {String}  One of [`edited`, `deleted`]
+   *      feature: {Object}  Copy of feature before change
    */
   moveFeatures(base, offset) {
     var features = this.features,
@@ -521,9 +545,9 @@ class BaseSequenceModel {
 
   /**
    * @method featuresInRange
-   * @param {integer} startBase
-   * @param {integer} endBase
-   * @return {array} all features present between start and end base
+   * @param {Integer} startBase
+   * @param {Integer} endBase
+   * @return {Array} All features present between start and end base.
    */
   featuresInRange(startBase, endBase) {
     if (_.isArray(this.features)) {
@@ -537,10 +561,10 @@ class BaseSequenceModel {
 
   /**
    * @method filterRanges
-   * @param  {integer} startBase
-   * @param  {integer} endBase
-   * @param  {array} list of feature ranges
-   * @return {array} all ranges overlapping start and end base
+   * @param  {Integer} startBase
+   * @param  {Integer} endBase
+   * @param  {Array} ranges List of feature ranges
+   * @return {Array} All ranges overlapping start and end base.
    */
   filterRanges(startBase, endBase, ranges) {
     return _.filter(ranges, function(range) {
