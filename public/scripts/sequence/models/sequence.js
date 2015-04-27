@@ -91,27 +91,6 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   },
 
   /**
-  Returns a subsequence including the subsequence between the bases `startBase` and `endBase`.
-  Ensures that blocks of size `padding` and starting from the base `offset` in the
-  complete sequence are not broken by the beginning or the end of the subsequence.
-  @method getPaddedSubSeq
-  @param {String} variation name of the transformation
-  @param {Integer} startBase start of the subsequence (indexed from 0)
-  @param {Integer} endBase end of the subsequence (indexed from 0)
-  @param {Integer, optional} offset relative to the start of full sequence
-  **/
-  getPaddedSubSeq: function(startBase, endBase, padding, offset) {
-    offset = offset || 0;
-    startBase = Math.max(startBase - (startBase - offset) % padding, 0);
-    endBase = Math.min(endBase - (endBase - offset) % padding + padding - 1, this.length());
-    return {
-      subSeq: this.getSubSeq(startBase, endBase),
-      startBase: startBase,
-      endBase: endBase
-    };
-  },
-
-  /**
   @method getCodon
   @param {Integer} base
   @param {Integer, optional} offset

@@ -122,7 +122,7 @@ var testAllSequenceModels = function(SequenceModel) {
 
     }); //-beforeEach
 
-    describe('basic behaviour', function() {
+    describe('basic validation', function() {
       it('should require a sequence', function() {
         var error;
         try {
@@ -133,13 +133,51 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(error).toEqual('Error: Field `sequence` is absent');
       });
 
-      it('should instantiate', function() {
-        var sequence = new SequenceModel({
-          sequence: 'ATCGGGC'
-        }).getBaseSequenceModel();
+    });
 
+    describe('basic behaviour', function() {
+      var sequence;
+      var bases = 'ATCGGGCTTAAGCGTA';
+      it('should instantiate', function() {
+        sequence = new SequenceModel({
+          name: 'Test Sequence',
+          sequence: bases
+        }).getBaseSequenceModel();
         expect(sequence).toBeTruthy();
-        expect(sequence.sequence).toEqual('ATCGGGC');
+      });
+
+      it('should be able to get the name', function() {
+        expect(sequence.name).toEqual('Test Sequence');
+      });
+
+      it('should be able to get the sequence', function() {
+        expect(sequence.sequence).toEqual(bases);
+      });
+
+      it('should be able to get a subsequence', function() {
+        expect(sequence.getSubSeq(2,5)).toEqual('CGGG');
+      });
+
+      it('should be able to get a padded subsequence', function() {
+        var result = sequence.getPaddedSubSeq(3, 8, 3);
+        expect(result.subSeq).toEqual(bases.substr(3, 6));
+        expect(result.startBase).toEqual(3);
+        expect(result.endBase).toEqual(8);
+
+        result = sequence.getPaddedSubSeq(2, 8, 3);
+        expect(result.subSeq).toEqual(bases.substr(0, 9));
+        expect(result.startBase).toEqual(0);
+        expect(result.endBase).toEqual(8);
+
+        result = sequence.getPaddedSubSeq(2, 8, 3, 5);
+        expect(result.subSeq).toEqual(bases.substr(2, 9));
+        expect(result.startBase).toEqual(2);
+        expect(result.endBase).toEqual(10);
+
+        result = sequence.getPaddedSubSeq(2, 8, 3, -5);
+        expect(result.subSeq).toEqual(bases.substr(1, 9));
+        expect(result.startBase).toEqual(1);
+        expect(result.endBase).toEqual(9);
       });
     });
 

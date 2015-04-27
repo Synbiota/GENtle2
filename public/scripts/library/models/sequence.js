@@ -444,6 +444,31 @@ class BaseSequenceModel {
   }
 
   /**
+   * Returns a subsequence including the sequence between the bases `startBase`
+   * and `endBase`.
+   * Ensures that the subsequence:
+   *   * contains whole blocks of size `padding` (i.e. its length is divisible
+   *     by size `padding` with no remainder).
+   *   * starting from the base `offset` in the complete sequence are not broken
+   *     by the beginning or the end of the subsequence (TODO improve this comment).
+   * @method getPaddedSubSeq
+   * @param {Integer} startBase Start of the subsequence (indexed from 0)
+   * @param {Integer} endBase   End of the subsequence (indexed from 0)
+   * @param {Integer} padding
+   * @param {Integer} offset=0  Relative to the start of full sequence
+   * @return {Object}
+   *         {String} subSeq String of the subsequence.
+   *         {Integer} startBase The actual start of the subsequence returned.
+   *         {Integer} endBase   The actual end of the subsequence returned.
+   */
+  getPaddedSubSeq(startBase, endBase, padding, offset=0) {
+    startBase = Math.max(startBase - ((startBase - offset) % padding), 0);
+    endBase = Math.min(endBase - ((endBase - offset) % padding) + padding - 1, this.length());
+    var subSeq = this.getSubSeq(startBase, endBase);
+    return {subSeq, startBase, endBase};
+  }
+
+  /**
    * Inserts a string of bases before a particular base position in the
    * sequence.
    * @method insertBases

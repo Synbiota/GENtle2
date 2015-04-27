@@ -48,12 +48,14 @@ describe('BackboneSequenceModel', function() {
       expect(baseSequenceModel.sequence).toEqual(initialSequenceContent);
     });
 
-    it('should be able to get a subsequence', function() {
+    it('should not have getSubSeq', function() {
       expect(sequence.getSubSeq).toBeUndefined();
-      expect(baseSequenceModel.getSubSeq(2,5)).toEqual('CGAT');
+    });
+
+    it('should not have getPaddedSubSeq', function() {
+      expect(sequence.getPaddedSubSeq).toBeUndefined();
     });
   });
-
 
   describe('when inserting bases into a sequence', function() {
     beforeEach(function() {
