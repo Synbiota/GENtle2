@@ -120,13 +120,16 @@ define(function(require) {
     var previousCaret = this.caretPosition,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
+      stickyEnds = this.sequence.get('stickyEnds'),
+      minimumPos = (this.drawSingleStickyEnds && stickyEnds && stickyEnds.start.offset) || 0,
       nextCaret;
 
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      Math.floor(previousCaret / basesPerRow) * basesPerRow :
-      Math.max(previousCaret - 1, 0);
+      Math.floor(previousCaret / basesPerRow) * basesPerRow : previousCaret - 1;
+
+    nextCaret = Math.max(nextCaret, minimumPos);
 
     if (shift) {
       if (selection) {
@@ -145,13 +148,20 @@ define(function(require) {
     var previousCaret = this.caretPosition,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
+      stickyEnds = this.sequence.get('stickyEnds'),
+      maximumPos = this.sequence.length(),
       nextCaret;
+
+    if (this.drawSingleStickyEnds && stickyEnds && stickyEnds.end){
+      maximumPos = maximumPos - (stickyEnds.end.size + stickyEnds.end.offset);
+    }
 
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, this.sequence.length());
+      (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow : previousCaret + 1;
+
+    nextCaret = Math.min(nextCaret, maximumPos);
 
     if (shift) {
       if (selection) {
@@ -170,11 +180,13 @@ define(function(require) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
       previousCaret = this.caretPosition,
       selection = this.selection,
+      stickyEnds = this.sequence.get('stickyEnds'),
+      minimumPos = (this.drawSingleStickyEnds && stickyEnds && stickyEnds.start.offset) || 0,
       nextCaret;
 
     if (previousCaret === undefined) return;
 
-    nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
+    nextCaret = meta ? minimumPos : Math.max(minimumPos, this.caretPosition - basesPerRow);
 
     if (shift) {
       if (selection) {
@@ -195,13 +207,19 @@ define(function(require) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
       previousCaret = this.caretPosition,
       selection = this.selection,
+      stickyEnds = this.sequence.get('stickyEnds'),
+      maximumPos = this.sequence.length(),
       nextCaret;
+
+    if (this.drawSingleStickyEnds && stickyEnds && stickyEnds.end){
+      maximumPos = maximumPos - (stickyEnds.end.size + stickyEnds.end.offset);
+    }
 
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      this.sequence.length() :
-      Math.min(this.caretPosition + basesPerRow, this.sequence.length());
+      maximumPos :
+      Math.min(this.caretPosition + basesPerRow, maximumPos);
 
     if (shift) {
       if (selection) {
@@ -285,6 +303,8 @@ define(function(require) {
       layoutHelpers = _this.layoutHelpers,
       caretPosition = _this.caretPosition,
       selection = _this.selection,
+      sequence = _this.sequence,
+      stickyEnds = _this.sequence.get('stickyEnds'),
       mouse = _this.normalizeMousePosition(event);
 
     mouse.top += layoutHelpers.yOffset;
@@ -306,6 +326,15 @@ define(function(require) {
         _this.selection = [last, first];
       }
 
+      // Sticky End validation
+      if (_this.drawSingleStickyEnds) {
+        if (stickyEnds){
+          _this.selection[0] = Math.max(_this.selection[0], stickyEnds.start.offset);
+          _this.selection[1] = Math.min(_this.selection[1], sequence.length() - stickyEnds.end.offset);
+        }
+
+      }
+
       _this.caretPosition = selection && selection[0] < caretPosition ? last + 1 : last;
 
     } else {
@@ -319,11 +348,20 @@ define(function(require) {
   /**
    **/
   Handlers.prototype.handleMouseup = function(event) {
+    var sequence = this.sequence,
+        stickyEnds = sequence.get('stickyEnds');
+
     if (!this.selection || !this.selecting) {
       this.handleClick(event);
     }
     this.dragStartPos = this.dragStartBase = undefined;
     if (this.selection) {
+      if (stickyEnds){
+        // Clamp the caret position down to sequence range if sticky ends are in place.
+        this.caretPosition = Math.max(
+                              Math.min(this.caretPosition, sequence.length() - (stickyEnds.end.offset + stickyEnds.end.size))
+                              , stickyEnds.start.offset);
+      }
       this.displayCaret(this.caretPosition);
     }
     this.selecting = false;

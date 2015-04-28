@@ -94,13 +94,16 @@ define(function(require) {
     this.sequence = options.sequence || this.view.model;
     var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
+    this.drawSingleStickyEnds = _.isUndefined(options.drawSingleStickyEnds) ?
+                                true :
+                                options.drawSingleStickyEnds;
 
     var dnaStickyEndHighlightColour = function(reverse, base, pos) {
       return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
     };
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+      return sequence.isBeyondStickyEnd(pos, reverse) ? 'green' : defaultColour;
     };
 
     /**
@@ -187,19 +190,22 @@ define(function(require) {
       dna: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
+        drawSingleStickyEnds: this.drawSingleStickyEnds,
         textFont: LineStyles.dna.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
-        selectionTextColour: LineStyles.dna.selection.color
+        selectionTextColour: LineStyles.dna.selection.color,
       }),
 
       // Complements
       complements: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
+        drawSingleStickyEnds: this.drawSingleStickyEnds,
+        isComplement: true,
         textFont: LineStyles.complements.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.complements.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
@@ -228,7 +234,8 @@ define(function(require) {
         },
         visible: _.memoize2(function() {
           return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
-        })
+        }),
+        drawSingleStickyEnds: this.drawSingleStickyEnds,
       }),
 
       // Blank line
@@ -801,6 +808,7 @@ define(function(require) {
         }
       }
     }
+
     this.displayCaret(newCaret);
   };
 
