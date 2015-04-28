@@ -234,7 +234,8 @@ define(function(require) {
         },
         visible: _.memoize2(function() {
           return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
-        })
+        }),
+        drawSingleStickyEnds: this.drawSingleStickyEnds,
       }),
 
       // Blank line
