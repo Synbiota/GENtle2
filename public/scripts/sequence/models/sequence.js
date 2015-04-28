@@ -4,12 +4,11 @@ Handling sequences
 @submodule Models
 @main Models
 **/
-import SequenceTransforms from '../lib/sequence_transforms';
 import HistorySteps from './history_steps';
 import Backbone from 'backbone';
 import _ from 'underscore';
 import BaseSequenceBackboneWrapper from './sequence_backbone_wrapper';
-//TODO remove this
+//TODO remove this?
 import sequenceClassMethodsMixin from '../../library/models/sequence_class_methods_mixin';
 
 
@@ -78,13 +77,10 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
     return errors.length ? errors : undefined;
   },
 
-  moveBases: function(firstBase, length, newFirstBase, updateHistory) {
+  moveBases: function(firstBase, length, newFirstBase, updateHistory = true) {
     var lastBase = firstBase + length - 1,
-        history = this.getHistory(),
         _this = this,
         featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
-
-    if(updateHistory === undefined) updateHistory = true;
 
     featuresInRange = _.deepClone(_.filter(this.get('features'), function(feature) {
       return _.some(feature.ranges, function(range) {
@@ -118,7 +114,6 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
 
       _this.createFeature(feature, updateHistory);
     });
-
   },
 
   insertBasesAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {

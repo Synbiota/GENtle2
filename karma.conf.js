@@ -3,7 +3,9 @@ var _ = require('underscore');
 
 var testFiles = [
     'karma.header.js',
-    'public/scripts/**/tests/**/*.js'
+    'public/scripts/**/tests/**/*.js',
+    // 'public/scripts/library/models/tests/sequence_spec.js',
+    // 'public/scripts/sequence/tests/sequence_spec.js',
 ];
 
 var preprocessors = _.reduce(testFiles, function(memo, file) {
