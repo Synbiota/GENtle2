@@ -5,13 +5,13 @@ var testAllSequenceModels = function(SequenceModel) {
   // N.B. SequenceModel.className is manually set on backbone models
   var className = SequenceModel.className || SequenceModel.name;
   describe(className + ' all sequence models', function() {
-    var sequence1;
-    var sequence2;
-    var sequence3;
+    var sequence1, _sequence1;
+    var sequence2, _sequence2;
+    var sequence3, _sequence3;
 
     beforeEach(function() {
       if(sequence1) return;
-      sequence1 = new SequenceModel({
+      _sequence1 = new SequenceModel({
         sequence: 'CCCCCCCCCCCGGTACC',
         id: 1,
         from: 0,
@@ -40,9 +40,9 @@ var testAllSequenceModels = function(SequenceModel) {
             to: 14,
           }]
         }]
-      }).getBaseSequenceModel();
+      });
 
-      sequence2 = new SequenceModel({
+      _sequence2 = new SequenceModel({
         sequence: 'CCTACCCCCCCCCCC',
         id: 2,
         from: 0,
@@ -73,9 +73,9 @@ var testAllSequenceModels = function(SequenceModel) {
           }]
         }
         ]
-      }).getBaseSequenceModel();
+      });
 
-      sequence3 = new SequenceModel({
+      _sequence3 = new SequenceModel({
         sequence: 'GGGTACCGGGGGGGGGTAGG',
         id: 3,
         from: 0,
@@ -118,8 +118,16 @@ var testAllSequenceModels = function(SequenceModel) {
             to: 17,
           }]
         }]
-      }).getBaseSequenceModel();
+      });
 
+      // Disable save function
+      if(_sequence1.save) spyOn(_sequence1, 'save');
+      if(_sequence2.save) spyOn(_sequence2, 'save');
+      if(_sequence3.save) spyOn(_sequence3, 'save');
+
+      sequence1 = _sequence1.getBaseSequenceModel();
+      sequence2 = _sequence2.getBaseSequenceModel();
+      sequence3 = _sequence3.getBaseSequenceModel();
     }); //-beforeEach
 
     describe('basic validation', function() {
@@ -430,7 +438,7 @@ var testAllSequenceModels = function(SequenceModel) {
 
     }); //-describe('concatenateSequences')
 
-    describe('featuresInRange', function() {
+    describe('methods regarding features', function() {
       it('finds correct number of features', function() {
         var features;
         features = sequence3.featuresInRange(0, 1);
@@ -439,6 +447,42 @@ var testAllSequenceModels = function(SequenceModel) {
         expect(features.length).toEqual(3);
         features = sequence3.featuresInRange(18, 18);
         expect(features.length).toEqual(2);
+      });
+
+      it('deletes features', function() {
+        var _sequence = new SequenceModel({
+          name: 'Test',
+          sequence: 'ATG',
+          features: [
+            {
+              id: 0,
+              name: 'Sequence Annotation A',
+              _type: 'sequence',
+              ranges: [{
+                from: 0,
+                to: 2,
+              }]
+            },
+            {
+              id: 44,
+              name: 'Sequence Annotation B',
+              _type: 'sequence',
+              ranges: [{
+                from: 1,
+                to: 2,
+              }]
+            }
+          ]
+        });
+        // Disable save function
+        if(_sequence.save) spyOn(_sequence, 'save');
+        var sequence = _sequence.getBaseSequenceModel();
+        expect(sequence.features.length).toEqual(2);
+        sequence.deleteFeature({id: 0});
+        expect(sequence.features.length).toEqual(1);
+        sequence.deleteFeature({id: 10});
+        expect(sequence.features.length).toEqual(1);
+        expect(sequence.features[0].id).toEqual(44);
       });
     });
 

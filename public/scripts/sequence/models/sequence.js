@@ -1,6 +1,5 @@
 /**
 Handling sequences
-@class Sequence
 @module Sequence
 @submodule Models
 @main Models
@@ -14,6 +13,13 @@ import BaseSequenceBackboneWrapper from './sequence_backbone_wrapper';
 import sequenceClassMethodsMixin from '../../library/models/sequence_class_methods_mixin';
 
 
+/**
+ * @class BackboneSequenceModel
+ * @constructor
+ * @param  {Object} attributes
+ * @param  {Object} options
+ * @param  {Class} options.SequenceBackboneWrapperClass
+ */
 var BackboneSequenceModel = Backbone.DeepModel.extend({
   defaults: function() {
     return {
@@ -58,74 +64,18 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   },
 
   /**
-  Validates that a sequence name is present
-  @method validate
-  **/
-  validate: function(attrs, options) {
+   * Validates that a sequence name is present
+   * @method validate
+   * @return {Array or undefined}  Array of field name {String}s failing
+   *                               validation.
+   */
+  validate: function(attributes) {
+    var sequenceModel = this.getBaseSequenceModel();
     var errors = [];
-    if (!attrs.name.replace(/\s/g, '').length) {
+    if (!sequenceModel.name.replace(/\s/g, '').length) {
       errors.push('name');
     }
     return errors.length ? errors : undefined;
-  },
-
-  /*
-  @method _insertBases  Only to be called by a backbone wrapper class
-   */
-  _insertBases: function(bases, beforeBase, updateHistory = true) {
-    var timestamp;
-    if (updateHistory) {
-      timestamp = this.getHistory().add({
-        type: 'insert',
-        position: beforeBase,
-        value: bases,
-        operation: '@' + beforeBase + '+' + bases
-      }).get('timestamp');
-    }
-
-    this.throttledSave();
-    return timestamp;
-  },
-
-  /*
-  @method _deleteBases  Only to be called by a backbone wrapper class
-   */
-  _deleteBases: function(firstBase, updateHistory = true, sequenceBasesRemoved, historyTimestamps) {
-    var timestamp;
-    if (updateHistory) {
-      timestamp = this.getHistory().add({
-        type: 'delete',
-        value: sequenceBasesRemoved,
-        position: firstBase,
-        operation: '@' + firstBase + '-' + sequenceBasesRemoved,
-        linked: historyTimestamps
-      }).get('timestamp');
-    }
-
-    this.throttledSave();
-    return timestamp;
-  },
-
-  /*
-  @method _moveFeatures  Only to be called by a backbone wrapper class
-   */
-  _moveFeatures: function(previousFeatureStates) {
-    var historyTimestamps = [];
-
-    _.each(previousFeatureStates, (featurePreviousState) => {
-      var {state, feature} = featurePreviousState;
-
-      if(state === 'edited') {
-        historyTimestamps.push(this.recordFeatureHistoryEdit(feature, true));
-      } else if(state === 'deleted') {
-        historyTimestamps.push(this.recordFeatureHistoryDel(feature, true));
-      } else {
-        throw new Error(`Unsupported feature state: '${state}'`);
-      }
-    });
-
-    if(previousFeatureStates.length) this.trigger('change change:features');
-    return historyTimestamps;
   },
 
   moveBases: function(firstBase, length, newFirstBase, updateHistory) {
@@ -368,36 +318,6 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
     this.throttledSave();
   },
 
-
-  deleteFeature: function(feature, record) {
-    var featureId;
-    featureId = (feature._id===undefined)?feature.id : feature._id;
-    this.clearFeatureCache();
-
-    if (record === true) {
-      this.recordFeatureHistoryDel(feature, false, false);
-    }
-    //  if (record === 'design-true')
-    //  this.getHistory().add({
-    //   type: 'design-feature-delete',
-    //   feature: feature,
-    //   hidden: true,
-    //   name: feature.name,
-    //   featureType: feature._type,
-    //   range: [{
-    //     from: feature.ranges[0].from,
-    //     to: feature.ranges[0].to
-    //   }]
-    // }).get('timestamp');
-
-    this.set('features', _.reject(this.get('features'), function(_feature) {
-      return _feature._id == featureId;
-    }));
-
-    this.sortFeatures();
-    this.throttledSave();
-  },
-
   recordFeatureHistoryIns: function(feature) {
     return this.getHistory().add({
       type: 'featureIns',
@@ -482,6 +402,7 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
 });
 
 
+//TODO move to `sequenceClassMethodsMixin`
 BackboneSequenceModel.calculateProduct = function(sequenceBases, opts) {
   if(_.isUndefined(opts.from) || _.isUndefined(opts.to)) {
     throw "Must specify `opts.from` and `opts.to`";
@@ -502,8 +423,8 @@ BackboneSequenceModel.calculateProduct = function(sequenceBases, opts) {
 BackboneSequenceModel.className = 'BackboneSequenceModel';
 
 
-//TODO preferably remove this and refactor sequenceClassMethodsMixin into
-//  BaseSequenceModel
+//TODO potentially remove this and refactor sequenceClassMethodsMixin into
+//  BaseSequenceModel?
 sequenceClassMethodsMixin(BackboneSequenceModel);
 
 export default BackboneSequenceModel;

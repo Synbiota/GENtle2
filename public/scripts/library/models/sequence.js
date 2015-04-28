@@ -71,7 +71,15 @@ class BaseSequenceModel {
    * @return {Array<String>}
    */
   optionalFields() {
-    return ['id', 'name', 'stickyEnds', 'features'];
+    return [
+      'id',
+      'name',
+      'stickyEnds',
+      'features',
+      'reverse',
+      'readOnly',
+      'isCircular',
+    ];
   }
 
   /**
@@ -654,6 +662,22 @@ class BaseSequenceModel {
     }
     this.clearFeatureCache();
     return {previousFeatureStates};
+  }
+
+  /**
+   * @method deleteFeature
+   * @param  {Object} feature
+   * @return {undefined}
+   */
+  deleteFeature(feature) {
+    this.clearFeatureCache();
+    // TODO refactor feature so we only have one id key
+    var getId = function(feature) {
+      return (feature._id === undefined) ? feature.id : feature._id;
+    };
+    var featureId = getId(feature);
+    this.features = _.reject(this.features, (_feature) => getId(_feature) === featureId);
+    this.sortFeatures();
   }
 
   /**
