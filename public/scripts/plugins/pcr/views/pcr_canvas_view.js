@@ -107,9 +107,8 @@ export default Backbone.View.extend({
         }],
         bottomSeparator: ['Blank', { height: 5 }],
       },
-      drawSingleStickyEnds: false
     });
-
+    
     sequenceCanvas.refresh();
   }
 });

@@ -66,7 +66,6 @@ define(function(require) {
 
   RestrictionEnzymesLabels.prototype.draw = function(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
-        sequence        = sequenceCanvas.sequence,
         artist = sequenceCanvas.artist,
         layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
@@ -88,13 +87,6 @@ define(function(require) {
 
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
 
-    if (sequenceCanvas.drawSingleStickyEnds){
-      enzymes = _.filter(enzymes, function(enzyme, position){
-        var absolutePosition = position - (baseRange[0] === 0 ? 0 : subSeqPadding) + baseRange[0];
-        return !sequence.isBeyondStickyEnd(absolutePosition, this.isComplement);
-      });
-    }
-
     y += this.height - _.keys(enzymes).length * this.unitHeight;
 
     artist.updateStyle({
@@ -111,14 +103,14 @@ define(function(require) {
       x = _this.getBaseX(position, baseRange, true);
       artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
       artist.path(
-        x, y + _this.unitHeight + 3,
+        x, y + _this.unitHeight + 3, 
         x, initY + layoutHelpers.lineOffsets.dna - layoutHelpers.lineOffsets.restrictionEnzymesLabels
       );
       y += _this.unitHeight;
     });
 
     artist.setLineDash([]);
-
+    
   };
 
   return RestrictionEnzymesLabels;

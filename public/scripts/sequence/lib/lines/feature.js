@@ -1,13 +1,13 @@
 /**
-Line class for displaying bases on SequenceCanvas.
-Options are:
+Line class for displaying bases on SequenceCanvas. 
+Options are: 
 
 - `this.height`: line height.
 - `this.baseLine`: text baseline.
 - `this.textColour`: colour of the text. can be a function taking the character as argument.
-- `this.textFont`: font style of the text.
+- `this.textFont`: font style of the text. 
 - `this.textPadding`
-- `this.colour`: colour of the feature
+- `this.colour`: colour of the feature 
 - `this.margin`
 - `this.lineSize`
 @class Lines.DNA
@@ -65,9 +65,9 @@ define(function(require) {
   var switchContext = function(fn) {
     var args = _.toArray(arguments);
     var sequence = this.sequenceCanvas.sequence;
-    var context = (this.features === undefined) ? sequence : {
+    var context = (this.features === undefined) ? sequence : { 
       attributes: {
-        features: this.features
+        features: this.features 
       }
     };
 
@@ -129,7 +129,7 @@ define(function(require) {
   Draws the featuresf or a given range
   @method draw
   @param {integer} y Start y position
-  @param {array} baseRange
+  @param {array} baseRange 
   **/
   Feature.prototype.draw = function(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
@@ -140,17 +140,10 @@ define(function(require) {
         basesPerBlock   = layoutSettings.basesPerBlock,
         baseWidth       = layoutSettings.basePairDims.width,
         gutterWidth     = layoutSettings.gutterWidth,
-        stickyEnds      = sequence.get('stickyEnds'),
-        minimumPos      = (this.drawSingleStickyEnds && stickyEnds && stickyEnds.start.offset) || 0,
-        maximumPos      = sequence.length(),
         features, startX, endX, deltaX, textWidth, backgroundFillStyle;
 
     features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     y += (this.topMargin || 0);
-
-    if (this.drawSingleStickyEnds && stickyEnds && stickyEnds.end){
-      maximumPos = maximumPos - (stickyEnds.end.size + stickyEnds.end.offset);
-    }
 
     for(var i = 0; i < features.length; i++) {
       var feature = features[i],
@@ -170,8 +163,8 @@ define(function(require) {
           reversed = true;
         }
 
-        startX = sequenceCanvas.getXPosFromBase(Math.max(frm, baseRange[0], minimumPos));
-        endX   = sequenceCanvas.getXPosFromBase(Math.min(to, baseRange[1], maximumPos));
+        startX = sequenceCanvas.getXPosFromBase(Math.max(frm, baseRange[0]));
+        endX   = sequenceCanvas.getXPosFromBase(Math.min(to, baseRange[1]));
         deltaX = endX - startX + 1 + baseWidth;
 
         backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
