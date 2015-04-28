@@ -54,7 +54,7 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
     if(this.get('displaySettings.rows.res.custom') === undefined) {
       this.set('displaySettings.rows.res.custom', defaults.displaySettings.rows.res.manual);
     }
-    this.listenTo(this, 'change:sequence', this.getBaseSequenceModel().clearBlastCache);
+    this.listenTo(this, 'change:sequence', this.clearBlastCache);
 
     this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
   },
@@ -278,6 +278,8 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
     this.clearFeatureCache();
     this.set('features.' + id, editedFeature);
     this.sortFeatures();
+
+    // Why do we call save here, and throttledSave later?
     this.save();
     if (record === true) {
       this.recordFeatureHistoryEdit(editedFeature);
