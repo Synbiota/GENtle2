@@ -1,5 +1,5 @@
 /**
-Base Line class from which to extend. 
+Base Line class from which to extend.
 
 @class Lines.Line
 @module Sequence

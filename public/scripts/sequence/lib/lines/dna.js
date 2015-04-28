@@ -20,7 +20,7 @@ define(function(require) {
   DNA = function(sequenceCanvas, options) {
     this.type = 'dna';
     this.sequenceCanvas = sequenceCanvas;
-    this.cachedProperties = ['visible'];
+    this.cachedProperties = ['visible', 'drawSingleStickyEnds'];
     _.extend(this, options);
   };
   _.extend(DNA.prototype, Line.prototype);
@@ -45,6 +45,7 @@ define(function(require) {
         sequence        = sequenceCanvas.sequence,
         artist          = sequenceCanvas.artist,
         selection       = sequenceCanvas.selection,
+        drawSingleStickyEnds = this.drawSingleStickyEnds && this.drawSingleStickyEnds(),
         k, x, subSequence, character;
 
     artist.updateStyle({font: this.textFont});
@@ -60,7 +61,7 @@ define(function(require) {
     if(subSequence) {
       for(k = 0; k < lh.basesPerRow; k++){
         if(!subSequence[k]) break;
-        if (!this.drawSingleStickyEnds || !sequence.isBeyondStickyEnd(k+baseRange[0], this.isComplement)){
+        if (!drawSingleStickyEnds || !sequence.isBeyondStickyEnd(k+baseRange[0], this.isComplement)){
           character = _.isFunction(this.transform) ?
             this.transform.call(sequence, k+baseRange[0]) :
             subSequence[k];

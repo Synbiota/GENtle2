@@ -7,7 +7,7 @@ define(function(require) {
     this.type = 'restrictionEnzymeSites';
     this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
-    this.cachedProperties = ['visible'];
+    this.cachedProperties = ['visible', 'drawSingleStickyEnds'];
     _.extend(this, options);
   };
 
@@ -40,6 +40,7 @@ define(function(require) {
         complementsY = layoutHelpers.lineOffsets.complements,
         complementsHeight = layoutSettings.lines.complements.height,
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        drawSingleStickyEnds = this.drawSingleStickyEnds && this.drawSingleStickyEnds(),
         // enzymeOptions = {
         //   length: displaySettings.lengths || [],
         //   customList: displaySettings.custom || [],
@@ -65,7 +66,7 @@ define(function(require) {
       lineWidth: 1
     });
 
-    if (sequenceCanvas.drawSingleStickyEnds){
+    if (drawSingleStickyEnds){
       enzymes = _.filter(enzymes, function(enzyme, position){
         var absolutePosition = position - (baseRange[0] === 0 ? 0 : subSeqPadding) + baseRange[0];
         return !sequence.isBeyondStickyEnd(absolutePosition, this.isComplement);

@@ -154,6 +154,9 @@ define(function(require) {
         textColour: LineStyles.RES.text.color,
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.res.display');
+        }),
+        drawSingleStickyEnds: _.memoize2(function(){
+          return _this.sequence.get('displaySettings.drawSingleStickyEnds')
         })
       }),
 
@@ -190,19 +193,20 @@ define(function(require) {
       dna: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
-        drawSingleStickyEnds: this.drawSingleStickyEnds,
         textFont: LineStyles.dna.text.font,
         textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color,
+        drawSingleStickyEnds: _.memoize2(function(){
+          return _this.sequence.get('displaySettings.drawSingleStickyEnds')
+        })
       }),
 
       // Complements
       complements: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
-        drawSingleStickyEnds: this.drawSingleStickyEnds,
         isComplement: true,
         textFont: LineStyles.complements.text.font,
         textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.complements.text.color),
@@ -210,6 +214,9 @@ define(function(require) {
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.complements');
+        }),
+        drawSingleStickyEnds: _.memoize2(function(){
+          return _this.sequence.get('displaySettings.drawSingleStickyEnds')
         })
       }),
 
@@ -250,6 +257,9 @@ define(function(require) {
         floating: true,
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.res.display');
+        }),
+        drawSingleStickyEnds: _.memoize2(function(){
+          return _this.sequence.get('displaySettings.drawSingleStickyEnds')
         })
       })
 

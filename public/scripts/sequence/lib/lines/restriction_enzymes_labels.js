@@ -9,7 +9,7 @@ define(function(require) {
     this.cache = {};
     this.sequenceCanvas = sequenceCanvas;
     this.sequenceCanvas.sequence.on('change:sequence', this.clearCache, this);
-    this.cachedProperties = ['visible', 'maxNbRESPerRow'];
+    this.cachedProperties = ['visible', 'maxNbRESPerRow', 'drawSingleStickyEnds'];
     _.extend(this, options);
   };
   _.extend(RestrictionEnzymesLabels.prototype, Line.prototype);
@@ -72,6 +72,7 @@ define(function(require) {
         layoutHelpers = sequenceCanvas.layoutHelpers,
         subSeqPadding = RestrictionEnzymes.maxLength(),
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        drawSingleStickyEnds = this.drawSingleStickyEnds && this.drawSingleStickyEnds(),
         enzymeOptions = {
           // length: displaySettings.lengths || [],
           customList: displaySettings.custom || '',
@@ -88,7 +89,7 @@ define(function(require) {
 
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
 
-    if (sequenceCanvas.drawSingleStickyEnds){
+    if (drawSingleStickyEnds){
       enzymes = _.filter(enzymes, function(enzyme, position){
         var absolutePosition = position - (baseRange[0] === 0 ? 0 : subSeqPadding) + baseRange[0];
         return !sequence.isBeyondStickyEnd(absolutePosition, this.isComplement);
