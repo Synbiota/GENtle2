@@ -21,7 +21,8 @@ describe('BackboneSequenceModel', function() {
         }],
         name: 'test feature',
         desc: 'test feature description',
-        type: 'gene'
+        type: 'gene',
+        id: 23,
       }]
     }];
   };
@@ -48,6 +49,7 @@ describe('BackboneSequenceModel', function() {
       expect(baseSequenceModel.sequence).toEqual(initialSequenceContent);
     });
   });
+
 
   describe('when inserting bases into a sequence', function() {
     beforeEach(function() {
@@ -106,6 +108,20 @@ describe('BackboneSequenceModel', function() {
     it('should delete the feature', function() {
       var features = baseSequenceModel.features;
       expect(features.length).toEqual(0);
+    });
+  });
+
+
+  describe('when modifying features', function() {
+    it('does not call save on moving features', function() {
+      baseSequenceModel.moveFeatures(1,3);
+      // TODO is this right?  Other modifying calls call save.
+      expect(sequence.save).not.toHaveBeenCalled();
+    });
+
+    it('calls save on deleting a feature', function() {
+      baseSequenceModel.deleteFeature(23);
+      expect(sequence.save).toHaveBeenCalled();
     });
   });
 });

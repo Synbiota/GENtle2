@@ -439,26 +439,29 @@ var testAllSequenceModels = function(SequenceModel) {
     }); //-describe('concatenateSequences')
 
     describe('methods regarding features', function() {
-      it('finds correct number of features', function() {
-        var features;
-        features = sequence3.featuresInRange(0, 1);
-        expect(features.length).toEqual(0);
-        features = sequence3.featuresInRange(13, 19);
-        expect(features.length).toEqual(3);
-        features = sequence3.featuresInRange(18, 18);
-        expect(features.length).toEqual(2);
-      });
-
-      it('deletes features', function() {
+      var sequence;
+      beforeEach(function() {
         var _sequence = new SequenceModel({
           name: 'Test',
           sequence: 'ATG',
           features: [
             {
+              id: 3,
+              name: 'Sequence Annotation C',
+              _type: 'sequence',
+              ranges: [{
+                from: 2,
+                to: 2,
+              }]
+            },
+            {
               id: 0,
               name: 'Sequence Annotation A',
               _type: 'sequence',
               ranges: [{
+                from: 0,
+                to: 0,
+              },{
                 from: 0,
                 to: 2,
               }]
@@ -476,12 +479,38 @@ var testAllSequenceModels = function(SequenceModel) {
         });
         // Disable save function
         if(_sequence.save) spyOn(_sequence, 'save');
-        var sequence = _sequence.getBaseSequenceModel();
-        expect(sequence.features.length).toEqual(2);
+        sequence = _sequence.getBaseSequenceModel();
+      });
+
+      it('moves features', function() {
+        expect(sequence.features[0].ranges[0].from).toEqual(0);
+        expect(sequence.features[0].ranges[0].to).toEqual(0);
+        expect(sequence.features[0].ranges[1].from).toEqual(0);
+        expect(sequence.features[0].ranges[1].to).toEqual(2);
+        sequence.moveFeatures(1, 3);
+        expect(sequence.features.length).toEqual(3);
+        expect(sequence.features[0].ranges[0].from).toEqual(0);
+        expect(sequence.features[0].ranges[0].to).toEqual(0);
+        expect(sequence.features[0].ranges[1].from).toEqual(0);
+        expect(sequence.features[0].ranges[1].to).toEqual(5);
+      });
+
+      it('finds correct number of features', function() {
+        var features;
+        features = sequence3.featuresInRange(0, 1);
+        expect(features.length).toEqual(0);
+        features = sequence3.featuresInRange(13, 19);
+        expect(features.length).toEqual(3);
+        features = sequence3.featuresInRange(18, 18);
+        expect(features.length).toEqual(2);
+      });
+
+      it('deletes features', function() {
+        expect(sequence.features.length).toEqual(3);
         sequence.deleteFeature({id: 0});
-        expect(sequence.features.length).toEqual(1);
+        expect(sequence.features.length).toEqual(2);
         sequence.deleteFeature({id: 10});
-        expect(sequence.features.length).toEqual(1);
+        expect(sequence.features.length).toEqual(2);
         expect(sequence.features[0].id).toEqual(44);
       });
     });
