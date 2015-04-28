@@ -1,5 +1,5 @@
 import template from '../templates/pcr_list_view.hbs';
-import {fastAExportSequenceFromID} from '../../../common/lib/utils';
+import {fastAExportSequenceFromID, getProductAndSequenceForSequenceID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 
@@ -15,6 +15,7 @@ export default Backbone.View.extend({
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
     'click .export-sequence': 'exportSequence',
+    'click .copy-sequence': 'copySequence',
   },
 
   serialize: function() {
@@ -77,6 +78,13 @@ export default Backbone.View.extend({
     var sequenceID = $(event.target).data('sequence_id');
     var products = this.getProducts();
     fastAExportSequenceFromID(products, sequenceID);
+  },
+
+  copySequence: function(event) {
+    var sequenceID = $(event.target).data('sequence_id');
+    var products = this.getProducts();
+    var result = getProductAndSequenceForSequenceID(products, sequenceID)
+    console.log(result.sequence.sequence);
   },
 
   scrollToProduct: function(productId) {
