@@ -24,6 +24,7 @@ class BaseSequenceModel {
       reverse: false,
       readOnly: false,
       isCircular: false,
+      features: [],
     });
 
     _.each(this.allFields(), (field) => {
@@ -164,48 +165,6 @@ class BaseSequenceModel {
     this.maxOverlappingFeatures.clearCache();
     this.nbFeaturesInRange.clearCache();
   }
-
-
-  /**
-   * @method maxOverlappingFeatures
-   * @return {Integer}
-   */
-  maxOverlappingFeatures() {
-    var ranges = _.flatten(_.pluck(this.attributes.features, 'ranges')),
-      previousRanges = [],
-      i = 0,
-      filterOverlappingRanges = function(ranges) {
-        return _.filter(ranges, function(range) {
-          return _.some(ranges, function(testRange) {
-            return range != testRange && range.from <= testRange.to && range.to >= testRange.from;
-          });
-        });
-      };
-
-    while(ranges.length > 1 && _.difference(ranges, previousRanges).length && i < 100) {
-      previousRanges = _.deepClone(ranges);
-      ranges = filterOverlappingRanges(ranges);
-      i++;
-    }
-    return i;
-  }
-
-  /**
-   * Number of features with at least range completely in the range given.
-   * Does not count partially overlapping feature range(s).
-   * @method  nbFeaturesInRange
-   * @param  {Integer} startBase
-   * @param  {Integer} endBase
-   * @return {Integer}
-   */
-  nbFeaturesInRange(startBase, endBase) {
-    return _.filter(this.features, function(feature) {
-      return _.some(feature.ranges, function(range) {
-        return range.from <= endBase && range.to >= startBase;
-      });
-    }).length;
-  }
-
 
   //+stickyEnd methods
   /**
@@ -681,22 +640,7 @@ class BaseSequenceModel {
   }
 
   /**
-   * @method featuresInRange
-   * @param {Integer} startBase
-   * @param {Integer} endBase
-   * @return {Array} All features present between start and end base.
-   */
-  featuresInRange(startBase, endBase) {
-    if (_.isArray(this.features)) {
-      return _(this.features).filter((feature) => {
-        return this.filterRanges(startBase, endBase, feature.ranges).length > 0;
-      });
-    } else {
-      return [];
-    }
-  }
-
-  /**
+   * Includes partially overlapping feature range(s)
    * @method filterRanges
    * @param  {Integer} startBase
    * @param  {Integer} endBase
@@ -711,6 +655,54 @@ class BaseSequenceModel {
         return range.to <= endBase && range.from >= startBase;
       }
     });
+  }
+
+  /**
+   * @method maxOverlappingFeatures
+   * @return {Integer}
+   */
+  maxOverlappingFeatures() {
+    var ranges = _.flatten(_.pluck(this.attributes.features, 'ranges')),
+      previousRanges = [],
+      i = 0,
+      filterOverlappingRanges = function(ranges) {
+        return _.filter(ranges, function(range) {
+          return _.some(ranges, function(testRange) {
+            return range != testRange && range.from <= testRange.to && range.to >= testRange.from;
+          });
+        });
+      };
+
+    while(ranges.length > 1 && _.difference(ranges, previousRanges).length && i < 100) {
+      previousRanges = _.deepClone(ranges);
+      ranges = filterOverlappingRanges(ranges);
+      i++;
+    }
+    return i;
+  }
+
+  /**
+   * Features with at least one range partially in the range given.
+   * @method featuresInRange
+   * @param {Integer} startBase
+   * @param {Integer} endBase
+   * @return {Array} Features
+   */
+  featuresInRange(startBase, endBase) {
+    return _(this.features).filter((feature) => {
+      return this.filterRanges(startBase, endBase, feature.ranges).length > 0;
+    });
+  }
+
+  /**
+   * Number of features with at least one range partially in the range given.
+   * @method  nbFeaturesInRange
+   * @param  {Integer} startBase
+   * @param  {Integer} endBase
+   * @return {Integer}
+   */
+  nbFeaturesInRange(startBase, endBase) {
+    return this.featuresInRange(startBase, endBase).length;
   }
 
 }
