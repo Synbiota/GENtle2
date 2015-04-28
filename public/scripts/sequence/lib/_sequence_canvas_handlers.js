@@ -127,8 +127,9 @@ define(function(require) {
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      Math.floor(previousCaret / basesPerRow) * basesPerRow :
-      Math.max(previousCaret - 1, minimumPos);
+      Math.floor(previousCaret / basesPerRow) * basesPerRow : previousCaret - 1;
+
+    nextCaret = Math.max(nextCaret, minimumPos);
 
     if (shift) {
       if (selection) {
@@ -158,8 +159,9 @@ define(function(require) {
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, maximumPos);
+      (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow : previousCaret + 1;
+
+    nextCaret = Math.min(nextCaret, maximumPos);
 
     if (shift) {
       if (selection) {
