@@ -9,7 +9,7 @@ define(function(require) {
       Backbone        = require('backbone'),
       _               = require('underscore'),
       DisplaySettingsView;
-  
+
   DisplaySettingsView = Backbone.View.extend({
     manage: true,
     template: template,
@@ -31,10 +31,10 @@ define(function(require) {
           if(_.isArray(modelValue)) {
             if(~modelValue.indexOf($input.val())) {
               if(!$input.is(':checked'))
-                this.model.set(attr, _.without(modelValue, $input.val()));  
+                this.model.set(attr, _.without(modelValue, $input.val()));
             } else {
               if(!!$input.is(':checked')) {
-                this.model.set(attr, modelValue.concat($input.val()), {silent: false});  
+                this.model.set(attr, modelValue.concat($input.val()), {silent: false});
               }
             }
           } else {
@@ -64,7 +64,7 @@ define(function(require) {
           case 'checkbox':
             if(_.isArray(modelValue)) {
               if($element.attr('name') == 'displaySettings.rows.res.lengths')
-              if(~modelValue.indexOf($element.val())) 
+              if(~modelValue.indexOf($element.val()))
                 $element.attr('checked', 'checked');
             } else {
               if(!!modelValue) $element.attr('checked', 'checked');
@@ -78,7 +78,7 @@ define(function(require) {
             $element.val(modelValue);
             break;
         }
-      }); 
+      });
     },
 
     afterRender: function() {
