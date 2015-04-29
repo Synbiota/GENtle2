@@ -49,6 +49,7 @@ var convertToObject = function(xml) {
     return uniqueTagNames.length == 1 && parentNodeName &&
       getArrayElementName(parentNodeName) == formatKey(uniqueTagNames[0]);
   };
+  
 
   return _.reduce($(xml), function(memo, element) {
     var key = formatKey(element.nodeName);

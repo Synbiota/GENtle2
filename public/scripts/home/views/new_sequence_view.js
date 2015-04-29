@@ -21,14 +21,24 @@ define(function(require) {
 
     createNewSequenceFromText: function(event) {
       event.preventDefault();
+      
       var $form     = $('.home-new-sequence-form').first(),
-          text      = $form.find('[name=sequence]').val(),
+          text      = this.convertSmartQuotes($form.find('[name=sequence]').val()),
           name      = $form.find('[name=name]').val() || 'Unnamed';
 
+      console.log(text)     
       Filetypes.guessTypeAndParseFromText(text, name).then(Gentle.addSequencesAndNavigate)
         .catch((e) => console.log(e));
+    },
+
+    
+    convertSmartQuotes: function(text) {
+      // single quotes -> '
+      return text.replace(/[\u2018\u2019]/g,"\'");
     }
+
   });
 
+  
   return NewSequenceView;
 });
