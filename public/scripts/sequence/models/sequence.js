@@ -51,6 +51,59 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   /**
+   * Wraps the standard get function to use the custom getSequence if necessary.
+   * @param  {String} Standard attribute
+   * @param  {Object} Options (optional)
+   */
+  get: function(attribute, options){
+    var value;
+    options = _.defaults({}, options);
+
+    if (attribute == "sequence"){
+      value = this.getSequence(options)
+    } else {
+      value = Backbone.DeepModel.prototype.get.apply(this, arguments);
+    }
+
+    return value;
+  },
+
+  /**
+   * Specialized function for getting the sequence attribute. Looks for a stickyEnd key in options.
+   * 'none' will return the sequence without sticky ends.
+   * 'overhang' will return the sequence with the active section of sticky ends.
+   * Default value will return the full (blunt) sticky end.
+   * @param  {Object} Options
+   * @return {String} Formatted sequence
+   */
+  getSequence: function(options){
+    var sequence        = Backbone.DeepModel.prototype.get.call(this, 'sequence'),
+        stickyEnds      = this.get('stickyEnds'),
+        startPostion, endPosition;
+
+    options = _.defaults({}, options);
+
+    if (stickyEnds && options.stickyEnds){
+      switch (options.stickyEnds){
+        case "none":
+          startPostion = stickyEnds.start.sequence.length;
+          endPosition = sequence.length - stickyEnds.end.sequence.length;
+          break;
+        case "overhang":
+          startPostion = stickyEnds.start.offset;
+          endPosition = sequence.length - stickyEnds.end.offset;
+          break;
+      }
+
+      if ((startPostion !== undefined) && (endPosition !== undefined)){
+        sequence = sequence.substr(startPostion, endPosition);
+      }
+    }
+
+    return sequence;
+  },
+
+  /**
   Returns the subsequence between the bases startBase and end Base
   @method getSubSeq
   @param {Integer} startBase start of the subsequence (indexed from 0)
