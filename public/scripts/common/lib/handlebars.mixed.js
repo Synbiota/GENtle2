@@ -145,5 +145,10 @@ Handlebars.registerHelper('displaySequence', function(sequence) {
   return displaySequenceTemplate({sequence});
 });
 
+Handlebars.registerHelper('displaySelectableSequence', function(sequence) {
+  var displaySelectableSequenceTemplate = require('../templates/display_selectable_sequence.hbs');
+  return displaySelectableSequenceTemplate({sequence});
+})
+
 
 module.exports = Handlebars;

@@ -54,25 +54,26 @@
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
-            <!--{{{sequenceFastAExportButton forwardPrimer.id }}}-->
-            {{{sequenceClipboardExportButton forwardPrimer.id}}}
+
           </td>
         </tr>
         <tr>
-          <td colspan="5" class="sequence">{{{displaySequence forwardPrimer.sequence}}}</td>
-        <tr>
+          <td colspan="4" class="sequence">{{{displaySelectableSequence forwardPrimer.sequence}}}</td>
+          <td></td>
+        </tr>
         <tr>
           <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{sequenceLength reversePrimer.sequence}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
           <td></td>
           <td class="text-right">
-            {{{sequenceFastAExportButton reversePrimer.id }}}
+            
           </td>
         </tr>
         <tr>
-          <td colspan="5" class="sequence">{{{displaySequence reversePrimer.sequence}}}</td>
-        <tr>
+          <td colspan="4" class="sequence">{{{displaySelectableSequence reversePrimer.sequence}}}</td>
+          <td></td>
+        </tr>
         <tr>
           <td><small>Sticky ends</small></td>
           <td colspan="3" class="text-right"><small>{{stickyEnds.name}}</small></td>

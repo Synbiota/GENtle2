@@ -81,11 +81,10 @@ export default Backbone.View.extend({
   },
 
   copySequence: function(event) {
-    var sequenceID = $(event.target).data('sequence_id');
-    var products = this.getProducts();
-    var result = getProductAndSequenceForSequenceID(products, sequenceID)
-    console.log(result.sequence.sequence);
-  },
+    var sequence = $(event.target)
+    
+    sequence.select();
+    },
 
   scrollToProduct: function(productId) {
     var $container = this.$('#pcr-list-outer-container');
