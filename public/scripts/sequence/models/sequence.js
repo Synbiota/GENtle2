@@ -103,6 +103,8 @@ var SequenceModel = Backbone.DeepModel.extend({
     return sequence;
   },
 
+
+  // NO LONGER REQUIRED, REMOVE LATER.
   /**
   Returns the subsequence between the bases startBase and end Base
   @method getSubSeq
@@ -117,82 +119,15 @@ var SequenceModel = Backbone.DeepModel.extend({
       endBase = Math.min(this.length() - 1, endBase);
     }
     startBase = Math.min(Math.max(0, startBase), this.length() - 1);
-    return this.attributes.sequence.substr(startBase, endBase - startBase + 1);
+
+    return this.get('sequence').substr(startBase, endBase - startBase + 1);
+    // return this.attributes.sequence.substr(startBase, endBase - startBase + 1);
   },
 
-  getSubSeq: function(startBase, endBase, reverse = false) {
-    // var stickyEnds = this.get('stickyEnds');
-    // var prefix = '';
-    // var suffix = '';
-    // var seqLength = this.length();
-
-    // endBase = Math.min(endBase, seqLength - 1);
-
-    // var subSeqStart = startBase;
-    // var subSeqEnd = endBase;
-
-    // var stickyEndFrom, stickyEndTo;
-
-    // if(stickyEnds) {
-    //   var startStickyEnd = stickyEnds && stickyEnds.start;
-    //   var endStickyEnd = stickyEnds && stickyEnds.end;
-
-    //   if(startStickyEnd) {
-    //     stickyEndFrom = startStickyEnd.offset;
-    //     stickyEndTo = stickyEndFrom + startStickyEnd.size;
-
-    //     if(startBase < stickyEndTo) {
-    //       if(reverse) {
-    //         if(startStickyEnd.reverse) {
-    //           subSeqStart = Math.max(startBase, stickyEndFrom);
-    //         } else {
-    //           subSeqStart = stickyEndTo;
-    //         }
-    //       } else {
-    //         if(startStickyEnd.reverse) {
-    //           subSeqStart = stickyEndTo;
-    //         } else {
-    //           subSeqStart = Math.max(startBase, stickyEndFrom);
-    //         }
-    //       }
-    //     }
-    //   }
-
-    //   if(endStickyEnd) {
-    //     stickyEndTo = seqLength - 1 - endStickyEnd.offset;
-    //     stickyEndFrom = stickyEndTo - endStickyEnd.size;
-
-    //     if(endBase > stickyEndFrom) {
-    //       if(reverse) {
-    //         if(endStickyEnd.reverse) {
-    //           subSeqEnd = Math.min(endBase, stickyEndTo);
-    //         } else {
-    //           subSeqEnd = Math.max(stickyEndFrom, startBase);
-    //         }
-    //       } else {
-    //         if(endStickyEnd.reverse) {
-    //           subSeqEnd = Math.max(stickyEndFrom, startBase);
-    //         } else {
-    //           subSeqEnd = Math.min(endBase, stickyEndTo);
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
-
-    // if(subSeqStart != startBase) {
-    //   prefix = ' '.repeat(subSeqStart - startBase);
-    // }
-
-    // if(subSeqEnd != endBase) {
-    //   suffix = ' '.repeat(endBase - subSeqEnd);
-    // }
-
-    // var subSeq = subSeqEnd <= startBase ? '' :
-    //   this.getSubSeqWithoutStickyEnds(subSeqStart, Math.max(subSeqEnd, startBase));
-
-    // return prefix + subSeq + suffix;
-    return this.getSubSeqWithoutStickyEnds(startBase, endBase);
+  getSubSeq: function(startBase, endBase, options) {
+    endBase = (endBase === undefined) ? startBase + 1 : endBase;
+    return this.get('sequence', options).substring(startBase, endBase);
+    // return this.getSubSeqWithoutStickyEnds(startBase, endBase);
   },
 
   isBeyondStickyEnd: function(pos, reverse = false) {
@@ -398,7 +333,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     subSeq = this.getPaddedSubSeq(base, base, 3, offset);
     if (subSeq.startBase > base) {
       return {
-        sequence: this.attributes.sequence[base],
+        sequence: this.get('sequence')[base],
         position: 1
       };
     } else {
@@ -978,7 +913,7 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   length: function() {
-    return this.attributes.sequence.length;
+    return this.get('sequence').length;
   },
 
   serialize: function() {
@@ -1037,7 +972,8 @@ SequenceModel.concatenateSequences = function(sequenceModels, circularise=false,
     var isFirst = i === 0;
     var isLast = i === (sequenceModels.length - 1);
     var stickyEnds = sequenceModel.get('stickyEnds');
-    var sequenceNts = sequenceModel.get('sequence');
+    var appendSequenceNts = sequenceModel.get('sequence');
+
 
     // Add sticky ends
     if(isFirst && !circularise) {
@@ -1053,7 +989,6 @@ SequenceModel.concatenateSequences = function(sequenceModels, circularise=false,
       }
     }
 
-    var appendSequenceNts = sequenceNts;
     var offset = 0;
     if(isFirst && circularise) {
       previousSequenceModel = sequenceModels[sequenceModels.length-1];
