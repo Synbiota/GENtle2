@@ -22,7 +22,7 @@ define(function(require) {
     relativeBase = Math.max(0, Math.min(baseRange[1]+1, base + baseRange[0]) - baseRange[0]);
     x = layoutSettings.pageMargins.left + relativeBase * layoutSettings.basePairDims.width;
     x += layoutSettings.gutterWidth * Math.floor(Math.max(0, relativeBase - 1) / basesPerBlock);
-    
+
     if(!!isStart && relativeBase % basesPerBlock === 0 && relativeBase != layoutHelpers.basesPerRow && relativeBase !== 0) {
       x += layoutSettings.gutterWidth;
     }
@@ -65,7 +65,13 @@ define(function(require) {
     });
 
     _.each(enzymes, function(enzymes_, position) {
-      position = +position - (baseRange[0] === 0 ? 0 : subSeqPadding);
+      var stickyEndPadding = (sequenceCanvas.stickyEndFormat == "overhang") ?
+                              sequenceCanvas.sequence.get('stickyEnds').start.offset
+                              : 0;
+
+      position = +position - (baseRange[0] === 0 ? stickyEndPadding : subSeqPadding);
+
+
       initPosition = position;
 
       _.each(enzymes_, function(enzyme) {
@@ -117,9 +123,9 @@ define(function(require) {
           x2 = _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange);
           if(x !== x2) {
             points = points.concat(
-              _this.getBaseX(position, baseRange), 
+              _this.getBaseX(position, baseRange),
               y + complementsY + complementsHeight,
-              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
+              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange),
               y + complementsY + complementsHeight
             );
           }

@@ -83,11 +83,11 @@ var SequenceModel = Backbone.DeepModel.extend({
 
     options = _.defaults({}, options);
 
-    if (stickyEnds && options.stickyEnds){
-      switch (options.stickyEnds){
+    if (stickyEnds && options.stickyEndFormat){
+      switch (options.stickyEndFormat){
         case "none":
-          startPostion = stickyEnds.start.sequence.length;
-          endPosition = sequence.length - stickyEnds.end.sequence.length;
+          startPostion = stickyEnds.start.size + stickyEnds.start.offset;
+          endPosition = sequence.length - stickyEnds.end.size - stickyEnds.end.offset;
           break;
         case "overhang":
           startPostion = stickyEnds.start.offset;
@@ -103,15 +103,13 @@ var SequenceModel = Backbone.DeepModel.extend({
     return sequence;
   },
 
-
-  // NO LONGER REQUIRED, REMOVE LATER.
   /**
   Returns the subsequence between the bases startBase and end Base
   @method getSubSeq
   @param {Integer} startBase start of the subsequence (indexed from 0)
   @param {Integer} endBase end of the subsequence (indexed from 0)
   **/
-  getSubSeqWithoutStickyEnds: function(startBase, endBase) {
+  getSubSeq: function(startBase, endBase, options) {
     if (endBase === undefined){
       endBase = startBase;
     } else {
@@ -120,27 +118,28 @@ var SequenceModel = Backbone.DeepModel.extend({
     }
     startBase = Math.min(Math.max(0, startBase), this.length() - 1);
 
-    return this.get('sequence').substr(startBase, endBase - startBase + 1);
-    // return this.attributes.sequence.substr(startBase, endBase - startBase + 1);
+    return this.get('sequence', options).substr(startBase, endBase - startBase + 1);
+
+    // endBase = (endBase === undefined) ? startBase + 1 : endBase;
+    // return this.get('sequence', options).substring(startBase, endBase);
   },
 
-  getSubSeq: function(startBase, endBase, options) {
-    endBase = (endBase === undefined) ? startBase + 1 : endBase;
-    return this.get('sequence', options).substring(startBase, endBase);
-    // return this.getSubSeqWithoutStickyEnds(startBase, endBase);
+  isBeyondStickyEnd: function(pos, reverse, options) {
+    if (reverse === undefined) {
+      reverse = false;
+    }
+    return this.isBeyondStartStickyEnd(pos, reverse, options) || this.isBeyondEndStickyEnd(pos, reverse, options);
   },
 
-  isBeyondStickyEnd: function(pos, reverse = false) {
-    return this.isBeyondStartStickyEnd(pos, reverse) || this.isBeyondEndStickyEnd(pos, reverse);
-  },
+  // Unused
+  // isBeyondStartStickyEndOnBothStrands: function(pos) {
+  //   return this.overhangBeyondStartStickyEndOnBothStrands(pos) > 0;
+  // },
 
-  isBeyondStartStickyEndOnBothStrands: function(pos) {
-    return this.overhangBeyondStartStickyEndOnBothStrands(pos) > 0;
-  },
-
-  isBeyondEndStickyEndOnBothStrands: function(pos) {
-    return this.overhangBeyondEndStickyEndOnBothStrands(pos) > 0;
-  },
+  // Unused
+  // isBeyondEndStickyEndOnBothStrands: function(pos) {
+  //   return this.overhangBeyondEndStickyEndOnBothStrands(pos) > 0;
+  // },
 
   overhangBeyondStartStickyEndOnBothStrands: function(pos) {
     return Math.min(this.overhangBeyondStartStickyEnd(pos, true), this.overhangBeyondStartStickyEnd(pos, false));
@@ -150,34 +149,45 @@ var SequenceModel = Backbone.DeepModel.extend({
     return Math.min(this.overhangBeyondEndStickyEnd(pos, true), this.overhangBeyondEndStickyEnd(pos, false));
   },
 
-  isBeyondStartStickyEnd: function(pos, reverse = false) {
-    return this.overhangBeyondStartStickyEnd(pos, reverse) > 0;
+  isBeyondStartStickyEnd: function(pos, reverse, options) {
+    if (reverse === undefined) {
+      reverse = false;
+    }
+    return this.overhangBeyondStartStickyEnd(pos, reverse, options) > 0;
   },
 
-  isBeyondEndStickyEnd: function(pos, reverse = false) {
-    return this.overhangBeyondEndStickyEnd(pos, reverse) > 0;
+  isBeyondEndStickyEnd: function(pos, reverse, options) {
+    if (reverse === undefined) {
+      reverse = false;
+    }
+    return this.overhangBeyondEndStickyEnd(pos, reverse, options) > 0;
   },
 
-  overhangBeyondStartStickyEnd: function(pos, reverse = false) {
+  overhangBeyondStartStickyEnd: function(pos, reverse, options) {
     var stickyEnds = this.get('stickyEnds');
-    var seqLength = this.length();
     var result = 0;
+
+    if (reverse === undefined) {
+      reverse = false;
+    }
 
     if(stickyEnds) {
       var startStickyEnd = stickyEnds.start;
+      var offset = (options && options.stickyEndFormat == "overhang") ?
+                    0 : startStickyEnd.offset;
 
       if(startStickyEnd) {
         if(reverse) {
           if(startStickyEnd.reverse) {
-            result = startStickyEnd.offset - pos;
+            result = offset - pos;
           } else {
-            result = (startStickyEnd.offset + startStickyEnd.size) - pos;
+            result = (offset + startStickyEnd.size) - pos;
           }
         } else {
           if(startStickyEnd.reverse) {
-            result = (startStickyEnd.offset + startStickyEnd.size) - pos;
+            result = (offset + startStickyEnd.size) - pos;
           } else {
-            result = startStickyEnd.offset - pos;
+            result = offset - pos;
           }
         }
       }
@@ -185,10 +195,14 @@ var SequenceModel = Backbone.DeepModel.extend({
     return result;
   },
 
-  overhangBeyondEndStickyEnd: function(pos, reverse = false) {
+  overhangBeyondEndStickyEnd: function(pos, reverse, options) {
     var stickyEnds = this.get('stickyEnds');
-    var seqLength = this.length();
+    var seqLength = this.length(options);
     var result = 0;
+
+    if (reverse === undefined) {
+      reverse = false;
+    }
 
     if(stickyEnds) {
       var endStickyEnd = stickyEnds.end;
@@ -275,7 +289,7 @@ var SequenceModel = Backbone.DeepModel.extend({
   @param {Integer} startBase start of the subsequence (indexed from 0)
   @param {Integer} endBase end of the subsequence (indexed from 0)
   **/
-  getTransformedSubSeq: function(variation, options, startBase, endBase) {
+  getTransformedSubSeq: function(variation, options, startBase, endBase, subSeqOptions) {
     options = options || {};
     var output = '';
     switch (variation) {
@@ -294,7 +308,7 @@ var SequenceModel = Backbone.DeepModel.extend({
         });
         break;
       case 'complements':
-        output = SequenceTransforms.toComplements(this.getSubSeq(startBase, endBase, true));
+        output = SequenceTransforms.toComplements(this.getSubSeq(startBase, endBase, subSeqOptions));
         break;
     }
     return output;
@@ -1198,8 +1212,8 @@ if(false) {
   console.assert(!sequence1.isBeyondEndStickyEnd(14, false));
 
   // Test isBeyondEndStickyEndOnBothStrands
-  console.assert(sequence1.isBeyondEndStickyEndOnBothStrands(15));
-  console.assert(!sequence1.isBeyondEndStickyEndOnBothStrands(14));
+  // console.assert(sequence1.isBeyondEndStickyEndOnBothStrands(15));
+  // console.assert(!sequence1.isBeyondEndStickyEndOnBothStrands(14));
 
   // Test isBeyondStartStickyEnd
   console.assert(sequence2.isBeyondStartStickyEnd(1));
@@ -1208,8 +1222,8 @@ if(false) {
   console.assert(sequence2.isBeyondStartStickyEnd(2, false));
 
   // Test isBeyondStartStickyEndOnBothStrands
-  console.assert(sequence2.isBeyondStartStickyEndOnBothStrands(1));
-  console.assert(!sequence2.isBeyondStartStickyEndOnBothStrands(2));
+  // console.assert(sequence2.isBeyondStartStickyEndOnBothStrands(1));
+  // console.assert(!sequence2.isBeyondStartStickyEndOnBothStrands(2));
 
   // Test getStartStickyEndSequence
   console.assert(sequence1.getStartStickyEndSequence().sequence === '');

@@ -35,7 +35,8 @@ define(function(require) {
     for(i = 0; i <= Math.floor(sequence.length() / basesPerRow); i++) {
       subSeq = sequence.getSubSeq(
         i * basesPerRow - subSeqPadding,
-        (i+1) * basesPerRow - 1 + subSeqPadding
+        (i+1) * basesPerRow - 1 + subSeqPadding,
+        {stickyEnds: sequenceCanvas.stickyEndFormat}
       );
       enzymes = RestrictionEnzymes.getAllInSeq(subSeq, enzymeOptions);
       nbRES.push(_.keys(this.onlyVisibleEnzymes(enzymes, i, subSeqPadding)).length);
@@ -99,18 +100,22 @@ define(function(require) {
     artist.setLineDash([1.5,3]);
 
     _.each(enzymes, function(enzymes_, position) {
-      position -= baseRange[0] === 0 ? 0 : subSeqPadding;
+      var stickyEndPadding = (sequenceCanvas.stickyEndFormat == "overhang") ?
+                              sequenceCanvas.sequence.get('stickyEnds').start.offset
+                              : 0;
+
+      position -= baseRange[0] === 0 ? stickyEndPadding : subSeqPadding;
       x = _this.getBaseX(position, baseRange, true);
       artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
       artist.path(
-        x, y + _this.unitHeight + 3, 
+        x, y + _this.unitHeight + 3,
         x, initY + layoutHelpers.lineOffsets.dna - layoutHelpers.lineOffsets.restrictionEnzymesLabels
       );
       y += _this.unitHeight;
     });
 
     artist.setLineDash([]);
-    
+
   };
 
   return RestrictionEnzymesLabels;

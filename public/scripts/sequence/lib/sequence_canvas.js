@@ -94,13 +94,14 @@ define(function(require) {
     this.sequence = options.sequence || this.view.model;
     var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
+    this.stickyEndFormat = "overhang";
 
-    var dnaStickyEndHighlightColour = function(reverse, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
+    var dnaStickyEndHighlightColour = function(reverse, stickyEndFormat, base, pos) {
+      return sequence.isBeyondStickyEnd(pos, reverse, {stickyEndFormat: stickyEndFormat}) && '#ccc';
     };
 
-    var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+    var dnaStickyEndTextColour = function(reverse, defaultColour, stickyEndFormat, base, pos) {
+      return sequence.isBeyondStickyEnd(pos, reverse, {stickyEndFormat: stickyEndFormat}) ? '#fff' : defaultColour;
     };
 
     /**
@@ -188,8 +189,8 @@ define(function(require) {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-        highlightColour: _.partial(dnaStickyEndHighlightColour, false),
+        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color, this.stickyEndFormat),
+        highlightColour: _.partial(dnaStickyEndHighlightColour, false, this.stickyEndFormat),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color
       }),
@@ -199,8 +200,8 @@ define(function(require) {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.complements.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
-        highlightColour: _.partial(dnaStickyEndHighlightColour, true),
+        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color, this.stickyEndFormat),
+        highlightColour: _.partial(dnaStickyEndHighlightColour, true, this.stickyEndFormat),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.complements');
