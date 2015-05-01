@@ -11,10 +11,22 @@ export default Backbone.view.extend({
   manage: true,
 
   events: {
-
+    '.click .find-stop-codons': 'findStopCodons',
   },
 
   initialize: function() {
+    this.model = Gentle.currentSequence;
+
+    this.listenTo(
+      this.model,
+      'change:sequence',
+      this.render,
+      this
+    );
+
+  },
+
+  findStopCodons: function() {
     
   }
 
