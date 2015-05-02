@@ -104,7 +104,9 @@ define(function(require) {
                               sequenceCanvas.sequence.get('stickyEnds').start.offset
                               : 0;
 
-      position -= baseRange[0] === 0 ? stickyEndPadding : subSeqPadding;
+      position -= stickyEndPadding;
+      position -= baseRange[0] === 0 ? 0 : subSeqPadding;
+
       x = _this.getBaseX(position, baseRange, true);
       artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
       artist.path(

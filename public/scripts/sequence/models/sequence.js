@@ -55,12 +55,12 @@ var SequenceModel = Backbone.DeepModel.extend({
    * @param  {String} Standard attribute
    * @param  {Object} Options (optional)
    */
-  get: function(attribute, options){
+  get: function(attribute, options = {}){
     var value;
-    options = _.defaults({}, options);
+    var customGet = "get" + _.capitalize(attribute);
 
-    if (attribute == "sequence"){
-      value = this.getSequence(options)
+    if (this[customGet]){
+      value = this[customGet](options);
     } else {
       value = Backbone.DeepModel.prototype.get.apply(this, arguments);
     }
@@ -96,11 +96,59 @@ var SequenceModel = Backbone.DeepModel.extend({
       }
 
       if ((startPostion !== undefined) && (endPosition !== undefined)){
-        sequence = sequence.substr(startPostion, endPosition);
+        sequence = sequence.substring(startPostion, endPosition);
       }
     }
 
     return sequence;
+  },
+
+  getFeatures: function(options = {}){
+    var features = Backbone.DeepModel.prototype.get.call(this, 'features'),
+        stickyEnds = this.get('stickyEnds'),
+        length = this.length(options),
+        startStickyEnd, adjust;
+
+    if (stickyEnds){
+      startStickyEnd = stickyEnds.start;
+    }
+
+    var adjustRanges = function(offset, feature){
+      var adjusted = _.deepClone(feature);
+
+      if (adjusted._type == "sticky_end"){
+        console.log(adjusted.ranges[0].from, adjusted.ranges[0].to, offset)
+      }
+
+      _.each(adjusted.ranges, function(range){
+        range.from =  Math.max(Math.min(range.from - offset), 0)
+        // range.from = Math.max(0, range.from + offset);
+        // range.from += offset
+        range.to =  Math.max(Math.min(range.to - offset), 0)
+        // range.to = Math.min(range.to + offset, length);
+        // range.to += offset;
+      });
+
+      if (adjusted._type == "sticky_end"){
+        console.log(adjusted.ranges[0].from, adjusted.ranges[0].to)
+      }
+
+      return adjusted;
+    };
+
+    switch (options.stickyEndFormat){
+      case "none":
+        adjust = _.partial(adjustRanges, -(startStickyEnd.offset + startStickyEnd.size));
+        features = _.map(features, adjust);
+        break;
+      case "overhang":
+        adjust = _.partial(adjustRanges, -startStickyEnd.offset);
+        features = _.map(features, adjust);
+        // console.log(features)
+        break;
+    }
+
+    return features;
   },
 
   /**
@@ -195,9 +243,9 @@ var SequenceModel = Backbone.DeepModel.extend({
     return result;
   },
 
-  overhangBeyondEndStickyEnd: function(pos, reverse, options) {
+  overhangBeyondEndStickyEnd: function(pos, reverse, options = {}) {
     var stickyEnds = this.get('stickyEnds');
-    var seqLength = this.length(options);
+    var seqLength = this.length();
     var result = 0;
 
     if (reverse === undefined) {
@@ -205,10 +253,23 @@ var SequenceModel = Backbone.DeepModel.extend({
     }
 
     if(stickyEnds) {
+      var startStickyEnd = stickyEnds.start;
       var endStickyEnd = stickyEnds.end;
 
       if(endStickyEnd) {
         var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
+
+
+        switch (options.stickyEndFormat){
+          case "none":
+            stickyEndTo -= (startStickyEnd.offset + startStickyEnd.size);
+            break;
+          case "overhang":
+            stickyEndTo -= startStickyEnd.offset;
+            break;
+        }
+
+
         var stickyEndFrom = stickyEndTo - endStickyEnd.size + 1;
 
         if(reverse) {
@@ -376,9 +437,10 @@ var SequenceModel = Backbone.DeepModel.extend({
   @param {integer} endBase
   @returns {array} all features present between start and end base
   **/
-  featuresInRange: function(startBase, endBase) {
-    if (_.isArray(this.attributes.features)) {
-      return _(this.attributes.features).filter((feature) => {
+  featuresInRange: function(startBase, endBase, options) {
+    var features = this.get('features', options)
+    if (_.isArray(features)) {
+      return _(features).filter((feature) => {
         return this.filterRanges(startBase, endBase, feature.ranges).length > 0;
       });
     } else {
@@ -926,8 +988,8 @@ var SequenceModel = Backbone.DeepModel.extend({
       });
   },
 
-  length: function() {
-    return this.get('sequence').length;
+  length: function(options) {
+    return this.get('sequence', options).length;
   },
 
   serialize: function() {

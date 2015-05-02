@@ -1,7 +1,7 @@
 /**
 Set of utility methods.
 
-Utility methods are mixed in underscore rather than added 
+Utility methods are mixed in underscore rather than added
 to the global namespace. This lets us use underscore's chaining.
 See https://gist.github.com/HenrikJoreteg/641397 for
 discussion
@@ -37,9 +37,9 @@ _.mixin({
   objectToArray: function(obj) {
     return  _.map(
               _.reject(
-                _.pairs(obj), 
+                _.pairs(obj),
                   function(pair) { return _.isNaN(parseInt(pair[0])); }
-                ), 
+                ),
                 function(pair) { return pair[1]; }
               );
   },
@@ -48,11 +48,11 @@ _.mixin({
   Derived from Lo-Dash 2.4.1's `memoize` function, which exposes the cache
   https://github.com/lodash/lodash/blob/2.4.1/dist/lodash.compat.js#L5909
 
-  Example: 
+  Example:
   ```javascript
   var memoizedFunc = _(func).memo
   ize2(),
-      result = memoizedFunc('test'); 
+      result = memoizedFunc('test');
   memoizedFunc.cache.test;  // Returns cached value
   ```
   @method _.memoize2
@@ -65,12 +65,12 @@ _.mixin({
     }
     var memoized = function() {
       var cache = memoized.cache,
-          key = resolver ? 
-            resolver.apply(this, arguments) : 
+          key = resolver ?
+            resolver.apply(this, arguments) :
             keyPrefix + arguments[1] ? _.toArray(arguments).join('--') : arguments[0];
 
-      return hasOwnProperty.call(cache, key) ? 
-        cache[key] : 
+      return hasOwnProperty.call(cache, key) ?
+        cache[key] :
         (cache[key] = func.apply(this, arguments));
     };
     memoized.cache = {};
@@ -124,7 +124,7 @@ _.mixin({
 
   /**
   Deep clones an object. Will only work properly with simple objects/arrays
-  Adapted from a rejected underscore pull request 
+  Adapted from a rejected underscore pull request
   https://github.com/jashkenas/underscore/blob/95ada0839e5ee206e72d831dd62b5e41f18fdcae/underscore.js
   @method _.deepClone
   **/
@@ -177,6 +177,10 @@ _.mixin({
 
       timeoutId = setTimeout(delayed, wait);
     };
+  },
+
+  capitalize: function(string){
+    return string.charAt(0).toUpperCase() + string.slice(1);
   }
 });
 

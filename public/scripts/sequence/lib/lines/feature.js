@@ -1,13 +1,13 @@
 /**
-Line class for displaying bases on SequenceCanvas. 
-Options are: 
+Line class for displaying bases on SequenceCanvas.
+Options are:
 
 - `this.height`: line height.
 - `this.baseLine`: text baseline.
 - `this.textColour`: colour of the text. can be a function taking the character as argument.
-- `this.textFont`: font style of the text. 
+- `this.textFont`: font style of the text.
 - `this.textPadding`
-- `this.colour`: colour of the feature 
+- `this.colour`: colour of the feature
 - `this.margin`
 - `this.lineSize`
 @class Lines.DNA
@@ -65,13 +65,15 @@ define(function(require) {
   var switchContext = function(fn) {
     var args = _.toArray(arguments);
     var sequence = this.sequenceCanvas.sequence;
-    var context = (this.features === undefined) ? sequence : { 
+    var context = (this.features === undefined) ? sequence : {
       attributes: {
-        features: this.features 
+        features: this.features
       }
     };
 
     args.shift();
+
+    args.push({stickyEndFormat: this.sequenceCanvas.stickyEndFormat});
 
     return sequence[fn].apply(context, args);
   };
@@ -129,7 +131,7 @@ define(function(require) {
   Draws the featuresf or a given range
   @method draw
   @param {integer} y Start y position
-  @param {array} baseRange 
+  @param {array} baseRange
   **/
   Feature.prototype.draw = function(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,

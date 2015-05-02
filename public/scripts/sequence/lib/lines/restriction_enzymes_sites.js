@@ -69,8 +69,8 @@ define(function(require) {
                               sequenceCanvas.sequence.get('stickyEnds').start.offset
                               : 0;
 
-      position = +position - (baseRange[0] === 0 ? stickyEndPadding : subSeqPadding);
-
+      position -= stickyEndPadding;
+      position = +position - (baseRange[0] === 0 ? 0 : subSeqPadding);
 
       initPosition = position;
 

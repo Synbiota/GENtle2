@@ -250,6 +250,8 @@ define(function(require) {
 
     };
 
+    window.a = this;
+
     this.layoutHelpers = {};
     this.artist = new Artist(this.$canvas);
     this.caret = new Caret({
