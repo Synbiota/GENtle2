@@ -72,6 +72,7 @@ define(function(require) {
         layoutHelpers = sequenceCanvas.layoutHelpers,
         subSeqPadding = RestrictionEnzymes.maxLength(),
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        stickyEnds      = sequenceCanvas.sequence.get('stickyEnds'),
         enzymeOptions = {
           // length: displaySettings.lengths || [],
           customList: displaySettings.custom || '',
@@ -100,8 +101,8 @@ define(function(require) {
     artist.setLineDash([1.5,3]);
 
     _.each(enzymes, function(enzymes_, position) {
-      var stickyEndPadding = (sequenceCanvas.stickyEndFormat == "overhang") ?
-                              sequenceCanvas.sequence.get('stickyEnds').start.offset
+      var stickyEndPadding = (sequenceCanvas.stickyEndFormat == "overhang", stickyEnds) ?
+                              stickyEnds.start.offset
                               : 0;
 
       position -= stickyEndPadding;

@@ -39,6 +39,7 @@ define(function(require) {
         complementsY = layoutHelpers.lineOffsets.complements,
         complementsHeight = layoutSettings.lines.complements.height,
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        stickyEnds = sequenceCanvas.sequence.get('stickyEnds'),
         // enzymeOptions = {
         //   length: displaySettings.lengths || [],
         //   customList: displaySettings.custom || [],
@@ -65,8 +66,8 @@ define(function(require) {
     });
 
     _.each(enzymes, function(enzymes_, position) {
-      var stickyEndPadding = (sequenceCanvas.stickyEndFormat == "overhang") ?
-                              sequenceCanvas.sequence.get('stickyEnds').start.offset
+      var stickyEndPadding = (sequenceCanvas.stickyEndFormat == "overhang" && stickyEnds) ?
+                              stickyEnds.start.offset
                               : 0;
 
       position -= stickyEndPadding;

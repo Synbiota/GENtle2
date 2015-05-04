@@ -94,7 +94,8 @@ define(function(require) {
     this.sequence = options.sequence || this.view.model;
     var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
-    this.stickyEndFormat = "overhang";
+    console.log(options, this.stickyEndFormat)
+    this.stickyEndFormat = options.stickyEndFormat || "overhang";
 
     var dnaStickyEndHighlightColour = function(reverse, stickyEndFormat, base, pos) {
       return sequence.isBeyondStickyEnd(pos, reverse, {stickyEndFormat: stickyEndFormat}) && '#ccc';

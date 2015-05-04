@@ -115,37 +115,27 @@ var SequenceModel = Backbone.DeepModel.extend({
 
     var adjustRanges = function(offset, feature){
       var adjusted = _.deepClone(feature);
-
-      if (adjusted._type == "sticky_end"){
-        console.log(adjusted.ranges[0].from, adjusted.ranges[0].to, offset)
-      }
+      offset = offset || 0;
 
       _.each(adjusted.ranges, function(range){
-        range.from =  Math.max(Math.min(range.from - offset), 0)
-        // range.from = Math.max(0, range.from + offset);
-        // range.from += offset
-        range.to =  Math.max(Math.min(range.to - offset), 0)
-        // range.to = Math.min(range.to + offset, length);
-        // range.to += offset;
+        range.from =  Math.max(Math.min(range.from + offset, length -1), 0);
+        range.to =  Math.max(Math.min(range.to + offset, length -1), 0);
       });
-
-      if (adjusted._type == "sticky_end"){
-        console.log(adjusted.ranges[0].from, adjusted.ranges[0].to)
-      }
 
       return adjusted;
     };
 
-    switch (options.stickyEndFormat){
-      case "none":
-        adjust = _.partial(adjustRanges, -(startStickyEnd.offset + startStickyEnd.size));
-        features = _.map(features, adjust);
-        break;
-      case "overhang":
-        adjust = _.partial(adjustRanges, -startStickyEnd.offset);
-        features = _.map(features, adjust);
-        // console.log(features)
-        break;
+    if (options.stickyEndFormat && stickyEnds){
+      switch (options.stickyEndFormat){
+        case "none":
+          adjust = _.partial(adjustRanges, -(startStickyEnd.offset + startStickyEnd.size));
+          features = _.map(features, adjust);
+          break;
+        case "overhang":
+          adjust = _.partial(adjustRanges, -startStickyEnd.offset);
+          features = _.map(features, adjust);
+          break;
+      }
     }
 
     return features;
