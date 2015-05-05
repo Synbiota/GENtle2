@@ -5,6 +5,7 @@
 define(function(require) {
   var template        = require('../templates/context_menu_view.hbs'),
       Backbone        = require('backbone'),
+      _ = require('underscore'),
       ContextMenuView;
 
   ContextMenuView = Backbone.View.extend({
@@ -25,6 +26,7 @@ define(function(require) {
       this.width = 240;
       this.menuItemHeight = 25;
       this.menuIconWidth = 34;
+      this.rightPadding = 20;
       this.reset();
       _.bindAll(this, 'hide');
 
@@ -92,8 +94,10 @@ define(function(require) {
             parentWidth = $parent.width(),
             parentHeight = $parent.height();
 
+
         this.pullRight = this.posX - $parent.position().left - this.width > 0;
         this.dropup = this.posY + this.menuItemHeight * itemNb + 40 >= parentHeight;
+        this.stickToRight = this.posX + this.rightPadding + this.width - $parent.offset().left >= parentWidth;
 
         this.display = true;
         this.render();
@@ -143,6 +147,7 @@ define(function(require) {
         posX: this.posX,
         posY: this.posY,
         pullRight: this.pullRight,
+        stickToRight: this.stickToRight,
         dropup: this.dropup,
         context: this.context || 'generic'
       };
