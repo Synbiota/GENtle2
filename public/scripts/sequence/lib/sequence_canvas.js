@@ -650,7 +650,7 @@ define(function(require) {
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
-      _this = this,
+      selection = this.selection,
       posX, posY;
 
     if (base === undefined && this.caretPosition !== undefined) {
@@ -661,22 +661,29 @@ define(function(require) {
       base = this.sequence.length();
     }
 
-    this.scrollBaseToVisibility(base).then(function() {
+    this.scrollBaseToVisibility(base).then(() => {
 
+      if(_.isArray(selection)) {
+        console.log(selection[1], layoutHelpers.basesPerRow, selection[1] % layoutHelpers.basesPerRow)
+      }
 
-
-      posX = _this.getXPosFromBase(base);
-      posY = _this.getYPosFromBase(base) + lineOffsets.dna;
-
-      _this.caret.move(posX, posY, base);
-      _this.caretPosition = base;
-      _this.showContextMenuButton(posX, posY + 20);
-      _this.caret.setInfo(_this.determineCaretInfo());
-
-      if(_this.selection) {
-        _this.caret.hideHighlight();
+      if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
+        posX = this.getXPosFromBase(base - 1) + this.layoutSettings.basePairDims.width;
+        posY = this.getYPosFromBase(base - 1) + lineOffsets.dna;
       } else {
-        _this.caret.showHighlight();
+        posX = this.getXPosFromBase(base);
+        posY = this.getYPosFromBase(base) + lineOffsets.dna;
+      }
+
+      this.caret.move(posX, posY, base);
+      this.caretPosition = base;
+      this.showContextMenuButton(posX, posY + 20);
+      this.caret.setInfo(this.determineCaretInfo());
+
+      if(this.selection) {
+        this.caret.hideHighlight();
+      } else {
+        this.caret.showHighlight();
       }
     });
 
@@ -824,25 +831,26 @@ define(function(require) {
 
   SequenceCanvas.prototype.determineCaretInfo = function() {
     var info = "";
+    var toString = (num) => _.formatThousands(num).toString();
 
     if(this.selection) {
       var start = this.selection[0]+1;
       var end = this.selection[1]+1;
       var size = (end - start);
 
-      if(size==0) {
-        info = start.toString() + " (1 bp)";
+      if(size===0) {
+        info = toString(start) + " (1 bp)";
       } else {
-        info = start.toString() + " to " + end.toString() + " (" + (size+1).toString() +  " bp)";
+        info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
       }
       
     } else {
-      info = (this.caretPosition+1).toString()
+      info = toString(this.caretPosition + 1);
     }
 
 
     return info;
-  }
+  };
 
 
 
