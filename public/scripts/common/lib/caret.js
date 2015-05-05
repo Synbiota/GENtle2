@@ -41,9 +41,7 @@ define(function(require) {
         top: this.posY,
         left: this.posX
       })
-      .show()
-    
-    console.log("show caret")
+      .show();
   };
 
   Caret.prototype.setInfo = function(text) { 

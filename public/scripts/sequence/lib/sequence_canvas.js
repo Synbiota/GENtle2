@@ -663,10 +663,6 @@ define(function(require) {
 
     this.scrollBaseToVisibility(base).then(() => {
 
-      if(_.isArray(selection)) {
-        console.log(selection[1], layoutHelpers.basesPerRow, selection[1] % layoutHelpers.basesPerRow)
-      }
-
       if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
         posX = this.getXPosFromBase(base - 1) + this.layoutSettings.basePairDims.width;
         posY = this.getYPosFromBase(base - 1) + lineOffsets.dna;
