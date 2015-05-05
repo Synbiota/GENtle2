@@ -1,12 +1,7 @@
 .sequencing-primers, 
 .sequencing-primers-products-outer-container, 
 .sequencing-primers-canvas-container {
-  bottom: 0;
-  left: 0;
-  overflow: scroll;
-  position: absolute;
-  right: 0;
-  top: 0;
+  @extend %primary-view-panel;
 }
 
 .sequencing-primers-products-outer-container {
