@@ -5,7 +5,7 @@
   width: 50px;
   border-right: 1px solid #ddd; 
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   &.hovered {
     overflow-x: visible;
     overflow-y: inherit;

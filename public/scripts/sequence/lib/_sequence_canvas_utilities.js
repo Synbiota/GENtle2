@@ -12,8 +12,8 @@ define(function(require) {
   @method forEachRowInPosYRange
   @param startY {integer} start of the visibility window
   @param endY {integer} end of the visibility window
-  @param 
-    callback {function} function to execute for each row. 
+  @param
+    callback {function} function to execute for each row.
     Will be passed the y-offset in canvas.
   */
   Utilities.prototype.forEachRowInPosYRange = function(startY, endY, callback) {
@@ -23,8 +23,8 @@ define(function(require) {
         firstRowStartY  = this.getRowStartY(Math.max(startY + layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
         lastRowY = Math.min(endY, layoutSettings.canvasDims.height);
 
-    for(var y = firstRowStartY; 
-        y < lastRowY; 
+    for(var y = firstRowStartY;
+        y < lastRowY;
         y += this.layoutHelpers.rows.height)
       callback.call(this, y);
   };
@@ -53,7 +53,7 @@ define(function(require) {
         marginTop = this.layoutSettings.pageMargins.top;
 
     return Math.floor(
-      (posY - marginTop) / 
+      (posY - marginTop) /
       rowsHeight
     );
   };
@@ -87,7 +87,7 @@ define(function(require) {
                             this.layoutHelpers.basesPerRow/layoutSettings.basesPerBlock - 1,
                             Math.floor((posX - marginLeft) / blockSize)),
         adjustedPosX    = Math.min(
-                            posX - marginLeft, 
+                            posX - marginLeft,
                             (block + 1) * blockSize - gutterWidth);
         inBlockAbsPos   = (adjustedPosX - block * blockSize) / baseWidth,
         inBlockPos      = Math.floor(inBlockAbsPos),
@@ -106,8 +106,8 @@ define(function(require) {
         deltaBase = base - firstBaseInRange,
         nbGutters = (deltaBase - deltaBase % layoutSettings.basesPerBlock) / layoutSettings.basesPerBlock;
 
-    return layoutSettings.pageMargins.left + 
-      deltaBase * layoutSettings.basePairDims.width + 
+    return layoutSettings.pageMargins.left +
+      deltaBase * layoutSettings.basePairDims.width +
       nbGutters * layoutSettings.gutterWidth;
   });
 
@@ -128,7 +128,7 @@ define(function(require) {
     var layoutHelpers = this.layoutHelpers,
         yPos = this.getYPosFromBase(base) - layoutHelpers.yOffset;
 
-    return  Math.max(0, yPos - this.$scrollingParent.height() + layoutHelpers.rows.height) + 
+    return  Math.max(0, yPos - this.$scrollingParent.height() + layoutHelpers.rows.height) +
             Math.min(0, yPos);
   };
 

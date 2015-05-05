@@ -1,6 +1,6 @@
 /**
-Line class for displaying base position on SequenceCanvas. 
-Options are: 
+Line class for displaying base position on SequenceCanvas.
+Options are:
 
 - `this.height`: line height.
 - `this.baseLine`: text baseline.
@@ -30,7 +30,7 @@ define(function(require) {
         sequence    = this.sequenceCanvas.sequence,
         artist      = this.sequenceCanvas.artist,
         k, x;
-    
+
     x = ls.pageMargins.left;
     for(k = baseRange[0]; k <= baseRange[1]; k += ls.basesPerBlock){
       text = typeof this.transform == 'function' ? this.transform(k+1) : k+1;
