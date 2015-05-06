@@ -135,10 +135,20 @@ Handlebars.registerHelper('sequenceFastAExportButton', function(sequenceID) {
   return exportFastATemplate({sequenceID});
 });
 
+Handlebars.registerHelper('sequenceClipboardExportButton', function(sequenceID) {
+  var exportClipboardTemplate = require('../templates/export_clipboard.hbs');
+  return exportClipboardTemplate({sequenceID});
+});
+
 Handlebars.registerHelper('displaySequence', function(sequence) {
   var displaySequenceTemplate = require('../templates/display_sequence.hbs');
   return displaySequenceTemplate({sequence});
 });
+
+Handlebars.registerHelper('displaySelectableSequence', function(sequence) {
+  var displaySelectableSequenceTemplate = require('../templates/display_selectable_sequence.hbs');
+  return displaySelectableSequenceTemplate({sequence});
+})
 
 
 module.exports = Handlebars;
