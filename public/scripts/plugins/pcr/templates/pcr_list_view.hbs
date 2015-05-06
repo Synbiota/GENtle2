@@ -30,9 +30,7 @@
         <tr>
           <td><small><strong>Product</strong></small></td>
           <td class="text-right"><small>{{sequenceLength sequence}}bp</small></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td colspan="3"></td>
         </tr>
         <tr>
           <td><small>Forward annealing region</small></td>
@@ -52,27 +50,19 @@
           <td><small>{{forwardPrimer.name}}</small></td>
           <td class="text-right"><small>{{sequenceLength forwardPrimer.sequence}}bp</small></td>
           <td class="text-right"><small>{{round forwardPrimer.gcContent 1 true}}%</small></td>
-          <td></td>
-          <td class="text-right">
-
-          </td>
+          <td colspan="2"></td>
         </tr>
         <tr>
-          <td colspan="4" class="sequence">{{{displaySelectableSequence forwardPrimer.sequence}}}</td>
-          <td></td>
+          <td colspan="5" class="sequence">{{{displaySelectableSequence forwardPrimer.sequence}}}</td>
         </tr>
         <tr>
           <td><small>{{reversePrimer.name}}</small></td>
           <td class="text-right"><small>{{sequenceLength reversePrimer.sequence}}bp</small></td>
           <td class="text-right"><small>{{round reversePrimer.gcContent 1 true}}%</small></td>
-          <td></td>
-          <td class="text-right">
-            
-          </td>
+          <td colspan="3"></td>
         </tr>
         <tr>
-          <td colspan="4" class="sequence">{{{displaySelectableSequence reversePrimer.sequence}}}</td>
-          <td></td>
+          <td colspan="5" class="sequence">{{{displaySelectableSequence reversePrimer.sequence}}}</td>
         </tr>
         <tr>
           <td><small>Sticky ends</small></td>
