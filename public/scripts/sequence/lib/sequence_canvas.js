@@ -100,7 +100,7 @@ define(function(require) {
     };
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) ? 'green' : defaultColour;
+      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
     };
 
     /**
@@ -187,9 +187,8 @@ define(function(require) {
       dna: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
-        drawSingleStickyEnds: true,
         textFont: LineStyles.dna.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.dna.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color
@@ -199,10 +198,8 @@ define(function(require) {
       complements: new Lines.DNA(this, {
         height: 15,
         baseLine: 15,
-        drawSingleStickyEnds: true,
-        isComplement: true,
         textFont: LineStyles.complements.text.font,
-        textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.complements.text.color),
+        textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
@@ -649,10 +646,11 @@ define(function(require) {
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
+    
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
-      _this = this,
+      selection = this.selection,
       posX, posY;
 
     if (base === undefined && this.caretPosition !== undefined) {
@@ -663,16 +661,27 @@ define(function(require) {
       base = this.sequence.length();
     }
 
-    this.scrollBaseToVisibility(base).then(function() {
+    this.scrollBaseToVisibility(base).then(() => {
 
-      posX = _this.getXPosFromBase(base);
-      posY = _this.getYPosFromBase(base) + lineOffsets.dna;
+      if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
+        posX = this.getXPosFromBase(base - 1) + this.layoutSettings.basePairDims.width;
+        posY = this.getYPosFromBase(base - 1) + lineOffsets.dna;
+      } else {
+        posX = this.getXPosFromBase(base);
+        posY = this.getYPosFromBase(base) + lineOffsets.dna;
+      }
 
-      _this.caret.move(posX, posY, base);
-      _this.caretPosition = base;
-      _this.showContextMenuButton(posX, posY + 20);
+      this.caret.move(posX, posY, base);
+      this.caretPosition = base;
+      this.showContextMenuButton(posX, posY + 20);
+      this.caret.setInfo(this.determineCaretInfo());
 
-    });
+      if(this.selection) {
+        this.caret.hideHighlight();
+      } else {
+        this.caret.showHighlight();
+      }
+    }).done();
 
   };
 
@@ -814,6 +823,29 @@ define(function(require) {
 
   SequenceCanvas.prototype.focus = function() {
     this.$scrollingParent.focus();
+  };
+
+  SequenceCanvas.prototype.determineCaretInfo = function() {
+    var info = "";
+    var toString = (num) => _.formatThousands(num).toString();
+
+    if(this.selection) {
+      var start = this.selection[0]+1;
+      var end = this.selection[1]+1;
+      var size = (end - start);
+
+      if(size===0) {
+        info = toString(start) + " (1 bp)";
+      } else {
+        info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
+      }
+      
+    } else {
+      info = toString(this.caretPosition + 1);
+    }
+
+
+    return info;
   };
 
 
