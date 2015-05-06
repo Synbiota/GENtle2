@@ -1,5 +1,6 @@
 import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import template from '../templates/sequencing_primers_products_view.hbs';
+import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 
 
 export default Backbone.View.extend({
@@ -8,6 +9,7 @@ export default Backbone.View.extend({
 
   events: {
     'click .export-sequence': 'exportSequence',
+    'click .selectable-sequence': 'selectSequence'
   },
 
   serialize: function() {
@@ -31,5 +33,7 @@ export default Backbone.View.extend({
     var products = this.getProducts();
     fastAExportSequenceFromID(products, sequenceID);
   },
+
+  selectSequence: onClickSelectableSequence
 
 });

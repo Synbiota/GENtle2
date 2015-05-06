@@ -681,7 +681,7 @@ define(function(require) {
       } else {
         this.caret.showHighlight();
       }
-    });
+    }).done();
 
   };
 
