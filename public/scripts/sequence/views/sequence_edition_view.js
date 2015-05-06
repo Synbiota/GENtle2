@@ -11,6 +11,7 @@ define(function(require) {
       LinearMapView = require('../../linear_map/views/linear_map_view'),
       PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
       MatchedEnzymesView = require('./matched_enzymes_view'),
+      StopCodonsView = require('./stop_codons_view'),
       Backbone = require('backbone'),
       Q = require('q'),
       SequenceEditionView;
@@ -30,6 +31,9 @@ define(function(require) {
 
       this.matchedEnzymesView = new MatchedEnzymesView();
       this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
+
+      this.stopCodonsView = new StopCodonsView();
+      this.setView(".stop-codons-outlet", this.stopCodonsView);
 
       this.initSecondaryViews();
     },

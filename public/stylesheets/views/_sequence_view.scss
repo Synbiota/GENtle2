@@ -69,3 +69,14 @@
     display: block;
   }
 }
+
+.stop-codons-outlet {
+  position: absolute;
+  top: 30;
+  width: 100%;
+  background:none;
+
+  button {
+    margin-top: 3px;
+  }
+}
