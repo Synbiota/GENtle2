@@ -26,7 +26,9 @@ define(function(require) {
         if (!selection && caretPosition !== undefined) {
 
           this.hideCaret();
-          this.sequence.insertBases(base, caretPosition);
+          this.sequence.insertBases(base, caretPosition, {
+            stickyEndFormat: this.stickyEndFormat
+          });
           this.caretPosition = ++caretPosition;
           this.displayCaret();
 
@@ -36,9 +38,14 @@ define(function(require) {
           this.selection = undefined;
           this.sequence.deleteBases(
             selection[0],
-            selection[1] - selection[0] + 1
+            selection[1] - selection[0] + 1,
+            {
+              stickyEndFormat: this.stickyEndFormat
+            }
           );
-          this.sequence.insertBases(base, selection[0]);
+          this.sequence.insertBases(base, selection[0], {
+            stickyEndFormat: this.stickyEndFormat
+          });
           this.caretPosition = selection[0] + 1;
           this.displayCaret(selection[0] + 1);
         }
@@ -53,6 +60,10 @@ define(function(require) {
   **/
   Handlers.prototype.handleKeydown = function(event) {
 
+    var options = {
+      stickyEndFormat: this.stickyEndFormat
+    };
+
     if (~_.values(Hotkeys).indexOf(event.which)) {
 
       this.handleHotkey(event);
@@ -60,15 +71,15 @@ define(function(require) {
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
 
-      this.select(0, this.sequence.length());
+      this.select(0, this.sequence.length(options));
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {
 
-      this.handleCopy();
+      this.handleCopy(options);
 
     } else if (event.metaKey && event.which == this.commandKeys.V) {
 
-      this.handlePaste();
+      this.handlePaste(options);
 
     } else if (event.metaKey && event.which == this.commandKeys.Z) {
 
@@ -87,36 +98,39 @@ define(function(require) {
 
     if (this[handlerName]) {
       event.preventDefault();
-      this[handlerName].call(this, event.shiftKey, event.metaKey);
+      this[handlerName].call(this, event.shiftKey, event.metaKey, {
+            stickyEndFormat: this.stickyEndFormat
+          });
     }
 
   };
 
-  Handlers.prototype.handleBackspaceKey = function(shift, meta) {
+  Handlers.prototype.handleBackspaceKey = function(shift, meta, options) {
     if(!this.readOnly) {
       if (this.selection) {
         var selection = this.selection;
         this.selection = undefined;
         this.sequence.deleteBases(
           selection[0],
-          selection[1] - selection[0] + 1
+          selection[1] - selection[0] + 1,
+          options
         );
         this.displayCaret(selection[0]);
       } else if (this.caretPosition > 0) {
         var previousCaret = this.caretPosition;
         this.hideCaret();
-        this.sequence.deleteBases(previousCaret - 1, 1);
+        this.sequence.deleteBases(previousCaret - 1, 1, options);
         this.displayCaret(previousCaret - 1);
       }
     }
   };
 
-  Handlers.prototype.handleEscKey = function(shift, meta) {
+  Handlers.prototype.handleEscKey = function(shift, meta, options) {
     this.hideCaret();
     this.caretPosition = undefined;
   };
 
-  Handlers.prototype.handleLeftKey = function(shift, meta) {
+  Handlers.prototype.handleLeftKey = function(shift, meta, options) {
     var previousCaret = this.caretPosition,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
@@ -141,7 +155,7 @@ define(function(require) {
 
   };
 
-  Handlers.prototype.handleRightKey = function(shift, meta) {
+  Handlers.prototype.handleRightKey = function(shift, meta, options) {
     var previousCaret = this.caretPosition,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
@@ -151,7 +165,7 @@ define(function(require) {
 
     nextCaret = meta ?
       (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, this.sequence.length());
+      Math.min(previousCaret + 1, this.sequence.length(options));
 
     if (shift) {
       if (selection) {
@@ -166,7 +180,7 @@ define(function(require) {
 
   };
 
-  Handlers.prototype.handleUpKey = function(shift, meta) {
+  Handlers.prototype.handleUpKey = function(shift, meta, options) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
       previousCaret = this.caretPosition,
       selection = this.selection,
@@ -191,7 +205,7 @@ define(function(require) {
     }
   };
 
-  Handlers.prototype.handleDownKey = function(shift, meta) {
+  Handlers.prototype.handleDownKey = function(shift, meta, options) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
       previousCaret = this.caretPosition,
       selection = this.selection,
@@ -200,8 +214,8 @@ define(function(require) {
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      this.sequence.length() :
-      Math.min(this.caretPosition + basesPerRow, this.sequence.length());
+      this.sequence.length(options) :
+      Math.min(this.caretPosition + basesPerRow, this.sequence.length(options));
 
     if (shift) {
       if (selection) {
@@ -219,17 +233,17 @@ define(function(require) {
 
   };
 
-  Handlers.prototype.handleCopy = function() {
+  Handlers.prototype.handleCopy = function(options) {
     var selection = this.selection;
 
     if (selection) {
       this.copyPasteHandler.copy(
-        this.sequence.getSubSeq(selection[0], selection[1])
+        this.sequence.getSubSeq(selection[0], selection[1], options)
       );
     }
   };
 
-  Handlers.prototype.handlePaste = function() {
+  Handlers.prototype.handlePaste = function(options) {
     var _this = this,
       selection = _this.selection,
       caretPosition = _this.caretPosition;
@@ -240,7 +254,7 @@ define(function(require) {
         if (caretPosition !== undefined && !selection) {
           text = _this.cleanPastedText(text);
           _this.hideCaret();
-          _this.sequence.insertBases(text, caretPosition);
+          _this.sequence.insertBases(text, caretPosition, options);
           _this.displayCaret(caretPosition + text.length);
           _this.focus();
         }

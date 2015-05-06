@@ -18,7 +18,7 @@ define(function(require) {
 
       this.model.deleteBases(
         currentChunk.from,
-        -currentChunk.from+currentChunk.to+1, 
+        -currentChunk.from+currentChunk.to+1,
         true
       );
     },
@@ -140,28 +140,32 @@ define(function(require) {
     insertFromAvailableSequence: function($droppable, $draggable) {
       var featureAndSubSeq, chunk, insertBeforeBase, bases, basesRange, seqBases, featureObj;
           featureAndSubSeq = this.getFeatureFromAvailableSequenceDraggable($draggable);
-     
+
       chunk = _.findWhere(this.chunks, {
         id: $droppable.closest("[data-chunk-id]").data('chunkId')
       });
 
-      insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
-        chunk.from : 
+      insertBeforeBase = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ?
+        chunk.from :
         chunk.to + 1;
 
-      if(featureAndSubSeq.feature.type == 'Sequence') { 
+      if(featureAndSubSeq.feature.type == 'Sequence') {
         this.model.insertSequenceAndCreateFeatures(
-          insertBeforeBase, 
-          featureAndSubSeq.subSeq, 
-          featureAndSubSeq.feature.features, 
-          true
+          insertBeforeBase,
+          featureAndSubSeq.subSeq,
+          featureAndSubSeq.feature.features,
+          {
+            updateHistory: true
+          }
         );
       } else {
         this.model.insertBasesAndCreateFeatures(
-          insertBeforeBase, 
-          featureAndSubSeq.subSeq, 
-          featureAndSubSeq.feature.feature, 
-          true
+          insertBeforeBase,
+          featureAndSubSeq.subSeq,
+          featureAndSubSeq.feature.feature,
+          {
+            updateHistory: true
+          }
         );
       }
     },
@@ -169,19 +173,23 @@ define(function(require) {
     insertFirstAnnotationFromAvailableSequence: function($draggable) {
       var featureAndSubSeq = this.getFeatureFromAvailableSequenceDraggable($draggable);
 
-      if(featureAndSubSeq.feature.type == 'Sequence') { 
+      if(featureAndSubSeq.feature.type == 'Sequence') {
         this.model.insertSequenceAndCreateFeatures(
-          0, 
-          featureAndSubSeq.subSeq, 
-          featureAndSubSeq.feature.features, 
-          true
+          0,
+          featureAndSubSeq.subSeq,
+          featureAndSubSeq.feature.features,
+          {
+            updateHistory: true
+          }
         );
       } else {
         this.model.insertBasesAndCreateFeatures(
-          0, 
-          featureAndSubSeq.subSeq, 
-          featureAndSubSeq.feature.feature, 
-          true
+          0,
+          featureAndSubSeq.subSeq,
+          featureAndSubSeq.feature.feature,
+          {
+            updateHistory: true
+          }
         );
       }
     },
@@ -201,7 +209,7 @@ define(function(require) {
         return {
           feature: sequence,
           subSeq: availableSequenceView.model.getSubSeq(sequence.from, sequence.to)
-        }; 
+        };
 
       } else {
 
@@ -221,14 +229,14 @@ define(function(require) {
             id: $droppable.closest('[data-chunk-id]').data('chunkId')
           }),
           movingChunk = _.findWhere(this.chunks, {id: $draggable.data('chunkId')}),
-          movingTo = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ? 
-            targetChunk.from : 
+          movingTo = $droppable.hasClass('designer-designed-sequence-chunk-droppable-before') ?
+            targetChunk.from :
             targetChunk.to + 1;
 
       if(movingTo !== movingChunk.from && movingTo !== movingChunk.to + 1) {
         this.model.moveBases(
-          movingChunk.from, 
-          movingChunk.length, 
+          movingChunk.from,
+          movingChunk.length,
           movingTo
         );
       }
@@ -239,11 +247,11 @@ define(function(require) {
       this.styleChunks();
 
       this.$('.designer-designed-sequence-chunk').draggable({
-        zIndex: 2000, 
-        revert: true, 
+        zIndex: 2000,
+        revert: true,
         helper: 'clone',
         cursorAt: {
-          top: 5, 
+          top: 5,
           left: 5
         },
       });

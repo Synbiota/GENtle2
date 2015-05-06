@@ -180,9 +180,9 @@ define(function(require) {
         });
         this.editedFeature.ranges = ranges;
         if (this.creating) {
-          this.model.createFeature(this.editedFeature, true);
+          this.model.createFeature(this.editedFeature, {updateHistory: true});
         } else {
-          this.model.updateFeature(this.editedFeature,true);
+          this.model.updateFeature(this.editedFeature, {updateHistory: true});
         }
         this.cancelEditing();
       } else {

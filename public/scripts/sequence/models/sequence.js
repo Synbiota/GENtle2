@@ -504,30 +504,37 @@ var SequenceModel = Backbone.DeepModel.extend({
     }).length;
   },
 
-  insertBases: function(bases, beforeBase, updateHistory) {
+  insertBases: function(bases, beforeBase, options = {}){
 
     var seq = this.get('sequence'),
+        updateHistory = options.updateHistory,
+        stickyEnds = this.get('stickyEnds'),
+        offset = 0,
         timestamp;
 
-    if (updateHistory === undefined) updateHistory = true;
-     // if (updateHistory === 'design-true')
-     //  this.getHistory().add({
-     //    type: 'design-insert',
-     //    hidden: true,
-     //    position: beforeBase,
-     //    value: bases,
-     //    operation: '@' + beforeBase + '+' + bases
-     //  });
+    options = _.defaults(options, {updateHistory: true});
+
+    // Adjust offset depending on sticky end format
+    if (stickyEnds && options.stickyEndFormat){
+      switch (options.stickyEndFormat){
+        case "none":
+          offset += stickyEnds.start.size + stickyEnds.start.offset;
+          break;
+        case "overhang":
+          offset += stickyEnds.start.offset;
+          break;
+      }
+    }
 
     this.set('sequence',
-      seq.substr(0, beforeBase) +
+      seq.substr(0, beforeBase + offset) +
       bases +
-      seq.substr(beforeBase, seq.length - beforeBase + 1)
+      seq.substr(beforeBase + offset, seq.length - (beforeBase + offset) + 1)
     );
 
-    this.moveFeatures(beforeBase, bases.length);
+    this.moveFeatures(beforeBase, bases.length, options);
 
-    if (updateHistory) {
+    if (options.updateHistory) {
       timestamp = this.getHistory().add({
         type: 'insert',
         position: beforeBase,
@@ -541,13 +548,13 @@ var SequenceModel = Backbone.DeepModel.extend({
     return timestamp;
   },
 
-  moveBases: function(firstBase, length, newFirstBase, updateHistory) {
+  moveBases: function(firstBase, length, newFirstBase, options = {}) {
     var lastBase = firstBase + length - 1,
         history = this.getHistory(),
         _this = this,
         featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
 
-    if(updateHistory === undefined) updateHistory = true;
+    options = _.defaults(options, {updateHistory: true});
 
     featuresInRange = _.deepClone(_.filter(this.get('features'), function(feature) {
       return _.some(feature.ranges, function(range) {
@@ -557,12 +564,13 @@ var SequenceModel = Backbone.DeepModel.extend({
 
     subSeq = this.getSubSeq(firstBase, lastBase);
 
-    deletionTimestamp = this.deleteBases(firstBase, length, updateHistory);
+    deletionTimestamp = this.deleteBases(firstBase, length, options);
     insertionTimestamp = this.insertBases(
       subSeq,
       newFirstBase < firstBase ?
         newFirstBase :
-        newFirstBase - length
+        newFirstBase - length,
+      options
     );
 
     _.each(featuresInRange, function(feature) {
@@ -579,16 +587,16 @@ var SequenceModel = Backbone.DeepModel.extend({
         };
       });
 
-      _this.createFeature(feature, updateHistory);
+      _this.createFeature(feature, options);
     });
 
   },
 
-  insertBasesAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
+  insertBasesAndCreateFeatures: function(beforeBase, bases, features, options) {
     var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
         _this = this;
 
-    this.insertBases(bases, beforeBase, updateHistory);
+    this.insertBases(bases, beforeBase, options);
 
     _.each(newFeatures,function(feature){
 
@@ -600,15 +608,15 @@ var SequenceModel = Backbone.DeepModel.extend({
       delete feature.from;
       delete feature.to;
 
-      _this.createFeature(feature, updateHistory);
+      _this.createFeature(feature, options);
     });
   },
 
-  insertSequenceAndCreateFeatures: function(beforeBase, bases, features, updateHistory) {
+  insertSequenceAndCreateFeatures: function(beforeBase, bases, features, options = {}) {
     var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
         _this = this;
 
-    this.insertBases(bases, beforeBase, updateHistory);
+    this.insertBases(bases, beforeBase, options);
 
     _.each(newFeatures,function(feature){
 
@@ -619,22 +627,36 @@ var SequenceModel = Backbone.DeepModel.extend({
         };
       });
 
-      _this.createFeature(feature, updateHistory);
+      _this.createFeature(feature, options);
     });
   },
 
-  deleteBases: function(firstBase, length, updateHistory) {
+  deleteBases: function(firstBase, length, options = {}) {
     var seq = this.get('sequence'),
+        stickyEnds = this.get('stickyEnds'),
+        offset = 0,
         timestamp,
         subseq, linkedHistoryStepTimestamps;
 
-    if (updateHistory === undefined) updateHistory = true;
+    options = _.defaults(options, {updateHistory: true});
 
-    subseq = seq.substr(firstBase, length);
+    // Adjust offset depending on sticky end format
+    if (stickyEnds && options.stickyEndFormat){
+      switch (options.stickyEndFormat){
+        case "none":
+          offset += stickyEnds.start.size + stickyEnds.start.offset;
+          break;
+        case "overhang":
+          offset += stickyEnds.start.offset;
+          break;
+      }
+    }
+
+    subseq = seq.substr(firstBase + offset, length);
 
     this.set('sequence',
-      seq.substr(0, firstBase) +
-      seq.substr(firstBase + length, seq.length - (firstBase + length - 1))
+      seq.substr(0, firstBase + offset) +
+      seq.substr(firstBase + offset + length, seq.length - (firstBase + offset + length - 1))
     );
 
     linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length);
@@ -649,7 +671,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     //     linked: linkedHistoryStepTimestamps
     //   });
 
-    if (updateHistory) {
+    if (options.updateHistory) {
       timestamp = this.getHistory().add({
         type: 'delete',
         value: subseq,
@@ -819,22 +841,24 @@ var SequenceModel = Backbone.DeepModel.extend({
     switch (historyStep.get('type')) {
 
       case 'featureIns':
-        this.deleteFeature(historyStep.get('feature'), false);
+        this.deleteFeature(historyStep.get('feature'), {updateHistory: false});
         break;
 
       case 'featureEdit':
-        this.updateFeature(historyStep.get('featurePreviousState'), false);
+        this.updateFeature(historyStep.get('featurePreviousState'), {updateHistory: false});
         break;
 
       case 'featureDel':
-        this.createFeature(historyStep.get('featurePreviousState'), false);
+        this.createFeature(historyStep.get('featurePreviousState'), {updateHistory: false});
         break;
 
       case 'insert':
         this.deleteBases(
           historyStep.get('position'),
           historyStep.get('value').length,
-          false
+          {
+            updateHistory: false
+          }
         );
         break;
 
@@ -842,7 +866,9 @@ var SequenceModel = Backbone.DeepModel.extend({
         this.insertBases(
           historyStep.get('value'),
           historyStep.get('position'),
-          false
+          {
+            updateHistory: false
+          }
         );
         break;
     }
@@ -861,10 +887,10 @@ var SequenceModel = Backbone.DeepModel.extend({
     this.throttledSave();
   },
 
-  createFeature: function(newFeature, record) {
+  createFeature: function(newFeature, options = {}) {
     var id = this.get('features').length, sortedIdList, len;
 
-    if (record === true) {
+    if (options.updateHistory === true) {
       this.recordFeatureHistoryIns(newFeature);
     }
     // if (record === 'design-true')
