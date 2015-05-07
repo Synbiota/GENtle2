@@ -1,6 +1,7 @@
 .context-menu {
   position: absolute;
   z-index: 1000;
+  white-space: nowrap;
 
   border-radius: 3px;
   @include box-shadow(0 6px 12px rgba(0, 0, 0, 0.175));
@@ -12,6 +13,22 @@
   .dropdown-menu {
     .menu-item {
       width: 177px;
+    }
+  }
+
+  &.stick-to-right {
+    left: inherit !important;
+    right: 10px;
+  }
+
+  .btn-group {
+    & > .btn {
+      float: none;
+      display: inline-block;
+    }
+
+    & > .dropdown-toggle {
+      margin-left: -5px !important;
     }
   }
 

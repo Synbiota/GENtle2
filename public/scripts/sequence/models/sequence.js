@@ -26,7 +26,7 @@ var SequenceModel = Backbone.DeepModel.extend({
           aa: 'none',
           aaOffset: 0,
           res: Gentle.currentUser.get('displaySettings.rows.res'),
-          hasGutters: true
+          hasGutters: false
         }
       },
       history: new HistorySteps()
