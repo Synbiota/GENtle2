@@ -94,7 +94,6 @@ define(function(require) {
     this.sequence = options.sequence || this.view.model;
     var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
-    console.log(options, this.stickyEndFormat)
     this.stickyEndFormat = options.stickyEndFormat || "overhang";
 
     var dnaStickyEndHighlightColour = function(reverse, stickyEndFormat, base, pos) {
@@ -638,6 +637,25 @@ define(function(require) {
     if(fromBase === undefined) {
       this.highlight = undefined;
     } else {
+
+      console.log(fromBase, toBase)
+
+      var sequence = this.sequence,
+          stickyEnds = sequence.get('stickyEnds');
+
+      if (stickyEnds && this.stickyEndFormat){
+        switch (this.stickyEndFormat){
+          case "none":
+            fromBase -= stickyEnds.start.size + stickyEnds.start.offset;
+            toBase -= stickyEnds.start.size - stickyEnds.start.offset;
+            break;
+          case "overhang":
+            fromBase -= stickyEnds.start.offset;
+            toBase -= stickyEnds.start.offset;
+            break;
+        }
+      }
+
       this.highlight = [fromBase, toBase];
     }
 
@@ -650,7 +668,7 @@ define(function(require) {
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
-    
+
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
@@ -843,7 +861,7 @@ define(function(require) {
       } else {
         info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
       }
-      
+
     } else {
       info = toString(this.caretPosition + 1);
     }

@@ -18,8 +18,8 @@ export default Backbone.View.extend({
       this.trigger('resize');
     });
 
-    _.bindAll(this, 
-      'getHitDnaSeq', 'transformHitPosition', 'getMidLine', 
+    _.bindAll(this,
+      'getHitDnaSeq', 'transformHitPosition', 'getMidLine',
       'getHitDnaColour'
     );
   },
@@ -81,7 +81,7 @@ export default Backbone.View.extend({
       sequenceCanvas.scrollBaseToVisibility(currentMismatch.from);
     });
 
-    
+
   },
 
   getHitDnaSeq: function(queryStart, queryEnd, useMidLine) {
@@ -92,19 +92,19 @@ export default Backbone.View.extend({
     var output = '';
 
     if(queryEnd >= hitStart && queryStart <= hitEnd) {
-      if(queryStart < hitStart) 
+      if(queryStart < hitStart)
         output += Array(hitStart - queryStart + 1).join(' ');
 
       output += (useMidLine ? this.hsp.midline : this.hsp.hseq).substr(
         Math.max(0, queryStart-hitStart),
         queryEnd - queryStart + 1
       );
-    } 
+    }
 
     return output;
   },
 
-  getMidLine: function(queryStart, queryEnd) {  
+  getMidLine: function(queryStart, queryEnd) {
     return this.getHitDnaSeq(queryStart, queryEnd, true);
   },
 
@@ -197,8 +197,9 @@ export default Backbone.View.extend({
         }],
         bottomSeparator: ['Blank', { height: 5 }],
       },
+      stickyEndFormat: "full",
     });
-    
+
     sequenceCanvas.refresh();
 
     sequenceCanvas.afterNextRedraw(function() {
@@ -230,7 +231,7 @@ export default Backbone.View.extend({
         bottomSeparator: ['Blank', { height: 5 }],
       },
     });
-    
+
     sequenceCanvas.refresh();
   },
 
