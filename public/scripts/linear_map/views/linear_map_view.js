@@ -22,7 +22,7 @@ export default Backbone.View.extend({
     _.bindAll(this, 'scrollSequenceCanvas');
 
     this.listenTo(
-      this.model, 
+      this.model,
       'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
       _.debounce(this.refresh, 500),
       this
@@ -33,6 +33,21 @@ export default Backbone.View.extend({
     var id = -1,
         _this = this;
 
+    var sequence = this.sequenceCanvas.sequence,
+        stickyEnds = sequence.get('stickyEnds'),
+        offset = 0;
+
+    if (stickyEnds && this.sequenceCanvas.stickyEndFormat){
+      switch (this.sequenceCanvas.stickyEndFormat){
+        case "none":
+          offset -= stickyEnds.start.size + stickyEnds.start.offset;
+          break;
+        case "overhang":
+          offset -= stickyEnds.start.offset;
+          break;
+      }
+    }
+
     this.features = [];
 
     _.each(this.model.get('features'), function(feature) {
@@ -40,8 +55,8 @@ export default Backbone.View.extend({
         _this.features.push({
           name: feature.name,
           id: ++id,
-          from: range.from,
-          to: range.to,
+          from: Math.max(range.from + offset, 0),
+          to: Math.max(range.to + offset, 0),
           type: feature._type.toLowerCase()
         });
       });
@@ -53,7 +68,7 @@ export default Backbone.View.extend({
   },
 
   positionFeatures: function() {
-    var maxBase = this.maxBaseForCalc || this.model.length(),
+    var maxBase = this.maxBaseForCalc || this.model.length({stickyEndFormat: this.sequenceCanvas.stickyEndFormat}),
         viewHeight = this.$el.height(),
         $featureElement, feature, featureWidth,
         overlapStack = [], overlapIndex;
@@ -61,14 +76,14 @@ export default Backbone.View.extend({
     for(var i = 0; i < this.features.length; i++) {
       feature = this.features[i];
       featureWidth = Math.max(
-        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
+        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight),
         this.minFeatureWidth
       );
       $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
 
       $featureElement.css({
         width: featureWidth,
-        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset,
+        top: Math.floor( (feature.from) / maxBase * viewHeight) + this.topFeatureOffset,
       });
 
       overlapIndex =  overlapStack.length;
@@ -119,7 +134,7 @@ export default Backbone.View.extend({
     } else {
       this.enzymes = [];
     }
-    
+
     if(render !== false) this.render();
   },
 
@@ -158,8 +173,26 @@ export default Backbone.View.extend({
       hideNonPalindromicStickyEndSites: false
     });
 
+    var sequence = this.sequenceCanvas.sequence,
+        stickyEnds = sequence.get('stickyEnds'),
+        offset = 0;
+
+    if (stickyEnds && this.sequenceCanvas.stickyEndFormat){
+      switch (this.sequenceCanvas.stickyEndFormat){
+        case "none":
+          offset -= stickyEnds.start.size + stickyEnds.start.offset;
+          break;
+        case "overhang":
+          offset -= stickyEnds.start.offset;
+          break;
+      }
+    }
+
     this.enzymes = _.map(enzymes, function(enzymeArray, position) {
       var label = enzymeArray[0].name;
+
+      position = Math.max(+position + offset, 0);
+
       if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
       return {position, label};
     });
@@ -171,6 +204,7 @@ export default Backbone.View.extend({
     _.each(this.$('.linear-map-enzyme'), (element) => {
       var $element = this.$(element);
       var relativePosition = $element.data('position')/ maxBase * 100 ;
+      console.log('abc', $element.data('position'), relativePosition, maxBase)
       $element.css('top', relativePosition + '%');
     });
   },
@@ -185,7 +219,7 @@ export default Backbone.View.extend({
     this.$scrollHelper = $scrollHelper;
 
     $scrollHelper.height(Math.floor(
-      scrollingParentHeight / 
+      scrollingParentHeight /
       scrollingChildHeight *
       elemHeight
     )).draggable({
@@ -205,8 +239,8 @@ export default Backbone.View.extend({
 
     if($scrollHelper) {
       $scrollHelper.css({
-        top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset / 
-                          scrollingChildHeight * 
+        top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
+                          scrollingChildHeight *
                           elemHeight)
       });
     }
@@ -215,7 +249,7 @@ export default Backbone.View.extend({
   scrollSequenceCanvas: function() {
     this.sequenceCanvas.scrollTo(Math.floor(
       this.$scrollHelper.position().top /
-      this.$el.height() * 
+      this.$el.height() *
       this.sequenceCanvas.$scrollingChild.height()
     ), false);
   },
@@ -227,9 +261,9 @@ export default Backbone.View.extend({
       this.sequenceCanvas = sequenceCanvas;
 
       this.listenTo(
-        sequenceCanvas, 
-        'scroll', 
-        this.updateScrollHelperPosition, 
+        sequenceCanvas,
+        'scroll',
+        this.updateScrollHelperPosition,
         this
       );
 

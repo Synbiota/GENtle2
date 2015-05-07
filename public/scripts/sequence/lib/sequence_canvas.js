@@ -638,8 +638,6 @@ define(function(require) {
       this.highlight = undefined;
     } else {
 
-      console.log(fromBase, toBase)
-
       var sequence = this.sequence,
           stickyEnds = sequence.get('stickyEnds');
 
