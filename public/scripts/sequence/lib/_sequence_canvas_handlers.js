@@ -66,7 +66,7 @@ define(function(require) {
 
     if (~_.values(Hotkeys).indexOf(event.which)) {
 
-      this.handleHotkey(event);
+      this.handleHotkey(event, options);
 
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
@@ -89,7 +89,7 @@ define(function(require) {
 
   };
 
-  Handlers.prototype.handleHotkey = function(event) {
+  Handlers.prototype.handleHotkey = function(event, options) {
     var keyName = this.invertHotkeys[event.which.toString()].toLowerCase(),
       handlerName = 'handle' +
       keyName.charAt(0).toUpperCase() +
@@ -98,9 +98,7 @@ define(function(require) {
 
     if (this[handlerName]) {
       event.preventDefault();
-      this[handlerName].call(this, event.shiftKey, event.metaKey, {
-            stickyEndFormat: this.stickyEndFormat
-          });
+      this[handlerName].call(this, event.shiftKey, event.metaKey, options);
     }
 
   };

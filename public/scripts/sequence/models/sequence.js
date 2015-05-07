@@ -507,9 +507,9 @@ var SequenceModel = Backbone.DeepModel.extend({
   insertBases: function(bases, beforeBase, options = {}){
 
     var seq = this.get('sequence'),
-        updateHistory = options.updateHistory,
         stickyEnds = this.get('stickyEnds'),
         offset = 0,
+        adjustedBeforeBase,
         timestamp;
 
     options = _.defaults(options, {updateHistory: true});
@@ -518,18 +518,20 @@ var SequenceModel = Backbone.DeepModel.extend({
     if (stickyEnds && options.stickyEndFormat){
       switch (options.stickyEndFormat){
         case "none":
-          offset += stickyEnds.start.size + stickyEnds.start.offset;
+          offset = stickyEnds.start.size + stickyEnds.start.offset;
           break;
         case "overhang":
-          offset += stickyEnds.start.offset;
+          offset = stickyEnds.start.offset;
           break;
       }
     }
 
+    adjustedBeforeBase = beforeBase + offset;
+
     this.set('sequence',
-      seq.substr(0, beforeBase + offset) +
+      seq.substr(0, adjustedBeforeBase) +
       bases +
-      seq.substr(beforeBase + offset, seq.length - (beforeBase + offset) + 1)
+      seq.substr(adjustedBeforeBase, seq.length - (adjustedBeforeBase) + 1)
     );
 
     this.moveFeatures(beforeBase, bases.length, options);
@@ -537,9 +539,9 @@ var SequenceModel = Backbone.DeepModel.extend({
     if (options.updateHistory) {
       timestamp = this.getHistory().add({
         type: 'insert',
-        position: beforeBase,
+        position: adjustedBeforeBase,
         value: bases,
-        operation: '@' + beforeBase + '+' + bases
+        operation: '@' + adjustedBeforeBase + '+' + bases
       }).get('timestamp');
     }
 
@@ -635,6 +637,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     var seq = this.get('sequence'),
         stickyEnds = this.get('stickyEnds'),
         offset = 0,
+        adjustedFirstBase,
         timestamp,
         subseq, linkedHistoryStepTimestamps;
 
@@ -644,30 +647,33 @@ var SequenceModel = Backbone.DeepModel.extend({
     if (stickyEnds && options.stickyEndFormat){
       switch (options.stickyEndFormat){
         case "none":
-          offset += stickyEnds.start.size + stickyEnds.start.offset;
+          offset = stickyEnds.start.size + stickyEnds.start.offset;
           break;
         case "overhang":
-          offset += stickyEnds.start.offset;
+          offset = stickyEnds.start.offset;
           break;
       }
     }
 
-    subseq = seq.substr(firstBase + offset, length);
+    adjustedFirstBase = firstBase + offset;
+
+    subseq = seq.substr(adjustedFirstBase, length);
 
     this.set('sequence',
-      seq.substr(0, firstBase + offset) +
-      seq.substr(firstBase + offset + length, seq.length - (firstBase + offset + length - 1))
+      seq.substr(0, adjustedFirstBase) +
+      seq.substr(adjustedFirstBase + length, seq.length - (adjustedFirstBase + length - 1))
     );
 
-    linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length);
+    // moveFeatures manages the adjustment.
+    linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length, options);
 
     // if (updateHistory === 'design-true')
     //   this.getHistory().add({
     //     type: 'design-delete',
     //     value: subseq,
     //     hidden: true,
-    //     position: firstBase,
-    //     operation: '@' + firstBase + '-' + subseq,
+    //     position: adjustedFirstBase,
+    //     operation: '@' + adjustedFirstBase + '-' + subseq,
     //     linked: linkedHistoryStepTimestamps
     //   });
 
@@ -675,8 +681,8 @@ var SequenceModel = Backbone.DeepModel.extend({
       timestamp = this.getHistory().add({
         type: 'delete',
         value: subseq,
-        position: firstBase,
-        operation: '@' + firstBase + '-' + subseq,
+        position: adjustedFirstBase,
+        operation: '@' + adjustedFirstBase + '-' + subseq,
         linked: linkedHistoryStepTimestamps
       }).get('timestamp');
     }
@@ -687,8 +693,9 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   },
 
-  moveFeatures: function(base, offset) {
+  moveFeatures: function(base, offset, options) {
     var features = this.get('features'),
+        stickyEnds = this.get('stickyEnds'),
         featurePreviousState,
         storePreviousState,
         firstBase, lastBase,
@@ -698,6 +705,17 @@ var SequenceModel = Backbone.DeepModel.extend({
     storePreviousState = function(feature) {
       featurePreviousState = featurePreviousState || _.deepClone(feature);
     };
+
+    if (stickyEnds && options.stickyEndFormat){
+      switch (options.stickyEndFormat){
+        case "none":
+          base += stickyEnds.start.size + stickyEnds.start.offset;
+          break;
+        case "overhang":
+          base += stickyEnds.start.offset;
+          break;
+      }
+    }
 
     if (_.isArray(features)) {
 
