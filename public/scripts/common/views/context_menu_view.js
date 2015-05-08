@@ -2,7 +2,7 @@
 @module Common
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var template        = require('../templates/context_menu_view.hbs'),
       Backbone        = require('backbone'),
       _ = require('underscore'),
@@ -162,6 +162,6 @@ define(function(require) {
 
 
   });
-
-  return ContextMenuView;
-});
+export default ContextMenuView;
+  // return ContextMenuView;
+// });

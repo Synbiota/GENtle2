@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Gentle    = require('gentle'),
       NCBIView  = require('./views/ncbi_view');
 
@@ -8,5 +8,5 @@ define(function(require) {
     view: NCBIView
   });
 
-  return Math;
-});
+  // return Math;
+// });

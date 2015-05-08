@@ -6,7 +6,7 @@
 @params {jQuery DOM Element} options.$container
 @params {String} options.className
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/caret.hbs'),
       Caret;
 
@@ -64,6 +64,6 @@ define(function(require) {
     this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0)"});
     
   };
-
-  return Caret;
-});
+export default Caret;
+  // return Caret;
+// });

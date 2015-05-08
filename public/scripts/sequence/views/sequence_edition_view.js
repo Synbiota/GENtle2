@@ -3,7 +3,7 @@
 @submodule Views
 @class SequenceEditionView
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/sequence_edition_view.hbs'),
       SequenceCanvas = require('../lib/sequence_canvas'),
       Gentle = require('gentle'),
@@ -123,6 +123,6 @@ define(function(require) {
     },
 
   });
-
-  return SequenceEditionView;
-});
+export default SequenceEditionView;
+  // return SequenceEditionView;
+// });

@@ -2,7 +2,7 @@
 Utility methods for SequenceCanvas
 @class SequenceCanvasUtilities
 **/
-define(function(require) {
+// define(function(require) {
   var _     = require('underscore'),
       Utilities;
 
@@ -88,7 +88,7 @@ define(function(require) {
                             Math.floor((posX - marginLeft) / blockSize)),
         adjustedPosX    = Math.min(
                             posX - marginLeft,
-                            (block + 1) * blockSize - gutterWidth);
+                            (block + 1) * blockSize - gutterWidth),
         inBlockAbsPos   = (adjustedPosX - block * blockSize) / baseWidth,
         inBlockPos      = Math.floor(inBlockAbsPos),
         nextBase        = + (inBlockAbsPos - inBlockPos > 0.5);
@@ -140,6 +140,6 @@ define(function(require) {
     var layoutHelpers = this.layoutHelpers;
     return layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
   };
-
-  return Utilities;
-});
+export default Utilities;
+  // return Utilities;
+// });

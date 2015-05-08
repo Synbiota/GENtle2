@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Line = require('./line'),
       RestrictionEnzymes = require('../restriction_enzymes'),
       RestrictionEnzymesSites = require('./restriction_enzymes_sites'),
@@ -112,6 +112,6 @@ define(function(require) {
     artist.setLineDash([]);
     
   };
-
-  return RestrictionEnzymesLabels;
-});
+export default RestrictionEnzymesLabels;
+  // return RestrictionEnzymesLabels;
+// });

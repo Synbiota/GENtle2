@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Line = require('./line'),
       RestrictionEnzymes = require('../restriction_enzymes'),
       RestrictionEnzymeSites;
@@ -131,6 +131,6 @@ define(function(require) {
     });
 
   };
-
-  return RestrictionEnzymeSites;
-});
+export default RestrictionEnzymeSites
+  // return RestrictionEnzymeSites;
+// });

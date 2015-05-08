@@ -3,7 +3,7 @@
 @submodule Views
 @class SequenceView
 **/
-define(function(require) {
+// define(function(require) {
   var template                = require('../templates/sequence_view.hbs'),
       Gentle                  = require('gentle'),
       SequenceSettingsView    = require('./settings_view'),
@@ -173,6 +173,6 @@ define(function(require) {
     }
 
   });
-
-  return SequenceView;
-});
+export default SequenceView;
+  // return SequenceView;
+// });

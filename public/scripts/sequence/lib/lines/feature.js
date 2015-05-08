@@ -15,7 +15,7 @@ Options are:
 @submodule SequenceCanvas
 @extends Lines.Line
 **/
-define(function(require) {
+// define(function(require) {
   var Line = require('./line'),
       _    = require('underscore'),
       Sequence = require('../../models/sequence'),
@@ -140,7 +140,7 @@ define(function(require) {
         basesPerBlock   = layoutSettings.basesPerBlock,
         baseWidth       = layoutSettings.basePairDims.width,
         gutterWidth     = layoutSettings.gutterWidth,
-        features, startX, endX, deltaX, textWidth, backgroundFillStyle;
+        features, startX, endX, deltaX, textWidth, backgroundFillStyle, textColour;
 
     features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     y += (this.topMargin || 0);
@@ -195,6 +195,6 @@ define(function(require) {
     }
 
   };
-
-  return Feature;
-});
+export default Feature;
+  // return Feature;
+// });

@@ -3,7 +3,7 @@
 @module Sequence
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/edit_view.hbs'),
     Backbone = require('backbone'),
     Gentle = require('gentle'),
@@ -82,6 +82,6 @@ define(function(require) {
 
     },
   });
-
-  return EditView;
-});
+export default EditView;
+  // return EditView;
+// });

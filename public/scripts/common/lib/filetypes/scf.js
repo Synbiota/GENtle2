@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // SCF
  // See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
@@ -253,6 +253,6 @@ FT_scf.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	return res ;
 }
 
-  return FT_scf
-
-});
+  // return FT_scf
+export default FT_scf;
+// });

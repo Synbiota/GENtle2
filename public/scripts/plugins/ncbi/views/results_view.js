@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var template      = require('../templates/results_view.hbs'),
       ResultsView;
 
@@ -41,6 +41,6 @@ define(function(require) {
       };
     }
   });
-
-  return ResultsView;
-});
+export default ResultsView;
+  // return ResultsView;
+// });

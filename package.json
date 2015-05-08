@@ -25,7 +25,6 @@
     "browserify-shim": "^3.8.1",
     "connect-gzip-static": "^1.0.0",
     "cookie-session": "^1.0.2",
-    "deamdify": "Automattic/deamdify.git#master",
     "express": "^4.9.8",
     "express-session": "^1.9.0",
     "filesaver.js": "~0.1.1",

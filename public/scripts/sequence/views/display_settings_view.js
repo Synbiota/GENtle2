@@ -3,7 +3,7 @@
 @submodule Views
 @class DisplaySettingsView
 **/
-define(function(require) {
+// define(function(require) {
   var template        = require('../templates/display_settings_view.hbs'),
       Gentle          = require('gentle'),
       Backbone        = require('backbone'),
@@ -86,6 +86,6 @@ define(function(require) {
     },
 
   });
-
-  return DisplaySettingsView;
-});
+export default DisplaySettingsView;
+  // return DisplaySettingsView;
+// });

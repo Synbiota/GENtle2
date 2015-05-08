@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // ABI
  // For file format description, see http://www6.appliedbiosystems.com/support/software_community/ABIF_File_Format.pdf
@@ -159,6 +159,6 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	return res ;
 }
 
-  return FT_abi
-
-});
+  // return FT_abi
+export default FT_abi;
+// });
