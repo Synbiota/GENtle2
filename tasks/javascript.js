@@ -30,6 +30,7 @@ var run = function(watch) {
     browserify(scriptFile, browserifyOptions);
 
   browserified = browserified
+    .transform('jstify')
     .transform('hbsfy', { compiler: 'require("handlebars.mixed");'})
     .transform(babelify);
 

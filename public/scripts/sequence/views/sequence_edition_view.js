@@ -5,7 +5,7 @@
 **/
 // define(function(require) {
   var template = require('../templates/sequence_edition_view.hbs'),
-      SequenceCanvas = require('../lib/sequence_canvas'),
+      SequenceCanvas = require('../../library/sequence_canvas/sequence_canvas'),
       Gentle = require('gentle'),
       ContextMenuView = require('../../common/views/context_menu_view'),
       LinearMapView = require('../../linear_map/views/linear_map_view'),
@@ -114,8 +114,8 @@
         'right': this.secondaryView.$el.width(),
       });
       this.sequenceCanvas = new SequenceCanvas({
-        view: this,
-        $canvas: this.$('.sequence-canvas-container canvas').first()
+        sequence: this.model,
+        $container: this.$('.sequence-canvas-container').first()
       });
       this.sequenceCanvas.refresh();
       this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();

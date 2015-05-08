@@ -18,6 +18,13 @@ var assertion = function(test, message) {
   _assertion(test, message);
 };
 
+var assertIsDefinedAndNotNull = function(value, fieldName) {
+  _assertion(
+    _.isUndefined(value) && _.isNull(value),
+    `\`${fieldName}\` cannot be undefined or null`
+  );
+};
+
 var assertIsNumber = function(value, fieldName) {
   _assertion(_.isNumber(value) && !_.isNaN(value), `\`${fieldName}\` should be a number but is: ${value} (${typeof value})`);
 };
@@ -26,10 +33,16 @@ var assertIsInstance = function(value, klass, fieldName) {
   _assertion((value && value.constructor) === klass, `\`${fieldName}\` should be a instance of ${klass.className || klass} but is ${value}`);
 };
 
+var assertIsObject = function(value, fieldName) {
+  _assertion(_.isObject(value), `\`${fieldName}\` should be an Object but is: ${value} (${typeof value})`);
+};
+
 
 export default {
   stubAssertion,
   assertion,
   assertIsNumber,
   assertIsInstance,
+  assertIsDefinedAndNotNull,
+  assertIsObject
 };
