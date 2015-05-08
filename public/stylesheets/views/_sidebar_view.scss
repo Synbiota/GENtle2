@@ -5,7 +5,7 @@
   width: 50px;
   border-right: 1px solid #ddd; 
   overflow-x: hidden;
-  overflow-y: scroll;
+  overflow-y: auto;
   &.hovered {
     overflow-x: visible;
     overflow-y: inherit;
@@ -105,22 +105,23 @@
       }
       dd {
         margin-left: 90px;
-        .floating {
-          float: left;
-          margin-top: 0 !important;
-          margin-bottom: 5px !important;
-          min-height: 0;
-          height: 17px;
-          &.floating-half {
-            width: 50%;
-          }
-          &.floating-fifth {
-            width: 20%;
-          }
-          &.floating-third {
-            width: 33%;
-          }
-        }
+      }
+    }
+
+    .floating {
+      float: left;
+      margin-top: 0 !important;
+      margin-bottom: 5px !important;
+      min-height: 0;
+      height: 17px;
+      &.floating-half {
+        width: 50%;
+      }
+      &.floating-fifth {
+        width: 20%;
+      }
+      &.floating-third {
+        width: 33%;
       }
     }
 

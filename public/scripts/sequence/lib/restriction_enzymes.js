@@ -1,5 +1,7 @@
 import SynbioData from '../../common/lib/synbio_data';
 import SequenceTransforms from './sequence_transforms';
+import _ from 'underscore';
+
 var restrictionEnzymes;
 var restrictionEnzymesByBases;
 var restrictionEnzymesByLength;
@@ -105,14 +107,17 @@ RestrictionEnzymes.getAllInSeq = function(seq, options = {}) {
     if(!_.isArray(enzymes)) enzymes = [enzymes];
 
     regexp = RestrictionEnzymes.getRegExp(bases);
+    result = regexp.exec(seq);
 
-    while(result = regexp.exec(seq)) {
+    while(result) {
       var position = result.index;
       var validEnzymes = getValidEnzymes(enzymes, position);
 
       if(!isEmpty(validEnzymes)) {
         matches[position] = (matches[position] || []).concat(validEnzymes);
       }
+
+      result = regexp.exec(seq);
     }
 
     if(complement === false) {
@@ -131,7 +136,7 @@ RestrictionEnzymes.getAllInSeq = function(seq, options = {}) {
     }
   };
 
-  if(options.customList && options.customList.length) {
+  if(options && _.isArray(options.customList)) {
     list = options.customList;
     _.each(RestrictionEnzymes.all(), function(enzyme) {
       if(~list.indexOf(enzyme.name)) checkAndAddMatch(enzyme, enzyme.seq);

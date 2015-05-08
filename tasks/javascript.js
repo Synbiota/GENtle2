@@ -31,8 +31,7 @@ var run = function(watch) {
 
   browserified = browserified
     .transform('hbsfy', { compiler: 'require("handlebars.mixed");'})
-    .transform(babelify)
-    .transform('deamdify');
+    .transform(babelify);
 
   if(!isDev) {
     browserified = browserified.transform('uglifyify', { global: true });

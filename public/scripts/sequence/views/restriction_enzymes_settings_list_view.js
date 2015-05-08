@@ -1,9 +1,9 @@
-define(function(require) {
+// define(function(require) {
   var Backbone = require('backbone'),
       _ = require('underscore'),
       template = require('../templates/restriction_enzymes_settings_list_view.hbs');
 
-  return Backbone.View.extend({
+  export default Backbone.View.extend({
     template: template,
     manage: true,
 
@@ -30,4 +30,4 @@ define(function(require) {
       };
     }
   });
-});
+// });

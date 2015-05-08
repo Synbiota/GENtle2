@@ -2,7 +2,7 @@
 @module Common
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var template      = require('../templates/layout.hbs'),
       NavbarView    = require('./navbar_view'),
       ModalView     = require('./modal_view'),
@@ -19,6 +19,6 @@ define(function(require) {
     },
 
   });
-
-  return Layout;
-});
+export default Layout;
+  // return Layout;
+// });

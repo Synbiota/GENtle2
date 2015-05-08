@@ -6,7 +6,7 @@
 @params {jQuery DOM Element} options.$container
 @params {String} options.className
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/caret.hbs'),
       Caret;
 
@@ -41,14 +41,29 @@ define(function(require) {
         top: this.posY,
         left: this.posX
       })
-      .show()
-      .find('.caret-info').text(_.formatThousands(base+1));
+      .show();
+  };
+
+  Caret.prototype.setInfo = function(text) { 
+    this.$element.find(".caret-info").text(text);
   };
 
   Caret.prototype.remove = function() {
+   
     this.$element.hide();
     this.posX = this.posY = this.base = undefined;
   };
 
-  return Caret;
-});
+  Caret.prototype.showHighlight = function() {
+    
+    this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0.25)"});
+    
+  };
+
+  Caret.prototype.hideHighlight = function() {
+    this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0)"});
+    
+  };
+export default Caret;
+  // return Caret;
+// });

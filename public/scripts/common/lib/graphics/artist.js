@@ -9,7 +9,7 @@ Includes Shape system for handling mouse events.
 @main Graphics
 @constructor
 **/
-define(function(require) {
+// define(function(require) {
   var $ = require('jquery'),
       Rect = require('./rect'),
       Washer = require('./washer'),
@@ -376,6 +376,6 @@ define(function(require) {
   Artist.prototype.setOpacity = function(opacity) {
     this.context.globalAlpha = opacity;
   };
-
-  return Artist;
-});
+export default Artist;
+  // return Artist;
+// });

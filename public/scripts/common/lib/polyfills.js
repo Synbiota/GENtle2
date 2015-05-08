@@ -1,7 +1,7 @@
 /**
 @module Utilities
 **/
-define(function(require) {
+// define(function(require) {
   var _ = require('underscore');
 
   // Object.create polyfill (ES5)
@@ -192,5 +192,5 @@ define(function(require) {
 
 
   // Polyfills mutate the global state so we export nothing
-  return;
-})
+  // return;
+// })

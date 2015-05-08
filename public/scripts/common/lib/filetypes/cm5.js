@@ -128,5 +128,4 @@ FT_cm5.prototype.getExportString = function ( sequence ) { // TODO
   return '' ;
 };
 
-
 export default FT_cm5;

@@ -1,7 +1,8 @@
 import template from '../templates/pcr_list_view.hbs';
-import {fastAExportSequenceFromID} from '../../../common/lib/utils';
+import {fastAExportSequenceFromID, getProductAndSequenceForSequenceID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 
 
 export default Backbone.View.extend({
@@ -15,6 +16,7 @@ export default Backbone.View.extend({
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
     'click .export-sequence': 'exportSequence',
+    'click .selectable-sequence': 'selectSequence',
   },
 
   serialize: function() {
@@ -30,8 +32,10 @@ export default Backbone.View.extend({
   afterRender: function() {
     var showingProduct = this.showingProduct;
     if(showingProduct) {
-      var id = showingProduct.get('id');
-      this.$(`[data-product_id="${id}"]`).addClass('panel-info');
+      let id = showingProduct.get('id');
+      let $element = this.$(`[data-product_id="${id}"]`);
+      $element.addClass('panel-info');
+      $element.find('.selectable-sequence').first().select();
       this.scrollToProduct(id);
       this.parentView().showCanvas(showingProduct);
     }
@@ -79,9 +83,12 @@ export default Backbone.View.extend({
     fastAExportSequenceFromID(products, sequenceID);
   },
 
+  selectSequence: onClickSelectableSequence,
+
   scrollToProduct: function(productId) {
-    var $container = this.$('#pcr-list-outer-container');
+    var $container = $('#pcr-list-outer-container');
     var $target = this.$('[data-product_id="' + productId + '"]');
+    // debugger
     $container.scrollTop($target.offset().top);
   },
 

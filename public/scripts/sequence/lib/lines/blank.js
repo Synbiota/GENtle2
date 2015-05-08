@@ -8,7 +8,7 @@ Options are:
 @module Sequence
 @submodule SequenceCanvas
 **/
-define(function(require) {
+// define(function(require) {
   var Line = require('./line'),
       Blank;
 
@@ -20,6 +20,6 @@ define(function(require) {
     _.extend(this, options);
   };
   _.extend(Blank.prototype, Line.prototype);
-
-  return Blank;
-});
+export default Blank;
+  // return Blank;
+// });

@@ -1,10 +1,5 @@
 .pcr, #pcr-list-outer-container, #pcr-canvas-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  overflow: scroll;
+  @extend %primary-view-panel;
 
   label {
     text-align: left;
@@ -18,4 +13,5 @@
 
 #pcr-canvas-container {
   left: 50%;
+  overflow: hidden;
 }

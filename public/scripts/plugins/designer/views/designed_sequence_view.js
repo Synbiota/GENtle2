@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Backbone = require('backbone'),
       template = require('../templates/designed_sequence_view.hbs'),
       SynbioData = require('../../../common/lib/synbio_data'),
@@ -281,6 +281,6 @@ define(function(require) {
       });
     }
   });
-
-  return DesignedSequenceView;
-});
+export default DesignedSequenceView;
+  // return DesignedSequenceView;
+// });

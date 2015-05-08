@@ -3,7 +3,7 @@
 @submodule Views
 @class HistoryView
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/history_view.hbs'),
     Gentle = require('gentle'),
     Backbone = require('backbone'),
@@ -61,6 +61,6 @@ define(function(require) {
     }
 
   });
-
-  return HistoryView;
-});
+export default HistoryView;
+  // return HistoryView;
+// });

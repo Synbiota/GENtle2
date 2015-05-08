@@ -2,7 +2,7 @@
 Event handlers for SequenceCanvas
 @class SequenceCanvasHandlers
 **/
-define(function(require) {
+// define(function(require) {
   var Hotkeys = require('../../common/lib/hotkeys'),
     Handlers;
 
@@ -383,6 +383,6 @@ define(function(require) {
       top: event.pageY - scrollingParentPosition.top
     };
   };
-
-  return Handlers;
-});
+export default Handlers;
+  // return Handlers;
+// });

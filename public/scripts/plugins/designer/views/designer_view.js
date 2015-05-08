@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Backbone = require('backbone'),
       template = require('../templates/designer_view_template.hbs'),
       AvailableSequenceView = require('./available_sequence_view'),
@@ -59,6 +59,6 @@ define(function(require) {
     }
 
   });
-
-  return DesignerView;
-});
+export default DesignerView;
+  // return DesignerView;
+// });

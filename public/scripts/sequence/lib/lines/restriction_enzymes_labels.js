@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Line = require('./line'),
       RestrictionEnzymes = require('../restriction_enzymes'),
       RestrictionEnzymesSites = require('./restriction_enzymes_sites'),
@@ -26,9 +26,9 @@ define(function(require) {
         subSeqPadding   = RestrictionEnzymes.maxLength(),
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
-          length: displaySettings.lengths || [],
-          customList: displaySettings.custom || '',
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          // length: displaySettings.lengths || [],
+          customList: displaySettings.custom || [],
+          // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
         subSeq, enzymes, countEnzymes, i;
 
@@ -72,9 +72,9 @@ define(function(require) {
         subSeqPadding = RestrictionEnzymes.maxLength(),
         displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
-          length: displaySettings.lengths || [],
+          // length: displaySettings.lengths || [],
           customList: displaySettings.custom || '',
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
         expandedSubSeq = sequenceCanvas.sequence.getSubSeq(
           baseRange[0] - subSeqPadding,
@@ -112,6 +112,6 @@ define(function(require) {
     artist.setLineDash([]);
     
   };
-
-  return RestrictionEnzymesLabels;
-});
+export default RestrictionEnzymesLabels;
+  // return RestrictionEnzymesLabels;
+// });

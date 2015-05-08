@@ -1,5 +1,5 @@
 /* https://stackoverflow.com/questions/13478303/correct-way-to-use-modernizr-to-detect-ie */
-define(function() {
+// define(function() {
   var BrowserDetect = 
   {
     init: function () 
@@ -41,6 +41,6 @@ define(function() {
   };
   BrowserDetect.init();
 
-  return BrowserDetect;
-
-});
+  // return BrowserDetect;
+export default BrowserDetect;
+// });

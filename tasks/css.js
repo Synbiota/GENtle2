@@ -48,6 +48,14 @@ var autoprefixerOptions = {
   cascade: false
 };
 
+
+var autoprefixerOptionsDev = {
+  browsers: [
+    'last 1 version', 
+  ],
+  cascade: false
+};
+
 var run = function(watch) {
   var target = filepath;
 
@@ -67,6 +75,7 @@ var run = function(watch) {
     bundle = bundle
       .pipe(sourcemaps.init())
       .pipe(sass(sassOptions))
+      .pipe(autoprefixer(autoprefixerOptionsDev))
       .pipe(sourcemaps.write());
   } else {
     bundle = bundle

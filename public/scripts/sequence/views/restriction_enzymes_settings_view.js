@@ -42,7 +42,9 @@ export default Backbone.View.extend({
 
   clearSelected: function(event) {
     event.preventDefault();
-    this.model.set('displaySettings.rows.res.custom', []);
+    var key = 'displaySettings.rows.res.custom';
+    this.model.set(key, []).throttledSave();
+    Gentle.currentUser.set(key, []);
     this.render();
   },  
 
@@ -71,13 +73,15 @@ export default Backbone.View.extend({
 
   getEnzymes: function() {
     var enzymes = RestrictionEnzymes.all(),
-        lengths = this.model.get('displaySettings.rows.res.lengths') || [],
+        // lengths = this.model.get('displaySettings.rows.res.lengths') || [],
         filter = this.filter,
         output = [];
 
-
     _.each(enzymes, function(enzyme) {
-      if(~lengths.indexOf(enzyme.seq.length+"") && (!filter || ~enzyme.name.toLowerCase().indexOf(filter.toLowerCase()))) {
+      // Disabling length filter:
+      // 
+      // if(~lengths.indexOf(enzyme.seq.length+"") && (!filter || ~enzyme.name.toLowerCase().indexOf(filter.toLowerCase()))) {
+      if(!filter || ~enzyme.name.toLowerCase().indexOf(filter.toLowerCase())) {
         output.push(enzyme);
       }
     });
@@ -109,7 +113,7 @@ export default Backbone.View.extend({
 
   serialize: function() {
     return {
-      recognitionSites: _.range(1,22),
+      // recognitionSites: _.range(1,22),
       selected: this.model.get('displaySettings.rows.res.custom'),
       filter: this.filter
     };
