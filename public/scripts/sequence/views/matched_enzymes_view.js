@@ -3,6 +3,7 @@ import template from '../templates/matched_enzymes_view.hbs';
 import _ from 'underscore';
 import Gentle from 'gentle';
 import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import CondonSubView from '../views/condon_sub_view';
 
 export default Backbone.View.extend({
   template: template,
@@ -15,14 +16,23 @@ export default Backbone.View.extend({
   },
 
   initialize: function() {
+
+
     this.model = Gentle.currentSequence;
-    
+    this.subCodonPosY = 0;
+    this.subCodonPosX = 0;
     this.listenTo(
       this.model, 
       'change:sequence change:displaySettings.rows.res.*',
       this.render,
       this
     );
+
+    var subCondonView= this.subCondonView = new CondonSubView({
+      showModal: {}
+    });
+    this.setView('#condonSubModalContainer', subCondonView);
+
   },
 
   serialize: function() {
@@ -43,7 +53,7 @@ export default Backbone.View.extend({
     }, {});
 
     return {
-      enzymesCount
+      enzymesCount,
     };
   },
 
@@ -58,7 +68,6 @@ export default Backbone.View.extend({
 
   highlightNextEnzyme: function(event) {
     if(event) event.preventDefault();
-
     var step = 1;
     var sequenceCanvas = this.getSequenceCanvas();
     var positions = _.keys(this.enzymePositions);
@@ -73,14 +82,24 @@ export default Backbone.View.extend({
     var length = this.enzymePositions[currentEnzymePosition];
 
     sequenceCanvas.select(
-      currentEnzymePosition, 
-      (currentEnzymePosition + length - 1)
+      currentEnzymePosition, (currentEnzymePosition + length - 1)
     );
 
-    sequenceCanvas.displayCaret(sequenceCanvas.caretPosition);
+    sequenceCanvas.highlightBaseRange(
+      currentEnzymePosition, (currentEnzymePosition + length)      
+    );
+
+    // sequenceCanvas.displayCaret(sequenceCanvas.caretPosition);
+    var subCondonView = this.subCondonView;
 
     sequenceCanvas.afterNextRedraw(function() {
-      sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);
+      sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition).then(function() {
+        // Launch modal
+        subCondonView.showModal= true;
+        subCondonView.caretPosition = sequenceCanvas.caretPosition;
+        subCondonView.sequenceCanvas= sequenceCanvas;
+        subCondonView.render();
+      });
     });
   },
 

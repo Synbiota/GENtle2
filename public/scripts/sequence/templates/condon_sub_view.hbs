@@ -1,0 +1,37 @@
+<div class="modal" id="condonSubModal" data-backdrop="false" style="height:400px; width:400px; position:absolute; top:{{subCodonPosY}}px; left:{{subCodonPosX}}px; z-index: 1000;" tabindex="-1">
+  <div class="modal-content">
+      <button type="button" class="close" data-dismiss="modal" style="margin-top:5px;margin-right:5px;" aria-hidden="true">&times;</button>
+      <h4 class="modal-title" align="center" style="padding-top:5px;">Select new Codon</h4>
+
+    <div class="modal-body">
+      <div class="row" style="padding-left:10px;">
+        {{#each aminoAcidSubs}}
+          <ul class='col-md-2' style="list-style-type:none;" data-position="{{@index}}">
+            <li>
+              <h5 style="color: #428bca !important;padding-left:8px;">
+                {{@key}}
+              </h5>
+            </li>
+
+            {{#each this.codons}}
+              <li>
+                <button href="#" style="margin-top:5px;border:none;background:none;" class="selectable" data-codon="{{this}}">{{this}}</button>
+              </li>
+            {{/each}}
+          </ul>
+        {{/each}}
+      </div>
+    </div>
+    <div class="row">
+      <center>
+        <button href="#" class="replace btn btn-default" style="margin-bottom:5px !important;"  align="center" style="" aria-hidden="true">replace</button>
+      </center>
+    </div>
+  </div>
+</div>
+
+<style type="text/css">
+  .selected {
+    background: rgb(66,139,202,0.5) !important;
+  }
+</style>

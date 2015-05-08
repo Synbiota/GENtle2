@@ -8,7 +8,7 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 **/
 import Gentle from 'gentle';
 import RestrictionEnzymes from './restriction_enzymes';
-import SequenceTranforms from './sequence_transforms'
+import SequenceTranforms from './sequence_transforms';
 
 var SequenceCanvasContextMenu;
 
