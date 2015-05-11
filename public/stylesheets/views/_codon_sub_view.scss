@@ -1,0 +1,7 @@
+.codon-selected {
+  background: $brand-primary !important;
+
+  &:focus {
+    outline: none;
+  }
+}
