@@ -66,24 +66,15 @@ define(function(require) {
 
     selectableClicked: function(event){
       if(event) event.preventDefault();
-      var selectedElement = event.target;
-      var allUl= selectedElement.parentNode.parentNode.parentElement.children;
-      
-      // clear out other selected elements
-      for(var i=0; i< allUl.length; i++){
-        var elements= allUl[i].children;
-        _.each(elements, function(element) {
-          let link= element.children[0];
-          
+      var selectedElement = $(event.target);
 
-          if (link.tagName === 'BUTTON') {
-            link.className= 'selectable';  
-          }
-        });
-      }
+      var allSelectableButtons= selectedElement.parents('div .row').children('ul').children('li').children('button');
       
-      // select current element
-      selectedElement.className= selectedElement.className + ' codon-selected';
+      _.each(allSelectableButtons, function(selectableButton) {
+        $(selectableButton).removeClass('codon-selected');
+      });
+      
+      selectedElement.addClass(' codon-selected');
 
     },
 
