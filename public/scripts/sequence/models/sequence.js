@@ -82,7 +82,6 @@ var SequenceModel = Backbone.DeepModel.extend({
         startPostion, endPosition;
 
     options = _.defaults({}, options);
-
     if (stickyEnds && options.stickyEndFormat){
       switch (options.stickyEndFormat){
         case "none":
@@ -505,7 +504,6 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   insertBases: function(bases, beforeBase, options = {}){
-
     var seq = this.get('sequence'),
         stickyEnds = this.get('stickyEnds'),
         offset = 0,
