@@ -12,7 +12,8 @@ export default Backbone.View.extend({
 
   events: {
     'click .next-enzyme': 'highlightNextEnzyme',
-    'click .open-settings': 'openSettings'
+    'click .open-settings': 'openSettings',
+    'click .launch-modal': 'launchModal'
   },
 
   initialize: function() {
@@ -89,7 +90,17 @@ export default Backbone.View.extend({
       currentEnzymePosition, (currentEnzymePosition + length)      
     );
 
-    // sequenceCanvas.displayCaret(sequenceCanvas.caretPosition);
+    $(".launch-modal").removeClass('hidden');
+
+  },
+
+  launchModal: function(event) {
+    if(event) event.preventDefault();
+
+    var sequenceCanvas = this.getSequenceCanvas();
+    var positions = _.keys(this.enzymePositions);
+    var currentEnzymePosition = positions[this.currentEnzymeIndex] ^ 0;
+
     var subCondonView = this.subCondonView;
 
     sequenceCanvas.afterNextRedraw(function() {
@@ -101,6 +112,8 @@ export default Backbone.View.extend({
         subCondonView.render();
       });
     });
+
+    sequenceCanvas.redraw();
   },
 
   openSettings: function(event) {
