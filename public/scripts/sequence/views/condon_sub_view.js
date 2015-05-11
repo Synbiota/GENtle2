@@ -53,6 +53,8 @@ define(function(require) {
     afterRender: function() {
       if (this.showModal === true){
         $("#condonSubModal").modal("show");
+        // highlight first one
+        $('#condonSubModal').children().children('.modal-body').children('.row').children('ul ').children('li:nth-child(2)').children().first().addClass('codon-selected');
       }
     },
 
@@ -81,7 +83,7 @@ define(function(require) {
       }
       
       // select current element
-      selectedElement.className= selectedElement.className + ' selected';
+      selectedElement.className= selectedElement.className + ' codon-selected';
 
     },
 
