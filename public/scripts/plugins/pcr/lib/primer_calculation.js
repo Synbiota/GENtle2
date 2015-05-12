@@ -4,7 +4,7 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import {filterPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
+import {filterPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
 
@@ -31,15 +31,15 @@ var logger = function(...msg) {
 
 
 class PotentialPrimer {
-  constructor (sequence, options, deferred) {
+  constructor (sequenceBases, options) {
     this.opts = options;
-    this.sequence = sequence;
+    this.sequence = sequenceBases;
     this.i = 0;
     this.size = this.opts.minPrimerLength;
     this.allowShift = this.opts.allowShift;
     this.potentialPrimer = undefined;
 
-    this.deferred = deferred;
+    this.deferred = Q.defer();
 
     this.returnNearestIfNotBest = this.opts.returnNearestIfNotBest;
     this.assessedPrimersSequences = {};
@@ -53,7 +53,7 @@ class PotentialPrimer {
       initialTotal: totalProgress * 3/2
     };
     this.incrementProgressTotal(this.progress.initialTotal);
-    deferred.notify(this.progress);
+    this.deferred.notify(this.progress);
   }
 
   findPrimer () {
@@ -109,9 +109,9 @@ class PotentialPrimer {
   }
 
   updatePotentialPrimer () {
-    if((this.i + this.size) <= this.sequence.length) {
+    var len = this.sequence.length;
+    if((this.i + this.size) <= len) {
       if(this.opts.findFrom3PrimeEnd) {
-        var len = this.sequence.length;
         this.potentialPrimer = this.sequence.substr(len-this.i-this.size, this.size);
       } else {
         this.potentialPrimer = this.sequence.substr(this.i, this.size);
@@ -303,35 +303,41 @@ class PotentialPrimer {
 }
 
 
-var optimalPrimer4 = function(sequence, opts={}) {
+/**
+ * @function optimalPrimer4
+ * Has defaults for PCR primers but can be used for finding any primer.
+ * @param  {String} sequenceBases
+ * @param  {Object} opts
+ * @return {Promise}
+ */
+var optimalPrimer4 = function(sequenceBases, opts={}) {
   opts = filterPrimerOptions(opts);
-  opts = defaultPCRPrimerOptions(opts);
 
-  var deferredPrimer = Q.defer();
-
-  var potentialPrimer = new PotentialPrimer(sequence, opts, deferredPrimer);
+  var potentialPrimer = new PotentialPrimer(sequenceBases, opts);
   potentialPrimer.findPrimer();
-  return deferredPrimer.promise;
+  return potentialPrimer.deferred.promise;
 };
 
 
 /**
  * @function getSequenceToSearch
- * @param  {[type]} sequenceBases
+ * @param  {String} sequenceBases
  * @param  {Integer} minPrimerLength
  * @param  {Integer} maxPrimerLength
+ * @param  {Boolean} reverseStrand  Take subsequence from reverseStrand.
  * @param  {Integer} frm  The base from which to extract the subsequence.
- * @param {Boolean} reverseStrand  Take subsequence from reverseStrand.
  * @return {String}  Sequence to search
  */
-var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxPrimerLength, frm=0, reverseStrand=false) {
+var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxPrimerLength, reverseStrand=false, frm=undefined) {
   var sequenceToSearch;
   if(reverseStrand) {
-    var newFrom = Math.max(0, frm - maxPrimerLength);
-    var lengthToTake = Math.min(frm, maxPrimerLength);
+    if(_.isUndefined(frm)) frm = sequenceBases.length - 1;
+    var newFrom = Math.max(0, frm - maxPrimerLength + 1);
+    var lengthToTake = Math.min(frm + 1, maxPrimerLength);
     sequenceToSearch = sequenceBases.substr(newFrom, lengthToTake);
     sequenceToSearch = SequenceTransforms.toReverseComplements(sequenceToSearch);
   } else {
+    if(_.isUndefined(frm)) frm = 0;
     sequenceToSearch = sequenceBases.substr(frm, maxPrimerLength);
   }
 

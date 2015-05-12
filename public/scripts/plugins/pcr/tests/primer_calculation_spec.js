@@ -235,14 +235,14 @@ describe('getting sequence to search for primer', function() {
   var minPrimerLength = 5;
   var maxPrimerLength = 10;
 
-  it('returns the forward sequence', function() {
+  it('returns the forward sequence, defaulting to start', function() {
     var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength);
     expect(result).toEqual('GCTCAAGCCG');
   });
 
   it('returns the forward sequence', function() {
     var frm = 35;
-    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, frm);
+    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, false, frm);
     expect(result).toEqual('AATAT');
   });
 
@@ -250,23 +250,28 @@ describe('getting sequence to search for primer', function() {
     var frm = 36;
     var error;
     try {
-      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, frm);
+      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, false, frm);
     } catch (e) {
       error = e.toString();
     }
     expect(error).toEqual('getSequenceToSearch `frm` is too large or sequence is too short to leave enough sequence length to find the primer');
   });
 
+  it('returns the reverse sequence, defaulting to end', function() {
+    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, true);
+    expect(result).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
+  });
+
   it('returns the reverse sequence', function() {
-    var frm = 6;
-    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, frm, true);
+    var frm = 5;
+    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, true, frm);
     expect(result).toEqual('TTGAGC');  // complement of GCTCAA
   });
 
   it('errors if frm is too small and the reverse strand is requested', function() {
     var error;
     try {
-      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, undefined, true);
+      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, true, 3);
     } catch (e) {
       error = e.toString();
     }
