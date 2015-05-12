@@ -1,0 +1,27 @@
+{
+  "ecmaFeatures": {
+    "modules": true,
+    "classes": true,
+    "defaultParams": true,
+    "destructuring": true,
+    "blockBindings": true,
+    "spread": true
+  },
+  "rules": {
+    "eol-last": 0,
+    "quotes": [1, "single"],
+    "no-multi-spaces": 0,
+    "camelcase": 1,
+    "curly": 0,
+    "comma-spacing": 1,
+    "semi-spacing": 1,
+    "key-spacing": 1,
+    "space-infix-ops": 0,
+    "no-spaced-func": 1,
+
+  },
+  "env": {
+    "browser": true,
+    "node": true
+  }
+}

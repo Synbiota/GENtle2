@@ -166,6 +166,11 @@ rendered.
         })
       }),
 
+      chromatogram: new Lines.Chromatogram(this, {
+        height: 100,
+        visible: () => true
+      }),
+
       // Aminoacids
       aa: new Lines.DNA(this, {
         height: 15,

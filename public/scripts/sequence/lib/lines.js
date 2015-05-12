@@ -7,6 +7,7 @@
                 = require('./lines/restriction_enzymes_sites'),
       RestrictionEnzymeLabels
                 = require('./lines/restriction_enzymes_labels');
+  var Chromatogram = require('./lines/chromatogram');
 
   export default {
     Blank: Blank,
@@ -14,6 +15,7 @@
     DNA: DNA,
     Feature: Feature,
     RestrictionEnzymeSites: RestrictionEnzymeSites,
-    RestrictionEnzymeLabels: RestrictionEnzymeLabels
+    RestrictionEnzymeLabels: RestrictionEnzymeLabels,
+    Chromatogram
   };
 // });

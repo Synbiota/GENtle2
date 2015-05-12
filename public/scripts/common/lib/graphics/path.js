@@ -8,7 +8,7 @@
       Path;
 
   Path = function(artist, points) {
-    
+
     this.artist = artist;
     this.points = [];
 

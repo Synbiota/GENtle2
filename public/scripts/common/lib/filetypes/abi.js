@@ -2,7 +2,7 @@
   //________________________________________________________________________________________
   // ABI
  // For file format description, see http://www6.appliedbiosystems.com/support/software_community/ABIF_File_Format.pdf
-
+var _ = require('underscore');
   var FT_base = require('./base'),
       FT_abi;
 
@@ -39,6 +39,10 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	return n1 ;
 }
 
+FT_abi.prototype.getBigEndianSignedShort = function(bytes, p) {
+  return bytes[p] * 256 + bytes[p+1];
+}
+
   FT_abi.prototype.getFileExtension = function () {
     return 'abi' ;
   }
@@ -51,7 +55,7 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	var me = this ;
 
 	// START ABI PARSING HERE
-	
+
 	function ab2str(buf) {
 	  return String.fromCharCode.apply(null, new Uint16Array(buf));
 	}
@@ -70,12 +74,12 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	var text_array = me.asArrayBuffer() ;
 	if ( typeof text_array == 'undefined' ) return false ;
 	var bytes = new Uint8Array(text_array);
-	
+
 
 	// HEADER
 	var p = 0 ;
 	var abi = {} ;
-	abi.magic_number = String.fromCharCode ( bytes[p++] ) + 
+	abi.magic_number = String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) +
 					String.fromCharCode ( bytes[p++] ) ;
@@ -85,8 +89,8 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 
 	abi.version = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
 	abi.num_version = abi.version / 100 ;
-	
-	
+
+
 	function readDir () {
 		var ret = {} ;
 		ret.name = String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) ;
@@ -102,7 +106,7 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 		ret.datahandle = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
 		return ret ;
 	}
-	
+
 	abi.dirs = [] ;
 	abi.dir = readDir ( p ) ;
 	p = abi.dir.dataoffset ;
@@ -118,33 +122,52 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 		name: "Chromatogram",
 		desc: '',
 		is_circular: false,
-		features: [], 
+		features: [],
 		sequence: '',
 		scf:abi // KEEP THE FULL, PARSED DATA
 	} ;
-	
+
 	function getPstring ( dir ) { // Pascal string?
 		var ret = '' ;
 		var len = bytes[dir.dataoffset] ;
 		for ( var i = 0 ; i < len ; i++ ) ret += String.fromCharCode ( bytes[i+dir.dataoffset+1] ) ;
 		return ret ;
 	}
-	
+
 	function getStringFromCharArray ( dir ) {
 		var ret = '' ;
 		for ( var i = 0 ; i < dir.datasize ; i++ ) ret += String.fromCharCode ( bytes[i+dir.dataoffset] ) ;
 		return ret ;
 	}
-	
-	
+
 	$.each ( abi.dirs , function ( k , v ) {
 //		console.log ( v.name , v.number ) ;
 		if ( v.name == 'SMPL' && v.number == 1 ) seq.name = getPstring ( v ) ;
 		if ( v.name == 'PBAS' && v.number == 1 ) seq.sequence = getStringFromCharArray ( v ) ;
 		if ( v.name == 'PBAS' && v.number == 2 && seq.sequence == '' ) seq.sequence = getStringFromCharArray ( v ) ;
 	} ) ;
-	
-	return [ seq ] ;
+
+  seq.rawChromatogramData = _.map([1, 2, 3, 4], function(i) {
+    var dir = _.findWhere(abi.dirs, {name: 'DATA', number: i});
+    return _.map(_.range(dir.datasize/2), function(j) {
+      return me.getBigEndianSignedShort(bytes, dir.dataoffset + j*2);
+    });
+  });
+
+  seq.chromatogramData = _.map(seq.rawChromatogramData, function(dataSet) {
+    return _.map(dataSet, function(data) {
+      if(data >= 65000) console.log('data', data)
+      return data >= 65000 ? 0 : Math.max(0, data);
+    });
+  });
+
+
+  var peaks = _.findWhere(abi.dirs, {name: 'PLOC', number: 2});
+  seq.chromatogramPeaks = _.map(_.range(peaks.datasize/2), function(i) {
+    return me.getBigEndianSignedShort(bytes, peaks.dataoffset + i*2);
+  });
+
+	return [ seq ];
 	}
 
   FT_abi.prototype.parseText = function ( text ) {
