@@ -2,7 +2,7 @@ import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import {optimalPrimer4} from '../lib/primer_calculation';
+import {optimalPrimer4, getSequenceToSearch} from '../lib/primer_calculation';
 
 
 var setup;
@@ -230,3 +230,46 @@ describe('finding optimal primers', function() {
   });
 });
 
+describe('getting sequence to search for primer', function() {
+  var sequenceBases = 'GCTCAAGCCGCTGATTCATACGTCGCGCACGGCGCAATAT';
+  var minPrimerLength = 5;
+  var maxPrimerLength = 10;
+
+  it('returns the forward sequence', function() {
+    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength);
+    expect(result).toEqual('GCTCAAGCCG');
+  });
+
+  it('returns the forward sequence', function() {
+    var frm = 35;
+    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, frm);
+    expect(result).toEqual('AATAT');
+  });
+
+  it('errors if frm is too large the forward sequence is requested', function() {
+    var frm = 36;
+    var error;
+    try {
+      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, frm);
+    } catch (e) {
+      error = e.toString();
+    }
+    expect(error).toEqual('getSequenceToSearch `frm` is too large or sequence is too short to leave enough sequence length to find the primer');
+  });
+
+  it('returns the reverse sequence', function() {
+    var frm = 6;
+    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, frm, true);
+    expect(result).toEqual('TTGAGC');  // complement of GCTCAA
+  });
+
+  it('errors if frm is too small and the reverse strand is requested', function() {
+    var error;
+    try {
+      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, undefined, true);
+    } catch (e) {
+      error = e.toString();
+    }
+    expect(error).toEqual('getSequenceToSearch `frm` is too small to leave enough sequence length to find the primer');
+  });
+});

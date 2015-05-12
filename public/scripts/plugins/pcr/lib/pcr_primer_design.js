@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import PrimerCalculation from './primer_calculation';
+import {optimalPrimer4} from './primer_calculation';
 import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {defaultPCRPrimerOptions} from './primer_defaults';
@@ -142,32 +142,6 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
 };
 
 
-var getSequencesToSearch = function(sequence, opts) {
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
-  opts = defaultPCRPrimerOptions(opts);
-
-  _.defaults(opts, {
-    from: 0,
-    to: sequenceNts.length - 1
-  });
-
-  if(opts.to < opts.from) {
-    throw "getPcrProductAndPrimers `opts.to` is smaller than `opts.from`";
-  } else if((sequenceNts.length - opts.from) < opts.minPrimerLength) {
-    throw "getPcrProductAndPrimers `opts.from` is too large to leave enough sequence length to find the primer";
-  } else if (opts.to < opts.minPrimerLength) {
-    throw "getPcrProductAndPrimers `opts.to` is too small to leave enough sequence length to find the primer";
-  }
-
-  var forwardSequenceToSearch = sequenceNts.substr(opts.from, opts.maxPrimerLength);
-  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequenceNts);
-  var to = sequenceNts.length - opts.to - 1;
-  reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
-
-  return {forwardSequenceToSearch, reverseSequenceToSearch};
-};
-
-
 /**
  * getPcrProductAndPrimers
  * @param  {[type]} sequence
@@ -186,8 +160,8 @@ var getPcrProductAndPrimers = function(sequence, opts) {
     reverseSequenceToSearch: reverseSequenceToSearch
   } = getSequencesToSearch(sequence, opts);
 
-  var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
-  var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
+  var forwardPrimerPromise = optimalPrimer4(forwardSequenceToSearch, opts);
+  var reversePrimerPromise = optimalPrimer4(reverseSequenceToSearch, opts);
 
   var initTotal = opts.maxPrimerLength - opts.minPrimerLength + 1;
 
@@ -196,7 +170,7 @@ var getPcrProductAndPrimers = function(sequence, opts) {
     {current: 0, total: initTotal, isFallback: false}
   ];
   var fallbackProgressReports = [
-    {current: 0, total: initTotal, isFallback: true}, 
+    {current: 0, total: initTotal, isFallback: true},
     {current: 0, total: initTotal, isFallback: true}
   ];
   return Q.promise(function (resolve, reject, notify) {

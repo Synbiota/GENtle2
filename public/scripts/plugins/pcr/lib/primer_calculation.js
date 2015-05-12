@@ -1,5 +1,6 @@
 import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
+import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';
@@ -314,6 +315,38 @@ var optimalPrimer4 = function(sequence, opts={}) {
 };
 
 
+/**
+ * @function getSequenceToSearch
+ * @param  {[type]} sequenceBases
+ * @param  {Integer} minPrimerLength
+ * @param  {Integer} maxPrimerLength
+ * @param  {Integer} frm  The base from which to extract the subsequence.
+ * @param {Boolean} reverseStrand  Take subsequence from reverseStrand.
+ * @return {String}  Sequence to search
+ */
+var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxPrimerLength, frm=0, reverseStrand=false) {
+  var sequenceToSearch;
+  if(reverseStrand) {
+    var newFrom = Math.max(0, frm - maxPrimerLength);
+    var lengthToTake = Math.min(frm, maxPrimerLength);
+    sequenceToSearch = sequenceBases.substr(newFrom, lengthToTake);
+    sequenceToSearch = SequenceTransforms.toReverseComplements(sequenceToSearch);
+  } else {
+    sequenceToSearch = sequenceBases.substr(frm, maxPrimerLength);
+  }
+
+  if(sequenceToSearch.length < minPrimerLength) {
+    if(reverseStrand) {
+      throw "getSequenceToSearch `frm` is too small to leave enough sequence length to find the primer";
+    } else {
+      throw "getSequenceToSearch `frm` is too large or sequence is too short to leave enough sequence length to find the primer";
+    }
+  }
+
+  return sequenceToSearch;
+};
+
+
 // Stubs for tests
 var stubOutIDTMeltingTemperature = function(newFunction) {
   if(!_.isFunction(newFunction)) console.error('newFunction is not a function!', newFunction);
@@ -325,4 +358,10 @@ var restoreIDTMeltingTemperature = function() {
 };
 
 
-export default {optimalPrimer4, stubOutIDTMeltingTemperature, _IDTMeltingTemperature, restoreIDTMeltingTemperature};
+export default {
+  optimalPrimer4,
+  getSequenceToSearch,
+  stubOutIDTMeltingTemperature,
+  _IDTMeltingTemperature,
+  restoreIDTMeltingTemperature,
+};
