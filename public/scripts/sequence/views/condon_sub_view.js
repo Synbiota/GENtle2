@@ -53,7 +53,7 @@ define(function(require) {
     afterRender: function() {
       if (this.showModal === true){
         $("#condonSubModal").modal("show");
-        // highlight first one
+        // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart. 
         $('#condonSubModal').children().children('.modal-body').children('.row').children('ul ').children('li:nth-child(2)').children().first().addClass('codon-selected');
       }
     },
