@@ -320,37 +320,78 @@ var optimalPrimer4 = function(sequenceBases, opts={}) {
 
 
 /**
+ * @function getSequenceBaseNumberAndLength
+ * @param  {String} sequenceBases
+ * @param  {Integer} maxSearchSpace
+ * @param  {Boolean} reverseStrand=false  Take subsequence from reverseStrand.
+ * @param  {Integer} frm  The base from which the subsequence starts (or if on
+ *                        the reverseStrand, the base at which the subsequence
+ *                        ends).
+ * @return {Object} Contains calculated `frm` and `lengthToTake` values.
+ */
+var getSequenceBaseNumberAndLength = function(sequenceBases, maxSearchSpace, reverseStrand=false, frm=undefined) {
+  var lengthToTake;
+  if(reverseStrand) {
+    if(_.isUndefined(frm)) frm = sequenceBases.length - 1;
+    lengthToTake = Math.min(frm + 1, maxSearchSpace);
+    frm = Math.max(0, frm - maxSearchSpace + 1);
+  } else {
+    if(_.isUndefined(frm)) frm = 0;
+    lengthToTake = maxSearchSpace;
+  }
+  return {frm, lengthToTake};
+}
+
+
+/**
  * @function getSequenceToSearch
  * @param  {String} sequenceBases
  * @param  {Integer} minPrimerLength
- * @param  {Integer} maxPrimerLength
- * @param  {Boolean} reverseStrand  Take subsequence from reverseStrand.
- * @param  {Integer} frm  The base from which to extract the subsequence.
- * @return {String}  Sequence to search
+ * @param  {Integer} maxSearchSpace
+ * @param  {Boolean} reverseStrand=false  Take subsequence from reverseStrand.
+ * @param  {Integer} frm  The base from which the subsequence starts (or if on
+ *                        the reverseStrand, the base at which the subsequence
+ *                        ends).
+ * @return {Object}  `sequenceToSearch` and `frm` used.
  */
-var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxPrimerLength, reverseStrand=false, frm=undefined) {
+var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpace, reverseStrand=false, frm=undefined) {
+  var {frm, lengthToTake} = getSequenceBaseNumberAndLength(sequenceBases, maxSearchSpace, reverseStrand, frm);
+
   var sequenceToSearch;
+  sequenceToSearch = sequenceBases.substr(frm, lengthToTake);
   if(reverseStrand) {
-    if(_.isUndefined(frm)) frm = sequenceBases.length - 1;
-    var newFrom = Math.max(0, frm - maxPrimerLength + 1);
-    var lengthToTake = Math.min(frm + 1, maxPrimerLength);
-    sequenceToSearch = sequenceBases.substr(newFrom, lengthToTake);
     sequenceToSearch = SequenceTransforms.toReverseComplements(sequenceToSearch);
-  } else {
-    if(_.isUndefined(frm)) frm = 0;
-    sequenceToSearch = sequenceBases.substr(frm, maxPrimerLength);
   }
 
   if(sequenceToSearch.length < minPrimerLength) {
     if(reverseStrand) {
-      throw "getSequenceToSearch `frm` is too small to leave enough sequence length to find the primer";
+      throw "getSequenceToSearch `frm` is too small or sequence is too short to leave enough sequence length to find the primer";
     } else {
       throw "getSequenceToSearch `frm` is too large or sequence is too short to leave enough sequence length to find the primer";
     }
   }
 
-  return sequenceToSearch;
+  return {sequenceToSearch, frm};
 };
+
+
+/**
+ * @function getSequenceToSearch_PrimerHelper
+ * This function is used for obtaining the next sequence to
+ * search for a primer in when you have a previous primer 5' to this sequence
+ * of interest when the next primer should be located.
+ *
+ * @param  {String} sequenceBases
+ * @param  {Integer} minPrimerLength
+ * @param  {Integer} maxSearchSpace
+ * @param  {Boolean} reverseStrand  Take subsequence from reverseStrand.
+ * @param  {Primer} primer
+ * @return {Object}  `sequenceToSearch` and `frm` used.
+ */
+var getSequenceToSearch_PrimerHelper = function(sequenceBases, minPrimerLength, maxSearchSpace, primer) {
+  var correctedFrom = primer.antisense ? primer.to + 1 : primer.to;
+  return getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, primer.antisense, correctedFrom);
+}
 
 
 // Stubs for tests
@@ -367,6 +408,7 @@ var restoreIDTMeltingTemperature = function() {
 export default {
   optimalPrimer4,
   getSequenceToSearch,
+  getSequenceToSearch_PrimerHelper,
   stubOutIDTMeltingTemperature,
   _IDTMeltingTemperature,
   restoreIDTMeltingTemperature,

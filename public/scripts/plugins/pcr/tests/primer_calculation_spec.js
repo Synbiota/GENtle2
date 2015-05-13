@@ -2,7 +2,7 @@ import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import {optimalPrimer4, getSequenceToSearch} from '../lib/primer_calculation';
+import {optimalPrimer4, getSequenceToSearch, getSequenceToSearch_PrimerHelper} from '../lib/primer_calculation';
 
 
 var setup;
@@ -233,24 +233,24 @@ describe('finding optimal primers', function() {
 describe('getting sequence to search for primer', function() {
   var sequenceBases = 'GCTCAAGCCGCTGATTCATACGTCGCGCACGGCGCAATAT';
   var minPrimerLength = 5;
-  var maxPrimerLength = 10;
+  var maxSearchSpace = 10;
 
   it('returns the forward sequence, defaulting to start', function() {
-    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength);
-    expect(result).toEqual('GCTCAAGCCG');
+    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace);
+    expect(sequenceToSearch).toEqual('GCTCAAGCCG');
   });
 
   it('returns the forward sequence', function() {
     var frm = 35;
-    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, false, frm);
-    expect(result).toEqual('AATAT');
+    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, false, frm);
+    expect(sequenceToSearch).toEqual('AATAT');
   });
 
   it('errors if frm is too large the forward sequence is requested', function() {
     var frm = 36;
     var error;
     try {
-      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, false, frm);
+      getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, false, frm);
     } catch (e) {
       error = e.toString();
     }
@@ -258,23 +258,47 @@ describe('getting sequence to search for primer', function() {
   });
 
   it('returns the reverse sequence, defaulting to end', function() {
-    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, true);
-    expect(result).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
+    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, true);
+    expect(sequenceToSearch).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
   });
 
   it('returns the reverse sequence', function() {
     var frm = 5;
-    var result = getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, true, frm);
-    expect(result).toEqual('TTGAGC');  // complement of GCTCAA
+    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, true, frm);
+    expect(sequenceToSearch).toEqual('TTGAGC');  // complement of GCTCAA
   });
 
   it('errors if frm is too small and the reverse strand is requested', function() {
     var error;
     try {
-      getSequenceToSearch(sequenceBases, minPrimerLength, maxPrimerLength, true, 3);
+      getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, true, 3);
     } catch (e) {
       error = e.toString();
     }
-    expect(error).toEqual('getSequenceToSearch `frm` is too small to leave enough sequence length to find the primer');
+    expect(error).toEqual('getSequenceToSearch `frm` is too small or sequence is too short to leave enough sequence length to find the primer');
+  });
+
+  it('returns the forward sequence when given a forward primer', function() {
+    var mockPrimer = {
+      antisense: false,
+      from: 0,
+      to: 0,
+    }
+    var {sequenceToSearch, frm} = getSequenceToSearch_PrimerHelper(sequenceBases, 1, 1, mockPrimer);
+    expect(sequenceToSearch).toEqual('G');
+    expect(frm).toEqual(0);
+  });
+
+  it('returns the reverse sequence when given a reverse primer', function() {
+    var mockPrimer = {
+      antisense: true,
+      // Remember that this means it goes from base 0 to base 0 in a reverse
+      // direction
+      from: 0,
+      to: -1,
+    }
+    var {sequenceToSearch, frm} = getSequenceToSearch_PrimerHelper(sequenceBases, 1, maxSearchSpace, mockPrimer);
+    expect(sequenceToSearch).toEqual('C');  // complement of the initial `G`
+    expect(frm).toEqual(0);
   });
 });
