@@ -4,12 +4,10 @@ import Q from 'q';
 import PrimerCalculation from '../../pcr/lib/primer_calculation';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import {getAllPrimersAndProductsHelper} from '../lib/sequencing_primers_design';
-import Primer from '../../pcr/lib/primer';
 
 import idtMeltingTemperatureStub from '../../pcr/tests/idt_stub';
-import {universalPrimers, findPrimers} from '../lib/universal_primers';
-import {sequence863, sequenceFromMike} from './test_sequences';
-import {expected863Primers, expectedMikeForwardPrimers} from './test_expected_primers';
+// import {sequence863, sequenceFromMike} from './test_sequences';
+// import {expected863Primers, expectedMikeForwardPrimers} from './test_expected_primers';
 
 
 var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProducts) {
@@ -92,11 +90,11 @@ var expectedShortSequencePrimers = [
     "to": 559,
     "primer": {
       "name": "Product 2 (forward) - primer",
-      "sequence": "CGTTCTGAACAAATCCAGATGGA",
+      "sequence": "CGTTCTGAACAAATCCAGATGGAG",
       "from": 457,
-      "to": 479,
-      "meltingTemperature": 62.8,
-      "gcContent": 0.43478260869565216,
+      "to": 480,
+      "meltingTemperature": 63.3,
+      "gcContent": 0.4583333333333333,
       "antisense": false,
     },
     "antisense": false,
@@ -109,26 +107,27 @@ var expectedShortSequencePrimers = [
       "name":"Product 1 (reverse) - primer",
       "from": 557,
       "to": 539-1,
-      "sequence": "AATACGCCCGGTAGTGATC",  // reverse compliment of:  GATCACTACCGGGCGTATT
+      "sequence": "AATACGCCCGGTAGTGATC",  // reverse compliment of: GATCACTACCGGGCGTATT
       "meltingTemperature": 61,
       "gcContent": 0.526,
     },
+    "antisense": true,
   },
   {
     "name":"Product 2 (reverse)",
-    "from": 144,
+    "from": 139,
     "to": 0-1,
     "primer": {
       "name":"Product 2 (reverse) - primer",
-      "from": 144,
-      "to": 119,
-      "sequence": "CTAATTTGATATCGAGCTCGCTTGG",  // reverse compliment of:  CCAAGCGAGCTCGATATCAAATTAG
-      "meltingTemperature": 63.4,
-      "gcContent": 0.44,
+      "from": 139,
+      "to": 119-1,
+      "sequence": "TTTTCCGAAGGTAACTGGCTT",  // reverse compliment of: AAGCCAGTTACCTTCGGAAAA
+      "meltingTemperature": 62.2,
+      "gcContent": 0.42857142857142855,
     },
+    "antisense": true,
   }
 ];
-
 
 
 describe('finding Sequencing Primers', function() {

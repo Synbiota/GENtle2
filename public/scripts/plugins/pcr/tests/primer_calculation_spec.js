@@ -237,12 +237,13 @@ describe('getting sequence to search for primer', function() {
 
   it('returns the forward sequence, defaulting to start', function() {
     var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace);
+    expect(frm).toEqual(0);
     expect(sequenceToSearch).toEqual('GCTCAAGCCG');
   });
 
   it('returns the forward sequence', function() {
-    var frm = 35;
-    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, false, frm);
+    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, false, 35);
+    expect(frm).toEqual(35);
     expect(sequenceToSearch).toEqual('AATAT');
   });
 
@@ -259,12 +260,13 @@ describe('getting sequence to search for primer', function() {
 
   it('returns the reverse sequence, defaulting to end', function() {
     var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, true);
+    expect(frm).toEqual(30);
     expect(sequenceToSearch).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
   });
 
   it('returns the reverse sequence', function() {
-    var frm = 5;
-    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, true, frm);
+    var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, true, 5);
+    expect(frm).toEqual(0);
     expect(sequenceToSearch).toEqual('TTGAGC');  // complement of GCTCAA
   });
 
@@ -283,10 +285,10 @@ describe('getting sequence to search for primer', function() {
       antisense: false,
       from: 0,
       to: 0,
-    }
+    };
     var {sequenceToSearch, frm} = getSequenceToSearch_PrimerHelper(sequenceBases, 1, 1, mockPrimer);
-    expect(sequenceToSearch).toEqual('G');
-    expect(frm).toEqual(0);
+    expect(sequenceToSearch).toEqual('C');
+    expect(frm).toEqual(1);
   });
 
   it('returns the reverse sequence when given a reverse primer', function() {
@@ -294,9 +296,9 @@ describe('getting sequence to search for primer', function() {
       antisense: true,
       // Remember that this means it goes from base 0 to base 0 in a reverse
       // direction
-      from: 0,
-      to: -1,
-    }
+      from: 1,
+      to: 0,
+    };
     var {sequenceToSearch, frm} = getSequenceToSearch_PrimerHelper(sequenceBases, 1, maxSearchSpace, mockPrimer);
     expect(sequenceToSearch).toEqual('C');  // complement of the initial `G`
     expect(frm).toEqual(0);

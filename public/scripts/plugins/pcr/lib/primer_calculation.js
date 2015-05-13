@@ -344,7 +344,7 @@ var getSequenceBaseNumberAndLength = function(sequenceBases, maxSearchSpace, rev
     lengthToTake = maxSearchSpace;
   }
   return {frm, lengthToTake};
-}
+};
 
 
 /**
@@ -358,8 +358,8 @@ var getSequenceBaseNumberAndLength = function(sequenceBases, maxSearchSpace, rev
  *                        ends).
  * @return {Object}  `sequenceToSearch` and `frm` used.
  */
-var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpace, reverseStrand=false, frm=undefined) {
-  var {frm, lengthToTake} = getSequenceBaseNumberAndLength(sequenceBases, maxSearchSpace, reverseStrand, frm);
+var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpace, reverseStrand=false, frmBase=undefined) {
+  var {frm, lengthToTake} = getSequenceBaseNumberAndLength(sequenceBases, maxSearchSpace, reverseStrand, frmBase);
 
   var sequenceToSearch;
   sequenceToSearch = sequenceBases.substr(frm, lengthToTake);
@@ -393,9 +393,9 @@ var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpac
  * @return {Object}  `sequenceToSearch` and `frm` used.
  */
 var getSequenceToSearch_PrimerHelper = function(sequenceBases, minPrimerLength, maxSearchSpace, primer) {
-  var correctedFrom = primer.antisense ? primer.to + 1 : primer.to;
+  var correctedFrom = primer.antisense ? primer.to : (primer.to + 1);
   return getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, primer.antisense, correctedFrom);
-}
+};
 
 
 // Stubs for tests

@@ -70,7 +70,9 @@ class Sequence {
 
   // TODO remove this function and rely on this.antisense/reverse and this.from
   length () {
-    return Math.abs(this.from - this.to) + 1;
+    var val = Math.abs(this.from - this.to);
+    if(!this.antisense) val += 1
+    return val;
   }
 
   duplicate () {

@@ -48,9 +48,11 @@ var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers,
     var {frm, sequenceToSearch} = getSequenceToSearch_PrimerHelper(sequenceBases, options.minPrimerLength, usefulSearchSpace, previousPrimer);
     optimalPrimer4(sequenceToSearch, options)
     .then(function(nextPrimer) {
-      nextPrimer.shift(frm);
       if(previousPrimer.antisense) {
         nextPrimer.reverseDirection();
+        nextPrimer.shift(frm + nextPrimer.length() - sequenceToSearch.length);
+      } else {
+        nextPrimer.shift(frm);
       }
       sequencingPrimers.push(nextPrimer);
       _getPrimersAndProducts(sequenceBases, options, sequencingPrimers, deferredAllPrimersAndProducts);
@@ -109,10 +111,6 @@ var getPrimersAndProductsInOneDirection = function(sequenceBases, firstPrimer, o
 
   options = _.deepClone(options);
   options = defaultSequencingPrimerOptions(options);
-  // If we have a primer for the antisense strand, the _getPrimersAndProducts
-  // works by using the subsequence in the forward direction, so we need to find
-  // primers from the 5 primer end.
-  options.findFrom3PrimeEnd = !firstPrimer.antisense;
 
   return _getPrimersAndProducts(sequenceBases, options, sequencingPrimers);
 };
