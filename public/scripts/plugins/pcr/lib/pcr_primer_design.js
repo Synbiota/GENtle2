@@ -156,10 +156,12 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
  */
 var getPcrProductAndPrimers = function(sequenceBases, opts) {
   opts = defaultPCRPrimerOptions(opts);
-  var {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, opts.minPrimerLength, opts.maxSearchSpace, false, opts.from);
-  var forwardSequenceToSearch = sequenceToSearch;
-  {sequenceToSearch, frm} = getSequenceToSearch(sequenceBases, opts.minPrimerLength, opts.maxSearchSpace, true, opts.to);
-  reverseSequenceToSearch = sequenceToSearch;
+  var {
+    sequenceToSearch: forwardSequenceToSearch
+  } = getSequenceToSearch(sequenceBases, opts.minPrimerLength, opts.maxSearchSpace, false, opts.from);
+  var {
+    sequenceToSearch: reverseSequenceToSearch
+  } = getSequenceToSearch(sequenceBases, opts.minPrimerLength, opts.maxSearchSpace, true, opts.to);
 
   var forwardPrimerPromise = optimalPrimer4(forwardSequenceToSearch, opts);
   var reversePrimerPromise = optimalPrimer4(reverseSequenceToSearch, opts);
@@ -208,5 +210,4 @@ var getPcrProductAndPrimers = function(sequenceBases, opts) {
 export {
   calculatePcrProductFromPrimers,
   getPcrProductAndPrimers,
-  getSequencesToSearch
 };
