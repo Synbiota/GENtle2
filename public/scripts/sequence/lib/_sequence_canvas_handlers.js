@@ -343,6 +343,7 @@ define(function(require) {
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
     if (base >= 0 && baseRange[0] >= 0 && baseRange[1] > 0) {
+      this.highlight = undefined;
       if (this.selection) {
         this.select(undefined);
       } else {

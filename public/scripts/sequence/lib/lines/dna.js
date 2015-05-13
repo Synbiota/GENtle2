@@ -52,6 +52,7 @@ define(function(require) {
     // Set x position to far left of page
     x = ls.pageMargins.left + (this.leftMargin || 0);
 
+
     subSequence = (_.isFunction(this.getSubSeq) ?
       this.getSubSeq :
       sequence.getSubSeq

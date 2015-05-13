@@ -1,31 +1,44 @@
-<style type="text/css">
-  .selected {
-    background: rgb(66,139,202,0.5) !important;
-  }
-</style>
-
-<div class="modal" id="condonSubModal" data-backdrop="false" style="height:400px; width:400px; position:absolute; top:{{subCodonPosY}}px; left:{{subCodonPosX}}px; z-index: 1000;" tabindex="-1">
+<div class="modal" id="condonSubModal" data-backdrop="false" style="overflow: visible; height:400px; width:400px; position:absolute; top:{{subCodonPosY}}px; left:{{subCodonPosX}}px; z-index: 1000;" tabindex="-1">
   <div class="modal-content">
       <button type="button" class="close" data-dismiss="modal" style="margin-top:5px;margin-right:5px;" aria-hidden="true">&times;</button>
       <h4 class="modal-title" align="center" style="padding-top:5px;">Select new Codon</h4>
 
     <div class="modal-body">
-      <div class="row" style="padding-left:10px;">
-        {{#each aminoAcidSubs}}
-          <ul class='col-md-2' style="list-style-type:none;" data-position="{{@index}}">
-            <li>
-              <h5 style="color: #428bca !important;padding-left:8px;">
-                {{@key}}
-              </h5>
-            </li>
-
-            {{#each this.codons}}
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="row" style="padding-left:10px;">
+          {{#each aminoAcidSubs}}
+            <ul style=" list-style-type:none; display:inline-block; margin-left:0px;padding-left:0px; vertical-align:top;" data-position="{{@index}}">
               <li>
-                <button href="#" style="margin-top:5px;border:none;background:none;" class="selectable" data-codon="{{this}}">{{this}}</button>
+                <h5 style="color:{{this.color}} !important;padding-left:8px;">
+                  {{this.aminoAcid}}
+                </h5>
               </li>
-            {{/each}}
-          </ul>
-        {{/each}}
+
+              {{#each this.codons}}
+                <li>
+                  <button href="#" style="margin-top:5px;border:none;background:none;" class="selectable" data-codon="{{this}}">{{this}}</button>
+                </li>
+              {{/each}}
+            </ul>
+          {{/each}}
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class='canvas-overlay'>
+          <div class="sequence-canvas-wrapper" style="background:lightgrey;">
+            <h5 style="padding-left:5px;padding-top:5px;margin:0px 0px 0px;">Original {{restrictionType}} site</h5>
+
+            <div class="sequence-canvas-container" style="position: relative; top:0px; width: 250px; height: 150px;">
+              <canvas id="canvas_res_enzyme" class="sequence-canvas" />
+            </div>
+            <div class="scrolling-parent" tabindex="1">
+              <div class="scrolling-child" style="position: relative; width: 250px; height: 150px;">
+                <div id="sequence-canvas-context-menu-outlet"></div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="row">

@@ -359,6 +359,7 @@ define(function(require) {
           line_offset += line.height;
         }
       });
+      window.lh = lh;
 
       //row height
       lh.rows = {
@@ -378,7 +379,6 @@ define(function(require) {
 
       // canvas y scrolling offset
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
-
 
       // if (_this.layoutHelpers.BasePosition === undefined)
       //   _this.layoutHelpers.BasePosition = _this.getBaseFromXYPos(0, lh.yOffset + lh.rows.height);
@@ -681,6 +681,8 @@ define(function(require) {
       this.selection = undefined;
       this.redraw();
     }
+
+
     this.displayCaret(newPosition);
   };
 
