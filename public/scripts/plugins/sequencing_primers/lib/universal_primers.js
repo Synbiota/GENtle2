@@ -29,6 +29,7 @@ var universalPrimers = function() {
   return _.map(primers, (primerAttributes) => new SequencingPrimerModel(primerAttributes));
 };
 
+
 /**
  * @function findPrimers
  * @param  {string} sequenceBases
