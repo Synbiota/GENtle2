@@ -1,4 +1,4 @@
-import {universalPrimers, findPrimers} from '../lib/universal_primers';
+import {findPrimers, universalPrimers} from '../lib/universal_primers';
 import {sequenceFromMike} from './test_sequences';
 
 describe('finding universal primers', function() {

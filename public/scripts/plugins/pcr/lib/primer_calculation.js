@@ -4,7 +4,6 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import {filterPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
 
@@ -32,16 +31,26 @@ var logger = function(...msg) {
 
 class PotentialPrimer {
   constructor (sequenceBases, options) {
-    this.opts = options;
     this.sequence = sequenceBases;
     this.i = 0;
-    this.size = this.opts.minPrimerLength;
-    this.allowShift = this.opts.allowShift;
+    this.minPrimerLength = options.minPrimerLength;
+    this.size = this.minPrimerLength;
+    this.allowShift = options.allowShift;
+    this.findFrom3PrimeEnd = options.findFrom3PrimeEnd;
     this.potentialPrimer = undefined;
 
     this.deferred = Q.defer();
 
-    this.returnNearestIfNotBest = this.opts.returnNearestIfNotBest;
+    this.returnNearestIfNotBest = options.returnNearestIfNotBest;
+    this.maxPolyN = options.maxPolyN;
+    this.targetGcContent = options.targetGcContent;
+    this.maxPrimerLength = options.maxPrimerLength;
+    this.minPrimerLength = options.minPrimerLength;
+    this.targetGcContentTolerance = options.targetGcContentTolerance;
+    this.targetMeltingTemperature = options.targetMeltingTemperature;
+    this.meltingTemperatureTolerance = options.meltingTemperatureTolerance;
+    this.IDTmeltingTemperatureProximity = options.IDTmeltingTemperatureProximity;
+
     this.assessedPrimersSequences = {};
     this.assessedPrimers = [];
 
@@ -58,7 +67,7 @@ class PotentialPrimer {
 
   findPrimer () {
     logger('findPrimer start');
-    while(this.i <= (this.sequence.length - this.opts.minPrimerLength)) {
+    while(this.i <= (this.sequence.length - this.minPrimerLength)) {
       if(!this.updatePotentialPrimer()) break; // fail
       logger('findPrimer loop', this.i, this.size, this.goodGCContent(), this.polyNPresent(), this.potentialPrimer);
       if(!this.allowShift && (this.i > 0)) break; // fail
@@ -66,15 +75,15 @@ class PotentialPrimer {
 
       var polyNIsPresent = this.polyNPresent();
       if(polyNIsPresent && !this.returnNearestIfNotBest) {
-        this.i += (polyNIsPresent.location + polyNIsPresent.repeated - this.opts.maxPolyN);
+        this.i += (polyNIsPresent.location + polyNIsPresent.repeated - this.maxPolyN);
         continue;
       }
 
       if(this.goodGCContent()) {
         var ourTm = SequenceCalculations.meltingTemperature(this.potentialPrimer);
-        if(ourTm > (this.opts.targetMeltingTemperature + this.opts.meltingTemperatureTolerance + this.opts.IDTmeltingTemperatureProximity)) {
+        if(ourTm > (this.targetMeltingTemperature + this.meltingTemperatureTolerance + this.IDTmeltingTemperatureProximity)) {
           this.i += 1;
-        } else if (ourTm < (this.opts.targetMeltingTemperature - this.opts.meltingTemperatureTolerance - this.opts.IDTmeltingTemperatureProximity)) {
+        } else if (ourTm < (this.targetMeltingTemperature - this.meltingTemperatureTolerance - this.IDTmeltingTemperatureProximity)) {
           this.growOrShiftPotentialPrimer();
         } else {
           // Our calculated Tm seems good so check with IDT.
@@ -111,7 +120,7 @@ class PotentialPrimer {
   updatePotentialPrimer () {
     var len = this.sequence.length;
     if((this.i + this.size) <= len) {
-      if(this.opts.findFrom3PrimeEnd) {
+      if(this.findFrom3PrimeEnd) {
         this.potentialPrimer = this.sequence.substr(len-this.i-this.size, this.size);
       } else {
         this.potentialPrimer = this.sequence.substr(this.i, this.size);
@@ -122,36 +131,33 @@ class PotentialPrimer {
   }
 
   polyNPresent () {
-    var present = checkForPolyN(this.potentialPrimer, {maxPolyN: this.opts.maxPolyN});
+    var present = checkForPolyN(this.potentialPrimer, {maxPolyN: this.maxPolyN});
     return present;
   }
 
   goodGCContent () {
-    var targetGcContentTolerance = this.opts.targetGcContentTolerance;
-    var targetGcContent = this.opts.targetGcContent;
-
     var GC = gcContent(this.potentialPrimer);
-    return ((GC <= (targetGcContent + targetGcContentTolerance)) && (GC >= (targetGcContent - targetGcContentTolerance)));
+    return ((GC <= (this.targetGcContent + this.targetGcContentTolerance)) && (GC >= (this.targetGcContent - this.targetGcContentTolerance)));
   }
 
   growOrShiftPotentialPrimer (incrementSize=1) {
     this.size += incrementSize;
-    if(this.size > this.opts.maxPrimerLength) {
+    if(this.size > this.maxPrimerLength) {
       this.notifyProgress();
       this.incrementProgressTotal(this.progress.initialTotal);
-      this.size = this.opts.minPrimerLength;
+      this.size = this.minPrimerLength;
       this.i += 1;
     }
   }
 
   shiftPotentialPrimer () {
-    this.size = this.opts.minPrimerLength;
+    this.size = this.minPrimerLength;
     this.i += 1;
   }
 
   checkWithIDT (logOurTm=undefined, logPreviousTmFromIDT=undefined) {
-    var targetMeltingTemperature = this.opts.targetMeltingTemperature;
-    var meltingTemperatureTolerance = this.opts.meltingTemperatureTolerance;
+    var targetMeltingTemperature = this.targetMeltingTemperature;
+    var meltingTemperatureTolerance = this.meltingTemperatureTolerance;
     var potentialPrimer = this.potentialPrimer;
 
     // debug logging
@@ -176,7 +182,7 @@ class PotentialPrimer {
         this.findPrimer();
       } else if(TmFromIDT > (targetMeltingTemperature + meltingTemperatureTolerance)) {
         this.size -= 1;
-        if(this.size < this.opts.minPrimerLength) {
+        if(this.size < this.minPrimerLength) {
           // don't grow again, just shift by 1.
           this.shiftPotentialPrimer();
           this.findPrimer();
@@ -259,12 +265,12 @@ class PotentialPrimer {
   }
 
   scoreTm (Tm) {
-    return -Math.abs(this.opts.targetMeltingTemperature - Tm);
+    return -Math.abs(this.targetMeltingTemperature - Tm);
   }
 
   toPrimer (primerSequence, TmFromIDT, ourTm) {
     var to, frm;
-    if(this.opts.findFrom3PrimeEnd) {
+    if(this.findFrom3PrimeEnd) {
       frm = this.sequence.length - this.i - primerSequence.length;
       to = this.sequence.length - this.i - 1;
     } else {
@@ -310,9 +316,7 @@ class PotentialPrimer {
  * @param  {Object} opts
  * @return {Promise}
  */
-var optimalPrimer4 = function(sequenceBases, opts={}) {
-  opts = filterPrimerOptions(opts);
-
+var optimalPrimer4 = function(sequenceBases, opts) {
   var potentialPrimer = new PotentialPrimer(sequenceBases, opts);
   potentialPrimer.findPrimer();
   return potentialPrimer.deferred.promise;

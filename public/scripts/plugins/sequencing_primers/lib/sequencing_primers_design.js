@@ -1,229 +1,170 @@
-import PrimerCalculation from '../../pcr/lib/primer_calculation';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import {optimalPrimer4, getSequenceToSearch_PrimerHelper} from '../../pcr/lib/primer_calculation';
 import _ from 'underscore.mixed';
 import Q from 'q';
-import {namedHandleError} from '../../../common/lib/handle_error';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
-import Primer from '../../pcr/lib/primer';
 import Product from '../../pcr/lib/product';
+import {findPrimers, universalPrimers} from './universal_primers';
 
 
-var MAX_DNA_CHUNK_SIZE = 500;
+// The number of bases after the end of a sequencing primer which are
+// garbage (due to current limitations in Sanger sequencing techniques).
 var GARBAGE_SEQUENCE_DNA = 80;
-var overlap = 30;
-
-
-var splitSequence = function(sequence) {
-  var output = [];
-  var len = sequence.length;
-
-  // Calculate number of chunks
-  var x = Math.ceil(len/MAX_DNA_CHUNK_SIZE);
-  var q = x * (MAX_DNA_CHUNK_SIZE - overlap) + Math.max((x-1),0) * overlap;
-  var numberOfChunks = Math.ceil((len * x) / q);
-  var start;
-  var halfOverlap = Math.ceil(overlap/2);
-  var lenWithoutOverlap = Math.ceil(len / numberOfChunks);
-
-  for(var i = 0; i < numberOfChunks; i += 1) {
-    var isNotFirst = (i !== 0 ? 1 : 0);
-    start = (i * lenWithoutOverlap) - (halfOverlap * isNotFirst);
-    var partOfSequence = sequence.substr(start, (lenWithoutOverlap + halfOverlap));
-    output.push(partOfSequence);
-  }
-
-  return output;
-};
-
-var aggregateProgress = function(statusesArray) {
-  var total = _.reduce(statusesArray, (memo, i) => memo + i.total, 0);
-  return total ? _.reduce(statusesArray, (memo, i) => memo + i.current, 0)/total : 0;
-};
-
-var getPrimersPair = function(options, sequence) {
-  var forwardPromise = PrimerCalculation.optimalPrimer4(sequence, options);
-  var reversePromise = PrimerCalculation.optimalPrimer4(SequenceTransforms.toReverseComplements(sequence), options);
-  var lastProgress = [{}, {}];
-
-  return Q.promise(function(resolve, reject, notify) {
-
-    Q.all([forwardPromise, reversePromise]).progress(function(current) {
-      console.log('getprimerspair progress', current)
-      lastProgress[current.index] = current.value;
-      notify(aggregateProgress(lastProgress));
-    }).then(function(results) {
-      var [forwardPrimer, reversePrimer] = results;
-
-      resolve({
-        forwardPrimer: _.extend(forwardPrimer, {sequenceLength: forwardPrimer.sequence.length}),
-        reversePrimer: _.extend(reversePrimer, {sequenceLength: reversePrimer.sequence.length}),
-        fullSequence: sequence,
-      });
-
-    }).catch(namedHandleError('getPrimersPair, inner: finding primers'));
-
-
-  }).catch(namedHandleError('getPrimersPair, outer'));
-};
-
-
-var logger = function(...msg) {
-  if(false) {
-    console.log(...msg);
-  }
-};
-
-
-var getAllPrimers = function(sequence, options={}) {
-  logger('+getAllPrimers');
-  if(!_.isString(sequence)) sequence = sequence.get('sequence');
-  defaultSequencingPrimerOptions(options);
-
-  var sequenceChunks = splitSequence(sequence);
-  var maxParallel = 5;
-  var numberBatches = Math.ceil(sequenceChunks.length / maxParallel);
-  var lastProgress = _.map(_.range(numberBatches), function() { return {}; });
-
-  return Q.promise(function(resolve, reject, notify) {
-
-    var getParallelPrimers = function(i = 0, results = []) {
-      logger('+getParallelPrimers');
-      var sequences = sequenceChunks.slice(i , i + maxParallel);
-      var promises = _.map(sequences, _.partial(getPrimersPair, options));
-
-      if(i > numberBatches) return Q(results);
-
-      return Q.all(promises
-      ).progress(function(current) {
-        console.log('progress')
-        lastProgress[current.index] = current.value;
-        notify(aggregateProgress(lastProgress));
-      }
-      ).then(function(results_) {
-        notify(i/numberBatches);
-        return getParallelPrimers(i + maxParallel, results.concat(results_));
-      });
-    };
-
-    return getParallelPrimers().then(function(primers) {
-      var total = 0;
-      resolve(_.map(primers, function(primer, i) {
-        var from = total;
-        total += (primer.fullSequence.length - overlap);  // This smells brittle
-        var to = total + overlap;
-
-        // Set the names
-        var displayedIndex = i + 1;
-        primer.forwardPrimer.name = `Forward primer ${displayedIndex}`;
-        primer.reversePrimer.name = `Reverse primer ${displayedIndex}`;
-        var name = `Product ${displayedIndex}`;
-
-        return _.extend(primer, {
-          from: from,
-          index: i,
-          name: name,
-          to: to,
-          id: _.uniqueId(),
-        });
-      }));
-    })
-    .catch(namedHandleError('getParallelPrimers'));
-
-  });
-};
-
-
-var _getAllPrimersAndProducts = function(sequence, options, previousPrimer, deferredAllPrimersAndProducts, productsAndPrimers, offset) {
-  var until = MAX_DNA_CHUNK_SIZE;
-
-  if(previousPrimer.to > -GARBAGE_SEQUENCE_DNA) {
-    deferredAllPrimersAndProducts.reject(`previousPrimer must finish far enough back from start of sequence of interest but finishes at ${previousPrimer.to} instead of ${-GARBAGE_SEQUENCE_DNA}`);
-  } else if (previousPrimer.antisense) {
-    deferredAllPrimersAndProducts.reject(`previousPrimer must be a sense (forwards) Primer`);
-  } else {
-    // previousPrimer.from may be negative relative to sequence passed in above
-    until += previousPrimer.from;
-    if(until < options.minPrimerLength) {
-      deferredAllPrimersAndProducts.reject(`Impossible to find a next primer.  Previous Primer must be closer to start of sequence which is region of interest`);
-    }
-  }
-
-  var subSequence = sequence.substr(0, until);
-  PrimerCalculation.optimalPrimer4(subSequence, options)
-    .then(function(forwardPrimer) {
-      var result = calculateProductAndModifyPrimer(productsAndPrimers, offset, sequence, forwardPrimer);
-      var newPreviousPrimer = result.newPreviousPrimer;
-      var remainingSequence = result.remainingSequence;
-
-      deferredAllPrimersAndProducts.notify(result.offset / (sequence.length + offset));
-
-      offset = result.offset;
-
-      if(remainingSequence.length > (MAX_DNA_CHUNK_SIZE + newPreviousPrimer.from)) {
-        _getAllPrimersAndProducts(remainingSequence, options, newPreviousPrimer, deferredAllPrimersAndProducts, productsAndPrimers, offset);
-      } else {
-        deferredAllPrimersAndProducts.resolve(productsAndPrimers);
-      }
-    })
-    .catch(function(e) {
-      deferredAllPrimersAndProducts.reject(e);
-    });
-
-};
-
-var calculateProductAndModifyPrimer = function(productsAndPrimers, offset, sequence, primer) {
-  // TODO:  remove assumption this is a forward primer
-  var index = productsAndPrimers.length;
-
-  var sequenceCovered = primer.to + GARBAGE_SEQUENCE_DNA;
-  var newPreviousPrimer = primer.duplicate();
-  newPreviousPrimer.shift(-sequenceCovered);
-  var remainingSequence = sequence.substr(sequenceCovered);
-  var subSequenceLength = sequence.length - primer.from;
-  var productLength = Math.min(subSequenceLength, MAX_DNA_CHUNK_SIZE);
-
-  // Calculate fields and modify Primer and Product
-  primer.shift(offset);
-  
-  var direction = 'forward';  // TODO: see above.
-  var productName = `Product ${index + 1} (${direction})`;
-  var productFrom = primer.from;
-  var productTo = primer.from + productLength - 1;
-  
-  primer.name = productName + ' - primer';
-  var product = new Product({
-    name: productName,
-    from: productFrom,
-    to: productTo,
-    primer: primer,
-  });
-
-  productsAndPrimers.push(product);
-
-  offset += sequenceCovered;
-
-  return {offset, newPreviousPrimer, remainingSequence};
-};
+// Maximum size of DNA sequence that will become a useful product.
+// This is only relevant for the products produced by sequencing primers.
+var MAX_DNA_CHUNK_SIZE = defaultSequencingPrimerOptions().maxSearchSpace;
 
 
 /**
- * [getAllPrimersAndProducts description]
- * @param  {[String]} sequence    [description]
- * @param  {[Primer]} firstPrimer  The primer that comes before the sequence begins
- * @param  {Object} options       [description]
- * @return {[type]}               [description]
+ * @function _getPrimersAndProducts
+ * @param  {String} sequenceBases
+ * @param  {Object} options
+ * @param  {Deferred} deferredAllPrimersAndProducts
+ * @param  {Array} sequencingPrimers Array of `Primer`(s)
+ * @return {Promise}
  */
-var getAllPrimersAndProducts = function(sequence, firstPrimer, options={}) {
-  defaultSequencingPrimerOptions(options);
-  var deferredAllPrimersAndProducts = Q.defer();
-  var productsAndPrimers = [];
+var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers, deferredAllPrimersAndProducts=undefined) {
+  if(_.isUndefined(deferredAllPrimersAndProducts)) {
+    deferredAllPrimersAndProducts = Q.defer();
+  }
+  var previousPrimer = sequencingPrimers[sequencingPrimers.length - 1];
+  var sequenceLength = sequenceBases.length;
+  var progress = previousPrimer.antisense ? (sequenceLength - previousPrimer.from - 1) : (previousPrimer.from + options.maxSearchSpace - 1);
+  deferredAllPrimersAndProducts.notify(Math.max(progress, sequenceLength) / sequenceLength);
 
-  calculateProductAndModifyPrimer(productsAndPrimers, 0, sequence, firstPrimer);
+  if(!previousPrimer.validForParentSequence(sequenceLength)) {
+    var msg = 'Previous Primer must be contained within sequence';
+    console.error(msg);
+    return Q.reject(msg);
+  }
 
-  _getAllPrimersAndProducts(sequence, options, firstPrimer, deferredAllPrimersAndProducts, productsAndPrimers, 0);
+  // We must find the next sequencing primer within `usefulSearchSpace`, so that
+  // it's garbage DNA is covered by the sequencing product produced from the
+  // `previousPrimer`.
+  var usefulSearchSpace = options.maxSearchSpace - GARBAGE_SEQUENCE_DNA;
+  var basesSequenced = previousPrimer.antisense ?
+    (sequenceLength - (previousPrimer.from - options.maxSearchSpace + 1)) :
+    (previousPrimer.from + options.maxSearchSpace - 1);
+  if(sequenceLength > basesSequenced) {
+    var {frm, sequenceToSearch} = getSequenceToSearch_PrimerHelper(sequenceBases, options.minPrimerLength, usefulSearchSpace, previousPrimer);
+    optimalPrimer4(sequenceToSearch, options)
+    .then(function(nextPrimer) {
+      nextPrimer.shift(frm);
+      if(previousPrimer.antisense) {
+        nextPrimer.reverseDirection();
+      }
+      sequencingPrimers.push(nextPrimer);
+      _getPrimersAndProducts(sequenceBases, options, sequencingPrimers, deferredAllPrimersAndProducts);
+    });
+  } else {
+    var sequencingProductsAndPrimers = _.map(sequencingPrimers, calculateProductAndPrimer(sequenceLength));
+    deferredAllPrimersAndProducts.resolve(sequencingProductsAndPrimers);
+  }
 
   return deferredAllPrimersAndProducts.promise;
 };
 
 
-export default getAllPrimersAndProducts;
+/**
+ * @function calculateProductAndPrimer
+ * Has side effect of modifying the primer's name as well.
+ *
+ * @param  {Int} sequenceLength
+ * @param  {Primer} primer
+ * @param  {Int} index
+ * @return {Product}
+ */
+var calculateProductAndPrimer = function(sequenceLength) {
+  return function(primer, index) {
+    var direction = primer.antisense ? 'reverse' : 'forward';
+    var productName = `Product ${index + 1} (${direction})`;
+
+    // Modify primer
+    primer.name = productName + ' - primer';
+
+    // Calculate product
+    var subSequenceLength = primer.antisense ? (primer.from + 1) : (sequenceLength - primer.from);
+    var productLength = Math.min(subSequenceLength, MAX_DNA_CHUNK_SIZE);
+    var productTo = primer.antisense ? (primer.from - productLength) : (primer.from + productLength - 1);
+    var product = new Product({
+      name: productName,
+      from: primer.from,
+      to: productTo,
+      primer: primer,
+      antisense: primer.antisense
+    });
+    return product;
+  };
+};
+
+
+/**
+ * @function getPrimersAndProductsInOneDirection
+ * @param  {String}  sequenceBases
+ * @param  {Prime}  firstPrimer
+ * @param  {Object}  options=defaultSequencingPrimerOptions()
+ * @return {Promise}
+ */
+var getPrimersAndProductsInOneDirection = function(sequenceBases, firstPrimer, options={}) {
+  var sequencingPrimers = [firstPrimer];
+
+  options = _.deepClone(options);
+  options = defaultSequencingPrimerOptions(options);
+  // If we have a primer for the antisense strand, the _getPrimersAndProducts
+  // works by using the subsequence in the forward direction, so we need to find
+  // primers from the 5 primer end.
+  options.findFrom3PrimeEnd = !firstPrimer.antisense;
+
+  return _getPrimersAndProducts(sequenceBases, options, sequencingPrimers);
+};
+
+
+/**
+ * @function getAllPrimersAndProducts
+ * @param  {String} sequenceBases
+ * @param  {Primer} firstForwardPrimer  The first primer in the sequence,
+ *                                      usually a pre-calculated universal primer.
+ * @param  {Primer} firstReversePrimer  The reverse primer in the sequence,
+ *                                      usually a pre-calculated universal primer.
+ * @param  {Object} options=defaultSequencingPrimerOptions()
+ * @return {Promise}
+ */
+var getAllPrimersAndProducts = function(sequenceBases, firstForwardPrimer, firstReversePrimer, options) {
+  var promiseForwardPrimersAndProducts = getPrimersAndProductsInOneDirection(sequenceBases, firstForwardPrimer, options);
+  return promiseForwardPrimersAndProducts
+  .then(function(forwardProductsAndPrimers) {
+    // Find all reverse products and primers.
+    return getPrimersAndProductsInOneDirection(sequenceBases, firstReversePrimer, options)
+    .then(function(reverseProductsAndPrimers) {
+      return forwardProductsAndPrimers.concat(reverseProductsAndPrimers);
+    });
+  });
+};
+
+
+/**
+ * @function getAllPrimersAndProductsHelper
+ * @param  {String} sequenceBases
+ * @param  {Object} options=defaultSequencingPrimerOptions()
+ * @return {Object} With `promise` or `error` key.
+ */
+var getAllPrimersAndProductsHelper = function(sequenceBases, options={}) {
+  var ret = {};
+  var {forwardSequencePrimer, reverseSequencePrimer} = findPrimers(sequenceBases, universalPrimers());
+
+  if(forwardSequencePrimer && reverseSequencePrimer) {
+    ret.promise = getAllPrimersAndProducts(sequenceBases, forwardSequencePrimer, reverseSequencePrimer, options);
+  } else {
+    var msg = 'No ';
+    if(!forwardSequencePrimer) msg += 'forward ';
+    if(!forwardSequencePrimer && !reverseSequencePrimer) msg += 'or ';
+    if(!reverseSequencePrimer) msg += 'reverse ';
+    ret.error = msg + 'universal primer found.';
+  }
+  return ret;
+};
+
+
+export default {
+  getAllPrimersAndProducts,
+  getAllPrimersAndProductsHelper,
+};
