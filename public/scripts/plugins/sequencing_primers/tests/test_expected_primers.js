@@ -38,7 +38,7 @@ var expected863Primers = [{
 }];
 
 
-var expectedMikePrimers = [{
+var expectedMikeForwardPrimers = [{
   "name":"Product 1 (forward)",
   "from": -148,
   "to": 351,
@@ -300,4 +300,4 @@ var expectedMikePrimers = [{
 }];
 
 
-export default {expected863Primers, expectedMikePrimers};
+export default {expected863Primers, expectedMikeForwardPrimers};
