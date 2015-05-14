@@ -10,6 +10,7 @@ import _ from 'underscore';
 import BaseSequenceBackboneWrapper from './sequence_backbone_wrapper';
 //TODO remove this?
 import sequenceClassMethodsMixin from '../../library/models/sequence_class_methods_mixin';
+import deprecated from '../../library/common/deprecated';
 
 
 /**
@@ -355,13 +356,14 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   },
 
   length: function() {
+    deprecated(this, 'length', 'getBaseSequenceModel().getLength()');
     return this.attributes.sequence.length;
   },
 
   serialize: function() {
     return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
       isCurrent: (this.Gentle && this.Gentle.currentSequence && this.Gentle.currentSequence.get('id') == this.get('id')),
-      length: this.length()
+      length: this.getBaseSequenceModel().length()
     });
   },
 
@@ -395,6 +397,16 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
     this.throttledSave();
     return this;
   },
+
+  get: function(...args) { 
+    console.error('sequence.get call', args[0]);
+    return Backbone.DeepModel.prototype.get.apply(this, args);
+  },
+
+  set: function(...args) {
+    console.error('sequence.set call', args[0]);
+    return Backbone.DeepModel.prototype.set.apply(this, args);
+  }
 
 });
 

@@ -6,6 +6,7 @@ import SequenceTransforms from '../../sequence/lib/sequence_transforms';
 // TODO add dependency for underscore.mixin
 import _ from 'underscore';
 import sequenceClassMethodsMixin from './sequence_class_methods_mixin';
+import deprecated from '../common/deprecated';
 
 
 /**
@@ -33,7 +34,7 @@ class BaseSequenceModel {
           throw `'${this.constructor.name}' (Sequence) Model already has the '${field}' attribute set.`;
         }
         this[field] = attributes[field];
-        delete attributes[field];
+        // delete attributes[field];
       }
     });
     this.sortFeatures();
@@ -139,11 +140,22 @@ class BaseSequenceModel {
   }
 
   /**
-   * Length of this SequenceModels sequenceBases.
+   * Length of this SequenceModel sequenceBases.
    * @method length
+   * @deprecated
    * @return {Integer}
    */
   length() {
+    deprecated(this, 'length', 'getLength');
+    return this.getLength();
+  }
+
+  /**
+   * Length of this SequenceModel sequenceBases.
+   * @method getLength
+   * @return {Integer}
+   */
+  getLength() {
     return this.sequence.length;
   }
 
