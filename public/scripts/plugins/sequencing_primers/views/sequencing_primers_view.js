@@ -48,7 +48,6 @@ export default Backbone.View.extend({
         this.updateProgress(progress);
       })
       .then((results) => {
-        console.log(results)
         this.model.set('meta.sequencingPrimers.products', results).throttledSave();
         this.render();
       })

@@ -39,15 +39,19 @@ var universalPrimers = function() {
  *                  These will have values of `SequencingPrimerModel` or `undefined`
  */
 var findPrimers = function(sequenceBases, universalPrimerModels) {
-  var forwardPrimerInSequence = function(universalPrimer) {
+  var forwardPrimerInSequence = function(universalPrimer, findLast=false) {
     var found = false;
     if(!universalPrimer.antisense) {
-      var regexp = new RegExp(universalPrimer.sequence, 'i');
-      var position = sequenceBases.search(regexp);
-      if(position !== -1) {
+      var regexp = new RegExp(universalPrimer.sequence, 'ig');
+      var position;
+      while(regexp.exec(sequenceBases)) {
+        found = true;
+        position = regexp.lastIndex - universalPrimer.sequence.length;
+        if(!findLast) break;
+      }
+      if(found) {
         universalPrimer.from = position;
         universalPrimer.to = position + universalPrimer.sequence.length - 1;
-        found = true;
       }
     }
     return found;
@@ -62,7 +66,7 @@ var findPrimers = function(sequenceBases, universalPrimerModels) {
       attributes.antisense = false;
       var sequenceModel = new SequencingPrimerModel(attributes);
 
-      found = forwardPrimerInSequence(sequenceModel);
+      found = forwardPrimerInSequence(sequenceModel, true);
       if(found) {
         universalPrimer.from = sequenceModel.to;
         universalPrimer.to = sequenceModel.from - 1; // May be equal to -1
@@ -74,5 +78,6 @@ var findPrimers = function(sequenceBases, universalPrimerModels) {
 
   return {forwardSequencePrimer, reverseSequencePrimer};
 };
+
 
 export default {universalPrimers, findPrimers};

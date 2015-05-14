@@ -5,6 +5,7 @@ import Q from 'q';
 // var cache = _.clone(Tms);  // makes running development faster with known sequences
 var cache = {};
 
+
 var url = "http://www.idtdna.com/AnalyzerService/AnalyzerService.asmx/Analyze";
 // ?Sequence=atcgatcgatcg&TargetType=DNA&OligoConc=0.25&NaConc=50&MgConc=2&dNTPsConc=0
 
