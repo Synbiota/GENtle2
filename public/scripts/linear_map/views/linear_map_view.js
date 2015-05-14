@@ -53,7 +53,7 @@ export default Backbone.View.extend({
   },
 
   positionFeatures: function() {
-    var maxBase = this.maxBaseForCalc || this.model.length(),
+    var maxBase = this.maxBaseForCalc || this.model.getLength(),
         viewHeight = this.$el.height(),
         $featureElement, feature, featureWidth,
         overlapStack = [], overlapIndex;

@@ -123,7 +123,7 @@ export default class _SequenceCanvasContextMenu {
     if(selection) {
       this.view.parentView().sequenceSettingsView.tabs.features.view.createOnRange(
         selection[0],
-        Math.min(this.sequence.length() - 1, selection[1])
+        Math.min(this.sequence.getLength() - 1, selection[1])
       );
     }
 

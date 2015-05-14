@@ -32,7 +32,7 @@
         },
         subSeq, enzymes, countEnzymes, i;
 
-    for(i = 0; i <= Math.floor(sequence.length() / basesPerRow); i++) {
+    for(i = 0; i <= Math.floor(sequence.getLength() / basesPerRow); i++) {
       subSeq = sequence.getSubSeq(
         i * basesPerRow - subSeqPadding,
         (i+1) * basesPerRow - 1 + subSeqPadding

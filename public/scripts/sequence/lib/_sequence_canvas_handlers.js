@@ -60,7 +60,7 @@ Event handlers for SequenceCanvas
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
 
-      this.select(0, this.sequence.length());
+      this.select(0, this.sequence.getLength());
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {
 
@@ -151,7 +151,7 @@ Event handlers for SequenceCanvas
 
     nextCaret = meta ?
       (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, this.sequence.length());
+      Math.min(previousCaret + 1, this.sequence.getLength());
 
     if (shift) {
       if (selection) {
@@ -200,8 +200,8 @@ Event handlers for SequenceCanvas
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      this.sequence.length() :
-      Math.min(this.caretPosition + basesPerRow, this.sequence.length());
+      this.sequence.getLength() :
+      Math.min(this.caretPosition + basesPerRow, this.sequence.getLength());
 
     if (shift) {
       if (selection) {

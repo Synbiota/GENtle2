@@ -285,7 +285,7 @@ class BaseSequenceModel {
    */
   overhangBeyondEndStickyEnd(pos, reverse = false) {
     var stickyEnds = this.stickyEnds;
-    var seqLength = this.length();
+    var seqLength = this.getLength();
     var result = 0;
 
     if(stickyEnds) {
@@ -404,10 +404,10 @@ class BaseSequenceModel {
     if(endBase === undefined) {
       endBase = startBase;
     } else {
-      if(endBase >= this.length() && startBase >= this.length()) return '';
-      endBase = Math.min(this.length() - 1, endBase);
+      if(endBase >= this.getLength() && startBase >= this.getLength()) return '';
+      endBase = Math.min(this.getLength() - 1, endBase);
     }
-    startBase = Math.min(Math.max(0, startBase), this.length() - 1);
+    startBase = Math.min(Math.max(0, startBase), this.getLength() - 1);
     return this.sequence.substr(startBase, endBase - startBase + 1);
   }
 
@@ -442,7 +442,7 @@ class BaseSequenceModel {
    */
   getPaddedSubSeq(startBase, endBase, padding, offset = 0) {
     startBase = Math.max(startBase - ((startBase - offset) % padding), 0);
-    endBase = Math.min(endBase - ((endBase - offset) % padding) + padding - 1, this.length());
+    endBase = Math.min(endBase - ((endBase - offset) % padding) + padding - 1, this.getLength());
     var subSeq = this.getSubSeq(startBase, endBase);
     return {subSeq, startBase, endBase};
   }

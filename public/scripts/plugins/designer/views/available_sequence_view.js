@@ -51,8 +51,8 @@
         name: this.model.get('name'),
         id: 0,
         from: 0,
-        to: this.model.length()-1,
-        length: this.model.length(),
+        to: this.model.getLength()-1,
+        length: this.model.getLength(),
         type: 'Sequence',
         features: this.model.get('features'),
         hidden: this.model.maxOverlappingFeatures()>1
@@ -60,7 +60,7 @@
     },
 
     positionFeatures: function() {
-      var maxBase = this.maxBaseForCalc || this.model.length(),
+      var maxBase = this.maxBaseForCalc || this.model.getLength(),
           viewWidth = this.$el.width(),
           $featureElement, feature, featureWidth,sequence,
           overlapStack = [], overlapIndex,

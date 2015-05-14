@@ -20,7 +20,7 @@ export default Backbone.View.extend({
   initialize: function({selectionFrom, selectionTo}) {
     this.state = _.defaults({
       from: selectionFrom || 0,
-      to: selectionTo || this.model.length()-1,
+      to: selectionTo || this.model.getLength()-1,
     }, this.model.get('meta.pcr.defaults') || {},
     {targetMeltingTemperature: 68.5});
     this.validateState();

@@ -274,7 +274,7 @@ class SequenceCanvas {
       };
 
       //total number of rows in sequence,
-      lh.rows.total = Math.ceil(this.sequence.length() / lh.basesPerRow);
+      lh.rows.total = Math.ceil(this.sequence.getLength() / lh.basesPerRow);
       // number of visible rows in canvas
       lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height);
 
@@ -399,7 +399,7 @@ class SequenceCanvas {
       ]);
     }
 
-    if (baseRange[0] < this.sequence.length()) {
+    if (baseRange[0] < this.sequence.getLength()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
           if(line.floating) {
@@ -562,8 +562,8 @@ class SequenceCanvas {
       base = this.caretPosition;
     }
 
-    if (base > this.sequence.length()) {
-      base = this.sequence.length();
+    if (base > this.sequence.getLength()) {
+      base = this.sequence.getLength();
     }
 
     this.scrollBaseToVisibility(base).then(function() {

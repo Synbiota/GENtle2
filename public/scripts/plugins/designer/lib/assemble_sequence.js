@@ -142,7 +142,7 @@ class AssembleSequenceModel {
       var type;
 
       if(features.length == 1) {
-        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length() -1) {
+        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
           name = features[0].name;
           type = features[0].type;
         }

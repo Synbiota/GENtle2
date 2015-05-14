@@ -111,7 +111,7 @@ class Feature extends Line {
         sequence        = sequenceCanvas.sequence,
         basesPerRow     = sequenceCanvas.layoutHelpers.basesPerRow;
 
-    for(var i = 0; i <= Math.floor(sequence.length() / basesPerRow); i++) {
+    for(var i = 0; i <= Math.floor(sequence.getLength() / basesPerRow); i++) {
       nbFeatures.push(this.nbFeaturesInRange(i * basesPerRow, (i+1) * basesPerRow - 1));
     }
     return nbFeatures.length ? _.max(nbFeatures) : 0;

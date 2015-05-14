@@ -273,7 +273,7 @@ var BlastRequest = class {
     output.hitFrom--;
     output.hitTo--;
 
-    var sequenceLength = this.sequence.length();
+    var sequenceLength = this.sequence.getLength();
     output.alignFromPct = output.queryFrom / sequenceLength * 100;
     output.alignLenPct = output.alignLen / sequenceLength * 100;
     output.identityPct = output.identity / output.alignLen * 100;

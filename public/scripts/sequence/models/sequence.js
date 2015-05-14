@@ -365,7 +365,7 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   serialize: function() {
     return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
       isCurrent: (this.Gentle && this.Gentle.currentSequence && this.Gentle.currentSequence.get('id') == this.get('id')),
-      length: this.getBaseSequenceModel().length()
+      length: this.getBaseSequenceModel().getLength()
     });
   },
 

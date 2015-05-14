@@ -34,7 +34,7 @@ class ChildSequenceModel extends BaseSequenceModel {
     }
 
     var len = (this.to >= this.from) ? (this.to - this.from + 1) : (this.from - this.to);
-    var actualLen = this.length();
+    var actualLen = this.getLength();
     assertion((len <= actualLen), `length of sequence '${actualLen}' does not accommodate \`from\` '${this.from}' and \`to\` '${this.to}' (length should be: '${len}')`);
   }
 

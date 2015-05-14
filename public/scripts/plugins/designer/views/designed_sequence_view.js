@@ -29,7 +29,7 @@
           chunks = [],
           chunkId = -1,
           lastChunkEndBase = -1,
-          lastBase = this.model.length() - 1,
+          lastBase = this.model.getLength() - 1,
           _this = this,
           type;
 
@@ -102,7 +102,7 @@
 
     styleChunks: function() {
       var availableWidth = this.$('.designer-designed-sequence-chunks').width(),
-          sequenceLength = this.model.length(),
+          sequenceLength = this.model.getLength(),
           chunks = this.chunks;
 
       _.each(this.$('.designer-designed-sequence-chunk'), function(chunkElem) {
@@ -127,7 +127,7 @@
       if(this.model.maxOverlappingFeatures() > 1) {
         output.disabled = true;
       } else {
-        if(this.model.length()) {
+        if(this.model.getLength()) {
           output.chunks = this.processChunks();
         } else {
           output.empty = true;
