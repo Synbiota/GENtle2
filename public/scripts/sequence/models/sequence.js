@@ -13,6 +13,11 @@ import sequenceClassMethodsMixin from '../../library/models/sequence_class_metho
 import deprecatedLog from '../../library/common/deprecated';
 import stacktracedLog from '../../library/common/stacktraced_log';
 
+var accessorLog = function(method, attr) {
+  if(!/^displaySettings/.test(attr) && !_.isObject(attr)) 
+    stacktracedLog(`sequence.${method} call`, attr);
+}
+
 
 /**
  * @class BackboneSequenceModel
@@ -363,6 +368,7 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   },
 
   serialize: function() {
+    this.set(this.getBaseSequenceModel().toJSON(), {silent: true});
     return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
       isCurrent: (this.Gentle && this.Gentle.currentSequence && this.Gentle.currentSequence.get('id') == this.get('id')),
       length: this.getBaseSequenceModel().getLength()
@@ -401,12 +407,12 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   },
 
   get: function(...args) { 
-    stacktracedLog('sequence.get call', args[0]);
+    accessorLog('get', args[0])
     return Backbone.DeepModel.prototype.get.apply(this, args);
   },
 
   set: function(...args) {
-    stacktracedLog('sequence.set call', args[0]);
+    accessorLog('set', args[0])
     return Backbone.DeepModel.prototype.set.apply(this, args);
   }
 
