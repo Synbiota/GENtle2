@@ -3,7 +3,7 @@
 @submodule Views
 @class FeaturesView
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/features_view.hbs'),
     Gentle = require('gentle'),
     SynbioData = require('../../common/lib/synbio_data'),
@@ -241,6 +241,6 @@ define(function(require) {
     },
 
   });
-
-  return FeaturesView;
-});
+export default FeaturesView;
+  // return FeaturesView;
+// });

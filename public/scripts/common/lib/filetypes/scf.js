@@ -1,4 +1,3 @@
-
 //________________________________________________________________________________________
 // SCF
 // See file type doc here: http://staden.sourceforge.net/manual/formats_unix_3.html#SEC3
@@ -256,6 +255,5 @@ FT_scf.prototype.textHeuristic = function () {
 	var res = this.parseFile ( true ) ;
 	return res ;
 };
-
 
 export default FT_scf;

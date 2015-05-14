@@ -1,4 +1,3 @@
-define(function(require) {
   var Backbone        = require('backbone'),
       SequenceView    = require('./sequence/views/sequence_view'),
       HomeView        = require('./home/views/home_view'),
@@ -50,6 +49,4 @@ define(function(require) {
 
     notFound: function() { this.home(); }
   });
-
-  return Router;
-});
+export default Router;

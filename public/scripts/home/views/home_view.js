@@ -3,7 +3,7 @@
 @submodule Views
 @class HomeView
 **/
-define(function(require) {
+// define(function(require) {
   var template        = require('../templates/home_view.hbs'),
       Backbone        = require('backbone'),
       Gentle          = require('gentle'),
@@ -59,6 +59,6 @@ define(function(require) {
     }
 
   });
-
-  return HomeView;
-});
+export default HomeView;
+  // return HomeView;
+// });

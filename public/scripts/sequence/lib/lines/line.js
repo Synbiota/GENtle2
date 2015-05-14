@@ -5,7 +5,7 @@ Base Line class from which to extend.
 @module Sequence
 @submodule SequenceCanvas
 **/
-define(function(require) {
+// define(function(require) {
   var _ = require('underscore'),
       Line;
 
@@ -27,6 +27,6 @@ define(function(require) {
   };
 
   Line.prototype.draw = function() {};
-
-  return Line;
-});
+export default Line;
+  // return Line;
+// });

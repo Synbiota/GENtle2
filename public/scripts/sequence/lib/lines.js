@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Blank     = require('./lines/blank'),
       Position  = require('./lines/position'),
       DNA       = require('./lines/dna'),
@@ -8,7 +8,7 @@ define(function(require) {
       RestrictionEnzymeLabels
                 = require('./lines/restriction_enzymes_labels');
 
-  return {
+  export default {
     Blank: Blank,
     Position: Position,
     DNA: DNA,
@@ -16,4 +16,4 @@ define(function(require) {
     RestrictionEnzymeSites: RestrictionEnzymeSites,
     RestrictionEnzymeLabels: RestrictionEnzymeLabels
   };
-});
+// });

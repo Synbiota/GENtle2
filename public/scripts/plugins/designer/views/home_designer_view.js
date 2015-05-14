@@ -3,7 +3,7 @@
 @submodule Views
 @class HomeDesignerView
 **/
-define(function(require) {
+// define(function(require) {
   var Backbone    = require('backbone'),
       template    = require('../templates/home_designer_view.hbs'),
       Sequence    = require('../../../sequence/models/sequence'),
@@ -34,6 +34,6 @@ define(function(require) {
       Gentle.addSequencesAndNavigate([sequence]);
     }
   });
-
-  return HomeDesignerView;
-});
+export default HomeDesignerView;
+  // return HomeDesignerView;
+// });

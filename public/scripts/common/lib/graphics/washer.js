@@ -3,7 +3,7 @@
 @extends Shape
 @module Graphics
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       Rect;
 
@@ -124,6 +124,6 @@ define(function(require) {
       }
     }
   };
-
-  return Washer;
-});
+export default Washer;
+  // return Washer;
+// });

@@ -3,7 +3,7 @@
 @extends Shape
 @module Graphics
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       Arc;
 
@@ -26,6 +26,6 @@ define(function(require) {
 
     context.stroke();
   };
-
-  return Arc;
-});
+export default Arc;
+  // return Arc;
+// });

@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Backbone = require('backbone'),
       template = require('../templates/statusbar_view.hbs'),
       StatusbarView;
@@ -29,6 +29,6 @@ define(function(require) {
     }
 
   });
-
-  return StatusbarView;
-});
+export default StatusbarView;
+  // return StatusbarView;
+// });

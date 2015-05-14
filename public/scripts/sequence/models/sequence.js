@@ -30,7 +30,8 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
           complements: true,
           aa: 'none',
           aaOffset: 0,
-          res: this.Gentle && this.Gentle.currentUser && this.Gentle.currentUser.get('displaySettings.rows.res') || {}
+          res: this.Gentle && this.Gentle.currentUser && this.Gentle.currentUser.get('displaySettings.rows.res') || {},
+          hasGutters: false
         }
       },
       history: new HistorySteps()

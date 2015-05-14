@@ -152,9 +152,10 @@ export default Backbone.View.extend({
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
     var enzymes = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {
-      length: displaySettings.lengths || [],
+      // length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
-      hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+      // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+      hideNonPalindromicStickyEndSites: false
     });
 
     this.enzymes = _.map(enzymes, function(enzymeArray, position) {

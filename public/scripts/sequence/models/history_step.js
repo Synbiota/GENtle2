@@ -22,7 +22,6 @@ Handling history steps
 @param {string} [values] when `model.type` is `insert` or `delete`, bases
   which have been inserted or deleted
 **/
-
 import Backbone from 'backbone';
 
 

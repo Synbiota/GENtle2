@@ -1,4 +1,3 @@
-
 //________________________________________________________________________________________
 // ABI
 // For file format description, see http://www6.appliedbiosystems.com/support/software_community/ABIF_File_Format.pdf

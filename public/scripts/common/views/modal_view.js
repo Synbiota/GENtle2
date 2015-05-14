@@ -1,4 +1,4 @@
-define(function(require){
+// define(function(require){
   var Backbone = require('backbone'),
       template = require('../templates/modal_view.hbs'),
       ModalView;
@@ -31,6 +31,6 @@ define(function(require){
     }
 
   })
-
-  return ModalView;
-})
+export default ModalView;
+  // return ModalView;
+// })

@@ -1,13 +1,11 @@
+import HistoryStep from './history_step';
+import Backbone from 'backbone';
+
 /**
 @module Sequence
 @submodule Models
 @class HistorySteps
 **/
-
-import HistoryStep from './history_step';
-import Backbone from 'backbone';
-
-
 var HistorySteps = Backbone.Collection.extend({
   model: HistoryStep,
   comparator: function(historyStep) {
