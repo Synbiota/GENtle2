@@ -380,7 +380,7 @@ var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpac
 
 
 /**
- * @function getSequenceToSearch_PrimerHelper
+ * @function getSequenceToSearchUsingPrimer
  * This function is used for obtaining the next sequence to
  * search for a primer in when you have a previous primer 5' to this sequence
  * of interest when the next primer should be located.
@@ -392,7 +392,7 @@ var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpac
  * @param  {Primer} primer
  * @return {Object}  `sequenceToSearch` and `frm` used.
  */
-var getSequenceToSearch_PrimerHelper = function(sequenceBases, minPrimerLength, maxSearchSpace, primer) {
+var getSequenceToSearchUsingPrimer = function(sequenceBases, minPrimerLength, maxSearchSpace, primer) {
   var correctedFrom = primer.antisense ? primer.to : (primer.to + 1);
   return getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, primer.antisense, correctedFrom);
 };
@@ -412,7 +412,7 @@ var restoreIDTMeltingTemperature = function() {
 export default {
   optimalPrimer4,
   getSequenceToSearch,
-  getSequenceToSearch_PrimerHelper,
+  getSequenceToSearchUsingPrimer,
   stubOutIDTMeltingTemperature,
   _IDTMeltingTemperature,
   restoreIDTMeltingTemperature,

@@ -8,9 +8,15 @@
           <button class="start-sequencing-primers btn btn-default">Calculate primers</button>
 
           <div class="new-sequencing-primers-progress" style="display: none;">
-            <p class="text-muted">
-              Please wait while we calculate the best sequencing primers
-            </p>
+            <div class="status">
+              <p class="text-muted">
+                Please wait while we calculate the best sequencing primers
+              </p>
+              <p class="text-danger no-universal-primers-found" style="display: none;">
+                Your sequence does not contain recognised forward and reverse universal
+                primers.
+              </p>
+            </div>
             <div class="progress">
               <div class="progress-bar" role="progressbar"></div>
             </div>

@@ -69,16 +69,15 @@ var calculateFeatures = function(productAttributes) {
 
 /**
  * calculatePcrProductFromPrimers
- * @param  {string} sequence nucleotides
+ * @param  {string} sequenceBases Nucleotides
  * @param  {hash}   opts must contain `name`, `from`, `to`, `stickyEnds`
  * @param  {hash}   primerResults must contain `forwardAnnealingRegion`, `reverseAnnealingRegion`
  * @return {TemporarySequence}
  *
  * We export it to be accessible to tests
  */
-var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
+var calculatePcrProductFromPrimers = function(sequenceBases, opts, primerResults) {
   opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
     reverseAnnealingRegion: reverseAnnealingRegion
@@ -89,7 +88,7 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
     endStickyEnd: endStickyEnd
-  } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
+  } = Sequence.calculateProduct(sequenceBases, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegion, {
     from: startStickyEnd.length,

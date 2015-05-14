@@ -1,14 +1,12 @@
 import Backbone from 'backbone.mixed';
 import template from '../templates/sequencing_primers_view.hbs';
-import PrimersDesign from '../lib/sequencing_primers_design';
+import {getAllPrimersAndProductsHelper} from '../lib/sequencing_primers_design';
 import ProductsView from './sequencing_primers_products_view';
 import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import Primer from '../../pcr/lib/primer';
 import Product from '../../pcr/lib/product';
-import {mikeForward1} from '../../pcr/lib/universal_primers';
 
 
 export default Backbone.View.extend({
@@ -43,16 +41,29 @@ export default Backbone.View.extend({
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
 
-    // For the moment we default to a forward primer that Mike provided.
-    // This primer will need to be specified in the UI.
-    var universalForwardPrimer = mikeForward1();
-    PrimersDesign(this.model.get('sequence'), universalForwardPrimer).progress((progress) => {
-      this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
-    }).then((results) => {
-      console.log('done', results)
-      this.model.set('meta.sequencingPrimers.products', results).throttledSave();
-      this.render();
-    }).catch(namedHandleError('startCalculation'));
+    var sequenceBases = this.model.get('sequence');
+    var primers = getAllPrimersAndProductsHelper(sequenceBases);
+    if(primers.promise) {
+      primers.promise.progress((progress) => {
+        this.updateProgress(progress);
+      })
+      .then((results) => {
+        console.log(results)
+        this.model.set('meta.sequencingPrimers.products', results).throttledSave();
+        this.render();
+      })
+      .catch(namedHandleError('startCalculation'))
+      .done();
+    } else {
+      this.updateProgress(100).css('background-color', '#C00');
+      var $status = this.$('.new-sequencing-primers-progress .status');
+      $status.find('p').hide();
+      $status.find('.no-universal-primers-found').show();
+    }
+  },
+
+  updateProgress: function(progress) {
+    return this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
   },
 
   getSequence: function() {

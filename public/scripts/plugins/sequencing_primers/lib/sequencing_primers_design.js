@@ -1,4 +1,4 @@
-import {optimalPrimer4, getSequenceToSearch_PrimerHelper} from '../../pcr/lib/primer_calculation';
+import {optimalPrimer4, getSequenceToSearchUsingPrimer} from '../../pcr/lib/primer_calculation';
 import _ from 'underscore.mixed';
 import Q from 'q';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
@@ -45,7 +45,7 @@ var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers,
     (sequenceLength - (previousPrimer.from - options.maxSearchSpace + 1)) :
     (previousPrimer.from + options.maxSearchSpace - 1);
   if(sequenceLength > basesSequenced) {
-    var {frm, sequenceToSearch} = getSequenceToSearch_PrimerHelper(sequenceBases, options.minPrimerLength, usefulSearchSpace, previousPrimer);
+    var {frm, sequenceToSearch} = getSequenceToSearchUsingPrimer(sequenceBases, options.minPrimerLength, usefulSearchSpace, previousPrimer);
     optimalPrimer4(sequenceToSearch, options)
     .then(function(nextPrimer) {
       if(previousPrimer.antisense) {
@@ -126,7 +126,7 @@ var getPrimersAndProductsInOneDirection = function(sequenceBases, firstPrimer, o
  * @param  {Object} options=defaultSequencingPrimerOptions()
  * @return {Promise}
  */
-var getAllPrimersAndProducts = function(sequenceBases, firstForwardPrimer, firstReversePrimer, options) {
+var getAllPrimersAndProducts = function(sequenceBases, firstForwardPrimer, firstReversePrimer, options={}) {
   var promiseForwardPrimersAndProducts = getPrimersAndProductsInOneDirection(sequenceBases, firstForwardPrimer, options);
   return promiseForwardPrimersAndProducts
   .then(function(forwardProductsAndPrimers) {

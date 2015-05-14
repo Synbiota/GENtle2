@@ -1,14 +1,15 @@
 import Proxy from '../../../common/lib/proxy';
 import _ from 'underscore';
 import Q from 'q';
-
+// import Tms from '../tests/melting_temperatures';
+// var cache = _.clone(Tms);  // makes running development faster with known sequences
+var cache = {};
 
 var url = "http://www.idtdna.com/AnalyzerService/AnalyzerService.asmx/Analyze";
 // ?Sequence=atcgatcgatcg&TargetType=DNA&OligoConc=0.25&NaConc=50&MgConc=2&dNTPsConc=0
 
-var cache = {};
 
-var cacheKey = function(sequence, options) { 
+var cacheKey = function(sequence, options) {
   return _.flatten([sequence, _.pairs(options)]).join('~');
 };
 

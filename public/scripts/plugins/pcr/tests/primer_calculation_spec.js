@@ -2,7 +2,7 @@ import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import {optimalPrimer4, getSequenceToSearch, getSequenceToSearch_PrimerHelper} from '../lib/primer_calculation';
+import {optimalPrimer4, getSequenceToSearch, getSequenceToSearchUsingPrimer} from '../lib/primer_calculation';
 
 
 var setup;
@@ -286,7 +286,7 @@ describe('getting sequence to search for primer', function() {
       from: 0,
       to: 0,
     };
-    var {sequenceToSearch, frm} = getSequenceToSearch_PrimerHelper(sequenceBases, 1, 1, mockPrimer);
+    var {sequenceToSearch, frm} = getSequenceToSearchUsingPrimer(sequenceBases, 1, 1, mockPrimer);
     expect(sequenceToSearch).toEqual('C');
     expect(frm).toEqual(1);
   });
@@ -299,7 +299,7 @@ describe('getting sequence to search for primer', function() {
       from: 1,
       to: 0,
     };
-    var {sequenceToSearch, frm} = getSequenceToSearch_PrimerHelper(sequenceBases, 1, maxSearchSpace, mockPrimer);
+    var {sequenceToSearch, frm} = getSequenceToSearchUsingPrimer(sequenceBases, 1, maxSearchSpace, mockPrimer);
     expect(sequenceToSearch).toEqual('C');  // complement of the initial `G`
     expect(frm).toEqual(0);
   });
