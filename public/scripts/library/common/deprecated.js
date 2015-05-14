@@ -1,5 +1,7 @@
 function deprecatedMethod(obj, methodName, replacement) {
-  console.error(`Using ${methodName} on ${obj.constructor.name} instances is deprecated. Use ${replacement} instead.`);
+  console.groupCollapsed("%c DEP ", "background-color: cyan; color: blue;", `Using ${methodName} on ${obj.constructor.name} instances is deprecated. Use ${replacement} instead.`);
+  console.log((new Error).stack)
+  console.groupEnd();
 }
 
 export default deprecatedMethod;

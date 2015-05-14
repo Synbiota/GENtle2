@@ -197,7 +197,7 @@
           textFont: LineStyles.complements.text.font,
           textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
           highlightColour: _.partial(dnaStickyEndHighlightColour, true),
-          getSubSeq: _.partial(model.getTransformedSubSeq, 'complements', {}),
+          getSubSeq: _.partial(sequence.getTransformedSubSeq, 'complements', {}),
           visible: function() {
             return model.get('displaySettings.rows.complements');
           }

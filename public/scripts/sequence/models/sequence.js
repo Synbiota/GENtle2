@@ -10,7 +10,8 @@ import _ from 'underscore';
 import BaseSequenceBackboneWrapper from './sequence_backbone_wrapper';
 //TODO remove this?
 import sequenceClassMethodsMixin from '../../library/models/sequence_class_methods_mixin';
-import deprecated from '../../library/common/deprecated';
+import deprecatedLog from '../../library/common/deprecated';
+import stacktracedLog from '../../library/common/stacktraced_log';
 
 
 /**
@@ -400,12 +401,12 @@ var BackboneSequenceModel = Backbone.DeepModel.extend({
   },
 
   get: function(...args) { 
-    console.error('sequence.get call', args[0]);
+    stacktracedLog('sequence.get call', args[0]);
     return Backbone.DeepModel.prototype.get.apply(this, args);
   },
 
   set: function(...args) {
-    console.error('sequence.set call', args[0]);
+    stacktracedLog('sequence.set call', args[0]);
     return Backbone.DeepModel.prototype.set.apply(this, args);
   }
 

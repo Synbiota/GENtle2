@@ -76,9 +76,9 @@ class Feature extends Line {
     });
   }
 
-  featuresInRange(...args) { return switchContext('featuresInRange', ...args); }
-  nbFeaturesInRange(...args) { switchContext('nbFeaturesInRange', ...args); }
-  filterRanges(...args) { switchContext('filterRanges', ...args); }
+  featuresInRange(...args) { return switchContext.call(this, 'featuresInRange', ...args); }
+  nbFeaturesInRange(...args) { return switchContext.call(this, 'nbFeaturesInRange', ...args); }
+  filterRanges(...args) { return switchContext.call(this, 'filterRanges', ...args); }
 
   /**
   Checks whether one of the ranges of a feature ends in a give base range

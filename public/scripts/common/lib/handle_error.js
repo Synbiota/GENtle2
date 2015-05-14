@@ -1,10 +1,7 @@
-
 var handleError = function (exception, codeLabel=undefined) {
-  if(codeLabel) {
-    console.error(codeLabel, exception, exception.stack);
-  } else {
-    console.error(exception, exception.stack);
-  }
+  console.groupCollapsed('%c ERR ' + (codeLabel || 'unnamed error'), 'color: white; background: red;');
+  console.log(exception.stack)
+  console.groupEnd();
 };
 
 var namedHandleError = function(codeLabel) {
