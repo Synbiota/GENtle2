@@ -20,7 +20,7 @@ var assertion = function(test, message) {
 
 var assertIsDefinedAndNotNull = function(value, fieldName) {
   _assertion(
-    _.isUndefined(value) && _.isNull(value),
+    !_.isUndefined(value) && !_.isNull(value),
     `\`${fieldName}\` cannot be undefined or null`
   );
 };

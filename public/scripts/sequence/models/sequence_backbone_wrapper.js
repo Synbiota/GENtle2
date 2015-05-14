@@ -4,8 +4,8 @@ import BaseSequenceModel from '../../library/models/sequence';
 
 class BaseSequenceBackboneWrapper extends BaseSequenceModel {
   constructor(backboneModel, attributes) {
-    this.backboneModel = backboneModel;
     super(attributes);
+    this.backboneModel = backboneModel;
   }
 
   /*

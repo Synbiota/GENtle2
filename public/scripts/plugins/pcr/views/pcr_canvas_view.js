@@ -54,8 +54,8 @@ export default Backbone.View.extend({
   //TODO refactor this
   setSequence: function(seqeuenceOrSequenceModel) {
     // TODO fix this, seqeuenceOrSequenceModel may now be a `PcrPrimerModel` not `TemporarySequence`
-    seqeuenceModel = TemporarySequence.ensureTemporary(seqeuenceOrSequenceModel);
-    this.model = seqeuenceModel;
+    var sequenceModel = TemporarySequence.ensureTemporary(seqeuenceOrSequenceModel);
+    this.model = sequenceModel;
   },
 
   afterRender: function() {

@@ -1,0 +1,9 @@
+{
+  "parser": "babel-eslint",
+  "rules": {
+    "no-multi-spaces": 0,
+    "strict": 0,
+    "curly": 0,
+    "quotes": [1, "single"]
+  }
+}

@@ -58,8 +58,8 @@
     },
 
     changeSecondaryView: function() {
-      var viewName = this.model.get('isCircular') ? 'plasmid' : 'linear';
-      this.actualPrimaryView.changeSecondaryView(viewName, true);
+      // var viewName = this.model.get('isCircular') ? 'plasmid' : 'linear';
+      // this.actualPrimaryView.changeSecondaryView(viewName, true);
     },
 
     initStatusbarView: function() {

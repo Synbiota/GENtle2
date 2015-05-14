@@ -35,7 +35,9 @@ rendered.
 class SequenceCanvas {
   constructor(options = {}) {
     // Context binding (context is lost in Promises' `.then` and `.done`)
-    _.bindAll(this, 'calculateLayoutSettings',
+    _.bindAll(this, 
+      'calculateLayoutSettings',
+      'updateCanvasDims',
       'redrawSelection',
       'display',
       'refresh',
@@ -54,6 +56,8 @@ class SequenceCanvas {
 
     this.id = _.uniqueId();
 
+    this._mixinJqueryEvents();
+
     /**
       Sequence to be displayed
       @property sequence
@@ -61,7 +65,8 @@ class SequenceCanvas {
       @default `this.view.model`
     **/
     var sequence = this.sequence = options.sequence;
-    assertIsDefinedAndNotNull(sequence);
+    // debugger
+    assertIsDefinedAndNotNull(sequence, 'options.sequence');
 
     this.readonly = !!options.readonly;
 
@@ -78,7 +83,7 @@ class SequenceCanvas {
         @property $scrollingChild
         @type jQuery object
     **/
-    this.$scrollingChild = $container.$('.scrolling-child');
+    this.$scrollingChild = $container.find('.scrolling-child');
 
     /**
         Div in which `this.$scrollingChild` will scroll.
@@ -86,7 +91,9 @@ class SequenceCanvas {
         @property $scrollingParent
         @type jQuery object
     **/
-    this.$scrollingParent = $container.$('.scrolling-parent');
+    this.$scrollingParent = $container.find('.scrolling-parent');
+
+    this.$canvas = $container.find('canvas');
 
 
     /** Memoized functions */
@@ -97,14 +104,14 @@ class SequenceCanvas {
      * @type {Object<Lines>}
      * @property lines
      */
-    this.lines = this._initLines(options.lines || {});
+    this.lines = this._initLines(options.lines);
 
     /**
         @property layoutSettings
         @type Object
         @default false
     **/
-    this.layoutSettings = _.default(options.layoutSettings || {}, {
+    this.layoutSettings = _.defaults(options.layoutSettings || {}, {
       canvasDims: {
         width: 1138,
         height: 448
@@ -127,7 +134,9 @@ class SequenceCanvas {
     /**
      * @property {Object} layoutHelpers Calculated layout properties
      */
-    this.layoutSettings = {};
+    this.layoutHelpers = {
+      yOffset: options.yOffset || 0
+    };
 
     this.artist = new Artist(this.$canvas);
     this.caret = new Caret({
@@ -139,7 +148,7 @@ class SequenceCanvas {
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
-    this.contextMenu = this.view.getView('#sequence-canvas-context-menu-outlet');
+    this.contextMenu = this.contextMenuView;
 
     this.invertHotkeys = _.invert(Hotkeys);
     this.commandKeys = _.reduce(['A', 'C', 'Z', 'V'], (memo, key) => {
@@ -155,8 +164,6 @@ class SequenceCanvas {
     this.$scrollingParent.on('keypress', this.handleKeypress);
     this.$scrollingParent.on('keydown', this.handleKeydown);
     this.$scrollingParent.on('blur', this.handleBlur);
-
-    this.mixinJqueryEvents();
 
     // Kickstart rendering
     this.refresh();
@@ -181,15 +188,16 @@ class SequenceCanvas {
   } 
 
   _initLines(lines) {
-    assertIsObject(lines);
+    assertIsObject(lines, 'options.lines');
     return _.mapObject(lines, (value) => {
-      return Lines[value[0]](this, value[1] || {});
+      return new Lines[value[0]](this, value[1] || {});
     });
   }
 
   _mixinJqueryEvents() {
     var jQueryPassthrough = function(methodName) {
-      return (...args) => $(this)[methodName].apply(this, args);
+      var $el = $(this);
+      return (...args) => $el[methodName].apply($el, args);
     };
 
     _.each(['on', 'off', 'one', 'trigger'], (methodName) => {
@@ -205,13 +213,13 @@ class SequenceCanvas {
       @returns {Promise} a Promise finished when this and `this.calculateLayoutSettings` are finished
   **/
   updateCanvasDims() {
-    return Q.promise(function(resolve) {
+    return Q.promise((resolve) => {
+
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       this.$canvas.width(this.$scrollingChild.width());
 
       var width = this.$canvas[0].scrollWidth,
         height = this.$canvas[0].scrollHeight;
-
       this.layoutSettings.canvasDims.width = width;
       this.layoutSettings.canvasDims.height = height;
 
@@ -228,11 +236,11 @@ class SequenceCanvas {
   **/
   calculateLayoutSettings() {
     //line offsets
-    var line_offset = _.values(this.layoutSettings.lines)[0].height;
+    var line_offset = _.values(this.lines)[0].height;
     var ls = this.layoutSettings;
     var lh = this.layoutHelpers;
 
-    return Q.promise(function(resolve) {
+    return Q.promise((resolve) => {
 
       //basesPerRow
       var blocks_per_row = Math.floor((ls.canvasDims.width + ls.gutterWidth - (ls.pageMargins.left + ls.pageMargins.right)) / (ls.basesPerBlock * ls.basePairDims.width + ls.gutterWidth));
@@ -251,7 +259,7 @@ class SequenceCanvas {
       }
 
       lh.lineOffsets = {};
-      _.each(ls.lines, function(line, lineName) {
+      _.each(this.lines, function(line, lineName) {
         line.clearCache();
         if ((line.visible === undefined || line.visible()) && !line.floating) {
           lh.lineOffsets[lineName] = line_offset;
@@ -275,9 +283,6 @@ class SequenceCanvas {
         width: ls.canvasDims.width,
         height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
       };
-
-      // canvas y scrolling offset
-      lh.yOffset = lh.yOffset || this.sequence.get('displaySettings.yOffset') || 0;
 
 
       // if (this.layoutHelpers.BasePosition === undefined)
@@ -305,59 +310,57 @@ class SequenceCanvas {
 
       this.trigger('change change:layoutHelpers', lh);
 
+
       // We resize `this.$scrollingChild` and fullfills the Promise
-      this.resizeScrollHelpers().then(resolve);
+      this.resizeScrollHelpers().then(resolve).done();
+
     });
   }
 
   /**
-      If `this.visible`, displays the sequence in the initiated canvas.
+      Displays the sequence in the initiated canvas.
       @method display
   **/
   display() {
-    if (this.visible) {
-      var artist = this.artist,
-        ls = this.layoutSettings,
-        lh = this.layoutHelpers,
-        yOffset = lh.yOffset,
-        _this = this,
-        canvasHeight = ls.canvasDims.height,
-        drawStart, drawEnd, moveOffset;
+    var artist = this.artist,
+      ls = this.layoutSettings,
+      lh = this.layoutHelpers,
+      yOffset = lh.yOffset,
+      _this = this,
+      canvasHeight = ls.canvasDims.height,
+      drawStart, drawEnd, moveOffset;
 
-      return Q.promise(function(resolve, reject) {
+    return Q.promise(function(resolve, reject) {
 
-        // Check if we have a previousYOffset reference, in which case
-        // we will only redraw the missing part
-        moveOffset = lh.previousYOffset !== undefined ?
-          -lh.previousYOffset + yOffset :
-          0;
+      // Check if we have a previousYOffset reference, in which case
+      // we will only redraw the missing part
+      moveOffset = lh.previousYOffset !== undefined ?
+        -lh.previousYOffset + yOffset :
+        0;
 
-        if (moveOffset !== 0) {
-          artist.scroll(-moveOffset);
+      if (moveOffset !== 0) {
+        artist.scroll(-moveOffset);
 
-          drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
-          drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
+        drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
+        drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 
-          lh.previousYOffset = undefined;
+        lh.previousYOffset = undefined;
 
-        } else {
+      } else {
 
-          artist.clear();
-          drawStart = 0;
-          drawEnd = canvasHeight;
+        artist.clear();
+        drawStart = 0;
+        drawEnd = canvasHeight;
 
-        }
+      }
 
-        _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
+      _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
 
-        _this.displayDeferred.resolve();
-        _this.displayDeferred = Q.defer();
-        resolve();
+      _this.displayDeferred.resolve();
+      _this.displayDeferred = Q.defer();
+      resolve();
 
-      }).catch(namedHandleError('sequence_canvas, display'));
-    } else {
-      return Q.reject();
-    }
+    }).catch(namedHandleError('sequence_canvas, display'));
   }
 
   drawHighlight(posY, baseRange) {
@@ -377,7 +380,7 @@ class SequenceCanvas {
   **/
   drawRow(posY) {
     var layoutSettings = this.layoutSettings,
-      lines = layoutSettings.lines,
+      lines = this.lines,
       layoutHelpers = this.layoutHelpers,
       yOffset = layoutHelpers.yOffset,
       rowsHeight = layoutHelpers.rows.height,
@@ -436,7 +439,7 @@ class SequenceCanvas {
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
       .then(this.redraw)
-      .catch((e) => console.error(e));
+      .done();
   }
 
   /**
@@ -459,7 +462,8 @@ class SequenceCanvas {
   @method redraw
   **/
   redraw() {
-    return requestAnimationFrame(this.display);
+    requestAnimationFrame(this.display);
+    return this.displayDeferred.promise;
   }
 
   scrollTo(yOffset, triggerEvent) {
@@ -469,14 +473,15 @@ class SequenceCanvas {
     layoutHelpers.previousYOffset = layoutHelpers.yOffset;
 
     if (yOffset !== undefined) {
+      layoutHelpers.yOffset = yOffset;
 
       // this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
-      this.sequence.set('displaySettings.yOffset',
-        layoutHelpers.yOffset = yOffset, {
-          silent: true
-        }
-      );
-      this.sequence.throttledSave();
+      // this.sequence.set('displaySettings.yOffset',
+      //   layoutHelpers.yOffset = yOffset, {
+      //     silent: true
+      //   }
+      // );
+      // this.sequence.throttledSave();
     }
 
     this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
@@ -591,7 +596,7 @@ class SequenceCanvas {
 
   redrawSelection(selection) {
     var
-      lines = this.layoutSettings.lines,
+      lines = this.lines,
       yOffset = this.layoutHelpers.yOffset,
       rowsHeight = this.layoutHelpers.rows.height,
       posY;

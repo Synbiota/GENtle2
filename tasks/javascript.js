@@ -32,7 +32,9 @@ var run = function(watch) {
   browserified = browserified
     .transform('jstify')
     .transform('hbsfy', { compiler: 'require("handlebars.mixed");'})
-    .transform(babelify);
+    .transform(babelify.configure({
+      optional: ['es7.decorators']
+    }));
 
   if(!isDev) {
     browserified = browserified.transform('uglifyify', { global: true });

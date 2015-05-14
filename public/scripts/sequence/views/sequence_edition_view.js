@@ -12,8 +12,11 @@
       PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
       MatchedEnzymesView = require('./matched_enzymes_view'),
       Backbone = require('backbone'),
+      Styles = require('../../styles.json'),
       Q = require('q'),
       SequenceEditionView;
+
+  var LineStyles = Styles.sequences.lines;
 
   SequenceEditionView = Backbone.View.extend({
     manage: true,
@@ -35,33 +38,33 @@
     },
 
     initSecondaryViews: function(trigger) {
-      var secondaryViews,
-          currentView;
+      // var secondaryViews,
+      //     currentView;
 
-      secondaryViews = _.chain(Gentle.plugins)
-        .where({type: 'sequence-secondary-view'})
-        .pluck('data')
-        .value();
+      // secondaryViews = _.chain(Gentle.plugins)
+      //   .where({type: 'sequence-secondary-view'})
+      //   .pluck('data')
+      //   .value();
 
-      secondaryViews.push({
-        name: 'linear',
-        title: 'Linear map',
-        view: LinearMapView
-      });
+      // secondaryViews.push({
+      //   name: 'linear',
+      //   title: 'Linear map',
+      //   view: LinearMapView
+      // });
 
-      secondaryViews.push({
-        name: 'plasmid',
-        title: 'Plasmid map',
-        view: PlasmidMapView
-      });
+      // secondaryViews.push({
+      //   name: 'plasmid',
+      //   title: 'Plasmid map',
+      //   view: PlasmidMapView
+      // });
 
-      currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
+      // currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
 
-      // if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
-      //   currentView = 'linear';
+      // // if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
+      // //   currentView = 'linear';
 
-      this.secondaryViews = secondaryViews;
-      this.changeSecondaryView(currentView, false);
+      // this.secondaryViews = secondaryViews;
+      // this.changeSecondaryView(currentView, false);
     },
 
     handleResizeRight: function(trigger) {
@@ -110,14 +113,160 @@
     },
 
     afterRender: function() {
-      this.$('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.secondaryView.$el.width(),
+      // this.$('.sequence-canvas-container, .scrolling-parent').css({
+      //   'right': this.secondaryView.$el.width(),
+      // });
+      var model = this.model;
+      var sequence = model.getBaseSequenceModel();
+
+      var dnaStickyEndHighlightColour = function(reverse, base, pos) {
+        return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
+      };
+
+      var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
+        return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+      };
+
+      var sequenceCanvasLines = {
+
+        // Blank line
+        topSeparator: ['Blank', {
+          height: 5,
+          visible: function() {
+            return model.get('displaySettings.rows.separators');
+          }
+        }],
+
+        // Restriction Enzyme Sites
+        restrictionEnzymesLabels: ['RestrictionEnzymeLabels', {
+          unitHeight: 10,
+          textFont: LineStyles.RES.text.font,
+          textColour: LineStyles.RES.text.color,
+          get displaySettings() { 
+            return model.get('displaySettings.rows.res') || {}; 
+          },
+          visible: function() {
+            return model.get('displaySettings.rows.res.display');
+          }
+        }],
+
+        // Position numbering
+        position: ['Position', {
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.position.text.font,
+          textColour: LineStyles.position.text.color,
+          transform: _.formatThousands,
+          visible: function() {
+            return model.get('displaySettings.rows.numbering');
+          }
+        }],
+
+        // Aminoacids
+        aa: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.aa.text.font,
+          transform: function(base) {
+            return sequence.getAA(model.get('displaySettings.rows.aa'), base, parseInt(model.get('displaySettings.rows.aaOffset')));
+          },
+          visible: function() {
+            return model.get('displaySettings.rows.aa') != 'none';
+          },
+          textColour: function(codon) {
+            var colors = LineStyles.aa.text.color;
+            return colors[codon.sequence] || colors._default;
+          }
+        }],
+
+        // DNA Bases
+        dna: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.dna.text.font,
+          textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+          highlightColour: _.partial(dnaStickyEndHighlightColour, false),
+          selectionColour: LineStyles.dna.selection.fill,
+          selectionTextColour: LineStyles.dna.selection.color
+        }],
+
+        // Complements
+        complements: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.complements.text.font,
+          textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
+          highlightColour: _.partial(dnaStickyEndHighlightColour, true),
+          getSubSeq: _.partial(model.getTransformedSubSeq, 'complements', {}),
+          visible: function() {
+            return model.get('displaySettings.rows.complements');
+          }
+        }],
+
+        // Annotations
+        features: ['Feature', {
+          unitHeight: 15,
+          baseLine: 10,
+          textFont: LineStyles.features.font,
+          topMargin: 3,
+          textColour: function(type) {
+            var colors = LineStyles.features.color;
+            type = 'type-'+type.toLowerCase();
+            return (colors[type] && colors[type].color) || colors._default.color;
+          },
+          textPadding: 2,
+          margin: 2,
+          lineSize: 2,
+          colour: function(type) {
+            var colors = LineStyles.features.color;
+            type = 'type-'+type.toLowerCase();
+            return (colors[type] && colors[type].fill) || colors._default.fill;
+          },
+          visible: function() {
+            return sequence.features && model.get('displaySettings.rows.features');
+          }
+        }],
+
+        // Blank line
+        bottomSeparator: ['Blank', {
+          height: 10,
+          visible: function() {
+            return model.get('displaySettings.rows.separators');
+          }
+        }],
+
+        // Restriction Enzyme Sites
+        restrictionEnzymeSites: ['RestrictionEnzymeSites', {
+          floating: true,
+          get displaySettings() {
+            return model.get('displaySettings.rows.res') || {};
+          },
+          visible: function() {
+            return model.get('displaySettings.rows.res.display');
+          }
+        }]
+
+      };
+
+      var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
+        sequence: sequence,
+        container: this.$('.sequence-canvas-outlet').first(),
+        contextMenuView: this.contextMenuView,
+        lines: sequenceCanvasLines,
+        yOffset: model.get('displaySettings.yOffset')
       });
-      this.sequenceCanvas = new SequenceCanvas({
-        sequence: this.model,
-        $container: this.$('.sequence-canvas-container').first()
+
+      _.each(['change:sequence change:features'], (eventName) => {
+        model.on(eventName, () => sequenceCanvas.trigger(eventName));
       });
-      this.sequenceCanvas.refresh();
+
+      sequenceCanvas.on('scroll', (event, yOffset) => {
+        sequence.set('displaySettings.yOffset', yOffset, {
+          silent: true
+        }).throttledSave();
+      });
+
+      sequenceCanvas.refresh();
       this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();
       this.contextMenuView.boundTo = this.sequenceCanvas;
     },

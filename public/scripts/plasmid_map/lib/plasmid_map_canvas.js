@@ -14,7 +14,7 @@ export default class PlasmidMapCanvas {
 
     this.view = options.view;
     this.$el = options.view.$el;
-    this.model = options.view.model;
+    this.model = options.view.model.getBaseSequenceModel();
     this.$canvas = options.$canvas;
     this.artist = new Artist(options.$canvas);
 
