@@ -61,7 +61,7 @@ export default Backbone.View.extend({
     })
     .catch(function(error) {
       // We have been passed a message.
-      if(errors.DNA_LEFT_UNSEQUENCED) {
+      if(error.error === errors.DNA_LEFT_UNSEQUENCED) {
         this.updateProgress(100).css('background-color', '#C00');
         var $status = this.$('.new-sequencing-primers-progress .status');
         $status.find('.no-universal-primers-found').show();
