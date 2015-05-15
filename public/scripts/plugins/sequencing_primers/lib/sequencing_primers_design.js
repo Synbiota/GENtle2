@@ -1,9 +1,10 @@
-import {optimalPrimer4, getSequenceToSearchUsingPrimer} from '../../pcr/lib/primer_calculation';
+import {optimalPrimer4, getSequenceToSearch} from '../../pcr/lib/primer_calculation';
 import _ from 'underscore.mixed';
 import Q from 'q';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import Product from '../../pcr/lib/product';
 import {findPrimers, universalPrimers} from './universal_primers';
+import errors from './errors';
 
 
 // The number of bases after the end of a sequencing primer which are
@@ -18,41 +19,54 @@ var MAX_DNA_CHUNK_SIZE = defaultSequencingPrimerOptions().maxSearchSpace;
  * @function _getPrimersAndProducts
  * @param  {String} sequenceBases
  * @param  {Object} options
+ * @param  {Array} sequencingPrimers  Array of `Primer`(s)
  * @param  {Deferred} deferredAllPrimersAndProducts
- * @param  {Array} sequencingPrimers Array of `Primer`(s)
  * @return {Promise}
  */
-var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers, deferredAllPrimersAndProducts=undefined) {
-  if(_.isUndefined(deferredAllPrimersAndProducts)) {
-    deferredAllPrimersAndProducts = Q.defer();
-  }
-  var previousPrimer = sequencingPrimers[sequencingPrimers.length - 1];
+var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers, deferredAllPrimersAndProducts=Q.defer()) {
   var sequenceLength = sequenceBases.length;
-  var progress = previousPrimer.antisense ? (sequenceLength - previousPrimer.from - 1) : (previousPrimer.from + options.maxSearchSpace - 1);
+  var previousPrimer = sequencingPrimers[sequencingPrimers.length - 1];
+  var progress = 0;
+  var basesSequenced = 0;
+  var correctedFrom;
+  var originalFindFrom3PrimeEnd;
+  if(!previousPrimer) {
+    // TODO this code smells, perhaps this function should always be able to expect a
+    // first primer
+    if(options.findOnReverseStrand) {
+      correctedFrom = sequenceLength - 1;
+    } else {
+      correctedFrom = 0;
+      originalFindFrom3PrimeEnd = options.findFrom3PrimeEnd;
+      options.findFrom3PrimeEnd = false;
+    }
+  } else {
+    if(options.findOnReverseStrand) {
+      progress = sequenceLength - previousPrimer.from - 1;
+      basesSequenced = sequenceLength - (previousPrimer.from - options.maxSearchSpace + 1);
+      correctedFrom = previousPrimer.to;
+    } else {
+      progress = previousPrimer.from + options.maxSearchSpace - 1;
+      basesSequenced = previousPrimer.from + options.maxSearchSpace - 1;
+      correctedFrom = previousPrimer.to + 1;
+    }
+  }
   deferredAllPrimersAndProducts.notify(Math.max(progress, sequenceLength) / sequenceLength);
 
-  if(!previousPrimer.validForParentSequence(sequenceLength)) {
-    var msg = 'Previous Primer must be contained within sequence';
-    console.error(msg);
-    return Q.reject(msg);
-  }
-
-  // We must find the next sequencing primer within `usefulSearchSpace`, so that
-  // it's garbage DNA is covered by the sequencing product produced from the
-  // `previousPrimer`.
-  var usefulSearchSpace = options.maxSearchSpace - GARBAGE_SEQUENCE_DNA;
-  var basesSequenced = previousPrimer.antisense ?
-    (sequenceLength - (previousPrimer.from - options.maxSearchSpace + 1)) :
-    (previousPrimer.from + options.maxSearchSpace - 1);
   if(sequenceLength > basesSequenced) {
-    var {frm, sequenceToSearch} = getSequenceToSearchUsingPrimer(sequenceBases, options.minPrimerLength, usefulSearchSpace, previousPrimer);
+    // We must find the next sequencing primer within `usefulSearchSpace`, so that
+    // it's garbage DNA is covered by the sequencing product produced from the
+    // `previousPrimer`.
+    var usefulSearchSpace = options.maxSearchSpace - GARBAGE_SEQUENCE_DNA;
+    var {frm, sequenceToSearch} = getSequenceToSearch(sequenceBases, options.minPrimerLength, usefulSearchSpace, options.findOnReverseStrand, correctedFrom);
     optimalPrimer4(sequenceToSearch, options)
     .then(function(nextPrimer) {
-      if(previousPrimer.antisense) {
+      if(options.findOnReverseStrand) {
         nextPrimer.reverseDirection();
         nextPrimer.shift(frm + nextPrimer.length() - sequenceToSearch.length);
       } else {
         nextPrimer.shift(frm);
+        if(!previousPrimer) options.findFrom3PrimeEnd = originalFindFrom3PrimeEnd;
       }
       sequencingPrimers.push(nextPrimer);
       _getPrimersAndProducts(sequenceBases, options, sequencingPrimers, deferredAllPrimersAndProducts);
@@ -102,12 +116,20 @@ var calculateProductAndPrimer = function(sequenceLength) {
 /**
  * @function getPrimersAndProductsInOneDirection
  * @param  {String}  sequenceBases
- * @param  {Prime}  firstPrimer
- * @param  {Object}  options=defaultSequencingPrimerOptions()
+ * @param  {Prime}  firstPrimer (optional)
+ * @param  {Object}  options=defaultSequencingPrimerOptions()  With `findOnReverseStrand` set to true or false
  * @return {Promise}
  */
 var getPrimersAndProductsInOneDirection = function(sequenceBases, firstPrimer, options={}) {
-  var sequencingPrimers = [firstPrimer];
+  var sequencingPrimers = [];
+  if(firstPrimer) {
+    sequencingPrimers.push(firstPrimer);
+    if(!firstPrimer.validForParentSequence(sequenceBases.length)) {
+      var msg = 'Primer must be contained within sequence';
+      console.error(msg, firstPrimer);
+      return Q.reject(msg);
+    }
+  }
 
   options = _.deepClone(options);
   options = defaultSequencingPrimerOptions(options);
@@ -127,11 +149,16 @@ var getPrimersAndProductsInOneDirection = function(sequenceBases, firstPrimer, o
  * @return {Promise}
  */
 var getAllPrimersAndProducts = function(sequenceBases, firstForwardPrimer, firstReversePrimer, options={}) {
-  var promiseForwardPrimersAndProducts = getPrimersAndProductsInOneDirection(sequenceBases, firstForwardPrimer, options);
+  var forwardOptions = _.clone(options);
+  forwardOptions.findOnReverseStrand = false;
+  var reverseOptions = _.clone(options);
+  reverseOptions.findOnReverseStrand = true;
+
+  var promiseForwardPrimersAndProducts = getPrimersAndProductsInOneDirection(sequenceBases, firstForwardPrimer, forwardOptions);
   return promiseForwardPrimersAndProducts
   .then(function(forwardProductsAndPrimers) {
     // Find all reverse products and primers.
-    return getPrimersAndProductsInOneDirection(sequenceBases, firstReversePrimer, options)
+    return getPrimersAndProductsInOneDirection(sequenceBases, firstReversePrimer, reverseOptions)
     .then(function(reverseProductsAndPrimers) {
       return forwardProductsAndPrimers.concat(reverseProductsAndPrimers);
     });
@@ -143,26 +170,58 @@ var getAllPrimersAndProducts = function(sequenceBases, firstForwardPrimer, first
  * @function getAllPrimersAndProductsHelper
  * @param  {String} sequenceBases
  * @param  {Object} options=defaultSequencingPrimerOptions()
- * @return {Object} With `promise` or `error` key.
+ * @return {Promise}  Will resolve with products, rejected with an error object, notify with a string or
  */
 var getAllPrimersAndProductsHelper = function(sequenceBases, options={}) {
-  var ret = {};
   var {forwardSequencePrimer, reverseSequencePrimer} = findPrimers(sequenceBases, universalPrimers());
 
-  if(forwardSequencePrimer && reverseSequencePrimer) {
-    ret.promise = getAllPrimersAndProducts(sequenceBases, forwardSequencePrimer, reverseSequencePrimer, options);
-  } else {
-    var msg = 'No ';
-    if(!forwardSequencePrimer) msg += 'forward ';
-    if(!forwardSequencePrimer && !reverseSequencePrimer) msg += 'or ';
-    if(!reverseSequencePrimer) msg += 'reverse ';
-    ret.error = msg + 'universal primer found.';
-  }
-  return ret;
+  return Q.promise(function(resolve, reject, notify) {
+    // We delay to allow the early calls to notify to get through.
+    _.delay(function() {
+      if(!forwardSequencePrimer) {
+        notify({
+          message: 'No forward universal primer found.',
+          level: 'warn',
+          error: errors.UNIVERSAL_FORWARD_PRIMER_NOT_FOUND,
+        });
+      }
+      if(!reverseSequencePrimer) {
+        notify({
+          message: 'No reverse universal primer found.',
+          level: 'warn',
+          error: errors.UNIVERSAL_REVERSE_PRIMER_NOT_FOUND,
+        });
+      }
+
+      getAllPrimersAndProducts(sequenceBases, forwardSequencePrimer, reverseSequencePrimer, options)
+      .progress(notify)
+      .catch(reject)
+      .then(function(sequencingProductsAndPrimers) {
+        var firstForwardSequencePrimer = _.find(sequencingProductsAndPrimers, (product) => !product.antisense).primer;
+        var firstReverseSequencePrimer = _.find(sequencingProductsAndPrimers, (product) => product.antisense).primer;
+
+        // Check the primers will not result in any stretch of DNA being
+        // left unsequenced.
+        var overlappingSequencedBases = (firstReverseSequencePrimer.to + 1) - (firstForwardSequencePrimer.to + GARBAGE_SEQUENCE_DNA);
+        if(overlappingSequencedBases >= 0) {
+          resolve(sequencingProductsAndPrimers);
+        } else {
+          reject({
+            message: 'Forward and reverse primers found but they result in some DNA being left unsequenced.',
+            data: {overlappingSequencedBases},
+            error: errors.DNA_LEFT_UNSEQUENCED,
+          });
+        }
+      })
+      .done();
+    }, 25);
+  });
+
 };
 
 
 export default {
   getAllPrimersAndProducts,
   getAllPrimersAndProductsHelper,
+  GARBAGE_SEQUENCE_DNA
 };

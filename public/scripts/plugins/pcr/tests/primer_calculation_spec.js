@@ -12,6 +12,7 @@ var sequence1Reversed;
 var sequence2;
 var sequence2Reversed;
 var polyASequence;
+var onlyContainingReverseUniversalPrimer;
 
 var micro = 1e-6;
 
@@ -68,6 +69,7 @@ describe('finding optimal primers', function() {
       sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
       sequence2Reversed = SequenceTransforms.toReverseComplements(sequence2);
       polyASequence = 'GAAAGAAGAAGAAGAAGAAGAAGAAGAAAAAAA';
+      onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAAAAAAAAA' + 'GATCACTACCGGGCGTATT';
 
       stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
     }
@@ -116,6 +118,28 @@ describe('finding optimal primers', function() {
     optimalPrimer4_TestFactory(done, sequence2,
       {expectedSequence: 'ACTTGGTATGCACGACATGC'},
       defaultSequencingPrimerOptions()
+    );
+  });
+
+  it('optimalPrimer4 for Sequencing primer with onlyContainingReverseUniversalPrimer', function(done) {
+    var opts = defaultSequencingPrimerOptions();
+    opts.findFrom3PrimeEnd = false;
+    optimalPrimer4_TestFactory(done, onlyContainingReverseUniversalPrimer,
+      {expectedSequence: 'GATCACTACCGGGCGTATTAAAA', expectedFrom: 0, expectedTo: 22},
+      opts
+    );
+  });
+
+  it('optimalPrimer4 for Sequencing primer with onlyContainingReverseUniversalPrimer and allowed shorter primer', function(done) {
+    // Current universal primer doesn't pass the length or melting temperature
+    // requirements for sequencing primers.
+    var opts = defaultSequencingPrimerOptions();
+    opts.findFrom3PrimeEnd = false;
+    opts.minPrimerLength = 19;
+    opts.targetMeltingTemperature -= 1;
+    optimalPrimer4_TestFactory(done, onlyContainingReverseUniversalPrimer,
+      {expectedSequence: 'GATCACTACCGGGCGTATT', expectedFrom: 0, expectedTo: 18, minimumMeltingTemperature: 61},
+      opts
     );
   });
 

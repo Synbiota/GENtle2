@@ -2,12 +2,10 @@ import _ from 'underscore';
 import Q from 'q';
 
 import PrimerCalculation from '../../pcr/lib/primer_calculation';
-import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
-import {getAllPrimersAndProductsHelper} from '../lib/sequencing_primers_design';
-
+import {getAllPrimersAndProductsHelper, GARBAGE_SEQUENCE_DNA} from '../lib/sequencing_primers_design';
 import idtMeltingTemperatureStub from '../../pcr/tests/idt_stub';
-// import {sequence863, sequenceFromMike} from './test_sequences';
-// import {expected863Primers, expectedMikeForwardPrimers} from './test_expected_primers';
+
+import errors from '../lib/errors';
 
 
 var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProducts) {
@@ -16,6 +14,8 @@ var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProdu
   var productFields = ['from', 'to', 'name'];
   var primerFields = ['from', 'to', 'name', 'sequence', 'meltingTemperature', 'gcContent'];
   var failed = false;
+
+  // console.log(JSON.stringify(calculatedPrimersAndProducts,null,2))
 
   _.every(calculatedPrimersAndProducts, function(calculatedProductAndPrimer, i) {
     _.each(productFields, function(productField) {
@@ -37,21 +37,104 @@ var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProdu
 };
 
 
-var getAllPrimersAndProducts_TestFactory = function(sequence, options, expectedPrimersAndProducts) {
-  var val = getAllPrimersAndProductsHelper(sequence, options);
-
-  expect(val.error).toBeUndefined();
-  if(val.error) return Q.reject(val.error);
-
-  return val.promise
+var getAllPrimersAndProducts_TestFactory = function(sequenceBases, expectedPrimersAndProducts) {
+  return getAllPrimersAndProductsHelper(sequenceBases)
   .then(function(calculatedPrimersAndProducts) {
-    // console.log(`getAllPrimersAndProducts returned '${calculatedPrimersAndProducts.length}' results:`, JSON.stringify(calculatedPrimersAndProducts,null,2));
     checkResult(expectedPrimersAndProducts, calculatedPrimersAndProducts);
-  }).catch(function(e) {
+  })
+  .catch(function(e) {
     console.error(e);
     expect('Ensure tests fail on error').toEqual(false);
   });
 };
+
+
+var sequence863 = ('AAAAAAATGATTAAAAATTTATTGGCAATTTTAGATTTAAAATCTTTAG' +
+  'TACTCAATGCAATAAATTATTGGGGTCCTAAA' +
+  'AATAATAATGGCATACAGGGTGGTG' +  // reverse primer 2
+  'ATTTTGGTTACCC' +
+  'TATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTA' +
+  'ACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAAC' +
+  'AAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGAC' +
+  'AGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCC' +
+  'TTTTATTGGAGAGGGAGGAGGA' +  // forward primer 1
+  'AAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGG' +
+  'CTTCAACTGATATAGAGTGGAATATTTCACA' +
+  'ACCAGTATTGGTTCCCCCAC' +  // reverse primer 1
+  'GTAAACAAGTTGTAGCAAC' +
+  'ATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACAT' +
+  'TATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTT' +
+  'GGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTA' +
+  'TACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATAT' +
+  'GCCACTGTACGATTTGATCAATATG' +  // forward primer 2
+  'ATATACACAATTTAAGGACAATTGAAAAAACTT' +
+  'GGTATGCACGACATGCATTAGTTA' + // primer 3
+  'TTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGA'
+);
+
+
+var expected863Primers = [
+{
+    "name": "Product 1 (forward)",
+    "from": 81,
+    "to": 580,
+    "primer": {
+      "name": "Product 1 (forward) - primer",
+      "sequence": "AATAATAATGGCATACAGGGTGGTG",
+      "from": 81,
+      "to": 105,
+      "meltingTemperature": 63.1,
+      "gcContent": 0.4,
+      "antisense": false
+    },
+    "antisense": false
+  },
+  {
+    "name": "Product 2 (forward)",
+    "from": 506,
+    "to": 919,
+    "primer": {
+      "name": "Product 2 (forward) - primer",
+      "sequence": "ATTGGTTCCCCCACGTAAAC",
+      "from": 506,
+      "to": 525,
+      "meltingTemperature": 62.4,
+      "gcContent": 0.5,
+      "antisense": false
+    },
+    "antisense": false
+  },
+  {
+    "name": "Product 1 (reverse)",
+    "from": 519,
+    "to": 19,
+    "primer": {
+      "name": "Product 1 (reverse) - primer",
+      "sequence": "GTGGGGGAACCAATACTGGT",  // ACCAGTATTGGTTCCCCCAC
+      "from": 519,
+      "to": 499,
+      "meltingTemperature": 63.7,
+      "gcContent": 0.55,
+      "antisense": true
+    },
+    "antisense": true
+  },
+  {
+    "name": "Product 2 (reverse)",
+    "from": 103,
+    "to": -1,
+    "primer": {
+      "name": "Product 2 (reverse) - primer",
+      "sequence": "CACCACCCTGTATGCCATTATTATT",  // AATAATAATGGCATACAGGGTGGTG
+      "from": 103,
+      "to": 78,
+      "meltingTemperature": 63.1,
+      "gcContent": 0.4,
+      "antisense": true
+    },
+    "antisense": true
+  }
+];
 
 
 var shortSequence = ('TTATGACAACTTGACGGCTACATCATTCACTTTTTCTTCAC' +           // 41:   0- 40  (41)
@@ -136,34 +219,53 @@ describe('finding Sequencing Primers', function() {
     done();
   });
 
-  // it('find primers for sequence863', function(done) {
-  //   var testSequence863 = getAllPrimersAndProducts_TestFactory(sequence863,
-  //   defaultSequencingPrimerOptions(), expected863Primers);
-
-  //   testSequence863.then(done).done();
-  // });
-
-  it('find forward primers for sequence from Mike', function(done) {
-    getAllPrimersAndProducts_TestFactory(
-      shortSequence,
-      defaultSequencingPrimerOptions(),
-      expectedShortSequencePrimers
-    )
-    .then(done);
+  it('find primers for sequence863', function(done) {
+    getAllPrimersAndProducts_TestFactory(sequence863, expected863Primers)
+    .then(done)
+    .done();
   });
 
-  // it('find reverse primers for sequence from Mike', function(done) {
-  //   var {reverseSequencePrimer} = findPrimers(sequenceFromMike, universalPrimers());
-  //   var options = defaultSequencingPrimerOptions();
-  //
-  //   getAllPrimersAndProducts_TestFactory(
-  //     sequenceFromMike,
-  //     options,
-  //     reverseSequencePrimer,
-  //     expectedMikeReversePrimers
-  //   )
-  //   .then(done);
-  // });
+  it('find forward primers for sequence from Mike', function(done) {
+    getAllPrimersAndProducts_TestFactory(shortSequence, expectedShortSequencePrimers)
+    .then(done)
+    .done();
+  });
+
+  it('expect notice of warning to find forwardUniversal primer', function(done) {
+    var spacerBases = _.times(GARBAGE_SEQUENCE_DNA, () => 'A').join('');
+    var onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAA' + spacerBases + 'GATCACTACCGGGCGTATT';
+    var deferredProducts = Q.defer();
+    var deferredNotification = Q.defer();
+
+    getAllPrimersAndProductsHelper(onlyContainingReverseUniversalPrimer)
+    .then(function(val) {
+      // console.log('then...', val)
+      deferredProducts.resolve(val);
+    })
+    .catch(function(val) {
+      // We should never get here.
+      console.error("ERROR : ", val);
+      expect(val).toBeUndefined();
+      done();
+    })
+    .progress(function(val) {
+      // console.log('progress...', val)
+      deferredNotification.resolve(val);
+    })
+    .done();
+
+    Q.all([deferredProducts.promise, deferredNotification.promise])
+    .then(function(args) {
+      var [calculatedProductsAndPrimers, notification] = args;
+      expect(calculatedProductsAndPrimers.length).toEqual(2);
+      expect(calculatedProductsAndPrimers[0].primer.sequence).toEqual('GATCACTACCGGGCGTATTAAAA');
+      expect(calculatedProductsAndPrimers[1].primer.sequence).toEqual('AATACGCCCGGTAGTGATC');
+      expect(notification.level).toEqual('warn');
+      expect(notification.error).toEqual(errors.UNIVERSAL_FORWARD_PRIMER_NOT_FOUND);
+      done();
+    });
+
+  });
 
   it('finally: teardown', function(done) {
     PrimerCalculation.restoreIDTMeltingTemperature();

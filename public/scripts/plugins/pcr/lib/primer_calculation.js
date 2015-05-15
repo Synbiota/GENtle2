@@ -81,9 +81,12 @@ class PotentialPrimer {
 
       if(this.goodGCContent()) {
         var ourTm = SequenceCalculations.meltingTemperature(this.potentialPrimer);
-        if(ourTm > (this.targetMeltingTemperature + this.meltingTemperatureTolerance + this.IDTmeltingTemperatureProximity)) {
+        var largest = this.targetMeltingTemperature + this.meltingTemperatureTolerance + this.IDTmeltingTemperatureProximity;
+        var smallest = this.targetMeltingTemperature - this.meltingTemperatureTolerance - this.IDTmeltingTemperatureProximity;
+        logger('ourTm', this.potentialPrimer, ourTm, 'largest, smallest: ', largest, smallest);
+        if(ourTm > largest) {
           this.i += 1;
-        } else if (ourTm < (this.targetMeltingTemperature - this.meltingTemperatureTolerance - this.IDTmeltingTemperatureProximity)) {
+        } else if (ourTm < smallest) {
           this.growOrShiftPotentialPrimer();
         } else {
           // Our calculated Tm seems good so check with IDT.
