@@ -41,7 +41,7 @@ module.exports = function(config) {
         transform: [
             ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
             'babelify',
-            'deamdify'
+            // 'deamdify'
         ]
     },
 
