@@ -57,7 +57,7 @@ var codonToAAShort = function(codon) {
     codonToAAShortMap = [];
     _.each(SynbioData.aa, function(aa) {
       _.each(aa.codons, function(codon) {
-        codonToAAShortMap[codon] = (aa.short || ' ') + '  ';
+        codonToAAShortMap[codon] = ' ' + (aa.short || ' ') + ' ';
       });
     });
   }
