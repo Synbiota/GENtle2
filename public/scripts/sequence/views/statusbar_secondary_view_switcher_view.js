@@ -3,7 +3,7 @@
 @module Sequence
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/statusbar_secondary_view_switcher_view.hbs'),
     Backbone = require('backbone'),
     Gentle = require('gentle'),
@@ -42,6 +42,6 @@ define(function(require) {
     }
     
   });
-
-  return SecondaryViewSwitcher;
-});
+export default SecondaryViewSwitcher;
+  // return SecondaryViewSwitcher;
+// });

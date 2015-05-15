@@ -3,7 +3,7 @@
 @submodule Models
 @class HistorySteps
 **/
-define(function(require) {
+// define(function(require) {
   var HistoryStep   = require('./history_step'),
       Backbone      = require('backbone'),
       History;
@@ -17,6 +17,6 @@ define(function(require) {
       return _.map(this.models, function(model) { return model.serialize(); }); 
     }
   });
-
-  return HistorySteps;
-});
+export default HistorySteps;
+  // return HistorySteps;
+// });

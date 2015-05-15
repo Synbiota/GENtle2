@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Point;
 
   Point = function(x, y) {
@@ -60,6 +60,6 @@ define(function(require) {
     return "point(" + this.x + "," + this.y + ")";
   };
 
-  return Point;
-
-});
+  // return Point;
+export default Point;
+// });

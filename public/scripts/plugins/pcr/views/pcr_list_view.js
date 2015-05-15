@@ -32,8 +32,10 @@ export default Backbone.View.extend({
   afterRender: function() {
     var showingProduct = this.showingProduct;
     if(showingProduct) {
-      var id = showingProduct.get('id');
-      this.$(`[data-product_id="${id}"]`).addClass('panel-info');
+      let id = showingProduct.get('id');
+      let $element = this.$(`[data-product_id="${id}"]`);
+      $element.addClass('panel-info');
+      $element.find('.selectable-sequence').first().select();
       this.scrollToProduct(id);
       this.parentView().showCanvas(showingProduct);
     }
@@ -84,8 +86,9 @@ export default Backbone.View.extend({
   selectSequence: onClickSelectableSequence,
 
   scrollToProduct: function(productId) {
-    var $container = this.$('#pcr-list-outer-container');
+    var $container = $('#pcr-list-outer-container');
     var $target = this.$('[data-product_id="' + productId + '"]');
+    // debugger
     $container.scrollTop($target.offset().top);
   },
 

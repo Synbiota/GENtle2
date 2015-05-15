@@ -3,7 +3,7 @@
 @submodule Views
 @class SidebarView
 **/
-define(function(require) {
+// define(function(require) {
   var Backbone      = require('backbone'),
       _             = require('underscore'),
       template      = require('../templates/sidebar_view.hbs'),
@@ -194,6 +194,6 @@ define(function(require) {
       this.$('.sidebar-tab-link').tooltip('destroy');
     }
   });
-
-  return SidebarView;
-})
+export default SidebarView;
+  // return SidebarView;
+// })

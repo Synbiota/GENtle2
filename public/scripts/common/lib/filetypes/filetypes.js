@@ -3,7 +3,7 @@
 @class Filetypes
 @main Filetypes
 **/
-define(function(require) {
+// define(function(require) {
   // var FT_cm5          = require('lib/files/cm5'),
   //     FT_cm5_text     = require('lib/files/cm5_text'),
   //     FT_fasta        = require('lib/files/fasta'),
@@ -154,6 +154,6 @@ define(function(require) {
 
     return promise;
   };
-
-  return Filetypes;
-});
+export default Filetypes;
+  // return Filetypes;
+// });

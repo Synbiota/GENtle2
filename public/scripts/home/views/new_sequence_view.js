@@ -3,7 +3,7 @@
 @submodule Views
 @class NewSequenceView
 **/
-define(function(require) {
+// define(function(require) {
   var Backbone    = require('backbone'),
       template    = require('../templates/new_sequence_view.hbs'),
       Filetypes   = require('../../common/lib/filetypes/filetypes'),
@@ -29,6 +29,6 @@ define(function(require) {
         .catch((e) => console.log(e));
     }
   });
-
-  return NewSequenceView;
-});
+export default NewSequenceView;
+  // return NewSequenceView;
+// });

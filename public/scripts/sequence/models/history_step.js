@@ -22,7 +22,7 @@ Handling history steps
 @param {string} [values] when `model.type` is `insert` or `delete`, bases
   which have been inserted or deleted
 **/
-define(function(require){
+// define(function(require){
   var Backbone = require('backbone'),
       HistoryStep;
 
@@ -52,6 +52,6 @@ define(function(require){
       });
     }
   });
-
-  return HistoryStep;
-});
+export default HistoryStep;
+  // return HistoryStep;
+// });

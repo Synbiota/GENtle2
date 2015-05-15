@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // FASTA
 
@@ -56,6 +56,6 @@ define(function(require) {
     if ( this.asString().match ( /^\>/ ) ) return true ;
     return false ;
   };
-
-  return FT_fasta;
-});
+export default FT_fasta;
+  // return FT_fasta;
+// });

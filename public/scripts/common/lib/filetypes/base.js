@@ -3,7 +3,7 @@
     @class FT_base
     @module Filetypes
 **/
-define(function(require) {
+// define(function(require) {
   function FT_base () {
     this.fileTypeValidated = false ;
     this.typeName = 'none' ;
@@ -180,6 +180,6 @@ define(function(require) {
   FT_base.prototype.getFileExtension = function () {
     return '' ;
   }
-
-  return FT_base;
-});
+export default FT_base;
+  // return FT_base;
+// });

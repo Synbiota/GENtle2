@@ -13,7 +13,7 @@ Options are:
 @submodule SequenceCanvas
 @extends Lines.Line
 **/
-define(function(require) {
+// define(function(require) {
   var Line = require('./line'),
       DNA;
 
@@ -99,6 +99,6 @@ define(function(require) {
     }
             
   };
-
-  return DNA;
-});
+export default DNA;
+  // return DNA;
+// });

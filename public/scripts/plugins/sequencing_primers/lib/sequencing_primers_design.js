@@ -45,8 +45,6 @@ var getPrimersPair = function(options, sequence) {
   var reversePromise = PrimerCalculation.optimalPrimer4(SequenceTransforms.toReverseComplements(sequence), options);
   var lastProgress = [{}, {}];
 
-  forwardPromise.progress(() => { console.log('lapin') })
-
   return Q.promise(function(resolve, reject, notify) {
 
     Q.all([forwardPromise, reversePromise]).progress(function(current) {
@@ -84,7 +82,7 @@ var getAllPrimers = function(sequence, options={}) {
   var sequenceChunks = splitSequence(sequence);
   var maxParallel = 5;
   var numberBatches = Math.ceil(sequenceChunks.length / maxParallel);
-  // var lastProgress = _.map(_.range(numberBatches), function() { return {}; });
+  var lastProgress = _.map(_.range(numberBatches), function() { return {}; });
 
   return Q.promise(function(resolve, reject, notify) {
 
@@ -118,7 +116,7 @@ var getAllPrimers = function(sequence, options={}) {
         var displayedIndex = i + 1;
         primer.forwardPrimer.name = `Forward primer ${displayedIndex}`;
         primer.reversePrimer.name = `Reverse primer ${displayedIndex}`;
-        name = `Product ${displayedIndex}`;
+        var name = `Product ${displayedIndex}`;
 
         return _.extend(primer, {
           from: from,

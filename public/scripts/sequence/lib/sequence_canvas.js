@@ -11,7 +11,7 @@ rendered.
 @uses SequenceCanvasUtilities
 @module SequenceCanvas
 **/
-define(function(require) {
+// define(function(require) {
   'use strict';
   var Artist = require('../../common/lib/graphics/artist'),
     Hotkeys = require('../../common/lib/hotkeys'),
@@ -849,6 +849,6 @@ define(function(require) {
   };
 
 
-
-  return SequenceCanvas;
-});
+export default SequenceCanvas;
+  // return SequenceCanvas;
+// });

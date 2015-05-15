@@ -2,7 +2,7 @@
 @class Text
 @extends Shape
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       Text;
 
@@ -58,6 +58,6 @@ define(function(require) {
   Text.prototype.reverseText = function(text){
     return text.split("").reverse().join("");
   };
-
-  return Text;
-});
+export default Text;
+  // return Text;
+// });

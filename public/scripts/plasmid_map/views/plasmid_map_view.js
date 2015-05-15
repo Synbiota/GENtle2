@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Backbone        = require('backbone'),
       Gentle          = require('gentle'),
       Artist          = require('../../common/lib/graphics/artist'),
@@ -38,6 +38,6 @@ define(function(require) {
 
   });
 
-  return PlasmidMapView;
-
-});
+  // return PlasmidMapView;
+export default PlasmidMapView
+// });
