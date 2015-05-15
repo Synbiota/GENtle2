@@ -7,6 +7,7 @@ import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 import {namedHandleError} from '../../../common/lib/handle_error';
 import Product from '../../pcr/lib/product';
+import errors from '../lib/errors';
 
 
 export default Backbone.View.extend({
@@ -42,23 +43,32 @@ export default Backbone.View.extend({
     this.$('.new-sequencing-primers-progress').show();
 
     var sequenceBases = this.model.get('sequence');
-    var primers = getAllPrimersAndProductsHelper(sequenceBases);
-    if(primers.promise) {
-      primers.promise.progress((progress) => {
-        this.updateProgress(progress);
-      })
-      .then((results) => {
-        this.model.set('meta.sequencingPrimers.products', results).throttledSave();
-        this.render();
-      })
-      .catch(namedHandleError('startCalculation'))
-      .done();
-    } else {
-      this.updateProgress(100).css('background-color', '#C00');
-      var $status = this.$('.new-sequencing-primers-progress .status');
-      $status.find('p').hide();
-      $status.find('.no-universal-primers-found').show();
-    }
+    getAllPrimersAndProductsHelper(sequenceBases)
+    .progress((progressOrStatus) => {
+      if(progressOrStatus.level) {
+        var $message = $('<p>').text(progressOrStatus.message);
+        if(progressOrStatus.level === 'warn') {
+          $message.addClass('text-warning');
+        }
+        this.$('.new-sequencing-primers-progress .status').append($message);
+      } else {
+        this.updateProgress(progressOrStatus);
+      }
+    })
+    .then((results) => {
+      this.model.set('meta.sequencingPrimers.products', results).throttledSave();
+      this.render();
+    })
+    .catch(function(error) {
+      // We have been passed a message.
+      if(errors.DNA_LEFT_UNSEQUENCED) {
+        this.updateProgress(100).css('background-color', '#C00');
+        var $status = this.$('.new-sequencing-primers-progress .status');
+        $status.find('.no-universal-primers-found').show();
+      }
+      namedHandleError('startCalculation')(error);
+    })
+    .done();
   },
 
   updateProgress: function(progress) {
