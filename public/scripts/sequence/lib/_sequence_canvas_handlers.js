@@ -32,7 +32,9 @@ Event handlers for SequenceCanvas
             this.hideCaret();
             this.sequence.insertBases(base, caretPosition);
             this.caretPosition = ++caretPosition;
-            this.displayCaret();
+            this.afterNextRedraw(() => {
+              this.displayCaret();
+            });
 
           } else {
             alertUneditableStickyEnd();
@@ -50,7 +52,9 @@ Event handlers for SequenceCanvas
             );
             this.sequence.insertBases(base, selection[0]);
             this.caretPosition = selection[0] + 1;
-            this.displayCaret(selection[0] + 1);
+            this.afterNextRedraw(() => {
+              this.displayCaret();
+            });
 
           } else {
             alertUneditableStickyEnd();
@@ -116,7 +120,10 @@ Event handlers for SequenceCanvas
             selection[0],
             selection[1] - selection[0] + 1
           );
-          this.displayCaret(selection[0]);
+          this.caretPosition = selection[0];
+          this.afterNextRedraw(() => {
+            this.displayCaret();
+          });
         } else {
           alertUneditableStickyEnd();
         }
@@ -125,7 +132,10 @@ Event handlers for SequenceCanvas
         if(this.sequence.isBaseEditable(previousCaret - 1)) {
           this.hideCaret();
           this.sequence.deleteBases(previousCaret - 1, 1);
-          this.displayCaret(previousCaret - 1);
+          this.caretPosition = previousCaret - 1;
+          this.afterNextRedraw(() => {
+            this.displayCaret();
+          });
         } else {
           alertUneditableStickyEnd();
         }
@@ -263,7 +273,10 @@ Event handlers for SequenceCanvas
           text = _this.cleanPastedText(text);
           _this.hideCaret();
           _this.sequence.insertBases(text, caretPosition);
-          _this.displayCaret(caretPosition + text.length);
+          _this.caretPosition = caretPosition + text.length;
+          _this.afterNextRedraw(() => {
+            _this.displayCaret();
+          });
           _this.focus();
         }
 
