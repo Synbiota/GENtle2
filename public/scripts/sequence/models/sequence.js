@@ -13,6 +13,22 @@ import _ from 'underscore';
 
 import deprecated from '../../common/lib/deprecated';
 
+var smartMemoizeAndClear = function(obj, methodName, eventName) {
+  if(_.isObject(methodName)) {
+    _.each(methodName, (_eventName, _methodName) => {
+      smartMemoizeAndClear(obj, _methodName, _eventName);
+    });
+  } else {
+    obj[methodName] = _.memoize2(obj[methodName]);
+    let callback = () => obj[methodName].clearCache();
+    if(obj instanceof Backbone.Model) {
+      obj.listenTo(obj, eventName, callback);
+    } else {
+      obj.on(eventName, callback);
+    }
+  }
+};
+
 var SequenceModel = Backbone.DeepModel.extend({
   displayName: 'SequenceModel',
 
@@ -52,6 +68,15 @@ var SequenceModel = Backbone.DeepModel.extend({
     this.listenTo(this, 'change:sequence', this.clearBlastCache);
 
     this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
+
+    var defaultStickyEndsEvent = 'change:stickyEnds change:displaySettings.stickyEndFormat';
+    smartMemoizeAndClear(this, {
+      getSequence: `change:sequence ${defaultStickyEndsEvent}`,
+      getFeatures: `change:features ${defaultStickyEndsEvent}`,
+      getStickyEnds: defaultStickyEndsEvent,
+      editableRange: `change:sequence ${defaultStickyEndsEvent}`,
+      selectableRange: `change:sequence ${defaultStickyEndsEvent}`
+    });
   },
 
   trueGet: function(attributes) {
