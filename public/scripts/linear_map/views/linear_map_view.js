@@ -158,11 +158,18 @@ export default Backbone.View.extend({
       hideNonPalindromicStickyEndSites: false
     });
 
-    this.enzymes = _.map(enzymes, function(enzymeArray, position) {
+    this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
+      position = position^0;
+
+      enzymeArray = _.filter(enzymeArray, function(enzyme) {
+        return model.isRangeEditable(position, position + enzyme.seq.length);
+      });
+
+      if(enzymeArray.length === 0) return;
       var label = enzymeArray[0].name;
       if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
       return {position, label};
-    });
+    }));
   },
 
   positionEnzymes: function() {

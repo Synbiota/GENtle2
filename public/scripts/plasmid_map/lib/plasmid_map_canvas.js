@@ -154,14 +154,15 @@ export default class PlasmidMapCanvas {
   }
 
   drawRES() {
-    var displaySettings = this.model.get('displaySettings.rows.res') || {},
+    var model = this.model,
+        displaySettings = model.get('displaySettings.rows.res') || {},
         enzymes = RestrictionEnzymes.getAllInSeq(this.model.getSequence(), {
           // length: displaySettings.lengths || [],
           customList: displaySettings.custom || [],
           // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
           hideNonPalindromicStickyEndSites: false
         }),
-        len = this.model.getLength(),
+        len = model.getLength(),
         previousPosition = 0,
         artist = this.artist,
         radii = this.radii.RES,
@@ -181,6 +182,14 @@ export default class PlasmidMapCanvas {
 
     artist.onTemporaryTransformation(function() {
       _.each(enzymes, function(enzymes_, position) {
+        position = position^0;
+
+        enzymes_ = _.filter(enzymes_, function(enzyme) {
+          return model.isRangeEditable(position, position + enzyme.seq.length);
+        });
+
+        if(enzymes_.length === 0) return;
+
         var names = _.pluck(enzymes_, 'name');
         names = (names.length <= 2 ) ? names.join(', ') : (names[0] + ' +' + (names.length-1));
         position = 1*position;
