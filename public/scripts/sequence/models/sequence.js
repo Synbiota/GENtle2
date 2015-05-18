@@ -1040,6 +1040,44 @@ var SequenceModel = Backbone.DeepModel.extend({
       });
   },
 
+
+
+  selectableRange: function(reverse = false) {
+    var stickyEndFormat = this.get('displaySettings.stickyEndFormat');
+    var stickyEnds = this.getStickyEnds();
+    var length = this.getLength();
+
+    if(stickyEnds && stickyEndFormat === 'overhang') {
+      var getOffset = function(type) {
+        return stickyEnds[type].reverse ? 
+        (reverse ? 0 : stickyEnds[type].size) : 
+        (reverse ? stickyEnds[type].size : 0);
+      };
+
+      return [
+        getOffset('start'),
+        length - getOffset('end')
+      ];
+    } else {
+      return [0, length];
+    }
+  },
+
+  editableRange: function() {
+    var stickyEndFormat = this.get('displaySettings.stickyEndFormat');
+    var stickyEnds = this.getStickyEnds();
+    var length = this.getLength();
+
+    if(stickyEnds && stickyEndFormat === 'overhang') {
+      return [
+        stickyEnds.start.size,
+        length - stickyEnds.end.size
+      ];
+    } else {
+      return [0, length];
+    }
+  },
+
   length: function() {
     deprecated(this, 'length', 'getLength');
     return this.getLength();
