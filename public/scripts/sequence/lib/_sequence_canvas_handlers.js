@@ -27,7 +27,7 @@ Event handlers for SequenceCanvas
 
         if (!selection && caretPosition !== undefined) {
 
-          if(this.isBaseEditable(caretPosition)) {
+          if(this.sequence.isBaseEditable(caretPosition)) {
 
             this.hideCaret();
             this.sequence.insertBases(base, caretPosition);
@@ -40,7 +40,7 @@ Event handlers for SequenceCanvas
 
         } else if (selection) {
 
-          if(this.isBaseEditable(...selection)) {
+          if(this.sequence.isRangeEditable(...selection)) {
 
             this.hideCaret();
             this.selection = undefined;
@@ -110,7 +110,7 @@ Event handlers for SequenceCanvas
     if(!this.readOnly) {
       if (this.selection) {
         var selection = this.selection;
-        if(this.isBaseEditable(...selection)) {
+        if(this.sequence.isBaseEditable(...selection)) {
           this.selection = undefined;
           this.sequence.deleteBases(
             selection[0],
@@ -122,7 +122,7 @@ Event handlers for SequenceCanvas
         }
       } else if (this.caretPosition > 0) {
         var previousCaret = this.caretPosition;
-        if(this.isBaseEditable(previousCaret - 1)) {
+        if(this.sequence.isBaseEditable(previousCaret - 1)) {
           this.hideCaret();
           this.sequence.deleteBases(previousCaret - 1, 1);
           this.displayCaret(previousCaret - 1);
@@ -307,6 +307,7 @@ Event handlers for SequenceCanvas
       layoutHelpers = _this.layoutHelpers,
       caretPosition = _this.caretPosition,
       selection = _this.selection,
+      sequence = this.sequence,
       mouse = _this.normalizeMousePosition(event);
 
     mouse.top += layoutHelpers.yOffset;
@@ -315,8 +316,8 @@ Event handlers for SequenceCanvas
       (Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
         Math.abs(mouse.top - _this.dragStartPos[1]) >= layoutHelpers.rows.height)) {
 
-      var first = _this.ensureBaseIsSelectable(_this.dragStartBase, true);
-      var last = _this.ensureBaseIsSelectable(
+      var first = sequence.ensureBaseIsSelectable(_this.dragStartBase, true);
+      var last = sequence.ensureBaseIsSelectable(
           _this.getBaseFromXYPos(mouse.left, mouse.top),
           true
         );
@@ -371,7 +372,7 @@ Event handlers for SequenceCanvas
       if (this.selection) {
         this.select(undefined);
       } 
-      this.displayCaret(this.ensureBaseIsSelectable(base));
+      this.displayCaret(this.sequence.ensureBaseIsSelectable(base));
     }
 
     _this.redraw();

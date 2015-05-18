@@ -1150,6 +1150,36 @@ var SequenceModel = Backbone.DeepModel.extend({
     return this;
   },
 
+  ensureBaseIsSelectable: function(base, strict = false) {
+    var selectableRange = this.selectableRange();
+    return Math.min(
+      Math.max(base, selectableRange[0]), 
+      selectableRange[1] + (strict ? 0 : 1)
+    );
+  },
+
+  ensureBaseIsEditable: function(base) {
+    var editableRange = this.editableRange();
+    return Math.min(Math.max(base, editableRange[0]), editableRange[1]+1);
+  },
+
+  isBaseEditable: function(base) {
+    var editableRange = this.editableRange();
+    return editableRange[0] <= base && editableRange[1] >= base - 1;
+  },
+
+  isRangeEditable: function(start, end) {
+    var editableRange = this.editableRange();
+    
+    if(end < start) {
+      [end, start] = [start, end];
+    }
+
+    return this.isBaseEditable(start) && 
+      editableRange[0] <= end && editableRange[1] >= end;
+
+  }
+
 });
 
 

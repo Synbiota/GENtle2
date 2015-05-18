@@ -34,8 +34,8 @@
 
     for(i = 0; i <= Math.floor(sequence.getLength() / basesPerRow); i++) {
       subSeq = sequence.getSubSeq(
-        i * basesPerRow - subSeqPadding,
-        (i+1) * basesPerRow - 1 + subSeqPadding
+        sequence.ensureBaseIsEditable(i * basesPerRow - subSeqPadding),
+        sequence.ensureBaseIsEditable((i+1) * basesPerRow - 1 + subSeqPadding)
       );
       enzymes = RestrictionEnzymes.getAllInSeq(subSeq, enzymeOptions);
       nbRES.push(_.keys(this.onlyVisibleEnzymes(enzymes, i, subSeqPadding)).length);
@@ -67,16 +67,17 @@
   RestrictionEnzymesLabels.prototype.draw = function(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
         artist = sequenceCanvas.artist,
+        sequence = sequenceCanvas.sequence,
         layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
         subSeqPadding = RestrictionEnzymes.maxLength(),
-        displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        displaySettings = sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
           // length: displaySettings.lengths || [],
           customList: displaySettings.custom || '',
           // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
-        expandedSubSeq = sequenceCanvas.sequence.getSubSeq(
+        expandedSubSeq = sequence.getSubSeq(
           baseRange[0] - subSeqPadding,
           baseRange[1] + subSeqPadding
         ),
@@ -100,6 +101,17 @@
 
     _.each(enzymes, function(enzymes_, position) {
       position -= baseRange[0] === 0 ? 0 : subSeqPadding;
+
+      enzymes_ = _.filter(enzymes_, function(enzyme) {
+        return sequence.isRangeEditable(
+          position + baseRange[0],
+          position + baseRange[0] + enzyme.seq.length
+        );
+      });
+
+      if(enzymes_.length === 0) return;
+
+
       x = _this.getBaseX(position, baseRange, true);
       artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
       artist.path(
