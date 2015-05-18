@@ -1121,7 +1121,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   throttledSave: function() {
     if(!this._throttledSave) {
-      this._throttledSave = _.throttle(_.bind(this.save, this), 100);
+      this._throttledSave = _.afterLastCall(_.bind(this.save, this), 300);
     }
     this._throttledSave();
   },
