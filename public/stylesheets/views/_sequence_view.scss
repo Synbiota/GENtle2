@@ -19,6 +19,8 @@
 }
 
 .sequence-canvas-wrapper {
+  user-select: none;
+  
   .sequence-canvas-container {
     position: absolute;
     left: 0;

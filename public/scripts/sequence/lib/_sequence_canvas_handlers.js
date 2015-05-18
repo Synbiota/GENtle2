@@ -338,7 +338,7 @@ Event handlers for SequenceCanvas
       _this.selecting = false;
       _this.selection = undefined;
     }
-
+    _this.displayCaret(_this.caretPosition, false);
     _this.redrawSelection(_this.selection);
   };
 

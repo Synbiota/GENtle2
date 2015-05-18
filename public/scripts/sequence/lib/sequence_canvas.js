@@ -658,7 +658,7 @@ rendered.
   @method displayCaret
   @param base [base]
   **/
-  SequenceCanvas.prototype.displayCaret = function(base) {
+  SequenceCanvas.prototype.displayCaret = function(base, showMenu = true) {
     
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
@@ -684,7 +684,9 @@ rendered.
 
       this.caret.move(posX, posY, base);
       this.caretPosition = base;
-      this.showContextMenuButton(posX, posY + 20);
+      if(showMenu) {
+        this.showContextMenuButton(posX, posY + 20);
+      }
       this.caret.setInfo(this.determineCaretInfo());
 
       if(this.selection) {
