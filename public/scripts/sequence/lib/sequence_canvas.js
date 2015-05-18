@@ -587,7 +587,7 @@ rendered.
           silent: true
         }
       );
-      _.defer(this.sequence.throttledSave);
+      this.sequence.throttledSave();
     }
 
     this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
