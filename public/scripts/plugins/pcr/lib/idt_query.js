@@ -45,7 +45,7 @@ var getResults = function(sequence, options) {
 
 export default function(sequence, opts = {}) {
   return getResults(
-    _.isString(sequence) ? sequence : sequence.get('sequence'),
+    _.isString(sequence) ? sequence : sequence.getSequence(),
     _.defaults(opts, {
       concentration: 0.25e-6,
       naPlusConcentration: 50e-3,

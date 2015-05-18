@@ -46,7 +46,7 @@ export default Backbone.View.extend({
     // For the moment we default to a forward primer that Mike provided.
     // This primer will need to be specified in the UI.
     var universalForwardPrimer = mikeForward1();
-    PrimersDesign(this.model.get('sequence'), universalForwardPrimer).progress((progress) => {
+    PrimersDesign(this.model.getSequence(), universalForwardPrimer).progress((progress) => {
       this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
     }).then((results) => {
       console.log('done', results)
@@ -85,7 +85,7 @@ export default Backbone.View.extend({
     });
 
     return new Sequence({
-      sequence: this.model.get('sequence'),
+      sequence: this.model.getSequence(),
       features: features
     });
   }

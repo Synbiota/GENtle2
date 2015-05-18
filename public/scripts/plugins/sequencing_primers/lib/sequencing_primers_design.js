@@ -76,7 +76,7 @@ var logger = function(...msg) {
 
 var getAllPrimers = function(sequence, options={}) {
   logger('+getAllPrimers');
-  if(!_.isString(sequence)) sequence = sequence.get('sequence');
+  if(!_.isString(sequence)) sequence = sequence.getSequence();
   defaultSequencingPrimerOptions(options);
 
   var sequenceChunks = splitSequence(sequence);

@@ -17,8 +17,9 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    this.setFormData('start', this.model.get('stickyEnds.start'));
-    this.setFormData('end', this.model.get('stickyEnds.end'));
+    var stickyEnds = this.model.getStickyEnds();
+    this.setFormData('start', stickyEnds.start);
+    this.setFormData('end', stickyEnds.end);
   },
 
   getField: function(position, name) {

@@ -28,7 +28,7 @@ export default Backbone.View.extend({
   serialize: function() {
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {
+    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
       length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
       hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false

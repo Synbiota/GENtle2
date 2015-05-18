@@ -205,7 +205,7 @@ describe('getting features from sticky ended sequences', function(){
     });
 
     it('should shorten features that extend beyond the end of the overhang to end at sequence length', function(){
-      var sequenceLength = stickyEndedSequence.length();
+      var sequenceLength = stickyEndedSequence.getLength();
       expect(features[3].ranges[0].to).toEqual(sequenceLength - 1);
     });
 

@@ -78,7 +78,7 @@ var calculateFeatures = function(productAttributes) {
  */
 var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
   opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
+  var sequenceNts = _.isString(sequence) ? sequence : sequence.getSequence();
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
     reverseAnnealingRegion: reverseAnnealingRegion
@@ -143,7 +143,7 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
 
 
 var getSequencesToSearch = function(sequence, opts) {
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
+  var sequenceNts = _.isString(sequence) ? sequence : sequence.getSequence();
   opts = defaultPCRPrimerOptions(opts);
 
   _.defaults(opts, {

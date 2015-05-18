@@ -119,7 +119,7 @@ export default class PlasmidMapCanvas {
 
   drawPositionMarks() {
 
-    var len = this.model.length(),
+    var len = this.model.getLength(),
         lineNumberIncrement = this.bestLineNumbering(len, 100) ,
         angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ,
         r = - this.radii.lineNumbering.r,
@@ -155,13 +155,13 @@ export default class PlasmidMapCanvas {
 
   drawRES() {
     var displaySettings = this.model.get('displaySettings.rows.res') || {},
-        enzymes = RestrictionEnzymes.getAllInSeq(this.model.get('sequence'), {
+        enzymes = RestrictionEnzymes.getAllInSeq(this.model.getSequence(), {
           // length: displaySettings.lengths || [],
           customList: displaySettings.custom || [],
           // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
           hideNonPalindromicStickyEndSites: false
         }),
-        len = this.model.length(),
+        len = this.model.getLength(),
         previousPosition = 0,
         artist = this.artist,
         radii = this.radii.RES,
@@ -200,7 +200,7 @@ export default class PlasmidMapCanvas {
 
   drawFeatures() {
     var featuresStack = _.first(this.processFeatures(), 4),
-        len = this.model.length(),
+        len = this.model.getLength(),
         _this = this,
         artist = _this.artist,
         colors = LineStyles.features.color,
@@ -236,7 +236,7 @@ export default class PlasmidMapCanvas {
         output = [],
         overlapIndex;
 
-    _.each(this.model.get('features'), function(feature) {
+    _.each(this.model.getFeatures(), function(feature) {
       _.each(feature.ranges, function(range) {
         features.push({
           name: feature.name,
@@ -271,7 +271,7 @@ export default class PlasmidMapCanvas {
 
   drawSequenceInfo() {
     var context = this.artist.context,
-        len = this.model.length();
+        len = this.model.getLength();
 
     context.fillStyle = "white";
     context.textAlign = 'center';
@@ -316,7 +316,7 @@ export default class PlasmidMapCanvas {
   //determine quantities of G,C,A,T in chunks, given resolution
   var gcat_chunks = [],
       gcat_ratio = [],
-      seq_length = sequence.length(),
+      seq_length = sequence.getLength(),
       chunk_size = Math.ceil(seq_length/res),
       chunk_res = Math.ceil(seq_length/chunk_size),
       chunk, gs, cs, as, ts, i;
@@ -400,7 +400,7 @@ export default class PlasmidMapCanvas {
         angle = artist.normaliseAngle(Artist.angleBetween(refPoint, mousePoint));
 
     this.view.parentView().sequenceCanvas.scrollToBase(
-      Math.floor(this.model.length() * angle / Math.PI / 2)
+      Math.floor(this.model.getLength() * angle / Math.PI / 2)
     );
   }
 }

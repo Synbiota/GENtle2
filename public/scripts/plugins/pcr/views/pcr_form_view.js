@@ -20,7 +20,7 @@ export default Backbone.View.extend({
   initialize: function({selectionFrom, selectionTo}) {
     this.state = _.defaults({
       from: selectionFrom || 0,
-      to: selectionTo || this.model.length()-1,
+      to: selectionTo || this.model.getLength()-1,
     }, this.model.get('meta.pcr.defaults') || {},
     {targetMeltingTemperature: 68.5});
     this.validateState();
@@ -76,7 +76,7 @@ export default Backbone.View.extend({
 
   validateState: function() {
     var isInteger = (val) => _.isNumber(val) && !_.isNaN(val) && val >= 0;
-    var validBp = (val) => isInteger(val) && val < this.model.get('sequence').length;
+    var validBp = (val) => isInteger(val) && val < this.model.getLength();
 
     this.state.invalid = {};
     this.state.invalid.name = !this.state.name;
@@ -112,7 +112,7 @@ export default Backbone.View.extend({
     // OPTIMIZE: this may not be very efficient for long sequences.
     var frm = this.state.from;
     var to = this.state.to;
-    var sequenceNts = this.model.get('sequence').substr(frm, to - frm + 1);
+    var sequenceNts = this.model.getSequence().substr(frm, to - frm + 1);
     return {sequence: sequenceNts, from: frm, to: to};
   },
 

@@ -227,7 +227,7 @@ rendered.
           return (colors[type] && colors[type].fill) || colors._default.fill;
         },
         visible: _.memoize2(function() {
-          return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
+          return _this.sequence.getFeatures() && _this.sequence.get('displaySettings.rows.features');
         })
       }),
 
@@ -363,7 +363,7 @@ rendered.
       };
 
       //total number of rows in sequence,
-      lh.rows.total = Math.ceil(_this.sequence.length() / lh.basesPerRow);
+      lh.rows.total = Math.ceil(_this.sequence.getLength() / lh.basesPerRow);
       // number of visible rows in canvas
       lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height);
 
@@ -493,7 +493,7 @@ rendered.
       ]);
     }
 
-    if (baseRange[0] < this.sequence.length()) {
+    if (baseRange[0] < this.sequence.getLength()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
           if(line.floating) {
@@ -657,8 +657,8 @@ rendered.
       base = this.caretPosition;
     }
 
-    if (base > this.sequence.length()) {
-      base = this.sequence.length();
+    if (base > this.sequence.getLength()) {
+      base = this.sequence.getLength();
     }
 
     this.scrollBaseToVisibility(base).then(() => {

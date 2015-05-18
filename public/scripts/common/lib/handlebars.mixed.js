@@ -77,7 +77,7 @@ Handlebars.registerHelper('sequenceLength', function(sequenceModel) {
     if(_.isString(sequenceModel.sequence)) {
       length = sequenceModel.sequence.length;
     } else if(_.isFunction(sequenceModel.length)) {
-      length = sequenceModel.length();
+      length = sequenceModel.getLength();
     }
   }
   return formatThousands(length, 0);
