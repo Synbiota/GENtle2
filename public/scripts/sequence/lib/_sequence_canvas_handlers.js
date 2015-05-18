@@ -8,6 +8,8 @@ Event handlers for SequenceCanvas
 
   Handlers = function() {};
 
+  var alertUneditableStickyEnd = () => alert('Unable to edit the sticky ends of a sequence');
+
   /**
   Handles keystrokes on keypress events (used for inputs)
   @method handleKeypress
@@ -25,22 +27,34 @@ Event handlers for SequenceCanvas
 
         if (!selection && caretPosition !== undefined) {
 
-          this.hideCaret();
-          this.sequence.insertBases(base, caretPosition);
-          this.caretPosition = ++caretPosition;
-          this.displayCaret();
+          if(this.isBaseEditable(caretPosition)) {
+
+            this.hideCaret();
+            this.sequence.insertBases(base, caretPosition);
+            this.caretPosition = ++caretPosition;
+            this.displayCaret();
+
+          } else {
+            alertUneditableStickyEnd();
+          }
 
         } else if (selection) {
 
-          this.hideCaret();
-          this.selection = undefined;
-          this.sequence.deleteBases(
-            selection[0],
-            selection[1] - selection[0] + 1
-          );
-          this.sequence.insertBases(base, selection[0]);
-          this.caretPosition = selection[0] + 1;
-          this.displayCaret(selection[0] + 1);
+          if(this.isBaseEditable(...selection)) {
+
+            this.hideCaret();
+            this.selection = undefined;
+            this.sequence.deleteBases(
+              selection[0],
+              selection[1] - selection[0] + 1
+            );
+            this.sequence.insertBases(base, selection[0]);
+            this.caretPosition = selection[0] + 1;
+            this.displayCaret(selection[0] + 1);
+
+          } else {
+            alertUneditableStickyEnd();
+          }
         }
       }
     }
@@ -96,17 +110,25 @@ Event handlers for SequenceCanvas
     if(!this.readOnly) {
       if (this.selection) {
         var selection = this.selection;
-        this.selection = undefined;
-        this.sequence.deleteBases(
-          selection[0],
-          selection[1] - selection[0] + 1
-        );
-        this.displayCaret(selection[0]);
+        if(this.isBaseEditable(...selection)) {
+          this.selection = undefined;
+          this.sequence.deleteBases(
+            selection[0],
+            selection[1] - selection[0] + 1
+          );
+          this.displayCaret(selection[0]);
+        } else {
+          alertUneditableStickyEnd();
+        }
       } else if (this.caretPosition > 0) {
         var previousCaret = this.caretPosition;
-        this.hideCaret();
-        this.sequence.deleteBases(previousCaret - 1, 1);
-        this.displayCaret(previousCaret - 1);
+        if(this.isBaseEditable(previousCaret - 1)) {
+          this.hideCaret();
+          this.sequence.deleteBases(previousCaret - 1, 1);
+          this.displayCaret(previousCaret - 1);
+        } else {
+          alertUneditableStickyEnd();
+        }
       }
     }
   };
@@ -293,8 +315,11 @@ Event handlers for SequenceCanvas
       (Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
         Math.abs(mouse.top - _this.dragStartPos[1]) >= layoutHelpers.rows.height)) {
 
-      var first = _this.dragStartBase,
-        last = _this.getBaseFromXYPos(mouse.left, mouse.top);
+      var first = _this.ensureBaseIsSelectable(_this.dragStartBase, true);
+      var last = _this.ensureBaseIsSelectable(
+          _this.getBaseFromXYPos(mouse.left, mouse.top),
+          true
+        );
 
       if (!_this.selecting) {
         _this.selecting = true;
@@ -345,9 +370,8 @@ Event handlers for SequenceCanvas
     if (base >= 0 && baseRange[0] >= 0 && baseRange[1] > 0) {
       if (this.selection) {
         this.select(undefined);
-      } else {
-        this.displayCaret(base);
-      }
+      } 
+      this.displayCaret(this.ensureBaseIsSelectable(base));
     }
 
     _this.redraw();

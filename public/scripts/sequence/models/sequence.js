@@ -1056,7 +1056,7 @@ var SequenceModel = Backbone.DeepModel.extend({
 
       return [
         getOffset('start'),
-        length - getOffset('end')
+        length - getOffset('end') - 1
       ];
     } else {
       return [0, length];
@@ -1071,7 +1071,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     if(stickyEnds && stickyEndFormat === 'overhang') {
       return [
         stickyEnds.start.size,
-        length - stickyEnds.end.size
+        length - stickyEnds.end.size - 1
       ];
     } else {
       return [0, length];

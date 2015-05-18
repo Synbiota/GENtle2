@@ -98,9 +98,6 @@ rendered.
     // var dnaStickyEndHighlightColour = function(reverse, base, pos) {
     //   return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
     // };
-    
-    console.log('reverse', false, 'selectableRange', sequence.selectableRange(), 'editableRange', sequence.editableRange())
-    console.log('reverse', true, 'selectableRange', sequence.selectableRange(true), 'editableRange', sequence.editableRange())
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
       var selectableRange = sequence.selectableRange(reverse);
@@ -673,9 +670,7 @@ rendered.
       base = this.caretPosition;
     }
 
-    if (base > this.sequence.getLength()) {
-      base = this.sequence.getLength();
-    }
+    base = this.ensureBaseIsSelectable(base);
 
     this.scrollBaseToVisibility(base).then(() => {
 
@@ -863,6 +858,31 @@ rendered.
 
     return info;
   };
+
+  SequenceCanvas.prototype.ensureBaseIsSelectable = function(base, strict = false) {
+    var selectableRange = this.sequence.selectableRange();
+    return Math.min(
+      Math.max(base, selectableRange[0]), 
+      selectableRange[1] + (strict ? 0 : 1)
+    );
+  };
+
+  SequenceCanvas.prototype.isBaseEditable = function(start, end) {
+    var editableRange = this.sequence.editableRange();
+    
+    if(end < start) {
+      [end, start] = [start, end];
+    }
+
+    var output = editableRange[0] <= start && editableRange[1] >= start - 1;
+
+    if(!_.isUndefined(end)) {
+      output = output && editableRange[0] <= end && editableRange[1] >= end;
+    }
+
+    return output;
+  };
+
 
 
 export default SequenceCanvas;
