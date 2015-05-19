@@ -91,7 +91,9 @@ beforeEach(function() {
   stickyEndedSequence = new Sequence(fixtures[1]);
 
   spyOn(sequence, 'save'); // Disable save function
+  spyOn(sequence, 'throttledSave');
   spyOn(stickyEndedSequence, 'save');
+  spyOn(stickyEndedSequence, 'throttledSave');
 });
 
 
@@ -233,7 +235,7 @@ describe('when inserting bases into a sequence', function() {
     it('should update the sequence', function() {
       expect(sequence.get('sequence')).toEqual('ATCAAAGATCGATCGATCG');
       expect(sequence.getSubSeq(3, 5)).toEqual('AAA');
-      expect(sequence.save).toHaveBeenCalled();
+      expect(sequence.throttledSave).toHaveBeenCalled();
     });
 
     it('should move the features', function() {
@@ -255,7 +257,7 @@ describe('when inserting bases into a sequence', function() {
       it('should update the sequence', function() {
         expect(stickyEndedSequence.get('sequence')).toEqual('CCTAAAGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
         expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
-        expect(stickyEndedSequence.save).toHaveBeenCalled();
+        expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
     });
 
@@ -268,7 +270,7 @@ describe('when inserting bases into a sequence', function() {
       it('should update the sequence', function() {
         expect(stickyEndedSequence.get('sequence')).toEqual('AGAAAAGATCGATCGATCGATCGGAGA');
         expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
-        expect(stickyEndedSequence.save).toHaveBeenCalled();
+        expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
     });
 
@@ -282,7 +284,7 @@ describe('when inserting bases into a sequence', function() {
       it('should update the sequence', function() {
         expect(stickyEndedSequence.get('sequence')).toEqual('ATCAAAGATCGATCGATCG');
         expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
-        expect(stickyEndedSequence.save).toHaveBeenCalled();
+        expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
     });
 
@@ -299,7 +301,7 @@ describe('when deleting bases from a sequence in the middle of a feature', funct
   it('should update the sequence', function() {
     expect(sequence.get('sequence')).toEqual('ATATCGATCGATCG');
     expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
-    expect(sequence.save).toHaveBeenCalled();
+    expect(sequence.throttledSave).toHaveBeenCalled();
   });
 
   it('should move the beginning of the features', function() {
@@ -323,7 +325,7 @@ describe('when deleting bases containing an entire sequence', function() {
   it('should update the sequence', function() {
     expect(sequence.get('sequence')).toEqual('ATATCGATCG');
     expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
-    expect(sequence.save).toHaveBeenCalled();
+    expect(sequence.throttledSave).toHaveBeenCalled();
   });
 
   it('should delete the feature', function() {
@@ -354,7 +356,7 @@ describe('when deleting bases from a stickyEnded sequence', function(){
 
     it('should update the sequence', function(){
       expect(stickyEndedSequence.trueGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
-      expect(stickyEndedSequence.save).toHaveBeenCalled();
+      expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
 
@@ -366,7 +368,7 @@ describe('when deleting bases from a stickyEnded sequence', function(){
 
     it('should update the sequence', function(){
       expect(stickyEndedSequence.trueGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
-      expect(stickyEndedSequence.save).toHaveBeenCalled();
+      expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
 
