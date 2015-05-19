@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import PrimerCalculation from './primer_calculation';
+import {optimalPrimer4, getSequenceToSearch} from './primer_calculation';
 import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {defaultPCRPrimerOptions} from './primer_defaults';
@@ -69,16 +69,15 @@ var calculateFeatures = function(productAttributes) {
 
 /**
  * calculatePcrProductFromPrimers
- * @param  {string} sequence nucleotides
+ * @param  {string} sequenceBases Nucleotides
  * @param  {hash}   opts must contain `name`, `from`, `to`, `stickyEnds`
  * @param  {hash}   primerResults must contain `forwardAnnealingRegion`, `reverseAnnealingRegion`
  * @return {TemporarySequence}
  *
  * We export it to be accessible to tests
  */
-var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
+var calculatePcrProductFromPrimers = function(sequenceBases, opts, primerResults) {
   opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
   var {
     forwardAnnealingRegion: forwardAnnealingRegion,
     reverseAnnealingRegion: reverseAnnealingRegion
@@ -89,7 +88,7 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
     regionOfInterest: regionOfInterest,
     startStickyEnd: startStickyEnd,
     endStickyEnd: endStickyEnd
-  } = Sequence.calculateProduct(sequenceNts, _.pick(opts, ['from', 'to', 'stickyEnds']));
+  } = Sequence.calculateProduct(sequenceBases, _.pick(opts, ['from', 'to', 'stickyEnds']));
 
   _.extend(forwardAnnealingRegion, {
     from: startStickyEnd.length,
@@ -142,36 +141,10 @@ var calculatePcrProductFromPrimers = function(sequence, opts, primerResults) {
 };
 
 
-var getSequencesToSearch = function(sequence, opts) {
-  var sequenceNts = _.isString(sequence) ? sequence : sequence.get('sequence');
-  opts = defaultPCRPrimerOptions(opts);
-
-  _.defaults(opts, {
-    from: 0,
-    to: sequenceNts.length - 1
-  });
-
-  if(opts.to < opts.from) {
-    throw "getPcrProductAndPrimers `opts.to` is smaller than `opts.from`";
-  } else if((sequenceNts.length - opts.from) < opts.minPrimerLength) {
-    throw "getPcrProductAndPrimers `opts.from` is too large to leave enough sequence length to find the primer";
-  } else if (opts.to < opts.minPrimerLength) {
-    throw "getPcrProductAndPrimers `opts.to` is too small to leave enough sequence length to find the primer";
-  }
-
-  var forwardSequenceToSearch = sequenceNts.substr(opts.from, opts.maxPrimerLength);
-  var reverseSequenceToSearch = SequenceTransforms.toReverseComplements(sequenceNts);
-  var to = sequenceNts.length - opts.to - 1;
-  reverseSequenceToSearch = reverseSequenceToSearch.substr(to, opts.maxPrimerLength);
-
-  return {forwardSequenceToSearch, reverseSequenceToSearch};
-};
-
-
 /**
  * getPcrProductAndPrimers
- * @param  {[type]} sequence
- * @param  {[type]} opts     opts.from and opts.to specify the start and the end
+ * @param  {String} sequenceBases
+ * @param  {Object} opts     opts.from and opts.to specify the start and the end
  *                           of the ROI (Region of interest, the desired sequence)
  *                           not the primer sequences,
  *                           for these, `from` specifies the start of the forward
@@ -180,14 +153,17 @@ var getSequencesToSearch = function(sequence, opts) {
  *                           sequence.
  * @return {[promise]}       resolves with a hash containing pcrProduct attributes
  */
-var getPcrProductAndPrimers = function(sequence, opts) {
+var getPcrProductAndPrimers = function(sequenceBases, opts) {
+  opts = defaultPCRPrimerOptions(opts);
   var {
-    forwardSequenceToSearch: forwardSequenceToSearch,
-    reverseSequenceToSearch: reverseSequenceToSearch
-  } = getSequencesToSearch(sequence, opts);
+    sequenceToSearch: forwardSequenceToSearch
+  } = getSequenceToSearch(sequenceBases, opts.minPrimerLength, opts.maxSearchSpace, false, opts.from);
+  var {
+    sequenceToSearch: reverseSequenceToSearch
+  } = getSequenceToSearch(sequenceBases, opts.minPrimerLength, opts.maxSearchSpace, true, opts.to);
 
-  var forwardPrimerPromise = PrimerCalculation.optimalPrimer4(forwardSequenceToSearch, opts);
-  var reversePrimerPromise = PrimerCalculation.optimalPrimer4(reverseSequenceToSearch, opts);
+  var forwardPrimerPromise = optimalPrimer4(forwardSequenceToSearch, opts);
+  var reversePrimerPromise = optimalPrimer4(reverseSequenceToSearch, opts);
 
   var initTotal = opts.maxPrimerLength - opts.minPrimerLength + 1;
 
@@ -196,7 +172,7 @@ var getPcrProductAndPrimers = function(sequence, opts) {
     {current: 0, total: initTotal, isFallback: false}
   ];
   var fallbackProgressReports = [
-    {current: 0, total: initTotal, isFallback: true}, 
+    {current: 0, total: initTotal, isFallback: true},
     {current: 0, total: initTotal, isFallback: true}
   ];
   return Q.promise(function (resolve, reject, notify) {
@@ -216,13 +192,14 @@ var getPcrProductAndPrimers = function(sequence, opts) {
     .then(function(primerResults) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];
-      var pcrProduct = calculatePcrProductFromPrimers(sequence, opts, {forwardAnnealingRegion, reverseAnnealingRegion});
+      var pcrProduct = calculatePcrProductFromPrimers(sequenceBases, opts, {forwardAnnealingRegion, reverseAnnealingRegion});
       resolve(pcrProduct);
     })
     .catch((e) => {
       console.error('getPcrProductAndPrimers err', e);
       reject(e);
-    });
+    })
+    .done();
 
   });
 
@@ -232,5 +209,4 @@ var getPcrProductAndPrimers = function(sequence, opts) {
 export {
   calculatePcrProductFromPrimers,
   getPcrProductAndPrimers,
-  getSequencesToSearch
 };

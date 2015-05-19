@@ -7,7 +7,7 @@ class Sequence {
     _.defaults(data, {
       id: id,
       name: `Sequence ${id}`,
-      // if true, it means it's an antisense sequence, complementary to the 
+      // if true, it means it's an antisense sequence, complementary to the
       // sense strand
       antisense: false,
     });
@@ -45,10 +45,12 @@ class Sequence {
 
     assertIsNumber(this.from, 'from');
     assertIsNumber(this.to, 'to');
-    
+
+    // TODO move this to a childSequence model and use the
+    // validForParentSequence method
     var msg = `Invalid \`from\`, \`to\` and \`antisense\` values: ${this.from}, ${this.to}, ${this.antisense}`;
     if(this.antisense) {
-      assertion(this.from >= this.to, msg);
+      assertion(this.from > this.to, msg);
     } else {
       assertion(this.from <= this.to, msg);
     }
@@ -66,8 +68,11 @@ class Sequence {
     }), {});
   }
 
+  // TODO remove this function and rely on this.antisense/reverse and this.from
   length () {
-    return Math.abs(this.from - this.to) + 1;
+    var val = Math.abs(this.from - this.to);
+    if(!this.antisense) val += 1
+    return val;
   }
 
   duplicate () {
@@ -76,10 +81,34 @@ class Sequence {
     return new this.constructor(data);
   }
 
+  // TODO move this method to a childSequence model
+  validForParentSequence (sequenceLength) {
+    return (
+      this.from >= 0 &&
+      this.to >= (this.antisense ? -1 : 0) &&
+      this.from < sequenceLength &&
+      this.to < (this.antisense ? (sequenceLength - 1) : sequenceLength)
+    );
+  }
+
+  // TODO move this method to a childSequence model
   shift (count) {
     this.to += count;
     this.from += count;
   }
+
+  reverseDirection () {
+    var tmp = this.from;
+    if(this.antisense) {
+      this.from = this.to + 1;
+      this.to = tmp;
+    } else {
+      this.from = this.to;
+      this.to = tmp - 1;
+    }
+    this.antisense = !this.antisense;
+  }
+
 }
 
 

@@ -1,14 +1,13 @@
 import Backbone from 'backbone.mixed';
 import template from '../templates/sequencing_primers_view.hbs';
-import PrimersDesign from '../lib/sequencing_primers_design';
+import {getAllPrimersAndProductsHelper} from '../lib/sequencing_primers_design';
 import ProductsView from './sequencing_primers_products_view';
 import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import Primer from '../../pcr/lib/primer';
 import Product from '../../pcr/lib/product';
-import {mikeForward1} from '../../pcr/lib/universal_primers';
+import errors from '../lib/errors';
 
 
 export default Backbone.View.extend({
@@ -43,16 +42,37 @@ export default Backbone.View.extend({
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
 
-    // For the moment we default to a forward primer that Mike provided.
-    // This primer will need to be specified in the UI.
-    var universalForwardPrimer = mikeForward1();
-    PrimersDesign(this.model.get('sequence'), universalForwardPrimer).progress((progress) => {
-      this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
-    }).then((results) => {
-      console.log('done', results)
+    var sequenceBases = this.model.get('sequence');
+    getAllPrimersAndProductsHelper(sequenceBases)
+    .progress((progressOrStatus) => {
+      if(progressOrStatus.level) {
+        var $message = $('<p>').text(progressOrStatus.message);
+        if(progressOrStatus.level === 'warn') {
+          $message.addClass('text-warning');
+        }
+        this.$('.new-sequencing-primers-progress .status').append($message);
+      } else {
+        this.updateProgress(progressOrStatus);
+      }
+    })
+    .then((results) => {
       this.model.set('meta.sequencingPrimers.products', results).throttledSave();
       this.render();
-    }).catch(namedHandleError('startCalculation'));
+    })
+    .catch(function(error) {
+      // We have been passed a message.
+      if(error.error === errors.DNA_LEFT_UNSEQUENCED) {
+        this.updateProgress(100).css('background-color', '#C00');
+        var $status = this.$('.new-sequencing-primers-progress .status');
+        $status.find('.no-universal-primers-found').show();
+      }
+      namedHandleError('startCalculation')(error);
+    })
+    .done();
+  },
+
+  updateProgress: function(progress) {
+    return this.$('.new-sequencing-primers-progress .progress-bar').css('width', progress*100+'%');
   },
 
   getSequence: function() {
