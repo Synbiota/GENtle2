@@ -16,7 +16,7 @@
   },
   "dependencies": {
     "babelify": "^5.0.3",
-    "backbone": "^1.1.2",
+    "backbone": "~1.1.2",
     "backbone-deep-model": "~0.11.0",
     "backbone.layoutmanager": "~0.9.5",
     "backbone.localstorage": "1.1.16",
