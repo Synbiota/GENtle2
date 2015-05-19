@@ -345,7 +345,7 @@ Event handlers for SequenceCanvas
         _this.selection = [last, first];
       }
 
-      _this.caretPosition = selection && selection[0] < caretPosition ? last + 1 : last;
+      _this.caretPosition = (selection && selection[0] < caretPosition) ? last + 1 : last;
 
     } else {
       _this.selecting = false;

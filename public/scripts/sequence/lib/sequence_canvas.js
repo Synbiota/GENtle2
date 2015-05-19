@@ -25,6 +25,7 @@ rendered.
     Styles = require('../../styles.json'),
     Q = require('q'),
     {namedHandleError} = require('../../common/lib/handle_error'),
+    tracedLog = require('../../common/lib/traced_log'),
     LineStyles, SequenceCanvas;
 
   LineStyles = Styles.sequences.lines;
@@ -666,9 +667,11 @@ rendered.
       selection = this.selection,
       posX, posY;
 
-    if (base === undefined && this.caretPosition !== undefined) {
+    if (_.isUndefined(base) && !_.isUndefined(this.caretPosition)) {
       base = this.caretPosition;
     }
+
+    if(_.isUndefined(base)) return false;
 
     base = this.sequence.ensureBaseIsSelectable(base);
 
