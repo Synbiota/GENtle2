@@ -78,7 +78,7 @@ Event handlers for SequenceCanvas
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
 
-      this.select(0, this.sequence.getLength());
+      this.select(...this.sequence.selectableRange());
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {
 
