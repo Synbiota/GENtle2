@@ -12,9 +12,8 @@
           "font": "15px Monospace",
           "color": {
             "_default": "#79B6F9",
-            "X  ": "red",
+            " X ": "red",
             "STP": "red"
-            
           }
         }
       },
