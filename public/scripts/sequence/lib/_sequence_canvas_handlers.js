@@ -4,6 +4,7 @@ Event handlers for SequenceCanvas
 **/
 // define(function(require) {
   var Hotkeys = require('../../common/lib/hotkeys'),
+    tracedLog = require('../../common/lib/traced_log'),
     Handlers;
 
   Handlers = function() {};
@@ -297,11 +298,28 @@ Event handlers for SequenceCanvas
    **/
   Handlers.prototype.handleMousedown = function(event) {
     var _this = this,
-      mouse = this.normalizeMousePosition(event);
+      mouse = this.normalizeMousePosition(event),
+      previousCaret = this.caretPosition;
 
-    _this.hideCaret();
+    _this.hideCaret(); 
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
-    _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
+    if(event.shiftKey && previousCaret) {
+      let dragStartBase;
+      if(this.selection) {
+        let [selectionStart, selectionEnd] = this.selection;
+        if(this.previousCaret < selectionEnd) {
+          dragStartBase = selectionEnd;
+        } else {
+          dragStartBase = selectionStart;
+        }
+      } else {
+        dragStartBase = previousCaret;
+      }
+      this.dragStartBase = dragStartBase;
+      this.handleClick(event);
+    } else {
+      _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
+    }
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
       if (event.type === 'mouseup') {
@@ -351,7 +369,7 @@ Event handlers for SequenceCanvas
       _this.selecting = false;
       _this.selection = undefined;
     }
-    _this.displayCaret(_this.caretPosition, false);
+    _this.displayCaret(_this.caretPosition);
     _this.redrawSelection(_this.selection);
   };
 
@@ -362,7 +380,7 @@ Event handlers for SequenceCanvas
       this.handleClick(event);
     }
     this.dragStartPos = this.dragStartBase = undefined;
-    if (this.selection) {
+    if (this.selection && !event.shiftKey) {
       this.displayCaret(this.caretPosition);
     }
     this.selecting = false;
@@ -376,16 +394,30 @@ Event handlers for SequenceCanvas
   Handlers.prototype.handleClick = function(event) {
     var mouse = this.normalizeMousePosition(event),
       _this = this,
+      shiftKey = event.shiftKey,
       base, baseRange;
 
     baseRange = this.getBaseRangeFromYPos(mouse.top + this.layoutHelpers.yOffset);
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
     if (base >= 0 && baseRange[0] >= 0 && baseRange[1] > 0) {
-      if (this.selection) {
-        this.select(undefined);
-      } 
-      this.displayCaret(this.sequence.ensureBaseIsSelectable(base));
+      let newCaret = this.sequence.ensureBaseIsSelectable(base);
+
+      if(this.selection) {
+        if(shiftKey) {
+          this.expandSelectionToNewCaret(newCaret);
+        } else {
+          this.select(undefined);
+        }
+      } else {
+        let previousCaret = this.caretPosition;
+        if(shiftKey && previousCaret) {
+          this.selection = newCaret >= previousCaret ? 
+            [previousCaret, newCaret-1] : [newCaret, previousCaret];
+          this.redrawSelection(this.selection);
+        }
+        this.displayCaret(newCaret);  
+      }
     }
 
     _this.redraw();
