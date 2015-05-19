@@ -19,7 +19,7 @@ var idtMeltingTemperatureStub = function(potentialPrimer) {
         if(!window.TmsFromIDT) window.TmsFromIDT = '';
         _IDTMeltingTemperature(potentialPrimer).then(function(Tm) {
           window.TmsFromIDT += `'${potentialPrimer}': ${Tm},`;
-          console.log(window.TmsFromIDT);
+          console.log('TmsFromIDT', window.TmsFromIDT);
           resolve(Tm);
         });
       } else {

@@ -2,7 +2,6 @@ import Sequence from '../models/sequence';
 import {stubCurrentUser} from '../../common/tests/stubs';
 import _ from 'underscore.mixed'
 
-
 var initialSequenceContent = 'ATCGATCGATCGATCG';
 var initialSequenceLength = initialSequenceContent.length;
 var stickyEnds = {
@@ -84,6 +83,12 @@ var fixtures = [{
 var opts;
 
 var sequence, stickyEndedSequence;
+
+var setStickyEndFormat = function(format) {
+  beforeEach(function() {
+    stickyEndedSequence.set('displaySettings.stickyEndFormat', format);  
+  });
+};
 
 beforeEach(function() {
   stubCurrentUser();
@@ -338,14 +343,15 @@ describe('when deleting bases from a stickyEnded sequence', function(){
 
 
   describe('with full sticky end formatting', function(){
+    setStickyEndFormat('full');
+
     beforeEach(function(){
-      stickyEndedSequence.set('displaySettings.stickyEndFormat', 'full');
       stickyEndedSequence.deleteBases(21, 26);
     });
 
     it('should update the sequence', function(){
       expect(stickyEndedSequence.trueGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
-      expect(stickyEndedSequence.save).toHaveBeenCalled();
+      expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
 
@@ -361,8 +367,9 @@ describe('when deleting bases from a stickyEnded sequence', function(){
   });
 
   describe('with none sticky end formatting', function(){
+    setStickyEndFormat('none');
+
     beforeEach(function(){
-      stickyEndedSequence.set('displaySettings.stickyEndFormat', 'none');
       stickyEndedSequence.deleteBases(21, 16);
     });
 
@@ -374,3 +381,126 @@ describe('when deleting bases from a stickyEnded sequence', function(){
 
 
 });
+
+describe('#selectableRange', function() {
+  describe('with overhang sticky end formatting', function() {
+    it('should return the boundaries of the sequence without the overhang', function() {
+      expect(stickyEndedSequence.selectableRange()).toEqual([0, 19]);
+      expect(stickyEndedSequence.selectableRange(true)).toEqual([4, 23]);
+    });
+  });
+
+  describe('without overhang sticky end formatting', function() {
+    setStickyEndFormat();
+
+    it('should return the boundaries of the entire sequence', function() {
+      expect(stickyEndedSequence.selectableRange()).toEqual([0, 61]);
+    });
+  });
+});
+
+describe('#editableRange', function() {
+  describe('with overhang sticky end formatting', function() {
+    it('should return the boundaries of the sequence without the sticky ends', function() {
+      expect(stickyEndedSequence.editableRange()).toEqual([4, 19]);
+    });
+  });
+
+  describe('without overhang sticky end formatting', function() {
+    setStickyEndFormat();
+
+    it('should return the boundaries of the entire sequence', function() {
+      expect(stickyEndedSequence.selectableRange()).toEqual([0, 61]);
+    });
+  });
+});
+
+describe('#isBaseEditable', function() {
+  var baseShouldBeEditable = function(editable, strict, base) {
+    // console.log('isBaseEditable', base, stickyEndedSequence.isBaseEditable(base))
+    expect(stickyEndedSequence.isBaseEditable(base, strict)).toEqual(editable);
+  };
+
+  var shouldWork = function(editableBases, nonEditableBases = [], strict = false) {
+    it('should return true for editable bases', function() {
+      editableBases.forEach(_.partial(baseShouldBeEditable, true, strict));
+    });
+
+    it('should return false for non editable bases', function() {
+      nonEditableBases.forEach(_.partial(baseShouldBeEditable, false, strict));
+    });
+  };
+
+  describe('in strict mode', function() {
+    describe('with overhang sticky end formatting', function() {
+      setStickyEndFormat('overhang');
+      shouldWork([4, 10, 12, 19], [0, 2, 20, 21, 40], true);
+    });
+
+    describe('with full sticky end formatting', function() {
+      setStickyEndFormat('full');
+      shouldWork([19, 20, 27, 38].concat([0, 3, 49, 39]), [], true);
+    });
+  });
+
+  describe('in non-strict mode', function() {
+    describe('with overhang sticky end formatting', function() {
+      setStickyEndFormat('overhang');
+      shouldWork([4, 10, 12, 19, 20], [0, 2, 21, 40], false);
+    });
+
+    describe('with full sticky end formatting', function() {
+      setStickyEndFormat('full');
+      shouldWork([19, 20, 27, 38, 39].concat([0, 3, 49]), [], false);
+    });
+  });
+});
+
+describe('#isRangeEditable', function() {
+  var rangeShouldBeEditable = function(editable, range) {
+    expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(editable);
+  };
+
+  var shouldWork = function(editableRanges, nonEditableRanges = []) {
+    it('should return true for editable ranges', function() {
+      editableRanges.forEach(_.partial(rangeShouldBeEditable, true));
+    });
+
+    it('should return false for non editable ranges', function() {
+      nonEditableRanges.forEach(_.partial(rangeShouldBeEditable, false));
+    });
+  };
+
+  describe('with overhang sticky end formatting', function() {
+    var nonEditableRanges = [
+      [0, 3],
+      [2, 6],
+      [17, 24],
+      [4, 20],
+    ];
+
+    var editableRanges = [
+      [4, 19],
+      [7, 15]
+    ];
+    setStickyEndFormat('overhang');
+    shouldWork(editableRanges, nonEditableRanges);
+  });
+
+  describe('with full sticky end formatting', function() {
+    var nonEditableRanges = [
+      [0, 3],
+      [2, 6],
+      [17, 24],
+      [4, 20],
+    ];
+
+    var editableRanges = [
+      [4, 19],
+      [7, 15]
+    ];
+    setStickyEndFormat('full');
+    shouldWork(editableRanges.concat(nonEditableRanges), []);
+  });
+});
+
