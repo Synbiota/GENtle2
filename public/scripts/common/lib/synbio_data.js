@@ -266,7 +266,7 @@ export default {
     {"name":"NlaIV","seq":"GGNNCC","cut":1,"offset":0},
     {"name":"NmeCI","seq":"GATC","cut":0,"offset":4},
     {"name":"NopI","seq":"GTCGAC","cut":0,"offset":4},
-    {"name":"NotI","seq":"GCGGCCGC","cut":1,"offset":4},
+    {"name":"NotI","seq":"GCGGCCGC","cut":2,"offset":4},
     {"name":"NphI","seq":"GATC","cut":0,"offset":4},
     {"name":"NruI","seq":"TCGCGA","cut":1,"offset":0},
     {"name":"NsiCI","seq":"GATATC","cut":0,"offset":0},
