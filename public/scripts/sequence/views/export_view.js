@@ -26,6 +26,11 @@
       'click .sequence-export-button': 'exportSequence'
     },
 
+    afterRender: function() {
+      this.$('form input[type= "text"]').focus();
+    },
+    
+
     exportSequence: function(event) {
       var sequence = Gentle.currentSequence,
           format = this.$('form [name="export-formats"]').val(),
