@@ -90,6 +90,7 @@ export default Backbone.View.extend({
       currentEnzymePosition, (currentEnzymePosition + length)      
     );
 
+    sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition); 
     $(".launch-modal").removeClass('hidden');
 
   },
@@ -101,7 +102,9 @@ export default Backbone.View.extend({
     var positions = _.keys(this.enzymePositions);
     var currentEnzymePosition = positions[this.currentEnzymeIndex] ^ 0;
 
+
     var subCondonView = this.subCondonView;
+
 
     sequenceCanvas.afterNextRedraw(function() {
       sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition).then(function() {

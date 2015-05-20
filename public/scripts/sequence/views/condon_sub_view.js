@@ -36,11 +36,12 @@ define(function(require) {
       if (this.showModal === true) {
         this.positionXY = [this.sequenceCanvas.getXPosFromBase(this.sequenceCanvas.selection[0]), this.sequenceCanvas.getYPosFromBase(this.sequenceCanvas.selection[0])];
         if (this.positionXY[0] <=110) {
-          this.subCodonPosX  = this.positionXY[0];   
+          this.subCodonPosX  = this.positionXY[0] ;   
         } else {
           this.subCodonPosX = this.positionXY[0] - 110;   
         }
-        this.subCodonPosY = this.positionXY[1] + 120;
+
+        this.subCodonPosY = this.positionXY[1] + 120 - this.sequenceCanvas.sequence.get("displaySettings.yOffset");
 
         this.sequence = this.sequenceCanvas.sequence;
         this.selection= this.sequenceCanvas.selection;
@@ -239,14 +240,14 @@ define(function(require) {
         var replacementCodon = selectedLink.data("codon");
         var replacementPosition = selectedLink.parents('ul').data('position');
         var selection = this.selection;
-        var caretPosition = this.selection[1]+1;
         var paddedSubSeq= this.sequence.getPaddedSubSeq(this.selection[0], this.selection[1], 3, 0);
         var subSeq = paddedSubSeq.subSeq;
         var paddingOffset = selection[0] - paddedSubSeq.startBase;
         var newSubSeq = subSeq.substr(0, replacementPosition*3) + replacementCodon + subSeq.substr((replacementPosition*3 + 3), subSeq.length - replacementPosition*3 - 3);
         var text = newSubSeq.substr(paddingOffset, (selection[1] - selection[0] + 1));
 
-    
+        var replacementCodonStartBase = selection[0] + replacementPosition*3;
+
         if(text) {
           if(selection) {
             this.selection = undefined;
@@ -255,11 +256,26 @@ define(function(require) {
               selection[1] - selection[0] + 1
             );
           }
-          this.sequenceCanvas.sequence.insertBases(text, selection[0]);
-          this.sequenceCanvas.displayCaret(caretPosition + text.length);
-          this.sequenceCanvas.focus();
+
+          this.sequenceCanvas.afterNextRedraw(function() {
+            console.log('callback called');
+
+            this.highlight = undefined;
+            this.select(
+              replacementCodonStartBase, (replacementCodonStartBase + 2)
+            );          
+            this.displayCaret(replacementCodonStartBase + 3);
+            this.focus();
+          });
+
+
+          this.sequenceCanvas.sequence.insertBases(text, selection[0]);          
           this.showModal=false;
           $("#condonSubModal").modal("hide");
+
+          this.sequenceCanvas.redraw();
+
+         
         }
       }
     },
