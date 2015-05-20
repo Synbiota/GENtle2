@@ -28,15 +28,19 @@
 
     exportSequence: function(event) {
       var sequence = Gentle.currentSequence,
-          format = this.$('form [name="export-formats"]').val();
-
+          format = this.$('form [name="export-formats"]').val(),
+          exportName = this.$('form input[type= "text"]').val();
       event.preventDefault();
-      Filetypes.exportToFile(format, sequence.toJSON());
+      var options = {
+        exportName: exportName,
+      };
+      Filetypes.exportToFile(format, sequence.toJSON(), options);
     },
 
     serialize: function() {
       return {
-        formats: this.formats
+        formats: this.formats,
+        exportName: Gentle.currentSequence.get('name'),
       };
     }
 

@@ -103,14 +103,20 @@
   /**
   @method exportToFile
   **/
-  Filetypes.exportToFile = function(format, sequence)  {
+  Filetypes.exportToFile = function(format, sequence, options={})  {
     var FileType = Filetypes.types[format],
-        file;
+        file,
+        exportName= options.exportName;
+
+    if (_.isUndefined(exportName) || exportName === '') {
+      exportName= sequence.name;
+    }
+
     if(FileType === undefined) {
       throw new TypeError();
     }
     file = new FileType();
-    saveAs(file.getExportBlob(sequence).blob, sequence.name + '.' + file.getFileExtension());
+    saveAs(file.getExportBlob(sequence).blob, exportName + '.' + file.getFileExtension());
   };
 
   /**
