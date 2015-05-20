@@ -52,122 +52,129 @@ FT_abi.prototype.getBigEndianSignedShort = function(bytes, p) {
   }
 
   FT_abi.prototype.parseFile = function ( just_check_format ) { // INCOMPLETE Gets sequence but no quality scores, chromatogram, etc.
-	var me = this ;
+  	var me = this ;
 
-	// START ABI PARSING HERE
+  	// START ABI PARSING HERE
 
-	function ab2str(buf) {
-	  return String.fromCharCode.apply(null, new Uint16Array(buf));
-	}
+  	function ab2str(buf) {
+  	  return String.fromCharCode.apply(null, new Uint16Array(buf));
+  	}
 
-	function str2ab(str) {
-	  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-	  var bufView = new Uint16Array(buf);
-	  for (var i=0, strLen=str.length; i<strLen; i++) {
-		bufView[i] = str.charCodeAt(i);
-	  }
-	  return buf;
-	}
+  	function str2ab(str) {
+  	  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
+  	  var bufView = new Uint16Array(buf);
+  	  for (var i=0, strLen=str.length; i<strLen; i++) {
+  		bufView[i] = str.charCodeAt(i);
+  	  }
+  	  return buf;
+  	}
 
-//	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
-//	var text_array = str2ab ( me.text ) ;
-	var text_array = me.asArrayBuffer() ;
-	if ( typeof text_array == 'undefined' ) return false ;
-	var bytes = new Uint8Array(text_array);
-
-
-	// HEADER
-	var p = 0 ;
-	var abi = {} ;
-	abi.magic_number = String.fromCharCode ( bytes[p++] ) +
-					String.fromCharCode ( bytes[p++] ) +
-					String.fromCharCode ( bytes[p++] ) +
-					String.fromCharCode ( bytes[p++] ) ;
-
-	if ( abi.magic_number != 'ABIF' ) return false ;
-	if ( just_check_format ) return true ;
-
-	abi.version = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
-	abi.num_version = abi.version / 100 ;
+  //	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
+  //	var text_array = str2ab ( me.text ) ;
+  	var text_array = me.asArrayBuffer() ;
+  	if ( typeof text_array == 'undefined' ) return false ;
+  	var bytes = new Uint8Array(text_array);
 
 
-	function readDir () {
-		var ret = {} ;
-		ret.name = String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) ;
-//		ret.number = String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) ;
-		ret.number = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
-		ret.elementtype = me.getBigEndianSignedWord(bytes,p); p += 2 ;
-		ret.elementsize = me.getBigEndianSignedWord(bytes,p); p += 2 ;
-		ret.numelements = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
-		ret.datasize = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
-		ret.dataoffset_byte = bytes[p] ;
-		ret.dataoffset_uword = me.getBigEndianUnsignedWord(bytes,p);
-		ret.dataoffset = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
-		ret.datahandle = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
-		return ret ;
-	}
+  	// HEADER
+  	var p = 0 ;
+  	var abi = {} ;
+  	abi.magic_number = String.fromCharCode ( bytes[p++] ) +
+  					String.fromCharCode ( bytes[p++] ) +
+  					String.fromCharCode ( bytes[p++] ) +
+  					String.fromCharCode ( bytes[p++] ) ;
 
-	abi.dirs = [] ;
-	abi.dir = readDir ( p ) ;
-	p = abi.dir.dataoffset ;
-	for ( var d = 0 ; d < abi.dir.numelements ; d++ ) {
-		var nd = readDir () ;
-		abi.dirs.push ( nd ) ;
-	}
+  	if ( abi.magic_number != 'ABIF' ) return false ;
+  	if ( just_check_format ) return true ;
 
-//	console.log ( abi ) ;
+  	abi.version = me.getBigEndianUnsignedWord ( bytes , p ) ; p += 2 ;
+  	abi.num_version = abi.version / 100 ;
 
-	var name = "Chromatogram" ;
-	var seq = {
-		name: "Chromatogram",
-		desc: '',
-		is_circular: false,
-		features: [],
-		sequence: '',
-		scf:abi // KEEP THE FULL, PARSED DATA
-	} ;
 
-	function getPstring ( dir ) { // Pascal string?
-		var ret = '' ;
-		var len = bytes[dir.dataoffset] ;
-		for ( var i = 0 ; i < len ; i++ ) ret += String.fromCharCode ( bytes[i+dir.dataoffset+1] ) ;
-		return ret ;
-	}
+  	function readDir () {
+  		var ret = {} ;
+  		ret.name = String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) ;
+  //		ret.number = String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) + String.fromCharCode ( bytes[p++] ) ;
+  		ret.number = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
+  		ret.elementtype = me.getBigEndianSignedWord(bytes,p); p += 2 ;
+  		ret.elementsize = me.getBigEndianSignedWord(bytes,p); p += 2 ;
+  		ret.numelements = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
+  		ret.datasize = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
+  		ret.dataoffset_byte = bytes[p] ;
+  		ret.dataoffset_uword = me.getBigEndianUnsignedWord(bytes,p);
+  		ret.dataoffset = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
+  		ret.datahandle = me.getBigEndianUnsignedLong(bytes,p); p += 4 ;
+  		return ret ;
+  	}
 
-	function getStringFromCharArray ( dir ) {
-		var ret = '' ;
-		for ( var i = 0 ; i < dir.datasize ; i++ ) ret += String.fromCharCode ( bytes[i+dir.dataoffset] ) ;
-		return ret ;
-	}
+  	abi.dirs = [] ;
+  	abi.dir = readDir ( p ) ;
+  	p = abi.dir.dataoffset ;
+  	for ( var d = 0 ; d < abi.dir.numelements ; d++ ) {
+  		var nd = readDir () ;
+  		abi.dirs.push ( nd ) ;
+  	}
 
-	$.each ( abi.dirs , function ( k , v ) {
-//		console.log ( v.name , v.number ) ;
-		if ( v.name == 'SMPL' && v.number == 1 ) seq.name = getPstring ( v ) ;
-		if ( v.name == 'PBAS' && v.number == 1 ) seq.sequence = getStringFromCharArray ( v ) ;
-		if ( v.name == 'PBAS' && v.number == 2 && seq.sequence == '' ) seq.sequence = getStringFromCharArray ( v ) ;
-	} ) ;
+  	// console.log ( abi ) ;
 
-  seq.rawChromatogramData = _.map([1, 2, 3, 4], function(i) {
-    var dir = _.findWhere(abi.dirs, {name: 'DATA', number: i});
-    return _.map(_.range(dir.datasize/2), function(j) {
-      return me.getBigEndianSignedShort(bytes, dir.dataoffset + j*2);
+  	var name = "Chromatogram" ;
+  	var seq = {
+  		name: "Chromatogram",
+  		desc: '',
+  		is_circular: false,
+  		features: [],
+  		sequence: '',
+  		scf:abi // KEEP THE FULL, PARSED DATA
+  	} ;
+
+  	function getPstring ( dir ) { // Pascal string?
+  		var ret = '' ;
+  		var len = bytes[dir.dataoffset] ;
+  		for ( var i = 0 ; i < len ; i++ ) ret += String.fromCharCode ( bytes[i+dir.dataoffset+1] ) ;
+  		return ret ;
+  	}
+
+  	function getStringFromCharArray ( dir ) {
+  		var ret = '' ;
+  		for ( var i = 0 ; i < dir.datasize ; i++ ) ret += String.fromCharCode ( bytes[i+dir.dataoffset] ) ;
+  		return ret ;
+  	}
+
+  	$.each ( abi.dirs , function ( k , v ) {
+  //		console.log ( v.name , v.number ) ;
+  		if ( v.name == 'SMPL' && v.number == 1 ) seq.name = getPstring ( v ) ;
+  		if ( v.name == 'PBAS' && v.number == 1 ) seq.sequence = getStringFromCharArray ( v ) ;
+  		if ( v.name == 'PBAS' && v.number == 2 && seq.sequence == '' ) seq.sequence = getStringFromCharArray ( v ) ;
+  	} ) ;
+
+    seq.rawChromatogramData = _.map([9, 10, 11, 12], function(i) {
+      var dir = _.findWhere(abi.dirs, {name: 'DATA', number: i});
+      return _.map(_.range(dir.datasize/2), function(j) {
+        return me.getBigEndianSignedShort(bytes, dir.dataoffset + j*2);
+      });
     });
-  });
 
-  seq.chromatogramData = _.map(seq.rawChromatogramData, function(dataSet) {
-    return _.map(dataSet, function(data) {
-      if(data >= 65000) console.log('data', data)
-      return data >= 65000 ? 0 : Math.max(0, data);
+    abi.maxValue = 0;
+
+    seq.chromatogramData = _.map(seq.rawChromatogramData, function(dataSet) {
+      return _.map(dataSet, function(data) {
+        if (data > abi.maxValue) {
+          abi.maxValue = data;
+        }
+
+        return data;
+
+      });
     });
-  });
 
+    seq.maxChromatogramValue = abi.maxValue;
 
-  var peaks = _.findWhere(abi.dirs, {name: 'PLOC', number: 2});
-  seq.chromatogramPeaks = _.map(_.range(peaks.datasize/2), function(i) {
-    return me.getBigEndianSignedShort(bytes, peaks.dataoffset + i*2);
-  });
+    var peaks = _.findWhere(abi.dirs, {name: 'PLOC', number: 2});
+    seq.chromatogramPeaks = _.map(_.range(peaks.datasize/2), function(i) {
+      return me.getBigEndianSignedShort(bytes, peaks.dataoffset + i*2);
+    });
 
-	return [ seq ];
+  	return [ seq ];
 	}
 
   FT_abi.prototype.parseText = function ( text ) {

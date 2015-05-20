@@ -1,7 +1,6 @@
 import Line from './line';
 import _ from 'underscore';
 
-const maxDataValue = 65536;
 
 const colors = ['red', 'blue', 'green', 'purple']
 
@@ -24,12 +23,11 @@ export default class Chromatogram extends Line {
       (blocksPerRow - 1) * layoutSettings.gutterWidth;
     const sequence = sequenceCanvas.sequence;
     const rawData = sequence.get('chromatogramData');
+    const maxDataValue = sequence.get('maxChromatogramValue') || 65536;
 
     const peaks = sequence.get('chromatogramPeaks');
     const dataRelevantLength = rawData[0].length + 0*(peaks[peaks.length - 1] + 14);
     const dataRelevantOffset = 0 + 0*(rawData[0].length - peaks[peaks.length-1]);
-
-    console.log(dataRelevantLength, dataRelevantOffset)
 
     const dataDensity = Math.floor( dataRelevantLength / sequence.length());
     const xInterval =  effectiveWidth / (toBase - fromBase + 1) / dataDensity;
