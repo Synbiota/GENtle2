@@ -900,6 +900,12 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   revertHistoryStep: function(historyStep) {
+    var stickyEndFormatKey = 'displaySettings.stickyEndFormat';
+    var previousStickyEndFormat = this.get(stickyEndFormatKey);
+    var triggerWithPosition, position, value;
+
+    this.set(stickyEndFormatKey, 'full', {silent: true});
+
     switch (historyStep.get('type')) {
 
       case 'featureIns':
@@ -915,16 +921,16 @@ var SequenceModel = Backbone.DeepModel.extend({
         break;
 
       case 'insert':
-        this.deleteBases(
-          historyStep.get('position'),
-          historyStep.get('value').length,
-          {
-            updateHistory: false
-          }
-        );
+        position = historyStep.get('position');
+        value = historyStep.get('value');
+        triggerWithPosition = position;
+        this.deleteBases(position, value.length, {updateHistory: false});
         break;
 
       case 'delete':
+        position = historyStep.get('position');
+        value = historyStep.get('value');
+        triggerWithPosition = position + value.length;
         this.insertBases(
           historyStep.get('value'),
           historyStep.get('position'),
@@ -934,6 +940,18 @@ var SequenceModel = Backbone.DeepModel.extend({
         );
         break;
     }
+
+
+    var offset = previousStickyEndFormat === 'overhang'  ? 
+      this.getStickyEnds().start.offset : 
+      0;
+
+    var data = triggerWithPosition && {
+      position: triggerWithPosition - offset
+    };
+    this.trigger('undo', data);
+
+    this.set(stickyEndFormatKey, previousStickyEndFormat, {silent: true});
   },
 
   updateFeature: function(editedFeature, record) {

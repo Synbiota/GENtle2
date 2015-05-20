@@ -289,7 +289,20 @@ Event handlers for SequenceCanvas
   Handlers.prototype.handleUndo = function(event) {
     if (!this.readOnly && this.caretPosition !== undefined) {
       event.preventDefault();
-      this.hideCaret();
+      var previousCaret = this.caretPosition;
+
+      this.afterNextRedraw(function() {
+        this.displayCaret(previousCaret);
+      });
+
+      this.sequence.once('undo', (data) => {
+         if(data && _.isNumber(data.position) && !_.isNaN(data.position)) {
+          this.afterNextRedraw(function() {
+            this.displayCaret(data.position);
+          });
+         } 
+      });
+      
       this.sequence.undo();
     }
   };
