@@ -54,6 +54,7 @@ export default Backbone.View.extend({
   //TODO refactor this
   setSequence: function(sequence) {
     sequence = TemporarySequence.ensureTemporary(sequence);
+    sequence.set('displaySettings.stickyEndFormat', 'full');
     this.model = sequence;
   },
 
