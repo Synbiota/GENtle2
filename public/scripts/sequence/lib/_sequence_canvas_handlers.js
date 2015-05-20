@@ -208,17 +208,20 @@ Event handlers for SequenceCanvas
     if (previousCaret === undefined) return;
 
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
+    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+
+    tracedLog('handleUpKey', previousCaret, nextCaret);
+
+    if(previousCaret === nextCaret) return;
 
     if (shift) {
+      this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
       } else {
-        this.select(
-          previousCaret,
-          nextCaret < previousCaret ? nextCaret - 1 : nextCaret
-        );
-        this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
+        this.select(nextCaret, previousCaret - 1);
       }
+      this.displayCaret(nextCaret);
     } else {
       this.moveCaret(nextCaret);
     }
@@ -236,13 +239,17 @@ Event handlers for SequenceCanvas
       this.sequence.getLength() :
       Math.min(this.caretPosition + basesPerRow, this.sequence.getLength());
 
+    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+
     if (shift) {
       if (selection) {
-        this.expandSelectionToNewCaret(nextCaret);
+        this.expandSelectionToNewCaret(
+          nextCaret < previousCaret ? nextCaret : nextCaret - 1
+        );
       } else {
         this.select(
           previousCaret,
-          nextCaret
+          nextCaret - 1
         );
         this.caretPosition = nextCaret;
       }
