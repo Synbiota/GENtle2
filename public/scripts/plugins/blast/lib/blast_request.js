@@ -75,7 +75,7 @@ var BlastRequest = class {
 
         Proxy.yqlExtractHtmlPost(URL, {
           CMD: 'Put',
-          QUERY: this.sequence.get('sequence'),
+          QUERY: this.sequence.getSequence(),
           DATABASE: this.database,
           PROGRAM: 'blastn',
           NCBI_GI: 'on',
@@ -273,7 +273,7 @@ var BlastRequest = class {
     output.hitFrom--;
     output.hitTo--;
 
-    var sequenceLength = this.sequence.length();
+    var sequenceLength = this.sequence.getLength();
     output.alignFromPct = output.queryFrom / sequenceLength * 100;
     output.alignLenPct = output.alignLen / sequenceLength * 100;
     output.identityPct = output.identity / output.alignLen * 100;

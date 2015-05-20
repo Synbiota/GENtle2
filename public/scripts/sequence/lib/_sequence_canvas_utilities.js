@@ -93,7 +93,10 @@ Utility methods for SequenceCanvas
         inBlockPos      = Math.floor(inBlockAbsPos),
         nextBase        = + (inBlockAbsPos - inBlockPos > 0.5);
 
-    return baseRange[0] + block * basesPerBlock + inBlockPos + nextBase;
+    return Math.min(
+      baseRange[1],
+      baseRange[0] + block * basesPerBlock + inBlockPos + nextBase
+    );
   };
 
   /**

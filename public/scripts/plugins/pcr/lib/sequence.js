@@ -1,4 +1,5 @@
 import {assertion, assertIsNumber} from '../../../common/lib/testing_utils';
+import deprecated from '../../../common/lib/deprecated';
 
 
 class Sequence {
@@ -57,7 +58,7 @@ class Sequence {
 
     if(this.sequence) {
       var len = this.sequence.length;
-      assertion((len >= this.length()), `length of sequence '${len}' is less than length of primer '${this.length()}' (\`from\` ${this.from} and \`to\` ${this.to})`);
+      assertion((len >= this.getLength()), `length of sequence '${len}' is less than length of primer '${this.getLength()}' (\`from\` ${this.from} and \`to\` ${this.to})`);
     }
   }
 
@@ -70,8 +71,13 @@ class Sequence {
 
   // TODO remove this function and rely on this.antisense/reverse and this.from
   length () {
+    deprecated(this, 'length', 'getLength');
+    return this.getLength();
+  }
+
+  getLength () {
     var val = Math.abs(this.from - this.to);
-    if(!this.antisense) val += 1
+    if(!this.antisense) val += 1;
     return val;
   }
 

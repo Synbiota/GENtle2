@@ -33,12 +33,13 @@
   RestrictionEnzymeSites.prototype.draw = function(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
         artist = sequenceCanvas.artist,
+        sequence = sequenceCanvas.sequence,
         layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
         dnaY = layoutHelpers.lineOffsets.dna,
         complementsY = layoutHelpers.lineOffsets.complements,
         complementsHeight = layoutSettings.lines.complements.height,
-        displaySettings = this.sequenceCanvas.sequence.get('displaySettings.rows.res') || {},
+        displaySettings = sequence.get('displaySettings.rows.res') || {},
         // enzymeOptions = {
         //   length: displaySettings.lengths || [],
         //   customList: displaySettings.custom || [],
@@ -48,7 +49,7 @@
           customList: displaySettings.custom || []
         },
         subSeqPadding = RestrictionEnzymes.maxLength(),
-        expandedSubSeq = sequenceCanvas.sequence.getSubSeq(
+        expandedSubSeq = sequence.getSubSeq(
           baseRange[0] - subSeqPadding,
           baseRange[1] + subSeqPadding
         ),
@@ -69,6 +70,11 @@
       initPosition = position;
 
       _.each(enzymes_, function(enzyme) {
+
+        if(!sequence.isRangeEditable(
+          position + baseRange[0],
+          position + baseRange[0] + enzyme.seq.length
+        )) return;
 
         points = [];
         negativeOffset = enzyme.offset < 0;

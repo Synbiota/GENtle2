@@ -105,7 +105,7 @@ export default Backbone.View.extend({
     });
 
     return new Sequence({
-      sequence: this.model.get('sequence'),
+      sequence: this.model.getSequence(),
       features: features
     });
   }
