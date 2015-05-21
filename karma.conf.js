@@ -11,6 +11,8 @@ var preprocessors = _.reduce(testFiles, function(memo, file) {
     return memo;
 }, {});
 
+var aliases = require('./tasks/utils/javascript_aliases');
+
 module.exports = function(config) {
   config.set({
 
@@ -41,8 +43,9 @@ module.exports = function(config) {
         transform: [
             ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
             'babelify',
+            ['aliasify', {aliases: aliases}],
             // 'deamdify'
-        ]
+        ],
     },
 
 

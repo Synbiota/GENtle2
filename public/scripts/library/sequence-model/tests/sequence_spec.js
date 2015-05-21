@@ -1,6 +1,11 @@
-import Sequence from '../models/sequence';
-import {stubCurrentUser} from '../../common/tests/stubs';
-import _ from 'underscore.mixed'
+import sequenceModelFactory from '../factory';
+// import {stubCurrentUser} from '../../common/tests/stubs';
+import _ from 'underscore.mixed';
+import Backbone from 'backbone';
+
+
+// Todo – test with Backbone.Model instead of Backbone.DeepModel
+var Sequence = sequenceModelFactory(Backbone.DeepModel);
 
 var initialSequenceContent = 'ATCGATCGATCGATCG';
 var initialSequenceLength = initialSequenceContent.length;
@@ -91,7 +96,6 @@ var setStickyEndFormat = function(format) {
 };
 
 beforeEach(function() {
-  stubCurrentUser();
   sequence = new Sequence(fixtures[0]);
   stickyEndedSequence = new Sequence(fixtures[1]);
 

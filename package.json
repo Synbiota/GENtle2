@@ -15,7 +15,8 @@
     "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js"
   },
   "dependencies": {
-    "babelify": "^5.0.3",
+    "aliasify": "^1.7.2",
+    "babelify": "^6.1.1",
     "backbone": "~1.1.2",
     "backbone-deep-model": "~0.11.0",
     "backbone.layoutmanager": "~0.9.5",
@@ -28,6 +29,7 @@
     "express": "^4.9.8",
     "express-session": "^1.9.0",
     "filesaver.js": "~0.1.1",
+    "glob": "^5.0.6",
     "gulp": "^3.8.11",
     "gulp-autoprefixer": "^2.1.0",
     "gulp-buffer": "0.0.2",

@@ -11,6 +11,7 @@ var gzip = require('gulp-gzip');
 var rev = require('gulp-rev');
 var buffer = require('gulp-buffer');
 var replace = require('gulp-replace');
+var aliases = require('./utils/javascript_aliases');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -24,6 +25,10 @@ if(isDev) {
   browserifyOptions.debug = true;
 }
 
+var aliasifyOptions = {
+  aliases: aliases
+};
+
 var run = function(watch) {
   var browserified = watch ? 
     watchify(browserify(scriptFile, _.extend(browserifyOptions, watchify.args))) :
@@ -31,7 +36,8 @@ var run = function(watch) {
 
   browserified = browserified
     .transform('hbsfy', { compiler: 'require("handlebars.mixed");'})
-    .transform(babelify);
+    .transform(babelify)
+    .transform('aliasify', aliasifyOptions);
 
   if(!isDev) {
     browserified = browserified.transform('uglifyify', { global: true });
