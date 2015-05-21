@@ -12,6 +12,12 @@ var universalPrimers = function() {
     gcContent: 0.5,
   },
   {
+    sequence: 'ATTACCGCCTTTGAGTGAGC', // reverse complement of: GCTCACTCAAAGGCGGTAAT
+    name: "Sybiota universal reverse primer version 1.0",
+    meltingTemperature: 62.4,
+    gcContent: 0.5,
+  },
+  {
     sequence: 'CGCAGCGAGTCAGTGAG',
     name: "Sybiota universal forward primer version 2.0",
     meltingTemperature: 61.8,
