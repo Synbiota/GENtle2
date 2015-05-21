@@ -172,7 +172,12 @@ Event handlers for SequenceCanvas
       }
       this.caretPosition = nextCaret;
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[0]);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
 
   };
@@ -203,7 +208,12 @@ Event handlers for SequenceCanvas
         this.caretPosition = nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[1] + 1);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
 
   };
@@ -232,7 +242,12 @@ Event handlers for SequenceCanvas
       }
       this.displayCaret(nextCaret);
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[0]);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
   };
 
@@ -243,6 +258,7 @@ Event handlers for SequenceCanvas
       nextCaret;
 
     if (previousCaret === undefined) return;
+    previousCaret = this.sequence.ensureBaseIsEditable(previousCaret);
 
     nextCaret = meta ?
       this.sequence.getLength() :
@@ -263,7 +279,12 @@ Event handlers for SequenceCanvas
         this.caretPosition = nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[1] + 1);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
 
   };

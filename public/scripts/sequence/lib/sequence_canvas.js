@@ -493,14 +493,11 @@ rendered.
       layoutHelpers = this.layoutHelpers,
       yOffset = layoutHelpers.yOffset,
       rowsHeight = layoutHelpers.rows.height,
-      canvasHeight = layoutSettings.canvasDims.height,
-      bottomMargin = layoutSettings.pageMargins.bottom,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       highlight = this.highlight,
       initPosY = posY;
 
     this.artist.clear(posY, rowsHeight);
-
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
       this.drawHighlight(posY, [
         Math.max(baseRange[0], highlight[0]),
@@ -789,7 +786,7 @@ rendered.
         // }
       } else {
         this.selection = [end, start];
-        this.caretPosition = start + 1;
+        this.caretPosition = start;
       }
     } else {
       this.selection = undefined;

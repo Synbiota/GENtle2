@@ -6,9 +6,19 @@ import {stubCurrentUser} from '../../common/tests/stubs';
 describe('handling keyboard selection events', function() {
   stubCurrentUser();
 
+  var stickEndSequence = 'GAAGA';
   var mockSequence = new Sequence({
     name: 'Test sequence',
-    sequence: 'ATGCATGCATGCATGCATGC',
+    sequence: 'ATGCATGCATGCATGCATGC' + stickEndSequence,
+    stickyEnds: {
+      end: {
+        sequence: stickEndSequence,
+        reverse: true,
+        offset: 2,
+        size: 3,
+        name: "Z'",
+      }
+    }
   });
 
   it('selects to end of sequence on that line', function() {
@@ -18,7 +28,7 @@ describe('handling keyboard selection events', function() {
     handler.layoutHelpers = {basesPerRow: 120};
     handler.selection = undefined;
     handler.select = function(){};
-    spyOn(handler, 'select'); 
+    spyOn(handler, 'select');
 
     handler.handleRightKey(true, true);
     expect(handler.select).toHaveBeenCalled();
@@ -32,9 +42,25 @@ describe('handling keyboard selection events', function() {
     handler.layoutHelpers = {basesPerRow: 120};
     handler.selection = undefined;
     handler.select = function(){};
-    spyOn(handler, 'select'); 
+    spyOn(handler, 'select');
 
     handler.handleRightKey(true, true);
     expect(handler.select).not.toHaveBeenCalled();
+  });
+
+  it('selects correctly went all of sequence selected to left then right', function() {
+    var handler = new Handlers();
+    handler.sequence = mockSequence;
+    handler.caretPosition = 10;
+    handler.layoutHelpers = {basesPerRow: 120};
+    handler.selection = undefined;
+    handler.select = function(){};
+    spyOn(handler, 'select');
+
+    handler.handleLeftKey(true, true);
+    expect(handler.select).toHaveBeenCalledWith(0, 9);
+    handler.handleRightKey(true, true);
+    // TODO: fix this
+    // expect(handler.select).toHaveBeenCalledWith(0, 9, 10, 19);
   });
 });
