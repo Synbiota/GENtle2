@@ -13,6 +13,7 @@ rendered.
 **/
 
   'use strict';
+  // TODO add dependecy on underscore
   var Artist = require('../../common/lib/graphics/artist'),
     Hotkeys = require('../../common/lib/hotkeys'),
     CopyPasteHandler = require('../../common/lib/copy_paste_handler'),
@@ -671,7 +672,7 @@ rendered.
 
     if(_.isUndefined(base)) return false;
 
-    base = this.sequence.ensureBaseIsSelectable(base);
+    base = this.sequence.ensureBaseIsEditable(base);
 
     this.scrollBaseToVisibility(base).then(() => {
 
@@ -769,7 +770,6 @@ rendered.
   @method select
   **/
   SequenceCanvas.prototype.select = function(start, end) {
-    var positionCheck;
     this.hideCaret();
     if (start !== undefined) {
       if (start < end) {

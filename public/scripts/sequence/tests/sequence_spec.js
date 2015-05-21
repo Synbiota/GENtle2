@@ -1,9 +1,9 @@
 import Sequence from '../models/sequence';
 import {stubCurrentUser} from '../../common/tests/stubs';
-import _ from 'underscore.mixed'
+import _ from 'underscore.mixed';
+
 
 var initialSequenceContent = 'ATCGATCGATCGATCG';
-var initialSequenceLength = initialSequenceContent.length;
 var stickyEnds = {
   start: {
     sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
@@ -80,7 +80,6 @@ var fixtures = [{
 
 ];
 
-var opts;
 
 var sequence, stickyEndedSequence;
 

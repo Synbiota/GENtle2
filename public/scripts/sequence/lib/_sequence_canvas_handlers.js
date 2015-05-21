@@ -2,7 +2,7 @@
 Event handlers for SequenceCanvas
 @class SequenceCanvasHandlers
 **/
-// define(function(require) {
+
   var Hotkeys = require('../../common/lib/hotkeys'),
     tracedLog = require('../../common/lib/traced_log'),
     Handlers;
@@ -161,6 +161,9 @@ Event handlers for SequenceCanvas
       Math.floor(previousCaret / basesPerRow) * basesPerRow :
       Math.max(previousCaret - 1, 0);
 
+    previousCaret = this.sequence.ensureBaseIsEditable(previousCaret);
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
+
     if (shift) {
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
@@ -181,15 +184,21 @@ Event handlers for SequenceCanvas
       nextCaret;
 
     if (previousCaret === undefined) return;
+    previousCaret = this.sequence.ensureBaseIsEditable(previousCaret);
 
-    nextCaret = meta ?
-      (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, this.sequence.getLength());
+    if(meta) {
+      nextCaret = (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow;
+      nextCaret = Math.min(nextCaret, this.sequence.getLength());
+    } else {
+      nextCaret = Math.min(previousCaret + 1, this.sequence.getLength());
+    }
+
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if (shift) {
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
-      } else {
+      } else if (previousCaret != nextCaret) {
         this.select(previousCaret, nextCaret - 1);
         this.caretPosition = nextCaret;
       }
@@ -208,7 +217,7 @@ Event handlers for SequenceCanvas
     if (previousCaret === undefined) return;
 
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
-    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     tracedLog('handleUpKey', previousCaret, nextCaret);
 
@@ -239,7 +248,7 @@ Event handlers for SequenceCanvas
       this.sequence.getLength() :
       Math.min(this.caretPosition + basesPerRow, this.sequence.getLength());
 
-    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if (shift) {
       if (selection) {
@@ -367,8 +376,8 @@ Event handlers for SequenceCanvas
       (Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
         Math.abs(mouse.top - _this.dragStartPos[1]) >= layoutHelpers.rows.height)) {
 
-      var first = sequence.ensureBaseIsSelectable(_this.dragStartBase, true);
-      var last = sequence.ensureBaseIsSelectable(
+      var first = sequence.ensureBaseIsEditable(_this.dragStartBase, true);
+      var last = sequence.ensureBaseIsEditable(
           _this.getBaseFromXYPos(mouse.left, mouse.top),
           true
         );
@@ -421,7 +430,7 @@ Event handlers for SequenceCanvas
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
     if (base >= 0 && baseRange[0] >= 0 && baseRange[1] > 0) {
-      let newCaret = this.sequence.ensureBaseIsSelectable(base);
+      let newCaret = this.sequence.ensureBaseIsEditable(base);
 
       if(this.selection) {
         if(shiftKey) {
@@ -473,6 +482,6 @@ Event handlers for SequenceCanvas
       top: event.pageY - scrollingParentPosition.top
     };
   };
+
+
 export default Handlers;
-  // return Handlers;
-// });
