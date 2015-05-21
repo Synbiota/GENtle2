@@ -11,7 +11,7 @@ rendered.
 @uses SequenceCanvasUtilities
 @module SequenceCanvas
 **/
-// define(function(require) {
+
   'use strict';
   var Artist = require('../../common/lib/graphics/artist'),
     Hotkeys = require('../../common/lib/hotkeys'),
@@ -660,10 +660,8 @@ rendered.
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base, showMenu = true) {
-    
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
-      yOffset = layoutHelpers.yOffset,
       selection = this.selection,
       posX, posY;
 
@@ -717,19 +715,15 @@ rendered.
   };
 
   SequenceCanvas.prototype.redrawSelection = function(selection) {
-    var
-      lines = this.layoutSettings.lines,
-      yOffset = this.layoutHelpers.yOffset,
-      rowsHeight = this.layoutHelpers.rows.height,
-      posY;
+    var posY;
 
     //Calculating posY for baseRange
     if (selection !== undefined) {
 
-      if (this.layoutHelpers.selectionPreviousA == undefined) {
+      if (this.layoutHelpers.selectionPreviousA === undefined) {
         this.layoutHelpers.selectionPreviousA = selection[0];
       }
-      if (this.layoutHelpers.selectionPreviousB == undefined) {
+      if (this.layoutHelpers.selectionPreviousB === undefined) {
         this.layoutHelpers.selectionPreviousB = selection[1];
       }
 
@@ -853,13 +847,12 @@ rendered.
       if(size===0) {
         info = toString(start) + " (1 bp)";
       } else {
-        info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
+        info = `${toString(start)} to ${toString(end)} (${toString(size+1)} bp)`;
       }
       
     } else {
       info = toString(this.caretPosition + 1);
     }
-
 
     return info;
   };
@@ -867,5 +860,3 @@ rendered.
 
 
 export default SequenceCanvas;
-  // return SequenceCanvas;
-// });
