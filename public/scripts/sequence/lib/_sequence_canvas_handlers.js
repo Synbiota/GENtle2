@@ -78,8 +78,10 @@ Event handlers for SequenceCanvas
 
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
+      let editableRange = this.sequence.editableRange();
 
-      this.select(...this.sequence.selectableRange());
+      this.select(...editableRange);
+      this.displayCaret(editableRange[1] + 1);
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {
 
