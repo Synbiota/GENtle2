@@ -1,17 +1,14 @@
-var _ = require('underscore');
-
-
 var testFiles = [
     'karma.header.js',
     'public/scripts/**/tests/**/*.js'
 ];
 
-var preprocessors = _.reduce(testFiles, function(memo, file) {
+var preprocessors = testFiles.reduce(function(memo, file) {
     memo[file] = ['browserify'];
     return memo;
 }, {});
 
-var aliases = require('./tasks/utils/javascript_aliases');
+var transforms = require('./tasks/utils/browserify_utils').transforms;
 
 module.exports = function(config) {
   config.set({
@@ -40,12 +37,7 @@ module.exports = function(config) {
 
     browserify: {
         debug: true,
-        transform: [
-            ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
-            'babelify',
-            ['aliasify', {aliases: aliases}],
-            // 'deamdify'
-        ],
+        transform: transforms,
     },
 
 
