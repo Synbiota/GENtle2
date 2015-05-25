@@ -30,7 +30,8 @@ export default class Chromatogram extends Line {
     const dataRelevantOffset = 0 + 0*(rawData[0].length - peaks[peaks.length-1]);
 
     const dataDensity = Math.floor( dataRelevantLength / sequence.length());
-    const xInterval =  effectiveWidth / (toBase - fromBase + 1) / dataDensity;
+    // const xInterval =  effectiveWidth / (toBase - fromBase + 1) / dataDensity;
+    const xInterval =  1;
     const height = this.height;
 
     const relevantRawData = _.map(rawData, function(data) {
@@ -46,6 +47,9 @@ export default class Chromatogram extends Line {
       });
     });
 
+    // console.log(rawData)
+    // console.log(peaks)
+
     artist.updateStyle({
       lineWidth: 1
     });
@@ -55,7 +59,9 @@ export default class Chromatogram extends Line {
     // });
     //
     _.each(allPoints, function(points, i) {
+
       artist.path(..._.flatten(points), {strokeStyle: colors[i]});
+
     });
 
     // artist.smoothLineGraph(points);

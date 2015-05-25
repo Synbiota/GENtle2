@@ -651,12 +651,14 @@ rendered.
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base) {
-    
+
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
       selection = this.selection,
       posX, posY;
+
+    var peaks = this.sequence.get('chromatogramPeaks');
 
     if (base === undefined && this.caretPosition !== undefined) {
       base = this.caretPosition;
@@ -674,6 +676,10 @@ rendered.
       } else {
         posX = this.getXPosFromBase(base);
         posY = this.getYPosFromBase(base) + lineOffsets.dna;
+      }
+
+      if (peaks){
+        posX = this.layoutSettings.pageMargins.left + peaks[base] - this.layoutSettings.basePairDims.width/2;
       }
 
       this.caret.move(posX, posY, base);

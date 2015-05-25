@@ -1,12 +1,12 @@
 /**
-Line class for displaying bases on SequenceCanvas. 
-Options are: 
+Line class for displaying bases on SequenceCanvas.
+Options are:
 
 - `this.height`: line height.
 - `this.baseLine`: text baseline.
 - `this.textColour`: colour of the text. can be a function taking the character as argument.
-- `this.textFont`: font style of the text. 
-- `this.transformUnit` _(optional, default: `base`)_: argument passed to the `transform` function. Either `base` or `codon`.  
+- `this.textFont`: font style of the text.
+- `this.transformUnit` _(optional, default: `base`)_: argument passed to the `transform` function. Either `base` or `codon`.
 - `this.transform` _(optional)_: function transforming a `transformUnit` into another (e.g. complement..)
 @class Lines.DNA
 @module Sequence
@@ -49,25 +49,34 @@ Options are:
 
     artist.updateStyle({font: this.textFont});
     x = ls.pageMargins.left + (this.leftMargin || 0);
-    
-    subSequence = (_.isFunction(this.getSubSeq) ? 
-      this.getSubSeq : 
+
+    subSequence = (_.isFunction(this.getSubSeq) ?
+      this.getSubSeq :
       sequence.getSubSeq
-    ).apply(sequence, baseRange); 
+    ).apply(sequence, baseRange);
+
+    var peaks = sequence.get('chromatogramPeaks')
+    var peakSubSequence = peaks.slice(baseRange[0], baseRange[1]+1);
 
     if(subSequence) {
       for(k = 0; k < lh.basesPerRow; k++){
         if(!subSequence[k]) break;
-        
+
+        var diff = peakSubSequence[k] - (peakSubSequence[k-1] || 0);
+
+        x += diff - ls.basePairDims.width/2;
+
+        // console.log(subSequence[k], peakSubSequence[k] - (peakSubSequence[k-1] || 0));
+
         character = _.isFunction(this.transform) ?
           this.transform.call(sequence, k+baseRange[0]) :
           subSequence[k];
 
 
 
-        if( this.selectionColour && 
-            selection && 
-            k+baseRange[0] <= selection[1] && 
+        if( this.selectionColour &&
+            selection &&
+            k+baseRange[0] <= selection[1] &&
             k+baseRange[0] >= selection[0]) {
 
           artist.rect(x, y+3, ls.basePairDims.width, this.height, {
@@ -93,11 +102,11 @@ Options are:
 
         artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
 
-        x += ls.basePairDims.width;
+        x += ls.basePairDims.width/2;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
       }
     }
-            
+
   };
 export default DNA;
   // return DNA;
