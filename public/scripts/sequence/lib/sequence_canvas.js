@@ -600,9 +600,14 @@ define(function(require) {
   **/
   SequenceCanvas.prototype.scrollBaseToVisibility = function(base) {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
+    var distance = 0;
+    var buffer = this.$scrollingParent.height()/2;
 
     if (distanceToVisibleCanvas !== 0) {
-      return this.scrollTo(this.layoutHelpers.yOffset + distanceToVisibleCanvas);
+      distance = this.layoutHelpers.yOffset + distanceToVisibleCanvas;
+      distance += (distanceToVisibleCanvas > 0) ? buffer : -buffer;
+
+      return this.scrollTo(distance);
     } else {
       return Q.resolve();
     }
