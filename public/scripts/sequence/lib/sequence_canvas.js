@@ -103,12 +103,10 @@ rendered.
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
       var selectableRange = sequence.selectableRange(reverse);
-      var editableRange = sequence.editableRange();
       var selectable = pos >= selectableRange[0] && pos <= selectableRange[1];
-      var editable = pos >= editableRange[0] && pos <= editableRange[1];
 
       if(selectable) {
-        if(editable) {
+        if(sequence.isBaseEditable(pos)) {
           return defaultColour;
         } else {
           return LineStyles.RES.text.color;
@@ -764,8 +762,24 @@ rendered.
   };
 
   /**
-  @method select
-  **/
+   * @method selectRange
+   * @param  {Range} range
+   * @return {Undefined}
+   */
+  SequenceCanvas.prototype.selectRange = function(range) {
+    if(range.size) {
+      this.select(range.from, range.to - 1);
+    } else {
+      this.selection = undefined;
+    }
+  };
+
+  /**
+   * @method select
+   * @param  {Integer} start
+   * @param  {Integer} end  Position is inclusive
+   * @return {Undefined}
+   */
   SequenceCanvas.prototype.select = function(start, end) {
     this.hideCaret();
     if (start !== undefined) {

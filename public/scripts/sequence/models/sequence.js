@@ -11,7 +11,9 @@ import HistorySteps from './history_steps';
 import Backbone from 'backbone';
 import _ from 'underscore';
 
+import SequenceRange from '../../library/sequence-model/range';
 import deprecated from '../../common/lib/deprecated';
+
 
 var smartMemoizeAndClear = function(obj, methodName, eventName) {
   if(_.isObject(methodName)) {
@@ -88,7 +90,7 @@ var SequenceModel = Backbone.DeepModel.extend({
    * @param  {String} Standard attribute
    * @param  {Object} Options (optional)
    */
-  get: function(attribute, options = {}){
+  get: function(attribute, options = {}) {
     var value;
     var customGet = "get" + _.ucFirst(attribute);
 
@@ -144,7 +146,7 @@ var SequenceModel = Backbone.DeepModel.extend({
     return sequence;
   },
 
-  getFeatures: function(){
+  getFeatures: function() {
     var features = this.trueGet('features'),
         stickyEnds = this.getStickyEnds(),
         stickyEndFormat = this.get('displaySettings.stickyEndFormat'),
@@ -1127,22 +1129,20 @@ var SequenceModel = Backbone.DeepModel.extend({
    *  (i.e. account for sticky end format).
    *
    * Typically excludes sticky ends and overhangs
-   * @method editableRange      
+   * @method editableRange
    * @return {Array<Int>} array of first and last base in the editable range
    */
   editableRange: function() {
     var stickyEndFormat = this.get('displaySettings.stickyEndFormat');
     var stickyEnds = this.getStickyEnds();
+    var frm = 0;
     var length = this.getLength();
 
     if(stickyEnds && stickyEndFormat === 'overhang') {
-      return [
-        stickyEnds.start.size,
-        length - stickyEnds.end.size - 1
-      ];
-    } else {
-      return [0, length];
+      frm = stickyEnds.start.size;
+      length = length - stickyEnds.end.size - stickyEnds.start.size;
     }
+    return new SequenceRange({from: frm, size: length});
   },
 
   length: function() {
@@ -1202,13 +1202,14 @@ var SequenceModel = Backbone.DeepModel.extend({
 
   ensureBaseIsEditable: function(base) {
     var editableRange = this.editableRange();
-    return Math.min(Math.max(base, editableRange[0]), editableRange[1]+1);
+    return Math.min(Math.max(base, editableRange.from), editableRange.to - 1);
   },
 
-  isBaseEditable: function(base, strict = false) {
-    var editableRange = this.editableRange();
-    return editableRange[0] <= base && 
-      editableRange[1] >= base - (strict ? 0 : 1);
+  isBaseEditable: function(base) {
+    return base === this.ensureBaseIsEditable(base);
+    // var editableRange = this.editableRange();
+    // return editableRange[0] <= base &&
+    //   editableRange[1] >= base - (strict ? 0 : 1);
   },
 
   isRangeEditable: function(start, end) {    
@@ -1216,7 +1217,7 @@ var SequenceModel = Backbone.DeepModel.extend({
       [end, start] = [start, end];
     }
 
-    return this.isBaseEditable(start) && this.isBaseEditable(end, true);
+    return this.isBaseEditable(start) && this.isBaseEditable(end);
   }
 
 });

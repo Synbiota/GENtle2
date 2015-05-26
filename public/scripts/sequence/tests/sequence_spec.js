@@ -6,14 +6,14 @@ import _ from 'underscore.mixed';
 var initialSequenceContent = 'ATCGATCGATCGATCG';
 var stickyEnds = {
   start: {
-    sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+    sequence: 'CCTGCAGTCAGTGGTCTCT' + 'AGAG',
     reverse: false,
     offset: 19,
     size: 4,
     name: "X",
   },
   end: {
-    sequence: 'GAGATGAGACCGTCAGTCACGAG',
+    sequence: 'GAGA' + 'TGAGACCGTCAGTCACGAG',
     reverse: true,
     offset: 19,
     size: 4,
@@ -109,7 +109,7 @@ describe('creating and reading a sequence', function() {
 
   describe('without sticky ends', function(){
     it('should be able to get the sequence', function() {
-      expect(sequence.get('sequence')).toEqual(initialSequenceContent);
+      expect(sequence.getSequence()).toEqual(initialSequenceContent);
     });
 
     it('should be able to get a subsequence', function() {
@@ -125,7 +125,7 @@ describe('creating and reading a sequence', function() {
       });
 
       it('should be able to get the sequence', function() {
-        expect(stickyEndedSequence.get('sequence')).toEqual(stickyEndedSequenceContent);
+        expect(stickyEndedSequence.getSequence()).toEqual(stickyEndedSequenceContent);
       });
 
       it('should be able to get a subsequence', function() {
@@ -135,7 +135,7 @@ describe('creating and reading a sequence', function() {
 
     describe('with overhang sticky end formatting', function(){
       it('should be able to get the sequence', function() {
-        expect(stickyEndedSequence.get('sequence')).toEqual(stickyEndedSequenceContentWithOverhang);
+        expect(stickyEndedSequence.getSequence()).toEqual(stickyEndedSequenceContentWithOverhang);
       });
 
       it('should be able to get a subsequence', function() {
@@ -149,7 +149,7 @@ describe('creating and reading a sequence', function() {
       });
 
       it('should be able to get the sequence', function() {
-        expect(stickyEndedSequence.get('sequence')).toEqual(initialSequenceContent);
+        expect(stickyEndedSequence.getSequence()).toEqual(initialSequenceContent);
       });
 
       it('should be able to get a subsequence', function() {
@@ -161,6 +161,7 @@ describe('creating and reading a sequence', function() {
 
 });
 
+
 describe('getting features from sticky ended sequences', function(){
 
   var features;
@@ -168,9 +169,7 @@ describe('getting features from sticky ended sequences', function(){
 
   describe('with full sticky end formatting', function(){
     beforeEach(function(){
-      features = stickyEndedSequence.get('features', {
-        stickyEndFormat: 'full'
-      });
+      features = stickyEndedSequence.getFeatures();
     });
 
     it('should not distort any features', function(){
@@ -189,7 +188,7 @@ describe('getting features from sticky ended sequences', function(){
 
   describe('with overhang sticky end formatting', function(){
     beforeEach(function(){
-      features = stickyEndedSequence.get('features');
+      features = stickyEndedSequence.getFeatures();
     });
 
     it('should set features beyond the overhang as [0,0]', function(){
@@ -228,8 +227,8 @@ describe('getting features from sticky ended sequences', function(){
 
 });
 
-describe('when inserting bases into a sequence', function() {
 
+describe('when inserting bases into a sequence', function() {
   describe('without sticky ends', function(){
 
     beforeEach(function(){
@@ -237,7 +236,7 @@ describe('when inserting bases into a sequence', function() {
     });
 
     it('should update the sequence', function() {
-      expect(sequence.get('sequence')).toEqual('ATCAAAGATCGATCGATCG');
+      expect(sequence.getSequence()).toEqual('ATCAAAGATCGATCGATCG');
       expect(sequence.getSubSeq(3, 5)).toEqual('AAA');
       expect(sequence.throttledSave).toHaveBeenCalled();
     });
@@ -259,7 +258,7 @@ describe('when inserting bases into a sequence', function() {
       });
 
       it('should update the sequence', function() {
-        expect(stickyEndedSequence.get('sequence')).toEqual('CCTAAAGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+        expect(stickyEndedSequence.getSequence()).toEqual('CCTAAAGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
         expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
         expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
@@ -272,7 +271,7 @@ describe('when inserting bases into a sequence', function() {
       });
 
       it('should update the sequence', function() {
-        expect(stickyEndedSequence.get('sequence')).toEqual('AGAAAAGATCGATCGATCGATCGGAGA');
+        expect(stickyEndedSequence.getSequence()).toEqual('AGAAAAGATCGATCGATCGATCGGAGA');
         expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
         expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
@@ -286,7 +285,7 @@ describe('when inserting bases into a sequence', function() {
       });
 
       it('should update the sequence', function() {
-        expect(stickyEndedSequence.get('sequence')).toEqual('ATCAAAGATCGATCGATCG');
+        expect(stickyEndedSequence.getSequence()).toEqual('ATCAAAGATCGATCGATCG');
         expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
         expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
@@ -303,7 +302,7 @@ describe('when deleting bases from a sequence in the middle of a feature', funct
   });
 
   it('should update the sequence', function() {
-    expect(sequence.get('sequence')).toEqual('ATATCGATCGATCG');
+    expect(sequence.getSequence()).toEqual('ATATCGATCGATCG');
     expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
     expect(sequence.throttledSave).toHaveBeenCalled();
   });
@@ -321,25 +320,24 @@ describe('when deleting bases from a sequence in the middle of a feature', funct
 
 
 describe('when deleting bases containing an entire sequence', function() {
-
   beforeEach(function() {
     sequence.deleteBases(2, 6);
   });
 
   it('should update the sequence', function() {
-    expect(sequence.get('sequence')).toEqual('ATATCGATCG');
+    expect(sequence.getSequence()).toEqual('ATATCGATCG');
     expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
     expect(sequence.throttledSave).toHaveBeenCalled();
   });
 
   it('should delete the feature', function() {
-    var features = sequence.get('features');
+    var features = sequence.getFeatures();
     expect(features.length).toEqual(0);
   });
 });
 
-describe('when deleting bases from a stickyEnded sequence', function(){
 
+describe('when deleting bases from a stickyEnded sequence', function(){
 
   describe('with full sticky end formatting', function(){
     setStickyEndFormat('full');
@@ -378,8 +376,8 @@ describe('when deleting bases from a stickyEnded sequence', function(){
     });
   });
 
-
 });
+
 
 describe('#selectableRange', function() {
   describe('with overhang sticky end formatting', function() {
@@ -398,10 +396,13 @@ describe('#selectableRange', function() {
   });
 });
 
+
 describe('#editableRange', function() {
   describe('with overhang sticky end formatting', function() {
     it('should return the boundaries of the sequence without the sticky ends', function() {
-      expect(stickyEndedSequence.editableRange()).toEqual([4, 19]);
+      var range = stickyEndedSequence.editableRange();
+      expect(range.from).toEqual(4);
+      expect(range.to).toEqual(20); // note 21 is NOT included in range
     });
   });
 
@@ -414,90 +415,69 @@ describe('#editableRange', function() {
   });
 });
 
+
 describe('#isBaseEditable', function() {
-  var baseShouldBeEditable = function(editable, strict, base) {
-    // console.log('isBaseEditable', base, stickyEndedSequence.isBaseEditable(base))
-    expect(stickyEndedSequence.isBaseEditable(base, strict)).toEqual(editable);
-  };
-
-  var shouldWork = function(editableBases, nonEditableBases = [], strict = false) {
-    it('should return true for editable bases', function() {
-      editableBases.forEach(_.partial(baseShouldBeEditable, true, strict));
-    });
-
-    it('should return false for non editable bases', function() {
-      nonEditableBases.forEach(_.partial(baseShouldBeEditable, false, strict));
+  var basesShouldBeEditable = function(editableBases) {
+    editableBases.forEach(function(baseNumber) {
+      it('should return true for editable base number ' + baseNumber, function() {
+        expect(stickyEndedSequence.isBaseEditable(baseNumber)).toEqual(true);
+      });
     });
   };
 
-  describe('in strict mode', function() {
-    describe('with overhang sticky end formatting', function() {
-      setStickyEndFormat('overhang');
-      shouldWork([4, 10, 12, 19], [0, 2, 20, 21, 40], true);
-    });
-
-    describe('with full sticky end formatting', function() {
-      setStickyEndFormat('full');
-      shouldWork([19, 20, 27, 38].concat([0, 3, 49, 39]), [], true);
-    });
-  });
-
-  describe('in non-strict mode', function() {
-    describe('with overhang sticky end formatting', function() {
-      setStickyEndFormat('overhang');
-      shouldWork([4, 10, 12, 19, 20], [0, 2, 21, 40], false);
-    });
-
-    describe('with full sticky end formatting', function() {
-      setStickyEndFormat('full');
-      shouldWork([19, 20, 27, 38, 39].concat([0, 3, 49]), [], false);
-    });
-  });
-});
-
-describe('#isRangeEditable', function() {
-  var rangeShouldBeEditable = function(editable, range) {
-    expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(editable);
-  };
-
-  var shouldWork = function(editableRanges, nonEditableRanges = []) {
-    it('should return true for editable ranges', function() {
-      editableRanges.forEach(_.partial(rangeShouldBeEditable, true));
-    });
-
-    it('should return false for non editable ranges', function() {
-      nonEditableRanges.forEach(_.partial(rangeShouldBeEditable, false));
+  var basesShouldNotBeEditable = function(nonEditableBases) {
+    nonEditableBases.forEach(function(baseNumber) {
+      it('should return false for editable base number ' + baseNumber, function() {
+        expect(stickyEndedSequence.isBaseEditable(baseNumber)).toEqual(false);
+      });
     });
   };
 
   describe('with overhang sticky end formatting', function() {
-    var nonEditableRanges = [
-      [0, 3],
-      [2, 6],
-      [17, 24],
-      [4, 20],
-    ];
+    setStickyEndFormat('overhang');
+    basesShouldBeEditable([4, 19]);
+    basesShouldNotBeEditable([3, 20]);
+  });
 
-    var editableRanges = [
-      [4, 19],
-      [7, 15]
-    ];
+  describe('with full sticky end formatting', function() {
+    setStickyEndFormat('full');
+    basesShouldBeEditable([0, 61]);
+    basesShouldNotBeEditable([-1, 62]);
+  });
+});
+
+
+describe('#isRangeEditable', function() {
+  var shouldWork = function(editableRanges, nonEditableRanges) {
+    editableRanges.forEach(function(range) {
+      it('should return true for editable range ' + JSON.stringify(range), function() {
+        expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(true);
+      });
+    });
+
+    nonEditableRanges.forEach(function(range) {
+      it('should return false for non editable range ' + JSON.stringify(range), function() {
+        expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(false);
+      });
+    });
+  };
+
+  var nonEditableRanges = [
+    [3, 6],
+    [18, 20],
+  ];
+
+  var editableRanges = [
+    [4, 6],
+    [18, 19]
+  ];
+
+  describe('with overhang sticky end formatting', function() {
     setStickyEndFormat('overhang');
     shouldWork(editableRanges, nonEditableRanges);
   });
 
   describe('with full sticky end formatting', function() {
-    var nonEditableRanges = [
-      [0, 3],
-      [2, 6],
-      [17, 24],
-      [4, 20],
-    ];
-
-    var editableRanges = [
-      [4, 19],
-      [7, 15]
-    ];
     setStickyEndFormat('full');
     shouldWork(editableRanges.concat(nonEditableRanges), []);
   });
