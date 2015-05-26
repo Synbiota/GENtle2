@@ -12,8 +12,10 @@ const stickyEndFormats = ['full', 'none', 'overhang'];
 export default function sequenceModelFactory(BackboneModel) {
   return _.extend(class Sequence extends BackboneModel {
 
-    constructor(...args) {
-      super(...args);
+    constructor(attributes, options) {
+      super(attributes, options);
+
+      this.validateFields(attributes);
 
       this.sortFeatures();
 
@@ -30,6 +32,58 @@ export default function sequenceModelFactory(BackboneModel) {
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
+    }
+
+    /**
+     * Return a list of all possible attribute fields on this model.
+     * @method allFields
+     * @return {Array<String>}
+     */
+    get allFields() {
+      var allFields = allFields || _.unique(this.requiredFields.concat(this.optionalFields));
+      return allFields;
+    }
+
+    /**
+     * Return a list of all required attribute fields on this model.
+     * @method requiredFields
+     * @return {Array<String>}
+     */
+    get requiredFields() {
+      return ['sequence'];
+    }
+
+    /**
+     * Return a list of all optional attribute fields on this model.
+     * @method optionalFields
+     * @return {Array<String>}
+     */
+    get optionalFields() {
+      return [
+        'id',
+        'name',
+        'desc',
+        'stickyEnds',
+        'features',
+        'reverse',
+        'readOnly',
+        'isCircular',
+        'stickyEndFormat'
+      ];
+    }
+
+    validateFields(attributes) {
+      var attributeNames = _.keys(attributes);
+      var missingAttributes = _.without(this.requiredFields, ...attributeNames);
+      var extraAttributes = _.without(attributeNames, ...this.allFields);
+
+      if(missingAttributes.length) {
+        throw `${this.constructor.name} is missing the following attributes: ${missingAttributes.join(', ')}`;
+      }
+
+      if(extraAttributes.length) {
+        console.warn(`Assigned the following disallowed attributes to ${this.constructor.name}: ${extraAttributes.join(', ')}`);
+      }
     }
 
     defaults() {

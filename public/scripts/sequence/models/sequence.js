@@ -21,6 +21,10 @@ export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
     });
   }
 
+  get optionalFields() {
+    return super.optionalFields.concat('displaySettings', 'meta', 'history');
+  }
+
   serialize() {
     return _.extend(Backbone.Model.prototype.toJSON.apply(this), {
       isCurrent: (Gentle.currentSequence && Gentle.currentSequence.get('id') == this.get('id')),
