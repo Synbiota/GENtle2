@@ -1147,6 +1147,26 @@ var SequenceModel = Backbone.DeepModel.extend({
     return new SequenceRange({from: frm, size: length + (strict ? 0 : 1)});
   },
 
+  ensureBaseIsEditable: function(base, strict = false) {
+    var editableRange = this.editableRange(strict);
+    if(editableRange.size === 0) {
+      // TODO: throw exception?
+    }
+    return Math.max(Math.min(base, editableRange.to - 1), editableRange.from);
+  },
+
+  isBaseEditable: function(base, strict = false) {
+    return base === this.ensureBaseIsEditable(base, strict);
+  },
+
+  isRangeEditable: function(start, end) {
+    if(end < start) {
+      [end, start] = [start, end];
+    }
+
+    return this.isBaseEditable(start) && this.isBaseEditable(end);
+  },
+
   length: function() {
     deprecated(this, 'length', 'getLength');
     return this.getLength();
@@ -1200,26 +1220,6 @@ var SequenceModel = Backbone.DeepModel.extend({
       Math.max(base, selectableRange[0]), 
       selectableRange[1] + (strict ? 0 : 1)
     );
-  },
-
-  ensureBaseIsEditable: function(base, strict = false) {
-    var editableRange = this.editableRange(strict);
-    if(editableRange.size === 0) {
-      // TODO: throw exception?
-    }
-    return Math.max(Math.min(base, editableRange.to - 1), editableRange.from);
-  },
-
-  isBaseEditable: function(base, strict = false) {
-    return base === this.ensureBaseIsEditable(base, strict);
-  },
-
-  isRangeEditable: function(start, end) {
-    if(end < start) {
-      [end, start] = [start, end];
-    }
-
-    return this.isBaseEditable(start) && this.isBaseEditable(end);
   },
 
 });
