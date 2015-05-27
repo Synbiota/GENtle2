@@ -168,12 +168,14 @@ Event handlers for SequenceCanvas
     nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if (shift) {
-      if (selection) {
-        this.expandSelectionToNewCaret(nextCaret);
-      } else if (previousCaret != nextCaret) {
-        this.select(previousCaret - 1, nextCaret);
+      if (previousCaret != nextCaret) {
+        if (selection) {
+          this.expandSelectionToNewCaret(nextCaret);
+        } else {
+          this.select(previousCaret - 1, nextCaret);
+        }
+        this.caretPosition = nextCaret;
       }
-      this.caretPosition = nextCaret;
     } else {
       if (selection) {
         var position = this.sequence.ensureBaseIsEditable(selection[0]);
@@ -241,7 +243,7 @@ Event handlers for SequenceCanvas
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
       } else {
-        this.select(nextCaret, previousCaret - 1);
+        this.select(previousCaret - 1, nextCaret);
       }
       this.displayCaret(nextCaret);
     } else {
