@@ -488,6 +488,10 @@ describe('#ensureBaseIsEditable', function() {
   describe('with overhang sticky end formatting', function() {
     setStickyEndFormat('overhang');
 
+    it('should get the correct sequence', function () {
+      expect(stickyEndedSequence.getSequence()).toEqual('AGAG' + initialSequenceContent + 'GAGA');
+    });
+
     describe('and without being strict', function() {
       it('should correct uneditable bases', function() {
         expect(stickyEndedSequence.ensureBaseIsEditable(4)).toEqual(4);

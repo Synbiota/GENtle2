@@ -120,8 +120,8 @@ var SequenceModel = Backbone.DeepModel.extend({
    * @method  getSequence
    * @return {String} Formatted sequence
    */
-  getSequence: function(){
-    var sequence        = Backbone.DeepModel.prototype.get.call(this, 'sequence'),
+  getSequence: function() {
+    var sequence        = this.trueGet('sequence'),
         stickyEnds      = this.getStickyEnds(),
         stickyEndFormat = this.get('displaySettings.stickyEndFormat'),
         startPostion, endPosition;

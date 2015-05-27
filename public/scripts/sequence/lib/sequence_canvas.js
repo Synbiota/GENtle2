@@ -783,21 +783,9 @@ rendered.
   SequenceCanvas.prototype.select = function(start, end) {
     this.hideCaret();
     if (start !== undefined) {
-      if (start < end) {
+      if (start <= end) {
         this.selection = [start, end];
         this.caretPosition = end + 1;
-        // positionCheck = this.caretPosition;
-
-        // if (positionCheck > this.layoutHelpers.caretPositionBefore) {
-        //   this.caretPosition = this.layoutHelpers.caretPositionBefore;
-        //   if (start != this.layoutHelpers.selectionPreviousB - 1 && start != this.layoutHelpers.selectionPreviousB + 1 && start != this.layoutHelpers.selectionPreviousB)
-        //     this.layoutHelpers.selectionPreviousB = this.caretPosition;
-        //   if (end != this.layoutHelpers.selectionPreviousA - 1 && end != this.layoutHelpers.selectionPreviousA + 1 && end != this.layoutHelpers.selectionPreviousA)
-        //     this.layoutHelpers.selectionPreviousA = this.caretPosition;
-        //   positionCheck = this.caretPosition;
-        // } else {
-        //   this.layoutHelpers.caretPositionBefore = this.caretPosition;
-        // }
       } else {
         this.selection = [end, start];
         this.caretPosition = start;

@@ -170,8 +170,8 @@ Event handlers for SequenceCanvas
     if (shift) {
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
-      } else {
-        this.select(nextCaret, previousCaret - 1);
+      } else if (previousCaret != nextCaret) {
+        this.select(previousCaret - 1, nextCaret);
       }
       this.caretPosition = nextCaret;
     } else {
@@ -232,7 +232,7 @@ Event handlers for SequenceCanvas
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
     nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
-    tracedLog('handleUpKey', previousCaret, nextCaret);
+    // tracedLog('handleUpKey', previousCaret, nextCaret);
 
     if(previousCaret === nextCaret) return;
 

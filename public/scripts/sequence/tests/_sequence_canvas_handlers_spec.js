@@ -6,17 +6,31 @@ import {stubCurrentUser} from '../../common/tests/stubs';
 describe('handling keyboard selection events', function() {
   stubCurrentUser();
 
-  var stickEndSequence = 'GAAGA';
+  var stickyEndSequence = 'GAAGA';
   var mockSequence = new Sequence({
     name: 'Test sequence',
-    sequence: 'ATGCATGCATGCATGCATGC' + stickEndSequence,
+    sequence: 'ATGCATGCATGCATGCATGC' + stickyEndSequence,
     stickyEnds: {
       end: {
-        sequence: stickEndSequence,
+        sequence: stickyEndSequence,
         reverse: true,
         offset: 2,
         size: 3,
         name: "Z'",
+      }
+    }
+  });
+
+  var mockSequenceWithStartStickyEnd = new Sequence({
+    name: 'Test sequence',
+    sequence: stickyEndSequence + 'ATGCATGCATGCATGCATGC',
+    stickyEnds: {
+      start: {
+        sequence: stickyEndSequence,
+        reverse: false,
+        offset: 2,
+        size: 3,
+        name: "X",
       }
     }
   });
@@ -27,7 +41,7 @@ describe('handling keyboard selection events', function() {
     handler.caretPosition = 10;
     handler.layoutHelpers = {basesPerRow: 120};
     handler.selection = undefined;
-    handler.select = function(){};
+    handler.select = function() {};
     spyOn(handler, 'select');
 
     handler.handleRightKey(true, true);
@@ -35,13 +49,13 @@ describe('handling keyboard selection events', function() {
     expect(handler.select).toHaveBeenCalledWith(10, 19);
   });
 
-  it('does not create selection went at end of sequence', function() {
+  it('does not create selection when at end of sequence', function() {
     var handler = new Handlers();
     handler.sequence = mockSequence;
     handler.caretPosition = 20;
     handler.layoutHelpers = {basesPerRow: 120};
     handler.selection = undefined;
-    handler.select = function(){};
+    handler.select = function() {};
     spyOn(handler, 'select');
 
     handler.handleRightKey(true, true);
@@ -54,13 +68,30 @@ describe('handling keyboard selection events', function() {
     handler.caretPosition = 10;
     handler.layoutHelpers = {basesPerRow: 120};
     handler.selection = undefined;
-    handler.select = function(){};
+    handler.select = function() {};
     spyOn(handler, 'select');
 
     handler.handleLeftKey(true, true);
-    expect(handler.select).toHaveBeenCalledWith(0, 9);
+    expect(handler.select).toHaveBeenCalledWith(9, 0);
     handler.handleRightKey(true, true);
-    // TODO: fix this
-    // expect(handler.select).toHaveBeenCalledWith(0, 9, 10, 19);
+    expect(handler.select).toHaveBeenCalledWith(9, 0);
+    expect(handler.select).toHaveBeenCalledWith(0, 19);
+  });
+
+  it('selects nothing went at start of sequence going left', function() {
+    var handler = new Handlers();
+    handler.sequence = mockSequenceWithStartStickyEnd;
+    // NOTE: Remember this is the size of the uneditable sticky end not the
+    // offset.  The bases covered by the offset are stripped away completely
+    // and the sequence rebased so that the first base of the actualy sticky
+    // end is then in position 0.
+    handler.caretPosition = 3;
+    handler.layoutHelpers = {basesPerRow: 120};
+    handler.selection = undefined;
+    handler.select = function() {};
+    spyOn(handler, 'select');
+
+    handler.handleLeftKey(true, true);
+    expect(handler.select).not.toHaveBeenCalled();
   });
 });
