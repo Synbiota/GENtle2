@@ -38,7 +38,8 @@ var fixtures = [{
     desc: 'test feature description',
     type: 'gene'
   }]
-},{
+},
+{
   name: 'Sticky Ended Sequence',
   sequence: stickyEndedSequenceContent,
   features: [{
@@ -76,12 +77,17 @@ var fixtures = [{
   }
   ],
   stickyEnds: stickyEnds
+},
+{
+  name: 'Empty Sticky Ended Sequence',
+  sequence: stickyEnds.start.sequence + stickyEnds.end.sequence,
+  features: [],
+  stickyEnds: stickyEnds
 }
-
 ];
 
 
-var sequence, stickyEndedSequence;
+var sequence, stickyEndedSequence, stickyEndedEmptySequence;
 
 var setStickyEndFormat = function(format) {
   beforeEach(function() {
@@ -93,11 +99,15 @@ beforeEach(function() {
   stubCurrentUser();
   sequence = new Sequence(fixtures[0]);
   stickyEndedSequence = new Sequence(fixtures[1]);
+  stickyEndedEmptySequence = new Sequence(fixtures[2]);
 
-  spyOn(sequence, 'save'); // Disable save function
+  // Disable save function
+  spyOn(sequence, 'save');
   spyOn(sequence, 'throttledSave');
   spyOn(stickyEndedSequence, 'save');
   spyOn(stickyEndedSequence, 'throttledSave');
+  spyOn(stickyEndedEmptySequence, 'save');
+  spyOn(stickyEndedEmptySequence, 'throttledSave');
 });
 
 
@@ -117,7 +127,7 @@ describe('creating and reading a sequence', function() {
     });
   });
 
-  describe('with sticky ends', function(){
+  describe('with sticky ends', function() {
 
     describe('with full sticky end formatting', function(){
       beforeEach(function() {
@@ -402,7 +412,8 @@ describe('#editableRange', function() {
     it('should return the boundaries of the sequence without the sticky ends', function() {
       var range = stickyEndedSequence.editableRange();
       expect(range.from).toEqual(4);
-      expect(range.to).toEqual(20); // note 21 is NOT included in range
+      // NOTE: remember range.to is exclusive so 21 is *not* included in range
+      expect(range.to).toEqual(21);
     });
   });
 
@@ -417,32 +428,95 @@ describe('#editableRange', function() {
 
 
 describe('#isBaseEditable', function() {
-  var basesShouldBeEditable = function(editableBases) {
+  var basesShouldBeEditable = function(editableBases, strict) {
     editableBases.forEach(function(baseNumber) {
       it('should return true for editable base number ' + baseNumber, function() {
-        expect(stickyEndedSequence.isBaseEditable(baseNumber)).toEqual(true);
+        expect(stickyEndedSequence.isBaseEditable(baseNumber, strict)).toEqual(true);
       });
     });
   };
 
-  var basesShouldNotBeEditable = function(nonEditableBases) {
+  var basesShouldNotBeEditable = function(nonEditableBases, strict) {
     nonEditableBases.forEach(function(baseNumber) {
       it('should return false for editable base number ' + baseNumber, function() {
-        expect(stickyEndedSequence.isBaseEditable(baseNumber)).toEqual(false);
+        expect(stickyEndedSequence.isBaseEditable(baseNumber, strict)).toEqual(false);
       });
     });
   };
 
-  describe('with overhang sticky end formatting', function() {
-    setStickyEndFormat('overhang');
-    basesShouldBeEditable([4, 19]);
-    basesShouldNotBeEditable([3, 20]);
+  describe('in strict mode', function() {
+    var strict = true;
+    describe('with overhang sticky end formatting', function() {
+      setStickyEndFormat('overhang');
+      basesShouldBeEditable([4, 19], strict);
+      basesShouldNotBeEditable([3, 20], strict);
+    });
+
+    describe('with full sticky end formatting', function() {
+      setStickyEndFormat('full');
+      basesShouldBeEditable([0, 61], strict);
+      basesShouldNotBeEditable([-1, 62], strict);
+    });
   });
 
-  describe('with full sticky end formatting', function() {
-    setStickyEndFormat('full');
-    basesShouldBeEditable([0, 61]);
-    basesShouldNotBeEditable([-1, 62]);
+  describe('in non-strict mode', function() {
+    var strict = false;
+    describe('with overhang sticky end formatting', function() {
+      setStickyEndFormat('overhang');
+      basesShouldBeEditable([4, 20], strict);
+      basesShouldNotBeEditable([3, 21], strict);
+    });
+
+    describe('with full sticky end formatting', function() {
+      setStickyEndFormat('full');
+      basesShouldBeEditable([0, 62], strict);
+      basesShouldNotBeEditable([-1, 63], strict);
+    });
+  });
+});
+
+
+describe('#ensureBaseIsEditable', function() {
+  describe('with overhang sticky end formatting', function() {
+    setStickyEndFormat('overhang');
+
+    describe('and without being strict', function() {
+      it('should correct uneditable bases', function() {
+        expect(stickyEndedSequence.ensureBaseIsEditable(4)).toEqual(4);
+        expect(stickyEndedSequence.ensureBaseIsEditable(3)).toEqual(4);
+        expect(stickyEndedSequence.ensureBaseIsEditable(20)).toEqual(20);
+        expect(stickyEndedSequence.ensureBaseIsEditable(21)).toEqual(20);
+      });
+    });
+
+    describe('and with being strict', function() {
+      it('should correct uneditable bases', function() {
+        expect(stickyEndedSequence.ensureBaseIsEditable(4, true)).toEqual(4);
+        expect(stickyEndedSequence.ensureBaseIsEditable(3, true)).toEqual(4);
+        expect(stickyEndedSequence.ensureBaseIsEditable(19, true)).toEqual(19);
+        expect(stickyEndedSequence.ensureBaseIsEditable(20, true)).toEqual(19);
+      });
+    });
+  });
+
+  describe('with overhang sticky end formatting and no sequence length', function() {
+    setStickyEndFormat('overhang');
+
+    describe('and without being strict', function() {
+      it('should correct uneditable bases', function() {
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(4)).toEqual(4);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(3)).toEqual(4);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(5)).toEqual(4);
+      });
+    });
+
+    describe('and with being strict', function() {
+      it('should correct uneditable bases', function() {
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(4, true)).toEqual(4);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(3, true)).toEqual(4);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(5, true)).toEqual(4);
+      });
+    });
   });
 });
 
@@ -464,12 +538,12 @@ describe('#isRangeEditable', function() {
 
   var nonEditableRanges = [
     [3, 6],
-    [18, 20],
+    [18, 21],
   ];
 
   var editableRanges = [
     [4, 6],
-    [18, 19]
+    [18, 20]
   ];
 
   describe('with overhang sticky end formatting', function() {

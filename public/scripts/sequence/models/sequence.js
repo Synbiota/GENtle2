@@ -1130,9 +1130,11 @@ var SequenceModel = Backbone.DeepModel.extend({
    *
    * Typically excludes sticky ends and overhangs
    * @method editableRange
+   * @param strict=false  If `true`, will not include the base following the
+   *                      stretch of editable sequence.
    * @return {Array<Int>} array of first and last base in the editable range
    */
-  editableRange: function() {
+  editableRange: function(strict = false) {
     var stickyEndFormat = this.get('displaySettings.stickyEndFormat');
     var stickyEnds = this.getStickyEnds();
     var frm = 0;
@@ -1142,7 +1144,7 @@ var SequenceModel = Backbone.DeepModel.extend({
       frm = stickyEnds.start.size;
       length = length - stickyEnds.end.size - stickyEnds.start.size;
     }
-    return new SequenceRange({from: frm, size: length});
+    return new SequenceRange({from: frm, size: length + (strict ? 0 : 1)});
   },
 
   length: function() {
@@ -1200,25 +1202,25 @@ var SequenceModel = Backbone.DeepModel.extend({
     );
   },
 
-  ensureBaseIsEditable: function(base) {
-    var editableRange = this.editableRange();
-    return Math.min(Math.max(base, editableRange.from), editableRange.to - 1);
+  ensureBaseIsEditable: function(base, strict = false) {
+    var editableRange = this.editableRange(strict);
+    if(editableRange.size === 0) {
+      // TODO: throw exception?
+    }
+    return Math.max(Math.min(base, editableRange.to - 1), editableRange.from);
   },
 
-  isBaseEditable: function(base) {
-    return base === this.ensureBaseIsEditable(base);
-    // var editableRange = this.editableRange();
-    // return editableRange[0] <= base &&
-    //   editableRange[1] >= base - (strict ? 0 : 1);
+  isBaseEditable: function(base, strict = false) {
+    return base === this.ensureBaseIsEditable(base, strict);
   },
 
-  isRangeEditable: function(start, end) {    
+  isRangeEditable: function(start, end) {
     if(end < start) {
       [end, start] = [start, end];
     }
 
     return this.isBaseEditable(start) && this.isBaseEditable(end);
-  }
+  },
 
 });
 
