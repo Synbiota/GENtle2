@@ -63,7 +63,7 @@ var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers,
     .then(function(nextPrimer) {
       if(options.findOnReverseStrand) {
         nextPrimer.reverseDirection();
-        nextPrimer.shift(frm + nextPrimer.length() - sequenceToSearch.length);
+        nextPrimer.shift(frm + nextPrimer.getLength() - sequenceToSearch.length);
       } else {
         nextPrimer.shift(frm);
         if(!previousPrimer) options.findFrom3PrimeEnd = originalFindFrom3PrimeEnd;
