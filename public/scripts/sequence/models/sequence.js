@@ -1124,14 +1124,14 @@ var SequenceModel = Backbone.DeepModel.extend({
   },
 
   /**
+   * @method editableRange
+   *
    * Returns the positions of the first and last editable ranges in
    * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}}
    *  (i.e. account for sticky end format).
    *
-   * Typically excludes sticky ends and overhangs
-   * @method editableRange
-   * @param strict=false  If `true`, will not include the base following the
-   *                      stretch of editable sequence.
+   * @param  {Boolean} strict=false  If `true`, will not include the base
+   *                                 following the stretch of editable sequence.
    * @return {Array<Int>} array of first and last base in the editable range
    */
   editableRange: function(strict = false) {
@@ -1147,10 +1147,20 @@ var SequenceModel = Backbone.DeepModel.extend({
     return new SequenceRange({from: frm, size: length + (strict ? 0 : 1)});
   },
 
+  /**
+   * @method  ensureBaseIsEditable
+   * @param  {Integer} base
+   * @param  {Boolean} strict=false  If `true`, will not include the base
+   *                                 following the stretch of editable sequence.
+   * @return {Integer or Undefined}
+   */
   ensureBaseIsEditable: function(base, strict = false) {
     var editableRange = this.editableRange(strict);
     if(editableRange.size === 0) {
-      // TODO: throw exception?
+      // NOTE:  This can only happen when strict is true and there is no
+      // sequence length.
+      // TODO:  throw exception?
+      return undefined;
     }
     return Math.max(Math.min(base, editableRange.to - 1), editableRange.from);
   },

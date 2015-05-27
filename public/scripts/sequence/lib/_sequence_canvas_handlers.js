@@ -81,6 +81,7 @@ Event handlers for SequenceCanvas
       let editableRange = this.sequence.editableRange();
 
       this.selectRange(editableRange);
+      // Select next character
       this.displayCaret(editableRange.to);
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {

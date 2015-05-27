@@ -106,7 +106,7 @@ rendered.
       var selectable = pos >= selectableRange[0] && pos <= selectableRange[1];
 
       if(selectable) {
-        if(sequence.isBaseEditable(pos)) {
+        if(sequence.isBaseEditable(pos, true)) {
           return defaultColour;
         } else {
           return LineStyles.RES.text.color;

@@ -520,9 +520,9 @@ describe('#ensureBaseIsEditable', function() {
 
     describe('and with being strict', function() {
       it('should correct uneditable bases', function() {
-        expect(stickyEndedEmptySequence.ensureBaseIsEditable(4, true)).toEqual(4);
-        expect(stickyEndedEmptySequence.ensureBaseIsEditable(3, true)).toEqual(4);
-        expect(stickyEndedEmptySequence.ensureBaseIsEditable(5, true)).toEqual(4);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(4, true)).toEqual(undefined);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(3, true)).toEqual(undefined);
+        expect(stickyEndedEmptySequence.ensureBaseIsEditable(5, true)).toEqual(undefined);
       });
     });
   });
@@ -540,9 +540,11 @@ describe('#ensureBaseIsEditable', function() {
 
     describe('and with being strict', function() {
       it('should correct uneditable bases', function() {
-        expect(emptySequence.ensureBaseIsEditable(0, true)).toEqual(0);
-        expect(emptySequence.ensureBaseIsEditable(-1, true)).toEqual(0);
-        expect(emptySequence.ensureBaseIsEditable(1, true)).toEqual(0);
+        // TODO: should these throw exceptions?... we're trying to get the
+        // "stict" editable range for an empty sequence.
+        expect(emptySequence.ensureBaseIsEditable(0, true)).toEqual(undefined);
+        expect(emptySequence.ensureBaseIsEditable(-1, true)).toEqual(undefined);
+        expect(emptySequence.ensureBaseIsEditable(1, true)).toEqual(undefined);
       });
     });
   });
