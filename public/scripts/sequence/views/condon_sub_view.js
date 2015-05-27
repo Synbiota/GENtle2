@@ -71,27 +71,30 @@ define(function(require) {
       }
     },
 
-    boldNBasePairs: function(_base, _base_pos) {
-      var matches = RestrictionEnzymes.getAllInSeq(this.newUnpaddedSubSeq, {customList: ['BsaI']});  
-      if (!_.isUndefined(matches[0])) {
-        var direction= matches[0][0].name.charAt(matches[0][0].name.length -1 );
-        if(direction=='←') {
-          if (_base_pos <= 4) {
-            return LineStyles.dna.text.color;    
-          } else {
-            return LineStyles.complements.text.color;    
+    colorRedText: function(_base, _base_pos) {
+      var basePairs=[];
+      var subs = this.aminoAcidSubs;
+      _.each(subs, function(aminoAcid){
+        var firstBase= aminoAcid.modThreePosition*3;
+        
+        if (aminoAcid.codons.length !== 0){
+          var n = firstBase;
+          if (n < 0) {
+            n = 0;
           }
-        } else{
-         if (_base_pos >= 7 && _base_pos <= 11) {
-            return LineStyles.dna.text.color;    
-          } else {
-            return LineStyles.complements.text.color;    
+          for (n ; n < (firstBase + 3); n++) {
+            basePairs.push(n);
           }
-        } 
+        }        
+      });
 
-      }else {
+      basePairs = _.flatten(basePairs);
+
+      if (_.includes(basePairs, _base_pos)) {
+        return "#FF0000";
+      } else {
         return LineStyles.complements.text.color;
-      } 
+      }
 
     },
 
@@ -101,7 +104,7 @@ define(function(require) {
         $("#condonSubModal").modal("show");
         // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart. 
       
-        $('#condonSubModal').children().children('.modal-body').children('.row:nth-child(1)').children('div:nth-child(1)').children().children().children().children('button').first().addClass('codon-selected');
+        $('.selectable').first().addClass('codon-selected');
 
         var paddedSubSeq= this.paddedSubSeq;
 
@@ -149,7 +152,7 @@ define(function(require) {
             baseLine: 15,
             drawSingleStickyEnds: true,
             textFont: LineStyles.dna.text.font,
-            textColour: (_base, _base_pos) =>  {return this.boldNBasePairs(_base, _base_pos);},
+            textColour: (_base, _base_pos) =>  {return this.colorRedText(_base, _base_pos);},
             selectionColour: LineStyles.dna.selection.fill,
             selectionTextColour: LineStyles.dna.selection.color
           }],
@@ -350,8 +353,11 @@ define(function(require) {
         aaSubs[i].modThreePosition = i;
 
         if (potentialCodons.length === 0) {
+          aaSubs[i].empty= true;
           aaSubs[i].color= LineStyles.complements.text.color;      
         } else {
+          aaSubs[i].empty= false;
+
           aaSubs[i].color= '#428bca'
         }
       }
