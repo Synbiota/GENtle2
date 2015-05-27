@@ -83,11 +83,16 @@ var fixtures = [{
   sequence: stickyEnds.start.sequence + stickyEnds.end.sequence,
   features: [],
   stickyEnds: stickyEnds
+},
+{
+  name: 'Empty Sequence',
+  sequence: '',
+  features: []
 }
 ];
 
 
-var sequence, stickyEndedSequence, stickyEndedEmptySequence;
+var sequence, stickyEndedSequence, stickyEndedEmptySequence, emptySequence;
 
 var setStickyEndFormat = function(format) {
   beforeEach(function() {
@@ -100,6 +105,7 @@ beforeEach(function() {
   sequence = new Sequence(fixtures[0]);
   stickyEndedSequence = new Sequence(fixtures[1]);
   stickyEndedEmptySequence = new Sequence(fixtures[2]);
+  emptySequence = new Sequence(fixtures[3]);
 
   // Disable save function
   spyOn(sequence, 'save');
@@ -108,6 +114,8 @@ beforeEach(function() {
   spyOn(stickyEndedSequence, 'throttledSave');
   spyOn(stickyEndedEmptySequence, 'save');
   spyOn(stickyEndedEmptySequence, 'throttledSave');
+  spyOn(emptySequence, 'save');
+  spyOn(emptySequence, 'throttledSave');
 });
 
 
@@ -515,6 +523,26 @@ describe('#ensureBaseIsEditable', function() {
         expect(stickyEndedEmptySequence.ensureBaseIsEditable(4, true)).toEqual(4);
         expect(stickyEndedEmptySequence.ensureBaseIsEditable(3, true)).toEqual(4);
         expect(stickyEndedEmptySequence.ensureBaseIsEditable(5, true)).toEqual(4);
+      });
+    });
+  });
+
+  describe('with an empty sequence', function() {
+    setStickyEndFormat('overhang');
+
+    describe('and without being strict', function() {
+      it('should correct uneditable bases', function() {
+        expect(emptySequence.ensureBaseIsEditable(0)).toEqual(0);
+        expect(emptySequence.ensureBaseIsEditable(-1)).toEqual(0);
+        expect(emptySequence.ensureBaseIsEditable(1)).toEqual(0);
+      });
+    });
+
+    describe('and with being strict', function() {
+      it('should correct uneditable bases', function() {
+        expect(emptySequence.ensureBaseIsEditable(0, true)).toEqual(0);
+        expect(emptySequence.ensureBaseIsEditable(-1, true)).toEqual(0);
+        expect(emptySequence.ensureBaseIsEditable(1, true)).toEqual(0);
       });
     });
   });
