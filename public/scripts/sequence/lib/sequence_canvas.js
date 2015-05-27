@@ -809,10 +809,11 @@ rendered.
       this.select(undefined);
     } else {
       if (newCaret > selection[0]) {
+        newCaret = newCaret - 1;
         if (previousCaret <= selection[0]) {
           this.select(newCaret, selection[1]);
         } else {
-          this.select(selection[0], newCaret - 1);
+          this.select(selection[0], newCaret);
         }
       } else {
         if (previousCaret <= selection[1] && newCaret < selection[1]) {

@@ -35,6 +35,27 @@ describe('handling keyboard selection events', function() {
     }
   });
 
+  var mockSequenceWithBothStickyEnds = new Sequence({
+    name: 'Test sequence',
+    sequence: stickyEndSequence + 'ATGCATGCATGCATGCATGC' + stickyEndSequence,
+    stickyEnds: {
+      start: {
+        sequence: stickyEndSequence,
+        reverse: false,
+        offset: 2,
+        size: 3,
+        name: "X",
+      },
+      end: {
+        sequence: stickyEndSequence,
+        reverse: true,
+        offset: 2,
+        size: 3,
+        name: "Z'",
+      }
+    }
+  });
+
   it('selects to end of sequence on that line', function() {
     var handler = new Handlers();
     handler.sequence = mockSequence;
@@ -62,9 +83,9 @@ describe('handling keyboard selection events', function() {
     expect(handler.select).not.toHaveBeenCalled();
   });
 
-  it('selects correctly went all of sequence selected to left then right', function() {
+  it('selects correctly when all of sequence selected to left then right', function() {
     var handler = new Handlers();
-    handler.sequence = mockSequence;
+    handler.sequence = mockSequenceWithBothStickyEnds;
     handler.caretPosition = 10;
     handler.layoutHelpers = {basesPerRow: 120};
     handler.selection = undefined;
@@ -72,13 +93,13 @@ describe('handling keyboard selection events', function() {
     spyOn(handler, 'select');
 
     handler.handleLeftKey(true, true);
-    expect(handler.select).toHaveBeenCalledWith(9, 0);
+    expect(handler.select).toHaveBeenCalledWith(9, 3);
     handler.handleRightKey(true, true);
-    expect(handler.select).toHaveBeenCalledWith(9, 0);
-    expect(handler.select).toHaveBeenCalledWith(0, 19);
+    expect(handler.select).toHaveBeenCalledWith(9, 3);
+    expect(handler.select).toHaveBeenCalledWith(3, 22);
   });
 
-  it('selects nothing went at start of sequence going left', function() {
+  it('selects nothing when at start of sequence going left', function() {
     var handler = new Handlers();
     handler.sequence = mockSequenceWithStartStickyEnd;
     // NOTE: Remember this is the size of the uneditable sticky end not the
