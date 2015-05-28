@@ -96,7 +96,7 @@ var sequence, stickyEndedSequence, stickyEndedEmptySequence, emptySequence;
 
 var setStickyEndFormat = function(format) {
   beforeEach(function() {
-    stickyEndedSequence.set('displaySettings.stickyEndFormat', format);  
+    stickyEndedSequence.setStickyEndFormat(format);  
   });
 };
 
@@ -139,7 +139,7 @@ describe('creating and reading a sequence', function() {
 
     describe('with full sticky end formatting', function(){
       beforeEach(function() {
-        stickyEndedSequence.set('displaySettings.stickyEndFormat', 'full');
+        stickyEndedSequence.setStickyEndFormat('full');
       });
 
       it('should be able to get the sequence', function() {
@@ -163,7 +163,7 @@ describe('creating and reading a sequence', function() {
 
     describe('with sticky ends removed', function(){
       beforeEach(function() {
-        stickyEndedSequence.set('displaySettings.stickyEndFormat', 'none');
+        stickyEndedSequence.setStickyEndFormat('none');
       });
 
       it('should be able to get the sequence', function() {
@@ -271,7 +271,7 @@ describe('when inserting bases into a sequence', function() {
     describe('with full sticky end formatting', function(){
 
       beforeEach(function(){
-        stickyEndedSequence.set('displaySettings.stickyEndFormat', 'full');
+        stickyEndedSequence.setStickyEndFormat('full');
         stickyEndedSequence.insertBases('AAA', 3);
       });
 
@@ -298,7 +298,7 @@ describe('when inserting bases into a sequence', function() {
     describe('with sticky ends removed', function(){
 
       beforeEach(function(){
-        stickyEndedSequence.set('displaySettings.stickyEndFormat', 'none');
+        stickyEndedSequence.setStickyEndFormat('none');
         stickyEndedSequence.insertBases('AAA', 3);
       });
 
@@ -365,7 +365,7 @@ describe('when deleting bases from a stickyEnded sequence', function(){
     });
 
     it('should update the sequence', function(){
-      expect(stickyEndedSequence.trueGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
+      expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
       expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
@@ -376,7 +376,7 @@ describe('when deleting bases from a stickyEnded sequence', function(){
     });
 
     it('should update the sequence', function(){
-      expect(stickyEndedSequence.trueGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
+      expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
       expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
@@ -389,7 +389,7 @@ describe('when deleting bases from a stickyEnded sequence', function(){
     });
 
     it('should update the sequence', function(){
-      expect(stickyEndedSequence.trueGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
+      expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
       expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });

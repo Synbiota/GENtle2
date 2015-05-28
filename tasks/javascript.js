@@ -2,7 +2,6 @@ var gulp = require('gulp');
 var rename = require('gulp-rename');
 var browserify = require('browserify');
 var source = require('vinyl-source-stream');
-var babelify = require('babelify');
 var bundleLogger = require('./utils/bundle_logger');
 var watchify = require('watchify');
 var _ = require('underscore');
@@ -20,6 +19,8 @@ var destExtname = '.min.js';
 var isDev = process.env.NODE_ENV !== 'production';
 var browserifyOptions = {};
 
+var browserifyUtils = require('./utils/browserify_utils');
+
 if(isDev) {
   browserifyOptions.debug = true;
 }
@@ -29,9 +30,7 @@ var run = function(watch) {
     watchify(browserify(scriptFile, _.extend(browserifyOptions, watchify.args))) :
     browserify(scriptFile, browserifyOptions);
 
-  browserified = browserified
-    .transform('hbsfy', { compiler: 'require("handlebars.mixed");'})
-    .transform(babelify);
+  browserified = browserifyUtils.applyTransforms(browserified);
 
   if(!isDev) {
     browserified = browserified.transform('uglifyify', { global: true });
