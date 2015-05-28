@@ -1,3 +1,11 @@
+machine:
+  python:
+    version: 2.7.3
+
+dependencies:
+  pre:
+    - pip install awscli
+
 deployment:
   nightly:
     branch: feature/refactor
