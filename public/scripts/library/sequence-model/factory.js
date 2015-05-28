@@ -1092,7 +1092,7 @@ export default function sequenceModelFactory(BackboneModel) {
       if (id === 0) {
         newFeature._id = 0;
       } else {
-        sortedIdList = _.sortBy(_.pluck(this.get('features'),'_id'));
+        sortedIdList = _.sortBy(_.pluck(super.get('features'),'_id'));
         len = sortedIdList.length;
         newFeature._id = sortedIdList[len-1]+1;
       }

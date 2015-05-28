@@ -120,12 +120,11 @@ beforeEach(function() {
 
 
 describe('creating and reading a sequence', function() {
-
   it('should be able to get the name', function() {
     expect(sequence.get('name')).toEqual('Test sequence');
   });
 
-  describe('without sticky ends', function(){
+  describe('without sticky ends', function() {
     it('should be able to get the sequence', function() {
       expect(sequence.getSequence()).toEqual(initialSequenceContent);
     });
@@ -136,8 +135,7 @@ describe('creating and reading a sequence', function() {
   });
 
   describe('with sticky ends', function() {
-
-    describe('with full sticky end formatting', function(){
+    describe('with full sticky end formatting', function() {
       beforeEach(function() {
         stickyEndedSequence.setStickyEndFormat('full');
       });
@@ -151,7 +149,7 @@ describe('creating and reading a sequence', function() {
       });
     });
 
-    describe('with overhang sticky end formatting', function(){
+    describe('with overhang sticky end formatting', function() {
       it('should be able to get the sequence', function() {
         expect(stickyEndedSequence.getSequence()).toEqual(stickyEndedSequenceContentWithOverhang);
       });
@@ -161,7 +159,7 @@ describe('creating and reading a sequence', function() {
       });
     });
 
-    describe('with sticky ends removed', function(){
+    describe('with sticky ends removed', function() {
       beforeEach(function() {
         stickyEndedSequence.setStickyEndFormat('none');
       });
@@ -174,23 +172,20 @@ describe('creating and reading a sequence', function() {
         expect(stickyEndedSequence.getSubSeq(2,5)).toEqual('CGAT');
       });
     });
-
   });
-
 });
 
 
-describe('getting features from sticky ended sequences', function(){
-
+describe('getting features from sticky ended sequences', function() {
   var features;
   var originalCoords = _.pluck(fixtures[1].features, 'ranges');
 
-  describe('with full sticky end formatting', function(){
-    beforeEach(function(){
+  describe('with full sticky end formatting', function() {
+    beforeEach(function() {
       features = stickyEndedSequence.getFeatures();
     });
 
-    it('should not distort any features', function(){
+    it('should not distort any features', function() {
       var coords = _.pluck(features, 'ranges');
 
       var zippedCoords = _.zip(originalCoords, coords);
@@ -204,21 +199,21 @@ describe('getting features from sticky ended sequences', function(){
     });
   });
 
-  describe('with overhang sticky end formatting', function(){
-    beforeEach(function(){
+  describe('with overhang sticky end formatting', function() {
+    beforeEach(function() {
       features = stickyEndedSequence.getFeatures();
     });
 
-    it('should set features beyond the overhang as [0,0]', function(){
+    it('should set features beyond the overhang as [0,0]', function() {
       expect(features[0].ranges[0].from).toEqual(0);
       expect(features[0].ranges[0].to).toEqual(0);
     });
 
-    it('should shorten features that extend beyond the beginning of the overhang to start at 0', function(){
+    it('should shorten features that extend beyond the beginning of the overhang to start at 0', function() {
       expect(features[1].ranges[0].from).toEqual(0);
     });
 
-    it('should adjust the position of features on the sequence by the leading sticky end offset', function(){
+    it('should adjust the position of features on the sequence by the leading sticky end offset', function() {
       expect(features[1].ranges[0].to).toEqual(originalCoords[1][0].to - stickyEnds.start.offset);
 
       expect(features[2].ranges[0].from).toEqual(originalCoords[2][0].from - stickyEnds.start.offset);
@@ -227,29 +222,17 @@ describe('getting features from sticky ended sequences', function(){
       expect(features[3].ranges[0].from).toEqual(originalCoords[3][0].from - stickyEnds.start.offset);
     });
 
-    it('should shorten features that extend beyond the end of the overhang to end at sequence length', function(){
+    it('should shorten features that extend beyond the end of the overhang to end at sequence length', function() {
       var sequenceLength = stickyEndedSequence.getLength();
       expect(features[3].ranges[0].to).toEqual(sequenceLength - 1);
     });
-
-
   });
-
-  describe('without sticky ends', function(){
-    beforeEach(function(){
-      stickyEndedSequence.get('features', {
-        stickyEndFormat: 'none'
-      });
-    });
-  });
-
 });
 
 
 describe('when inserting bases into a sequence', function() {
-  describe('without sticky ends', function(){
-
-    beforeEach(function(){
+  describe('without sticky ends', function() {
+    beforeEach(function() {
       sequence.insertBases('AAA', 3);
     });
 
@@ -266,11 +249,9 @@ describe('when inserting bases into a sequence', function() {
     });
   });
 
-  describe('with sticky ends', function(){
-
-    describe('with full sticky end formatting', function(){
-
-      beforeEach(function(){
+  describe('with sticky ends', function() {
+    describe('with full sticky end formatting', function() {
+      beforeEach(function() {
         stickyEndedSequence.setStickyEndFormat('full');
         stickyEndedSequence.insertBases('AAA', 3);
       });
@@ -282,9 +263,8 @@ describe('when inserting bases into a sequence', function() {
       });
     });
 
-    describe('with overhang sticky end formatting', function(){
-
-      beforeEach(function(){
+    describe('with overhang sticky end formatting', function() {
+      beforeEach(function() {
         stickyEndedSequence.insertBases('AAA', 3);
       });
 
@@ -295,9 +275,8 @@ describe('when inserting bases into a sequence', function() {
       });
     });
 
-    describe('with sticky ends removed', function(){
-
-      beforeEach(function(){
+    describe('with sticky ends removed', function() {
+      beforeEach(function() {
         stickyEndedSequence.setStickyEndFormat('none');
         stickyEndedSequence.insertBases('AAA', 3);
       });
@@ -314,7 +293,6 @@ describe('when inserting bases into a sequence', function() {
 
 
 describe('when deleting bases from a sequence in the middle of a feature', function() {
-
   beforeEach(function() {
     sequence.deleteBases(2, 2);
   });
@@ -355,45 +333,43 @@ describe('when deleting bases containing an entire sequence', function() {
 });
 
 
-describe('when deleting bases from a stickyEnded sequence', function(){
-
-  describe('with full sticky end formatting', function(){
+describe('when deleting bases from a stickyEnded sequence', function() {
+  describe('with full sticky end formatting', function() {
     setStickyEndFormat('full');
 
-    beforeEach(function(){
+    beforeEach(function() {
       stickyEndedSequence.deleteBases(21, 26);
     });
 
-    it('should update the sequence', function(){
-      expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
+    it('should update the sequence', function() {
+      expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
       expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
 
-  describe('with overhang sticky end formatting', function(){
-    beforeEach(function(){
+  describe('with overhang sticky end formatting', function() {
+    beforeEach(function() {
       stickyEndedSequence.deleteBases(21, 16);
     });
 
-    it('should update the sequence', function(){
-      expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
+    it('should update the sequence', function() {
+      expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
       expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
 
-  describe('with none sticky end formatting', function(){
+  describe('with none sticky end formatting', function() {
     setStickyEndFormat('none');
 
-    beforeEach(function(){
+    beforeEach(function() {
       stickyEndedSequence.deleteBases(21, 16);
     });
 
-    it('should update the sequence', function(){
-      expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
+    it('should update the sequence', function() {
+      expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
       expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
     });
   });
-
 });
 
 
@@ -590,4 +566,3 @@ describe('#isRangeEditable', function() {
     shouldWork(editableRanges.concat(nonEditableRanges), []);
   });
 });
-
