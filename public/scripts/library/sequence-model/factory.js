@@ -7,7 +7,11 @@ import SequenceTransforms from 'gentle-sequence-transforms';
 
 import HistorySteps from '../../sequence/models/history_steps';
 
-const stickyEndFormats = ['full', 'none', 'overhang'];
+
+const STICKY_END_FULL = 'full';
+const STICKY_END_NONE = 'none';
+const STICKY_END_OVERHANG = 'overhang';
+const stickyEndFormats = [STICKY_END_FULL, STICKY_END_NONE, STICKY_END_OVERHANG];
 
 export default function sequenceModelFactory(BackboneModel) {
   /**
@@ -97,7 +101,7 @@ export default function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
-        stickyEndFormat: 'overhang'
+        stickyEndFormat: STICKY_END_OVERHANG
       };
     }
 
@@ -137,8 +141,9 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     setStickyEndFormat(value) {
-      if(value && !~stickyEndFormats.indexOf(value))
+      if(value && !~stickyEndFormats.indexOf(value)) {
         throw `'${value}' is not an acceptable sticky end format`;
+      }
       return this.set('stickyEndFormat', value);
     }
 
@@ -150,7 +155,7 @@ export default function sequenceModelFactory(BackboneModel) {
      * @method  getSequence
      * @return {String} Formatted sequence
      */
-    getSequence(){
+    getSequence() {
       var sequence        = super.get('sequence'),
           stickyEnds      = this.getStickyEnds(),
           stickyEndFormat = this.getStickyEndFormat(),
@@ -158,11 +163,11 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if (stickyEnds && stickyEndFormat){
         switch (stickyEndFormat){
-          case "none":
+          case STICKY_END_NONE:
             startPostion = stickyEnds.start.size + stickyEnds.start.offset;
             endPosition = sequence.length - stickyEnds.end.size - stickyEnds.end.offset;
             break;
-          case "overhang":
+          case STICKY_END_OVERHANG:
             startPostion = stickyEnds.start.offset;
             endPosition = sequence.length - stickyEnds.end.offset;
             break;
@@ -176,7 +181,7 @@ export default function sequenceModelFactory(BackboneModel) {
       return sequence;
     }
 
-    getFeatures(){
+    getFeatures() {
       var features = super.get('features'),
           stickyEnds = this.getStickyEnds(),
           stickyEndFormat = this.getStickyEndFormat(),
@@ -201,11 +206,11 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if (stickyEndFormat && stickyEnds){
         switch (stickyEndFormat){
-          case "none":
+          case STICKY_END_NONE:
             adjust = _.partial(adjustRanges, -(startStickyEnd.offset + startStickyEnd.size));
             features = _.map(features, adjust);
             break;
-          case "overhang":
+          case STICKY_END_OVERHANG:
             adjust = _.partial(adjustRanges, -startStickyEnd.offset);
             features = _.map(features, adjust);
             break;
@@ -318,7 +323,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if(stickyEnds) {
         var startStickyEnd = stickyEnds.start;
-        var offset = stickyEndFormat == "overhang" ? 0 : startStickyEnd.offset;
+        var offset = stickyEndFormat === STICKY_END_OVERHANG ? 0 : startStickyEnd.offset;
 
         if(startStickyEnd) {
           if(reverse) {
@@ -359,10 +364,10 @@ export default function sequenceModelFactory(BackboneModel) {
           var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
 
           switch (stickyEndFormat){
-            case "none":
+            case STICKY_END_NONE:
               stickyEndTo -= (startStickyEnd.offset + startStickyEnd.size);
               break;
-            case "overhang":
+            case STICKY_END_OVERHANG:
               stickyEndTo -= startStickyEnd.offset;
               break;
           }
@@ -654,10 +659,10 @@ export default function sequenceModelFactory(BackboneModel) {
       // Adjust offset depending on sticky end format
       if (stickyEnds && stickyEndFormat){
         switch (stickyEndFormat){
-          case "none":
+          case STICKY_END_NONE:
             offset = stickyEnds.start.size + stickyEnds.start.offset;
             break;
-          case "overhang":
+          case STICKY_END_OVERHANG:
             offset = stickyEnds.start.offset;
             break;
         }
@@ -784,10 +789,10 @@ export default function sequenceModelFactory(BackboneModel) {
       // Adjust offset depending on sticky end format
       if (stickyEnds && stickyEndFormat){
         switch (stickyEndFormat){
-          case "none":
+          case STICKY_END_NONE:
             offset = stickyEnds.start.size + stickyEnds.start.offset;
             break;
-          case "overhang":
+          case STICKY_END_OVERHANG:
             offset = stickyEnds.start.offset;
             break;
         }
@@ -847,10 +852,10 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if (stickyEnds && stickyEndFormat){
         switch (stickyEndFormat){
-          case "none":
+          case STICKY_END_NONE:
             base += stickyEnds.start.size + stickyEnds.start.offset;
             break;
-          case "overhang":
+          case STICKY_END_OVERHANG:
             base += stickyEnds.start.offset;
             break;
         }
@@ -1037,7 +1042,7 @@ export default function sequenceModelFactory(BackboneModel) {
       }
 
 
-      var offset = previousStickyEndFormat === 'overhang'  ? 
+      var offset = previousStickyEndFormat === STICKY_END_OVERHANG ?
         this.getStickyEnds().start.offset : 
         0;
 
@@ -1200,7 +1205,7 @@ export default function sequenceModelFactory(BackboneModel) {
       var stickyEnds = this.getStickyEnds();
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === 'overhang') {
+      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
         var getOffset = function(type) {
           return stickyEnds[type].reverse ? 
           (reverse ? 0 : stickyEnds[type].size) : 
@@ -1230,7 +1235,7 @@ export default function sequenceModelFactory(BackboneModel) {
       var stickyEnds = this.getStickyEnds();
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === 'overhang') {
+      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
         return [
           stickyEnds.start.size,
           length - stickyEnds.end.size - 1
