@@ -5,6 +5,7 @@ import smartMemoizeAndClear from './smart_memoize_and_clear';
 import deprecated from 'gentle-utils/deprecated_method';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
+import SequenceRange from './range';
 import HistorySteps from '../../sequence/models/history_steps';
 
 
@@ -12,6 +13,7 @@ const STICKY_END_FULL = 'full';
 const STICKY_END_NONE = 'none';
 const STICKY_END_OVERHANG = 'overhang';
 const stickyEndFormats = [STICKY_END_FULL, STICKY_END_NONE, STICKY_END_OVERHANG];
+
 
 export default function sequenceModelFactory(BackboneModel) {
   /**
@@ -110,11 +112,12 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-     * Wraps the standard get function to use the custom getSequence if necessary.
-     * @param  {String} Standard attribute
-     * @param  {Object} Options (optional)
+     * Wraps the standard get function to use a custom getNnnnnnn if available.
+     * @param  {String} attribute
+     * @param  {Object} options={}
+     * @return {Any}
      */
-    get(attribute, options = {}){
+    get(attribute, options = {}) {
       var value;
       var customGet = "get" + _.ucFirst(attribute);
 
@@ -1230,19 +1233,46 @@ export default function sequenceModelFactory(BackboneModel) {
      * @method editableRange      
      * @return {Array<Int>} array of first and last base in the editable range
      */
-    editableRange() {
+    editableRange(strict = false) {
       var stickyEndFormat = this.getStickyEndFormat();
       var stickyEnds = this.getStickyEnds();
+      var frm = 0;
       var length = this.getLength();
 
       if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
-        return [
-          stickyEnds.start.size,
-          length - stickyEnds.end.size - 1
-        ];
-      } else {
-        return [0, length];
+        frm = stickyEnds.start.size;
+        length = length - stickyEnds.end.size - stickyEnds.start.size;
       }
+      return new SequenceRange({from: frm, size: length + (strict ? 0 : 1)});
+    }
+
+    /**
+     * @method  ensureBaseIsEditable
+     * @param  {Integer} base
+     * @param  {Boolean} strict=false  If `true`, will not include the base
+     *                                 following the stretch of editable sequence.
+     * @return {Integer or Undefined}
+     */
+    ensureBaseIsEditable (base, strict = false) {
+      var editableRange = this.editableRange(strict);
+      if(editableRange.size === 0) {
+        // NOTE:  This can only happen when strict is true and there is no
+        // sequence length.
+        // TODO:  throw exception?
+        return undefined;
+      }
+      return Math.max(Math.min(base, editableRange.to - 1), editableRange.from);
+    }
+
+    isBaseEditable(base, strict = false) {
+      return base === this.ensureBaseIsEditable(base, strict);
+    }
+
+    isRangeEditable(start, end) {
+      if(end < start) {
+        [end, start] = [start, end];
+      }
+      return this.isBaseEditable(start) && this.isBaseEditable(end);
     }
 
     length() {
@@ -1267,25 +1297,6 @@ export default function sequenceModelFactory(BackboneModel) {
         Math.max(base, selectableRange[0]), 
         selectableRange[1] + (strict ? 0 : 1)
       );
-    }
-
-    ensureBaseIsEditable(base) {
-      var editableRange = this.editableRange();
-      return Math.min(Math.max(base, editableRange[0]), editableRange[1]+1);
-    }
-
-    isBaseEditable(base, strict = false) {
-      var editableRange = this.editableRange();
-      return editableRange[0] <= base && 
-        editableRange[1] >= base - (strict ? 0 : 1);
-    }
-
-    isRangeEditable(start, end) {    
-      if(end < start) {
-        [end, start] = [start, end];
-      }
-
-      return this.isBaseEditable(start) &&  this.isBaseEditable(end, true);
     }
 
   }
