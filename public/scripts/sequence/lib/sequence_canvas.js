@@ -424,6 +424,7 @@ rendered.
         yOffset = lh.yOffset,
         _this = this,
         canvasHeight = ls.canvasDims.height,
+        canvasWidth = ls.canvasDims.width,
         drawStart, drawEnd, moveOffset;
 
       return Q.promise(function(resolve, reject) {
@@ -435,22 +436,22 @@ rendered.
           0;
 
         if (moveOffset !== 0) {
-          artist.scroll(-moveOffset);
+          artist.scroll(-moveOffset, 0);
 
-          drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
-          drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
-
+          drawStart = moveOffset > 0 ? canvasWidth - moveOffset : 0;
+          drawEnd = moveOffset > 0 ? canvasWidth : -moveOffset;
           lh.previousYOffset = undefined;
 
         } else {
 
           artist.clear();
           drawStart = 0;
-          drawEnd = canvasHeight;
+          drawEnd = canvasWidth;
 
         }
 
-        _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
+        // _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
+        _this.drawCol(drawStart, drawEnd - drawStart)
 
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
@@ -477,6 +478,122 @@ rendered.
   @method drawRow
   @param {integer} posY
   **/
+  SequenceCanvas.prototype.drawCol = function(posX, width) {
+    var layoutSettings = this.layoutSettings,
+      lines = layoutSettings.lines,
+      layoutHelpers = this.layoutHelpers,
+      // rowsHeight = layoutHelpers.rows.height,
+      xOffset = layoutHelpers.yOffset,
+      canvasHeight = layoutSettings.canvasDims.height,
+      canvasWidth = layoutSettings.canvasDims.width,
+      // bottomMargin = layoutSettings.pageMargins.bottom,
+      // baseRange = this.getBaseRangeFromYPos(posY + yOffset),
+      highlight = this.highlight;
+      // initPosY = posY;
+
+    // var xOffset = layoutHelpers.xOffset,
+        // canvasWidth = layoutSettings.canvasDims.width,
+    var initPosY = 0, // this location should be matched so that it evenly spaces with the comparison view.
+        posY = initPosY;
+
+
+    var sequence = this.sequence;
+
+    var getChromaBaseRange = function(posX, width){
+      // find peak val where firstPeak >= posx
+      // running through loop first, use a binary search for efficiency (since already sorted) later.
+
+      var peaks = sequence.get('chromatogramPeaks');
+
+      var getIdx = function(posX){
+
+        var predicate = function(index){
+
+          // return value just before or at position
+          return ((peaks[index] <= posX) && (posX < peaks[index+1]));
+
+          // return value just after or at position
+          // return ((peaks[index] >= posX) && ( !index || (peaks[index-1] < posX)));
+        };
+
+        // REPLACE THIS WITH A BINARY SEARCH LATER
+        for (var i = 0; i < peaks.length; i++){
+          if (predicate(i)) {
+            return i;
+          }
+        }
+        return -1;
+      };
+
+      var firstBase = Math.max(getIdx(posX), 0),
+          lastBase = Math.max(getIdx(posX + width)+1, firstBase+1);
+      return [firstBase, lastBase];
+    };
+
+    var baseRange = getChromaBaseRange(posX + xOffset, width);
+    var peaks = sequence.get('chromatogramPeaks');
+
+    // debug stuff
+    console.log('drawLine', posX, width, xOffset, baseRange, peaks[baseRange[0]-1] - xOffset);
+
+
+
+    // Update posX and width to reflect alignment with previous base (overlap)
+    // New posx is the position of the previous peak.
+    var oldPosX = posX
+    var abc = Math.max(baseRange[0]-1, 0);
+    posX = peaks[abc] - xOffset;
+    width += (oldPosX - posX);
+
+
+    // debug stuff
+    console.log([peaks[baseRange[0]]], window.prevX, posX, width, window.prevX - posX)
+    window.prevX = posX;
+
+
+
+    // if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
+    //   this.drawHighlight(posY, [
+    //     Math.max(baseRange[0], highlight[0]),
+    //     Math.min(baseRange[1], highlight[1])
+    //   ]);
+    // }
+
+
+
+    // if (baseRange[0] < this.sequence.length()) {
+    //   _.each(lines, function(line, key) {
+    //     if (line.visible === undefined || line.visible()) {
+    //       if(line.floating) {
+    //         line.draw(initPosY, baseRange);
+    //       } else {
+    //         line.draw(posY, baseRange);
+    //         posY += line.height;
+    //       }
+    //     }
+    //   });
+    // }
+
+    if (baseRange[0] < this.sequence.length()) {
+      _.each(lines, function(line, key) {
+        if (line.visible === undefined || line.visible()) {
+          if(line.floating) {
+            line.draw(posX, initPosY, baseRange);
+          } else {
+            line.draw(posX, posY, baseRange);
+            posY += line.height;
+          }
+        }
+      });
+    }
+  };
+
+
+  /**
+  Draw row at position posY in the canvas
+  @method drawRow
+  @param {integer} posY
+  **/
   SequenceCanvas.prototype.drawRow = function(posY) {
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
@@ -489,7 +606,7 @@ rendered.
       highlight = this.highlight,
       initPosY = posY;
 
-    this.artist.clear(posY, rowsHeight);
+      this.artist.clear(0, posY, 0, rowsHeight);
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
       this.drawHighlight(posY, [
@@ -850,7 +967,7 @@ rendered.
       } else {
         info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
       }
-      
+
     } else {
       info = toString(this.caretPosition + 1);
     }

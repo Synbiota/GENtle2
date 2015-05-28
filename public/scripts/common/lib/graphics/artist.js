@@ -72,13 +72,11 @@ Includes Shape system for handling mouse events.
   @param {integer} [posY]
   @param {integer} [height]
   **/
-  Artist.prototype.clear = function() {
+  Artist.prototype.clear = function(posX, posY, width, height) {
     var canvas = this.canvas,
-        context = this.context,
-        posY = arguments[0],
-        height = arguments[1];
+        context = this.context;
 
-    context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
+    context.clearRect(posX || 0, posY || 0, width || canvas.width, height || canvas.height);
     this.shapes = [];
   };
 
@@ -361,14 +359,28 @@ Includes Shape system for handling mouse events.
   @method scroll
   @param {integer} offset
   **/
-  Artist.prototype.scroll = function(offset) {
+  Artist.prototype.scroll = function(x = 0, y = 0) {
     var canvas = this.canvas,
         context = this.context,
         pixelRatio = this.getPixelRatio(),
         imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
-    this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-    context.putImageData(imageData, 0, offset * pixelRatio);
+    // this.clear(0, 0, y > 0 ? 0 : canvas.height - y, y);
+    // context.putImageData(imageData, 0, y * pixelRatio);
+
+    // this doesnt actually do anything
+    // this.clear( x >= 0 ? 0 : canvas.width  - x,
+    //             y >= 0 ? 0 : canvas.height - y,
+    //             x, y);
+
+    // should be this implementation.
+    // positive x is scroll right (so move image left)
+    // position y is scroll down (move image up)
+    // this.clear( x >= 0 ? 0 : canvas.width  + x,
+    //             y >= 0 ? 0 : canvas.height + y,
+    //             Math.abs(x), Math.abs(y));
+
+    context.putImageData(imageData,  x * pixelRatio, y * pixelRatio);
 
   };
 

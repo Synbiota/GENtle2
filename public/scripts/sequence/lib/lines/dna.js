@@ -38,7 +38,7 @@ Options are:
     return this.highlightColour && this.highlightColour(base, pos);
   };
 
-  DNA.prototype.draw = function(y, baseRange) {
+  DNA.prototype.draw = function(x, y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
@@ -48,7 +48,8 @@ Options are:
         k, x, subSequence, character;
 
     artist.updateStyle({font: this.textFont});
-    x = ls.pageMargins.left + (this.leftMargin || 0);
+
+    x = x || ls.pageMargins.left + (this.leftMargin || 0);
 
     subSequence = (_.isFunction(this.getSubSeq) ?
       this.getSubSeq :
@@ -57,54 +58,64 @@ Options are:
 
     var peaks = sequence.get('chromatogramPeaks')
     var peakSubSequence = peaks.slice(baseRange[0], baseRange[1]+1);
+    var _this = this;
 
     if(subSequence) {
-      for(k = 0; k < lh.basesPerRow; k++){
-        if(!subSequence[k]) break;
 
-        var diff = peakSubSequence[k] - (peakSubSequence[k-1] || 0);
+      // Clear line
+      var width = (peakSubSequence[peakSubSequence.length-1] - (peaks[baseRange[0]-1] || 0));
+      artist.clear(x + ls.basePairDims.width/2, y, width, (_this.baseLine === undefined ? _this.height : _this.baseLine));
+
+
+      _.each(subSequence, function(nucleotide, k){
+
+      // for(k = 0; k < lh.basesPerRow; k++){
+        // if(!subSequence[k]) break;
+        if(!subSequence[k]) return;
+
+        var diff = peakSubSequence[k] - (peakSubSequence[k-1] || peaks[baseRange[0]+k-1] || 0);
+
+        // artist.clear(x + diff, y, 0, 0)
 
         x += diff - ls.basePairDims.width/2;
 
-        // console.log(subSequence[k], peakSubSequence[k] - (peakSubSequence[k-1] || 0));
 
-        character = _.isFunction(this.transform) ?
-          this.transform.call(sequence, k+baseRange[0]) :
+        character = _.isFunction(_this.transform) ?
+          _this.transform.call(sequence, k+baseRange[0]) :
           subSequence[k];
 
 
 
-        if( this.selectionColour &&
+        if( _this.selectionColour &&
             selection &&
             k+baseRange[0] <= selection[1] &&
             k+baseRange[0] >= selection[0]) {
 
-          artist.rect(x, y+3, ls.basePairDims.width, this.height, {
-            fillStyle: this.selectionColour
+          artist.rect(x, y+3, ls.basePairDims.width, _this.height, {
+            fillStyle: _this.selectionColour
           });
 
-          if(this.selectionTextColour) {
-            artist.updateStyle({fillStyle: this.selectionTextColour});
+          if(_this.selectionTextColour) {
+            artist.updateStyle({fillStyle: _this.selectionTextColour});
           } else {
-            this.setTextColour(character, k+baseRange[0]);
+            _this.setTextColour(character, k+baseRange[0]);
           }
 
         } else {
-          var highlightColour = this.getHighlightColour(character, k + baseRange[0]);
+          var highlightColour = _this.getHighlightColour(character, k + baseRange[0]);
           if(highlightColour) {
-            artist.rect(x, y+3, ls.basePairDims.width, this.height, {
+            artist.rect(x, y+3, ls.basePairDims.width, _this.height, {
               fillStyle: highlightColour
             });
           }
 
-          this.setTextColour(character, k+baseRange[0]);
+          _this.setTextColour(character, k+baseRange[0]);
         }
-
-        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (this.baseLine === undefined ? this.height : this.baseLine));
+        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (_this.baseLine === undefined ? _this.height : _this.baseLine));
 
         x += ls.basePairDims.width/2;
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
-      }
+      });
     }
 
   };
