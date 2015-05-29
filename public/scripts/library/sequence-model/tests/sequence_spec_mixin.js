@@ -1,5 +1,6 @@
 import _ from 'underscore.mixed';
 
+
 export default function testAllSequenceModels(Sequence) {
 
   var initialSequenceContent = 'ATCGATCGATCGATCG';
@@ -324,6 +325,17 @@ export default function testAllSequenceModels(Sequence) {
 
         it('should be able to get a subsequence', function() {
           expect(stickyEndedSequence.getSubSeq(2,5)).toEqual('CGAT');
+        });
+      });
+
+      describe('with alternating stickyEndFormat', function() {
+        it('should return return the correct length', function() {
+          stickyEndedSequence.setStickyEndFormat(stickyEndedSequence.STICKY_END_OVERHANG);
+          expect(stickyEndedSequence.getLength()).toEqual(24);
+          stickyEndedSequence.setStickyEndFormat(stickyEndedSequence.STICKY_END_NONE);
+          expect(stickyEndedSequence.getLength()).toEqual(16);
+          stickyEndedSequence.setStickyEndFormat(stickyEndedSequence.STICKY_END_FULL);
+          expect(stickyEndedSequence.getLength()).toEqual(62);
         });
       });
     });

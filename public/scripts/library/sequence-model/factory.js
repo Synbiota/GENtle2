@@ -10,9 +10,9 @@ import HistorySteps from '../../sequence/models/history_steps';
 
 
 const STICKY_END_FULL = 'full';
-const STICKY_END_NONE = 'none';
 const STICKY_END_OVERHANG = 'overhang';
-const stickyEndFormats = [STICKY_END_FULL, STICKY_END_NONE, STICKY_END_OVERHANG];
+const STICKY_END_NONE = 'none';
+const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
 
 
 export default function sequenceModelFactory(BackboneModel) {
@@ -43,6 +43,18 @@ export default function sequenceModelFactory(BackboneModel) {
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
+    }
+
+    get STICKY_END_FULL() {
+      return STICKY_END_FULL;
+    }
+
+    get STICKY_END_OVERHANG() {
+      return STICKY_END_OVERHANG;
+    }
+
+    get STICKY_END_NONE() {
+      return STICKY_END_NONE;
     }
 
     /**
@@ -143,10 +155,14 @@ export default function sequenceModelFactory(BackboneModel) {
       return super.get('stickyEndFormat');
     }
 
-    setStickyEndFormat(value) {
+    validateStickyEndFormat(value) {
       if(value && !~stickyEndFormats.indexOf(value)) {
         throw `'${value}' is not an acceptable sticky end format`;
       }
+    }
+
+    setStickyEndFormat(value) {
+      this.validateStickyEndFormat(value);
       return this.set('stickyEndFormat', value);
     }
 
@@ -156,13 +172,15 @@ export default function sequenceModelFactory(BackboneModel) {
      * 'overhang' will return the sequence with the active section of sticky ends.
      * Default value will return the full (blunt) sticky end.
      * @method  getSequence
+     * @param {String} stickyEndFormat=undefined
      * @return {String} Formatted sequence
      */
-    getSequence() {
+    getSequence(stickyEndFormat=undefined) {
       var sequence        = super.get('sequence'),
           stickyEnds      = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
+          stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
           startPostion, endPosition;
+      this.validateStickyEndFormat(stickyEndFormat);
 
       if (stickyEnds && stickyEndFormat){
         switch (stickyEndFormat){
@@ -184,16 +202,30 @@ export default function sequenceModelFactory(BackboneModel) {
       return sequence;
     }
 
-    getFeatures() {
-      var adjustedFeatures = _.deepClone(super.get('features')),
-          stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          length = this.getLength(),
-          startStickyEnd, adjust;
+    getOffset() {
+      var stickyEnds = this.getStickyEnds();
+      var stickyEndFormat = this.getStickyEndFormat();
+      var length = this.getLength();
+      var startStickyEnd;
+      var offset = 0;
 
       if(stickyEnds) {
         startStickyEnd = stickyEnds.start;
+        switch(stickyEndFormat) {
+          case STICKY_END_NONE:
+            offset = startStickyEnd.offset + startStickyEnd.size;
+            break;
+          case STICKY_END_OVERHANG:
+            offset = startStickyEnd.offset;
+            break;
+        }
       }
+      return offset;
+    }
+
+    getFeatures() {
+      var adjustedFeatures = _.deepClone(super.get('features'));
+      var length = this.getLength();
 
       var filterAndAdjustRanges = function(offset, maxValue, feature) {
         feature.ranges = _.filter(feature.ranges, function(range) {
@@ -205,24 +237,11 @@ export default function sequenceModelFactory(BackboneModel) {
         });
       };
 
-      if(stickyEndFormat && stickyEnds) {
-        let offset, maxValue;
-        switch(stickyEndFormat) {
-          case STICKY_END_NONE:
-            offset = startStickyEnd.offset + startStickyEnd.size;
-            maxValue = offset + length;
-            break;
-          case STICKY_END_OVERHANG:
-            offset = startStickyEnd.offset;
-            maxValue = offset + length;
-            break;
-        }
-        if(offset !== undefined) {
-          let func = _.partial(filterAndAdjustRanges, offset, maxValue);
-          _.map(adjustedFeatures, func);
-          adjustedFeatures = _.reject(adjustedFeatures, (feature) => !feature.ranges.length);
-        }
-      }
+      let offset = this.getOffset();
+      let maxValue = offset + length;
+      let func = _.partial(filterAndAdjustRanges, offset, maxValue);
+      _.map(adjustedFeatures, func);
+      adjustedFeatures = _.reject(adjustedFeatures, (feature) => !feature.ranges.length);
 
       return adjustedFeatures;
     }
@@ -1295,8 +1314,8 @@ export default function sequenceModelFactory(BackboneModel) {
       return this.getLength();
     }
 
-    getLength() {
-      return this.getSequence().length;
+    getLength(stickyEndFormat=undefined) {
+      return this.getSequence(stickyEndFormat).length;
     }
 
     throttledSave() {
@@ -1316,5 +1335,11 @@ export default function sequenceModelFactory(BackboneModel) {
 
   }
 
-  return classMethodsMixin(Sequence);
+  Sequence = classMethodsMixin(Sequence);
+
+  Sequence.STICKY_END_FULL = STICKY_END_FULL;
+  Sequence.STICKY_END_OVERHANG = STICKY_END_OVERHANG;
+  Sequence.STICKY_END_NONE = STICKY_END_NONE;
+
+  return Sequence;
 }
