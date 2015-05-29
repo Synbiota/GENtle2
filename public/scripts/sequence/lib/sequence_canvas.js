@@ -542,7 +542,10 @@ rendered.
     // New posx is the position of the previous peak.
     var oldPosX = posX
     var abc = Math.max(baseRange[0]-1, 0);
-    posX = peaks[abc] - xOffset;
+    // posX = peaks[abc] - xOffset;
+    posX = (baseRange[0] === 0 ? 0 : peaks[abc]) - xOffset;
+
+
     width += (oldPosX - posX);
 
 
@@ -550,7 +553,18 @@ rendered.
     console.log([peaks[baseRange[0]]], window.prevX, posX, width, window.prevX - posX)
     window.prevX = posX;
 
+    // posX += layoutSettings.pageMargins.left;
 
+    var clearStart = posX +
+                     (baseRange[0] === 0 ? 0 : layoutSettings.basePairDims.width/2),
+
+        clearWidth = (peaks[baseRange[baseRange.length-1]+1] - peaks[abc])  - layoutSettings.basePairDims.width;
+
+        if (baseRange[0] === 0){
+          clearWidth = (peaks[baseRange[1]+1] - layoutSettings.basePairDims.width/2 - xOffset);
+        }
+
+    this.artist.clear(clearStart, 0, clearWidth, 0);
 
     // if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
     //   this.drawHighlight(posY, [

@@ -39,43 +39,42 @@ export default class Chromatogram extends Line {
     const relevantRawData = _.map(rawData, function(data) {
       // return data.slice(dataRelevantOffset + fromBase * dataDensity, dataRelevantOffset + toBase * dataDensity);
       // return data.slice(dataDensity * fromBase, dataDensity * (toBase+1));
-      var start = Math.max(fromBase-1, 0),
-          end = toBase;
-      return data.slice(peaks[start], peaks[end]);
-    });
 
-    // debugger
+      var start = Math.max(fromBase-1, 0),
+          end = Math.min(toBase+1, peaks.length-1);
+
+      if (fromBase === 0){
+        start = 0;
+      } else {
+        start = peaks[start] + layoutSettings.basePairDims.width/2
+      }
+
+      return data.slice(start, 1 + peaks[end] - layoutSettings.basePairDims.width/2);
+    });
 
     var allPoints = _.map(relevantRawData, function(rawData_) {
       return _.map(rawData_, function(data, i) {
-        // console.log(i, i*xInterval, data, data/maxDataValue)
         // return [x + pageMargins.left + i * xInterval, y + height * ( 1 - data / maxDataValue)];
-        return [x + i * xInterval, y + height * ( 1 - data / maxDataValue)];
+        var xPos = x + i * xInterval,
+            yPos = y + height * ( 1 - data / maxDataValue);
+
+        // If we are writing a section of the sequence (not beginning) then assume that the x is positioned right
+        // after the previous nucleotide letter.
+        if (fromBase > 0){
+          xPos += layoutSettings.basePairDims.width/2;
+        }
+
+        return [xPos, yPos];
       });
     });
-
-    // console.log(rawData)
-    // console.log(peaks)
 
     artist.updateStyle({
       lineWidth: 1
     });
 
-    // _.each(points, function(point) {
-    //   artist.rect(point[0], point[1], 1, y + height - point[1]);
-    // });
-    //
-
-    // console.log("chrom", x, y, [fromBase, toBase])
-
     // artist.rect(x, y, peaks[toBase]-peaks[fromBase], 100, {
     //   fillStyle: "#"+((1<<24)*Math.random()|0).toString(16)
     // })
-
-    var start = Math.max(fromBase-1, 0),
-        end = toBase;
-
-    artist.clear(x, y, peaks[end]-peaks[start], height);
 
 
     _.each(allPoints, function(points, i) {

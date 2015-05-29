@@ -49,7 +49,7 @@ Options are:
 
     artist.updateStyle({font: this.textFont});
 
-    x = x || ls.pageMargins.left + (this.leftMargin || 0);
+    // x = x || ls.pageMargins.left + (this.leftMargin || 0);
 
     subSequence = (_.isFunction(this.getSubSeq) ?
       this.getSubSeq :
@@ -62,22 +62,15 @@ Options are:
 
     if(subSequence) {
 
-      // Clear line
-      var width = (peakSubSequence[peakSubSequence.length-1] - (peaks[baseRange[0]-1] || 0));
-      artist.clear(x + ls.basePairDims.width/2, y, width, (_this.baseLine === undefined ? _this.height : _this.baseLine));
-
-
       _.each(subSequence, function(nucleotide, k){
 
-      // for(k = 0; k < lh.basesPerRow; k++){
-        // if(!subSequence[k]) break;
         if(!subSequence[k]) return;
 
-        var diff = peakSubSequence[k] - (peakSubSequence[k-1] || peaks[baseRange[0]+k-1] || 0);
+        var diff;
 
-        // artist.clear(x + diff, y, 0, 0)
-
+        diff = peakSubSequence[k] - (peakSubSequence[k-1] || peaks[baseRange[0]+k-1] || 0);
         x += diff - ls.basePairDims.width/2;
+
 
 
         character = _.isFunction(_this.transform) ?
