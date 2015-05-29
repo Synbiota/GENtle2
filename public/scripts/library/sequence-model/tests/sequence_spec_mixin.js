@@ -43,39 +43,62 @@ export default function testAllSequenceModels(Sequence) {
   {
     name: 'Sticky Ended Sequence',
     sequence: stickyEndedSequenceContent,
-    features: [{
+    features: [
+    {
+      id: 1,
+      name: 'Sticky End Feature',
+      desc: 'This one will not show on clipped sticky ends.',
       ranges: [{
         from: 0,
         to: 2
       }],
-      name: 'Sticky End Feature',
-      desc: 'This one will not show on clipped sticky ends.',
       type: 'gene',
-    },{
+    },
+    {
+      id: 2,
+      name: 'Start Clipped Feature',
+      desc: 'This one will be a shortened feature for clipped sticky end format.',
       ranges: [{
         from: 1,
         to: 30
       }],
-      name: 'Start Clipped Feature',
-      desc: 'This one will be a shortened feature for clipped sticky end format.',
       type: 'gene',
-    },{
+    },
+    {
+      id: 3,
+      name: 'Normal Feature',
+      desc: 'This one will not be affected by clipped sticky ends.',
       ranges: [{
         from: 24,
         to: 27
       }],
-      name: 'Normal Feature',
-      desc: 'This one will not be affected by clipped sticky ends.',
       type: 'gene',
-    },{
+    },
+    {
+      id: 4,
+      name: 'End Clipped Feature',
+      desc: 'This one will be shortened at the end for clipped sticky end format.',
       ranges: [{
         from: 30,
         to: stickyEndedSequenceContent.length - 2
+      },
+      {
+        // This range should be dropped if stickyEndFormat is not "full"
+        from: stickyEndedSequenceContent.length - 19,
+        to: stickyEndedSequenceContent.length - 1
       }],
-      name: 'End Clipped Feature',
-      desc: 'This one will be shortened at the end for clipped sticky end format.',
       type: 'gene',
-    }
+    },
+    {
+      id: 5,
+      name: 'End Feature dropped',
+      desc: 'This one sould be dropped if stickyEndFormat is not "full"',
+      ranges: [{
+        from: stickyEndedSequenceContent.length - 19,
+        to: stickyEndedSequenceContent.length - 1
+      }],
+      type: 'gene',
+    },
     ],
     stickyEnds: stickyEnds
   },
@@ -440,6 +463,8 @@ export default function testAllSequenceModels(Sequence) {
 
     describe('with full sticky end formatting', function() {
       var features;
+      setStickyEndFormat('full');
+
       beforeEach(function() {
         features = stickyEndedSequence.getFeatures();
       });
@@ -449,7 +474,7 @@ export default function testAllSequenceModels(Sequence) {
 
         var zippedCoords = _.zip(originalCoords, coords);
 
-        var hasDistortedFeature = _.some(zippedCoords, function(set){
+        var hasDistortedFeature = _.some(zippedCoords, function(set) {
                                     return ((set[0].from != set[1].from) || (set[0].to != set[1].to));
                                   });
 
@@ -459,31 +484,78 @@ export default function testAllSequenceModels(Sequence) {
 
     describe('with overhang sticky end formatting', function() {
       var features;
+      setStickyEndFormat('overhang');
+
       beforeEach(function() {
         features = stickyEndedSequence.getFeatures();
       });
 
-      it('should set features beyond the overhang as [0,0]', function() {
-        expect(features[0].ranges[0].from).toEqual(0);
-        expect(features[0].ranges[0].to).toEqual(0);
+      it('should not return features before or after the overhang', function() {
+        expect(features[0].id).toEqual(2);
+        expect(features.length).toEqual(3);
       });
 
       it('should shorten features that extend beyond the beginning of the overhang to start at 0', function() {
-        expect(features[1].ranges[0].from).toEqual(0);
+        expect(features[0].id).toEqual(2);
+        expect(features[0].ranges[0].from).toEqual(0);
       });
 
       it('should adjust the position of features on the sequence by the leading sticky end offset', function() {
-        expect(features[1].ranges[0].to).toEqual(originalCoords[1][0].to - stickyEnds.start.offset);
+        expect(features[0].ranges[0].to).toEqual(originalCoords[1][0].to - stickyEnds.start.offset);
 
-        expect(features[2].ranges[0].from).toEqual(originalCoords[2][0].from - stickyEnds.start.offset);
-        expect(features[2].ranges[0].to).toEqual(originalCoords[2][0].to - stickyEnds.start.offset);
+        expect(features[1].ranges[0].from).toEqual(originalCoords[2][0].from - stickyEnds.start.offset);
+        expect(features[1].ranges[0].to).toEqual(originalCoords[2][0].to - stickyEnds.start.offset);
 
-        expect(features[3].ranges[0].from).toEqual(originalCoords[3][0].from - stickyEnds.start.offset);
+        expect(features[2].ranges[0].from).toEqual(originalCoords[3][0].from - stickyEnds.start.offset);
       });
 
       it('should shorten features that extend beyond the end of the overhang to end at sequence length', function() {
         var sequenceLength = stickyEndedSequence.getLength();
-        expect(features[3].ranges[0].to).toEqual(sequenceLength - 1);
+        expect(features[2].ranges[0].to).toEqual(sequenceLength - 1);
+      });
+
+      it('should remove feature ranges that extend beyond the end of the overhang to end at sequence length', function() {
+        expect(features[2].id).toEqual(4);
+        expect(features[2].ranges.length).toEqual(1);
+      });
+    });
+
+    describe('with sticky end formatting of "none"', function() {
+      var features;
+      var offset = stickyEnds.start.offset + stickyEnds.start.size;
+      setStickyEndFormat('none');
+
+      beforeEach(function() {
+        features = stickyEndedSequence.getFeatures();
+      });
+
+      it('should not return features before or after the main sequence', function() {
+        expect(features[0].id).toEqual(2);
+        expect(features.length).toEqual(3);
+      });
+
+      it('should shorten features that extend beyond the beginning of the main sequence to start at 0', function() {
+        expect(features[0].id).toEqual(2);
+        expect(features[0].ranges[0].from).toEqual(0);
+      });
+
+      it('should adjust the position of features on the sequence by the leading sticky end offset', function() {
+        expect(features[0].ranges[0].to).toEqual(originalCoords[1][0].to - offset);
+
+        expect(features[1].ranges[0].from).toEqual(originalCoords[2][0].from - offset);
+        expect(features[1].ranges[0].to).toEqual(originalCoords[2][0].to - offset);
+
+        expect(features[2].ranges[0].from).toEqual(originalCoords[3][0].from - offset);
+      });
+
+      it('should shorten features that extend beyond the end of the main sequence to end at sequence length', function() {
+        var sequenceLength = stickyEndedSequence.getLength();
+        expect(features[2].ranges[0].to).toEqual(sequenceLength - 1);
+      });
+
+      it('should remove feature ranges that extend beyond the end of the main sequence to end at sequence length', function() {
+        expect(features[2].id).toEqual(4);
+        expect(features[2].ranges.length).toEqual(1);
       });
     });
 

@@ -185,42 +185,46 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     getFeatures() {
-      var features = super.get('features'),
+      var adjustedFeatures = _.deepClone(super.get('features')),
           stickyEnds = this.getStickyEnds(),
           stickyEndFormat = this.getStickyEndFormat(),
           length = this.getLength(),
           startStickyEnd, adjust;
 
-      if (stickyEnds){
+      if(stickyEnds) {
         startStickyEnd = stickyEnds.start;
       }
 
-      var adjustRanges = function(offset, feature){
-        var adjusted = _.deepClone(feature);
-        offset = offset || 0;
-
-        _.each(adjusted.ranges, function(range){
-          range.from =  Math.max(Math.min(range.from + offset, length -1), 0);
-          range.to =  Math.max(Math.min(range.to + offset, length -1), 0);
+      var filterAndAdjustRanges = function(offset, maxValue, feature) {
+        feature.ranges = _.filter(feature.ranges, function(range) {
+          return range.from < maxValue && range.to >= offset;
+        })
+        _.each(feature.ranges, function(range) {
+          range.from =  Math.max(Math.min(range.from - offset, length -1), 0);
+          range.to =  Math.max(Math.min(range.to - offset, length -1), 0);
         });
-
-        return adjusted;
       };
 
-      if (stickyEndFormat && stickyEnds){
-        switch (stickyEndFormat){
+      if(stickyEndFormat && stickyEnds) {
+        let offset, maxValue;
+        switch(stickyEndFormat) {
           case STICKY_END_NONE:
-            adjust = _.partial(adjustRanges, -(startStickyEnd.offset + startStickyEnd.size));
-            features = _.map(features, adjust);
+            offset = startStickyEnd.offset + startStickyEnd.size;
+            maxValue = offset + length;
             break;
           case STICKY_END_OVERHANG:
-            adjust = _.partial(adjustRanges, -startStickyEnd.offset);
-            features = _.map(features, adjust);
+            offset = startStickyEnd.offset;
+            maxValue = offset + length;
             break;
+        }
+        if(offset !== undefined) {
+          let func = _.partial(filterAndAdjustRanges, offset, maxValue);
+          _.map(adjustedFeatures, func);
+          adjustedFeatures = _.reject(adjustedFeatures, (feature) => !feature.ranges.length);
         }
       }
 
-      return features;
+      return adjustedFeatures;
     }
 
     /**
@@ -230,7 +234,7 @@ export default function sequenceModelFactory(BackboneModel) {
     @param {Integer} endBase end of the subsequence (indexed from 0)
     **/
     getSubSeq(startBase, endBase) {
-      if (endBase === undefined){
+      if(endBase === undefined) {
         endBase = startBase;
       } else {
         if (endBase >= this.getLength() && startBase >= this.getLength()) return '';
