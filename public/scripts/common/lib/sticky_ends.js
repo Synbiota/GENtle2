@@ -1,32 +1,32 @@
 
 var stickyEnds = [{
   start: {
-    sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+    sequence: 'GGTCTCAGATG',
     reverse: false,
-    offset: 19,
+    offset: 7,
     size: 4,
     name: "X",
   },
   end: {
-    sequence: 'GAGATGAGACCGTCAGTCACGAG',
+    sequence: 'CGGCTGAGACC',
     reverse: true,
-    offset: 19,
+    offset: 7,
     size: 4,
     name: "Z'",
   }
 },
 {
   start: {
-    sequence: 'GAGATGAGACCGTCAGTCACGAG',
+    sequence: 'GGTCTCACGGC',
     reverse: false,
-    offset: 0,
+    offset: 7,
     size: 4,
     name: "Z",
   },
   end: {
-    sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+    sequence: 'CTACACTCTGG',
     reverse: true,
-    offset: 0,
+    offset: 7,
     size: 4,
     name: "X'",
   }
