@@ -375,7 +375,15 @@ rendered.
       //page dims
       lh.pageDims = {
         width: ls.canvasDims.width,
-        height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
+        // Original
+        // height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
+        //
+        // Modified with margins
+        // height: ls.pageMargins.top + ls.pageMargins.bottom + _this.sequence.get('chromatogramData')[0].length
+        //
+        // Modified without margins. need to switch from height to width for syntactical accuracy.
+        // Impacts the minimap so change both at same time.
+        height: _this.sequence.get('chromatogramData')[0].length
       };
 
       // canvas y scrolling offset
@@ -650,9 +658,18 @@ rendered.
   **/
   SequenceCanvas.prototype.resizeScrollHelpers = function() {
     var _this = this,
+      layoutSettings = _this.layoutSettings,
       layoutHelpers = _this.layoutHelpers;
     return Q.promise(function(resolve, reject) {
-      _this.$scrollingChild.height(layoutHelpers.pageDims.height);
+      // Original
+      // _this.$scrollingChild.height(layoutHelpers.pageDims.height);
+
+      // Height setting for horizontal scrolling
+      // _this.$scrollingChild.width(layoutHelpers.pageDims.width);
+
+      // Height setting for vertical scrolling for horizontal feeds.
+      // This calculation is necessary to factor for difference between width and height.
+      _this.$scrollingChild.height(layoutHelpers.pageDims.height-(layoutSettings.canvasDims.width - layoutSettings.canvasDims.height));
       _this.scrollTo();
       resolve();
     });
