@@ -745,7 +745,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
       this.insertBases(bases, beforeBase, options);
 
-      _.each(newFeatures,function(feature){
+      _.each(newFeatures, function(feature) {
 
         feature.ranges = [{
           from: beforeBase,
@@ -765,7 +765,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
       this.insertBases(bases, beforeBase, options);
 
-      _.each(newFeatures,function(feature){
+      _.each(newFeatures, function(feature) {
 
         feature.ranges = _.map(feature.ranges, function(range) {
           return {
@@ -778,20 +778,30 @@ export default function sequenceModelFactory(BackboneModel) {
       });
     }
 
+    /**
+     * @method  deleteBases
+     * Removes the bases not currently visible in a sequence (given the
+     * getStickyEndFormat)
+     *
+     * @param  {Integer} firstBase
+     * @param  {Integer} length
+     * @param  {Object} options
+     * @return {type}
+     */
     deleteBases(firstBase, length, options = {}) {
       var seq = super.get('sequence'),
           stickyEnds = this.getStickyEnds(),
           stickyEndFormat = this.getStickyEndFormat(),
           offset = 0,
-          adjustedFirstBase,
+          adjustedFirstBase, tailBasesLength,
           timestamp,
-          subseq, linkedHistoryStepTimestamps;
-
+          removedBases, basesRemaining,
+          linkedHistoryStepTimestamps;
       options = _.defaults(options, {updateHistory: true});
 
       // Adjust offset depending on sticky end format
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
+      if(stickyEnds && stickyEndFormat) {
+        switch(stickyEndFormat) {
           case STICKY_END_NONE:
             offset = stickyEnds.start.size + stickyEnds.start.offset;
             break;
@@ -802,13 +812,14 @@ export default function sequenceModelFactory(BackboneModel) {
       }
 
       adjustedFirstBase = firstBase + offset;
+      removedBases = seq.substr(adjustedFirstBase, length);
+      tailBasesLength = seq.length - (adjustedFirstBase + length - 1);
 
-      subseq = seq.substr(adjustedFirstBase, length);
-
-      this.set('sequence',
+      basesRemaining = (
         seq.substr(0, adjustedFirstBase) +
-        seq.substr(adjustedFirstBase + length, seq.length - (adjustedFirstBase + length - 1))
+        seq.substr(adjustedFirstBase + length, tailBasesLength)
       );
+      this.set('sequence', basesRemaining);
 
       // moveFeatures manages the adjustment.
       linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length, options);
@@ -816,19 +827,19 @@ export default function sequenceModelFactory(BackboneModel) {
       // if (updateHistory === 'design-true')
       //   this.getHistory().add({
       //     type: 'design-delete',
-      //     value: subseq,
+      //     value: removedBases,
       //     hidden: true,
       //     position: adjustedFirstBase,
-      //     operation: '@' + adjustedFirstBase + '-' + subseq,
+      //     operation: '@' + adjustedFirstBase + '-' + removedBases,
       //     linked: linkedHistoryStepTimestamps
       //   });
 
-      if (options.updateHistory) {
+      if(options.updateHistory) {
         timestamp = this.getHistory().add({
           type: 'delete',
-          value: subseq,
+          value: removedBases,
           position: adjustedFirstBase,
-          operation: '@' + adjustedFirstBase + '-' + subseq,
+          operation: '@' + adjustedFirstBase + '-' + removedBases,
           linked: linkedHistoryStepTimestamps
         }).get('timestamp');
       }
@@ -853,8 +864,8 @@ export default function sequenceModelFactory(BackboneModel) {
         featurePreviousState = featurePreviousState || _.deepClone(feature);
       };
 
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
+      if(stickyEnds && stickyEndFormat) {
+        switch(stickyEndFormat) {
           case STICKY_END_NONE:
             base += stickyEnds.start.size + stickyEnds.start.offset;
             break;
