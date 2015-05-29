@@ -136,8 +136,8 @@
     },
 
     readRanges: function() {
-      return _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), (row) => {
-        var offset = this.model.getOffset();
+      var offset = this.model.getOffset();
+      return _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function (row) {
         var $row = $(row);
         var frm = $row.find('[name="from"]').val() * 1 - 1 + offset;
         var to = $row.find('[name="to"]').val() * 1 - 1 + offset;
