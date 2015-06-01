@@ -32,10 +32,6 @@ var run = function(watch) {
 
   browserified = browserifyUtils.applyTransforms(browserified);
 
-  if(!isDev) {
-    browserified = browserified.transform('uglifyify', { global: true });
-  }
-
   if(watch) {
     bundleLogger.watch(scriptFile);
     browserified.on('update', _.partial(bundle, browserified, true));
