@@ -10,6 +10,8 @@ var gzip = require('gulp-gzip');
 var rev = require('gulp-rev');
 var buffer = require('gulp-buffer');
 var replace = require('gulp-replace');
+var transform = require('vinyl-transform');
+var exorcist = require('exorcist');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -17,13 +19,11 @@ var scriptPath = path.dirname(scriptFile);
 var destPath = './';
 var destExtname = '.min.js';
 var isDev = process.env.NODE_ENV !== 'production';
-var browserifyOptions = {};
+var browserifyOptions = {
+  debug: true
+};
 
 var browserifyUtils = require('./utils/browserify_utils');
-
-if(isDev) {
-  browserifyOptions.debug = true;
-}
 
 var run = function(watch) {
   var browserified = watch ? 
@@ -60,6 +60,7 @@ var bundle = function(browserified, watch, filepath) {
     browserified = browserified
       .pipe(buffer())
       .pipe(rev())
+      .pipe(transform(function(filename) { return exorcist(filename + '.map'); }))
       .pipe(gulp.dest(destPath)) 
       .pipe(gzip())
       .pipe(gulp.dest(destPath))

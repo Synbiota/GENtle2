@@ -2,7 +2,7 @@
   "name": "GENtle",
   "description": "GENtle - The Browser Based, Open Source, DNA Assembly App",
   "homepage": "http://gentledna.org/",
-  "version": "3.0.0-alpha.1",
+  "version": "0.1.1",
   "engines": {
     "node": "^0.12"
   },
@@ -28,6 +28,7 @@
     "connect-gzip-static": "^1.0.0",
     "cookie-session": "^1.0.2",
     "envify": "^3.4.0",
+    "exorcist": "^0.4.0",
     "express": "^4.9.8",
     "express-session": "^1.9.0",
     "filesaver.js": "~0.1.1",

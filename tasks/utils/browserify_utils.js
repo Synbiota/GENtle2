@@ -1,7 +1,8 @@
 var aliases = require('./javascript_aliases');
-var isDev = process.env.NODE_ENV !== 'production';
 var envify = require('envify/custom');
-var _ = require('underscore');
+var packageConfig = require('../../package.json');
+
+var isDev = process.env.NODE_ENV !== 'production';
 
 var envVarKeys = [
   'ENABLE_BUGSNAG',
@@ -16,14 +17,13 @@ var pickedEnvVars = envVarKeys.reduce(function(memo, key) {
   return memo;
 }, {});
 
+pickedEnvVars.BUGSNAG_APP_VERSION = packageConfig.version;
+
 var transforms = [
   [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
   [ 'babelify', {} ],
   [ 'aliasify', {aliases: aliases} ]
 ];
-
-console.log('ENVIRONMENT VARIABLES', _.keys(process.env))
-console.log('PICKED ENVIRONMENT VARIABLES', pickedEnvVars)
 
 if(!isDev) {
   transforms.push(

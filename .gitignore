@@ -10,6 +10,7 @@ public/stylesheets/app.css
 public/stylesheets/app-*.css
 public/scripts/app.min.js.gz
 public/scripts/app.min-*.js.gz
+public/scripts/*.map
 public/scripts/styles.scss
 public/stylesheets/app.css.gz
 public/stylesheets/app-*.css.gz

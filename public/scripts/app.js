@@ -37,6 +37,7 @@ window.gentle = Gentle;
 if(process.env.ENABLE_BUGSNAG) {
   Bugsnag.apiKey = process.env.BUGSNAG_API_KEY;
   Bugsnag.releaseStage = process.env.BUGSNAG_RELEASE_STAGE || 'production';
+  Bugsnag.appVersion = process.env.BUGSNAG_APP_VERSION;
 } else {
   Bugsnag.autoNotify = false;
 }
