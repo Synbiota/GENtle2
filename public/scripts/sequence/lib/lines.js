@@ -6,7 +6,8 @@
       RestrictionEnzymeSites 
                 = require('./lines/restriction_enzymes_sites'),
       RestrictionEnzymeLabels
-                = require('./lines/restriction_enzymes_labels');
+                = require('./lines/restriction_enzymes_labels'),
+      OldFeature = require('./lines/old_feature');
 
   export default {
     Blank: Blank,
@@ -14,6 +15,7 @@
     DNA: DNA,
     Feature: Feature,
     RestrictionEnzymeSites: RestrictionEnzymeSites,
-    RestrictionEnzymeLabels: RestrictionEnzymeLabels
+    RestrictionEnzymeLabels: RestrictionEnzymeLabels,
+    OldFeature
   };
 // });

@@ -223,7 +223,7 @@ rendered.
 
       // Annotations
       features: new Lines.Feature(this, {
-        unitHeight: 15,
+        unitHeight: 14,
         baseLine: 10,
         textFont: LineStyles.features.font,
         topMargin: 3,
