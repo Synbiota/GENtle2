@@ -94,7 +94,8 @@ class JaggedArrow extends Shape {
       context.moveTo(0, 0);
       points.forEach(function([x, y]) { context.lineTo(x, y); });
       context.closePath();
-      context.fill()
+      context.fill();
+      context.stroke();
 
     });
   }

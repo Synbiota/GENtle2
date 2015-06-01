@@ -37,6 +37,10 @@ export default Backbone.View.extend({
     };
   },
 
+  afterRender: function() {
+    if(!this.getProducts().length) this.startCalculation();
+  },
+
   startCalculation: function(event) {
     if(event) event.preventDefault();
     this.$('.start-sequencing-primers').hide();
