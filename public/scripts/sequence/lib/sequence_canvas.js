@@ -282,6 +282,11 @@ rendered.
     this.$scrollingParent.on('keydown', this.handleKeydown);
     this.$scrollingParent.on('blur', this.handleBlur);
 
+    // Debounced form of redraw function so we can call it from anywhere without worrying about resource hogging.
+    this.safeRedraw = _.afterLastCall(function(){
+      _this.redraw();
+    }, 10);
+
     // Kickstart rendering
     this.refresh();
 //    console.log('test')
@@ -762,6 +767,8 @@ rendered.
     if (triggerEvent !== false) {
       this.trigger('scroll');
     }
+
+    deferred.promise.then(this.safeRedraw);
 
     return deferred.promise;
   };
