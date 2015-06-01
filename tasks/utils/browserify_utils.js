@@ -11,11 +11,11 @@ var transforms = [
 
 if(!isDev) {
   transforms.push(
-    [ envify, _.pick(process.env, 
+    [ envify(_.pick(process.env, 
       'ENABLE_BUGSNAG',
       'BUGSNAG_API_KEY',
       'BUGSNAG_RELEASE_STAGE'
-    ) ],
+    )), {} ],
     [ 'uglifyify', { global: true } ]
   );
 }
