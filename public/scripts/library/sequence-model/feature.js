@@ -15,9 +15,9 @@ class SequenceFeature {
     this.ranges = ranges || [];
     this._type = _type || '';
     this._id = _id || _.uniqueId();
-    _.each(_.pairs(other), function(pair) {
+    _.each(_.pairs(other), (pair) => {
       let key = pair[0];
-      if(this[key]) throw new Error(`Attribute "${key}" already exists on SequenceFeature.`)
+      if(this[key]) throw new Error(`Attribute "${key}" already exists on SequenceFeature.`);
       this[key] = pair[1];
     })
   }
@@ -35,7 +35,14 @@ SequenceFeature.newFromOld = function(oldFeature) {
   var ranges = _.map(oldFeature.ranges, function(range) {
     return SequenceRange.newFromOld(range);
   });
-  var other = {}; //_.keys(oldFeature);
+  var other = _.reduce(_.pairs(oldFeature), function(accum, val) {
+    let key = val[0];
+    if(!_.contains(['name', '_id', 'desc', '_type', 'ranges'], key)) {
+      accum[key] = val[1];
+    }
+    return accum;
+  }, {});
+
   return new SequenceFeature(oldFeature.name, oldFeature.desc, ranges, oldFeature._type, oldFeature._id, other);
 };
 
