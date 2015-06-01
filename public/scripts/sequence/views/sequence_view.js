@@ -4,16 +4,17 @@
 @class SequenceView
 **/
 // define(function(require) {
-  var template                = require('../templates/sequence_view.hbs'),
-      Gentle                  = require('gentle'),
-      SequenceSettingsView    = require('./settings_view'),
-      SequenceEditionView     = require('./sequence_edition_view'),
-      SequenceAnalysisView    = require('./sequence_analysis_view'),
-      StatusbarView           = require('../../common/views/statusbar_view'),
-      StatusbarPrimaryViewView= require('./statusbar_primary_view_view'),
+  var template                   = require('../templates/sequence_view.hbs'),
+      Gentle                     = require('gentle'),
+      SequenceSettingsView       = require('./settings_view'),
+      SequenceEditionView        = require('./sequence_edition_view'),
+      SequenceAnalysisView       = require('./sequence_analysis_view'),
+      SequenceChromatographView  = require('./sequence_chromatograph_view'),
+      StatusbarView              = require('../../common/views/statusbar_view'),
+      StatusbarPrimaryViewView   = require('./statusbar_primary_view_view'),
       // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
-      Backbone                = require('backbone'),
-      Q                       = require('q'),
+      Backbone                   = require('backbone'),
+      Q                          = require('q'),
       SequenceView;
 
   SequenceView = Backbone.View.extend({
@@ -97,6 +98,10 @@
         .value();
 
       primaryViews.push({
+        name: 'chromatograph',
+        title: 'Chromatograph',
+        view: SequenceChromatographView
+      },{
         name: 'edition',
         title: 'Edit sequence',
         view: SequenceEditionView
