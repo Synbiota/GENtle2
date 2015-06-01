@@ -45,6 +45,8 @@ window.testBugsnag = function() {
   Bugsnag.notify('bugsnag/sourcemaps test');
 };
 
+window.testProcess = process.env;
+
 $(function() {
   Gentle.layout = new Layout();
   Backbone.history.start();
