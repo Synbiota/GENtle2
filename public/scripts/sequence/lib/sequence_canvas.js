@@ -379,11 +379,10 @@ rendered.
         // height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
         //
         // Modified with margins
-        // height: ls.pageMargins.top + ls.pageMargins.bottom + _this.sequence.get('chromatogramData')[0].length
-        //
-        // Modified without margins. need to switch from height to width for syntactical accuracy.
+        // Need to switch from height to width for syntactical accuracy.
         // Impacts the minimap so change both at same time.
-        height: _this.sequence.get('chromatogramData')[0].length
+        height: ls.pageMargins.top + ls.pageMargins.bottom + _this.sequence.get('chromatogramData')[0].length
+        // height: _this.sequence.get('chromatogramData')[0].length
       };
 
       // canvas y scrolling offset
@@ -518,7 +517,7 @@ rendered.
         var predicate = function(index){
 
           // return value just before or at position
-          return ((peaks[index] <= posX) && (posX < peaks[index+1]));
+          return ((peaks[index] <= posX) && ((posX < peaks[index+1]) || (index == peaks.length-1)));
 
           // return value just after or at position
           // return ((peaks[index] >= posX) && ( !index || (peaks[index-1] < posX)));
@@ -534,15 +533,19 @@ rendered.
       };
 
       var firstBase = Math.max(getIdx(posX), 0),
-          lastBase = Math.max(getIdx(posX + width)+1, firstBase+1);
+          lastBase = Math.max(getIdx(posX + width), firstBase+1);
+
+          lastBase = Math.min(peaks.length-1, lastBase);
       return [firstBase, lastBase];
     };
+
+    xOffset -= layoutSettings.pageMargins.top;
 
     var baseRange = getChromaBaseRange(posX + xOffset, width);
     var peaks = sequence.get('chromatogramPeaks');
 
     // debug stuff
-    console.log('drawLine', posX, width, xOffset, baseRange, peaks[baseRange[0]-1] - xOffset);
+    // console.log('drawLine', posX, width, xOffset, baseRange, peaks[baseRange[0]-1] - xOffset);
 
 
 
@@ -558,21 +561,39 @@ rendered.
 
 
     // debug stuff
-    console.log([peaks[baseRange[0]]], window.prevX, posX, width, window.prevX - posX)
+    // console.log([peaks[baseRange[0]]], window.prevX, posX, width, window.prevX - posX)
     window.prevX = posX;
+
+
+    var clearStart = (baseRange[0] === 0 ? 0 : posX + layoutSettings.basePairDims.width/2),
+
+        clearWidth = (peaks[baseRange[1]+1] - peaks[abc])  - layoutSettings.basePairDims.width;
+
+        if (baseRange[0] === 0){
+          // clearWidth = (peaks[baseRange[1]+1] - layoutSettings.basePairDims.width/2 - xOffset + layoutSettings.pageMargins.top);
+          clearWidth = peaks[baseRange[1]+1] - layoutSettings.basePairDims.width/2 + posX;
+        } else if (baseRange[1] >= peaks.length-1) {
+          clearWidth = (peaks[peaks.length-1] - xOffset);
+        }
+
+    console.log(posX, width, xOffset, "clearing", clearStart, clearWidth);
+
+    this.artist.clear(clearStart, 0, clearWidth, 0);
+
+    // this.artist.rect(clearStart, 0, clearWidth, 200, {
+    //   fillStyle: "#"+((1<<24)*Math.random()|0).toString(16)
+    // })
 
     // posX += layoutSettings.pageMargins.left;
 
-    var clearStart = posX +
-                     (baseRange[0] === 0 ? 0 : layoutSettings.basePairDims.width/2),
+    // if (xOffset <= layoutSettings.pageMargins.top){
 
-        clearWidth = (peaks[baseRange[baseRange.length-1]+1] - peaks[abc])  - layoutSettings.basePairDims.width;
+    //   // return;
+    //   var difference = layoutSettings.pageMargins.top - xOffset;
+    //   posX += difference;
+    //   width -= difference;
+    // }
 
-        if (baseRange[0] === 0){
-          clearWidth = (peaks[baseRange[1]+1] - layoutSettings.basePairDims.width/2 - xOffset);
-        }
-
-    this.artist.clear(clearStart, 0, clearWidth, 0);
 
     // if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
     //   this.drawHighlight(posY, [
@@ -580,7 +601,6 @@ rendered.
     //     Math.min(baseRange[1], highlight[1])
     //   ]);
     // }
-
 
 
     // if (baseRange[0] < this.sequence.length()) {
@@ -595,6 +615,9 @@ rendered.
     //     }
     //   });
     // }
+
+    console.log("drawing", posX, baseRange)
+    // if ((posX <= layoutSettings.pageMargins.top) && (baseRange[0]))
 
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
