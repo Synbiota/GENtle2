@@ -9,6 +9,8 @@ var transforms = [
   [ 'aliasify', {aliases: aliases} ]
 ];
 
+console.log('ENVIRONMENT VARIABLES', _.keys(process.env))
+
 if(!isDev) {
   transforms.push(
     [ envify(_.pick(process.env, 
