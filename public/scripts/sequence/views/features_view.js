@@ -153,7 +153,7 @@
     saveFeature: function() {
       var ranges;
       var acceptedRanges;
-      var length = this.model.length();
+      var length = this.model.getLength();
 
       this.readValues();
       this.errors = {};

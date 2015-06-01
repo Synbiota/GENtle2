@@ -1,7 +1,9 @@
 import Backbone from 'backbone';
 import Gentle from 'gentle';
 import template from '../templates/sticky_ends_settings_view.hbs';
+import _ from 'underscore';
 
+var getDefaultStickyEnd = () => ({size: 0, offset: 0});
 
 export default Backbone.View.extend({
   manage: true,
@@ -17,8 +19,11 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    this.setFormData('start', this.model.get('stickyEnds.start'));
-    this.setFormData('end', this.model.get('stickyEnds.end'));
+    var stickyEnds = this.model.getStickyEnds();
+    if(stickyEnds) {
+      this.setFormData('start', stickyEnds.start);
+      this.setFormData('end', stickyEnds.end);
+    }
   },
 
   getField: function(position, name) {
@@ -49,16 +54,25 @@ export default Backbone.View.extend({
 
   onChange: function(event) {
     event.preventDefault();
-    var data = {};
     var startData = this.getFormData('start');
     var endData = this.getFormData('end');
 
     var extract = function(data_) {
-      return _.pick(data_, 'name', 'reverse', 'offset', 'size');
+      if(data_.enabled) {
+        return _.pick(data_, 'name', 'reverse', 'offset', 'size');
+      } else {
+        return getDefaultStickyEnd();
+      }
     };
 
-    this.model.set('stickyEnds.start', startData.enabled ? extract(startData) : null);
-    this.model.set('stickyEnds.end', endData.enabled ? extract(endData) : null);
+    if(startData.enabled || endData.enabled) {
+      this.model.set('stickyEnds', {
+        start: extract(startData),
+        end: extract(endData)
+      });
+    } else {
+      this.model.set('stickyEnds', undefined);
+    }
 
     this.model.throttledSave();
     this.model.trigger('change:sequence');

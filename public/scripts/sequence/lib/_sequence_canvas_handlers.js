@@ -4,9 +4,12 @@ Event handlers for SequenceCanvas
 **/
 // define(function(require) {
   var Hotkeys = require('../../common/lib/hotkeys'),
+    tracedLog = require('../../common/lib/traced_log'),
     Handlers;
 
   Handlers = function() {};
+
+  var alertUneditableStickyEnd = () => alert('Unable to edit the sticky ends of a sequence');
 
   /**
   Handles keystrokes on keypress events (used for inputs)
@@ -25,22 +28,38 @@ Event handlers for SequenceCanvas
 
         if (!selection && caretPosition !== undefined) {
 
-          this.hideCaret();
-          this.sequence.insertBases(base, caretPosition);
-          this.caretPosition = ++caretPosition;
-          this.displayCaret();
+          if(this.sequence.isBaseEditable(caretPosition)) {
+
+            this.hideCaret();
+            this.sequence.insertBases(base, caretPosition);
+            this.caretPosition = ++caretPosition;
+            this.afterNextRedraw(() => {
+              this.displayCaret();
+            });
+
+          } else {
+            alertUneditableStickyEnd();
+          }
 
         } else if (selection) {
 
-          this.hideCaret();
-          this.selection = undefined;
-          this.sequence.deleteBases(
-            selection[0],
-            selection[1] - selection[0] + 1
-          );
-          this.sequence.insertBases(base, selection[0]);
-          this.caretPosition = selection[0] + 1;
-          this.displayCaret(selection[0] + 1);
+          if(this.sequence.isRangeEditable(...selection)) {
+
+            this.hideCaret();
+            this.selection = undefined;
+            this.sequence.deleteBases(
+              selection[0],
+              selection[1] - selection[0] + 1
+            );
+            this.sequence.insertBases(base, selection[0]);
+            this.caretPosition = selection[0] + 1;
+            this.afterNextRedraw(() => {
+              this.displayCaret();
+            });
+
+          } else {
+            alertUneditableStickyEnd();
+          }
         }
       }
     }
@@ -60,7 +79,7 @@ Event handlers for SequenceCanvas
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
 
-      this.select(0, this.sequence.length());
+      this.select(...this.sequence.selectableRange());
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {
 
@@ -96,17 +115,31 @@ Event handlers for SequenceCanvas
     if(!this.readOnly) {
       if (this.selection) {
         var selection = this.selection;
-        this.selection = undefined;
-        this.sequence.deleteBases(
-          selection[0],
-          selection[1] - selection[0] + 1
-        );
-        this.displayCaret(selection[0]);
+        if(this.sequence.isBaseEditable(...selection)) {
+          this.selection = undefined;
+          this.sequence.deleteBases(
+            selection[0],
+            selection[1] - selection[0] + 1
+          );
+          this.caretPosition = selection[0];
+          this.afterNextRedraw(() => {
+            this.displayCaret();
+          });
+        } else {
+          alertUneditableStickyEnd();
+        }
       } else if (this.caretPosition > 0) {
         var previousCaret = this.caretPosition;
-        this.hideCaret();
-        this.sequence.deleteBases(previousCaret - 1, 1);
-        this.displayCaret(previousCaret - 1);
+        if(this.sequence.isBaseEditable(previousCaret - 1)) {
+          this.hideCaret();
+          this.sequence.deleteBases(previousCaret - 1, 1);
+          this.caretPosition = previousCaret - 1;
+          this.afterNextRedraw(() => {
+            this.displayCaret();
+          });
+        } else {
+          alertUneditableStickyEnd();
+        }
       }
     }
   };
@@ -151,7 +184,7 @@ Event handlers for SequenceCanvas
 
     nextCaret = meta ?
       (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, this.sequence.length());
+      Math.min(previousCaret + 1, this.sequence.getLength());
 
     if (shift) {
       if (selection) {
@@ -175,17 +208,20 @@ Event handlers for SequenceCanvas
     if (previousCaret === undefined) return;
 
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
+    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+
+    tracedLog('handleUpKey', previousCaret, nextCaret);
+
+    if(previousCaret === nextCaret) return;
 
     if (shift) {
+      this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
       } else {
-        this.select(
-          previousCaret,
-          nextCaret < previousCaret ? nextCaret - 1 : nextCaret
-        );
-        this.caretPosition = nextCaret < previousCaret ? nextCaret - 1 : nextCaret;
+        this.select(nextCaret, previousCaret - 1);
       }
+      this.displayCaret(nextCaret);
     } else {
       this.moveCaret(nextCaret);
     }
@@ -200,16 +236,20 @@ Event handlers for SequenceCanvas
     if (previousCaret === undefined) return;
 
     nextCaret = meta ?
-      this.sequence.length() :
-      Math.min(this.caretPosition + basesPerRow, this.sequence.length());
+      this.sequence.getLength() :
+      Math.min(this.caretPosition + basesPerRow, this.sequence.getLength());
+
+    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
 
     if (shift) {
       if (selection) {
-        this.expandSelectionToNewCaret(nextCaret);
+        this.expandSelectionToNewCaret(
+          nextCaret < previousCaret ? nextCaret : nextCaret - 1
+        );
       } else {
         this.select(
           previousCaret,
-          nextCaret
+          nextCaret - 1
         );
         this.caretPosition = nextCaret;
       }
@@ -241,7 +281,10 @@ Event handlers for SequenceCanvas
           text = _this.cleanPastedText(text);
           _this.hideCaret();
           _this.sequence.insertBases(text, caretPosition);
-          _this.displayCaret(caretPosition + text.length);
+          _this.caretPosition = caretPosition + text.length;
+          _this.afterNextRedraw(() => {
+            _this.displayCaret();
+          });
           _this.focus();
         }
 
@@ -253,7 +296,20 @@ Event handlers for SequenceCanvas
   Handlers.prototype.handleUndo = function(event) {
     if (!this.readOnly && this.caretPosition !== undefined) {
       event.preventDefault();
-      this.hideCaret();
+      var previousCaret = this.caretPosition;
+
+      this.afterNextRedraw(function() {
+        this.displayCaret(previousCaret);
+      });
+
+      this.sequence.once('undo', (data) => {
+         if(data && _.isNumber(data.position) && !_.isNaN(data.position)) {
+          this.afterNextRedraw(function() {
+            this.displayCaret(data.position);
+          });
+         } 
+      });
+      
       this.sequence.undo();
     }
   };
@@ -262,11 +318,28 @@ Event handlers for SequenceCanvas
    **/
   Handlers.prototype.handleMousedown = function(event) {
     var _this = this,
-      mouse = this.normalizeMousePosition(event);
+      mouse = this.normalizeMousePosition(event),
+      previousCaret = this.caretPosition;
 
-    _this.hideCaret();
+    _this.hideCaret(); 
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
-    _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
+    if(event.shiftKey && previousCaret) {
+      let dragStartBase;
+      if(this.selection) {
+        let [selectionStart, selectionEnd] = this.selection;
+        if(this.previousCaret < selectionEnd) {
+          dragStartBase = selectionEnd;
+        } else {
+          dragStartBase = selectionStart;
+        }
+      } else {
+        dragStartBase = previousCaret;
+      }
+      this.dragStartBase = dragStartBase;
+      this.handleClick(event);
+    } else {
+      _this.dragStartBase = _this.getBaseFromXYPos.apply(_this, _this.dragStartPos);
+    }
 
     this.$scrollingParent.on('mouseup mousemove', function mousedownHandler(event) {
       if (event.type === 'mouseup') {
@@ -285,6 +358,7 @@ Event handlers for SequenceCanvas
       layoutHelpers = _this.layoutHelpers,
       caretPosition = _this.caretPosition,
       selection = _this.selection,
+      sequence = this.sequence,
       mouse = _this.normalizeMousePosition(event);
 
     mouse.top += layoutHelpers.yOffset;
@@ -293,8 +367,11 @@ Event handlers for SequenceCanvas
       (Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
         Math.abs(mouse.top - _this.dragStartPos[1]) >= layoutHelpers.rows.height)) {
 
-      var first = _this.dragStartBase,
-        last = _this.getBaseFromXYPos(mouse.left, mouse.top);
+      var first = sequence.ensureBaseIsSelectable(_this.dragStartBase, true);
+      var last = sequence.ensureBaseIsSelectable(
+          _this.getBaseFromXYPos(mouse.left, mouse.top),
+          true
+        );
 
       if (!_this.selecting) {
         _this.selecting = true;
@@ -306,13 +383,13 @@ Event handlers for SequenceCanvas
         _this.selection = [last, first];
       }
 
-      _this.caretPosition = selection && selection[0] < caretPosition ? last + 1 : last;
+      _this.caretPosition = (selection && selection[0] < caretPosition) ? last + 1 : last;
 
     } else {
       _this.selecting = false;
       _this.selection = undefined;
     }
-
+    _this.displayCaret(_this.caretPosition);
     _this.redrawSelection(_this.selection);
   };
 
@@ -323,7 +400,7 @@ Event handlers for SequenceCanvas
       this.handleClick(event);
     }
     this.dragStartPos = this.dragStartBase = undefined;
-    if (this.selection) {
+    if (this.selection && !event.shiftKey) {
       this.displayCaret(this.caretPosition);
     }
     this.selecting = false;
@@ -337,16 +414,29 @@ Event handlers for SequenceCanvas
   Handlers.prototype.handleClick = function(event) {
     var mouse = this.normalizeMousePosition(event),
       _this = this,
+      shiftKey = event.shiftKey,
       base, baseRange;
 
     baseRange = this.getBaseRangeFromYPos(mouse.top + this.layoutHelpers.yOffset);
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
     if (base >= 0 && baseRange[0] >= 0 && baseRange[1] > 0) {
-      if (this.selection) {
-        this.select(undefined);
+      let newCaret = this.sequence.ensureBaseIsSelectable(base);
+
+      if(this.selection) {
+        if(shiftKey) {
+          this.expandSelectionToNewCaret(newCaret);
+        } else {
+          this.select(undefined);
+        }
       } else {
-        this.displayCaret(base);
+        let previousCaret = this.caretPosition;
+        if(shiftKey && previousCaret) {
+          this.selection = newCaret >= previousCaret ? 
+            [previousCaret, newCaret-1] : [newCaret, previousCaret];
+          this.redrawSelection(this.selection);
+        }
+        this.displayCaret(newCaret);  
       }
     }
 

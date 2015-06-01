@@ -1,9 +1,9 @@
 import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
+import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import {filterPrimerOptions, defaultPCRPrimerOptions} from './primer_defaults';
 import Primer from './primer';
 
 
@@ -30,17 +30,27 @@ var logger = function(...msg) {
 
 
 class PotentialPrimer {
-  constructor (sequence, options, deferred) {
-    this.opts = options;
-    this.sequence = sequence;
+  constructor (sequenceBases, options) {
+    this.sequence = sequenceBases;
     this.i = 0;
-    this.size = this.opts.minPrimerLength;
-    this.allowShift = this.opts.allowShift;
+    this.minPrimerLength = options.minPrimerLength;
+    this.size = this.minPrimerLength;
+    this.allowShift = options.allowShift;
+    this.findFrom3PrimeEnd = options.findFrom3PrimeEnd;
     this.potentialPrimer = undefined;
 
-    this.deferred = deferred;
+    this.deferred = Q.defer();
 
-    this.returnNearestIfNotBest = this.opts.returnNearestIfNotBest;
+    this.returnNearestIfNotBest = options.returnNearestIfNotBest;
+    this.maxPolyN = options.maxPolyN;
+    this.targetGcContent = options.targetGcContent;
+    this.maxPrimerLength = options.maxPrimerLength;
+    this.minPrimerLength = options.minPrimerLength;
+    this.targetGcContentTolerance = options.targetGcContentTolerance;
+    this.targetMeltingTemperature = options.targetMeltingTemperature;
+    this.meltingTemperatureTolerance = options.meltingTemperatureTolerance;
+    this.IDTmeltingTemperatureProximity = options.IDTmeltingTemperatureProximity;
+
     this.assessedPrimersSequences = {};
     this.assessedPrimers = [];
 
@@ -52,12 +62,12 @@ class PotentialPrimer {
       initialTotal: totalProgress * 3/2
     };
     this.incrementProgressTotal(this.progress.initialTotal);
-    deferred.notify(this.progress);
+    this.deferred.notify(this.progress);
   }
 
   findPrimer () {
     logger('findPrimer start');
-    while(this.i <= (this.sequence.length - this.opts.minPrimerLength)) {
+    while(this.i <= (this.sequence.length - this.minPrimerLength)) {
       if(!this.updatePotentialPrimer()) break; // fail
       logger('findPrimer loop', this.i, this.size, this.goodGCContent(), this.polyNPresent(), this.potentialPrimer);
       if(!this.allowShift && (this.i > 0)) break; // fail
@@ -65,15 +75,18 @@ class PotentialPrimer {
 
       var polyNIsPresent = this.polyNPresent();
       if(polyNIsPresent && !this.returnNearestIfNotBest) {
-        this.i += (polyNIsPresent.location + polyNIsPresent.repeated - this.opts.maxPolyN);
+        this.i += (polyNIsPresent.location + polyNIsPresent.repeated - this.maxPolyN);
         continue;
       }
 
       if(this.goodGCContent()) {
         var ourTm = SequenceCalculations.meltingTemperature(this.potentialPrimer);
-        if(ourTm > (this.opts.targetMeltingTemperature + this.opts.meltingTemperatureTolerance + this.opts.IDTmeltingTemperatureProximity)) {
+        var largest = this.targetMeltingTemperature + this.meltingTemperatureTolerance + this.IDTmeltingTemperatureProximity;
+        var smallest = this.targetMeltingTemperature - this.meltingTemperatureTolerance - this.IDTmeltingTemperatureProximity;
+        logger('ourTm', this.potentialPrimer, ourTm, 'largest, smallest: ', largest, smallest);
+        if(ourTm > largest) {
           this.i += 1;
-        } else if (ourTm < (this.opts.targetMeltingTemperature - this.opts.meltingTemperatureTolerance - this.opts.IDTmeltingTemperatureProximity)) {
+        } else if (ourTm < smallest) {
           this.growOrShiftPotentialPrimer();
         } else {
           // Our calculated Tm seems good so check with IDT.
@@ -108,9 +121,9 @@ class PotentialPrimer {
   }
 
   updatePotentialPrimer () {
-    if((this.i + this.size) <= this.sequence.length) {
-      if(this.opts.findFrom3PrimeEnd) {
-        var len = this.sequence.length;
+    var len = this.sequence.length;
+    if((this.i + this.size) <= len) {
+      if(this.findFrom3PrimeEnd) {
         this.potentialPrimer = this.sequence.substr(len-this.i-this.size, this.size);
       } else {
         this.potentialPrimer = this.sequence.substr(this.i, this.size);
@@ -121,36 +134,33 @@ class PotentialPrimer {
   }
 
   polyNPresent () {
-    var present = checkForPolyN(this.potentialPrimer, {maxPolyN: this.opts.maxPolyN});
+    var present = checkForPolyN(this.potentialPrimer, {maxPolyN: this.maxPolyN});
     return present;
   }
 
   goodGCContent () {
-    var targetGcContentTolerance = this.opts.targetGcContentTolerance;
-    var targetGcContent = this.opts.targetGcContent;
-
     var GC = gcContent(this.potentialPrimer);
-    return ((GC <= (targetGcContent + targetGcContentTolerance)) && (GC >= (targetGcContent - targetGcContentTolerance)));
+    return ((GC <= (this.targetGcContent + this.targetGcContentTolerance)) && (GC >= (this.targetGcContent - this.targetGcContentTolerance)));
   }
 
   growOrShiftPotentialPrimer (incrementSize=1) {
     this.size += incrementSize;
-    if(this.size > this.opts.maxPrimerLength) {
+    if(this.size > this.maxPrimerLength) {
       this.notifyProgress();
       this.incrementProgressTotal(this.progress.initialTotal);
-      this.size = this.opts.minPrimerLength;
+      this.size = this.minPrimerLength;
       this.i += 1;
     }
   }
 
   shiftPotentialPrimer () {
-    this.size = this.opts.minPrimerLength;
+    this.size = this.minPrimerLength;
     this.i += 1;
   }
 
   checkWithIDT (logOurTm=undefined, logPreviousTmFromIDT=undefined) {
-    var targetMeltingTemperature = this.opts.targetMeltingTemperature;
-    var meltingTemperatureTolerance = this.opts.meltingTemperatureTolerance;
+    var targetMeltingTemperature = this.targetMeltingTemperature;
+    var meltingTemperatureTolerance = this.meltingTemperatureTolerance;
     var potentialPrimer = this.potentialPrimer;
 
     // debug logging
@@ -175,7 +185,7 @@ class PotentialPrimer {
         this.findPrimer();
       } else if(TmFromIDT > (targetMeltingTemperature + meltingTemperatureTolerance)) {
         this.size -= 1;
-        if(this.size < this.opts.minPrimerLength) {
+        if(this.size < this.minPrimerLength) {
           // don't grow again, just shift by 1.
           this.shiftPotentialPrimer();
           this.findPrimer();
@@ -258,12 +268,12 @@ class PotentialPrimer {
   }
 
   scoreTm (Tm) {
-    return -Math.abs(this.opts.targetMeltingTemperature - Tm);
+    return -Math.abs(this.targetMeltingTemperature - Tm);
   }
 
   toPrimer (primerSequence, TmFromIDT, ourTm) {
     var to, frm;
-    if(this.opts.findFrom3PrimeEnd) {
+    if(this.findFrom3PrimeEnd) {
       frm = this.sequence.length - this.i - primerSequence.length;
       to = this.sequence.length - this.i - 1;
     } else {
@@ -302,15 +312,92 @@ class PotentialPrimer {
 }
 
 
-var optimalPrimer4 = function(sequence, opts={}) {
-  opts = filterPrimerOptions(opts);
-  opts = defaultPCRPrimerOptions(opts);
-
-  var deferredPrimer = Q.defer();
-
-  var potentialPrimer = new PotentialPrimer(sequence, opts, deferredPrimer);
+/**
+ * @function optimalPrimer4
+ * Has defaults for PCR primers but can be used for finding any primer.
+ * @param  {String} sequenceBases
+ * @param  {Object} opts
+ * @return {Promise}
+ */
+var optimalPrimer4 = function(sequenceBases, opts) {
+  var potentialPrimer = new PotentialPrimer(sequenceBases, opts);
   potentialPrimer.findPrimer();
-  return deferredPrimer.promise;
+  return potentialPrimer.deferred.promise;
+};
+
+
+/**
+ * @function getSequenceBaseNumberAndLength
+ * @param  {String} sequenceBases
+ * @param  {Integer} maxSearchSpace
+ * @param  {Boolean} reverseStrand=false  Take subsequence from reverseStrand.
+ * @param  {Integer} frm  The base from which the subsequence starts (or if on
+ *                        the reverseStrand, the base at which the subsequence
+ *                        ends).
+ * @return {Object} Contains calculated `frm` and `lengthToTake` values.
+ */
+var getSequenceBaseNumberAndLength = function(sequenceBases, maxSearchSpace, reverseStrand=false, frm=undefined) {
+  var lengthToTake;
+  if(reverseStrand) {
+    if(_.isUndefined(frm)) frm = sequenceBases.length - 1;
+    lengthToTake = Math.min(frm + 1, maxSearchSpace);
+    frm = Math.max(0, frm - maxSearchSpace + 1);
+  } else {
+    if(_.isUndefined(frm)) frm = 0;
+    lengthToTake = maxSearchSpace;
+  }
+  return {frm, lengthToTake};
+};
+
+
+/**
+ * @function getSequenceToSearch
+ * @param  {String} sequenceBases
+ * @param  {Integer} minPrimerLength
+ * @param  {Integer} maxSearchSpace
+ * @param  {Boolean} reverseStrand=false  Take subsequence from reverseStrand.
+ * @param  {Integer} frm  The base from which the subsequence starts (or if on
+ *                        the reverseStrand, the base at which the subsequence
+ *                        ends).
+ * @return {Object}  `sequenceToSearch` and `frm` used.
+ */
+var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpace, reverseStrand=false, frmBase=undefined) {
+  var {frm, lengthToTake} = getSequenceBaseNumberAndLength(sequenceBases, maxSearchSpace, reverseStrand, frmBase);
+
+  var sequenceToSearch;
+  sequenceToSearch = sequenceBases.substr(frm, lengthToTake);
+  if(reverseStrand) {
+    sequenceToSearch = SequenceTransforms.toReverseComplements(sequenceToSearch);
+  }
+
+  if(sequenceToSearch.length < minPrimerLength) {
+    if(reverseStrand) {
+      throw "getSequenceToSearch `frm` is too small or sequence is too short to leave enough sequence length to find the primer";
+    } else {
+      throw "getSequenceToSearch `frm` is too large or sequence is too short to leave enough sequence length to find the primer";
+    }
+  }
+
+  return {sequenceToSearch, frm};
+};
+
+
+/**
+ * @function getSequenceToSearchUsingPrimer
+ * This function is used for obtaining the next sequence to
+ * search for a primer in when you have a previous primer 5' to this sequence
+ * of interest when the next primer should be located.
+ *
+ * @param  {String} sequenceBases
+ * @param  {Integer} minPrimerLength
+ * @param  {Integer} maxSearchSpace
+ * @param  {Boolean} reverseStrand  Take subsequence from reverseStrand.
+ * @param  {Primer} primer
+ * @return {Object}  `sequenceToSearch` and `frm` used.
+ */
+var getSequenceToSearchUsingPrimer = function(sequenceBases, minPrimerLength, maxSearchSpace, primer) {
+  var correctedFrom = primer.antisense ? primer.to : (primer.to + 1);
+  return getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, primer.antisense, correctedFrom);
 };
 
 
@@ -325,4 +412,11 @@ var restoreIDTMeltingTemperature = function() {
 };
 
 
-export default {optimalPrimer4, stubOutIDTMeltingTemperature, _IDTMeltingTemperature, restoreIDTMeltingTemperature};
+export default {
+  optimalPrimer4,
+  getSequenceToSearch,
+  getSequenceToSearchUsingPrimer,
+  stubOutIDTMeltingTemperature,
+  _IDTMeltingTemperature,
+  restoreIDTMeltingTemperature,
+};

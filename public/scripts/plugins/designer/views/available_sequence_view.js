@@ -77,7 +77,7 @@ AvailableSequenceView = Backbone.View.extend({
         frm = feature.to;
       }
       featureWidth = Math.max(
-        Math.floor((to - frm + 1) / maxBase * viewWidth), 
+        Math.floor((to - frm + 1) / maxBase * viewWidth),
         this.minFeatureWidth
       );
       $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
@@ -154,7 +154,7 @@ AvailableSequenceView = Backbone.View.extend({
 
   cleanUpDraggable: function() {
     draggableCleanup(
-      this, 
+      this,
       '.designer-available-sequence-entireseq'
     );
   },
