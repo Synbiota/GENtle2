@@ -376,9 +376,9 @@ Includes Shape system for handling mouse events.
     // should be this implementation.
     // positive x is scroll right (so move image left)
     // position y is scroll down (move image up)
-    // this.clear( x >= 0 ? 0 : canvas.width  + x,
-    //             y >= 0 ? 0 : canvas.height + y,
-    //             Math.abs(x), Math.abs(y));
+    this.clear( x >= 0 ? 0 : canvas.width  + x,
+                y >= 0 ? 0 : canvas.height + y,
+                Math.abs(x), Math.abs(y));
 
     context.putImageData(imageData,  x * pixelRatio, y * pixelRatio);
 
