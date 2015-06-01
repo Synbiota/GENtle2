@@ -4,12 +4,12 @@ Handles displaying a sequence in a canvas.
 Is instantiated inside a parent Backbone.View, and is automatically
 rendered.
 
-@class SequenceCanvas
+@class SequenceChromatographCanvas
 @constructor
-@uses SequenceCanvasContextMenu
-@uses SequenceCanvasHandlers
-@uses SequenceCanvasUtilities
-@module SequenceCanvas
+@uses SequenceChromatographCanvasContextMenu
+@uses SequenceChromatographCanvasHandlers
+@uses SequenceChromatographCanvasUtilities
+@module SequenceChromatographCanvas
 **/
 // define(function(require) {
   'use strict';
@@ -25,12 +25,12 @@ rendered.
     Styles = require('../../styles.json'),
     Q = require('q'),
     {namedHandleError} = require('../../common/lib/handle_error'),
-    LineStyles, SequenceCanvas;
+    LineStyles, SequenceChromatographCanvas;
 
   LineStyles = Styles.sequences.lines;
 
 
-  SequenceCanvas = function(options) {
+  SequenceChromatographCanvas = function(options) {
     var _this = this;
     options = options || {};
     this.visible = true;
@@ -292,17 +292,17 @@ rendered.
 //    console.log('test')
   };
 
-  _.extend(SequenceCanvas.prototype, Backbone.Events);
-  _.extend(SequenceCanvas.prototype, _Handlers.prototype);
-  _.extend(SequenceCanvas.prototype, _Utilities.prototype);
-  _.extend(SequenceCanvas.prototype, _ContextMenu.prototype);
+  _.extend(SequenceChromatographCanvas.prototype, Backbone.Events);
+  _.extend(SequenceChromatographCanvas.prototype, _Handlers.prototype);
+  _.extend(SequenceChromatographCanvas.prototype, _Utilities.prototype);
+  _.extend(SequenceChromatographCanvas.prototype, _ContextMenu.prototype);
 
   /**
       Updates Canvas Dimemnsions based on viewport.
       @method updateCanvasDims
       @returns {Promise} a Promise finished when this and `this.calculateLayoutSettings` are finished
   **/
-  SequenceCanvas.prototype.updateCanvasDims = function() {
+  SequenceChromatographCanvas.prototype.updateCanvasDims = function() {
     var _this = this;
 
     return Q.promise(function(resolve, reject) {
@@ -327,7 +327,7 @@ rendered.
       @method calculateLayoutSettings
       @returns {Promise} a Promise fulfilled when finished
   **/
-  SequenceCanvas.prototype.calculateLayoutSettings = function() {
+  SequenceChromatographCanvas.prototype.calculateLayoutSettings = function() {
     //line offsets
     var line_offset = _.values(this.layoutSettings.lines)[0].height,
       i,
@@ -428,7 +428,7 @@ rendered.
       If `this.visible`, displays the sequence in the initiated canvas.
       @method display
   **/
-  SequenceCanvas.prototype.display = function() {
+  SequenceChromatographCanvas.prototype.display = function() {
     if (this.visible) {
       var artist = this.artist,
         ls = this.layoutSettings,
@@ -474,7 +474,7 @@ rendered.
     }
   };
 
-  SequenceCanvas.prototype.drawHighlight = function(posY, baseRange) {
+  SequenceChromatographCanvas.prototype.drawHighlight = function(posY, baseRange) {
     var layoutHelpers = this.layoutHelpers;
     var startX = this.getXPosFromBase(baseRange[0]);
     var endX = this.getXPosFromBase(baseRange[1]);
@@ -489,7 +489,7 @@ rendered.
   @method drawRow
   @param {integer} posY
   **/
-  SequenceCanvas.prototype.drawCol = function(posX, width) {
+  SequenceChromatographCanvas.prototype.drawCol = function(posX, width) {
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
       layoutHelpers = this.layoutHelpers,
@@ -630,7 +630,7 @@ rendered.
   @method drawRow
   @param {integer} posY
   **/
-  SequenceCanvas.prototype.drawRow = function(posY) {
+  SequenceChromatographCanvas.prototype.drawRow = function(posY) {
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
       layoutHelpers = this.layoutHelpers,
@@ -670,7 +670,7 @@ rendered.
   @method resizeScrollHelpers
   @return {Promise}
   **/
-  SequenceCanvas.prototype.resizeScrollHelpers = function() {
+  SequenceChromatographCanvas.prototype.resizeScrollHelpers = function() {
     var _this = this,
       layoutSettings = _this.layoutSettings,
       layoutHelpers = _this.layoutHelpers;
@@ -693,7 +693,7 @@ rendered.
   Updates layout settings and redraws canvas
   @method refresh
   **/
-  SequenceCanvas.prototype.refresh = function() {
+  SequenceChromatographCanvas.prototype.refresh = function() {
     if (this.caretPosition !== undefined) {
       this.hideCaret();
       this.caretPosition = undefined;
@@ -709,7 +709,7 @@ rendered.
   Keeps the first base the same
   @method refreshFromResize
   **/
-  SequenceCanvas.prototype.refreshFromResize = function() {
+  SequenceChromatographCanvas.prototype.refreshFromResize = function() {
     var layoutHelpers = this.layoutHelpers;
 
     layoutHelpers.firstBase = this.getBaseRangeFromYPos(
@@ -723,11 +723,11 @@ rendered.
   Redraws canvas on the next animation frame
   @method redraw
   **/
-  SequenceCanvas.prototype.redraw = function() {
+  SequenceChromatographCanvas.prototype.redraw = function() {
     return requestAnimationFrame(this.display);
   };
 
-  SequenceCanvas.prototype.scrollTo = function(yOffset, triggerEvent) {
+  SequenceChromatographCanvas.prototype.scrollTo = function(yOffset, triggerEvent) {
     var deferred = Q.defer(),
       layoutHelpers = this.layoutHelpers;
 
@@ -764,7 +764,7 @@ rendered.
   will just scroll down one row)
   @method scrollBaseToVisibility
   **/
-  SequenceCanvas.prototype.scrollBaseToVisibility = function(base) {
+  SequenceChromatographCanvas.prototype.scrollBaseToVisibility = function(base) {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
 
     if (distanceToVisibleCanvas !== 0) {
@@ -774,7 +774,7 @@ rendered.
     }
   };
 
-  SequenceCanvas.prototype.scrollToBase = function(base) {
+  SequenceChromatographCanvas.prototype.scrollToBase = function(base) {
     if (!this.isBaseVisible(base)) {
       var yPos = this.getYPosFromBase(base),
         maxY = this.$scrollingChild.height() - this.$scrollingParent.height();
@@ -784,12 +784,12 @@ rendered.
     }
   };
 
-  SequenceCanvas.prototype.clearCache = function() {
+  SequenceChromatographCanvas.prototype.clearCache = function() {
     this.getXPosFromBase.cache = {};
     // this.getYPosFromBase.cache = {};
   };
 
-  SequenceCanvas.prototype.afterNextRedraw = function() {
+  SequenceChromatographCanvas.prototype.afterNextRedraw = function() {
     var _this = this,
       args = _.toArray(arguments),
       func = args.shift();
@@ -799,7 +799,7 @@ rendered.
     });
   };
 
-  SequenceCanvas.prototype.highlightBaseRange = function(fromBase, toBase) {
+  SequenceChromatographCanvas.prototype.highlightBaseRange = function(fromBase, toBase) {
     if(fromBase === undefined) {
       this.highlight = undefined;
     } else {
@@ -814,7 +814,7 @@ rendered.
   @method displayCaret
   @param base [base]
   **/
-  SequenceCanvas.prototype.displayCaret = function(base) {
+  SequenceChromatographCanvas.prototype.displayCaret = function(base) {
 
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
@@ -860,7 +860,7 @@ rendered.
 
   };
 
-  SequenceCanvas.prototype.moveCaret = function(newPosition) {
+  SequenceChromatographCanvas.prototype.moveCaret = function(newPosition) {
     if (this.selection) {
       this.selection = undefined;
       this.redraw();
@@ -868,14 +868,14 @@ rendered.
     this.displayCaret(newPosition);
   };
 
-  SequenceCanvas.prototype.hideCaret = function(hideContextMenu) {
+  SequenceChromatographCanvas.prototype.hideCaret = function(hideContextMenu) {
     this.caret.remove();
     if (hideContextMenu === true) {
       this.hideContextMenuButton();
     }
   };
 
-  SequenceCanvas.prototype.redrawSelection = function(selection) {
+  SequenceChromatographCanvas.prototype.redrawSelection = function(selection) {
     var
       lines = this.layoutSettings.lines,
       yOffset = this.layoutHelpers.yOffset,
@@ -923,7 +923,7 @@ rendered.
   Only redraws the current row
   @method partialRedraw
   **/
-  SequenceCanvas.prototype.partialRedraw = function(posY) {
+  SequenceChromatographCanvas.prototype.partialRedraw = function(posY) {
     var _this = this;
     requestAnimationFrame(function() {
       _this.drawRow(posY);
@@ -933,7 +933,7 @@ rendered.
   /**
   @method select
   **/
-  SequenceCanvas.prototype.select = function(start, end) {
+  SequenceChromatographCanvas.prototype.select = function(start, end) {
     var positionCheck;
     this.hideCaret();
     if (start !== undefined) {
@@ -963,7 +963,7 @@ rendered.
     this.redraw();
   };
 
-  SequenceCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
+  SequenceChromatographCanvas.prototype.expandSelectionToNewCaret = function(newCaret) {
     var selection = this.selection,
       previousCaret = this.caretPosition;
     this.layoutHelpers.caretPositionBefore = previousCaret;
@@ -991,16 +991,16 @@ rendered.
     this.displayCaret(newCaret);
   };
 
-  SequenceCanvas.prototype.cleanPastedText = function(text) {
+  SequenceChromatographCanvas.prototype.cleanPastedText = function(text) {
     var regexp = new RegExp('[^' + this.allowedInputChars.join('') + ']', 'g')
     return text.toUpperCase().replace(regexp, '');
   };
 
-  SequenceCanvas.prototype.focus = function() {
+  SequenceChromatographCanvas.prototype.focus = function() {
     this.$scrollingParent.focus();
   };
 
-  SequenceCanvas.prototype.determineCaretInfo = function() {
+  SequenceChromatographCanvas.prototype.determineCaretInfo = function() {
     var info = "";
     var toString = (num) => _.formatThousands(num).toString();
 
@@ -1024,6 +1024,6 @@ rendered.
   };
 
 
-export default SequenceCanvas;
-  // return SequenceCanvas;
+export default SequenceChromatographCanvas;
+  // return SequenceChromatographCanvas;
 // });

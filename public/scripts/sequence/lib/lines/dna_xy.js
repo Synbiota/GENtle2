@@ -8,24 +8,24 @@ Options are:
 - `this.textFont`: font style of the text.
 - `this.transformUnit` _(optional, default: `base`)_: argument passed to the `transform` function. Either `base` or `codon`.
 - `this.transform` _(optional)_: function transforming a `transformUnit` into another (e.g. complement..)
-@class Lines.DNA
+@class Lines.DNA_XY
 @module Sequence
 @submodule SequenceCanvas
 @extends Lines.Line
 **/
 // define(function(require) {
   var Line = require('./line'),
-      DNA;
+      DNA_XY;
 
-  DNA = function(sequenceCanvas, options) {
+  DNA_XY = function(sequenceCanvas, options) {
     this.type = 'dna';
     this.sequenceCanvas = sequenceCanvas;
     this.cachedProperties = ['visible'];
     _.extend(this, options);
   };
-  _.extend(DNA.prototype, Line.prototype);
+  _.extend(DNA_XY.prototype, Line.prototype);
 
-  DNA.prototype.setTextColour = function(base, pos) {
+  DNA_XY.prototype.setTextColour = function(base, pos) {
     var artist = this.sequenceCanvas.artist;
     if(_.isFunction(this.textColour)) {
       artist.updateStyle({fillStyle: this.textColour(base, pos)});
@@ -34,11 +34,11 @@ Options are:
     }
   };
 
-  DNA.prototype.getHighlightColour = function(base, pos) {
+  DNA_XY.prototype.getHighlightColour = function(base, pos) {
     return this.highlightColour && this.highlightColour(base, pos);
   };
 
-  DNA.prototype.draw = function(x, y, baseRange) {
+  DNA_XY.prototype.draw = function(x, y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
@@ -112,6 +112,7 @@ Options are:
     }
 
   };
-export default DNA;
-  // return DNA;
+
+  export default DNA_XY;
+  // return DNA_XY;
 // });

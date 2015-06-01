@@ -166,11 +166,6 @@ rendered.
         })
       }),
 
-      chromatogram: new Lines.Chromatogram(this, {
-        height: 100,
-        visible: () => true
-      }),
-
       // Aminoacids
       aa: new Lines.DNA(this, {
         height: 15,
@@ -282,11 +277,6 @@ rendered.
     this.$scrollingParent.on('keydown', this.handleKeydown);
     this.$scrollingParent.on('blur', this.handleBlur);
 
-    // Debounced form of redraw function so we can call it from anywhere without worrying about resource hogging.
-    this.safeRedraw = _.afterLastCall(function(){
-      _this.redraw();
-    }, 10);
-
     // Kickstart rendering
     this.refresh();
 //    console.log('test')
@@ -380,14 +370,7 @@ rendered.
       //page dims
       lh.pageDims = {
         width: ls.canvasDims.width,
-        // Original
-        // height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
-        //
-        // Modified with margins
-        // Need to switch from height to width for syntactical accuracy.
-        // Impacts the minimap so change both at same time.
-        height: ls.pageMargins.top + ls.pageMargins.bottom + _this.sequence.get('chromatogramData')[0].length
-        // height: _this.sequence.get('chromatogramData')[0].length
+        height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
       };
 
       // canvas y scrolling offset
@@ -436,7 +419,6 @@ rendered.
         yOffset = lh.yOffset,
         _this = this,
         canvasHeight = ls.canvasDims.height,
-        canvasWidth = ls.canvasDims.width,
         drawStart, drawEnd, moveOffset;
 
       return Q.promise(function(resolve, reject) {
@@ -448,21 +430,22 @@ rendered.
           0;
 
         if (moveOffset !== 0) {
-          artist.scroll(-moveOffset, 0);
+          artist.scroll(0, -moveOffset);
 
-          drawStart = moveOffset > 0 ? canvasWidth - moveOffset : 0;
-          drawEnd = moveOffset > 0 ? canvasWidth : -moveOffset;
+          drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
+          drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
+
           lh.previousYOffset = undefined;
 
         } else {
 
           artist.clear();
           drawStart = 0;
-          drawEnd = canvasWidth;
+          drawEnd = canvasHeight;
 
         }
 
-        _this.drawCol(drawStart, drawEnd - drawStart);
+        _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
 
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
@@ -489,147 +472,6 @@ rendered.
   @method drawRow
   @param {integer} posY
   **/
-  SequenceCanvas.prototype.drawCol = function(posX, width) {
-    var layoutSettings = this.layoutSettings,
-      lines = layoutSettings.lines,
-      layoutHelpers = this.layoutHelpers,
-      // rowsHeight = layoutHelpers.rows.height,
-      xOffset = layoutHelpers.yOffset,
-      canvasHeight = layoutSettings.canvasDims.height,
-      canvasWidth = layoutSettings.canvasDims.width,
-      // bottomMargin = layoutSettings.pageMargins.bottom,
-      // baseRange = this.getBaseRangeFromYPos(posY + yOffset),
-      highlight = this.highlight;
-      // initPosY = posY;
-
-    // var xOffset = layoutHelpers.xOffset,
-    var initPosY = 0, // this location should be matched so that it evenly spaces with the comparison view.
-        posY = initPosY;
-
-
-    var sequence = this.sequence;
-
-    var getChromaBaseRange = function(posX, width){
-      // find peak val where firstPeak >= posx
-      // running through loop first, use a binary search for efficiency (since already sorted) later.
-
-      var peaks = sequence.get('chromatogramPeaks');
-
-      var getIdx = function(posX){
-
-        var predicate = function(index){
-          // return value just before or at position
-          return ((peaks[index] <= posX) && ((posX < peaks[index+1]) || (index == peaks.length-1)));
-        };
-
-        // REPLACE THIS WITH A BINARY SEARCH LATER
-        for (var i = 0; i < peaks.length; i++){
-          if (predicate(i)) {
-            return i;
-          }
-        }
-        return -1;
-      };
-
-      var firstBase = Math.max(getIdx(posX), 0),
-          lastBase = Math.max(getIdx(posX + width), firstBase+1);
-
-          lastBase = Math.min(peaks.length-1, lastBase);
-      return [firstBase, lastBase];
-    };
-
-    /**
-     * All line clears and rewrites are calculated where the section starts right
-     * after the letter of baserange[0]-1 and right before the letter of baserange[1]+1
-     *
-     * Corner cases are in place for the first and last bases (aka baserange[0] == 0 and
-     * baserange[1] == peaks.length-1)
-     */
-
-    // Adjust offset to factor for page margins.
-    xOffset -= layoutSettings.pageMargins.top;
-
-    // determine the subsequence that we will be rendering.
-    var baseRange = getChromaBaseRange(posX + xOffset, width);
-    var peaks = sequence.get('chromatogramPeaks');
-
-    // Update posX and width to reflect alignment with previous base (overlap)
-    // New posx is the position of the previous peak.
-    var oldPosX = posX;
-    var fromPeak = Math.max(baseRange[0]-1, 0),
-        toPeak = Math.min(baseRange[1]+1, peaks.length-1);
-
-    posX = (baseRange[0] === 0 ? 0 : peaks[fromPeak]) - xOffset;
-    width += (oldPosX - posX);
-
-
-    // One single clear is called for the entire line.
-    var clearStart = baseRange[0] === 0 ? 0 : posX + layoutSettings.basePairDims.width/2,
-        clearWidth = (peaks[toPeak] - peaks[fromPeak]) - layoutSettings.basePairDims.width;
-
-        if (baseRange[0] === 0){
-          clearWidth = peaks[toPeak] - layoutSettings.basePairDims.width/2 + posX;
-        } else if (baseRange[1] >= peaks.length-1) {
-          clearWidth = (peaks[peaks.length-1] - xOffset);
-        }
-
-    // console.log(posX, width, xOffset, "clearing", clearStart, clearWidth);
-
-    this.artist.clear(clearStart, 0, clearWidth, 0);
-
-
-    // if (xOffset <= layoutSettings.pageMargins.top){
-
-    //   // return;
-    //   var difference = layoutSettings.pageMargins.top - xOffset;
-    //   posX += difference;
-    //   width -= difference;
-    // }
-
-
-    // if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
-    //   this.drawHighlight(posY, [
-    //     Math.max(baseRange[0], highlight[0]),
-    //     Math.min(baseRange[1], highlight[1])
-    //   ]);
-    // }
-
-
-    // if (baseRange[0] < this.sequence.length()) {
-    //   _.each(lines, function(line, key) {
-    //     if (line.visible === undefined || line.visible()) {
-    //       if(line.floating) {
-    //         line.draw(initPosY, baseRange);
-    //       } else {
-    //         line.draw(posY, baseRange);
-    //         posY += line.height;
-    //       }
-    //     }
-    //   });
-    // }
-
-    // console.log("drawing", posX, baseRange)
-
-    if (baseRange[0] < this.sequence.length()) {
-      _.each(lines, function(line, key) {
-        if (line.visible === undefined || line.visible()) {
-          if(line.floating) {
-            line.draw(posX, initPosY, baseRange);
-          } else {
-            line.draw(posX, posY, baseRange);
-            posY += line.height;
-          }
-        }
-      });
-    }
-  };
-
-
-  /**
-  Draw row at position posY in the canvas
-  @method drawRow
-  @param {integer} posY
-  **/
   SequenceCanvas.prototype.drawRow = function(posY) {
     var layoutSettings = this.layoutSettings,
       lines = layoutSettings.lines,
@@ -642,7 +484,7 @@ rendered.
       highlight = this.highlight,
       initPosY = posY;
 
-      this.artist.clear(0, posY, 0, rowsHeight);
+    this.artist.clear(0, posY, 0, rowsHeight);
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
       this.drawHighlight(posY, [
@@ -672,18 +514,9 @@ rendered.
   **/
   SequenceCanvas.prototype.resizeScrollHelpers = function() {
     var _this = this,
-      layoutSettings = _this.layoutSettings,
       layoutHelpers = _this.layoutHelpers;
     return Q.promise(function(resolve, reject) {
-      // Original
-      // _this.$scrollingChild.height(layoutHelpers.pageDims.height);
-
-      // Height setting for horizontal scrolling
-      // _this.$scrollingChild.width(layoutHelpers.pageDims.width);
-
-      // Height setting for vertical scrolling for horizontal feeds.
-      // This calculation is necessary to factor for difference between width and height.
-      _this.$scrollingChild.height(layoutHelpers.pageDims.height-(layoutSettings.canvasDims.width - layoutSettings.canvasDims.height));
+      _this.$scrollingChild.height(layoutHelpers.pageDims.height);
       _this.scrollTo();
       resolve();
     });
@@ -754,8 +587,6 @@ rendered.
       this.trigger('scroll');
     }
 
-    deferred.promise.then(this.safeRedraw);
-
     return deferred.promise;
   };
 
@@ -822,8 +653,6 @@ rendered.
       selection = this.selection,
       posX, posY;
 
-    var peaks = this.sequence.get('chromatogramPeaks');
-
     if (base === undefined && this.caretPosition !== undefined) {
       base = this.caretPosition;
     }
@@ -840,10 +669,6 @@ rendered.
       } else {
         posX = this.getXPosFromBase(base);
         posY = this.getYPosFromBase(base) + lineOffsets.dna;
-      }
-
-      if (peaks){
-        posX = this.layoutSettings.pageMargins.left + peaks[base] - this.layoutSettings.basePairDims.width/2;
       }
 
       this.caret.move(posX, posY, base);
@@ -1024,6 +849,6 @@ rendered.
   };
 
 
-export default SequenceCanvas;
+  export default SequenceCanvas;
   // return SequenceCanvas;
 // });
