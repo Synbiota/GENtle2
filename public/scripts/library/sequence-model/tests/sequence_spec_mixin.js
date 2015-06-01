@@ -613,7 +613,7 @@ export default function testAllSequenceModels(Sequence) {
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.getSequence()).toEqual('AGAAAAGATCGATCGATCGATCGGAGA');
+          expect(stickyEndedSequence.getSequence(stickyEndedSequence.STICKY_END_FULL)).toEqual('CCTGCAGTCAGTGGTCTCTAGA' + 'AAA' + 'GATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
@@ -626,8 +626,72 @@ export default function testAllSequenceModels(Sequence) {
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.getSequence()).toEqual('ATCAAAGATCGATCGATCG');
+          expect(stickyEndedSequence.getSequence(stickyEndedSequence.STICKY_END_FULL)).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATC' + 'AAA' + 'GATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
+
+  describe('when changing bases into a sequence', function() {
+    describe('without sticky ends', function() {
+      beforeEach(function() {
+        sequence.changeBases(3, 'AAA');
+      });
+
+      it('should update the sequence', function() {
+        expect(sequence.getSequence()).toEqual('ATCAAACGATCGATCG');
+        expect(sequence.getSubSeq(3, 5)).toEqual('AAA');
+        expect(sequence.throttledSave).toHaveBeenCalled();
+      });
+
+      it('should not move the features', function() {
+        var featureRange = sequence.get('features.0.ranges.0');
+        expect(featureRange.from).toEqual(3);
+        expect(featureRange.to).toEqual(7);
+      });
+    });
+
+    describe('with sticky ends', function() {
+      describe('with full sticky end formatting', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('full');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSequence()).toEqual('CCT' + 'AAA' + 'GTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+
+      describe('with overhang sticky end formatting', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('overhang');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          stickyEndedSequence.setStickyEndFormat('full');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGA' + 'AAA' + 'CGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+
+      describe('with sticky ends removed', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('none');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          stickyEndedSequence.setStickyEndFormat('full');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATC' + 'AAA' + 'CGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
       });

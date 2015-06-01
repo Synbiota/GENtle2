@@ -202,10 +202,17 @@ export default function sequenceModelFactory(BackboneModel) {
       return sequence;
     }
 
-    getOffset() {
+    /**
+     * @method  getOffset
+     * The number of bases the start stickyEnd accounts for before the start of
+     * the main sequence.
+     * @param  {String} stickyEndFormat=undefined
+     * @return {Integer}
+     */
+    getOffset(stickyEndFormat=undefined) {
       var stickyEnds = this.getStickyEnds();
-      var stickyEndFormat = this.getStickyEndFormat();
-      var length = this.getLength();
+      var stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+      var length = this.getLength(stickyEndFormat);
       var startStickyEnd;
       var offset = 0;
 
@@ -250,18 +257,20 @@ export default function sequenceModelFactory(BackboneModel) {
     Returns the subsequence between the bases startBase and end Base
     @method getSubSeq
     @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0)
+    @param {Integer} endBase end of the subsequence (indexed from 0), inclusive.
+    @param {String} stickyEndFormat=undefined
     **/
-    getSubSeq(startBase, endBase) {
+    getSubSeq(startBase, endBase, stickyEndFormat=undefined) {
+      var len = this.getLength(stickyEndFormat);
       if(endBase === undefined) {
         endBase = startBase;
       } else {
-        if (endBase >= this.getLength() && startBase >= this.getLength()) return '';
-        endBase = Math.min(this.getLength() - 1, endBase);
+        if (endBase >= len && startBase >= len) return '';
+        endBase = Math.min(len - 1, endBase);
       }
-      startBase = Math.min(Math.max(0, startBase), this.getLength() - 1);
+      startBase = Math.min(Math.max(0, startBase), len - 1);
 
-      return this.getSequence().substr(startBase, endBase - startBase + 1);
+      return this.getSequence(stickyEndFormat).substr(startBase, endBase - startBase + 1);
 
       // endBase = (endBase === undefined) ? startBase + 1 : endBase;
       // return this.get('sequence', options).substring(startBase, endBase);
@@ -675,24 +684,14 @@ export default function sequenceModelFactory(BackboneModel) {
     insertBases(bases, beforeBase, options = {}){
       var seq = super.get('sequence'),
           stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          offset = 0,
+          stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat(),
           adjustedBeforeBase,
           timestamp;
 
       options = _.defaults(options, {updateHistory: true});
 
       // Adjust offset depending on sticky end format
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
-          case STICKY_END_NONE:
-            offset = stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case STICKY_END_OVERHANG:
-            offset = stickyEnds.start.offset;
-            break;
-        }
-      }
+      var offset = this.getOffset(stickyEndFormat);
 
       adjustedBeforeBase = beforeBase + offset;
 
@@ -762,6 +761,46 @@ export default function sequenceModelFactory(BackboneModel) {
 
     }
 
+    /**
+     * @method  changeBases
+     *
+     * @param  {Integer} firstBase
+     * @param  {String} newBases
+     * @param  {Object} options, `stickyEndFormat`, `updateHistory`
+     * @return {TimeStamp}
+     */
+    changeBases(firstBase, newBases, options = {}) {
+      var history = this.getHistory();
+      var timestamp;
+      var stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat();
+      var seq = this.getSequence(STICKY_END_FULL);
+
+      options = _.defaults(options, {updateHistory: true});
+
+      var adjustedFirstBase = firstBase + this.getOffset(stickyEndFormat);
+      var baseTo = adjustedFirstBase + newBases.length;
+      var sequenceReplaced = this.getSubSeq(adjustedFirstBase, baseTo - 1, stickyEndFormat);
+
+      this.set('sequence',
+        seq.substr(0, adjustedFirstBase) +
+        newBases +
+        seq.substr(baseTo, seq.length - baseTo)
+      );
+
+      if (options.updateHistory) {
+        timestamp = this.getHistory().add({
+          type: 'change',
+          position: adjustedFirstBase,
+          value: newBases,
+          operation: '@' + adjustedFirstBase + '+' + newBases
+        }).get('timestamp');
+      }
+
+      this.throttledSave();
+
+      return timestamp;
+    }
+
     insertBasesAndCreateFeatures(beforeBase, bases, features, options) {
       var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
           _this = this;
@@ -809,7 +848,7 @@ export default function sequenceModelFactory(BackboneModel) {
      * @param  {Integer} firstBase
      * @param  {Integer} length
      * @param  {Object} options
-     * @return {type}
+     * @return {TimeStamp}
      */
     deleteBases(firstBase, length, options = {}) {
       var seq = super.get('sequence'),

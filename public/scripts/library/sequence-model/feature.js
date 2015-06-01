@@ -9,7 +9,7 @@ class SequenceFeature {
   _id: Integer;  // May be undefined
   // note, gene, protein, product, bound_moiety, may also be present.
 
-  constructor(name, desc, ranges, _type, _id, other={}) {
+  constructor({name, desc, ranges, _type, _id, other={}}) {
     this.name = name || '';
     this.desc = desc || '';
     this.ranges = ranges || [];
@@ -43,7 +43,14 @@ SequenceFeature.newFromOld = function(oldFeature) {
     return accum;
   }, {});
 
-  return new SequenceFeature(oldFeature.name, oldFeature.desc, ranges, oldFeature._type, oldFeature._id, other);
+  return new SequenceFeature({
+    name: oldFeature.name,
+    desc: oldFeature.desc,
+    ranges: ranges,
+    _type: oldFeature._type,
+    _id: oldFeature._id,
+    other: other
+  });
 };
 
 
