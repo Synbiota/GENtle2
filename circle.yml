@@ -11,3 +11,7 @@ deployment:
     branch: develop
     commands:
       - "aws --region='us-east-1' opsworks create-deployment --stack-id $AWS_NIGHTLY_STACK_ID --app-id $AWS_NIGHTLY_APP_ID --command '{\"Name\": \"deploy\", \"Args\": {\"migrate\": [\"false\"]}}'"
+  beta:
+    branch: master
+    commands:
+      - "aws --region='us-east-1' opsworks create-deployment --stack-id $AWS_BETA_STACK_ID --app-id $AWS_BETA_APP_ID --command '{\"Name\": \"deploy\", \"Args\": {\"migrate\": [\"false\"]}}'"
