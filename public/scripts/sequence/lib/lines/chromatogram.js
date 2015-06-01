@@ -40,15 +40,18 @@ export default class Chromatogram extends Line {
       // return data.slice(dataRelevantOffset + fromBase * dataDensity, dataRelevantOffset + toBase * dataDensity);
       // return data.slice(dataDensity * fromBase, dataDensity * (toBase+1));
 
-      // var start = Math.max(fromBase-1, 0),
-      //     end = Math.min(toBase+1, peaks.length-1);
-      // return data.slice(start, 1 + peaks[end] - layoutSettings.basePairDims.width/2);
-
-      var start = (fromBase === 0 ? 0 : peaks[fromBase - 1]) +
+      var start = (
+                    fromBase === 0 ?
+                      0 :
+                      peaks[fromBase - 1]
+                  ) +
                   layoutSettings.basePairDims.width/2,
-          end = (toBase === peaks.length-1 ? data.length - 1 : peaks[toBase + 1]) -
+          end = (
+                  toBase === peaks.length-1 ?
+                    data.length - 1 :
+                    peaks[toBase + 1]
+                ) -
                 layoutSettings.basePairDims.width/2;
-
 
       return data.slice(start, end+1);
     });

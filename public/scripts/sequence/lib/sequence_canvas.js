@@ -462,8 +462,7 @@ rendered.
 
         }
 
-        // _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
-        _this.drawCol(drawStart, drawEnd - drawStart)
+        _this.drawCol(drawStart, drawEnd - drawStart);
 
         _this.displayDeferred.resolve();
         _this.displayDeferred = Q.defer();
@@ -504,7 +503,6 @@ rendered.
       // initPosY = posY;
 
     // var xOffset = layoutHelpers.xOffset,
-        // canvasWidth = layoutSettings.canvasDims.width,
     var initPosY = 0, // this location should be matched so that it evenly spaces with the comparison view.
         posY = initPosY;
 
@@ -520,12 +518,8 @@ rendered.
       var getIdx = function(posX){
 
         var predicate = function(index){
-
           // return value just before or at position
           return ((peaks[index] <= posX) && ((posX < peaks[index+1]) || (index == peaks.length-1)));
-
-          // return value just after or at position
-          // return ((peaks[index] >= posX) && ( !index || (peaks[index-1] < posX)));
         };
 
         // REPLACE THIS WITH A BINARY SEARCH LATER
@@ -544,52 +538,45 @@ rendered.
       return [firstBase, lastBase];
     };
 
+    /**
+     * All line clears and rewrites are calculated where the section starts right
+     * after the letter of baserange[0]-1 and right before the letter of baserange[1]+1
+     *
+     * Corner cases are in place for the first and last bases (aka baserange[0] == 0 and
+     * baserange[1] == peaks.length-1)
+     */
+
+    // Adjust offset to factor for page margins.
     xOffset -= layoutSettings.pageMargins.top;
 
+    // determine the subsequence that we will be rendering.
     var baseRange = getChromaBaseRange(posX + xOffset, width);
     var peaks = sequence.get('chromatogramPeaks');
 
-    // debug stuff
-    // console.log('drawLine', posX, width, xOffset, baseRange, peaks[baseRange[0]-1] - xOffset);
-
-
-
     // Update posX and width to reflect alignment with previous base (overlap)
     // New posx is the position of the previous peak.
-    var oldPosX = posX
-    var abc = Math.max(baseRange[0]-1, 0);
-    // posX = peaks[abc] - xOffset;
-    posX = (baseRange[0] === 0 ? 0 : peaks[abc]) - xOffset;
+    var oldPosX = posX;
+    var fromPeak = Math.max(baseRange[0]-1, 0),
+        toPeak = Math.min(baseRange[1]+1, peaks.length-1);
 
-
+    posX = (baseRange[0] === 0 ? 0 : peaks[fromPeak]) - xOffset;
     width += (oldPosX - posX);
 
 
-    // debug stuff
-    // console.log([peaks[baseRange[0]]], window.prevX, posX, width, window.prevX - posX)
-    window.prevX = posX;
-
-
-    var clearStart = (baseRange[0] === 0 ? 0 : posX + layoutSettings.basePairDims.width/2),
-
-        clearWidth = (peaks[baseRange[1]+1] - peaks[abc])  - layoutSettings.basePairDims.width;
+    // One single clear is called for the entire line.
+    var clearStart = baseRange[0] === 0 ? 0 : posX + layoutSettings.basePairDims.width/2,
+        clearWidth = (peaks[toPeak] - peaks[fromPeak]) - layoutSettings.basePairDims.width;
 
         if (baseRange[0] === 0){
-          // clearWidth = (peaks[baseRange[1]+1] - layoutSettings.basePairDims.width/2 - xOffset + layoutSettings.pageMargins.top);
-          clearWidth = peaks[baseRange[1]+1] - layoutSettings.basePairDims.width/2 + posX;
+          clearWidth = peaks[toPeak] - layoutSettings.basePairDims.width/2 + posX;
         } else if (baseRange[1] >= peaks.length-1) {
           clearWidth = (peaks[peaks.length-1] - xOffset);
         }
 
-    console.log(posX, width, xOffset, "clearing", clearStart, clearWidth);
+    // console.log(posX, width, xOffset, "clearing", clearStart, clearWidth);
 
     this.artist.clear(clearStart, 0, clearWidth, 0);
 
-    // this.artist.rect(clearStart, 0, clearWidth, 200, {
-    //   fillStyle: "#"+((1<<24)*Math.random()|0).toString(16)
-    // })
-
-    // posX += layoutSettings.pageMargins.left;
 
     // if (xOffset <= layoutSettings.pageMargins.top){
 
@@ -621,8 +608,7 @@ rendered.
     //   });
     // }
 
-    console.log("drawing", posX, baseRange)
-    // if ((posX <= layoutSettings.pageMargins.top) && (baseRange[0]))
+    // console.log("drawing", posX, baseRange)
 
     if (baseRange[0] < this.sequence.length()) {
       _.each(lines, function(line, key) {
