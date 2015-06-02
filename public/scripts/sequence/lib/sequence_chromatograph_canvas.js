@@ -515,26 +515,23 @@ rendered.
 
       var peaks = sequence.get('chromatogramPeaks');
 
+      // return value just before or at position
       var getIdx = function(posX){
-
-        var predicate = function(index){
-          // return value just before or at position
-          return ((peaks[index] <= posX) && ((posX < peaks[index+1]) || (index == peaks.length-1)));
-        };
-
-        // REPLACE THIS WITH A BINARY SEARCH LATER
-        for (var i = 0; i < peaks.length; i++){
-          if (predicate(i)) {
-            return i;
-          }
-        }
-        return -1;
+        // For reference, sortedIndex returns the index at which value (posX) would be
+        // located if inserted into the array (peaks). I want the value just before that
+        // index.
+        var idx = _.sortedIndex(peaks, posX) - 1;
+        idx = Math.max(idx, 0);
+        return idx;
       };
 
-      var firstBase = Math.max(getIdx(posX), 0),
-          lastBase = Math.max(getIdx(posX + width), firstBase+1);
+      var firstBase = getIdx(posX),
+          lastBase  = getIdx(posX + width);
 
-          lastBase = Math.min(peaks.length-1, lastBase);
+      if (firstBase >= lastBase){
+        lastBase = Math.min(peaks.length-1, firstBase+1);
+      }
+
       return [firstBase, lastBase];
     };
 
