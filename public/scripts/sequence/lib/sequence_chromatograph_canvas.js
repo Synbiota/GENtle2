@@ -484,6 +484,22 @@ rendered.
     });
   };
 
+  SequenceChromatographCanvas.prototype.getBaseFromXYPos = function(posX){
+
+    posX -= this.layoutSettings.pageMargins.left;
+
+    var peaks = this.sequence.get('chromatogramPeaks'),
+        max = _.sortedIndex(peaks, posX),
+        min = Math.max(max-1, 0),
+        midpoint;
+
+    if (max == peaks.length) return max - 1;
+
+    midpoint = ((peaks[max] - peaks[min])/2) + peaks[min];
+
+    return (posX < midpoint) ? min : max;
+  };
+
   /**
   Draw row at position posY in the canvas
   @method drawRow
@@ -510,11 +526,10 @@ rendered.
     var sequence = this.sequence;
 
     var getChromaBaseRange = function(posX, width){
-      // find peak val where firstPeak >= posx
-      // running through loop first, use a binary search for efficiency (since already sorted) later.
 
       var peaks = sequence.get('chromatogramPeaks');
 
+      // find peak val where firstPeak >= posx
       // return value just before or at position
       var getIdx = function(posX){
         // For reference, sortedIndex returns the index at which value (posX) would be
@@ -840,8 +855,12 @@ rendered.
       }
 
       if (peaks){
-        posX = this.layoutSettings.pageMargins.left + peaks[base] - this.layoutSettings.basePairDims.width/2;
+        posY = lineOffsets.dna;
+        posX = this.layoutSettings.pageMargins.left +
+               peaks[base] - this.layoutHelpers.yOffset -
+               this.layoutSettings.basePairDims.width/2;
       }
+
 
       this.caret.move(posX, posY, base);
       this.caretPosition = base;

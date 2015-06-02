@@ -307,9 +307,9 @@ Event handlers for SequenceCanvas
           this.afterNextRedraw(function() {
             this.displayCaret(data.position);
           });
-         } 
+         }
       });
-      
+
       this.sequence.undo();
     }
   };
@@ -321,7 +321,7 @@ Event handlers for SequenceCanvas
       mouse = this.normalizeMousePosition(event),
       previousCaret = this.caretPosition;
 
-    _this.hideCaret(); 
+    _this.hideCaret();
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     if(event.shiftKey && previousCaret) {
       let dragStartBase;
@@ -432,11 +432,11 @@ Event handlers for SequenceCanvas
       } else {
         let previousCaret = this.caretPosition;
         if(shiftKey && previousCaret) {
-          this.selection = newCaret >= previousCaret ? 
+          this.selection = newCaret >= previousCaret ?
             [previousCaret, newCaret-1] : [newCaret, previousCaret];
           this.redrawSelection(this.selection);
         }
-        this.displayCaret(newCaret);  
+        this.displayCaret(newCaret);
       }
     }
 
