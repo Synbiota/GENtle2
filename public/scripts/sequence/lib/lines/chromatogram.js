@@ -30,7 +30,7 @@ export default class Chromatogram extends Line {
     const dataRelevantLength = rawData[0].length;
     const dataRelevantOffset = 0 + 0*(rawData[0].length - peaks[peaks.length-1]);
 
-    const dataDensity = Math.floor( dataRelevantLength / sequence.length());
+    const dataDensity = Math.floor( dataRelevantLength / sequence.getLength());
 
     // const xInterval =  effectiveWidth / (toBase - fromBase + 1) / dataDensity;
     const xInterval =  1;

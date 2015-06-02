@@ -12,7 +12,7 @@ export default Backbone.View.extend({
     'click .retry-create-pcr-primer': 'retryCreatingPcrPrimer'
   },
 
-  afterRender: function() {    
+  afterRender: function() {
     this.updateProgressBar(0);
   },
 
@@ -25,15 +25,16 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
-  makePrimer: function(data) {
-    this.pcrPrimerData = data;
+  makePrimer: function(dataAndOptions) {
+    this.pcrPrimerDataAndOptions = dataAndOptions;
     var sequence = this.model;
 
-    getPcrProductAndPrimers(sequence, data).then((pcrProduct) => {
+    getPcrProductAndPrimers(sequence.get('sequence'), dataAndOptions).then((pcrProduct) => {
       var parentView = this.parentView();
       this.updateProgressBar(1);
 
-      sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
+      var options = _.omit(dataAndOptions, 'name', 'from', 'to', 'stickyEnds');
+      sequence.set('meta.pcr.defaults', options);
 
       var products = getPcrProductsFromSequence(sequence);
       products.push(pcrProduct);
@@ -57,7 +58,7 @@ export default Backbone.View.extend({
   },
 
   retryCreatingPcrPrimer: function() {
-    this.parentView().makePrimer(this.pcrPrimerData);
+    this.parentView().makePrimer(this.pcrPrimerDataAndOptions);
   },
 
 });

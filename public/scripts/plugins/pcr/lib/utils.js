@@ -34,7 +34,7 @@ var getPcrProductsFromSequence = function(sequenceModel) {
   attributesOfPcrProducts = _.each(attributesOfPcrProducts, (productAttributes) => {
     //Backwards compatibility.  Some of the pcr products were stored without the sequence attribute calculated.
     if(!productAttributes.sequence) {
-      var sequenceNts = sequenceModel.get('sequence');
+      var sequenceNts = sequenceModel.getSequence();
       var opts = _.pick(productAttributes, ['from', 'to', 'stickyEnds']);
       var {productSequence: productSequenceNts} = TemporarySequence.calculateProduct(sequenceNts, opts);
       productAttributes.sequence = productSequenceNts;

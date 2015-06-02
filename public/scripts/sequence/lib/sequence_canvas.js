@@ -25,6 +25,7 @@ rendered.
     Styles = require('../../styles.json'),
     Q = require('q'),
     {namedHandleError} = require('../../common/lib/handle_error'),
+    tracedLog = require('../../common/lib/traced_log'),
     LineStyles, SequenceCanvas;
 
   LineStyles = Styles.sequences.lines;
@@ -95,12 +96,25 @@ rendered.
     var sequence = this.sequence;
     this.readOnly = !!this.sequence.get('readOnly');
 
-    var dnaStickyEndHighlightColour = function(reverse, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
-    };
+    // var dnaStickyEndHighlightColour = function(reverse, base, pos) {
+    //   return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
+    // };
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-      return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+      var selectableRange = sequence.selectableRange(reverse);
+      var editableRange = sequence.editableRange();
+      var selectable = pos >= selectableRange[0] && pos <= selectableRange[1];
+      var editable = pos >= editableRange[0] && pos <= editableRange[1];
+
+      if(selectable) {
+        if(editable) {
+          return defaultColour;
+        } else {
+          return LineStyles.RES.text.color;
+        }
+      } else {
+        return '#fff';
+      }
     };
 
     /**
@@ -189,7 +203,7 @@ rendered.
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
         textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-        highlightColour: _.partial(dnaStickyEndHighlightColour, false),
+        // highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
         selectionTextColour: LineStyles.dna.selection.color
       }),
@@ -200,7 +214,7 @@ rendered.
         baseLine: 15,
         textFont: LineStyles.complements.text.font,
         textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
-        highlightColour: _.partial(dnaStickyEndHighlightColour, true),
+        // highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.complements');
@@ -227,7 +241,7 @@ rendered.
           return (colors[type] && colors[type].fill) || colors._default.fill;
         },
         visible: _.memoize2(function() {
-          return _this.sequence.get('features') && _this.sequence.get('displaySettings.rows.features');
+          return _this.sequence.getFeatures() && _this.sequence.get('displaySettings.rows.features');
         })
       }),
 
@@ -363,7 +377,7 @@ rendered.
       };
 
       //total number of rows in sequence,
-      lh.rows.total = Math.ceil(_this.sequence.length() / lh.basesPerRow);
+      lh.rows.total = Math.ceil(_this.sequence.getLength() / lh.basesPerRow);
       // number of visible rows in canvas
       lh.rows.visible = Math.ceil(ls.canvasDims.height / lh.rows.height);
 
@@ -493,7 +507,7 @@ rendered.
       ]);
     }
 
-    if (baseRange[0] < this.sequence.length()) {
+    if (baseRange[0] < this.sequence.getLength()) {
       _.each(lines, function(line, key) {
         if (line.visible === undefined || line.visible()) {
           if(line.floating) {
@@ -645,21 +659,20 @@ rendered.
   @method displayCaret
   @param base [base]
   **/
-  SequenceCanvas.prototype.displayCaret = function(base) {
-
+  SequenceCanvas.prototype.displayCaret = function(base, showMenu = true) {
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       yOffset = layoutHelpers.yOffset,
       selection = this.selection,
       posX, posY;
 
-    if (base === undefined && this.caretPosition !== undefined) {
+    if (_.isUndefined(base) && !_.isUndefined(this.caretPosition)) {
       base = this.caretPosition;
     }
 
-    if (base > this.sequence.length()) {
-      base = this.sequence.length();
-    }
+    if(_.isUndefined(base)) return false;
+
+    base = this.sequence.ensureBaseIsSelectable(base);
 
     this.scrollBaseToVisibility(base).then(() => {
 
@@ -673,7 +686,9 @@ rendered.
 
       this.caret.move(posX, posY, base);
       this.caretPosition = base;
-      this.showContextMenuButton(posX, posY + 20);
+      if(showMenu) {
+        this.showContextMenuButton(posX, posY + 20);
+      }
       this.caret.setInfo(this.determineCaretInfo());
 
       if(this.selection) {
@@ -849,6 +864,6 @@ rendered.
   };
 
 
-  export default SequenceCanvas;
+export default SequenceCanvas;
   // return SequenceCanvas;
 // });

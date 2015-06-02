@@ -35,7 +35,7 @@ export default Backbone.View.extend({
 
     this.features = [];
 
-    _.each(this.model.get('features'), function(feature) {
+    _.each(this.model.getFeatures(), function(feature) {
       _.each(feature.ranges, function(range) {
         _this.features.push({
           name: feature.name,
@@ -53,7 +53,7 @@ export default Backbone.View.extend({
   },
 
   positionFeatures: function() {
-    var maxBase = this.maxBaseForCalc || this.model.length(),
+    var maxBase = this.maxBaseForCalc || this.model.getLength(),
         viewHeight = this.$el.height(),
         $featureElement, feature, featureWidth,
         overlapStack = [], overlapIndex;
@@ -151,18 +151,25 @@ export default Backbone.View.extend({
   processEnzymes: function() {
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {
+    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
       // length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
       // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
       hideNonPalindromicStickyEndSites: false
     });
 
-    this.enzymes = _.map(enzymes, function(enzymeArray, position) {
+    this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
+      position = position^0;
+
+      enzymeArray = _.filter(enzymeArray, function(enzyme) {
+        return model.isRangeEditable(position, position + enzyme.seq.length);
+      });
+
+      if(enzymeArray.length === 0) return;
       var label = enzymeArray[0].name;
       if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
       return {position, label};
-    });
+    }));
   },
 
   positionEnzymes: function() {

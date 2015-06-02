@@ -15,7 +15,7 @@ var getStringSequence = function(sequence) {
   if(_.isString(sequence)) {
     return sequence;
   } else {
-    return sequence.get('sequence');
+    return sequence.getSequence();
   }
 };
 

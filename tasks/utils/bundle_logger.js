@@ -33,15 +33,15 @@ module.exports = {
   },
 
   error: function(err) {
-    pluginName = err.plugin || 'browserify';
+    var pluginName = err.plugin || 'browserify';
 
     notifier.notify({
-      'title': 'ERROR - ' + pluginName,
-      'message': err.message,
+      title: 'ERROR - ' + pluginName,
+      message: err.message,
       sound: true
     });
 
-    lineNumber = typeof err.lineNumber === 'undefined' ? '' : 
+    var lineNumber = typeof err.lineNumber === 'undefined' ? '' : 
       'at line ' + err.lineNumber
 
     gutil.log(
@@ -63,6 +63,11 @@ module.exports = {
   end: function(filepath, watch) {
     var taskTime = process.hrtime(startTime);
     var prettyTime = prettyHrtime(taskTime);
+    notifier.notify({
+      title: 'Bundle complete',
+      message: filepath,
+      sound: false
+    });
     gutil.log(
       header('Bundled', 'green'), 
       filename(filepath, 'green'), 

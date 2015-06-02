@@ -57,7 +57,7 @@ var codonToAAShort = function(codon) {
     codonToAAShortMap = [];
     _.each(SynbioData.aa, function(aa) {
       _.each(aa.codons, function(codon) {
-        codonToAAShortMap[codon] = (aa.short || ' ') + '  ';
+        codonToAAShortMap[codon] = ' ' + (aa.short || ' ') + ' ';
       });
     });
   }
@@ -103,8 +103,7 @@ var areComplementary = function(sequence1, sequence2) {
   });
 };
 
-
-export default {
+var allTransforms = {
   codonToAALong,
   codonToAAShort,
   toComplements,
@@ -113,3 +112,7 @@ export default {
   isPalindromic,
   areComplementary,
 };
+
+window.SequenceTransforms = allTransforms;
+
+export default allTransforms;
