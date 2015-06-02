@@ -61,6 +61,7 @@ export default Backbone.View.extend({
 
     var topFeatures = this.getFeatures();
     var bottomFeatures = this.getFeatures(true);
+    var colors = LineStyles.features.color['type-primer'];
 
     var featuresConfig = {
       unitHeight: 14,
@@ -70,16 +71,8 @@ export default Backbone.View.extend({
       textPadding: 3,
       margin: 2,
       lineSize: 2,
-      textColour: function(type) {
-        var colors = LineStyles.features.color;
-        type = type.toLowerCase();
-        return (colors[type] && colors[type].color) || colors._default.color;
-      },
-      colour: function(type) {
-        var colors = LineStyles.features.color;
-        type = type.toLowerCase();
-        return (colors[type] && colors[type].fill) || colors._default.fill;
-      },
+      textColour: colors.color,
+      colour: colors.fill,
     };
 
     var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
