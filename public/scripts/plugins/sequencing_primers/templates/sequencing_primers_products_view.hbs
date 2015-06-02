@@ -4,6 +4,39 @@
 <h3>Sequencing Primers Mode</h3>
 {{#if products}}
 <br>
+
+{{#if noForwardUniversalPrimer}}
+  <div class="panel panel-danger sequencing-primers-product-missing">
+    <table class="table table-condensed table-no-border">
+      <thead>
+        <th><strong>U-fwd</strong></th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><small><strong>Missing forward universal primer</strong></small></td>
+        </tr>
+        <tr><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+{{/if}}
+
+{{#if noReverseUniversalPrimer}}
+  <div class="panel panel-danger sequencing-primers-product-missing">
+    <table class="table table-condensed table-no-border">
+      <thead>
+        <th><strong>U-rvs</strong></th>
+      </thead>
+      <tbody>
+        <tr>
+          <td><small><strong>Missing reverse universal primer</strong></small></td>
+        </tr>
+        <tr><td></td></tr>
+      </tbody>
+    </table>
+  </div>
+{{/if}}
+
 {{#each products}}
   <div class="panel panel-default sequencing-primers-product" data-product_id="{{id}}">
     {{!-- <div class="panel-heading">

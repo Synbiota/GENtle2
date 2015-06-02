@@ -36,7 +36,13 @@
       color: black;
     }
   }
+}
 
+.sequencing-primers-product-missing {
+  background-color: $state-danger-bg;
+}
+
+.sequencing-primers-product, .sequencing-primers-product-missing {
   table tr td {
     line-height: 0;
   }

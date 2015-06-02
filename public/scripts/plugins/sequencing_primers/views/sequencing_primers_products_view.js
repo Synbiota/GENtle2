@@ -15,7 +15,9 @@ export default Backbone.View.extend({
 
   serialize: function() {
     return {
-      products: this.getProducts()
+      products: this.getProducts(),
+      noForwardUniversalPrimer: this.missingUniversalPrimer(),
+      noReverseUniversalPrimer: this.missingUniversalPrimer(true)
     };
   },
 
@@ -27,6 +29,12 @@ export default Backbone.View.extend({
 
   getProducts: function() {
     return this.parentView().getProducts();
+  },
+
+  missingUniversalPrimer: function(reverse = false) {
+    return !_.some(this.getProducts(), function(product) {
+      return (reverse ? /U-rvs/ : /U-fwd/).test(product.primer.name);
+    });
   },
 
   exportSequence: function(event) {

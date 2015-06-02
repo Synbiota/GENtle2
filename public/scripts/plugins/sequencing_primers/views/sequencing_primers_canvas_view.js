@@ -79,11 +79,11 @@ export default Backbone.View.extend({
           // getSubSeq: this.getComplements,
         }],
         features: ['Feature', {
-          unitHeight: 15,
+          unitHeight: 14,
           baseLine: 10,
           textFont: '10px Monospace',
           topMargin: 3,
-          textPadding: 2,
+          textPadding: 3,
           margin: 2,
           lineSize: 2,
           textColour: function(type) {
