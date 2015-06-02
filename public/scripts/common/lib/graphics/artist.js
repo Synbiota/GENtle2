@@ -19,6 +19,7 @@ Includes Shape system for handling mouse events.
       Path = require('./path'),
       Point = require('./point'),
       Arc = require('./arc'),
+      JaggedArrow = require('./jagged_arrow'),
       TransformationMatrix = require('./transformation_matrix'),
       Q = require('q'),
       _ = require('underscore'),
@@ -197,6 +198,24 @@ Includes Shape system for handling mouse events.
     // this.shapes.push(rect);
     rect.draw(options);
     return rect;
+  };
+
+  /**
+  Draws a filled arrow. Adds it to `this.shapes`.
+  @method rect
+  @param {Integer} x
+  @param {Integer} y
+  @param {Integer} width
+  @param {Integer} height
+  @param {Object} [options] Available options are the same as for 
+    {{#crossLink "Artist/updateStyle"}}{{/crossLink}}
+  @returns {Rect} instance of {{#crossLink "Rect"}}{{/crossLink}}
+  **/
+  Artist.prototype.jaggedArrow = function(fromX, fromY, toX, toY, width, arrowLength, arrowWidth, jaggedStart, jaggedEnd, options = {}) {
+    var arrow = new JaggedArrow(this, fromX, fromY, toX, toY, width, arrowLength, arrowWidth, jaggedStart, jaggedEnd);
+
+    arrow.draw(options);
+    return arrow;
   };
 
  Artist.prototype.washer = function(centreX, centreY, innerRadius, outerRadius, startAngle, endAngle, counterClockwise, arrowHead, stroke, text, options) {

@@ -37,7 +37,7 @@
         "font": "11px Monospace",
         "color": {
           "_default": {
-            "fill": "#a12e29",
+            "fill": "#6491C8",
             "color": "white"
           },
           "type-CDS": {
@@ -53,15 +53,15 @@
             "color": "#3e0208"
           },
           "type-promoter": { 
-            "fill": "#a12e29",
+            "fill": "#6491C8",
             "color": "white"
           },
           "type-rbs": {
-            "fill": "#a12e29",
+            "fill": "#6491C8",
             "color": "white"
           },
           "type-protein_bind": {
-            "fill": "#a12e29",
+            "fill": "#6491C8",
             "color": "white"
           },
           "type-note": {
