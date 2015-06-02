@@ -76,7 +76,7 @@ export default Backbone.View.extend({
           baseLine: 15,
           textFont: LineStyles.complements.text.font,
           textColour: '#bbb',
-          // getSubSeq: this.getComplements,
+          getSubSeq: this.getComplements,
         }],
         features: ['Feature', {
           unitHeight: 14,
