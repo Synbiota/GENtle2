@@ -48,9 +48,40 @@ export default Backbone.View.extend({
     }
   },
 
+  getFeatures: function(reverse = false) {
+    return _.filter(this.model.getFeatures(), function(feature) {
+      var isReverse = !feature.ranges[0].reverseComplement;
+      return reverse ? !isReverse : isReverse;
+    });
+  },
+
   afterRender: function() {
     this.setSequence();
     if(!this.model) return;
+
+    var topFeatures = this.getFeatures();
+    var bottomFeatures = this.getFeatures(true);
+
+    var featuresConfig = {
+      unitHeight: 14,
+      baseLine: 10,
+      textFont: '10px Monospace',
+      topMargin: 3,
+      textPadding: 3,
+      margin: 2,
+      lineSize: 2,
+      textColour: function(type) {
+        var colors = LineStyles.features.color;
+        type = type.toLowerCase();
+        return (colors[type] && colors[type].color) || colors._default.color;
+      },
+      colour: function(type) {
+        var colors = LineStyles.features.color;
+        type = type.toLowerCase();
+        return (colors[type] && colors[type].fill) || colors._default.fill;
+      },
+    };
+
     var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
       view: this,
       $canvas: this.$('.sequence-canvas-container canvas').first(),
@@ -63,6 +94,9 @@ export default Backbone.View.extend({
           textColour: '#005',
           transform: _.formatThousands,
         }],
+        topFeatures: ['Feature', _.extend({
+          features: topFeatures
+        }, featuresConfig)],
         dna: ['DNA', {
           height: 15,
           baseLine: 15,
@@ -78,25 +112,9 @@ export default Backbone.View.extend({
           textColour: '#bbb',
           getSubSeq: this.getComplements,
         }],
-        features: ['Feature', {
-          unitHeight: 14,
-          baseLine: 10,
-          textFont: '10px Monospace',
-          topMargin: 3,
-          textPadding: 3,
-          margin: 2,
-          lineSize: 2,
-          textColour: function(type) {
-            var colors = LineStyles.features.color;
-            type = type.toLowerCase();
-            return (colors[type] && colors[type].color) || colors._default.color;
-          },
-          colour: function(type) {
-            var colors = LineStyles.features.color;
-            type = type.toLowerCase();
-            return (colors[type] && colors[type].fill) || colors._default.fill;
-          },
-        }],
+        bottomFeatures: ['Feature', _.extend({
+          features: bottomFeatures
+        }, featuresConfig)],
         bottomSeparator: ['Blank', { height: 5 }],
       },
     });

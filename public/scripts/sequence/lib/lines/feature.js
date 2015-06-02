@@ -212,11 +212,9 @@ class Feature extends Line {
 var switchContext = function(fn) {
   var args = _.toArray(arguments);
   var sequence = this.sequenceCanvas.sequence;
-  var context = (this.features === undefined) ? sequence : { 
-    attributes: {
-      features: this.features 
-    }
-  };
+  var context = (this.features === undefined) ? sequence : sequence.clone().set({ 
+    features: this.features 
+  }, {silent: true});
 
   args.shift();
 
