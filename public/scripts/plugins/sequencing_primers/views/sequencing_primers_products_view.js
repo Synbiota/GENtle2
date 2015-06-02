@@ -53,7 +53,12 @@ export default Backbone.View.extend({
 
   highlightPrimer: function($el) {
     this.$('.sequencing-primers-product').removeClass('active');
-    if($el) $el.addClass('active');
+    if($el) {
+      this.highlightedProductId = $el.data('product_id');
+      $el.addClass('active');
+    } else {
+      this.highlightedProductId = undefined;
+    }
   },
 
   sortProductsForScrolling: function() {
@@ -92,20 +97,27 @@ export default Backbone.View.extend({
       return product_.primer.from <= baseRange[1] && product_.primer.to >= baseRange[0];
     });
 
-    if(product) {
-      let $product = this.$(`[data-product_id="${product.id}"]`);
-      let distanceToVisibility = this.distanceToVisibility($product);
-      let $scrollingParent = this.getScrollingParent();
-      this.highlightPrimer($product);
+    // TODO REmove that and required functions if we indeed remove that behaviour
+    // (maybe move the logic in a module)
 
-      if(distanceToVisibility !== 0) {
-        $scrollingParent.animate({
-          scrollTop: $scrollingParent.scrollTop() + distanceToVisibility
-        }, 150);
-      }
-    } else {
+    if(!product || product.id !== this.highlightedProductId) {
       this.highlightPrimer();
     }
+
+    // if(product) {
+    //   let $product = this.$(`[data-product_id="${product.id}"]`);
+    //   let distanceToVisibility = this.distanceToVisibility($product);
+    //   let $scrollingParent = this.getScrollingParent();
+    //   this.highlightPrimer($product);
+
+    //   if(distanceToVisibility !== 0) {
+    //     $scrollingParent.animate({
+    //       scrollTop: $scrollingParent.scrollTop() + distanceToVisibility
+    //     }, 150);
+    //   }
+    // } else {
+    //   this.highlightPrimer();
+    // }
   }
 
 });
