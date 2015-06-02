@@ -27,19 +27,31 @@
     var artist = this.artist,
         context = artist.context,
         styleOptions = this.styleOptions,
+        text = this.text,
+        {backgroundFillStyle, textOverflow, maxWidth, textPadding} = styleOptions,
         textWidth;
+    var chomped = 0;
 
-    if(styleOptions.backgroundFillStyle) {
+    if(backgroundFillStyle || textOverflow) {
+      do {
+        artist.updateStyle({
+          font: styleOptions.font
+        });
+        if(chomped > 0) text = this.text.substr(0, this.text.length - chomped) + " \u2026";
+        textWidth = context.measureText(text).width + 2 * textPadding;
+        chomped++;
+      } while(textOverflow && textWidth > maxWidth - textPadding && chomped < 100)
+    }
+
+    if(backgroundFillStyle) {
       artist.updateStyle({
-        fillStyle: styleOptions.backgroundFillStyle,
-        font: styleOptions.font
+        fillStyle: backgroundFillStyle,
       });
-      textWidth = context.measureText(this.text).width + 2 * styleOptions.textPadding;
       context.fillRect(this.x, this.y, textWidth, styleOptions.height);
     }
 
     artist.updateStyle(styleOptions);
-    artist.context.fillText(this.text, this.x + styleOptions.textPadding, this.y + styleOptions.lineHeight);
+    artist.context.fillText(text, this.x + styleOptions.textPadding, this.y + styleOptions.lineHeight);
   };
 
 

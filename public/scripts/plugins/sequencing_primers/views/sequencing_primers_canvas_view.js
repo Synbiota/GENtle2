@@ -15,6 +15,8 @@ export default Backbone.View.extend({
     this.listenTo(Gentle, 'resize', function() {
       this.trigger('resize');
     });
+    this.onScroll = _.throttle(_.bind(this.onScroll, this), 300);
+    this._previousBaseRange = [];
   },
 
   setSequence: function() {
@@ -26,6 +28,23 @@ export default Backbone.View.extend({
     if(this.model) {
       this.model.save = _.noop;
       this.getComplements = _.partial(this.model.getTransformedSubSeq, 'complements', {});
+    }
+  },
+
+  onScroll: function(data) {
+    if(data && !_.isUndefined(data.yOffset) && !this._freezeScrolling) {
+      let canvasHeight = this.$('canvas').height();
+
+      let baseRange = [
+        this.sequenceCanvas.getBaseRangeFromYPos(data.yOffset + 10)[0],
+        this.sequenceCanvas.getBaseRangeFromYPos(data.yOffset + canvasHeight - 10)[1]
+      ];
+
+      if(baseRange[0] !== this._previousBaseRange[0] || baseRange[1] !== this._previousBaseRange[1]) {
+        this.parentView().productsView.scrollToFirstProductInRange(baseRange);
+      }
+
+      this._previousBaseRange = baseRange;
     }
   },
 
@@ -83,5 +102,6 @@ export default Backbone.View.extend({
     });
     
     sequenceCanvas.refresh();
+    sequenceCanvas.on('scroll', this.onScroll);
   }
 });

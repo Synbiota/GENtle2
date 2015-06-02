@@ -13,5 +13,34 @@
   left: 50%;
 }
 
+.sequencing-primers-product {
+  cursor: pointer;
+
+  &:hover {
+    background-color: #F5F5F5;
+  }
+
+  .show-primer {
+    color: #A4A5A8;
+    font-weight: normal;
+    display: inline-block;
+    height: 13px;
+    width: 55px;
+  }
+
+  &.active {
+    background-color: #D8ECF5;
+
+    .show-primer {
+      font-weight: bold;  
+      color: black;
+    }
+  }
+
+  table tr td {
+    line-height: 0;
+  }
+}
+
 
 

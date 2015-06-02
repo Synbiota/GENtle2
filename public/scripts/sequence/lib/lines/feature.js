@@ -154,8 +154,9 @@ class Feature extends Line {
         let arrowY = y + this.margin + (i + 0.5)*this.unitHeight + i;
         let arrowStartX = startX;
         let arrowEndX = endX + baseWidth;
+        let reverse = range.reverseComplement;
         
-        if(range.reverseComplement) {
+        if(reverse) {
           [arrowStartX, arrowEndX] = [arrowEndX, arrowStartX];
         }
 
@@ -181,16 +182,24 @@ class Feature extends Line {
           }
         );
 
-        artist.text(feature.name,
-                    startX,
-                    y + this.margin + i * this.unitHeight + i,
-                    {
-                      font: this.textFont,
-                      fillStyle: textColour,
-                      lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
-                      height: this.unitHeight - this.margin,
-                      textPadding: this.textPadding
-                    });
+        if(reverse && !continuingBefore) {
+          startX += 7;
+        }
+
+        artist.text(
+          feature.name,
+          startX,
+          y + this.margin + i * this.unitHeight + i,
+          {
+            textOverflow: true,
+            maxWidth: Math.abs(arrowEndX - arrowStartX),
+            font: this.textFont,
+            fillStyle: textColour,
+            lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
+            height: this.unitHeight - this.margin,
+            textPadding: this.textPadding
+          }
+        );
 
       }
 

@@ -48,6 +48,14 @@ body {
   margin: 0 !important;
 }
 
+table.table-no-border {
+  tr {
+    th, td {
+      border: none;
+    }
+  }
+}
+
 .navbar[unselectable] {
   @include user-select(none);
 }
