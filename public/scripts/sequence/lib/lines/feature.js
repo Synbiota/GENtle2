@@ -155,20 +155,21 @@ class Feature extends Line {
         let arrowStartX = startX;
         let arrowEndX = endX + baseWidth;
         let reverse = range.reverseComplement;
-        
-        if(reverse) {
-          [arrowStartX, arrowEndX] = [arrowEndX, arrowStartX];
-        }
 
         let continuingBefore = frm < baseRange[0];
         let continuingAfter = to > baseRange[1];
 
+        if(reverse) {
+          [arrowStartX, arrowEndX] = [arrowEndX, arrowStartX];
+          [continuingAfter, continuingBefore] = [continuingBefore, continuingAfter];
+        }
+
         if(continuingBefore) {
-          arrowStartX -= 5;
+          arrowStartX += reverse ? 5 : -5;
         }
 
         if(continuingAfter) {
-          arrowEndX += 5;
+          arrowEndX += reverse ? -5 : 5;
         }
 
         artist.jaggedArrow(
@@ -182,7 +183,7 @@ class Feature extends Line {
           }
         );
 
-        if(reverse && !continuingBefore) {
+        if((reverse && !continuingAfter)) {
           startX += 7;
         }
 
