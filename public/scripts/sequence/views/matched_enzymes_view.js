@@ -36,7 +36,6 @@ export default Backbone.View.extend({
 
     });
     this.setView('#condonSubModalContainer', restrictionEnzymeReplacerView);
-    console.log(RestrictionEnzymes.getAllInSeq(_this.model.get('sequence'), {customList: ['BsaI', "NotI"]}));
   },
 
   serialize: function() {

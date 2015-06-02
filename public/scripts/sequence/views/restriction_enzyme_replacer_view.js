@@ -29,10 +29,11 @@ define(function(require) {
 
     serialize: function() {
       var _this = this;
+
       if (this.showModal === true) {
-        _.forEach(this.nonCompliantMatches, function(match){
-          _this.autoCorrectSuggestionForMatch(match);
-        });
+
+
+        _this.autoCorrectSuggestionForMatch(this.nonCompliantMatches);
         // this.autoCorrectSuggestionForMatch(this.sequenceCanvas.selection);
       
         return {
@@ -72,7 +73,6 @@ define(function(require) {
     },
 
     afterRender: function() {
-      console.log('Sequence', this.sequence);
 
       if (this.showModal === true){
         $("#condonSubModal").modal("show");
@@ -267,71 +267,70 @@ define(function(require) {
       return !_.isUndefined(matches[0]);
     },
 
-    autoCorrectSuggestionForMatch: function(match){
-      // TODO: Get correct reading frame
-      console.log("pmatch", match);
-      if (_.isArray(match)){
-        match = match[0];
-      }
-      console.log("this", this);
-      var paddedSubSeq= this.sequence.getPaddedSubSeq(match.cut, (match.seq.length - 1), 3, 0);
-      var subSeq = paddedSubSeq.subSeq;
-      var paddingOffset = match.cut - paddedSubSeq.startBase;
-      
-      var getAASubSeq = function(sequence) { 
-        return _.map(sequence.match(/.{1,3}/g), SequenceTranforms.codonToAALong);
-      };
+    autoCorrectSuggestionForMatch: function(matches){
+      debugger;
+      var sequence = this.sequence; 
+      var _this =this;
+      this.replacements = _.reduce(matches, function(memo, n, key) {
 
-
-      var baseAA= getAASubSeq(subSeq);
-      var aaSubs= {};
-
-      // Get all possible substitutes
-      for(var i=0; i<baseAA.length; i++){
-        var aminoAcid= baseAA[i];
-        var aaData= SynbioData.aa;
-        var potentialCodons = _.clone(_.findWhere( aaData, {long: aminoAcid}).codons);
-        var currentCodon= subSeq.match(/.{1,3}/g)[i];
-        if (_.includes(potentialCodons, currentCodon)){
-          potentialCodons.splice(potentialCodons.indexOf(currentCodon), 1);  
-        }
+        var match = n[0];
+        var paddedSubSeq= sequence.getPaddedSubSeq(key, (key + match.seq.length - 1), 3, 0);
+        var subSeq = paddedSubSeq.subSeq;
+        var paddingOffset = key - paddedSubSeq.startBase;
         
-        var loopLength = potentialCodons.length;
-        var codonsToRemove = [];
-        for(var z=0; z<loopLength; z++){
-          // Iterate through each potential codon
-          var _codon= potentialCodons[z];
+        var getAASubSeq = function(sequence) { 
+          return _.map(sequence.match(/.{1,3}/g), SequenceTranforms.codonToAALong);
+        };
 
-          // Make a new subsequence of the codon substitution
-          var newSubSeq = subSeq.substr(0, i*3) + _codon + subSeq.substr((i*3 + 3), subSeq.length - i* - 3);
-          var newUnpaddedSubSeq = newSubSeq.substr(paddingOffset, subSeq.length);
-          var hasRES = this.hasRelevantRES(newUnpaddedSubSeq);
-          // If its still a BSA1 or Not1 site, remove it from the list of potential codons
-          if (hasRES) {
-            if (_.includes(potentialCodons, _codon)){
-              codonsToRemove.push(_codon);  
+        var baseAA= getAASubSeq(subSeq);
+
+        // Get all possible substitutes
+        for(var i=0; i<baseAA.length; i++){
+          var aminoAcid= baseAA[i];
+          var aaData= SynbioData.aa;
+          var potentialCodons = _.clone(_.findWhere( aaData, {long: aminoAcid}).codons);
+          var currentCodon= subSeq.match(/.{1,3}/g)[i];
+          if (_.includes(potentialCodons, currentCodon)){
+            potentialCodons.splice(potentialCodons.indexOf(currentCodon), 1);  
+          }
+          
+          var loopLength = potentialCodons.length;
+          var codonsToRemove = [];
+          for(var z=0; z<loopLength; z++){
+            // Iterate through each potential codon
+            var _codon= potentialCodons[z];
+
+            // Make a new subsequence of the codon substitution
+            var newSubSeq = subSeq.substr(0, i*3) + _codon + subSeq.substr((i*3 + 3), subSeq.length - i* - 3);
+            var newUnpaddedSubSeq = newSubSeq.substr(paddingOffset, subSeq.length);
+            var hasRES = _this.hasRelevantRES(newUnpaddedSubSeq);
+            // If its still a BSA1 or Not1 site, remove it from the list of potential codons
+            if (hasRES) {
+              if (_.includes(potentialCodons, _codon)){
+                codonsToRemove.push(_codon);  
+              } 
+
             } 
+          }
 
-          } 
+          potentialCodons= _.without(potentialCodons, ...codonsToRemove);
+          var bestMatchCodon = potentialCodons[0];
+          // Pick the best
+
+          memo[n] = { 
+            originalCodon: currentCodon,  
+            adminoAcid: aminoAcid,
+            startBase: key, 
+            endBase: (key + (match.seq.length - 1)),
+            generatedSub: bestMatchCodon, 
+          };
+          return memo;
         }
 
-        potentialCodons= _.without(potentialCodons, ...codonsToRemove);
-        var bestMatchCodon = function(potentialCodons) {
-          return potentialCodons.first();
-        };
-        // Pick the best
-        console.log('potentialCodons', potentialCodons);
-        var replacement = { 
-          originalCodon: currentCodon,  
-          adminoAcid: aminoAcid,
-          startBase: match.cut, 
-          endBase: (match.seq.length -1),
-          generatedSub: bestMatchCodon
-        };
+      });
+    
 
-        this.replacements.push(replacement); 
-        console.log(this.replacements);
-      }
+    
     },
 
   });
