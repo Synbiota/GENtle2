@@ -421,10 +421,11 @@ define({
     "ACG":"V",
     "ACGT":"N"
   },
+  
   "codonOptimisations": {
     'GCT': ["GCC", "GCA", "GCG"],
     "TTA": [""],
-  }
+  },
 
   "aa":[
     { "long":"Ala" , "short":"A" , "codons": [ "GCT", "GCC", "GCA", "GCG" ] } ,
