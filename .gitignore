@@ -19,3 +19,4 @@ rev-manifest.json
 npm-debug.log
 .sass-cache
 app.env
+log

@@ -1,16 +1,24 @@
 var path = require('path');
-var MEMCACHED_HOST = process.env.MEMCACHED_HOST || '127.0.0.1:11211';
+var fs = require('fs');
 var PORT = process.env.PORT || 3000;
-var isDev = process.env.NODE_ENV !== 'development';
+var isDev = process.env.NODE_ENV !== 'production';
+var appEnv = require('./tasks/utils/import_app_env');
 
 var express = require('express');
 var app = express();
+var bugsnag = require('bugsnag');
+bugsnag.register(appEnv.BUGSNAG_SERVER_API_KEY, { 
+  releaseStage: process.env.BUGSNAG_RELEASE_STAGE || 'production'
+});
+
+
+if(!isDev && appEnv.ENABLE_BUGSNAG) {
+  app.use(bugsnag.requestHandler);
+}
 
 // Favicon
 var favicon = require('serve-favicon');
 app.use(favicon(path.join(__dirname, 'public', 'images', 'favicon.png')));
-
-isDev = false
 
 // Serving public files
 if(isDev) {
@@ -20,12 +28,20 @@ if(isDev) {
   app.use(gzipStatic(__dirname + '/public', { maxAge: 86400000 * 365 }));
 }
 
+
+
 // Jade views
 app.set('view engine', 'jade');
 
 // Basic logger
 var logger = require('morgan');
-app.use(logger('dev'));
+if(isDev) {
+  app.use(logger('dev'));
+} else {
+  // create a write stream (in append mode)
+  var accessLogStream = fs.createWriteStream(__dirname + '/log/server.log', {flags: 'a'});
+  app.use(logger('combined', {stream: accessLogStream}));
+}
 
 // Understanding JSON requests (POST)
 var bodyParser = require('body-parser');
@@ -50,15 +66,21 @@ app.get('/', routes.index);
 app.post('/p/:url', routes.proxy);
 
 // Errors handling
+var PrettyError = require('pretty-error');
+var pe = new PrettyError();
+pe.skipNodeFiles(); 
 if (isDev) {
-  // var errorhandler = require('errorhandler');
-  // app.use(errorhandler());
-  var PrettyError = require('pretty-error');
-  pe = new PrettyError();
   app.use(function(err, req, res, next){
     if(err) console.log(pe.render(err));
+    next(err);
   });
-  pe.skipNodeFiles(); 
+} else {
+  app.use(bugsnag.errorHandler);
+  // app.use(morgan(':id :method :url :response-time'))
+  // app.use(function(err, req, res, next){
+  //   if(err) errorLogStream.write(pe.render(err));
+  //   next(err);
+  // });
 }
 
 // App startup

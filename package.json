@@ -24,6 +24,7 @@
     "body-parser": "^1.9.0",
     "browserify": "9.0.8",
     "browserify-shim": "^3.8.1",
+    "bugsnag": "^1.6.5",
     "bugsnag-js": "^2.4.8",
     "connect-gzip-static": "^1.0.0",
     "cookie-session": "^1.0.2",
