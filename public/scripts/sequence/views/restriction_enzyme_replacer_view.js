@@ -1,10 +1,10 @@
 /**
-@class CondonSubView
+@class RestrictionEnzymeReplacerView
 @module Sequence
 @submodule Views
 **/
 define(function(require) {
-  var template = require('../templates/condon_sub_view.hbs'),
+  var template = require('../templates/restriction_enzyme_replacer_view.hbs'),
     Backbone = require('backbone'),
     SequenceTranforms = require('../lib/sequence_transforms'),
     SynbioData = require('../../common/lib/synbio_data'),
@@ -22,53 +22,26 @@ define(function(require) {
     manage: true,
 
     initialize: function() {
-      this.selection = null;
-      this.subCodonPosY = null;
-      this.subCodonPosX = null;
-      this.aminoAcids = null;
-      this.aminoAcidSubs = null;
+      this.replacements = [];
     },
 
 
 
     serialize: function() {
-
+      var _this = this;
       if (this.showModal === true) {
-        this.positionXY = [this.sequenceCanvas.getXPosFromBase(this.sequenceCanvas.selection[0]), this.sequenceCanvas.getYPosFromBase(this.sequenceCanvas.selection[0])];
-        if (this.positionXY[0] <=110) {
-          this.subCodonPosX  = this.positionXY[0] ;   
-        } else {
-          this.subCodonPosX = this.positionXY[0] - 110;   
-        }
-
-        this.subCodonPosY = this.positionXY[1] + 120 - this.sequenceCanvas.sequence.get("displaySettings.yOffset");
-
-        this.sequence = this.sequenceCanvas.sequence;
-        this.selection= this.sequenceCanvas.selection;
-        this.paddedSubSeq = this.sequence.getPaddedSubSeq(this.selection[0], this.selection[1], 3, 0);
-        var newUnpaddedSubSeq = this.paddedSubSeq.subSeq.substr((this.selection[0] - this.paddedSubSeq.startBase), this.paddedSubSeq.length);
-        this.newUnpaddedSubSeq = newUnpaddedSubSeq;
-        if (this.hasBsaIRES(newUnpaddedSubSeq)){
-          this.restrictionType = "BsaI";  
-        } else if (this.hasNotIRES(newUnpaddedSubSeq)) {
-          this.restrictionType = "NotI";
-        }
-        
-        this.autoCorrectSuggestions(this.sequenceCanvas.selection);
+        _.forEach(this.nonCompliantMatches, function(match){
+          _this.autoCorrectSuggestionForMatch(match);
+        });
+        // this.autoCorrectSuggestionForMatch(this.sequenceCanvas.selection);
       
         return {
           restrictionType: this.restrictionType,
           selection: this.selection,
-          subCodonPosY: this.subCodonPosY,
-          subCodonPosX: this.subCodonPosX,
           aminoAcidKeys: this.aminoAcids,
           aminoAcidSubs: this.aminoAcidSubs,
         };     
-      } else {
-        return {
-          selection: {}
-        };
-      }
+      } 
     },
 
     colorRedText: function(_base, _base_pos) {
@@ -99,6 +72,7 @@ define(function(require) {
     },
 
     afterRender: function() {
+      console.log('Sequence', this.sequence);
 
       if (this.showModal === true){
         $("#condonSubModal").modal("show");
@@ -106,8 +80,7 @@ define(function(require) {
       
         $('.selectable').first().addClass('codon-selected');
 
-        var paddedSubSeq= this.paddedSubSeq;
-
+        var paddedSubSeq= this.sequence.getPaddedSubSeq(0, this.sequence.get('sequence').length);
         var tempSequence = new Sequence({
           sequence: paddedSubSeq.subSeq,
           displaySettings: {
@@ -121,8 +94,6 @@ define(function(require) {
             }
           },
         });
-
-        var _this = this;
 
         var sequenceCanvasLines = {
           // Blank line
@@ -210,8 +181,6 @@ define(function(require) {
 
     events: {
       'click .close': 'closeModal',
-      'click .replace': 'replaceCodon',
-      'click .selectable': 'selectableClicked',
     },
 
 
@@ -235,52 +204,52 @@ define(function(require) {
     },
 
     replaceCodon: function(event) {
-      if(event) event.preventDefault();
-      var selectedLink= $('.codon-selected');
-      if (selectedLink.length === 0 || _.isUndefined(selectedLink)) {
-        // do nothing
-      } else {
-        var replacementCodon = selectedLink.data("codon");
-        var replacementPosition = selectedLink.parents('ul').data('position');
-        var selection = this.selection;
-        var paddedSubSeq= this.sequence.getPaddedSubSeq(this.selection[0], this.selection[1], 3, 0);
-        var subSeq = paddedSubSeq.subSeq;
-        var paddingOffset = selection[0] - paddedSubSeq.startBase;
-        var newSubSeq = subSeq.substr(0, replacementPosition*3) + replacementCodon + subSeq.substr((replacementPosition*3 + 3), subSeq.length - replacementPosition*3 - 3);
-        var text = newSubSeq.substr(paddingOffset, (selection[1] - selection[0] + 1));
+      // if(event) event.preventDefault();
+      // var selectedLink= $('.codon-selected');
+      // if (selectedLink.length === 0 || _.isUndefined(selectedLink)) {
+      //   // do nothing
+      // } else {
+      //   var replacementCodon = selectedLink.data("codon");
+      //   var replacementPosition = selectedLink.parents('ul').data('position');
+      //   var selection = this.selection;
+      //   var paddedSubSeq= this.sequence.getPaddedSubSeq(this.selection[0], this.selection[1], 3, 0);
+      //   var subSeq = paddedSubSeq.subSeq;
+      //   var paddingOffset = selection[0] - paddedSubSeq.startBase;
+      //   var newSubSeq = subSeq.substr(0, replacementPosition*3) + replacementCodon + subSeq.substr((replacementPosition*3 + 3), subSeq.length - replacementPosition*3 - 3);
+      //   var text = newSubSeq.substr(paddingOffset, (selection[1] - selection[0] + 1));
 
-        var replacementCodonStartBase = selection[0] + replacementPosition*3;
+      //   var replacementCodonStartBase = selection[0] + replacementPosition*3;
 
-        if(text) {
-          if(selection) {
-            this.selection = undefined;
-            this.sequence.deleteBases(
-              selection[0],
-              selection[1] - selection[0] + 1
-            );
-          }
+      //   if(text) {
+      //     if(selection) {
+      //       this.selection = undefined;
+      //       this.sequence.deleteBases(
+      //         selection[0],
+      //         selection[1] - selection[0] + 1
+      //       );
+      //     }
 
-          this.sequenceCanvas.afterNextRedraw(function() {
-            console.log('callback called');
+      //     this.sequenceCanvas.afterNextRedraw(function() {
+      //       console.log('callback called');
 
-            this.highlight = undefined;
-            this.select(
-              replacementCodonStartBase, (replacementCodonStartBase + 2)
-            );          
-            this.displayCaret(replacementCodonStartBase + 3);
-            this.focus();
-          });
+      //       this.highlight = undefined;
+      //       this.select(
+      //         replacementCodonStartBase, (replacementCodonStartBase + 2)
+      //       );          
+      //       this.displayCaret(replacementCodonStartBase + 3);
+      //       this.focus();
+      //     });
 
 
-          this.sequenceCanvas.sequence.insertBases(text, selection[0]);          
-          this.showModal=false;
-          $("#condonSubModal").modal("hide");
+      //     this.sequenceCanvas.sequence.insertBases(text, selection[0]);          
+      //     this.showModal=false;
+      //     $("#condonSubModal").modal("hide");
 
-          this.sequenceCanvas.redraw();
+      //     this.sequenceCanvas.redraw();
 
          
-        }
-      }
+      //   }
+      // }
     },
     
     hasRelevantRES: function(sequence) {
@@ -298,14 +267,17 @@ define(function(require) {
       return !_.isUndefined(matches[0]);
     },
 
- 
-
-    autoCorrectSuggestions: function(selection){
-      
+    autoCorrectSuggestionForMatch: function(match){
       // TODO: Get correct reading frame
-      var paddedSubSeq = this.paddedSubSeq;
+      console.log("pmatch", match);
+      if (_.isArray(match)){
+        match = match[0];
+      }
+      console.log("this", this);
+      var paddedSubSeq= this.sequence.getPaddedSubSeq(match.cut, (match.seq.length - 1), 3, 0);
       var subSeq = paddedSubSeq.subSeq;
-      var paddingOffset = selection[0] - paddedSubSeq.startBase;
+      var paddingOffset = match.cut - paddedSubSeq.startBase;
+      
       var getAASubSeq = function(sequence) { 
         return _.map(sequence.match(/.{1,3}/g), SequenceTranforms.codonToAALong);
       };
@@ -313,9 +285,6 @@ define(function(require) {
 
       var baseAA= getAASubSeq(subSeq);
       var aaSubs= {};
-
-      console.log("getAASubSeq", baseAA);
-
 
       // Get all possible substitutes
       for(var i=0; i<baseAA.length; i++){
@@ -328,7 +297,7 @@ define(function(require) {
         }
         
         var loopLength = potentialCodons.length;
-        var codonsToRemove = []
+        var codonsToRemove = [];
         for(var z=0; z<loopLength; z++){
           // Iterate through each potential codon
           var _codon= potentialCodons[z];
@@ -347,23 +316,22 @@ define(function(require) {
         }
 
         potentialCodons= _.without(potentialCodons, ...codonsToRemove);
-        aaSubs[i]={};
-        aaSubs[i].aminoAcid = aminoAcid;
-        aaSubs[i].codons = potentialCodons;  
-        aaSubs[i].modThreePosition = i;
+        var bestMatchCodon = function(potentialCodons) {
+          return potentialCodons.first();
+        };
+        // Pick the best
+        console.log('potentialCodons', potentialCodons);
+        var replacement = { 
+          originalCodon: currentCodon,  
+          adminoAcid: aminoAcid,
+          startBase: match.cut, 
+          endBase: (match.seq.length -1),
+          generatedSub: bestMatchCodon
+        };
 
-        if (potentialCodons.length === 0) {
-          aaSubs[i].empty= true;
-          aaSubs[i].color= LineStyles.complements.text.color;      
-        } else {
-          aaSubs[i].empty= false;
-
-          aaSubs[i].color= '#428bca'
-        }
+        this.replacements.push(replacement); 
+        console.log(this.replacements);
       }
-
-      this.aminoAcids= _.keys(aaSubs);
-      this.aminoAcidSubs= aaSubs;
     },
 
   });

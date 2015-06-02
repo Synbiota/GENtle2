@@ -3,7 +3,7 @@ import template from '../templates/matched_enzymes_view.hbs';
 import _ from 'underscore';
 import Gentle from 'gentle';
 import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
-import CondonSubView from '../views/condon_sub_view';
+import RestrictionEnzymeReplacerView from '../views/restriction_enzyme_replacer_view';
 
 export default Backbone.View.extend({
   template: template,
@@ -17,8 +17,6 @@ export default Backbone.View.extend({
   },
 
   initialize: function() {
-
-
     this.model = Gentle.currentSequence;
     this.subCodonPosY = 0;
     this.subCodonPosX = 0;
@@ -29,11 +27,16 @@ export default Backbone.View.extend({
       this
     );
 
-    var subCondonView= this.subCondonView = new CondonSubView({
-      showModal: {}
-    });
-    this.setView('#condonSubModalContainer', subCondonView);
+    var _this= this; 
+    
+    var restrictionEnzymeReplacerView = this.restrictionEnzymeReplacerView = new RestrictionEnzymeReplacerView({
+      showModal: {},
+      sequence: _this.model,
+      nonCompliantMatches: RestrictionEnzymes.getAllInSeq(_this.model.get('sequence'), {customList: ['BsaI', "NotI"]})
 
+    });
+    this.setView('#condonSubModalContainer', restrictionEnzymeReplacerView);
+    console.log(RestrictionEnzymes.getAllInSeq(_this.model.get('sequence'), {customList: ['BsaI', "NotI"]}));
   },
 
   serialize: function() {
@@ -53,14 +56,29 @@ export default Backbone.View.extend({
       return memo;
     }, {});
 
-    return {
+   
+
+    // Show button for BsaI && NotI
+    var nonCompliantSites = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {customList: ['BsaI', "NotI"]});  
+    if(nonCompliantSites.length !== 0 && !_.isUndefined(nonCompliantSites)) {
+      this.showLaunchButton=true;
+    } else {
+      this.showLaunchButton=false;
+    }
+
+    
+   return {
       enzymesCount,
     };
+
   },
 
   afterRender: function() {
     var displaySettings = this.model.get('displaySettings.rows.res') || {};
     this.$el.toggleClass('visible', displaySettings.display);
+    if(this.showLaunchButton==true){
+      $(".launch-modal").removeClass('hidden');  
+    }
   },
 
   getSequenceCanvas: function() {
@@ -91,7 +109,7 @@ export default Backbone.View.extend({
     );
 
     sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition); 
-    $(".launch-modal").removeClass('hidden');
+ 
 
   },
 
@@ -99,21 +117,13 @@ export default Backbone.View.extend({
     if(event) event.preventDefault();
 
     var sequenceCanvas = this.getSequenceCanvas();
-    var positions = _.keys(this.enzymePositions);
-    var currentEnzymePosition = positions[this.currentEnzymeIndex] ^ 0;
-
-
-    var subCondonView = this.subCondonView;
-
+    var restrictionEnzymeReplacerView = this.restrictionEnzymeReplacerView;
 
     sequenceCanvas.afterNextRedraw(function() {
-      sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition).then(function() {
-        // Launch modal
-        subCondonView.showModal= true;
-        subCondonView.caretPosition = sequenceCanvas.caretPosition;
-        subCondonView.sequenceCanvas= sequenceCanvas;
-        subCondonView.render();
-      });
+        restrictionEnzymeReplacerView.showModal= true;
+        restrictionEnzymeReplacerView.caretPosition = sequenceCanvas.caretPosition;
+        restrictionEnzymeReplacerView.sequenceCanvas= sequenceCanvas;
+        restrictionEnzymeReplacerView.render();
     });
 
     sequenceCanvas.redraw();
