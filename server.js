@@ -66,10 +66,11 @@ app.get('/', routes.index);
 app.post('/p/:url', routes.proxy);
 
 // Errors handling
-var PrettyError = require('pretty-error');
-var pe = new PrettyError();
-pe.skipNodeFiles(); 
 if (isDev) {
+  var PrettyError = require('pretty-error');
+  var pe = new PrettyError();
+  pe.skipNodeFiles(); 
+  
   app.use(function(err, req, res, next){
     if(err) console.log(pe.render(err));
     next(err);
