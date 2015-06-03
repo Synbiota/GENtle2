@@ -271,8 +271,9 @@ define(function(require) {
       debugger;
       var sequence = this.sequence; 
       var _this =this;
+      var matchNum= 0;
       this.replacements = _.reduce(matches, function(memo, n, key) {
-
+        matchNum++
         var match = n[0];
         var paddedSubSeq= sequence.getPaddedSubSeq(key, (key + match.seq.length - 1), 3, 0);
         var subSeq = paddedSubSeq.subSeq;
@@ -316,18 +317,21 @@ define(function(require) {
           potentialCodons= _.without(potentialCodons, ...codonsToRemove);
           var bestMatchCodon = potentialCodons[0];
           // Pick the best
-
-          memo[n] = { 
+          var matchString= String(matchNum);
+          memo[matchString]= { 
             originalCodon: currentCodon,  
             adminoAcid: aminoAcid,
-            startBase: key, 
-            endBase: (key + (match.seq.length - 1)),
+            startBase: Number(key), 
+            endBase: (Number(key) + Number(match.seq.length - 1)),
             generatedSub: bestMatchCodon, 
           };
+
           return memo;
+
         }
 
-      });
+      }, {});
+    
     
 
     

@@ -421,10 +421,15 @@ define({
     "ACG":"V",
     "ACGT":"N"
   },
-  
-  "codonOptimisations": {
-    'GCT': ["GCC", "GCA", "GCG"],
-    "TTA": [""],
+
+  "codonOptimisations":{
+    'GCT': ['GCC', 'GCA', 'GCG'],
+    'GCC': ['GCA', "GCG", "GCT"],
+    'GCA': ['GCC', 'GCG', 'GCT'],
+    'GCG': ['GCC', "GCA", "GCT"],
+    'TTA': ['TTG', "CTT", 'GTC', 'CTA', 'CTG'],
+    'TTG': ['TTA', "CTT", 'GTC', 'CTA', 'CTG'],
+    'CTT': ['CTG', 'sad'],
   },
 
   "aa":[
