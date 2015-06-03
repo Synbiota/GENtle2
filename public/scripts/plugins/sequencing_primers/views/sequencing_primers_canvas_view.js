@@ -87,7 +87,7 @@ export default Backbone.View.extend({
           textColour: '#005',
           transform: _.formatThousands,
         }],
-        topFeatures: ['Feature', _.extend({
+        topFeatures: ['FeatureArrow', _.extend({
           features: topFeatures
         }, featuresConfig)],
         dna: ['DNA', {
@@ -105,7 +105,7 @@ export default Backbone.View.extend({
           textColour: '#bbb',
           getSubSeq: this.getComplements,
         }],
-        bottomFeatures: ['Feature', _.extend({
+        bottomFeatures: ['FeatureArrow', _.extend({
           features: bottomFeatures
         }, featuresConfig)],
         bottomSeparator: ['Blank', { height: 5 }],

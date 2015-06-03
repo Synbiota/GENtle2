@@ -7,7 +7,7 @@
                 = require('./lines/restriction_enzymes_sites'),
       RestrictionEnzymeLabels
                 = require('./lines/restriction_enzymes_labels'),
-      OldFeature = require('./lines/old_feature');
+      FeatureArrow = require('./lines/feature_arrow');
 
   export default {
     Blank: Blank,
@@ -16,6 +16,6 @@
     Feature: Feature,
     RestrictionEnzymeSites: RestrictionEnzymeSites,
     RestrictionEnzymeLabels: RestrictionEnzymeLabels,
-    OldFeature
+    FeatureArrow
   };
 // });

@@ -1,3 +1,6 @@
+import Line from './line';
+import _ from 'underscore';
+
 /**
 Line class for displaying bases on SequenceCanvas. 
 Options are: 
@@ -15,22 +18,18 @@ Options are:
 @submodule SequenceCanvas
 @extends Lines.Line
 **/
-// define(function(require) {
-  var Line = require('./line'),
-      _    = require('underscore'),
-      Sequence = require('../../models/sequence'),
-      OldFeature;
+class FeatureArrow extends Line {
 
-  OldFeature = function(sequenceCanvas, options) {
-    var _this = this;
-    this.type = 'OldFeature';
+  constructor(sequenceCanvas, options) {
+    super(sequenceCanvas, options);
+    this.type = 'FeatureArrow';
     this.sequenceCanvas = sequenceCanvas;
     this.sequenceCanvas.sequence.on('change:features', this.clearCache, this);
     _.extend(this, options);
     this.featureStack = [];
     this.cachedProperties = ['visible', 'maxNbFeaturesPerRow'];
-  };
-  _.extend(OldFeature.prototype, Line.prototype);
+    this.maxNbFeaturesPerRow = _.memoize2(this.maxNbFeaturesPerRow);
+  }
 
   /**
   Returns the value by which to sort features. (i.e. lowest range starting base).
@@ -39,9 +38,9 @@ Options are:
   @param {object} feature
   @returns {integer}
   **/
-  OldFeature.prototype.featureSortedBy = function(feature) {
+  featureSortedBy(feature) {
     return _.min(_.pluck(feature.ranges, 'from'));
-  };
+  }
 
   /**
   Checks whether two features overlap
@@ -53,32 +52,14 @@ Options are:
   @param {object} feature2
   @returns {boolean}
   **/
-  OldFeature.prototype.featuresOverlap = function(feature1, feature2) {
+  featuresOverlap(feature1, feature2) {
     if(feature1 == feature2) return false;
     return _.some(feature1.ranges, function(range1) {
       return _.some(feature2.ranges, function(range2) {
         return range2.to >= range1.from && range2.from <= range1.to;
       });
     });
-  };
-
-  var switchContext = function(fn) {
-    var args = _.toArray(arguments);
-    var sequence = this.sequenceCanvas.sequence;
-    var context = (this.features === undefined) ? sequence : { 
-      attributes: {
-        features: this.features 
-      }
-    };
-
-    args.shift();
-
-    return sequence[fn].apply(context, args);
-  };
-
-  OldFeature.prototype.featuresInRange = _.partial(switchContext, 'featuresInRange');
-  OldFeature.prototype.nbFeaturesInRange = _.partial(switchContext, 'nbFeaturesInRange');
-  OldFeature.prototype.filterRanges = _.partial(switchContext, 'filterRanges');
+  }
 
   /**
   Checks whether one of the ranges of a feature ends in a give base range
@@ -91,12 +72,12 @@ Options are:
   @param {integer} endBase
   @returns {boolean}
   **/
-  OldFeature.prototype.featureEndInRange = function(feature, startBase, endBase) {
+  featureEndInRange(feature, startBase, endBase) {
     return _.some(feature.ranges, function(range) {
       return range.from <= startBase && range.to <= endBase;
     });
 
-  };
+  }
 
   /**
   Returns the max number of ranges to be found in one row for the entire sequence
@@ -104,7 +85,7 @@ Options are:
   @method maxNbFeaturesPerRange
   @returns {integer}
   **/
-  OldFeature.prototype.maxNbFeaturesPerRow = _.memoize2(function() {
+  maxNbFeaturesPerRow() {
     var nbFeatures      = [],
         sequenceCanvas  = this.sequenceCanvas,
         sequence        = sequenceCanvas.sequence,
@@ -115,15 +96,15 @@ Options are:
     }
     return nbFeatures.length ? _.max(nbFeatures) : 0;
 
-  }),
+  }
 
   /**
   Sets the `this.height` attribute based on the max nb of features pe row
   @method calculateHeight
   **/
-  OldFeature.prototype.calculateHeight = function() {
+  calculateHeight() {
     this.height = this.unitHeight * this.maxNbFeaturesPerRow() + (this.topMargin || 0);
-  },
+  }
 
   /**
   Draws the featuresf or a given range
@@ -131,7 +112,7 @@ Options are:
   @param {integer} y Start y position
   @param {array} baseRange 
   **/
-  OldFeature.prototype.draw = function(y, baseRange) {
+  draw(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         layoutSettings  = sequenceCanvas.layoutSettings,
         layoutHelpers   = sequenceCanvas.layoutHelpers,
@@ -170,31 +151,78 @@ Options are:
         backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
         textColour  = _.isFunction(this.textColour) ? this.textColour(feature._type) : this.textColour;
 
-        artist.rect(startX,
-                    y + this.margin + i*this.unitHeight,
-                    deltaX,
-                    this.lineSize,
-                    {
-                      fillStyle: backgroundFillStyle
-                    });
+        let arrowY = y + this.margin + (i + 0.5)*this.unitHeight + i;
+        let arrowStartX = startX;
+        let arrowEndX = endX + baseWidth;
+        let reverse = range.reverseComplement;
 
-        artist.text(feature.name,
-                    startX,
-                    y + this.margin + i * this.unitHeight,
-                    {
-                      font: this.textFont,
-                      fillStyle: textColour,
-                      lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
-                      height: this.unitHeight - this.margin,
-                      textPadding: this.textPadding,
-                      backgroundFillStyle: backgroundFillStyle
-                    });
+        let continuingBefore = frm < baseRange[0];
+        let continuingAfter = to > baseRange[1];
+
+        if(reverse) {
+          [arrowStartX, arrowEndX] = [arrowEndX, arrowStartX];
+          [continuingAfter, continuingBefore] = [continuingBefore, continuingAfter];
+        }
+
+        if(continuingBefore) {
+          arrowStartX += reverse ? 5 : -5;
+        }
+
+        if(continuingAfter) {
+          arrowEndX += reverse ? -5 : 5;
+        }
+
+        artist.jaggedArrow(
+          arrowStartX, arrowY,
+          arrowEndX, arrowY,
+          this.unitHeight, 7, this.unitHeight, 
+          continuingBefore, continuingAfter, 
+          {
+            fillStyle: backgroundFillStyle,
+            strokeStyle: '#fff'
+          }
+        );
+
+        if((reverse && !continuingAfter)) {
+          startX += 7;
+        }
+
+        artist.text(
+          feature.name,
+          startX,
+          y + this.margin + i * this.unitHeight + i,
+          {
+            textOverflow: true,
+            maxWidth: Math.abs(arrowEndX - arrowStartX),
+            font: this.textFont,
+            fillStyle: textColour,
+            lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
+            height: this.unitHeight - this.margin,
+            textPadding: this.textPadding
+          }
+        );
 
       }
 
     }
 
-  };
-export default OldFeature;
-  // return Feature;
-// });
+  }
+}
+
+var switchContext = function(fn) {
+  var args = _.toArray(arguments);
+  var sequence = this.sequenceCanvas.sequence;
+  var context = (this.features === undefined) ? sequence : sequence.clone().set({ 
+    features: this.features 
+  }, {silent: true});
+
+  args.shift();
+
+  return sequence[fn].apply(context, args);
+};
+
+FeatureArrow.prototype.featuresInRange = _.partial(switchContext, 'featuresInRange');
+FeatureArrow.prototype.nbFeaturesInRange = _.partial(switchContext, 'nbFeaturesInRange');
+FeatureArrow.prototype.filterRanges = _.partial(switchContext, 'filterRanges');
+
+export default FeatureArrow;
