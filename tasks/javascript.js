@@ -12,6 +12,9 @@ var buffer = require('gulp-buffer');
 var replace = require('gulp-replace');
 var transform = require('vinyl-transform');
 var exorcist = require('exorcist');
+var disc = require('disc');
+var open = require('opener');
+var fs = require('fs');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -95,6 +98,30 @@ gulp.task('js:vendor', function() {
 
 gulp.task('js', ['js:vendor'], function() { run(false); });
 gulp.task('js:watch', ['js:vendor'], function() { run(true); });
+
+
+var discify = function(filepath, bundleType) {
+  var filename = filepath.split('/');
+  filename = filename[filename.length - 1];
+  var output = './disc_'+filename+'.html';
+  var fullPath = path.resolve(filepath);
+
+  browserifyUtils.applyConfig(bundleType, browserify(fullPath, _.extend({
+    fullPaths: true
+  }, browserifyOptions)))
+    .transform('uglifyify', { global: true })
+    .bundle()
+    .pipe(disc())
+    .pipe(fs.createWriteStream(output))
+    .once('close', function() {
+      open(output);
+    });
+};
+
+gulp.task('js:deps', function() {
+  discify(scriptFile, 'app');
+  // discify('./public/scripts/vendor.js', 'vendor'); // TODO FIX THAT
+});
 
 
 
