@@ -4,6 +4,7 @@ var appEnv = require('./import_app_env');
 var isDev = process.env.NODE_ENV !== 'production';
 
 var transforms = [
+  [ 'jstify', {} ],
   [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
   [ 'babelify', {} ],
   [ 'aliasify', {aliases: aliases} ]

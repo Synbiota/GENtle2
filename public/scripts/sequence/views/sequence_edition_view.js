@@ -5,7 +5,7 @@
 **/
 // define(function(require) {
   var template = require('../templates/sequence_edition_view.hbs'),
-      SequenceCanvas = require('../lib/sequence_canvas'),
+      SequenceCanvas = require('gentle-sequence-canvas'),
       Gentle = require('gentle'),
       ContextMenuView = require('../../common/views/context_menu_view'),
       LinearMapView = require('../../linear_map/views/linear_map_view'),
