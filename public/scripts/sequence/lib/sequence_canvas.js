@@ -223,7 +223,7 @@ rendered.
 
       // Annotations
       features: new Lines.Feature(this, {
-        unitHeight: 15,
+        unitHeight: 14,
         baseLine: 10,
         textFont: LineStyles.features.font,
         topMargin: 3,
@@ -232,7 +232,7 @@ rendered.
           type = 'type-'+type.toLowerCase();
           return (colors[type] && colors[type].color) || colors._default.color;
         },
-        textPadding: 2,
+        textPadding: 3,
         margin: 2,
         lineSize: 2,
         colour: function(type) {
@@ -596,9 +596,8 @@ rendered.
     this.afterNextRedraw(deferred.resolve);
 
     this.redraw();
-
     if (triggerEvent !== false) {
-      this.trigger('scroll');
+      this.trigger('scroll', {yOffset: yOffset});
     }
 
     return deferred.promise;
@@ -619,11 +618,11 @@ rendered.
     }
   };
 
-  SequenceCanvas.prototype.scrollToBase = function(base) {
+  SequenceCanvas.prototype.scrollToBase = function(base, triggerEvent = true) {
     if (!this.isBaseVisible(base)) {
       var yPos = this.getYPosFromBase(base),
         maxY = this.$scrollingChild.height() - this.$scrollingParent.height();
-      return this.scrollTo(Math.min(yPos, maxY));
+      return this.scrollTo(Math.min(yPos, maxY), triggerEvent);
     } else {
       return Q.resolve();
     }

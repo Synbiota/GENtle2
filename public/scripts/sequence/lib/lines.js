@@ -7,8 +7,9 @@
       RestrictionEnzymeSites
                 = require('./lines/restriction_enzymes_sites'),
       RestrictionEnzymeLabels
-                = require('./lines/restriction_enzymes_labels');
-  var Chromatogram = require('./lines/chromatogram');
+                = require('./lines/restriction_enzymes_labels'),
+      Chromatogram = require('./lines/chromatogram'),
+      FeatureArrow = require('./lines/feature_arrow');
 
   export default {
     Blank: Blank,
@@ -18,6 +19,7 @@
     Feature: Feature,
     RestrictionEnzymeSites: RestrictionEnzymeSites,
     RestrictionEnzymeLabels: RestrictionEnzymeLabels,
-    Chromatogram
+    Chromatogram,
+    FeatureArrow
   };
 // });

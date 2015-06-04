@@ -21,6 +21,25 @@ export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
     });
   }
 
+  constructor(...args) {
+    super(...args);
+
+    var defaults = this.defaults();
+
+    if(this.get('displaySettings.rows.res.lengths') === undefined) {
+      this.set('displaySettings.rows.res.lengths', defaults.displaySettings.rows.res.lengths);
+    }
+
+    if(this.get('displaySettings.rows.res.custom') === undefined) {
+      this.set('displaySettings.rows.res.custom', defaults.displaySettings.rows.res.manual);
+    }
+
+    this.listenTo(this, 'change:sequence', function() {
+      this.clearBlastCache();
+      this.clearSequencingPrimers();
+    });
+  }
+
   get optionalFields() {
     return super.optionalFields.concat('displaySettings', 'meta', 'history');
   }
@@ -34,8 +53,16 @@ export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
 
   
   clearBlastCache() {
-    if(this.get('meta.blast')) {
-      this.set('meta.blast', {});
+    return this.clearObjectAttribute('meta.blast');
+  }
+
+  clearSequencingPrimers() {
+    return this.clearObjectAttribute('meta.sequencingPrimers');
+  }
+
+  clearObjectAttribute(attribute) {
+    if(this.get(attribute)) {
+      this.set(attribute, {});
       this.throttledSave();
     }
 

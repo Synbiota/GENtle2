@@ -75,11 +75,11 @@ var sequence863 = ('AAAAAAATGATTAAAAATTTATTGGCAATTTTAGATTTAAAATCTTTAG' +
 
 var expected863Primers = [
 {
-    "name": "Product 1 (forward)",
+    "name": "Fwd-1",
     "from": 81,
     "to": 580,
     "primer": {
-      "name": "Product 1 (forward) - primer",
+      "name": "Fwd-1 primer",
       "sequence": "AATAATAATGGCATACAGGGTGGTG",
       "from": 81,
       "to": 105,
@@ -90,11 +90,11 @@ var expected863Primers = [
     "antisense": false
   },
   {
-    "name": "Product 2 (forward)",
+    "name": "Fwd-2",
     "from": 506,
     "to": 919,
     "primer": {
-      "name": "Product 2 (forward) - primer",
+      "name": "Fwd-2 primer",
       "sequence": "ATTGGTTCCCCCACGTAAAC",
       "from": 506,
       "to": 525,
@@ -105,11 +105,11 @@ var expected863Primers = [
     "antisense": false
   },
   {
-    "name": "Product 1 (reverse)",
+    "name": "Rvs-1",
     "from": 519,
     "to": 19,
     "primer": {
-      "name": "Product 1 (reverse) - primer",
+      "name": "Rvs-1 primer",
       "sequence": "GTGGGGGAACCAATACTGGT",  // ACCAGTATTGGTTCCCCCAC
       "from": 519,
       "to": 499,
@@ -120,11 +120,11 @@ var expected863Primers = [
     "antisense": true
   },
   {
-    "name": "Product 2 (reverse)",
+    "name": "Rvs-2",
     "from": 103,
     "to": -1,
     "primer": {
-      "name": "Product 2 (reverse) - primer",
+      "name": "Rvs-2 primer",
       "sequence": "CACCACCCTGTATGCCATTATTATT",  // AATAATAATGGCATACAGGGTGGTG
       "from": 103,
       "to": 78,
@@ -153,11 +153,11 @@ var shortSequence = ('TTATGACAACTTGACGGCTACATCATTCACTTTTTCTTCAC' +           // 
 
 var expectedShortSequencePrimers = [
   {
-    "name": "Product 1 (forward)",
+    "name": "U-fwd",
     "from": 41,
     "to": 41+500-1,
     "primer": {
-      "name": "Product 1 (forward) - primer",
+      "name": "U-fwd primer",
       "sequence": "TGCCACCTGACGTCTAAGAA",
       "from": 41,
       "to": 60,
@@ -168,11 +168,11 @@ var expectedShortSequencePrimers = [
     "antisense": false,
   },
   {
-    "name": "Product 2 (forward)",
+    "name": "Fwd-1",
     "from": 457,
     "to": 559,
     "primer": {
-      "name": "Product 2 (forward) - primer",
+      "name": "Fwd-1 primer",
       "sequence": "CGTTCTGAACAAATCCAGATGGAG",
       "from": 457,
       "to": 480,
@@ -183,11 +183,11 @@ var expectedShortSequencePrimers = [
     "antisense": false,
   },
   {
-    "name":"Product 1 (reverse)",
+    "name":"U-rvs",
     "from": 557,
     "to": 557-500,
     "primer": {
-      "name":"Product 1 (reverse) - primer",
+      "name":"U-rvs primer",
       "from": 557,
       "to": 539-1,
       "sequence": "AATACGCCCGGTAGTGATC",  // reverse compliment of: GATCACTACCGGGCGTATT
@@ -197,11 +197,11 @@ var expectedShortSequencePrimers = [
     "antisense": true,
   },
   {
-    "name":"Product 2 (reverse)",
+    "name":"Rvs-2",
     "from": 139,
     "to": 0-1,
     "primer": {
-      "name":"Product 2 (reverse) - primer",
+      "name":"Rvs-2 primer",
       "from": 139,
       "to": 119-1,
       "sequence": "TTTTCCGAAGGTAACTGGCTT",  // reverse compliment of: AAGCCAGTTACCTTCGGAAAA

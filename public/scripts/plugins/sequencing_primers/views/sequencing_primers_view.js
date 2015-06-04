@@ -8,6 +8,7 @@ import Sequence from '../../../sequence/models/sequence';
 import {namedHandleError} from '../../../common/lib/handle_error';
 import Product from '../../pcr/lib/product';
 import errors from '../lib/errors';
+import _ from 'underscore';
 
 
 export default Backbone.View.extend({
@@ -23,8 +24,11 @@ export default Backbone.View.extend({
     var products = this.getProducts();
     _.map((productData) => new Product(productData), products);
     this.model.set('meta.sequencingPrimers.products', products);
-    this.setView('.sequencing-primers-products-container', new ProductsView());
-    this.setView('.sequencing-primers-canvas-container', new CanvasView());
+
+    this.productsView = new ProductsView(); 
+    this.setView('.sequencing-primers-products-container', this.productsView);
+    this.canvasView = new CanvasView();
+    this.setView('.sequencing-primers-canvas-container', this.canvasView);
   },
 
   getProducts: function () {
@@ -35,6 +39,10 @@ export default Backbone.View.extend({
     return {
       products: this.getProducts()
     };
+  },
+
+  afterRender: function() {
+    if(!this.getProducts().length) this.startCalculation();
   },
 
   startCalculation: function(event) {
@@ -59,7 +67,7 @@ export default Backbone.View.extend({
       this.model.set('meta.sequencingPrimers.products', results).throttledSave();
       this.render();
     })
-    .catch(function(error) {
+    .catch((error) => {
       // We have been passed a message.
       if(error.error === errors.DNA_LEFT_UNSEQUENCED) {
         this.updateProgress(100).css('background-color', '#C00');
@@ -81,15 +89,6 @@ export default Backbone.View.extend({
     if(_.isEmpty(products)) return;
 
     _.each(products, function(product) {
-
-      features.push({
-        name: product.name,
-        _type: 'sequencing_product',
-        ranges: [{
-          from: product.from,
-          to: product.to
-        }]
-      });
       var primer = product.primer;
       if(primer) {
         features.push({
@@ -98,6 +97,7 @@ export default Backbone.View.extend({
           ranges: [{
             from: primer.from,
             to: primer.to,
+            reverseComplement: !!primer.antisense
           }]
         });
       }
@@ -108,6 +108,16 @@ export default Backbone.View.extend({
       sequence: this.model.getSequence(),
       features: features
     });
-  }
+  },
+
+  scrollToProduct: function(productId) {
+    var product = _.findWhere(this.getProducts(), {id: productId});
+    var canvasView = this.canvasView;
+    canvasView._freezeScrolling = true;
+    canvasView.sequenceCanvas.scrollToBase(product.primer.from, false).then(() => {
+      canvasView._freezeScrolling = false;
+    });
+  },
+
 
 });

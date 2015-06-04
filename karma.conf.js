@@ -8,7 +8,7 @@ var preprocessors = testFiles.reduce(function(memo, file) {
     return memo;
 }, {});
 
-var transforms = require('./tasks/utils/browserify_utils').transforms;
+var browserifyUtils = require('./tasks/utils/browserify_utils');
 
 module.exports = function(config) {
   config.set({
@@ -37,7 +37,7 @@ module.exports = function(config) {
 
     browserify: {
         debug: true,
-        transform: transforms,
+        transform: browserifyUtils.appTransforms,
     },
 
 

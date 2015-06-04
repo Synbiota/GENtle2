@@ -10,6 +10,8 @@ var gzip = require('gulp-gzip');
 var rev = require('gulp-rev');
 var buffer = require('gulp-buffer');
 var replace = require('gulp-replace');
+var transform = require('vinyl-transform');
+var exorcist = require('exorcist');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -17,24 +19,18 @@ var scriptPath = path.dirname(scriptFile);
 var destPath = './';
 var destExtname = '.min.js';
 var isDev = process.env.NODE_ENV !== 'production';
-var browserifyOptions = {};
+var browserifyOptions = {
+  debug: true
+};
 
 var browserifyUtils = require('./utils/browserify_utils');
-
-if(isDev) {
-  browserifyOptions.debug = true;
-}
 
 var run = function(watch) {
   var browserified = watch ? 
     watchify(browserify(scriptFile, _.extend(browserifyOptions, watchify.args))) :
     browserify(scriptFile, browserifyOptions);
 
-  browserified = browserifyUtils.applyTransforms(browserified);
-
-  if(!isDev) {
-    browserified = browserified.transform('uglifyify', { global: true });
-  }
+  browserified = browserifyUtils.applyConfig('app', browserified);
 
   if(watch) {
     bundleLogger.watch(scriptFile);
@@ -42,6 +38,20 @@ var run = function(watch) {
   } 
 
   bundle(browserified); 
+};
+
+var productionTransforms = function(browserified) {
+  return browserified
+    .pipe(buffer())
+    .pipe(rev())
+    .pipe(transform(function(filename) { return exorcist(filename + '.map'); }))
+    .pipe(gulp.dest(destPath)) 
+    .pipe(gzip())
+    .pipe(gulp.dest(destPath))
+    .pipe(rev.manifest({merge: true}))
+    .pipe(replace('.gz', ''))
+    .pipe(replace('public/', ''))
+    .pipe(gulp.dest(destPath)); 
 };
 
 var bundle = function(browserified, watch, filepath) {
@@ -61,21 +71,30 @@ var bundle = function(browserified, watch, filepath) {
     .pipe(gulp.dest(destPath));
 
   if(!isDev) {
-    browserified = browserified
-      .pipe(buffer())
-      .pipe(rev())
-      .pipe(gulp.dest(destPath)) 
-      .pipe(gzip())
-      .pipe(gulp.dest(destPath))
-      .pipe(rev.manifest({merge: true}))
-      .pipe(replace('.gz', ''))
-      .pipe(replace('public/', ''))
-      .pipe(gulp.dest(destPath)); 
+    browserified = productionTransforms(browserified);
   }
 };
 
-gulp.task('js', function() { run(false); });
-gulp.task('js:watch', function() { run(true); });
+gulp.task('js:vendor', function() {
+  var target = './public/scripts/vendor.js';
+  bundleLogger.start(target);
+  var browserified = browserify({debug: true});
+
+  browserified = browserifyUtils.applyConfig('vendor', browserified)
+    .bundle()
+    .on('error', bundleLogger.error)
+    .on('end', function() { bundleLogger.end(target, false); })
+    .pipe(source(target))
+    .pipe(gulp.dest(destPath));
+
+  if(!isDev) {
+    browserified = productionTransforms(browserified);
+  }
+});
+
+
+gulp.task('js', ['js:vendor'], function() { run(false); });
+gulp.task('js:watch', ['js:vendor'], function() { run(true); });
 
 
 

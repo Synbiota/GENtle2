@@ -1,9 +1,18 @@
+import Bugsnag from 'bugsnag-js';
 
 var handleError = function (exception, codeLabel=undefined) {
-  if(codeLabel) {
-    console.error(codeLabel, exception);
+  if(process.env.ENABLE_BUGSNAG) {
+    if(codeLabel) {
+      Bugsnag.notifyException(exception, codeLabel);
+    } else {
+      Bugsnag.notifyException(exception);
+    }
   } else {
-    console.error(exception);
+    if(codeLabel) {
+      console.error(codeLabel, exception);
+    } else {
+      console.error(exception);
+    }
   }
 };
 

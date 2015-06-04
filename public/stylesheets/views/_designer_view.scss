@@ -4,6 +4,24 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   height: 100%;
 }
 
+.designer-options {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  z-index: 1;
+}
+
+.designer-available-sequence-outlet-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: auto;
+  padding-top: 30px;
+  padding-left: 300px;
+}
+
 .designer-designed-sequence-outlet {
   padding: 10px 20px;
   border-right: 2px solid #ddd;
@@ -33,6 +51,37 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
 
   .designer-designed-sequence-chunks {
     margin-left: 50px;
+  }
+
+  .designer-designed-sequence-chunk-droppable {
+    font-size: 10px;
+    overflow: hidden;
+    text-align: center;
+    border: 1px dashed transparent;
+    display: block;
+    height: 40px;
+    margin: 10px 0;
+    padding: 12px 30px;
+    border-color:  #ddd;
+    color: #999;
+    background-color: white;
+    @include transition-property(background-color);
+    @include transition-duration(.2s);
+    @include transition-timing-function(ease-out);
+
+    &.incompatible-ends {
+      background-color: #ffdada;
+    }
+
+    &.highlighted, &.active {
+      background-color: #daffd5;
+    }
+
+    &.hover {
+      border-color: $link-color;
+      color: $link-hover-color;
+    }
+
   }
 
   .designer-designed-sequence-chunk-container {
@@ -78,50 +127,54 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
       text-align: center;
       border: 1px solid map_get(map_get($__colors, '_default'), 'color');
       margin-bottom: 7px; 
+      cursor: move;
 
       .designer-designed-sequence-chunk-title {
-        padding: 5px 10px;
+        padding: 13px 10px;
       }
 
-      .designer-designed-sequence-chunk-droppable {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 50%;
-        &.active {
-          background: linear-gradient(0deg, transparent, rgba(255,255,255,.7));
-          &::before {
-            content: "Insert before";
-            display: block;
-            position: absolute;
-            top: 0;
-            margin-top: -25px;
-            left: 50%;
-            margin-left: -50px;
-            width: 100px;
-            background: white;
-            color: #888;
-            padding: 3px 6px;
-            border: 1px dashed #888;
-            border-radius: 7px;
-          }
-        }
+      &.ui-draggable-dragging {
+        box-shadow: 0 0 3px transparentize(#222, .5);
       }
-      .designer-designed-sequence-chunk-droppable-after {
-        top: auto;
-        bottom: 0;
-        &.active {
-          background: linear-gradient(transparent, rgba(255,255,255,.7));
-          &::before {
-            top: auto;
-            bottom: 0;
-            margin-bottom: -25px;
-            content: "Insert after";
-            z-index: 1000;
-          }
-        }
-      }
+      // .designer-designed-sequence-chunk-droppable {
+      //   position: absolute;
+      //   top: 0;
+      //   left: 0;
+      //   width: 100%;
+      //   height: 50%;
+      //   &.active {
+      //     background: linear-gradient(0deg, transparent, rgba(255,255,255,.7));
+      //     &::before {
+      //       content: "Insert before";
+      //       display: block;
+      //       position: absolute;
+      //       top: 0;
+      //       margin-top: -25px;
+      //       left: 50%;
+      //       margin-left: -50px;
+      //       width: 100px;
+      //       background: white;
+      //       color: #888;
+      //       padding: 3px 6px;
+      //       border: 1px dashed #888;
+      //       border-radius: 7px;
+      //     }
+      //   }
+      // }
+      // .designer-designed-sequence-chunk-droppable-after {
+      //   top: auto;
+      //   bottom: 0;
+      //   &.active {
+      //     background: linear-gradient(transparent, rgba(255,255,255,.7));
+      //     &::before {
+      //       top: auto;
+      //       bottom: 0;
+      //       margin-bottom: -25px;
+      //       content: "Insert after";
+      //       z-index: 1000;
+      //     }
+      //   }
+      // }
 
       &.designer-designed-sequence-chunk-empty {
         background: #ddd;
@@ -164,6 +217,27 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   padding: 10px 20px;
   border-bottom: 1px solid #ddd;
 
+
+  &.unusable-sequence {
+    color: #BBB;
+  }
+
+  &.incompatible-sequences {
+    i.incompatible-sequences {
+      display: initial;
+    }  
+  }
+
+  &.lacks-sticky-end-sequences {
+    i.lacks-sticky-end-sequences {
+      display: initial;
+    }
+  }
+
+  i {
+    display: none;
+  }
+
   .designer-available-sequence {
     position: relative;
   }
@@ -177,6 +251,7 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
     margin-left: 20px;
     cursor: move;
     text-align: center;
+    margin-top: -22px;
     &.ui-draggable-dragging {
       padding: 5px 10px;
       background: #ddd;
@@ -208,7 +283,7 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
     font-size: 10px;
     box-sizing: border-box;
     padding: 5px 3px;
-    cursor: move;
+    // cursor: move;
     text-align: center;
     @include text-overflow();
 

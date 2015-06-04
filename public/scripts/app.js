@@ -5,7 +5,7 @@ Gentle app definition.
 import $ from 'jquery.mixed';
 import _ from 'underscore.mixed';
 import Backbone from 'backbone.mixed';
-import Q from 'q';
+import Bugsnag from 'bugsnag-js';
 
 import Gentle from './common/models/gentle';
 import config from './config.json';
@@ -33,6 +33,20 @@ Gentle.enableFeatures('pcr', 'blast', 'sequencingPrimers');
 
 Gentle.router = new Router();
 window.gentle = Gentle;
+
+if(process.env.ENABLE_BUGSNAG) {
+  Bugsnag.apiKey = process.env.BUGSNAG_API_KEY;
+  Bugsnag.releaseStage = process.env.BUGSNAG_RELEASE_STAGE || 'production';
+  Bugsnag.appVersion = process.env.BUGSNAG_APP_VERSION;
+} else {
+  Bugsnag.autoNotify = false;
+}
+
+window.testBugsnag = function() {
+  Bugsnag.notify('bugsnag/sourcemaps test');
+};
+
+window.testProcess = process.env;
 
 $(function() {
   Gentle.layout = new Layout();
