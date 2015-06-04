@@ -67,6 +67,7 @@ define(function(require) {
         @default first CANVAS DOM element in `this.view.$el`
     **/
     this.$canvas = options.$canvas || this.view.$('canvas').first();
+    console.log('canvas', this.$canvas)
 
     /**
         Invisible DIV used to handle scrolling.

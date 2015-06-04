@@ -427,9 +427,87 @@ define({
     'GCC': ['GCA', "GCG", "GCT"],
     'GCA': ['GCC', 'GCG', 'GCT'],
     'GCG': ['GCC', "GCA", "GCT"],
+
     'TTA': ['TTG', "CTT", 'GTC', 'CTA', 'CTG'],
     'TTG': ['TTA', "CTT", 'GTC', 'CTA', 'CTG'],
-    'CTT': ['CTG', 'sad'],
+    'CTT': ['CTG', 'CTA', 'CTG', 'TTG', 'TTA'],
+    'CTC': ['CTT', 'CTG', 'CTA', 'TTG', 'TTA'],
+    'CTA': ['CTC', 'CTG', 'CTT', 'TTG', 'TTA'],
+    'CTG': ['CTC', 'CTA', 'CTT', 'TTG', 'TTA'],
+
+    'CGT': ['CGC', 'CGA', 'CGG', 'AGA', 'AGG'],
+    'CGC': ['CGT', 'CGA', 'CGG', 'AGA', 'AGG'],
+    'CGA': ['CGC', 'CGT', 'CGG', 'AGA', 'AGG'],
+    'CGG': ['CGC', 'CGT', 'CGA', 'AGA', 'AGG'],
+    'AGA': ['AGG', 'CGC', 'CGA', 'CGG', 'CGT'],
+    'AGG': ['AGA', 'CGC', 'CGA', 'CGG', 'CGT'],
+
+    'AAA': ['AAG'],
+    'AAG': ['AAA'],
+
+    'AAT': ['AAC'],
+    'AAC': ['AAT'],
+
+    'ATG': ['ATG'],
+
+    'GAT': ['GAC'],
+    'GAC': ['GAT'],
+
+    'TTT': ['TTC'],
+    'TTC': ['TTT'],
+
+    'TGT': ['TGC'],
+    'TGC': ['TGT'],
+
+    'CCT': ['CCC', 'CCA', 'CCG'],
+    'CCC': ['CCT', 'CCA', 'CCG'],
+    'CCA': ['CCT', 'CCC', 'CCG'],
+    'CCG': ['CCT', 'CCC', 'CCA'],
+
+    'CAG': ['CAA'],
+    'CAA': ['CAG'],
+
+    'TCT': ['TCC', 'TCA', 'TCG', 'AGT', 'AGC'], 
+    'TCC': ['TCT', 'TCA', 'TCG', 'AGT', 'AGC'],
+    'TCA': ['TCT', 'TCC', 'TCG', 'AGT', 'AGC'],
+    'TCG': ['TCT', 'TCC', 'TCA', 'AGT', 'AGC'],
+    'AGT': ['AGC', "TCT", "TCC", "TCA", "TCG"],
+    'AGC': ['AGT', "TCC", "TCT", "TCA", "TCG"],
+
+    'GAA': ['GAG'],
+    'GAG': ['GAA'],
+
+    'ACT': ['ACC', 'ACA', 'ACG'],
+    'ACC': ['ACT', 'ACA', 'ACG'],
+    'ACA': ['ACT', 'ACC', 'ACG'],
+    'ACG': ['ACT', 'ACC', 'ACA'],
+
+    'GGT': ['GGC', 'GGA', 'GGG'],
+    'GGC': ['GGT', 'GGA', 'GGG'],
+    'GGA': ['GGT', 'GGC', 'GGG'],
+    'GGG': ['GGT', 'GGC', 'GGA'],
+
+    'TGG': ['TGG'],
+
+    'CAT': ['CAC'],
+    'CAC': ['CAT'],
+
+
+    'TAT': ['TAC'],
+    'TAC': ['TAT'],
+
+    'ATT': ['ATC', 'ATA'],
+    'ATC': ['ATT', 'ATA'],
+    'ATA': ['ATT', 'ATC'],
+  
+    'GTT': ['GTC', 'GTA', 'GTG'],
+    'GTC': ['GTT', 'GTA', 'GTG'],
+    'GTA': ['GTT', 'GTC', 'GTG'],
+    'GTG': ['GTT', 'GTC', 'GTA'],
+
+    'TAG': ['TAA', 'TGA'],
+    'TGA': ['TAA', 'TAG'],
+    'TAA': ['TAG', 'TGA']
   },
 
   "aa":[

@@ -1,54 +1,53 @@
 <div class="modal" id="condonSubModal" data-backdrop="false" style="overflow: visible; height:400px; width:300px; position:relative; top:{{subCodonPosY}}px; left:{{subCodonPosX}}px; z-index: 1000;" tabindex="-1">
   <div class="modal-content">
-      <button type="button" class="close" data-dismiss="modal" style="margin-top:5px;margin-right:5px;" aria-hidden="true">&times;</button>
-    <div class="modal-body">
-      <div class="row">
-        <h5 class="modal-title" align="center" style="padding-top:5px;">Fix BsaI/NotI site</h5>
-        <p align="center", style="font-size: 13px;font-family: inherit;font-weight: normal;padding:5px 5px 5px 5px;">
-          To Change the recognition site (in red), select one new codon. 
-        </p>
-      </div>
+    <div class="modal-body" style="padding:5px, 5px, 5px, 5px;">
+      <h5 class="modal-title" align="left" style="padding-top:5px;">Fix BsaI/NotI site</h5>
+      <p  style="font-weight:normal;margin-top:15px;">
+        The following codon(s) will be substituted to make this sequence into an rdp part.
+      </p>
+
     
       <div class="row">
         <center>
-          <div class="col-sm-12">
-            <div class='canvas-overlay'>
-              <div class="sequence-canvas-wrapper" style="background:lightgrey; height:100px;width:200px;">
+          {{#each replacements}}
+            <div class="row">
+              <div class="col-sm-12">
+                <div class='canvas-overlay'>    
+                  <div class="sequence-canvas-wrapper" style="background:lightgrey; height:100px;width:200px;">
 
-                <div class="sequence-canvas-container" style="position: relative; top:0px; width: 250px; height: 150px;">
-                  <canvas id="canvas_res_enzyme" class="sequence-canvas" />
-                </div>
-                <div class="scrolling-parent" tabindex="1">
-                  <div class="scrolling-child" style="position: relative; width: 250px; height: 150px;">
-                    <div id="sequence-canvas-context-menu-outlet"></div>
+                    <div class="sequence-canvas-container-{{@index}}" style="position: relative; top:0px; width: 250px; height: 150px;">
+                      <canvas id="canvas_res_enzyme-{{@index}}" class="sequence-canvas" />
+                    </div>
+                    <div class="scrolling-parent" tabindex="1">
+                      <div class="scrolling-child" style="position: relative; width: 250px; height: 150px;">
+                        <div id="sequence-canvas-context-menu-outlet-{{@index}}"></div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="col-sm-12">
-            <div class="row codon-group" style="margin-left:52px;font-size:1px;" align="left">
-              {{#each aminoAcidSubs}}
-                  <ul style=" list-style-type:none; display:inline-block; vertical-align:top;" data-position="{{@index}}">
-                    {{#if this.empty}}
-                      <li><button href="#" style="margin-top:5px;border:none;background:none;color:transparent;" disabeled="disabeled" data-codon="{{this.aminoAcid}}">{{this.aminoAcid}}</button></li><!---->
-                    {{/if}}
-                    
-                    {{#each this.codons}}
-                      <li><button href="#" style="margin-top:5px;border:none;background:none;" class="selectable" data-codon="{{this}}">{{this}}</button></li><!---->
-                    {{/each}}
-                  </ul><!---->
-                {{/each}}
+              <div class="col-sm-12">
+                <div class="codon-group" align="left" style="margin-left:70px;">
+                  <p class='codon-selected' style="width:35px; font:10px; Monospace; letter-spacing: 1px; font-weight:normal; margin-left:0px;">{{this.bestReplacementCodon}}</p>
+                </div>
               </div>
             </div>
-          </div>
+
+          {{/each}}
         </center>
       </div>
-    <div class="row" style="margin-top:15px;">
-      <center>
-        <button href="#" class="replace btn btn-default" style="margin-bottom:5px !important;"  align="center" style="" aria-hidden="true">replace</button>
-      </center>
+      <div class="row" style="margin-top:15px;">    
+        <center>         
+          <button href="#" class="cancel btn btn-default" style="margin-bottom:5px !important;">
+            Cancel
+          </button>
+
+          <button href="#" class="replace btn btn-default" style="margin-bottom:5px !important;">
+            Replace
+          </button>
+        </center>
+      </div>
     </div>
   </div>
 </div>

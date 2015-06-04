@@ -55,7 +55,8 @@ export default Backbone.View.extend({
       return memo;
     }, {});
 
-   
+    // store the count
+    this.enzymesCount = enzymesCount;
 
     // Show button for BsaI && NotI
     var nonCompliantSites = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {customList: ['BsaI', "NotI"]});  
@@ -68,6 +69,7 @@ export default Backbone.View.extend({
     
    return {
       enzymesCount,
+      disableButton: !this.showLaunchButton
     };
 
   },
@@ -75,8 +77,10 @@ export default Backbone.View.extend({
   afterRender: function() {
     var displaySettings = this.model.get('displaySettings.rows.res') || {};
     this.$el.toggleClass('visible', displaySettings.display);
-    if(this.showLaunchButton==true){
-      $(".launch-modal").removeClass('hidden');  
+
+    if(this.enzymesCount == 0){
+      $(".launch-modal").addClass('hidden');  
+      $(".next-enzyme").addClass('hidden');  
     }
   },
 
