@@ -1,7 +1,12 @@
 <div class="linear-map-visible-range"></div>
 <div class="linear-map-position-marks">
-  {{#each positionMarks}}
-    <div class="linear-map-position-mark" data-base="{{base}}" style="top: {{top}}px;">
+  {{#each verticalPositionMarks}}
+    <div class="linear-map-position-mark vertical" data-base="{{base}}" style="top: {{offset}}px;">
+      {{label}}
+    </div>
+  {{/each}}
+  {{#each horizontalPositionMarks}}
+    <div class="linear-map-position-mark horizontal" data-base="{{base}}" style="left: {{offset}}px;">
       {{label}}
     </div>
   {{/each}}
@@ -11,12 +16,12 @@
     <div href="#" class="linear-map-feature linear-map-feature-{{type}}" data-feature_id="{{id}}">
       {{name}}
     </div>
-  {{/each}} 
+  {{/each}}
 </div>
 <div class="linear-map-enzymes">
   {{#each enzymes}}
     <div href="#" class="linear-map-enzyme" data-position="{{position}}">
       <span>{{label}}</span>
     </div>
-  {{/each}} 
+  {{/each}}
 </div>

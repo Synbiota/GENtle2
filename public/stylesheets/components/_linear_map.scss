@@ -1,10 +1,33 @@
 .linear-map {
   position: fixed;
-  // top: 81px;
-  top: 111px;
-  right: 0;
-  bottom: 0;
-  width: 150px;
+
+
+  &.vertical {
+    // top: 81px;
+    top: 111px;
+    right: 0;
+    bottom: 0;
+    width: 150px;
+
+    .linear-map-visible-range {
+      left: 0;
+      width: 100%;
+    }
+  }
+
+  &.horizontal {
+    left: 50px;
+    right: 0;
+    bottom: 0;
+    height: 70px;
+
+    .linear-map-visible-range {
+      top: 0;
+      height: 100%;
+    }
+
+
+  }
 
   .linear-map-canvas {
     height: 100%;
@@ -13,8 +36,6 @@
 
   .linear-map-visible-range {
     position: absolute;
-    left: 0;
-    width: 100%;
     background: rgba(20,20,20, .1);
     cursor: move;
   }
@@ -71,10 +92,21 @@
       font-family: Monospace;
       font-size: 10px;
       color: #005;
-      border-top: 1px solid #888;
-      &:first-child {
-        border-top: none;
+
+      &.vertical{
+        border-top: 1px solid #888;
+        &:first-child {
+          border-top: none;
+        }
       }
+
+      &.horizontal{
+        border-left: 1px solid #888;
+        &:first-child {
+          border-left: none;
+        }
+      }
+
     }
   }
 

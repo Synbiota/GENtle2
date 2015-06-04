@@ -484,9 +484,11 @@ rendered.
     });
   };
 
-  SequenceChromatographCanvas.prototype.getBaseFromXYPos = function(posX){
+  SequenceChromatographCanvas.prototype.getBaseFromXYPos = function(posX, posY){
 
     posX -= this.layoutSettings.pageMargins.left;
+
+    posX += this.layoutHelpers.yOffset;
 
     var peaks = this.sequence.get('chromatogramPeaks'),
         max = _.sortedIndex(peaks, posX),

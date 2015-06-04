@@ -66,10 +66,12 @@
 
     handleResizeRight: function(trigger) {
       $('#sequence-canvas-primary-view-outlet').css({
-        'right': this.secondaryView.$el.width(),
+        'right': 0
+        // 'right': this.secondaryView.$el.width(),
       });
       $('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.secondaryView.$el.width(),
+        'right': 0
+        // 'right': this.secondaryView.$el.width(),
       });
       if(trigger !== false) {
         this.trigger('resize');
@@ -88,7 +90,9 @@
     changeSecondaryView: function(viewName, render) {
       var secondaryViewClass = _.findWhere(this.secondaryViews, {name: viewName});
       if(this.secondaryView) this.secondaryView.remove();
-      this.secondaryView = new secondaryViewClass.view();
+      this.secondaryView = new secondaryViewClass.view({
+        horizontal: true
+      });
 
       this.model.set('displaySettings.secondaryView', viewName).throttledSave();
 
@@ -111,7 +115,8 @@
 
     afterRender: function() {
       this.$('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.secondaryView.$el.width(),
+        'right': 0
+        // 'right': this.secondaryView.$el.width(),
       });
       this.sequenceCanvas = new SequenceChromatographCanvas({
         view: this,

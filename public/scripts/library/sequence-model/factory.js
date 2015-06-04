@@ -1037,8 +1037,8 @@ export default function sequenceModelFactory(BackboneModel) {
       }
 
 
-      var offset = previousStickyEndFormat === 'overhang'  ? 
-        this.getStickyEnds().start.offset : 
+      var offset = previousStickyEndFormat === 'overhang'  ?
+        this.getStickyEnds().start.offset :
         0;
 
       var data = triggerWithPosition && {
@@ -1182,17 +1182,17 @@ export default function sequenceModelFactory(BackboneModel) {
 
     /**
      * Returns the positions of the first and last selectable ranges in
-     * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}} 
+     * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}}
      * (i.e. account for sticky end format).
      *
      * If `reverse` is set to `true`, the range will refer to the complement of the
-     *  sequence, *not the reverse complement* 
+     *  sequence, *not the reverse complement*
      *
      * @method  selectableRange
-     * 
+     *
      * @param  {Boolean} reverse whether to return the selectable range on the
      *                           complement of the sequence
-     *                           
+     *
      * @return {Array<Int>}      array of first and last base in the selectable range
      */
     selectableRange(reverse = false) {
@@ -1202,8 +1202,8 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if(stickyEnds && stickyEndFormat === 'overhang') {
         var getOffset = function(type) {
-          return stickyEnds[type].reverse ? 
-          (reverse ? 0 : stickyEnds[type].size) : 
+          return stickyEnds[type].reverse ?
+          (reverse ? 0 : stickyEnds[type].size) :
           (reverse ? stickyEnds[type].size : 0);
         };
 
@@ -1222,7 +1222,7 @@ export default function sequenceModelFactory(BackboneModel) {
      *  (i.e. account for sticky end format).
      *
      * Typically excludes sticky ends and overhangs
-     * @method editableRange      
+     * @method editableRange
      * @return {Array<Int>} array of first and last base in the editable range
      */
     editableRange() {
@@ -1259,7 +1259,7 @@ export default function sequenceModelFactory(BackboneModel) {
     ensureBaseIsSelectable(base, strict = false) {
       var selectableRange = this.selectableRange();
       return Math.min(
-        Math.max(base, selectableRange[0]), 
+        Math.max(base, selectableRange[0]),
         selectableRange[1] + (strict ? 0 : 1)
       );
     }
@@ -1271,11 +1271,11 @@ export default function sequenceModelFactory(BackboneModel) {
 
     isBaseEditable(base, strict = false) {
       var editableRange = this.editableRange();
-      return editableRange[0] <= base && 
+      return editableRange[0] <= base &&
         editableRange[1] >= base - (strict ? 0 : 1);
     }
 
-    isRangeEditable(start, end) {    
+    isRangeEditable(start, end) {
       if(end < start) {
         [end, start] = [start, end];
       }

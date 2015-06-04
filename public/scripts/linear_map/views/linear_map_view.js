@@ -22,11 +22,14 @@ export default Backbone.View.extend({
     _.bindAll(this, 'scrollSequenceCanvas');
 
     this.listenTo(
-      this.model, 
+      this.model,
       'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
       _.debounce(this.refresh, 500),
       this
     );
+
+    this.$el.addClass( this.horizontal ? 'horizontal' : 'vertical');
+
   },
 
   processFeatures: function() {
@@ -61,7 +64,7 @@ export default Backbone.View.extend({
     for(var i = 0; i < this.features.length; i++) {
       feature = this.features[i];
       featureWidth = Math.max(
-        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
+        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight),
         this.minFeatureWidth
       );
       $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
@@ -101,7 +104,8 @@ export default Backbone.View.extend({
     } else {
       return {
         features: this.features,
-        positionMarks: this.positionMarks,
+        verticalPositionMarks: this.verticalPositionMarks,
+        horizontalPositionMarks: this.horizontalPositionMarks,
         enzymes: this.enzymes
       };
     }
@@ -119,33 +123,44 @@ export default Backbone.View.extend({
     } else {
       this.enzymes = [];
     }
-    
+
     if(render !== false) this.render();
   },
 
   processPositionMarks: function() {
     var sequenceCanvas = this.sequenceCanvas,
-        height = this.$el.height(),
+        length = this.horizontal ? this.$el.width() : this.$el.height(),
         maxBase = sequenceCanvas.maxVisibleBase(),
         magnitudeOrder = Math.floor(Math.log10(maxBase)),
         divider = Math.pow(10, magnitudeOrder - 1),
-        maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
+        maxBaseForCalc = Math.ceil(maxBase / divider) * divider,
+        positionMarks = [];
 
     this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
     this.maxBaseForCalc = maxBaseForCalc;
 
-    while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
+    while(this.positionMarksInterval / this.maxBase * length < this.minPositionMarkInterval) {
       this.positionMarksInterval = Math.floor(this.positionMarksInterval * 2);
     }
 
-    this.positionMarks = [];
     for(var i = 0; i < maxBase; i += this.positionMarksInterval) {
-      this.positionMarks.push({
-        base: i,
-        label: _.formatThousands(i+1),
-        top: Math.floor(i / maxBase * height)
-      });
+
+      var data = {
+            base: i,
+            label: _.formatThousands(i+1),
+            offset: Math.floor(i / maxBase * length)
+          };
+
+      positionMarks.push(data);
     }
+
+    if (this.horizontal){
+      this.horizontalPositionMarks = positionMarks;
+    } else {
+      this.verticalPositionMarks = positionMarks;
+    }
+
+
   },
 
   processEnzymes: function() {
@@ -187,19 +202,31 @@ export default Backbone.View.extend({
         $scrollHelper = this.$('.linear-map-visible-range'),
         scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
         scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-        elemHeight = this.$el.height();
+        elemHeight = this.$el.height(),
+        elemWidth = this.$el.width();
+
 
     this.$scrollHelper = $scrollHelper;
 
-    $scrollHelper.height(Math.floor(
-      scrollingParentHeight / 
-      scrollingChildHeight *
-      elemHeight
-    )).draggable({
-      axis: 'y',
-      containment: 'parent',
-      drag: _.throttle(this.scrollSequenceCanvas, 50)
-    });
+    if (this.horizontal){
+      $scrollHelper.width(Math.floor(
+        scrollingParentHeight /
+        scrollingChildHeight *
+        elemWidth
+      ));
+    } else {
+      $scrollHelper.height(Math.floor(
+        scrollingParentHeight /
+        scrollingChildHeight *
+        elemHeight
+      ));
+    }
+
+    $scrollHelper.draggable({
+        axis: 'y',
+        containment: 'parent',
+        drag: _.throttle(this.scrollSequenceCanvas, 50)
+      });
 
     this.updateScrollHelperPosition();
   },
@@ -208,21 +235,31 @@ export default Backbone.View.extend({
     var sequenceCanvas = this.sequenceCanvas,
         $scrollHelper = this.$scrollHelper,
         scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-        elemHeight = this.$el.height();
+        elemHeight = this.$el.height(),
+        elemWidth = this.$el.width();
 
     if($scrollHelper) {
-      $scrollHelper.css({
-        top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset / 
-                          scrollingChildHeight * 
-                          elemHeight)
-      });
+      if (this.horizontal){
+        $scrollHelper.css({
+          left:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
+                            scrollingChildHeight *
+                            elemWidth)
+        });
+      } else {
+        $scrollHelper.css({
+          top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
+                            scrollingChildHeight *
+                            elemHeight)
+        });
+      }
+
     }
   },
 
   scrollSequenceCanvas: function() {
     this.sequenceCanvas.scrollTo(Math.floor(
       this.$scrollHelper.position().top /
-      this.$el.height() * 
+      this.$el.height() *
       this.sequenceCanvas.$scrollingChild.height()
     ), false);
   },
@@ -234,9 +271,9 @@ export default Backbone.View.extend({
       this.sequenceCanvas = sequenceCanvas;
 
       this.listenTo(
-        sequenceCanvas, 
-        'scroll', 
-        this.updateScrollHelperPosition, 
+        sequenceCanvas,
+        'scroll',
+        this.updateScrollHelperPosition,
         this
       );
 
