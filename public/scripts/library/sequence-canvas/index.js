@@ -12,5 +12,3 @@ export default class SequenceCanvas extends SequenceCanvasMixin {
     console.log(...args)
   }
 }
-
-window.seqeuencecanvas  =SequenceCanvas

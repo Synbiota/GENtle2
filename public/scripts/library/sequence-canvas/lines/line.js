@@ -1,3 +1,6 @@
+import {extend} from 'underscore';
+import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
+
 /**
 Base Line class from which to extend. 
 
@@ -5,28 +8,17 @@ Base Line class from which to extend.
 @module Sequence
 @submodule SequenceCanvas
 **/
-// define(function(require) {
-  var _ = require('underscore'),
-      Line;
+class Line {
+  constructor(sequenceCanvas, options) {
+    this.sequenceCanvas = sequenceCanvas;
+    this.type = this.constructor.name;
+    extend(this, options);
+    this.smartMemoize('visible', 'change');
+  }
 
-  Line = function() {};
+  smartMemoize(methodName, eventName) {
+    smartMemoizeAndClear(this, methodName, eventName, this.sequenceCanvas.sequence); 
+  }
+}
 
-  /**
-  Clears the cache of memoized functions
-  @method clearCache
-  **/
-  Line.prototype.clearCache = function() {
-    var toClear = this.cachedProperties,
-        _this   = this;
-
-    _.each(toClear, function(funcName) {
-      if(_this[funcName] !== undefined && _.isFunction(_this[funcName].clearCache)) {
-        _this[funcName].clearCache();
-      }
-    });
-  };
-
-  Line.prototype.draw = function() {};
 export default Line;
-  // return Line;
-// });

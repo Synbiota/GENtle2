@@ -8,11 +8,7 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 **/
 import Gentle from 'gentle';
 
-var SequenceCanvasContextMenu;
-
-SequenceCanvasContextMenu = function() {};
-
-SequenceCanvasContextMenu.prototype.constructor = SequenceCanvasContextMenu;
+var SequenceCanvasContextMenu = function(){};
 
 /**
 Shows button to open context menu and adds menu items to context menu view

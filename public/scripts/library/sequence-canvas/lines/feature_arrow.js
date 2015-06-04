@@ -2,6 +2,15 @@ import Line from './line';
 import _ from 'underscore';
 
 /**
+Returns the value by which to sort features. (i.e. lowest range starting base).
+Use with _.sortBy.
+@method featureSortedBy
+@param {object} feature
+@returns {integer}
+**/
+var featureSortedBy = (feature) => _.min(_.pluck(feature.ranges, 'from'));
+
+/**
 Line class for displaying bases on SequenceCanvas. 
 Options are: 
 
@@ -22,61 +31,8 @@ class FeatureArrow extends Line {
 
   constructor(sequenceCanvas, options) {
     super(sequenceCanvas, options);
-    this.type = 'FeatureArrow';
-    this.sequenceCanvas = sequenceCanvas;
-    this.sequenceCanvas.sequence.on('change:features', this.clearCache, this);
-    _.extend(this, options);
+    this.smartMemoize('maxNbFeaturesPerRow', 'change:features');
     this.featureStack = [];
-    this.cachedProperties = ['visible', 'maxNbFeaturesPerRow'];
-    this.maxNbFeaturesPerRow = _.memoize2(this.maxNbFeaturesPerRow);
-  }
-
-  /**
-  Returns the value by which to sort features. (i.e. lowest range starting base).
-  Use with _.sortBy.
-  @method featureSortedBy
-  @param {object} feature
-  @returns {integer}
-  **/
-  featureSortedBy(feature) {
-    return _.min(_.pluck(feature.ranges, 'from'));
-  }
-
-  /**
-  Checks whether two features overlap
-
-  *Not used*
-
-  @method featuresOverlap
-  @param {object} feature1
-  @param {object} feature2
-  @returns {boolean}
-  **/
-  featuresOverlap(feature1, feature2) {
-    if(feature1 == feature2) return false;
-    return _.some(feature1.ranges, function(range1) {
-      return _.some(feature2.ranges, function(range2) {
-        return range2.to >= range1.from && range2.from <= range1.to;
-      });
-    });
-  }
-
-  /**
-  Checks whether one of the ranges of a feature ends in a give base range
-
-  *Not used*
-
-  @method featureEndInRange
-  @param {object} feature
-  @param {integer} startBase
-  @param {integer} endBase
-  @returns {boolean}
-  **/
-  featureEndInRange(feature, startBase, endBase) {
-    return _.some(feature.ranges, function(range) {
-      return range.from <= startBase && range.to <= endBase;
-    });
-
   }
 
   /**
@@ -115,15 +71,11 @@ class FeatureArrow extends Line {
   draw(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         layoutSettings  = sequenceCanvas.layoutSettings,
-        layoutHelpers   = sequenceCanvas.layoutHelpers,
-        sequence        = sequenceCanvas.sequence,
         artist          = sequenceCanvas.artist,
-        basesPerBlock   = layoutSettings.basesPerBlock,
         baseWidth       = layoutSettings.basePairDims.width,
-        gutterWidth     = layoutSettings.gutterWidth,
-        features, startX, endX, deltaX, textWidth, backgroundFillStyle, textColour;
+        features, startX, endX, deltaX, backgroundFillStyle, textColour;
 
-    features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
+    features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(featureSortedBy);
     y += (this.topMargin || 0);
 
     for(var i = 0; i < features.length; i++) {

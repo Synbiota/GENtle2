@@ -1,7 +1,7 @@
 import _ from 'underscore';
 
 import classMethodsMixin from './sequence_class_methods_mixin';
-import smartMemoizeAndClear from './smart_memoize_and_clear';
+import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
 import deprecated from 'gentle-utils/deprecated_method';
 import SequenceTransforms from 'gentle-sequence-transforms';
 

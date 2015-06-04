@@ -5,7 +5,6 @@ import _ from 'underscore';
 import template from './template.html';
 
 import Artist from '../../common/lib/graphics/artist';
-import Hotkeys from '../../common/lib/hotkeys';
 import CopyPasteHandler from '../../common/lib/copy_paste_handler';
 
 import Lines from './lines'
@@ -29,8 +28,7 @@ rendered.
 @module SequenceCanvas
 **/
 class SequenceCanvasCore {
-  constructor(options = {}) {
-    console.log('prout')
+  _init(options = {}) {
     // Context binding (context is lost in Promises' `.then` and `.done`)
     _.bindAll(this, 
       'calculateLayoutSettings',
@@ -40,15 +38,7 @@ class SequenceCanvasCore {
       'refresh',
       'refreshFromResize',
       'redraw',
-      'afterNextRedraw',
-      'handleScrolling',
-      'handleMousedown',
-      'handleMousemove',
-      'handleMouseup',
-      'handleClick',
-      'handleKeypress',
-      'handleKeydown',
-      'handleBlur'
+      'afterNextRedraw'
     );
 
     this.id = _.uniqueId();
@@ -147,11 +137,6 @@ class SequenceCanvasCore {
 
     this.contextMenu = this.contextMenuView;
 
-    this.invertHotkeys = _.invert(Hotkeys);
-    this.commandKeys = _.reduce(['A', 'C', 'Z', 'V'], (memo, key) => {
-      memo[key] = key.charCodeAt(0);
-      return memo;
-    }, {});
 
     // Events
     // this.view.on('resize', this.refreshFromResize);

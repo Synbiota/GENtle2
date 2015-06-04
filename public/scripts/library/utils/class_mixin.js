@@ -1,24 +1,13 @@
-import {defaults} from 'underscore';
-
 var keys = Object.getOwnPropertyNames;
 
-var chainFunctions = function(fun1, fun2) {
-  return function(...args) {
-    console.log('prout')
-    fun1(...args);
-    fun2(...args);
-  };
-};
-
-function classMixin2(options) {
-  defaults(options, {
-    overwrite: true,
-    chainConstructors: true
-  });
-
+function classMixin(overwrite = true) {
   return function(...mixins) {
 
-    class MixedIn {}
+    class MixedIn {
+      constructor(...args) {
+        mixins.reverse().forEach(mixin => mixin.prototype._init && mixin.prototype._init(...args));
+      }
+    }
     var mixedInPrototype = MixedIn.prototype;
 
     for(let i = mixins.length - 1; i >= 0; i--) {
@@ -26,18 +15,13 @@ function classMixin2(options) {
       let mixinPrototype = mixin.prototype; 
 
       for(let prop of keys(mixin.prototype)) {
-        if(mixedInPrototype[prop] && !options.overwrite) {
+        if(mixedInPrototype[prop] && !overwrite) {
           throw new Error(`Cannot overwrite method '${prop}'`);
         }
 
-        if(prop === 'constructor' && options.chainConstructors && mixedInPrototype[prop]) {
-          mixedInPrototype[prop] = chainFunctions(
-            mixinPrototype[prop],
-            mixedInPrototype[prop]
-          );
-        } else {
-          mixedInPrototype[prop] = mixinPrototype[prop];
-        }
+        if(prop === 'constructor') continue;
+
+        mixedInPrototype[prop] = mixinPrototype[prop];
       }
     }
 
@@ -45,8 +29,4 @@ function classMixin2(options) {
   };
 }
 
-function classMixin(...mixins) {
-  
-}
-
-export default classMixin({});
+export default classMixin();

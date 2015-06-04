@@ -8,8 +8,6 @@ Utility methods for SequenceCanvas
 
   Utilities = function() {};
 
-  Utilities.prototype.constructor = Utilities;
-
   /**
   @method forEachRowInPosYRange
   @param startY {integer} start of the visibility window

@@ -52,14 +52,14 @@ Options are:
   @param {object} feature2
   @returns {boolean}
   **/
-  Feature.prototype.featuresOverlap = function(feature1, feature2) {
-    if(feature1 == feature2) return false;
-    return _.some(feature1.ranges, function(range1) {
-      return _.some(feature2.ranges, function(range2) {
-        return range2.to >= range1.from && range2.from <= range1.to;
-      });
-    });
-  };
+  // Feature.prototype.featuresOverlap = function(feature1, feature2) {
+  //   if(feature1 == feature2) return false;
+  //   return _.some(feature1.ranges, function(range1) {
+  //     return _.some(feature2.ranges, function(range2) {
+  //       return range2.to >= range1.from && range2.from <= range1.to;
+  //     });
+  //   });
+  // };
 
   var switchContext = function(fn) {
     var args = _.toArray(arguments);
@@ -90,12 +90,12 @@ Options are:
   @param {integer} endBase
   @returns {boolean}
   **/
-  Feature.prototype.featureEndInRange = function(feature, startBase, endBase) {
-    return _.some(feature.ranges, function(range) {
-      return range.from <= startBase && range.to <= endBase;
-    });
+  // Feature.prototype.featureEndInRange = function(feature, startBase, endBase) {
+  //   return _.some(feature.ranges, function(range) {
+  //     return range.from <= startBase && range.to <= endBase;
+  //   });
 
-  };
+  // };
 
   /**
   Returns the max number of ranges to be found in one row for the entire sequence
