@@ -1,61 +1,75 @@
 <div class="modal" id="condonSubModal" data-backdrop="false" style="overflow: visible; height:400px; width:300px; position:relative; top:{{subCodonPosY}}px; left:{{subCodonPosX}}px; z-index: 1000;" tabindex="-1">
-  <div class="modal-content">
-    <div class="modal-body" style="padding:5px, 5px, 5px, 5px;">
-      <h5 class="modal-title" align="left" style="padding-top:5px;">Fix BsaI/NotI site</h5>
-      <p  style="font-weight:normal;margin-top:15px;">
-        The following codon(s) will be substituted to make this sequence into an rdp part.
-      </p>
+  
+    <div class="modal-content">
+      
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">  
+            <span class="glyphicon glyphicon-remove close-sequence"></span>
+        </button>
+        <h4 class="modal-title">
+          Fix all BsaI/NotI sites
+        </h5>
+        
 
-    
-      <div class="row">
-        <center>
-          {{#each replacements}}
-            <div class="row">
-              <div class="col-sm-12">
-                <div class='canvas-overlay'>    
-                  <div class="sequence-canvas-wrapper" style="background:lightgrey; height:100px;width:200px;">
+      </div>
+      
+      <div class="modal-body" style="padding:5px, 5px, 5px, 5px;">
+        
+        <p  style="font-weight:normal;margin-top:15px;">
+          The following codon(s) will be substituted to make this sequence into an rdp part.
+        </p>
 
-                    <div class="sequence-canvas-container-{{@index}}" style="position: relative; top:0px; width: 250px; height: 150px;">
-                      <canvas id="canvas_res_enzyme-{{@index}}" class="sequence-canvas" />
-                    </div>
-                    <div class="scrolling-parent" tabindex="1">
-                      <div class="scrolling-child" style="position: relative; width: 250px; height: 150px;">
-                        <div id="sequence-canvas-context-menu-outlet-{{@index}}"></div>
+      
+        <div class="row">
+          <center>
+            {{#each replacements}}
+              <div class="row">
+                <div class="col-sm-12">
+                  <div class='canvas-overlay'>    
+                    <div class="sequence-canvas-wrapper" style="background:lightgrey; height:100px;width:200px;">
+
+                      <div class="sequence-canvas-container-{{@index}}" style="position: relative; top:0px; width: 250px; height: 150px;">
+                        <canvas id="canvas_res_enzyme-{{@index}}" class="sequence-canvas" />
+                      </div>
+                      <div class="scrolling-parent" tabindex="1">
+                        <div class="scrolling-child" style="position: relative; width: 250px; height: 150px;">
+                          <div id="sequence-canvas-context-menu-outlet-{{@index}}"></div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              <div class="col-sm-12">
-                <div class="codon-group" align="left" style="margin-left:70px;">
-                  <p class='codon-selected' style="width:35px; font:10px; Monospace; letter-spacing: 0px; font-weight:normal; margin-left:{{this.marginOffset}}px;">{{this.bestReplacementCodon}}</p>
-                  <p>
-                  subseqoffset:  {{this.subSeqOffset}} <br />
-                  paddedSubSeq:  {{this.paddedSubSeq}} <br />
-                  bestStartBase: {{this.bestStartBase}} <br />
-                  bestEndBase:   {{this.bestEndBase}} <br />
-                  marginOffset:  {{this.marginOffset}}
-                  </p>
+                <div class="col-sm-12">
+                  <div class="codon-group" align="left" style="margin-left:70px;">
+                    <p class='codon-selected' style="width:35px; font:10px; Monospace; letter-spacing: 0px; font-weight:normal; margin-left:{{this.marginOffset}}px;">{{this.bestReplacementCodon}}</p>
+                    <p>
+                    subseqoffset:  {{this.subSeqOffset}} <br />
+                    paddedSubSeq:  {{this.paddedSubSeq}} <br />
+                    bestStartBase: {{this.bestStartBase}} <br />
+                    bestEndBase:   {{this.bestEndBase}} <br />
+                    marginOffset:  {{this.marginOffset}}
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-          {{/each}}
-        </center>
-      </div>
-      <div class="row" style="margin-top:15px;">    
-        <center>         
-          <button href="#" class="cancel btn btn-default" style="margin-bottom:5px !important;">
-            Cancel
-          </button>
+            {{/each}}
+          </center>
+        </div>
+        <div class="row" style="margin-top:15px;">    
+          <center>         
+            <button href="#" class="cancel btn btn-default" style="margin-bottom:5px !important;">
+              Cancel
+            </button>
 
-          <button href="#" class="replace btn btn-default" style="margin-bottom:5px !important;">
-            Replace
-          </button>
-        </center>
+            <button href="#" class="replace btn btn-default" style="margin-bottom:5px !important;">
+              Replace
+            </button>
+          </center>
+        </div>
       </div>
     </div>
-  </div>
+
 </div>
 
