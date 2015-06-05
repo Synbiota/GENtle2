@@ -130,7 +130,7 @@ export default function sequenceModelFactory(BackboneModel) {
      * @param  {Object} options={}
      * @return {Any}
      */
-    get(attribute, options = {}) {
+    get(attribute, options = undefined) {
       var value;
       var customGet = "get" + _.ucFirst(attribute);
 
