@@ -124,20 +124,13 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-<<<<<<< HEAD
-     * Wraps the standard get function to use the custom getSequence if necessary.
-     * @param  {String} Standard attribute
-     * @param  {Object} options=undefined
-     */
-    get(attribute, options=undefined){
-=======
+
      * Wraps the standard get function to use a custom getNnnnnnn if available.
      * @param  {String} attribute
      * @param  {Object} options={}
      * @return {Any}
      */
     get(attribute, options = {}) {
->>>>>>> feature/refactor
       var value;
       var customGet = "get" + _.ucFirst(attribute);
 
