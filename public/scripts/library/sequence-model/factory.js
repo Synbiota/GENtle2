@@ -232,13 +232,16 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     getFeatures(stickyEndFormat = undefined) {
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
       var adjustedFeatures = _.deepClone(super.get('features'));
       var length = this.getLength(stickyEndFormat);
 
       var filterAndAdjustRanges = function(offset, maxValue, feature) {
         feature.ranges = _.filter(feature.ranges, function(range) {
-          return range.from < maxValue && range.to >= offset;
-        })
+          var frm = Math.min(range.from, range.to);
+          var to = Math.max(range.from, range.to);
+          return frm < maxValue && to >= offset;
+        });
         _.each(feature.ranges, function(range) {
           range.from =  Math.max(Math.min(range.from - offset, length -1), 0);
           range.to =  Math.max(Math.min(range.to - offset, length -1), 0);
