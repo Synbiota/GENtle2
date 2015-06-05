@@ -340,11 +340,19 @@ define(function(require) {
 
           replacement.changeableBases = changeableBases;
 
+
+
           replacement.subSeqOffset = replacement.allMatches[0].subSeqOffset;
           replacement.paddedSubSeq = replacement.allMatches[0].paddedSubSeq;
           replacement.bestReplacementCodon = replacement.allMatches[0].generatedSub;
           replacement.bestStartBase = replacement.allMatches[0].startBase;
           replacement.bestEndBase = replacement.allMatches[0].endBase;
+          
+
+          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset) * 10;
+          if(marginOffset < 0) { marginOffset = 0; }
+
+          replacement.marginOffset = marginOffset;
 
       }) 
 

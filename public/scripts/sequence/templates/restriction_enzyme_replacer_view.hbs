@@ -29,7 +29,14 @@
 
               <div class="col-sm-12">
                 <div class="codon-group" align="left" style="margin-left:70px;">
-                  <p class='codon-selected' style="width:35px; font:10px; Monospace; letter-spacing: 1px; font-weight:normal; margin-left:0px;">{{this.bestReplacementCodon}}</p>
+                  <p class='codon-selected' style="width:35px; font:10px; Monospace; letter-spacing: 0px; font-weight:normal; margin-left:{{this.marginOffset}}px;">{{this.bestReplacementCodon}}</p>
+                  <p>
+                  subseqoffset:  {{this.subSeqOffset}} <br />
+                  paddedSubSeq:  {{this.paddedSubSeq}} <br />
+                  bestStartBase: {{this.bestStartBase}} <br />
+                  bestEndBase:   {{this.bestEndBase}} <br />
+                  marginOffset:  {{this.marginOffset}}
+                  </p>
                 </div>
               </div>
             </div>
