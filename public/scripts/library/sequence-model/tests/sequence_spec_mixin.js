@@ -225,8 +225,6 @@ export default function testAllSequenceModels(Sequence) {
   }
   ];
 
-  var opts;
-
   var sequence;
   var stickyEndedSequence;
   var sequence1;
@@ -239,6 +237,11 @@ export default function testAllSequenceModels(Sequence) {
     beforeEach(function() {
       stickyEndedSequence.setStickyEndFormat(format);  
     });
+  };
+
+  var spyAndStub = function(_sequence) {
+    spyOn(_sequence, 'save');
+    spyOn(_sequence, 'throttledSave');
   };
 
   beforeEach(function() {
@@ -258,10 +261,7 @@ export default function testAllSequenceModels(Sequence) {
       sequence3,
       stickyEndedEmptySequence,
       emptySequence,
-    ]).forEach(function(_sequence) {
-      spyOn(_sequence, 'save');
-      spyOn(_sequence, 'throttledSave');
-    });
+    ]).forEach(spyAndStub);
   });
 
 
@@ -273,6 +273,7 @@ export default function testAllSequenceModels(Sequence) {
         sequence: bases
       });
       expect(sequence).toBeTruthy();
+      spyAndStub(sequence);
     });
 
     it('should be able to get the name', function() {
@@ -340,15 +341,19 @@ export default function testAllSequenceModels(Sequence) {
       });
     });
 
+
     describe('getting transformed and subsequences', function() {
       var sequence;
       var bases = 'ATCGGGCTTAAGCGTA';
-      it('should instantiate', function() {
+      var allBases = stickyEnds.start.sequence + bases + stickyEnds.end.sequence;
+      beforeEach(function() {
         sequence = new Sequence({
           name: 'Test Sequence',
-          sequence: bases
+          sequence: allBases,
+          stickyEnds: stickyEnds,
         });
-        expect(sequence).toBeTruthy();
+        spyAndStub(sequence);
+        sequence.setStickyEndFormat(sequence.STICKY_END_NONE);
       });
 
       it('should be able to get a padded subsequence', function() {
@@ -373,7 +378,7 @@ export default function testAllSequenceModels(Sequence) {
         expect(result.endBase).toEqual(9);
       });
 
-      it('should be able get a transformed subsequence', function() {
+      it('should be able to get a transformed subsequence', function() {
         var transformedSubSequence, error;
         try {
           transformedSubSequence = sequence.getTransformedSubSeq('WRonG', {}, 3, 8);
@@ -396,6 +401,20 @@ export default function testAllSequenceModels(Sequence) {
 
         transformedSubSequence = sequence.getTransformedSubSeq('aa-short', {complements: true}, 3, 8);
         expect(transformedSubSequence).toEqual(' P  E ');
+      });
+
+      it('should return amino acids', function() {
+        var aAs;
+        sequence.setStickyEndFormat(sequence.STICKY_END_NONE);
+        aAs = sequence.getAAs(3, 6);
+        expect(aAs).toEqual(['G', 'L']);
+
+        aAs = sequence.getAAs(2, 6);
+        expect(aAs).toEqual(['R', 'A']);
+
+        sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
+        aAs = sequence.getAAs(3, 6);
+        expect(aAs).toEqual(['A', 'V']);
       });
 
       it('should be able get a codon', function() {
@@ -613,7 +632,7 @@ export default function testAllSequenceModels(Sequence) {
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.getSequence()).toEqual('AGAAAAGATCGATCGATCGATCGGAGA');
+          expect(stickyEndedSequence.getSequence(stickyEndedSequence.STICKY_END_FULL)).toEqual('CCTGCAGTCAGTGGTCTCTAGA' + 'AAA' + 'GATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
@@ -626,8 +645,72 @@ export default function testAllSequenceModels(Sequence) {
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.getSequence()).toEqual('ATCAAAGATCGATCGATCG');
+          expect(stickyEndedSequence.getSequence(stickyEndedSequence.STICKY_END_FULL)).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATC' + 'AAA' + 'GATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
+
+  describe('when changing bases into a sequence', function() {
+    describe('without sticky ends', function() {
+      beforeEach(function() {
+        sequence.changeBases(3, 'AAA');
+      });
+
+      it('should update the sequence', function() {
+        expect(sequence.getSequence()).toEqual('ATCAAACGATCGATCG');
+        expect(sequence.getSubSeq(3, 5)).toEqual('AAA');
+        expect(sequence.throttledSave).toHaveBeenCalled();
+      });
+
+      it('should not move the features', function() {
+        var featureRange = sequence.get('features.0.ranges.0');
+        expect(featureRange.from).toEqual(3);
+        expect(featureRange.to).toEqual(7);
+      });
+    });
+
+    describe('with sticky ends', function() {
+      describe('with full sticky end formatting', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('full');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSequence()).toEqual('CCT' + 'AAA' + 'GTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+
+      describe('with overhang sticky end formatting', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('overhang');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          stickyEndedSequence.setStickyEndFormat('full');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGA' + 'AAA' + 'CGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+
+      describe('with sticky ends removed', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('none');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          stickyEndedSequence.setStickyEndFormat('full');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATC' + 'AAA' + 'CGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
       });

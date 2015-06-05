@@ -203,15 +203,20 @@ export default function sequenceModelFactory(BackboneModel) {
       return sequence;
     }
 
-    getOffset() {
+    /**
+     * @method  getOffset
+     * The number of bases the start stickyEnd accounts for before the start of
+     * the main sequence.
+     * @param  {String} stickyEndFormat=undefined
+     * @return {Integer}
+     */
+    getOffset(stickyEndFormat=undefined) {
       var stickyEnds = this.getStickyEnds();
-      var stickyEndFormat = this.getStickyEndFormat();
-      var length = this.getLength();
-      var startStickyEnd;
       var offset = 0;
 
-      if(stickyEnds) {
-        startStickyEnd = stickyEnds.start;
+      if(stickyEnds && stickyEnds.start) {
+        var startStickyEnd = stickyEnds.start;
+        stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
         switch(stickyEndFormat) {
           case STICKY_END_NONE:
             offset = startStickyEnd.offset + startStickyEnd.size;
@@ -221,6 +226,7 @@ export default function sequenceModelFactory(BackboneModel) {
             break;
         }
       }
+
       return offset;
     }
 
@@ -251,18 +257,20 @@ export default function sequenceModelFactory(BackboneModel) {
     Returns the subsequence between the bases startBase and end Base
     @method getSubSeq
     @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0)
+    @param {Integer} endBase end of the subsequence (indexed from 0), inclusive.
+    @param {String} stickyEndFormat=undefined
     **/
-    getSubSeq(startBase, endBase) {
+    getSubSeq(startBase, endBase, stickyEndFormat=undefined) {
+      var len = this.getLength(stickyEndFormat);
       if(endBase === undefined) {
         endBase = startBase;
       } else {
-        if (endBase >= this.getLength() && startBase >= this.getLength()) return '';
-        endBase = Math.min(this.getLength() - 1, endBase);
+        if (endBase >= len && startBase >= len) return '';
+        endBase = Math.min(len - 1, endBase);
       }
-      startBase = Math.min(Math.max(0, startBase), this.getLength() - 1);
+      startBase = Math.min(Math.max(0, startBase), len - 1);
 
-      return this.getSequence().substr(startBase, endBase - startBase + 1);
+      return this.getSequence(stickyEndFormat).substr(startBase, endBase - startBase + 1);
 
       // endBase = (endBase === undefined) ? startBase + 1 : endBase;
       // return this.get('sequence', options).substring(startBase, endBase);
@@ -504,13 +512,14 @@ export default function sequenceModelFactory(BackboneModel) {
     Returns a transformed subsequence between the bases startBase and end Base
     @method getTransformedSubSeq
     @param {String} variation name of the transformation
-    @param {Object} options
+    @param {Object} options={}
     @param {Integer} startBase start of the subsequence (indexed from 0)
     @param {Integer} endBase end of the subsequence (indexed from 0)
+    @return {String or Array}
     **/
-    getTransformedSubSeq(variation, options, startBase, endBase) {
-      options = options || {};
+    getTransformedSubSeq(variation, options={}, startBase, endBase) {
       var output = '';
+      options = _.defaults(_.deepClone(options), {offset: 0});
       switch (variation) {
         case 'aa-long':
         case 'aa-short':
@@ -536,19 +545,24 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-    Returns a subsequence including the subsequence between the bases `startBase` and `endBase`.
-    Ensures that blocks of size `padding` and starting from the base `offset` in the
-    complete sequence are not broken by the beginning or the end of the subsequence.
-    @method getPaddedSubSeq
-    @param {String} variation name of the transformation
-    @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0)
-    @param {Integer, optional} offset relative to the start of full sequence
+     * @method getPaddedSubSeq
+     * Returns a subsequence including the subsequence between the bases
+     * `startBase` and `endBase`.  Ensures that blocks of size `blockSize` and
+     * starting from the base `offset` in the complete sequence are not broken
+     * by the beginning or the end of the subsequence.
+     *
+     * @param {Integer} startBase  Start of the subsequence (indexed from 0)
+     * @param {Integer} endBase  End of the subsequence (indexed from 0)
+     * @param {Integer} blockSize
+     * @param {Integer} offset=0  Relative to the start of full sequence
+     * @return {Object}  Key values:
+     *                   {String} subSeq
+     *                   {Integer} startBase
+     *                   {Integer} endBase
     **/
-    getPaddedSubSeq(startBase, endBase, padding, offset) {
-      offset = offset || 0;
-      startBase = Math.max(startBase - (startBase - offset) % padding, 0);
-      endBase = Math.min(endBase - (endBase - offset) % padding + padding - 1, this.getLength());
+    getPaddedSubSeq(startBase, endBase, blockSize, offset=0) {
+      startBase = Math.max(startBase - (startBase - offset) % blockSize, 0);
+      endBase = Math.min(endBase - (endBase - offset) % blockSize + blockSize - 1, this.getLength());
       return {
         subSeq: this.getSubSeq(startBase, endBase),
         startBase: startBase,
@@ -588,6 +602,23 @@ export default function sequenceModelFactory(BackboneModel) {
         sequence: aa || '   ',
         position: codon.position
       };
+    }
+
+    /**
+     * @method  getAAs
+     * @param  {Integer}  startBase
+     * @param  {Integer}  length
+     * @param  {String}  stickyEndFormat=undefined
+     * @return {List of Strings}
+     */
+    getAAs(startBase, length, stickyEndFormat=undefined) {
+      var subSeq = this.getSubSeq(startBase, startBase + length - 1, stickyEndFormat);
+      var len = subSeq.length;
+      if(len < 0 || len % 3 !== 0) throw new Error('length must be a non negative multiple of 3');
+      var codons = subSeq.match(/.{3}/g) || [];
+      return _.map(codons, function(codon) {
+        return SequenceTransforms.codonToAAShort(codon).trim();
+      });
     }
 
     /**
@@ -676,24 +707,14 @@ export default function sequenceModelFactory(BackboneModel) {
     insertBases(bases, beforeBase, options = {}){
       var seq = super.get('sequence'),
           stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          offset = 0,
+          stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat(),
           adjustedBeforeBase,
           timestamp;
 
       options = _.defaults(options, {updateHistory: true});
 
       // Adjust offset depending on sticky end format
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
-          case STICKY_END_NONE:
-            offset = stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case STICKY_END_OVERHANG:
-            offset = stickyEnds.start.offset;
-            break;
-        }
-      }
+      var offset = this.getOffset(stickyEndFormat);
 
       adjustedBeforeBase = beforeBase + offset;
 
@@ -763,6 +784,44 @@ export default function sequenceModelFactory(BackboneModel) {
 
     }
 
+    /**
+     * @method  changeBases
+     *
+     * @param  {Integer} firstBase
+     * @param  {String} newBases
+     * @param  {Object} options={}, `stickyEndFormat`, `updateHistory`
+     * @return {TimeStamp}
+     */
+    changeBases(firstBase, newBases, options={}) {
+      var timestamp;
+      var seq = this.getSequence(STICKY_END_FULL);
+
+      options = _.defaults(options, {updateHistory: true, stickyEndFormat: this.getStickyEndFormat()});
+
+      var adjustedFirstBase = firstBase + this.getOffset(options.stickyEndFormat);
+      var baseTo = adjustedFirstBase + newBases.length;
+      // var sequenceReplaced = this.getSubSeq(adjustedFirstBase, baseTo - 1, options.stickyEndFormat);
+
+      this.set('sequence',
+        seq.substr(0, adjustedFirstBase) +
+        newBases +
+        seq.substr(baseTo, seq.length - baseTo)
+      );
+
+      if (options.updateHistory) {
+        timestamp = this.getHistory().add({
+          type: 'change',
+          position: adjustedFirstBase,
+          value: newBases,
+          operation: '@' + adjustedFirstBase + '+' + newBases
+        }).get('timestamp');
+      }
+
+      this.throttledSave();
+
+      return timestamp;
+    }
+
     insertBasesAndCreateFeatures(beforeBase, bases, features, options) {
       var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
           _this = this;
@@ -809,14 +868,11 @@ export default function sequenceModelFactory(BackboneModel) {
      *
      * @param  {Integer} firstBase
      * @param  {Integer} length
-     * @param  {Object} options
-     * @return {type}
+     * @param  {Object} options={}
+     * @return {TimeStamp}
      */
-    deleteBases(firstBase, length, options = {}) {
+    deleteBases(firstBase, length, options={}) {
       var seq = super.get('sequence'),
-          stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          offset = 0,
           adjustedFirstBase, tailBasesLength,
           timestamp,
           removedBases, basesRemaining,
@@ -824,16 +880,7 @@ export default function sequenceModelFactory(BackboneModel) {
       options = _.defaults(options, {updateHistory: true});
 
       // Adjust offset depending on sticky end format
-      if(stickyEnds && stickyEndFormat) {
-        switch(stickyEndFormat) {
-          case STICKY_END_NONE:
-            offset = stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case STICKY_END_OVERHANG:
-            offset = stickyEnds.start.offset;
-            break;
-        }
-      }
+      var offset = this.getOffset(options.stickyEndFormat);
 
       adjustedFirstBase = firstBase + offset;
       removedBases = seq.substr(adjustedFirstBase, length);
@@ -871,13 +918,10 @@ export default function sequenceModelFactory(BackboneModel) {
       this.throttledSave();
 
       return timestamp;
-
     }
 
-    moveFeatures(base, offset, options) {
+    moveFeatures(base, offset, options={}) {
       var features = super.get('features'),
-          stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
           featurePreviousState,
           storePreviousState,
           firstBase, lastBase,
@@ -888,16 +932,7 @@ export default function sequenceModelFactory(BackboneModel) {
         featurePreviousState = featurePreviousState || _.deepClone(feature);
       };
 
-      if(stickyEnds && stickyEndFormat) {
-        switch(stickyEndFormat) {
-          case STICKY_END_NONE:
-            base += stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case STICKY_END_OVERHANG:
-            base += stickyEnds.start.offset;
-            break;
-        }
-      }
+      base += this.getOffset(options.stickyEndFormat);
 
       if (_.isArray(features)) {
 
