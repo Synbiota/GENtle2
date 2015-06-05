@@ -11,8 +11,9 @@ rendered.
 @uses SequenceCanvasUtilities
 @module SequenceCanvas
 **/
-// define(function(require) {
+
   'use strict';
+  // TODO add dependecy on underscore
   var Artist = require('../../common/lib/graphics/artist'),
     Hotkeys = require('../../common/lib/hotkeys'),
     CopyPasteHandler = require('../../common/lib/copy_paste_handler'),
@@ -102,12 +103,10 @@ rendered.
 
     var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
       var selectableRange = sequence.selectableRange(reverse);
-      var editableRange = sequence.editableRange();
       var selectable = pos >= selectableRange[0] && pos <= selectableRange[1];
-      var editable = pos >= editableRange[0] && pos <= editableRange[1];
 
       if(selectable) {
-        if(editable) {
+        if(sequence.isBaseEditable(pos, true)) {
           return defaultColour;
         } else {
           return LineStyles.RES.text.color;
@@ -492,14 +491,11 @@ rendered.
       layoutHelpers = this.layoutHelpers,
       yOffset = layoutHelpers.yOffset,
       rowsHeight = layoutHelpers.rows.height,
-      canvasHeight = layoutSettings.canvasDims.height,
-      bottomMargin = layoutSettings.pageMargins.bottom,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       highlight = this.highlight,
       initPosY = posY;
 
     this.artist.clear(posY, rowsHeight);
-
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
       this.drawHighlight(posY, [
         Math.max(baseRange[0], highlight[0]),
@@ -659,10 +655,8 @@ rendered.
   @param base [base]
   **/
   SequenceCanvas.prototype.displayCaret = function(base, showMenu = true) {
-    
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
-      yOffset = layoutHelpers.yOffset,
       selection = this.selection,
       posX, posY;
 
@@ -672,7 +666,7 @@ rendered.
 
     if(_.isUndefined(base)) return false;
 
-    base = this.sequence.ensureBaseIsSelectable(base);
+    base = this.sequence.ensureBaseIsEditable(base);
 
     this.scrollBaseToVisibility(base).then(() => {
 
@@ -716,19 +710,15 @@ rendered.
   };
 
   SequenceCanvas.prototype.redrawSelection = function(selection) {
-    var
-      lines = this.layoutSettings.lines,
-      yOffset = this.layoutHelpers.yOffset,
-      rowsHeight = this.layoutHelpers.rows.height,
-      posY;
+    var posY;
 
     //Calculating posY for baseRange
     if (selection !== undefined) {
 
-      if (this.layoutHelpers.selectionPreviousA == undefined) {
+      if (this.layoutHelpers.selectionPreviousA === undefined) {
         this.layoutHelpers.selectionPreviousA = selection[0];
       }
-      if (this.layoutHelpers.selectionPreviousB == undefined) {
+      if (this.layoutHelpers.selectionPreviousB === undefined) {
         this.layoutHelpers.selectionPreviousB = selection[1];
       }
 
@@ -771,30 +761,33 @@ rendered.
   };
 
   /**
-  @method select
-  **/
+   * @method selectRange
+   * @param  {Range} range
+   * @return {Undefined}
+   */
+  SequenceCanvas.prototype.selectRange = function(range) {
+    if(range.size) {
+      this.select(range.from, range.to - 1);
+    } else {
+      this.selection = undefined;
+    }
+  };
+
+  /**
+   * @method select
+   * @param  {Integer} start
+   * @param  {Integer} end  Position is inclusive
+   * @return {Undefined}
+   */
   SequenceCanvas.prototype.select = function(start, end) {
-    var positionCheck;
     this.hideCaret();
     if (start !== undefined) {
-      if (start < end) {
+      if (start <= end) {
         this.selection = [start, end];
         this.caretPosition = end + 1;
-        // positionCheck = this.caretPosition;
-
-        // if (positionCheck > this.layoutHelpers.caretPositionBefore) {
-        //   this.caretPosition = this.layoutHelpers.caretPositionBefore;
-        //   if (start != this.layoutHelpers.selectionPreviousB - 1 && start != this.layoutHelpers.selectionPreviousB + 1 && start != this.layoutHelpers.selectionPreviousB)
-        //     this.layoutHelpers.selectionPreviousB = this.caretPosition;
-        //   if (end != this.layoutHelpers.selectionPreviousA - 1 && end != this.layoutHelpers.selectionPreviousA + 1 && end != this.layoutHelpers.selectionPreviousA)
-        //     this.layoutHelpers.selectionPreviousA = this.caretPosition;
-        //   positionCheck = this.caretPosition;
-        // } else {
-        //   this.layoutHelpers.caretPositionBefore = this.caretPosition;
-        // }
       } else {
         this.selection = [end, start];
-        this.caretPosition = start + 1;
+        this.caretPosition = start;
       }
     } else {
       this.selection = undefined;
@@ -816,7 +809,7 @@ rendered.
     } else {
       if (newCaret > selection[0]) {
         if (previousCaret <= selection[0]) {
-          this.select(newCaret, selection[1]);
+          this.select(newCaret - 1, selection[1]);
         } else {
           this.select(selection[0], newCaret - 1);
         }
@@ -852,13 +845,12 @@ rendered.
       if(size===0) {
         info = toString(start) + " (1 bp)";
       } else {
-        info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
+        info = `${toString(start)} to ${toString(end)} (${toString(size+1)} bp)`;
       }
       
     } else {
       info = toString(this.caretPosition + 1);
     }
-
 
     return info;
   };
@@ -866,5 +858,3 @@ rendered.
 
 
 export default SequenceCanvas;
-  // return SequenceCanvas;
-// });
