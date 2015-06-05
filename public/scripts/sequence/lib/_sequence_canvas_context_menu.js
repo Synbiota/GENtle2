@@ -54,6 +54,8 @@ SequenceCanvasContextMenu.prototype.showContextMenuButton = function(posX, posY)
 
   if(menu.menuItems.length || menu.menuIcons.length) {
     menu.show();
+  } else {
+    menu.hide();
   }
 
 

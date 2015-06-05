@@ -1,4 +1,5 @@
-class Range {
+
+export default class SequenceRange {
   from: number;
   size: number;
   reverse: boolean;
