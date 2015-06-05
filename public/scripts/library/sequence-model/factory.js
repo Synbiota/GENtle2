@@ -177,10 +177,11 @@ export default function sequenceModelFactory(BackboneModel) {
      * @return {String} Formatted sequence
      */
     getSequence(stickyEndFormat=undefined) {
-      var sequence        = super.get('sequence'),
-          stickyEnds      = this.getStickyEnds(),
-          stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
-          startPostion, endPosition;
+      var sequence        = super.get('sequence');
+      var stickyEnds      = this.getStickyEnds();
+      var startPostion, endPosition;
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
+          
       this.validateStickyEndFormat(stickyEndFormat);
 
       if (stickyEnds && stickyEndFormat){
@@ -230,9 +231,9 @@ export default function sequenceModelFactory(BackboneModel) {
       return offset;
     }
 
-    getFeatures() {
+    getFeatures(stickyEndFormat = undefined) {
       var adjustedFeatures = _.deepClone(super.get('features'));
-      var length = this.getLength();
+      var length = this.getLength(stickyEndFormat);
 
       var filterAndAdjustRanges = function(offset, maxValue, feature) {
         feature.ranges = _.filter(feature.ranges, function(range) {
@@ -244,7 +245,7 @@ export default function sequenceModelFactory(BackboneModel) {
         });
       };
 
-      let offset = this.getOffset();
+      let offset = this.getOffset(stickyEndFormat);
       let maxValue = offset + length;
       let func = _.partial(filterAndAdjustRanges, offset, maxValue);
       _.map(adjustedFeatures, func);
