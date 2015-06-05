@@ -230,6 +230,25 @@ define(function(require) {
          
       //   }
       // }
+
+      if(event) { event.preventDefault();}
+      var sequence = this.sequence;
+      //var sequenceCanvas = this.sequenceCanvas;
+      //console.log(this.replacements);
+
+      _.each(this.replacements, function(replacement) {
+        console.log("replacing " + replacement.bestReplacementCodon);
+
+        //console.log(sequence);
+
+        sequence.deleteBases(replacement.bestStartBase, 3, true);
+        sequence.insertBases(replacement.bestReplacementCodon, replacement.bestStartBase, true);
+
+      })
+
+      this.showModal=false;
+      $("#condonSubModal").modal("hide");
+      this.sequenceCanvas.redraw(); 
     },
     
     hasRelevantRES: function(sequence) {
