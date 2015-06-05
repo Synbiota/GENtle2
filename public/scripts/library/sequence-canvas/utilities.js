@@ -2,11 +2,15 @@
 Utility methods for SequenceCanvas
 @class SequenceCanvasUtilities
 **/
-// define(function(require) {
-  var _     = require('underscore'),
-      Utilities;
-
-  Utilities = function() {};
+class Utilities {
+  /**
+   * Pseudo-constructor called when mixed in
+   * @method _init
+   */
+  _init(options) {
+    console.log(this)
+    this.memoize('getXPosFromBase', 'change', options.sequence);
+  }
 
   /**
   @method forEachRowInPosYRange
@@ -16,7 +20,7 @@ Utility methods for SequenceCanvas
     callback {function} function to execute for each row.
     Will be passed the y-offset in canvas.
   */
-  Utilities.prototype.forEachRowInPosYRange = function(startY, endY, callback) {
+  forEachRowInPosYRange(startY, endY, callback) {
     var layoutSettings = this.layoutSettings,
         layoutHelpers = this.layoutHelpers,
         pageMargins = layoutSettings.pageMargins,
@@ -27,28 +31,27 @@ Utility methods for SequenceCanvas
         y < lastRowY;
         y += this.layoutHelpers.rows.height)
       callback.call(this, y);
-  };
+  }
 
   /**
   @method getRowStartX
   @param posY {integer} Y position (relative to sequence)
   @return {integer} Y-start of the row (relative to sequence)
   **/
-  Utilities.prototype.getRowStartY = function(posY) {
+  getRowStartY(posY) {
     var layoutHelpers = this.layoutHelpers,
         rowsHeight = layoutHelpers.rows.height,
         marginTop = this.layoutSettings.pageMargins.top;
 
     return this.getRowFromYPos(posY) * rowsHeight + marginTop;
-  };
+  }
 
   /**
   @method getRowFromYPos
   @param posY {integer} (relative to sequence)
   **/
-  Utilities.prototype.getRowFromYPos = function(posY) {
+  getRowFromYPos(posY) {
     var layoutHelpers = this.layoutHelpers,
-        yOffset = layoutHelpers.yOffset,
         rowsHeight = layoutHelpers.rows.height,
         marginTop = this.layoutSettings.pageMargins.top;
 
@@ -56,7 +59,7 @@ Utility methods for SequenceCanvas
       (posY - marginTop) /
       rowsHeight
     );
-  };
+  }
 
 
   /**
@@ -64,18 +67,18 @@ Utility methods for SequenceCanvas
   @param posY {integer} Y position in the canvas
   @return {Array} First and last bases in the row at the y-pos
   **/
-  Utilities.prototype.getBaseRangeFromYPos = function(posY) {
+  getBaseRangeFromYPos(posY) {
     var rowNumber = this.getRowFromYPos(posY),
         firstBase = rowNumber * this.layoutHelpers.basesPerRow;
     return [firstBase, firstBase + this.layoutHelpers.basesPerRow - 1];
-  };
+  }
 
   /**
   @method getBaseFromXYPos
   @param posX {integer}
   @param posY {integer} (relative to sequence)
   **/
-  Utilities.prototype.getBaseFromXYPos = function(posX, posY) {
+  getBaseFromXYPos(posX, posY) {
     var layoutSettings  = this.layoutSettings,
         gutterWidth     = layoutSettings.gutterWidth,
         baseRange       = this.getBaseRangeFromYPos(posY),
@@ -97,12 +100,12 @@ Utility methods for SequenceCanvas
       baseRange[1],
       baseRange[0] + block * basesPerBlock + inBlockPos + nextBase
     );
-  };
+  }
 
   /**
   @method getXPosFromBase
   **/
-  Utilities.prototype.getXPosFromBase = _.memoize2(function(base) {
+  getXPosFromBase(base) {
     var layoutSettings = this.layoutSettings,
         layoutHelpers = this.layoutHelpers,
         firstBaseInRange = base - base % layoutHelpers.basesPerRow,
@@ -112,37 +115,37 @@ Utility methods for SequenceCanvas
     return layoutSettings.pageMargins.left +
       deltaBase * layoutSettings.basePairDims.width +
       nbGutters * layoutSettings.gutterWidth;
-  });
+  }
 
   /**
   @method getYPosFromBase
   @returns posY {integer} ABSOLUTE y-position of the ROW (regardless of yOffset of canvas)
   **/
-  Utilities.prototype.getYPosFromBase = function(base) {
+  getYPosFromBase(base) {
     var layoutSettings = this.layoutSettings,
         layoutHelpers = this.layoutHelpers,
         rowNb = Math.floor(base / layoutHelpers.basesPerRow),
         topMargin = layoutSettings.pageMargins.top;
 
     return layoutHelpers.rows.height * rowNb + topMargin;
-  };
+  }
 
-  Utilities.prototype.distanceToVisibleCanvas = function(base) {
+  distanceToVisibleCanvas(base) {
     var layoutHelpers = this.layoutHelpers,
         yPos = this.getYPosFromBase(base) - layoutHelpers.yOffset;
 
     return  Math.max(0, yPos - this.$scrollingParent.height() + layoutHelpers.rows.height) +
             Math.min(0, yPos);
-  };
+  }
 
-  Utilities.prototype.isBaseVisible = function(base) {
+  isBaseVisible(base) {
     return this.distanceToVisibleCanvas(base) === 0;
-  };
+  }
 
-  Utilities.prototype.maxVisibleBase = function() {
+  maxVisibleBase() {
     var layoutHelpers = this.layoutHelpers;
     return layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
-  };
+  }
+}
+
 export default Utilities;
-  // return Utilities;
-// });

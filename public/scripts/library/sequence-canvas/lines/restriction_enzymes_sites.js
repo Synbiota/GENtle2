@@ -29,7 +29,7 @@ class RestrictionEnzymeSites extends Line {
         layoutHelpers = sequenceCanvas.layoutHelpers,
         dnaY = layoutHelpers.lineOffsets.dna,
         complementsY = layoutHelpers.lineOffsets.complements,
-        complementsHeight = layoutSettings.lines.complements.height,
+        complementsHeight = sequenceCanvas.lines.complements.height,
         displaySettings = sequence.get('displaySettings.rows.res') || {},
         // enzymeOptions = {
         //   length: displaySettings.lengths || [],

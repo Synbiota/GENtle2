@@ -228,8 +228,6 @@ class Handlers {
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
     nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
 
-    tracedLog('handleUpKey', previousCaret, nextCaret);
-
     if(previousCaret === nextCaret) return;
 
     if (shift) {

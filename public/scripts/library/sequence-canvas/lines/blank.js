@@ -1,3 +1,4 @@
+import Line from './line';
 /**
 Blank line for SequenceCanvas. Nothing is drawn.
 Options are: 
@@ -8,18 +9,6 @@ Options are:
 @module Sequence
 @submodule SequenceCanvas
 **/
-// define(function(require) {
-  var Line = require('./line'),
-      Blank;
-
-  Blank = function(sequenceCanvas, options) {
-    this.type = 'blank';
-    this.cache = {};
-    this.cachedProperties = ['visible'];
-    this.sequenceCanvas = sequenceCanvas;
-    _.extend(this, options);
-  };
-  _.extend(Blank.prototype, Line.prototype);
-export default Blank;
-  // return Blank;
-// });
+export default class Blank extends Line {
+  draw() {}
+}

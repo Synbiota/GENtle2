@@ -1,4 +1,5 @@
 import Bugsnag from 'bugsnag-js';
+import tracedLog from './traced_log';
 
 var handleError = function (exception, codeLabel=undefined) {
   if(process.env.ENABLE_BUGSNAG) {
@@ -9,9 +10,9 @@ var handleError = function (exception, codeLabel=undefined) {
     }
   } else {
     if(codeLabel) {
-      console.error(codeLabel, exception);
+      tracedLog("%c ERR ", "background-color: red; color: white;", codeLabel, exception);
     } else {
-      console.error(exception);
+      tracedLog(exception);
     }
   }
 };

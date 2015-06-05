@@ -492,8 +492,6 @@ rendered.
       layoutHelpers = this.layoutHelpers,
       yOffset = layoutHelpers.yOffset,
       rowsHeight = layoutHelpers.rows.height,
-      canvasHeight = layoutSettings.canvasDims.height,
-      bottomMargin = layoutSettings.pageMargins.bottom,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       highlight = this.highlight,
       initPosY = posY;
@@ -670,9 +668,8 @@ rendered.
       base = this.caretPosition;
     }
 
-    if(_.isUndefined(base)) return false;
+    
 
-    base = this.sequence.ensureBaseIsSelectable(base);
 
     this.scrollBaseToVisibility(base).then(() => {
 

@@ -12,7 +12,7 @@ import Caret from '../../common/lib/caret';
 
 import {namedHandleError} from '../../common/lib/handle_error';
 import {assertIsDefinedAndNotNull, assertIsObject} from '../../common/lib/testing_utils';
-
+import tracedLog from '../../common/lib/traced_log';
 
 /**
 Handles displaying a sequence in a canvas.
@@ -29,6 +29,7 @@ rendered.
 **/
 class SequenceCanvasCore {
   _init(options = {}) {
+
     // Context binding (context is lost in Promises' `.then` and `.done`)
     _.bindAll(this, 
       'calculateLayoutSettings',
@@ -82,10 +83,6 @@ class SequenceCanvasCore {
 
     this.$canvas = $container.find('canvas');
 
-
-    /** Memoized functions */
-    this.getXPosFromBase = _.memoize2(this.getXPosFromBase);
-
     /**
      * Object containing all lines
      * @type {Object<Lines>}
@@ -136,7 +133,6 @@ class SequenceCanvasCore {
     this.copyPasteHandler = new CopyPasteHandler();
 
     this.contextMenu = this.contextMenuView;
-
 
     // Events
     // this.view.on('resize', this.refreshFromResize);
@@ -288,8 +284,6 @@ class SequenceCanvasCore {
 
       this.$scrollingParent.scrollTop(lh.yOffset);
 
-      this.clearCache();
-
       this.trigger('change change:layoutHelpers', lh);
 
 
@@ -366,13 +360,15 @@ class SequenceCanvasCore {
       layoutHelpers = this.layoutHelpers,
       yOffset = layoutHelpers.yOffset,
       rowsHeight = layoutHelpers.rows.height,
-      canvasHeight = layoutSettings.canvasDims.height,
-      bottomMargin = layoutSettings.pageMargins.bottom,
+      canvasWidth = layoutSettings.canvasDims.width,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       highlight = this.highlight,
       initPosY = posY;
 
-    this.artist.clear(posY, rowsHeight);
+    this.artist.rect(0, posY, canvasWidth, rowsHeight, {
+      fillStyle: '#fff'
+    });
+
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
       this.drawHighlight(posY, [
@@ -452,7 +448,7 @@ class SequenceCanvasCore {
     var deferred = Q.defer(),
       layoutHelpers = this.layoutHelpers;
 
-    layoutHelpers.previousYOffset = layoutHelpers.yOffset;
+    layoutHelpers.previousYOffset = layoutHelpers.yOffset || 0;
 
     if (yOffset !== undefined) {
       layoutHelpers.yOffset = yOffset;
@@ -534,7 +530,7 @@ class SequenceCanvasCore {
   @method displayCaret
   @param base [base]
   **/
-  SequenceCanvas(base) {
+  displayCaret(base) {
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
       _this = this,
@@ -544,9 +540,9 @@ class SequenceCanvasCore {
       base = this.caretPosition;
     }
 
-    if (base > this.sequence.getLength()) {
-      base = this.sequence.getLength();
-    }
+    if(_.isUndefined(base)) return false;
+
+    base = this.sequence.ensureBaseIsSelectable(base);
 
     this.scrollBaseToVisibility(base).then(function() {
 

@@ -5,7 +5,7 @@ import _ from 'underscore';
 class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
   constructor(sequenceCanvas, options) {
     super(sequenceCanvas, options);
-    this.smartMemoize('maxNbRESPerRow', 'change:sequence');
+    this.memoize('maxNbRESPerRow', 'change:sequence');
   }
 
   calculateHeight() {

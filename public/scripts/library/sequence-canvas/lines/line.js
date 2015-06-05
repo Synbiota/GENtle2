@@ -1,5 +1,5 @@
 import {extend} from 'underscore';
-import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
+import Memoizable from 'gentle-utils/memoizable';
 
 /**
 Base Line class from which to extend. 
@@ -8,16 +8,17 @@ Base Line class from which to extend.
 @module Sequence
 @submodule SequenceCanvas
 **/
-class Line {
+class Line extends Memoizable {
   constructor(sequenceCanvas, options) {
+    super();
     this.sequenceCanvas = sequenceCanvas;
     this.type = this.constructor.name;
     extend(this, options);
-    this.smartMemoize('visible', 'change');
+    this.memoize('visible', 'change');
   }
 
-  smartMemoize(methodName, eventName) {
-    smartMemoizeAndClear(this, methodName, eventName, this.sequenceCanvas.sequence); 
+  memoize(methodName, eventName) {
+    super.memoize(methodName, eventName, this.sequenceCanvas.sequence);
   }
 }
 

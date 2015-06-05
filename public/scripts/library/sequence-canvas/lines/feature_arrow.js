@@ -1,5 +1,6 @@
 import Line from './line';
 import _ from 'underscore';
+import switchSequenceContext from './_switch_sequence_context';
 
 /**
 Returns the value by which to sort features. (i.e. lowest range starting base).
@@ -31,7 +32,7 @@ class FeatureArrow extends Line {
 
   constructor(sequenceCanvas, options) {
     super(sequenceCanvas, options);
-    this.smartMemoize('maxNbFeaturesPerRow', 'change:features');
+    this.memoize('maxNbFeaturesPerRow', 'change:features');
     this.featureStack = [];
   }
 
@@ -173,8 +174,8 @@ var switchContext = function(fn) {
   return sequence[fn].apply(context, args);
 };
 
-FeatureArrow.prototype.featuresInRange = _.partial(switchContext, 'featuresInRange');
-FeatureArrow.prototype.nbFeaturesInRange = _.partial(switchContext, 'nbFeaturesInRange');
-FeatureArrow.prototype.filterRanges = _.partial(switchContext, 'filterRanges');
+FeatureArrow.prototype.featuresInRange = switchSequenceContext('featuresInRange');
+FeatureArrow.prototype.nbFeaturesInRange = switchSequenceContext('nbFeaturesInRange');
+FeatureArrow.prototype.filterRanges = switchSequenceContext('filterRanges');
 
 export default FeatureArrow;
