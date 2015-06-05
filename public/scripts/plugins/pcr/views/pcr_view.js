@@ -6,7 +6,6 @@ import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
-import {handleError} from '../../../common/lib/handle_error';
 
 
 var viewStates = {
@@ -25,7 +24,14 @@ export default Backbone.View.extend({
     'click .show-new-pcr-product-form': 'showFormFn',
   },
 
-  initialize: function({showForm}, argumentsForFormView={}) {
+  // `{showForm: showForm}={}` as first argument is required because
+  // `var actualView = new primaryView.view(argumentsForView[0], argumentsForView[1], argumentsForView[2]);`
+  // was replaced with `var actualView = new primaryView.view(...argumentsForView);`
+  // in sequence_view and for some reason the default options are not
+  // correctly passed by the Backbone View's
+  // `this.initialize.apply(this, arguments);` so just having `{showForm}`
+  // will throw an exception.
+  initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
 
     var products = getPcrProductsFromSequence(this.model);
