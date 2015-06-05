@@ -75,14 +75,15 @@ export default Backbone.View.extend({
     var product = this.getProduct(event);
 
     if(product) {
-      let stickyEnds = product.stickyEnds;
       product = product.toJSON();
+
+      let stickyEnds = product.stickyEnds;
 
       product.features = _.where(product.features, {
         _type: 'sticky_end'
       }).concat({
         _type: 'misc',
-        name: `${stickyEnds.start.name}-${product.get('name')}-${stickyEnds.end.name}`,
+        name: `${stickyEnds.start.name}-${product.name}-${stickyEnds.end.name}`,
         desc: '',
         ranges: [{
           from: 0,
