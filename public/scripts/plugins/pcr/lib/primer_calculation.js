@@ -396,8 +396,8 @@ var getSequenceToSearch = function(sequenceBases, minPrimerLength, maxSearchSpac
  * @return {Object}  `sequenceToSearch` and `frm` used.
  */
 var getSequenceToSearchUsingPrimer = function(sequenceBases, minPrimerLength, maxSearchSpace, primer) {
-  var correctedFrom = primer.antisense ? primer.to : (primer.to + 1);
-  return getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, primer.antisense, correctedFrom);
+  var correctedFrom = primer.reverse ? primer.to : (primer.to + 1);
+  return getSequenceToSearch(sequenceBases, minPrimerLength, maxSearchSpace, primer.reverse, correctedFrom);
 };
 
 

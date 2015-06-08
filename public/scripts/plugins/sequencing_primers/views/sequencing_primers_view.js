@@ -97,7 +97,7 @@ export default Backbone.View.extend({
           ranges: [{
             from: primer.from,
             to: primer.to,
-            reverseComplement: !!primer.antisense
+            reverseComplement: primer.reverse,
           }]
         });
       }

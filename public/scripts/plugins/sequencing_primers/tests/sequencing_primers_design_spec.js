@@ -85,9 +85,9 @@ var expected863Primers = [
       "to": 105,
       "meltingTemperature": 63.1,
       "gcContent": 0.4,
-      "antisense": false
+      "reverse": false
     },
-    "antisense": false
+    "reverse": false
   },
   {
     "name": "Fwd-2",
@@ -100,9 +100,9 @@ var expected863Primers = [
       "to": 525,
       "meltingTemperature": 62.4,
       "gcContent": 0.5,
-      "antisense": false
+      "reverse": false
     },
-    "antisense": false
+    "reverse": false
   },
   {
     "name": "Rvs-1",
@@ -115,9 +115,9 @@ var expected863Primers = [
       "to": 499,
       "meltingTemperature": 63.7,
       "gcContent": 0.55,
-      "antisense": true
+      "reverse": true
     },
-    "antisense": true
+    "reverse": true
   },
   {
     "name": "Rvs-2",
@@ -130,9 +130,9 @@ var expected863Primers = [
       "to": 78,
       "meltingTemperature": 63.1,
       "gcContent": 0.4,
-      "antisense": true
+      "reverse": true
     },
-    "antisense": true
+    "reverse": true
   }
 ];
 
@@ -163,9 +163,9 @@ var expectedShortSequencePrimers = [
       "to": 60,
       "meltingTemperature": 63,
       "gcContent": 0.5,
-      "antisense": false,
+      "reverse": false,
     },
-    "antisense": false,
+    "reverse": false,
   },
   {
     "name": "Fwd-1",
@@ -178,9 +178,9 @@ var expectedShortSequencePrimers = [
       "to": 480,
       "meltingTemperature": 63.3,
       "gcContent": 0.4583333333333333,
-      "antisense": false,
+      "reverse": false,
     },
-    "antisense": false,
+    "reverse": false,
   },
   {
     "name":"U-rvs",
@@ -194,7 +194,7 @@ var expectedShortSequencePrimers = [
       "meltingTemperature": 61,
       "gcContent": 0.526,
     },
-    "antisense": true,
+    "reverse": true,
   },
   {
     "name":"Rvs-2",
@@ -208,7 +208,7 @@ var expectedShortSequencePrimers = [
       "meltingTemperature": 62.2,
       "gcContent": 0.42857142857142855,
     },
-    "antisense": true,
+    "reverse": true,
   }
 ];
 

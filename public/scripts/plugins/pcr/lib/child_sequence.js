@@ -8,9 +8,9 @@ class Sequence {
     _.defaults(data, {
       id: id,
       name: `Sequence ${id}`,
-      // if true, it means it's an antisense sequence, complementary to the
-      // sense strand
-      antisense: false,
+      // if true, it means it's a reverse (antisense) sequence, complementary to
+      // the forward (sense) strand.
+      reverse: false,
     });
 
     _.each(this.allFields(), (field) => {
@@ -32,7 +32,7 @@ class Sequence {
   }
 
   optionalFields () {
-    return ['id', 'name', 'antisense'];
+    return ['id', 'name', 'reverse'];
   }
 
   requiredFields () {
@@ -49,8 +49,8 @@ class Sequence {
 
     // TODO move this to a childSequence model and use the
     // validForParentSequence method
-    var msg = `Invalid \`from\`, \`to\` and \`antisense\` values: ${this.from}, ${this.to}, ${this.antisense}`;
-    if(this.antisense) {
+    var msg = `Invalid \`from\`, \`to\` and \`reverse\` values: ${this.from}, ${this.to}, ${this.reverse}`;
+    if(this.reverse) {
       assertion(this.from > this.to, msg);
     } else {
       assertion(this.from <= this.to, msg);
@@ -69,7 +69,7 @@ class Sequence {
     }), {});
   }
 
-  // TODO remove this function and rely on this.antisense/reverse and this.from
+  // TODO remove this function and rely on this.reverse/reverse and this.from
   length () {
     deprecated(this, 'length', 'getLength');
     return this.getLength();
@@ -77,7 +77,7 @@ class Sequence {
 
   getLength () {
     var val = Math.abs(this.from - this.to);
-    if(!this.antisense) val += 1;
+    if(!this.reverse) val += 1;
     return val;
   }
 
@@ -91,9 +91,9 @@ class Sequence {
   validForParentSequence (sequenceLength) {
     return (
       this.from >= 0 &&
-      this.to >= (this.antisense ? -1 : 0) &&
+      this.to >= (this.reverse ? -1 : 0) &&
       this.from < sequenceLength &&
-      this.to < (this.antisense ? (sequenceLength - 1) : sequenceLength)
+      this.to < (this.reverse ? (sequenceLength - 1) : sequenceLength)
     );
   }
 
@@ -105,14 +105,14 @@ class Sequence {
 
   reverseDirection () {
     var tmp = this.from;
-    if(this.antisense) {
+    if(this.reverse) {
       this.from = this.to + 1;
       this.to = tmp;
     } else {
       this.from = this.to;
       this.to = tmp - 1;
     }
-    this.antisense = !this.antisense;
+    this.reverse = !this.reverse;
   }
 
 }

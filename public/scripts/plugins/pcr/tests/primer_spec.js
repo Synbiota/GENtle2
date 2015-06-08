@@ -65,19 +65,19 @@ describe('pcr primer class', function() {
     testResults = [];
   });
 
-  it('should error about invalid `from`, `to` and `antisense` values', function() {
+  it('should error about invalid `from`, `to` and `reverse` values', function() {
     var primerInvalidFromToFieldValues = new Primer({
       sequence: 'AGCTAAAAAAAAAA',
       from: 5,
       to: 10,
-      antisense: true,
+      reverse: true,
       meltingTemperature: 48,
       gcContent: 0.5,
     });
     var failures = getFailures();
     expect(failures.length).toEqual(1);
     expect(failures[0].test).toEqual(false);
-    expect(failures[0].message).toEqual("Invalid `from`, `to` and `antisense` values: 5, 10, true");
+    expect(failures[0].message).toEqual("Invalid `from`, `to` and `reverse` values: 5, 10, true");
     testResults = [];
   });
 

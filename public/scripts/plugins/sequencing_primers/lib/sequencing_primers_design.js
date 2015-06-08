@@ -92,32 +92,33 @@ var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers,
 var calculateProductAndPrimer = function(sequenceLength) {
   var hasForwardUniversalPrimer = false;
   return function(primer, index) {
+
     if(index === 0) hasForwardUniversalPrimer = false;
     var productName;
     if(/universal/.test(primer.name)) {
-      if(primer.antisense) {
+      if(primer.reverse) {
         productName = 'U-rvs';
       } else {
         productName = 'U-fwd';
         hasForwardUniversalPrimer = true;
       }
     } else  {
-      productName = `${primer.antisense ? 'Rvs' : 'Fwd'}-${hasForwardUniversalPrimer ? index : index + 1}`
+      productName = `${primer.reverse ? 'Rvs' : 'Fwd'}-${hasForwardUniversalPrimer ? index : index + 1}`;
     }
 
     // Modify primer
     primer.name = productName + ' primer';
 
     // Calculate product
-    var subSequenceLength = primer.antisense ? (primer.from + 1) : (sequenceLength - primer.from);
+    var subSequenceLength = primer.reverse ? (primer.from + 1) : (sequenceLength - primer.from);
     var productLength = Math.min(subSequenceLength, MAX_DNA_CHUNK_SIZE);
-    var productTo = primer.antisense ? (primer.from - productLength) : (primer.from + productLength - 1);
+    var productTo = primer.reverse ? (primer.from - productLength) : (primer.from + productLength - 1);
     var product = new Product({
       name: productName,
       from: primer.from,
       to: productTo,
       primer: primer,
-      antisense: primer.antisense
+      reverse: primer.reverse
     });
     return product;
   };
@@ -208,8 +209,8 @@ var getAllPrimersAndProductsHelper = function(sequenceBases, options={}) {
       .progress(notify)
       .catch(reject)
       .then(function(sequencingProductsAndPrimers) {
-        var firstForwardSequencePrimer = _.find(sequencingProductsAndPrimers, (product) => !product.antisense).primer;
-        var firstReverseSequencePrimer = _.find(sequencingProductsAndPrimers, (product) => product.antisense).primer;
+        var firstForwardSequencePrimer = _.find(sequencingProductsAndPrimers, (product) => !product.reverse).primer;
+        var firstReverseSequencePrimer = _.find(sequencingProductsAndPrimers, (product) => product.reverse).primer;
 
         // Check the primers will not result in any stretch of DNA being
         // left unsequenced.

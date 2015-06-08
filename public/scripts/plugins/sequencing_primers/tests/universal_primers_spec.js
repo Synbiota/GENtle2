@@ -10,7 +10,7 @@ describe('finding universal primers', function() {
 
     expect(reverseSequencePrimer.from).toEqual(47);
     expect(reverseSequencePrimer.to).toEqual(28);
-    expect(reverseSequencePrimer.antisense).toEqual(true);
+    expect(reverseSequencePrimer.reverse).toEqual(true);
   });
 
   it('finds forward primer', function() {
@@ -19,7 +19,7 @@ describe('finding universal primers', function() {
 
     expect(forwardSequencePrimer.from).toEqual(0);
     expect(forwardSequencePrimer.to).toEqual(19);
-    expect(forwardSequencePrimer.antisense).toEqual(false);
+    expect(forwardSequencePrimer.reverse).toEqual(false);
 
     expect(reverseSequencePrimer).toBeUndefined();
   });
@@ -42,10 +42,10 @@ describe('finding universal primers', function() {
 
     expect(forwardSequencePrimer.from).toEqual(41);
     expect(forwardSequencePrimer.to).toEqual(60);
-    expect(forwardSequencePrimer.antisense).toEqual(false);
+    expect(forwardSequencePrimer.reverse).toEqual(false);
 
     expect(reverseSequencePrimer.from).toEqual(557);
     expect(reverseSequencePrimer.to).toEqual(538);
-    expect(reverseSequencePrimer.antisense).toEqual(true);
+    expect(reverseSequencePrimer.reverse).toEqual(true);
   });
 });

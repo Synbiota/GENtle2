@@ -24,7 +24,6 @@ var checkResult = function(primer, expectations={}) {
     maximumMeltingTemperature: 65,
     optimal: true,
   });
-  // console.log(`Testing with primer:`, primer);
   expect(primer.meltingTemperature).toBeGreaterThan(expectations.minimumMeltingTemperature - micro);
   expect(primer.meltingTemperature).toBeLessThan(expectations.maximumMeltingTemperature + micro);
   expect(primer.gcContent).toBeGreaterThan(expectations.gcContentGreaterThan - micro);
@@ -48,10 +47,8 @@ var checkResult = function(primer, expectations={}) {
 
 
 var optimalPrimer4_TestFactory = function(done, sequence, expectations, options={}) {
-  // console.log(`Set up optimalPrimer4 test`);
   optimalPrimer4(sequence, options)
   .then(function(primer) {
-    // console.log(`Got optimalPrimer4 results, primer:`, primer);
     checkResult(primer, expectations);
   })
   .finally(done).done();
@@ -306,7 +303,7 @@ describe('getting sequence to search for primer', function() {
 
   it('returns the forward sequence when given a forward primer', function() {
     var mockPrimer = {
-      antisense: false,
+      reverse: false,
       from: 0,
       to: 0,
     };
@@ -317,7 +314,7 @@ describe('getting sequence to search for primer', function() {
 
   it('returns the reverse sequence when given a reverse primer', function() {
     var mockPrimer = {
-      antisense: true,
+      reverse: true,
       // Remember that this means it goes from base 0 to base 0 in a reverse
       // direction
       from: 1,

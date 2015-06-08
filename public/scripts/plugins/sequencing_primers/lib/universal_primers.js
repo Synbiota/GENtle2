@@ -26,7 +26,7 @@ var universalPrimers = function() {
   {
     sequence: 'AATACGCCCGGTAGTGATC', // reverse complement: GATCACTACCGGGCGTATT
     name: "Sybiota universal reverse primer version 2.0",
-    antisense: true,
+    reverse: true,
     meltingTemperature: 61,
     gcContent: 0.526,
   }
@@ -47,7 +47,7 @@ var universalPrimers = function() {
 var findPrimers = function(sequenceBases, universalPrimerModels) {
   var forwardPrimerInSequence = function(universalPrimer, findLast=false) {
     var found = false;
-    if(!universalPrimer.antisense) {
+    if(!universalPrimer.reverse) {
       var regexp = new RegExp(universalPrimer.sequence, 'ig');
       var position;
       while(regexp.exec(sequenceBases)) {
@@ -66,10 +66,10 @@ var findPrimers = function(sequenceBases, universalPrimerModels) {
 
   var reversePrimerInSequence = function(universalPrimer) {
     var found = false;
-    if(universalPrimer.antisense) {
+    if(universalPrimer.reverse) {
       var attributes = universalPrimer.toJSON();
       attributes.sequence = SequenceTransforms.toReverseComplements(universalPrimer.sequence);
-      attributes.antisense = false;
+      attributes.reverse = false;
       var sequenceModel = new SequencingPrimerModel(attributes);
 
       found = forwardPrimerInSequence(sequenceModel, true);

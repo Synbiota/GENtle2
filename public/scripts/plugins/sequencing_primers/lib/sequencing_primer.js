@@ -8,7 +8,7 @@ class SequencingPrimerModel extends Sequence {
       'id',
       'name',
       //'ourMeltingTemperature',
-      'antisense',  // TODO, rename to `reverse`
+      'reverse',
       'from',
       'to',
       // 'offset',
