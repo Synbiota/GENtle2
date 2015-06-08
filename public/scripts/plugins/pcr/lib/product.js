@@ -1,23 +1,24 @@
 import {assertIsInstance} from '../../../common/lib/testing_utils';
-import Sequence from './sequence';
+import ChildSequence from './child_sequence';
 import Primer from './primer';
 
 
-class Product extends Sequence {
-  setup () {
+class Product extends ChildSequence {
+  setup() {
     super.setup();
-    if(this.primer.constructor !== Primer) {
+    if(!(this.primer instanceof Primer)) {
+      this.primer.parentSequence = this.parentSequence;
       this.primer = new Primer(this.primer);
     }
   }
 
-  requiredFields () {
-    return [
-      // 'sequence',
-      'from', 'to', 'primer'];
+  get requiredFields() {
+    return super.requiredFields.concat([
+      'primer',
+    ]);
   }
 
-  validate () {
+  validate() {
     assertIsInstance(this.primer, Primer, 'primer');
     super.validate();
   }

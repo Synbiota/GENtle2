@@ -238,9 +238,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
       var filterAndAdjustRanges = function(offset, maxValue, feature) {
         feature.ranges = _.filter(feature.ranges, function(range) {
-          var frm = Math.min(range.from, range.to);
-          var to = Math.max(range.from, range.to);
-          return frm < maxValue && to >= offset;
+          return range.from < maxValue && range.to >= offset;
         });
         _.each(feature.ranges, function(range) {
           range.from =  Math.max(Math.min(range.from - offset, length -1), 0);
