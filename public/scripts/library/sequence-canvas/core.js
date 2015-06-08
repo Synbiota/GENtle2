@@ -132,8 +132,6 @@ class SequenceCanvasCore {
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
-    this.contextMenu = this.contextMenuView;
-
     // Events
     // this.view.on('resize', this.refreshFromResize);
     // this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
@@ -160,6 +158,7 @@ class SequenceCanvasCore {
 
     $container
       .addClass('sequence-canvas-wrapper')
+      .css({userSelect: 'none'})
       .html(template({id: this.id}));
 
     return $container;
@@ -173,16 +172,12 @@ class SequenceCanvasCore {
   }
 
   _mixinJqueryEvents() {
-    var jQueryPassthrough = function(methodName) {
-      var $el = $(this);
-      return (...args) => $el[methodName].apply($el, args);
-    };
-
-    _.each(['on', 'off', 'one', 'trigger'], (methodName) => {
-      this[methodName] = jQueryPassthrough(methodName);
+    var $el = $(this);
+    _.each(['on', 'off', 'one', 'trigger'], (fnName) => {
+      this[fnName] = _.bind($el[fnName], $el);
     });
-
     this.once = this.one;
+    this.emit = this.trigger;
   }
 
   /**
@@ -533,28 +528,59 @@ class SequenceCanvasCore {
   displayCaret(base) {
     var layoutHelpers = this.layoutHelpers,
       lineOffsets = layoutHelpers.lineOffsets,
-      _this = this,
+      selection = this.selection,
       posX, posY;
 
-    if (base === undefined && this.caretPosition !== undefined) {
+    if (_.isUndefined(base) && !_.isUndefined(this.caretPosition)) {
       base = this.caretPosition;
     }
 
     if(_.isUndefined(base)) return false;
 
-    base = this.sequence.ensureBaseIsSelectable(base);
+    this.scrollBaseToVisibility(base).then(() => {
 
-    this.scrollBaseToVisibility(base).then(function() {
+      if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
+        posX = this.getXPosFromBase(base - 1) + this.layoutSettings.basePairDims.width;
+        posY = this.getYPosFromBase(base - 1) + lineOffsets.dna;
+      } else {
+        posX = this.getXPosFromBase(base);
+        posY = this.getYPosFromBase(base) + lineOffsets.dna;
+      }
 
-      posX = _this.getXPosFromBase(base);
-      posY = _this.getYPosFromBase(base) + lineOffsets.dna;
+      this.caret.move(posX, posY, base);
+      this.caretPosition = base;
+      this.caret.setInfo(this.determineCaretInfo());
+      this.trigger('caret:show', {x: posX, y: posY, base: base, selection: !!this.selection});
 
-      _this.caret.move(posX, posY, base);
-      _this.caretPosition = base;
-      _this.showContextMenuButton(posX, posY + 20);
+      if(this.selection) {
+        this.caret.hideHighlight();
+      } else {
+        this.caret.showHighlight();
+      }
+    }).done();
 
-    });
+  }
 
+  determineCaretInfo() {
+    var info = "";
+    var toString = (num) => _.formatThousands(num).toString();
+
+    if(this.selection) {
+      var start = this.selection[0]+1;
+      var end = this.selection[1]+1;
+      var size = (end - start);
+
+      if(size===0) {
+        info = toString(start) + " (1 bp)";
+      } else {
+        info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
+      }
+      
+    } else {
+      info = toString(this.caretPosition + 1);
+    }
+
+    return info;
   }
 
   moveCaret(newPosition) {
@@ -565,11 +591,13 @@ class SequenceCanvasCore {
     this.displayCaret(newPosition);
   }
 
-  hideCaret(hideContextMenu) {
+  // hideCaret(hideContextMenu) {
+  hideCaret() {
     this.caret.remove();
-    if (hideContextMenu === true) {
-      this.hideContextMenuButton();
-    }
+    this.trigger('caret:hide');
+    // if (hideContextMenu === true) {
+    //   this.hideContextMenuButton();
+    // }
   }
 
   redrawSelection(selection) {

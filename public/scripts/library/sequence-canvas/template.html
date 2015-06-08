@@ -1,8 +1,15 @@
-<div class="sequence-canvas-container">
-  <canvas id="canvas_<%= id %>" class="sequence-canvas" />
-</div>
-<div class="scrolling-parent" tabindex="1">
-  <div class="scrolling-child">
-    <div id="sequence-canvas-context-menu-outlet"></div>
-  </div>
+<canvas id="canvas_<%= id %>" class="sequence-canvas" style="height: 100%;"></canvas>
+<div class="scrolling-parent" tabindex="1" style="
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    top: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background: transparent;
+    cursor: text;
+    outline: none !important;
+  ">
+  <div class="scrolling-child"></div>
 </div>

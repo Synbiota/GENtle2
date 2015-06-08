@@ -1,22 +1,25 @@
 var keys = Object.getOwnPropertyNames;
 
+var reverseForEach = function(arr, cb) {
+  for(let i = arr.length-1; i >= 0; i--) cb(arr[i]);
+};
+
 function classMixin(overwrite = true) {
   return function(...mixins) {
 
     class MixedIn {
       constructor(...args) {
-        mixins.reverse().forEach(mixin => {
+        reverseForEach(mixins, mixin => {
           var _init = mixin.prototype._init;
-          _init && _init.apply(this, args);
+          if(_init) _init.apply(this, args);
         });
       }
     }
     var mixedInPrototype = MixedIn.prototype;
 
-    for(let i = mixins.length - 1; i >= 0; i--) {
-      let mixin = mixins[i];
-      let mixinPrototype = mixin.prototype; 
-      let props = keys(mixinPrototype);
+    reverseForEach(mixins, function(mixin) {
+      var mixinPrototype = mixin.prototype; 
+      var props = keys(mixinPrototype);
 
       for(let j = 0; j < props.length; j++) {
         let prop = props[j];
@@ -28,8 +31,8 @@ function classMixin(overwrite = true) {
         if(prop !== 'constructor') {
           mixedInPrototype[prop] = mixinPrototype[prop];
         }
-      }
-    }
+      }      
+    });
 
     return MixedIn;
   };

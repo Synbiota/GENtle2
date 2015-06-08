@@ -405,6 +405,7 @@ class Handlers {
       _this.selecting = false;
       _this.selection = undefined;
     }
+
     _this.displayCaret(_this.caretPosition);
     _this.redrawSelection(_this.selection);
   }
@@ -420,7 +421,7 @@ class Handlers {
       this.displayCaret(this.caretPosition);
     }
     this.selecting = false;
-  };
+  }
 
   /**
   Displays the caret at the mouse click position

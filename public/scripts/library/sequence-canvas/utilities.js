@@ -8,7 +8,6 @@ class Utilities {
    * @method _init
    */
   _init(options) {
-    console.log(this)
     this.memoize('getXPosFromBase', 'change', options.sequence);
   }
 

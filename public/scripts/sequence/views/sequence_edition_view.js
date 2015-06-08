@@ -7,7 +7,7 @@ const LineStyles = Styles.sequences.lines;
 **/
 // define(function(require) {
   var template = require('../templates/sequence_edition_view.hbs'),
-      SequenceCanvas = require('gentle-sequence-canvas'),
+      SequenceCanvas = require('../lib/sequence_canvas'),
       Gentle = require('gentle'),
       ContextMenuView = require('../../common/views/context_menu_view'),
       LinearMapView = require('../../linear_map/views/linear_map_view'),
@@ -28,7 +28,6 @@ const LineStyles = Styles.sequences.lines;
       this.model = Gentle.currentSequence;
 
       this.contextMenuView = new ContextMenuView({context: 'sequence'});
-      this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
 
       this.matchedEnzymesView = new MatchedEnzymesView();
       this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
@@ -112,7 +111,7 @@ const LineStyles = Styles.sequences.lines;
     },
 
     afterRender: function() {
-      this.$('.sequence-canvas-container, .scrolling-parent').css({
+      this.$('.sequence-canvas-outlet').css({
         'right': this.secondaryView.$el.width(),
       });
 
@@ -252,14 +251,17 @@ const LineStyles = Styles.sequences.lines;
         container: this.$('.sequence-canvas-outlet').first(),
         contextMenuView: this.contextMenuView,
         lines: sequenceCanvasLines,
-        yOffset: sequence.get('displaySettings.yOffset')
+        yOffset: sequence.get('displaySettings.yOffset'),
+        // non library option
+        contextMenu: this.contextMenuView,
+        view: this
       });
+
+      this.listenTo(this, 'resize', sequenceCanvas.refreshFromResize);
 
       _.each(['change:sequence change:features'], (eventName) => {
         sequence.on(eventName, () => sequenceCanvas.trigger(eventName));
       });
-
-      console.log(sequenceCanvas)
 
       sequenceCanvas.on('scroll', (event, yOffset) => {
         sequence.set('displaySettings.yOffset', yOffset, {
