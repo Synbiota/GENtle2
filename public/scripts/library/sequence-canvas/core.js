@@ -7,8 +7,8 @@ import template from './template.html';
 import Artist from '../../common/lib/graphics/artist';
 import CopyPasteHandler from '../../common/lib/copy_paste_handler';
 
-import Lines from './lines'
-import Caret from '../../common/lib/caret';
+import Lines from './lines';
+import Caret from './caret';
 
 import {namedHandleError} from '../../common/lib/handle_error';
 import {assertIsDefinedAndNotNull, assertIsObject} from '../../common/lib/testing_utils';

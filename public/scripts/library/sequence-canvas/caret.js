@@ -1,3 +1,7 @@
+import template from './caret.html';
+import _ from 'underscore';
+import $ from 'jquery';
+
 /**
 @class Caret
 @module Common
@@ -6,11 +10,8 @@
 @params {jQuery DOM Element} options.$container
 @params {String} options.className
 **/
-// define(function(require) {
-  var template = require('../templates/caret.hbs'),
-      Caret;
-
-  Caret = function(options) {
+class Caret {
+  constructor(options) {
     this.$container = options.$container;
     this.className = options.className;
     this.blinking = !!options.blinking;
@@ -19,19 +20,19 @@
                     'remove');
 
     this.createElement();
-  };
+  }
 
-  Caret.prototype.createElement = function() {
+  createElement() {
     var $element = $(template({
           className: this.className,
-          blinking: this.blinking
+          blinking: this.blinking ? 'caret-blinking' : ''
         })).hide();
 
     this.$container.append($element);
     this.$element = $element;
-  };
+  }
 
-  Caret.prototype.move = function(posX, posY, base) {
+  move(posX, posY, base) {
     this.remove();
     this.posX = posX;
     this.posY = posY;
@@ -42,28 +43,24 @@
         left: this.posX
       })
       .show();
-  };
+  }
 
-  Caret.prototype.setInfo = function(text) { 
+  setInfo(text) { 
     this.$element.find(".caret-info").text(text);
-  };
+  }
 
-  Caret.prototype.remove = function() {
-   
+  remove() {
     this.$element.hide();
     this.posX = this.posY = this.base = undefined;
-  };
+  }
 
-  Caret.prototype.showHighlight = function() {
-    
+  showHighlight() {
     this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0.25)"});
-    
-  };
+  }
 
-  Caret.prototype.hideHighlight = function() {
-    this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0)"});
-    
+  hideHighlight() {
+    this.$element.find(".caret-caret").css({background: "rgba(0,0,255,0)"});  
   };
+}
+
 export default Caret;
-  // return Caret;
-// });
