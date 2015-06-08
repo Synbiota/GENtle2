@@ -2,7 +2,9 @@
 // Allows us to stub out in tests
 var _assertion = function(test, message) {
   console.assert(test, message);
+  if(window.TESTS_RUNNING && !test) throw new Error(message);
 };
+
 
 var stubAssertion = function(newAssertion) {
   var oldAssertion = _assertion;
