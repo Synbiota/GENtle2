@@ -1,4 +1,4 @@
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 import {calculatePcrProductFromPrimers} from '../lib/pcr_primer_design';
 
 

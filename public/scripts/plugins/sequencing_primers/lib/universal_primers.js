@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import SequencingPrimerModel from './sequencing_primer';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 
 
 var universalPrimers = function() {

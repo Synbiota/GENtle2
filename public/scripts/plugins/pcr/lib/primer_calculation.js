@@ -1,6 +1,6 @@
 import _ from 'underscore.mixed';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 import Q from 'q';
 import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';

@@ -1,5 +1,5 @@
 import SynbioData from '../../common/lib/synbio_data';
-import SequenceTransforms from './sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 import _ from 'underscore';
 
 var restrictionEnzymes;

@@ -1,7 +1,7 @@
 import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 import {optimalPrimer4, getSequenceToSearch, getSequenceToSearchUsingPrimer} from '../lib/primer_calculation';
 
 
