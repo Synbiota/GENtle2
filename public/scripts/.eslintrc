@@ -1,0 +1,14 @@
+{
+  "parser": "babel-eslint",
+  "rules": {
+    "no-multi-spaces": 0,
+    "no-trailing-spaces": 0,
+    "no-underscore-dangle": 0,
+    "strict": 0,
+    "curly": 0,
+    "quotes": [1, "single"]
+  },
+  "globals": {
+    "requestAnimationFrame": true
+  }
+}
