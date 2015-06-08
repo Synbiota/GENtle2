@@ -104,7 +104,7 @@ class SequenceCanvasCore {
         bottom: 20
       },
       scrollPercentage: 1.0,
-      gutterWidth: 30,
+      gutterWidth: 0,
       basesPerBlock: 10,
       basePairDims: {
         width: 10,
@@ -455,7 +455,7 @@ class SequenceCanvasCore {
     this.redraw();
 
     if (triggerEvent !== false) {
-      this.trigger('scroll', yOffset);
+      this.trigger('scroll', {yOffset});
     }
 
     return deferred.promise;

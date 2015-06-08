@@ -143,7 +143,7 @@ class FeatureArrow extends Line {
         artist.text(
           feature.name,
           startX,
-          y + this.margin + i * this.unitHeight + i,
+          y + this.margin + i * this.unitHeight + i + 0.5,
           {
             textOverflow: true,
             maxWidth: Math.abs(arrowEndX - arrowStartX),
@@ -161,18 +161,6 @@ class FeatureArrow extends Line {
 
   }
 }
-
-var switchContext = function(fn) {
-  var args = _.toArray(arguments);
-  var sequence = this.sequenceCanvas.sequence;
-  var context = (this.features === undefined) ? sequence : sequence.clone().set({ 
-    features: this.features 
-  }, {silent: true});
-
-  args.shift();
-
-  return sequence[fn].apply(context, args);
-};
 
 FeatureArrow.prototype.featuresInRange = switchSequenceContext('featuresInRange');
 FeatureArrow.prototype.nbFeaturesInRange = switchSequenceContext('nbFeaturesInRange');

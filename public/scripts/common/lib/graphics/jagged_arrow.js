@@ -87,7 +87,7 @@ class JaggedArrow extends Shape {
         }
       }
 
-      artist.translate(fromX, fromY);
+      artist.translate(Math.floor(fromX)+0.5, Math.floor(fromY)+0.5);
       artist.rotate(angle);
 
       context.beginPath();
