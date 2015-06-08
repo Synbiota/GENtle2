@@ -5,7 +5,7 @@ import Utilities from './utilities';
 import ContextMenu from './context_menu';
 import Memoizable from 'gentle-utils/memoizable';
 
-var SequenceCanvasMixin = classMixin(Core, ContextMenu, EventHandlers, Utilities, Memoizable);
+var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Core, Utilities, Memoizable);
 
 export default class SequenceCanvas extends SequenceCanvasMixin {
   constructor(...args) {

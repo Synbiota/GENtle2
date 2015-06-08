@@ -53,10 +53,7 @@ class SequenceCanvasCore {
       @default `this.view.model`
     **/
     var sequence = this.sequence = options.sequence;
-    // debugger
     assertIsDefinedAndNotNull(sequence, 'options.sequence');
-
-    this.readonly = !!options.readonly;
 
     /**
         DOM container element as a jQuery object
@@ -134,11 +131,6 @@ class SequenceCanvasCore {
 
     // Events
     this.sequence.on('change:sequence change:features.* change:features', this.refresh);
-    this.$scrollingParent.on('scroll', this.handleScrolling);
-    this.$scrollingParent.on('mousedown', this.handleMousedown);
-    this.$scrollingParent.on('keypress', this.handleKeypress);
-    this.$scrollingParent.on('keydown', this.handleKeydown);
-    this.$scrollingParent.on('blur', this.handleBlur);
 
     // Kickstart rendering
     this.refresh();

@@ -7,7 +7,7 @@ import Memoizable from 'gentle-utils/memoizable';
 
 import ContextMenu from './_sequence_canvas_context_menu';
 
-var SequenceCanvasMixin = classMixin(ContextMenu, Core, EventHandlers, Utilities, Memoizable);
+var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Core, Utilities, Memoizable);
 
 import Styles from '../../styles';
 const LineStyles = Styles.sequences.lines;
@@ -150,7 +150,14 @@ var defaultLines = function(sequence) {
 
 export default class SequenceCanvas extends SequenceCanvasMixin {
   constructor(options = {}) {
-    _.defaults(options, {lines: defaultLines(options.sequence)});
+    var sequence = options.sequence;
+    _.defaults(options, {
+      lines: defaultLines(sequence),
+      editable: !sequence.get('readOnly'),
+      layoutSettings: {
+        gutterWidth: sequence.get('displaySettings.rows.hasGutters') ? 30 : 0
+      }
+    });
 
     super(options);
 

@@ -10,7 +10,7 @@ Event handlers for SequenceCanvas
 **/
 
 class Handlers {
-  _init() {
+  _init(options) {
     _.bindAll(this,
       'handleScrolling',
       'handleMousedown',
@@ -27,6 +27,29 @@ class Handlers {
       memo[key] = key.charCodeAt(0);
       return memo;
     }, {});
+
+    this.editable = _.isUndefined(options.editable) ? true : options.editable;
+    this.selectable = _.isUndefined(options.selectable) ? true : options.selectable;
+    this.scrollable = _.isUndefined(options.scrollable) ? true : options.scrollable;
+
+    if(!this.selectable && this.editable) {
+      throw new Error('SequenceCanvas cannot be both non-selectable and editable');
+    }
+
+    if(this.selectable) {
+      this.$scrollingParent.on('mousedown', this.handleMousedown);
+      this.$scrollingParent.on('keydown', this.handleKeydown);
+      this.$scrollingParent.on('blur', this.handleBlur);
+    }
+
+    if(this.editable) {
+      this.$scrollingParent.on('keypress', this.handleKeypress);
+    }
+
+    if(this.scrollable) {
+      this.$scrollingParent.on('scroll', this.handleScrolling);
+    }
+
   }
 
   /**
@@ -42,7 +65,7 @@ class Handlers {
         selection = this.selection,
         caretPosition = this.caretPosition;
 
-      if (!this.readOnly && ~this.allowedInputChars.indexOf(base)) {
+      if (this.editable && ~this.allowedInputChars.indexOf(base)) {
 
         if (!selection && caretPosition !== undefined) {
 
@@ -134,7 +157,7 @@ class Handlers {
   }
 
   handleBackspaceKey(shift, meta) {
-    if(!this.readOnly) {
+    if(this.editable) {
       if (this.selection) {
         var selection = this.selection;
         if(this.sequence.isBaseEditable(...selection)) {
@@ -327,7 +350,7 @@ class Handlers {
       selection = _this.selection,
       caretPosition = _this.caretPosition;
 
-    if(!this.readOnly) {
+    if(!this.editable) {
 
       this.copyPasteHandler.paste().then(function(text) {
         if (caretPosition !== undefined && !selection) {
@@ -347,7 +370,7 @@ class Handlers {
   }
 
   handleUndo(event) {
-    if (!this.readOnly && this.caretPosition !== undefined) {
+    if (this.editable && this.caretPosition !== undefined) {
       event.preventDefault();
       var previousCaret = this.caretPosition;
 
