@@ -122,7 +122,7 @@ var defaultLines = function(sequence) {
         return (colors[type] && colors[type].fill) || colors._default.fill;
       },
       visible: function() {
-        return sequence.features && sequence.get('displaySettings.rows.features');
+        return sequence.getFeatures().length && sequence.get('displaySettings.rows.features');
       }
     }],
 
