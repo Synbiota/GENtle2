@@ -28,14 +28,6 @@ class Handlers {
       return memo;
     }, {});
 
-    this.editable = _.isUndefined(options.editable) ? true : options.editable;
-    this.selectable = _.isUndefined(options.selectable) ? true : options.selectable;
-    this.scrollable = _.isUndefined(options.scrollable) ? true : options.scrollable;
-
-    if(!this.selectable && this.editable) {
-      throw new Error('SequenceCanvas cannot be both non-selectable and editable');
-    }
-
     if(this.selectable) {
       this.$scrollingParent.on('mousedown', this.handleMousedown);
       this.$scrollingParent.on('keydown', this.handleKeydown);

@@ -112,7 +112,6 @@ export default Backbone.View.extend({
     var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
       sequence: sequence,
       container: this.$('.sequence-canvas-outlet').first(),
-      yOffset: sequence.get('displaySettings.yOffset'),
       lines: lines,
       editable: false
     });

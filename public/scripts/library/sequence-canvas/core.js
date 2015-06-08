@@ -129,6 +129,18 @@ class SequenceCanvasCore {
     this.displayDeferred = Q.defer();
     this.copyPasteHandler = new CopyPasteHandler();
 
+    this.editable = _.isUndefined(options.editable) ? true : options.editable;
+    this.selectable = _.isUndefined(options.selectable) ? true : options.selectable;
+    this.scrollable = _.isUndefined(options.scrollable) ? true : options.scrollable;
+
+    if(!this.selectable && this.editable) {
+      throw new Error('SequenceCanvas cannot be both non-selectable and editable');
+    }
+
+    if(this.selectable) {
+      this.setCursorStyle('text');
+    }
+
     // Events
     this.sequence.on('change:sequence change:features.* change:features', this.refresh);
 
@@ -713,6 +725,12 @@ class SequenceCanvasCore {
   focus() {
     this.$scrollingParent.focus();
   }
+
+  setCursorStyle(style) { 
+    this.$scrollingParent.css({
+      cursor: style
+    });
+  } 
 
 
 }
