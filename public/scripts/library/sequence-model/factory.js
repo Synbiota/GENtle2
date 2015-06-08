@@ -127,7 +127,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
      * Wraps the standard get function to use a custom getNnnnnnn if available.
      * @param  {String} attribute
-     * @param  {Object} options={}
+     * @param  {Object} options=undefined
      * @return {Any}
      */
     get(attribute, options = undefined) {
@@ -158,7 +158,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
     validateStickyEndFormat(value) {
       if(value && !~stickyEndFormats.indexOf(value)) {
-        throw `'${value}' is not an acceptable sticky end format`;
+        throw `'${JSON.stringify(value, null, 2)}' is not an acceptable sticky end format`;
       }
     }
 
@@ -180,8 +180,8 @@ export default function sequenceModelFactory(BackboneModel) {
       var sequence        = super.get('sequence');
       var stickyEnds      = this.getStickyEnds();
       var startPostion, endPosition;
-      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
-          
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+
       this.validateStickyEndFormat(stickyEndFormat);
 
       if (stickyEnds && stickyEndFormat){
@@ -745,10 +745,8 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     moveBases(firstBase, length, newFirstBase, options = {}) {
-      var lastBase = firstBase + length - 1,
-          history = this.getHistory(),
-          _this = this,
-          featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
+      var lastBase = firstBase + length - 1;
+      var featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
 
       options = _.defaults(options, {updateHistory: true});
 
@@ -769,7 +767,7 @@ export default function sequenceModelFactory(BackboneModel) {
         options
       );
 
-      _.each(featuresInRange, function(feature) {
+      _.each(featuresInRange, (feature) => {
         feature.ranges = _.map(_.filter(feature.ranges, function(range) {
           return range.from >= firstBase && range.to <= lastBase;
         }), function(range) {
@@ -783,9 +781,8 @@ export default function sequenceModelFactory(BackboneModel) {
           };
         });
 
-        _this.createFeature(feature, options);
+        this.createFeature(feature, options);
       });
-
     }
 
     /**
