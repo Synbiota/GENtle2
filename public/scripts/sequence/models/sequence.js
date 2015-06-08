@@ -4,6 +4,7 @@ import HistorySteps from './history_steps';
 import Gentle from 'gentle';
 import _ from 'underscore';
 
+
 export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
   defaults() {
     return _.extend(super.defaults(), {
@@ -51,7 +52,6 @@ export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
     });
   }
 
-  
   clearBlastCache() {
     return this.clearObjectAttribute('meta.blast');
   }
@@ -65,7 +65,6 @@ export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
       this.set(attribute, {});
       this.throttledSave();
     }
-
     return this;
   }
 

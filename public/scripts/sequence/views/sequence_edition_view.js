@@ -66,10 +66,7 @@ const LineStyles = Styles.sequences.lines;
     },
 
     handleResizeRight: function(trigger) {
-      $('#sequence-canvas-primary-view-outlet').css({
-        'right': this.secondaryView.$el.width(),
-      });
-      $('.sequence-canvas-container, .scrolling-parent').css({
+      $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
         'right': this.secondaryView.$el.width(),
       });
       if(trigger !== false) {

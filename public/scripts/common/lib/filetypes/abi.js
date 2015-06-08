@@ -1,70 +1,63 @@
-// define(function(require) {
-  //________________________________________________________________________________________
-  // ABI
- // For file format description, see http://www6.appliedbiosystems.com/support/software_community/ABIF_File_Format.pdf
+//________________________________________________________________________________________
+// ABI
+// For file format description, see http://www6.appliedbiosystems.com/support/software_community/ABIF_File_Format.pdf
 
-  var FT_base = require('./base'),
-      FT_abi;
+var FT_base = require('./base'),
+    FT_abi;
 
-  FT_abi = function() {
-    this.typeName = 'ABI' ;
-	this.read_binary = true ;
-	this.binary = true ;
-  }
+FT_abi = function() {
+  this.typeName = 'ABI' ;
+  this.read_binary = true ;
+  this.binary = true ;
+};
 
-  FT_abi.prototype = new FT_base() ;
 
-  /**
-    Implements a abi file reader/writer.
-    @class FT_abi
-    @extends Filetype
-  */
-  FT_abi.prototype.constructor = FT_abi ;
+FT_abi.prototype = new FT_base() ;
+
+
+/**
+  Implements a abi file reader/writer.
+  @class FT_abi
+  @extends Filetype
+*/
+FT_abi.prototype.constructor = FT_abi ;
 
 
 
 FT_abi.prototype.getBigEndianUnsignedWord = function ( bytes , p ) {
 	var n1 = bytes[p+0] * 256 + bytes[p+1] ;
 	return n1 ;
-}
+};
+
 
 FT_abi.prototype.getBigEndianSignedWord = function ( bytes , p ) {
 	var x = bytes[p+0] * 256 + bytes[p+1] ;
 	return x >= 32768 ? x-65536 : x ;
-}
+};
+
 
 FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 //	console.log ( bytes[p+0]*1 , bytes[p+1]*1 , bytes[p+2]*1 , bytes[p+3]*1 ) ;
 	var n1 = bytes[p+0] *256*256*256 + bytes[p+1] *256*256 + bytes[p+2] * 256 + bytes[p+3] ;
 	return n1 ;
-}
+};
 
-  FT_abi.prototype.getFileExtension = function () {
-    return 'abi' ;
-  }
 
-  FT_abi.prototype.getExportString = function ( sequence ) {
-    return 'NOT IMPLEMENTED YET';
-  }
+FT_abi.prototype.getFileExtension = function () {
+  return 'abi' ;
+};
 
-  FT_abi.prototype.parseFile = function ( just_check_format ) { // INCOMPLETE Gets sequence but no quality scores, chromatogram, etc.
+
+FT_abi.prototype.getExportString = function ( sequence ) {
+  return 'NOT IMPLEMENTED YET';
+};
+
+
+FT_abi.prototype.parseFile = function ( just_check_format ) { // INCOMPLETE Gets sequence but no quality scores, chromatogram, etc.
 	var me = this ;
 
 	// START ABI PARSING HERE
 	
-	function ab2str(buf) {
-	  return String.fromCharCode.apply(null, new Uint16Array(buf));
-	}
-
-	function str2ab(str) {
-	  var buf = new ArrayBuffer(str.length*2); // 2 bytes for each char
-	  var bufView = new Uint16Array(buf);
-	  for (var i=0, strLen=str.length; i<strLen; i++) {
-		bufView[i] = str.charCodeAt(i);
-	  }
-	  return buf;
-	}
-
 //	var text_array = me.stringToBytes(me.text) ; // THIS HAD TO BE ADDED FOR GENtle3 - possible bug?
 //	var text_array = str2ab ( me.text ) ;
 	var text_array = me.asArrayBuffer() ;
@@ -111,9 +104,6 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 		abi.dirs.push ( nd ) ;
 	}
 
-//	console.log ( abi ) ;
-
-	var name = "Chromatogram" ;
 	var seq = {
 		name: "Chromatogram",
 		desc: '',
@@ -145,20 +135,21 @@ FT_abi.prototype.getBigEndianUnsignedLong = function ( bytes , p ) {
 	} ) ;
 	
 	return [ seq ] ;
-	}
+};
 
-  FT_abi.prototype.parseText = function ( text ) {
-    this.text = text ; // Huh?
-    this.fileTypeValidated = true ;
-  //  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
-    this.parseFile () ;
-  }
 
-  FT_abi.prototype.textHeuristic = function () {
+FT_abi.prototype.parseText = function ( text ) {
+  this.text = text ; // Huh?
+  this.fileTypeValidated = true ;
+//  $('#sb_log').append ( '<p>GenBank text loaded</p>' ) ;
+  this.parseFile () ;
+};
+
+
+FT_abi.prototype.textHeuristic = function () {
 	var res = this.parseFile ( true ) ;
 	return res ;
-}
+};
 
-  // return FT_abi
+
 export default FT_abi;
-// });

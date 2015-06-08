@@ -5,9 +5,15 @@ import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
 import deprecated from 'gentle-utils/deprecated_method';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
+import SequenceRange from './range';
 import HistorySteps from '../../sequence/models/history_steps';
 
-const stickyEndFormats = ['full', 'none', 'overhang'];
+
+const STICKY_END_FULL = 'full';
+const STICKY_END_OVERHANG = 'overhang';
+const STICKY_END_NONE = 'none';
+const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
+
 
 export default function sequenceModelFactory(BackboneModel) {
   /**
@@ -37,6 +43,18 @@ export default function sequenceModelFactory(BackboneModel) {
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
+    }
+
+    get STICKY_END_FULL() {
+      return STICKY_END_FULL;
+    }
+
+    get STICKY_END_OVERHANG() {
+      return STICKY_END_OVERHANG;
+    }
+
+    get STICKY_END_NONE() {
+      return STICKY_END_NONE;
     }
 
     /**
@@ -97,7 +115,7 @@ export default function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
-        stickyEndFormat: 'overhang'
+        stickyEndFormat: STICKY_END_OVERHANG
       };
     }
 
@@ -106,11 +124,13 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-     * Wraps the standard get function to use the custom getSequence if necessary.
-     * @param  {String} Standard attribute
-     * @param  {Object} Options (optional)
+
+     * Wraps the standard get function to use a custom getNnnnnnn if available.
+     * @param  {String} attribute
+     * @param  {Object} options={}
+     * @return {Any}
      */
-    get(attribute, options = {}){
+    get(attribute, options = undefined) {
       var value;
       var customGet = "get" + _.ucFirst(attribute);
 
@@ -136,9 +156,14 @@ export default function sequenceModelFactory(BackboneModel) {
       return super.get('stickyEndFormat');
     }
 
-    setStickyEndFormat(value) {
-      if(value && !~stickyEndFormats.indexOf(value))
+    validateStickyEndFormat(value) {
+      if(value && !~stickyEndFormats.indexOf(value)) {
         throw `'${value}' is not an acceptable sticky end format`;
+      }
+    }
+
+    setStickyEndFormat(value) {
+      this.validateStickyEndFormat(value);
       return this.set('stickyEndFormat', value);
     }
 
@@ -148,21 +173,24 @@ export default function sequenceModelFactory(BackboneModel) {
      * 'overhang' will return the sequence with the active section of sticky ends.
      * Default value will return the full (blunt) sticky end.
      * @method  getSequence
+     * @param {String} stickyEndFormat=undefined
      * @return {String} Formatted sequence
      */
-    getSequence(){
-      var sequence        = super.get('sequence'),
-          stickyEnds      = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          startPostion, endPosition;
+    getSequence(stickyEndFormat=undefined) {
+      var sequence        = super.get('sequence');
+      var stickyEnds      = this.getStickyEnds();
+      var startPostion, endPosition;
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
+          
+      this.validateStickyEndFormat(stickyEndFormat);
 
       if (stickyEnds && stickyEndFormat){
         switch (stickyEndFormat){
-          case "none":
+          case STICKY_END_NONE:
             startPostion = stickyEnds.start.size + stickyEnds.start.offset;
             endPosition = sequence.length - stickyEnds.end.size - stickyEnds.end.offset;
             break;
-          case "overhang":
+          case STICKY_END_OVERHANG:
             startPostion = stickyEnds.start.offset;
             endPosition = sequence.length - stickyEnds.end.offset;
             break;
@@ -176,61 +204,77 @@ export default function sequenceModelFactory(BackboneModel) {
       return sequence;
     }
 
-    getFeatures(){
-      var features = super.get('features'),
-          stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          length = this.getLength(),
-          startStickyEnd, adjust;
+    /**
+     * @method  getOffset
+     * The number of bases the start stickyEnd accounts for before the start of
+     * the main sequence.
+     * @param  {String} stickyEndFormat=undefined
+     * @return {Integer}
+     */
+    getOffset(stickyEndFormat=undefined) {
+      var stickyEnds = this.getStickyEnds();
+      var offset = 0;
 
-      if (stickyEnds){
-        startStickyEnd = stickyEnds.start;
-      }
-
-      var adjustRanges = function(offset, feature){
-        var adjusted = _.deepClone(feature);
-        offset = offset || 0;
-
-        _.each(adjusted.ranges, function(range){
-          range.from =  Math.max(Math.min(range.from + offset, length -1), 0);
-          range.to =  Math.max(Math.min(range.to + offset, length -1), 0);
-        });
-
-        return adjusted;
-      };
-
-      if (stickyEndFormat && stickyEnds){
-        switch (stickyEndFormat){
-          case "none":
-            adjust = _.partial(adjustRanges, -(startStickyEnd.offset + startStickyEnd.size));
-            features = _.map(features, adjust);
+      if(stickyEnds && stickyEnds.start) {
+        var startStickyEnd = stickyEnds.start;
+        stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+        switch(stickyEndFormat) {
+          case STICKY_END_NONE:
+            offset = startStickyEnd.offset + startStickyEnd.size;
             break;
-          case "overhang":
-            adjust = _.partial(adjustRanges, -startStickyEnd.offset);
-            features = _.map(features, adjust);
+          case STICKY_END_OVERHANG:
+            offset = startStickyEnd.offset;
             break;
         }
       }
 
-      return features;
+      return offset;
+    }
+
+    getFeatures(stickyEndFormat = undefined) {
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+      var adjustedFeatures = _.deepClone(super.get('features'));
+      var length = this.getLength(stickyEndFormat);
+
+      var filterAndAdjustRanges = function(offset, maxValue, feature) {
+        feature.ranges = _.filter(feature.ranges, function(range) {
+          var frm = Math.min(range.from, range.to);
+          var to = Math.max(range.from, range.to);
+          return frm < maxValue && to >= offset;
+        });
+        _.each(feature.ranges, function(range) {
+          range.from =  Math.max(Math.min(range.from - offset, length -1), 0);
+          range.to =  Math.max(Math.min(range.to - offset, length -1), 0);
+        });
+      };
+
+      let offset = this.getOffset(stickyEndFormat);
+      let maxValue = offset + length;
+      let func = _.partial(filterAndAdjustRanges, offset, maxValue);
+      _.map(adjustedFeatures, func);
+      adjustedFeatures = _.reject(adjustedFeatures, (feature) => !feature.ranges.length);
+
+      return adjustedFeatures;
     }
 
     /**
     Returns the subsequence between the bases startBase and end Base
     @method getSubSeq
     @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0)
+    @param {Integer} endBase end of the subsequence (indexed from 0), inclusive.
+    @param {String} stickyEndFormat=undefined
     **/
-    getSubSeq(startBase, endBase) {
-      if (endBase === undefined){
+    getSubSeq(startBase, endBase, stickyEndFormat=undefined) {
+      var len = this.getLength(stickyEndFormat);
+      if(endBase === undefined) {
         endBase = startBase;
       } else {
-        if (endBase >= this.getLength() && startBase >= this.getLength()) return '';
-        endBase = Math.min(this.getLength() - 1, endBase);
+        if (endBase >= len && startBase >= len) return '';
+        endBase = Math.min(len - 1, endBase);
       }
-      startBase = Math.min(Math.max(0, startBase), this.getLength() - 1);
+      startBase = Math.min(Math.max(0, startBase), len - 1);
 
-      return this.getSequence().substr(startBase, endBase - startBase + 1);
+      return this.getSequence(stickyEndFormat).substr(startBase, endBase - startBase + 1);
 
       // endBase = (endBase === undefined) ? startBase + 1 : endBase;
       // return this.get('sequence', options).substring(startBase, endBase);
@@ -318,7 +362,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if(stickyEnds) {
         var startStickyEnd = stickyEnds.start;
-        var offset = stickyEndFormat == "overhang" ? 0 : startStickyEnd.offset;
+        var offset = stickyEndFormat === STICKY_END_OVERHANG ? 0 : startStickyEnd.offset;
 
         if(startStickyEnd) {
           if(reverse) {
@@ -359,10 +403,10 @@ export default function sequenceModelFactory(BackboneModel) {
           var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
 
           switch (stickyEndFormat){
-            case "none":
+            case STICKY_END_NONE:
               stickyEndTo -= (startStickyEnd.offset + startStickyEnd.size);
               break;
-            case "overhang":
+            case STICKY_END_OVERHANG:
               stickyEndTo -= startStickyEnd.offset;
               break;
           }
@@ -472,13 +516,14 @@ export default function sequenceModelFactory(BackboneModel) {
     Returns a transformed subsequence between the bases startBase and end Base
     @method getTransformedSubSeq
     @param {String} variation name of the transformation
-    @param {Object} options
+    @param {Object} options={}
     @param {Integer} startBase start of the subsequence (indexed from 0)
     @param {Integer} endBase end of the subsequence (indexed from 0)
+    @return {String or Array}
     **/
-    getTransformedSubSeq(variation, options, startBase, endBase) {
-      options = options || {};
+    getTransformedSubSeq(variation, options={}, startBase, endBase) {
       var output = '';
+      options = _.defaults(_.deepClone(options), {offset: 0});
       switch (variation) {
         case 'aa-long':
         case 'aa-short':
@@ -504,19 +549,24 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-    Returns a subsequence including the subsequence between the bases `startBase` and `endBase`.
-    Ensures that blocks of size `padding` and starting from the base `offset` in the
-    complete sequence are not broken by the beginning or the end of the subsequence.
-    @method getPaddedSubSeq
-    @param {String} variation name of the transformation
-    @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0)
-    @param {Integer, optional} offset relative to the start of full sequence
+     * @method getPaddedSubSeq
+     * Returns a subsequence including the subsequence between the bases
+     * `startBase` and `endBase`.  Ensures that blocks of size `blockSize` and
+     * starting from the base `offset` in the complete sequence are not broken
+     * by the beginning or the end of the subsequence.
+     *
+     * @param {Integer} startBase  Start of the subsequence (indexed from 0)
+     * @param {Integer} endBase  End of the subsequence (indexed from 0)
+     * @param {Integer} blockSize
+     * @param {Integer} offset=0  Relative to the start of full sequence
+     * @return {Object}  Key values:
+     *                   {String} subSeq
+     *                   {Integer} startBase
+     *                   {Integer} endBase
     **/
-    getPaddedSubSeq(startBase, endBase, padding, offset) {
-      offset = offset || 0;
-      startBase = Math.max(startBase - (startBase - offset) % padding, 0);
-      endBase = Math.min(endBase - (endBase - offset) % padding + padding - 1, this.getLength());
+    getPaddedSubSeq(startBase, endBase, blockSize, offset=0) {
+      startBase = Math.max(startBase - (startBase - offset) % blockSize, 0);
+      endBase = Math.min(endBase - (endBase - offset) % blockSize + blockSize - 1, this.getLength());
       return {
         subSeq: this.getSubSeq(startBase, endBase),
         startBase: startBase,
@@ -556,6 +606,23 @@ export default function sequenceModelFactory(BackboneModel) {
         sequence: aa || '   ',
         position: codon.position
       };
+    }
+
+    /**
+     * @method  getAAs
+     * @param  {Integer}  startBase
+     * @param  {Integer}  length
+     * @param  {String}  stickyEndFormat=undefined
+     * @return {List of Strings}
+     */
+    getAAs(startBase, length, stickyEndFormat=undefined) {
+      var subSeq = this.getSubSeq(startBase, startBase + length - 1, stickyEndFormat);
+      var len = subSeq.length;
+      if(len < 0 || len % 3 !== 0) throw new Error('length must be a non negative multiple of 3');
+      var codons = subSeq.match(/.{3}/g) || [];
+      return _.map(codons, function(codon) {
+        return SequenceTransforms.codonToAAShort(codon).trim();
+      });
     }
 
     /**
@@ -644,24 +711,14 @@ export default function sequenceModelFactory(BackboneModel) {
     insertBases(bases, beforeBase, options = {}){
       var seq = super.get('sequence'),
           stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          offset = 0,
+          stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat(),
           adjustedBeforeBase,
           timestamp;
 
       options = _.defaults(options, {updateHistory: true});
 
       // Adjust offset depending on sticky end format
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
-          case "none":
-            offset = stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case "overhang":
-            offset = stickyEnds.start.offset;
-            break;
-        }
-      }
+      var offset = this.getOffset(stickyEndFormat);
 
       adjustedBeforeBase = beforeBase + offset;
 
@@ -731,13 +788,51 @@ export default function sequenceModelFactory(BackboneModel) {
 
     }
 
+    /**
+     * @method  changeBases
+     *
+     * @param  {Integer} firstBase
+     * @param  {String} newBases
+     * @param  {Object} options={}, `stickyEndFormat`, `updateHistory`
+     * @return {TimeStamp}
+     */
+    changeBases(firstBase, newBases, options={}) {
+      var timestamp;
+      var seq = this.getSequence(STICKY_END_FULL);
+
+      options = _.defaults(options, {updateHistory: true, stickyEndFormat: this.getStickyEndFormat()});
+
+      var adjustedFirstBase = firstBase + this.getOffset(options.stickyEndFormat);
+      var baseTo = adjustedFirstBase + newBases.length;
+      // var sequenceReplaced = this.getSubSeq(adjustedFirstBase, baseTo - 1, options.stickyEndFormat);
+
+      this.set('sequence',
+        seq.substr(0, adjustedFirstBase) +
+        newBases +
+        seq.substr(baseTo, seq.length - baseTo)
+      );
+
+      if (options.updateHistory) {
+        timestamp = this.getHistory().add({
+          type: 'change',
+          position: adjustedFirstBase,
+          value: newBases,
+          operation: '@' + adjustedFirstBase + '+' + newBases
+        }).get('timestamp');
+      }
+
+      this.throttledSave();
+
+      return timestamp;
+    }
+
     insertBasesAndCreateFeatures(beforeBase, bases, features, options) {
       var newFeatures = _.deepClone(_.isArray(features) ? features : [features]),
           _this = this;
 
       this.insertBases(bases, beforeBase, options);
 
-      _.each(newFeatures,function(feature){
+      _.each(newFeatures, function(feature) {
 
         feature.ranges = [{
           from: beforeBase,
@@ -757,7 +852,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
       this.insertBases(bases, beforeBase, options);
 
-      _.each(newFeatures,function(feature){
+      _.each(newFeatures, function(feature) {
 
         feature.ranges = _.map(feature.ranges, function(range) {
           return {
@@ -770,37 +865,36 @@ export default function sequenceModelFactory(BackboneModel) {
       });
     }
 
-    deleteBases(firstBase, length, options = {}) {
+    /**
+     * @method  deleteBases
+     * Removes the bases not currently visible in a sequence (given the
+     * getStickyEndFormat)
+     *
+     * @param  {Integer} firstBase
+     * @param  {Integer} length
+     * @param  {Object} options={}
+     * @return {TimeStamp}
+     */
+    deleteBases(firstBase, length, options={}) {
       var seq = super.get('sequence'),
-          stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
-          offset = 0,
-          adjustedFirstBase,
+          adjustedFirstBase, tailBasesLength,
           timestamp,
-          subseq, linkedHistoryStepTimestamps;
-
+          removedBases, basesRemaining,
+          linkedHistoryStepTimestamps;
       options = _.defaults(options, {updateHistory: true});
 
       // Adjust offset depending on sticky end format
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
-          case "none":
-            offset = stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case "overhang":
-            offset = stickyEnds.start.offset;
-            break;
-        }
-      }
+      var offset = this.getOffset(options.stickyEndFormat);
 
       adjustedFirstBase = firstBase + offset;
+      removedBases = seq.substr(adjustedFirstBase, length);
+      tailBasesLength = seq.length - (adjustedFirstBase + length - 1);
 
-      subseq = seq.substr(adjustedFirstBase, length);
-
-      this.set('sequence',
+      basesRemaining = (
         seq.substr(0, adjustedFirstBase) +
-        seq.substr(adjustedFirstBase + length, seq.length - (adjustedFirstBase + length - 1))
+        seq.substr(adjustedFirstBase + length, tailBasesLength)
       );
+      this.set('sequence', basesRemaining);
 
       // moveFeatures manages the adjustment.
       linkedHistoryStepTimestamps = this.moveFeatures(firstBase, -length, options);
@@ -808,19 +902,19 @@ export default function sequenceModelFactory(BackboneModel) {
       // if (updateHistory === 'design-true')
       //   this.getHistory().add({
       //     type: 'design-delete',
-      //     value: subseq,
+      //     value: removedBases,
       //     hidden: true,
       //     position: adjustedFirstBase,
-      //     operation: '@' + adjustedFirstBase + '-' + subseq,
+      //     operation: '@' + adjustedFirstBase + '-' + removedBases,
       //     linked: linkedHistoryStepTimestamps
       //   });
 
-      if (options.updateHistory) {
+      if(options.updateHistory) {
         timestamp = this.getHistory().add({
           type: 'delete',
-          value: subseq,
+          value: removedBases,
           position: adjustedFirstBase,
-          operation: '@' + adjustedFirstBase + '-' + subseq,
+          operation: '@' + adjustedFirstBase + '-' + removedBases,
           linked: linkedHistoryStepTimestamps
         }).get('timestamp');
       }
@@ -828,13 +922,10 @@ export default function sequenceModelFactory(BackboneModel) {
       this.throttledSave();
 
       return timestamp;
-
     }
 
-    moveFeatures(base, offset, options) {
+    moveFeatures(base, offset, options={}) {
       var features = super.get('features'),
-          stickyEnds = this.getStickyEnds(),
-          stickyEndFormat = this.getStickyEndFormat(),
           featurePreviousState,
           storePreviousState,
           firstBase, lastBase,
@@ -845,16 +936,7 @@ export default function sequenceModelFactory(BackboneModel) {
         featurePreviousState = featurePreviousState || _.deepClone(feature);
       };
 
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
-          case "none":
-            base += stickyEnds.start.size + stickyEnds.start.offset;
-            break;
-          case "overhang":
-            base += stickyEnds.start.offset;
-            break;
-        }
-      }
+      base += this.getOffset(options.stickyEndFormat);
 
       if (_.isArray(features)) {
 
@@ -1037,7 +1119,7 @@ export default function sequenceModelFactory(BackboneModel) {
       }
 
 
-      var offset = previousStickyEndFormat === 'overhang'  ? 
+      var offset = previousStickyEndFormat === STICKY_END_OVERHANG ?
         this.getStickyEnds().start.offset : 
         0;
 
@@ -1084,7 +1166,7 @@ export default function sequenceModelFactory(BackboneModel) {
       if (id === 0) {
         newFeature._id = 0;
       } else {
-        sortedIdList = _.sortBy(_.pluck(this.get('features'),'_id'));
+        sortedIdList = _.sortBy(_.pluck(super.get('features'),'_id'));
         len = sortedIdList.length;
         newFeature._id = sortedIdList[len-1]+1;
       }
@@ -1200,7 +1282,7 @@ export default function sequenceModelFactory(BackboneModel) {
       var stickyEnds = this.getStickyEnds();
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === 'overhang') {
+      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
         var getOffset = function(type) {
           return stickyEnds[type].reverse ? 
           (reverse ? 0 : stickyEnds[type].size) : 
@@ -1225,19 +1307,46 @@ export default function sequenceModelFactory(BackboneModel) {
      * @method editableRange      
      * @return {Array<Int>} array of first and last base in the editable range
      */
-    editableRange() {
+    editableRange(strict = false) {
       var stickyEndFormat = this.getStickyEndFormat();
       var stickyEnds = this.getStickyEnds();
+      var frm = 0;
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === 'overhang') {
-        return [
-          stickyEnds.start.size,
-          length - stickyEnds.end.size - 1
-        ];
-      } else {
-        return [0, length];
+      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
+        frm = stickyEnds.start.size;
+        length = length - stickyEnds.end.size - stickyEnds.start.size;
       }
+      return new SequenceRange({from: frm, size: length + (strict ? 0 : 1)});
+    }
+
+    /**
+     * @method  ensureBaseIsEditable
+     * @param  {Integer} base
+     * @param  {Boolean} strict=false  If `true`, will not include the base
+     *                                 following the stretch of editable sequence.
+     * @return {Integer or Undefined}
+     */
+    ensureBaseIsEditable (base, strict = false) {
+      var editableRange = this.editableRange(strict);
+      if(editableRange.size === 0) {
+        // NOTE:  This can only happen when strict is true and there is no
+        // sequence length.
+        // TODO:  throw exception?
+        return undefined;
+      }
+      return Math.max(Math.min(base, editableRange.to - 1), editableRange.from);
+    }
+
+    isBaseEditable(base, strict = false) {
+      return base === this.ensureBaseIsEditable(base, strict);
+    }
+
+    isRangeEditable(start, end) {
+      if(end < start) {
+        [end, start] = [start, end];
+      }
+      return this.isBaseEditable(start) && this.isBaseEditable(end);
     }
 
     length() {
@@ -1245,8 +1354,8 @@ export default function sequenceModelFactory(BackboneModel) {
       return this.getLength();
     }
 
-    getLength() {
-      return this.getSequence().length;
+    getLength(stickyEndFormat=undefined) {
+      return this.getSequence(stickyEndFormat).length;
     }
 
     throttledSave() {
@@ -1264,26 +1373,13 @@ export default function sequenceModelFactory(BackboneModel) {
       );
     }
 
-    ensureBaseIsEditable(base) {
-      var editableRange = this.editableRange();
-      return Math.min(Math.max(base, editableRange[0]), editableRange[1]+1);
-    }
-
-    isBaseEditable(base, strict = false) {
-      var editableRange = this.editableRange();
-      return editableRange[0] <= base && 
-        editableRange[1] >= base - (strict ? 0 : 1);
-    }
-
-    isRangeEditable(start, end) {    
-      if(end < start) {
-        [end, start] = [start, end];
-      }
-
-      return this.isBaseEditable(start) &&  this.isBaseEditable(end, true);
-    }
-
   }
 
-  return classMethodsMixin(Sequence);
+  Sequence = classMethodsMixin(Sequence);
+
+  Sequence.STICKY_END_FULL = STICKY_END_FULL;
+  Sequence.STICKY_END_OVERHANG = STICKY_END_OVERHANG;
+  Sequence.STICKY_END_NONE = STICKY_END_NONE;
+
+  return Sequence;
 }

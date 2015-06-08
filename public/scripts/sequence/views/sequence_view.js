@@ -114,8 +114,7 @@
 
     changePrimaryView: function(viewName, render, argumentsForView=[]) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName});
-      // TODO replace this with `new primaryView.view(...argumentsForview)`
-      var actualView = new primaryView.view(argumentsForView[0], argumentsForView[1], argumentsForView[2]);
+      var actualView = new primaryView.view(...argumentsForView);
 
       _.each(this.primaryViews, function(view) {
         view.current = false;

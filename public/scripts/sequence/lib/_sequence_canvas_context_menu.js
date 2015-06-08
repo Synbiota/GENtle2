@@ -64,13 +64,13 @@ class SequenceCanvasContextMenu {
       menu.add(data.title, data.callback);
     });
 
-
     if(menu.menuItems.length || menu.menuIcons.length) {
       menu.show();
+    } else {
+      menu.hide();
     }
 
-
-  };
+  }
 
   analyzeFragment(){
     var selection = this.selection;

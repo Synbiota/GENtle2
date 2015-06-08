@@ -5,7 +5,6 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import {optimalPrimer4, getSequenceToSearch, getSequenceToSearchUsingPrimer} from '../lib/primer_calculation';
 
 
-var setup;
 var bothEndsSequence;
 var sequence1;
 var sequence1Reversed;
@@ -60,6 +59,7 @@ var optimalPrimer4_TestFactory = function(done, sequence, expectations, options=
 
 
 describe('finding optimal primers', function() {
+  var setup;
   beforeEach(function(done) {
     if(!setup) {
       setup = true;

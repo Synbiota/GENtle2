@@ -1,5 +1,5 @@
 import {assertion, assertIsNumber} from '../../../common/lib/testing_utils';
-import deprecated from '../../../common/lib/deprecated';
+import deprecated from '../../../library/utils/deprecated_method';
 
 
 class Sequence {
