@@ -96,8 +96,12 @@ class Handlers {
 
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
+      let editableRange = this.sequence.editableRange(true);
 
-      this.select(...this.sequence.selectableRange());
+
+      this.selectRange(editableRange);
+      // Select next character
+      this.displayCaret(editableRange.to);
 
     } else if (event.metaKey && event.which == this.commandKeys.C) {
 
@@ -179,15 +183,25 @@ class Handlers {
       Math.floor(previousCaret / basesPerRow) * basesPerRow :
       Math.max(previousCaret - 1, 0);
 
+    previousCaret = this.sequence.ensureBaseIsEditable(previousCaret);
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
+
     if (shift) {
-      if (selection) {
-        this.expandSelectionToNewCaret(nextCaret);
-      } else {
-        this.select(nextCaret, previousCaret - 1);
+      if (previousCaret !== nextCaret) {
+        if (selection) {
+          this.expandSelectionToNewCaret(nextCaret);
+        } else {
+          this.select(previousCaret - 1, nextCaret);
+        }
+        this.caretPosition = nextCaret;
       }
-      this.caretPosition = nextCaret;
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[0]);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
 
   }
@@ -199,20 +213,31 @@ class Handlers {
       nextCaret;
 
     if (previousCaret === undefined) return;
+    previousCaret = this.sequence.ensureBaseIsEditable(previousCaret);
 
-    nextCaret = meta ?
-      (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow :
-      Math.min(previousCaret + 1, this.sequence.getLength());
+    if(meta) {
+      nextCaret = (Math.floor(previousCaret / basesPerRow) + 1) * basesPerRow;
+      nextCaret = Math.min(nextCaret, this.sequence.getLength());
+    } else {
+      nextCaret = Math.min(previousCaret + 1, this.sequence.getLength());
+    }
+
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if (shift) {
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
-      } else {
+      } else if (previousCaret != nextCaret) {
         this.select(previousCaret, nextCaret - 1);
         this.caretPosition = nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[1] + 1);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
 
   }
@@ -226,7 +251,7 @@ class Handlers {
     if (previousCaret === undefined) return;
 
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
-    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if(previousCaret === nextCaret) return;
 
@@ -235,11 +260,16 @@ class Handlers {
       if (selection) {
         this.expandSelectionToNewCaret(nextCaret);
       } else {
-        this.select(nextCaret, previousCaret - 1);
+        this.select(previousCaret - 1, nextCaret);
       }
       this.displayCaret(nextCaret);
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[0]);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
   }
 
@@ -250,12 +280,13 @@ class Handlers {
       nextCaret;
 
     if (previousCaret === undefined) return;
+    previousCaret = this.sequence.ensureBaseIsEditable(previousCaret);
 
     nextCaret = meta ?
       this.sequence.getLength() :
       Math.min(this.caretPosition + basesPerRow, this.sequence.getLength());
 
-    nextCaret = this.sequence.ensureBaseIsSelectable(nextCaret);
+    nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if (shift) {
       if (selection) {
@@ -270,8 +301,14 @@ class Handlers {
         this.caretPosition = nextCaret;
       }
     } else {
-      this.moveCaret(nextCaret);
+      if (selection) {
+        var position = this.sequence.ensureBaseIsEditable(selection[1] + 1);
+        this.moveCaret(position);
+      } else {
+        this.moveCaret(nextCaret);
+      }
     }
+
 
   }
 
@@ -383,8 +420,8 @@ class Handlers {
       (Math.abs(mouse.left - _this.dragStartPos[0]) > 5 ||
         Math.abs(mouse.top - _this.dragStartPos[1]) >= layoutHelpers.rows.height)) {
 
-      var first = sequence.ensureBaseIsSelectable(_this.dragStartBase, true);
-      var last = sequence.ensureBaseIsSelectable(
+      var first = sequence.ensureBaseIsEditable(_this.dragStartBase, true);
+      var last = sequence.ensureBaseIsEditable(
           _this.getBaseFromXYPos(mouse.left, mouse.top),
           true
         );
@@ -405,7 +442,6 @@ class Handlers {
       _this.selecting = false;
       _this.selection = undefined;
     }
-
     _this.displayCaret(_this.caretPosition);
     _this.redrawSelection(_this.selection);
   }
@@ -438,7 +474,7 @@ class Handlers {
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);
 
     if (base >= 0 && baseRange[0] >= 0 && baseRange[1] > 0) {
-      let newCaret = this.sequence.ensureBaseIsSelectable(base);
+      let newCaret = this.sequence.ensureBaseIsEditable(base);
 
       if(this.selection) {
         if(shiftKey) {

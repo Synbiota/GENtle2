@@ -13,12 +13,20 @@ import Styles from '../../styles';
 const LineStyles = Styles.sequences.lines;
 
 var defaultLines = function(sequence) {
-  var dnaStickyEndHighlightColour = function(reverse, base, pos) {
-    return sequence.isBeyondStickyEnd(pos, reverse) && '#ccc';
-  };
 
   var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-    return sequence.isBeyondStickyEnd(pos, reverse) ? '#fff' : defaultColour;
+    var selectableRange = sequence.selectableRange(reverse);
+    var selectable = pos >= selectableRange[0] && pos <= selectableRange[1];
+
+    if(selectable) {
+      if(sequence.isBaseEditable(pos, true)) {
+        return defaultColour;
+      } else {
+        return LineStyles.RES.text.color;
+      }
+    } else {
+      return '#fff';
+    }
   };
 
   return {
@@ -78,7 +86,6 @@ var defaultLines = function(sequence) {
       baseLine: 15,
       textFont: LineStyles.dna.text.font,
       textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-      highlightColour: _.partial(dnaStickyEndHighlightColour, false),
       selectionColour: LineStyles.dna.selection.fill,
       selectionTextColour: LineStyles.dna.selection.color
     }],
@@ -89,7 +96,6 @@ var defaultLines = function(sequence) {
       baseLine: 15,
       textFont: LineStyles.complements.text.font,
       textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
-      highlightColour: _.partial(dnaStickyEndHighlightColour, true),
       getSubSeq: _.partial(sequence.getTransformedSubSeq, 'complements', {}),
       visible: function() {
         return sequence.get('displaySettings.rows.complements');
@@ -147,13 +153,13 @@ export default class SequenceCanvas extends SequenceCanvasMixin {
     _.defaults(options, {lines: defaultLines(options.sequence)});
 
     super(options);
-    
+
     this.view.listenTo(this.view, 'resize', this.refreshFromResize);
     this.sequence.on('change:displaySettings.*', this.refresh);
-    this.on('scroll', (event, yOffset) => {
-      this.sequence.set('displaySettings.yOffset', yOffset, {
-        silent: true
-      }).throttledSave();
-    });
+    // this.on('scroll', (event, yOffset) => {
+    //   this.sequence.set('displaySettings.yOffset', yOffset, {
+    //     silent: true
+    //   }).throttledSave();
+    // });
   }
 }

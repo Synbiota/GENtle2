@@ -25,6 +25,11 @@ class SequenceCanvasContextMenu {
     contextMenu.$assumedParent = view.$('.scrolling-parent').focus();
     contextMenu.boundTo = this.sequenceCanvas;
 
+    _.bindAll(this,
+      'analyzeFragment',
+      'addAnnotationFromMenu'
+    );
+
     this.on('caret:show', this.showContextMenuButton);
     this.on('caret:hide', this.hideContextMenuButton);
   }
@@ -67,7 +72,7 @@ class SequenceCanvasContextMenu {
       if(!(!data.selectionOnly || (data.selectionOnly && this.selection))) return;
       if(!_.isUndefined(data.visible) && !data.visible()) return;
       // menu.add(data.title, data.icon, data.callback)
-      menu.add(data.title, data.callback);
+      menu.add(data.title, _.bind(data.callback, this));
     });
 
     if(menu.menuItems.length || menu.menuIcons.length) {

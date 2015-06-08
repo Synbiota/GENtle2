@@ -278,7 +278,7 @@ class SequenceCanvasCore {
 
       this.$scrollingParent.scrollTop(lh.yOffset);
 
-      this.trigger('change change:layoutHelpers', lh);
+      this.trigger('change:layoutHelpers', lh);
 
 
       // We resize `this.$scrollingChild` and fullfills the Promise
@@ -536,6 +536,8 @@ class SequenceCanvasCore {
 
     if(_.isUndefined(base)) return false;
 
+    base = this.sequence.ensureBaseIsEditable(base);
+
     this.scrollBaseToVisibility(base).then(() => {
 
       if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
@@ -600,19 +602,15 @@ class SequenceCanvasCore {
   }
 
   redrawSelection(selection) {
-    var
-      lines = this.lines,
-      yOffset = this.layoutHelpers.yOffset,
-      rowsHeight = this.layoutHelpers.rows.height,
-      posY;
+    var posY;
 
     //Calculating posY for baseRange
     if (selection !== undefined) {
 
-      if (this.layoutHelpers.selectionPreviousA == undefined) {
+      if (this.layoutHelpers.selectionPreviousA === undefined) {
         this.layoutHelpers.selectionPreviousA = selection[0];
       }
-      if (this.layoutHelpers.selectionPreviousB == undefined) {
+      if (this.layoutHelpers.selectionPreviousB === undefined) {
         this.layoutHelpers.selectionPreviousB = selection[1];
       }
 
@@ -658,27 +656,14 @@ class SequenceCanvasCore {
   @method select
   **/
   select(start, end) {
-    var positionCheck;
     this.hideCaret();
     if (start !== undefined) {
-      if (start < end) {
+      if (start <= end) {
         this.selection = [start, end];
         this.caretPosition = end + 1;
-        // positionCheck = this.caretPosition;
-
-        // if (positionCheck > this.layoutHelpers.caretPositionBefore) {
-        //   this.caretPosition = this.layoutHelpers.caretPositionBefore;
-        //   if (start != this.layoutHelpers.selectionPreviousB - 1 && start != this.layoutHelpers.selectionPreviousB + 1 && start != this.layoutHelpers.selectionPreviousB)
-        //     this.layoutHelpers.selectionPreviousB = this.caretPosition;
-        //   if (end != this.layoutHelpers.selectionPreviousA - 1 && end != this.layoutHelpers.selectionPreviousA + 1 && end != this.layoutHelpers.selectionPreviousA)
-        //     this.layoutHelpers.selectionPreviousA = this.caretPosition;
-        //   positionCheck = this.caretPosition;
-        // } else {
-        //   this.layoutHelpers.caretPositionBefore = this.caretPosition;
-        // }
       } else {
         this.selection = [end, start];
-        this.caretPosition = start + 1;
+        this.caretPosition = start;
       }
     } else {
       this.selection = undefined;
@@ -687,20 +672,33 @@ class SequenceCanvasCore {
     this.redraw();
   }
 
+  /** 
+   * @method selectRange
+   * @param {Range} range 
+   * @return {Undefined}
+   */
+  selectRange(range) {
+    if(range.size) {
+      this.select(range.from, range.to - 1);
+    } else {
+      this.selection = undefined;
+    }
+  }
+
   expandSelectionToNewCaret(newCaret) {
     var selection = this.selection,
       previousCaret = this.caretPosition;
     this.layoutHelpers.caretPositionBefore = previousCaret;
 
-    if (selection[0] == selection[1] && (
-      (previousCaret > selection[0] && newCaret == selection[0]) ||
-      (previousCaret == selection[0] && newCaret == selection[0] + 1)
+    if (selection[0] === selection[1] && (
+      (previousCaret > selection[0] && newCaret === selection[0]) ||
+      (previousCaret === selection[0] && newCaret === selection[0] + 1)
     )) {
       this.select(undefined);
     } else {
       if (newCaret > selection[0]) {
         if (previousCaret <= selection[0]) {
-          this.select(newCaret, selection[1]);
+          this.select(newCaret - 1, selection[1]);
         } else {
           this.select(selection[0], newCaret - 1);
         }
