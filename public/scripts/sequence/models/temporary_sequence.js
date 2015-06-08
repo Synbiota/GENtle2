@@ -2,17 +2,16 @@ import _ from 'underscore';
 import Sequence from './sequence';
 
 
-var TemporarySequenceModel = Sequence.extend({
-  save: function() {
+class TemporarySequenceModel extends Sequence {
+  save() {
     // noop
     return this;
-  },
+  }
 
-  asSequence: function () {
+  asSequence() {
     return new Sequence(this.attributes);
-  },
-
-});
+  }
+}
 
 
 TemporarySequenceModel.ensureTemporary = function(sequence, silenceWarning=false) {
