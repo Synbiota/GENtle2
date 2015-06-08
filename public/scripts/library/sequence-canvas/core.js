@@ -133,8 +133,7 @@ class SequenceCanvasCore {
     this.copyPasteHandler = new CopyPasteHandler();
 
     // Events
-    // this.view.on('resize', this.refreshFromResize);
-    // this.sequence.on('change:sequence change:displaySettings.* change:features.* change:features', this.refresh);
+    this.sequence.on('change:sequence change:features.* change:features', this.refresh);
     this.$scrollingParent.on('scroll', this.handleScrolling);
     this.$scrollingParent.on('mousedown', this.handleMousedown);
     this.$scrollingParent.on('keypress', this.handleKeypress);

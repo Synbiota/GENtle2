@@ -13,12 +13,18 @@ import {assertIsDefinedAndNotNull} from '../../common/lib/testing_utils';
 class SequenceCanvasContextMenu {
 
   _init(options = {}) {
-    assertIsDefinedAndNotNull(options.view, 'options.view');
-    assertIsDefinedAndNotNull(options.contextMenu, 'options.contextMenu');
-    this.contextMenu = options.contextMenu;
+    var contextMenu = this.contextMenu = options.contextMenu;
+    var view = this.view = options.view;
+
+    assertIsDefinedAndNotNull(view, 'options.view');
+    assertIsDefinedAndNotNull(contextMenu, 'options.contextMenu');
+
     this.$scrollingChild.append('<div id="sequence-canvas-context-menu-outlet"></div>');
-    this.view = options.view;
-    options.view.setView('#sequence-canvas-context-menu-outlet', this.contextMenu);
+    view.setView('#sequence-canvas-context-menu-outlet', contextMenu);
+
+    contextMenu.$assumedParent = view.$('.scrolling-parent').focus();
+    contextMenu.boundTo = this.sequenceCanvas;
+
     this.on('caret:show', this.showContextMenuButton);
     this.on('caret:hide', this.hideContextMenuButton);
   }
