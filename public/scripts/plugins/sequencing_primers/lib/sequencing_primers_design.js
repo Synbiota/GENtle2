@@ -136,11 +136,6 @@ var getPrimersAndProductsInOneDirection = function(sequenceBases, firstPrimer, o
   var sequencingPrimers = [];
   if(firstPrimer) {
     sequencingPrimers.push(firstPrimer);
-    if(!firstPrimer.validForParentSequence(sequenceBases.length)) {
-      var msg = 'Primer must be contained within sequence';
-      console.error(msg, firstPrimer);
-      return Q.reject(msg);
-    }
   }
 
   options = _.deepClone(options);
