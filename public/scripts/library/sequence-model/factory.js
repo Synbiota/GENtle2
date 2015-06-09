@@ -15,7 +15,32 @@ const STICKY_END_NONE = 'none';
 const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
 
 
-export default function sequenceModelFactory(BackboneModel) {
+let associations = {};
+
+
+let instantiateSingle = function(constructor, fieldValue) {
+  if(!(fieldValue instanceof constructor)) {
+    // Instantiate a new instance of the given constructor with fieldValue
+    fieldValue = new constructor(fieldValue);
+  }
+  return fieldValue;
+}
+
+
+let instantiate = function(association, fieldValue) {
+  let instance;
+  if(association.many) {
+    // Instantiate an array of new instances of the given constructor
+    instance = _.map(fieldValue, _.partial(instantiateSingle, association.constructor));
+  } else if(!_.isUndefined(fieldValue)) {
+    instance = instantiateSingle(association.constructor, fieldValue);
+  }
+  return instance;
+}
+
+
+
+function sequenceModelFactory(BackboneModel) {
   /**
    * Represents a sequence of nucleotides (DNA bases).
    * @class  BaseSequenceModel
@@ -42,6 +67,15 @@ export default function sequenceModelFactory(BackboneModel) {
         getStickyEnds: defaultStickyEndsEvent,
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
+      });
+
+      // If a fieldValue has a `constructorName` key, use its value to select
+      // and instantiate the field with the appropriate constructor.
+      _.pairs(associations, (fieldName, association) => {
+        if(_.has(this.attributes, fieldName)) {
+          let fieldValue = this.attributes[fieldName];
+          this.attributes[fieldName] = instantiate(association, fieldValue);
+        }
       });
     }
 
@@ -124,7 +158,6 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-
      * Wraps the standard get function to use a custom getNnnnnnn if available.
      * @param  {String} attribute
      * @param  {Object} options=undefined
@@ -142,6 +175,20 @@ export default function sequenceModelFactory(BackboneModel) {
       }
 
       return value;
+    }
+
+    /**
+     * @method  set
+     * @param {String} attribute
+     * @param {Any} value
+     * @param {Object} options
+     */
+    set(attribute, value, options) {
+      if(_.isString(attribute) && _.has(associations, attribute)) {
+        let association = associations[attribute];
+        let value = instantiate(association, value);
+      }
+      return super.set(attribute, value, options);
     }
 
     getStickyEnds() {
@@ -1370,11 +1417,28 @@ export default function sequenceModelFactory(BackboneModel) {
 
   }
 
+
   Sequence = classMethodsMixin(Sequence);
 
   Sequence.STICKY_END_FULL = STICKY_END_FULL;
   Sequence.STICKY_END_OVERHANG = STICKY_END_OVERHANG;
   Sequence.STICKY_END_NONE = STICKY_END_NONE;
 
+
+  Sequence.registerAssociation = function(constructor, constructorName, many=false) {
+    if(constructorName.endsWith('s')) {
+      throw new Error(`constructorName "${constructorName}" can not end with an "s".`);
+    }
+    let fieldName = constructorName + many ? 's' : '';
+    if(associations[fieldName]) {
+      throw new Error(`Constructor "${constructorName}" (${fieldName}) already registered.`);
+    }
+    associations[fieldName] = {constructor, many, constructorName};
+  };
+
+
   return Sequence;
 }
+
+
+export default sequenceModelFactory;

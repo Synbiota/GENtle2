@@ -24,6 +24,11 @@ var assertIsNumber = function(value, fieldName) {
 };
 
 
+var assertIsBoolean = function(value, fieldName) {
+  _assertion(_.isBoolean(value), `\`${fieldName}\` should be a Boolean`);
+};
+
+
 var assertIsInstance = function(value, klass, fieldName) {
   _assertion(value instanceof klass, `\`${fieldName}\` should be a instance of ${klass} but is: `, value);
 };
@@ -33,5 +38,6 @@ export default {
   stubAssertion,
   assertion,
   assertIsNumber,
+  assertIsBoolean,
   assertIsInstance,
 };

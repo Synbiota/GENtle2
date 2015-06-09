@@ -1,3 +1,4 @@
+import {assertIsNumber, assertIsBoolean} from '../../common/lib/testing_utils';
 
 
 /**
@@ -14,6 +15,9 @@ class SequenceRange {
     this.from = from;
     this.size = size;
     this.reverse = reverse;
+    assertIsNumber(this.from, 'from');
+    assertIsNumber(this.size, 'size');
+    assertIsBoolean(this.reverse, 'reverse');
   }
   get to() { return this.from + this.size; }
 }
