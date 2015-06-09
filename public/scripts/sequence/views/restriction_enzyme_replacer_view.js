@@ -209,16 +209,17 @@ define(function(require) {
       //       );
       //     }
 
-      //     this.sequenceCanvas.afterNextRedraw(function() {
-      //       console.log('callback called');
+      /*
+           this.sequenceCanvas.afterNextRedraw(function() {
+             console.log('callback called');
 
-      //       this.highlight = undefined;
-      //       this.select(
-      //         replacementCodonStartBase, (replacementCodonStartBase + 2)
-      //       );          
-      //       this.displayCaret(replacementCodonStartBase + 3);
-      //       this.focus();
-      //     });
+             this.highlight = undefined;
+             this.select(
+               replacementCodonStartBase, (replacementCodonStartBase + 2)
+             );          
+             this.displayCaret(replacementCodonStartBase + 3);
+             this.focus();
+           });
 
 
       //     this.sequenceCanvas.sequence.insertBases(text, selection[0]);          
@@ -226,7 +227,7 @@ define(function(require) {
       //     $("#condonSubModal").modal("hide");
 
       //     this.sequenceCanvas.redraw();
-
+      */
          
       //   }
       // }
@@ -245,6 +246,16 @@ define(function(require) {
         sequence.insertBases(replacement.bestReplacementCodon, replacement.bestStartBase, true);
 
       })
+
+      //this.sequenceCanvas.afterNextRedraw(function() {
+
+      //  this.highlight = undefined;
+      //  this.select(
+      //    replacementCodonStartBase, (replacementCodonStartBase + 2)
+      //  );          
+      // this.displayCaret(replacementCodonStartBase + 3);
+      //  this.focus();
+      //});
 
       this.showModal=false;
       $("#condonSubModal").modal("hide");
