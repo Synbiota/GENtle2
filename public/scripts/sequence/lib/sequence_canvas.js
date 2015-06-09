@@ -7,7 +7,7 @@ import Memoizable from 'gentle-utils/memoizable';
 
 import ContextMenu from './_sequence_canvas_context_menu';
 
-var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Core, Utilities, Memoizable);
+var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, Core, Memoizable);
 
 import Styles from '../../styles';
 const LineStyles = Styles.sequences.lines;

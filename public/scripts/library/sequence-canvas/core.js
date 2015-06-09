@@ -13,6 +13,7 @@ import Caret from './caret';
 import {namedHandleError} from '../../common/lib/handle_error';
 import {assertIsDefinedAndNotNull, assertIsObject} from '../../common/lib/testing_utils';
 import tracedLog from '../../common/lib/traced_log';
+import defineMethod from 'gentle-utils/define_method';
 
 /**
 Handles displaying a sequence in a canvas.
@@ -177,10 +178,11 @@ class SequenceCanvasCore {
   _mixinJqueryEvents() {
     var $el = $(this);
     _.each(['on', 'off', 'one', 'trigger'], (fnName) => {
-      this[fnName] = _.bind($el[fnName], $el);
+      defineMethod(this, fnName, _.bind($el[fnName], $el));
     });
-    this.once = this.one;
-    this.emit = this.trigger;
+
+    defineMethod(this, 'once', this.one);
+    defineMethod(this, 'emit', this.trigger);
   }
 
   /**
