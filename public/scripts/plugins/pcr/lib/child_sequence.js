@@ -6,7 +6,7 @@ import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 
 
 class ChildSequence {
-  constructor(attributes) {
+  constructor(attributes, options={}) {
     // FIXME:  `uniqueId` does not work across browser sessions.
     var id = _.uniqueId();
     _.defaults(attributes, {
@@ -30,10 +30,10 @@ class ChildSequence {
     });
 
     // Run any setup required
-    this.setup();
+    this.setup(options);
 
-    // Data validation
-    this.validate();
+    // Data validation, unless we're skipping it.
+    if(!options.doNotValidated) this.validate();
   }
 
   setup() {

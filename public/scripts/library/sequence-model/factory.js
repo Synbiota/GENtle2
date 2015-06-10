@@ -18,26 +18,37 @@ const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE]
 let associations = {};
 
 
-let instantiateSingle = function(constructor, fieldValue) {
-  if(!(fieldValue instanceof constructor)) {
-    // Instantiate a new instance of the given constructor with fieldValue
-    fieldValue = new constructor(fieldValue);
-  }
-  return fieldValue;
-}
-
-
-let instantiate = function(association, fieldValue) {
-  let instance;
-  if(association.many) {
-    // Instantiate an array of new instances of the given constructor
-    instance = _.map(fieldValue, _.partial(instantiateSingle, association.constructor));
-  } else if(!_.isUndefined(fieldValue)) {
-    instance = instantiateSingle(association.constructor, fieldValue);
+let instantiateSingle = function(constructor, otherArgs, fieldValue) {
+  let instance = fieldValue;
+  if(!_.isUndefined(instance) && !(instance instanceof constructor)) {
+    if(otherArgs.parentSequence) {
+      instance.parentSequence = otherArgs.parentSequence;
+    }
+    let opts = {};
+    if(_.has(otherArgs, 'doNotValidated')) opts.doNotValidated = otherArgs.doNotValidated;
+    // Instantiate a new instance of the given constructor with instance
+    instance = new constructor(instance, opts);
   }
   return instance;
-}
+};
 
+
+/**
+ * @function instantiate
+ * @param  {String} association
+ * @param  {Any} fieldValue
+ * @param  {Object} otherArgs
+ * @return {Instance or undefined}
+ */
+let instantiate = function(association, fieldValue, otherArgs) {
+  if(association.many) {
+    // Instantiate an array of new instances of the given constructor
+    fieldValue = _.map(fieldValue, _.partial(instantiateSingle, association.constructor, otherArgs));
+  } else if(!_.isUndefined(fieldValue)) {
+    fieldValue = instantiateSingle(association.constructor, otherArgs, fieldValue);
+  }
+  return fieldValue;
+};
 
 
 function sequenceModelFactory(BackboneModel) {
@@ -49,6 +60,7 @@ function sequenceModelFactory(BackboneModel) {
   class Sequence extends BackboneModel {
 
     constructor(attributes, options) {
+      // this._validated = false;  // Commented out as "'this' is not allowed before super()"
       super(attributes, options);
 
       this.validateFields(attributes);
@@ -69,12 +81,18 @@ function sequenceModelFactory(BackboneModel) {
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
 
-      // If a fieldValue has a `constructorName` key, use its value to select
-      // and instantiate the field with the appropriate constructor.
-      _.pairs(associations, (fieldName, association) => {
-        if(_.has(this.attributes, fieldName)) {
-          let fieldValue = this.attributes[fieldName];
-          this.attributes[fieldName] = instantiate(association, fieldValue);
+      // If a fieldValue has a `associationName` key, now run its `validate()`
+      // method.
+      _.each(associations, (association) => {
+        if(_.has(this.attributes, association.associationName)) {
+          let value = this.attributes[association.associationName];
+          if(association.many) {
+            _.each(value, function(subVal) {
+              if(_.isFunction(subVal.validate)) subVal.validate();
+            });
+          } else {
+            if(_.isFunction(value.validate)) value.validate();
+          }
         }
       });
     }
@@ -141,6 +159,7 @@ function sequenceModelFactory(BackboneModel) {
       if(extraAttributes.length) {
         // console.warn(`Assigned the following disallowed attributes to ${this.constructor.name}: ${extraAttributes.join(', ')}`);
       }
+      this._validated = true;
     }
 
     defaults() {
@@ -184,11 +203,24 @@ function sequenceModelFactory(BackboneModel) {
      * @param {Object} options
      */
     set(attribute, value, options) {
-      if(_.isString(attribute) && _.has(associations, attribute)) {
-        let association = associations[attribute];
-        let value = instantiate(association, value);
+      if(_.isString(attribute)) {
+        value = this.transformAttributeValue(attribute, value);
+      } else if (_.isObject(attribute)) {
+        _.each(attribute, (val, attr) => {
+          attribute[attr] = this.transformAttributeValue(attr, val);
+        });
       }
       return super.set(attribute, value, options);
+    }
+
+    transformAttributeValue(attribute, val) {
+      if(_.has(associations, attribute)) {
+        let association = associations[attribute];
+        // `doNotValidated` and `this._validated` only relevant to the
+        // constructor and skipping validation of associated child models.
+        val = instantiate(association, val, {parentSequence: this, doNotValidated: !this._validated});
+      }
+      return val;
     }
 
     getStickyEnds() {
@@ -1425,15 +1457,15 @@ function sequenceModelFactory(BackboneModel) {
   Sequence.STICKY_END_NONE = STICKY_END_NONE;
 
 
-  Sequence.registerAssociation = function(constructor, constructorName, many=false) {
-    if(constructorName.endsWith('s')) {
-      throw new Error(`constructorName "${constructorName}" can not end with an "s".`);
+  Sequence.registerAssociation = function(constructor, associationName, many=false) {
+    if(associationName.endsWith('s')) {
+      throw new Error(`associationName "${associationName}" can not end with an "s".`);
     }
-    let fieldName = constructorName + many ? 's' : '';
+    let fieldName = associationName + (many ? 's' : '');
     if(associations[fieldName]) {
-      throw new Error(`Constructor "${constructorName}" (${fieldName}) already registered.`);
+      throw new Error(`Constructor "${associationName}" (${fieldName}) already registered.`);
     }
-    associations[fieldName] = {constructor, many, constructorName};
+    associations[fieldName] = {constructor, many, associationName};
   };
 
 

@@ -4,11 +4,11 @@ import Primer from './primer';
 
 
 class Product extends ChildSequence {
-  setup() {
-    super.setup();
+  setup(options) {
+    super.setup(options);
     if(!(this.primer instanceof Primer)) {
       this.primer.parentSequence = this.parentSequence;
-      this.primer = new Primer(this.primer);
+      this.primer = new Primer(this.primer, options);
     }
   }
 
@@ -21,6 +21,7 @@ class Product extends ChildSequence {
   validate() {
     assertIsInstance(this.primer, Primer, 'primer');
     super.validate();
+    this.primer.validate();
   }
 }
 
