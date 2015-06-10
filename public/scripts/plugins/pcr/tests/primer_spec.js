@@ -1,7 +1,11 @@
 import _ from 'underscore';
-import {assertIsNumber, stubAssertion} from '../../../common/lib/testing_utils';
+import {stubCurrentUser} from '../../../common/tests/stubs';
+import {stubAssertion} from '../../../common/lib/testing_utils';
 import Primer from '../lib/primer';
+import SequenceModel from '../../../sequence/models/sequence';
 
+
+stubCurrentUser();
 
 var testResults = [];
 var oldAssertion;
@@ -17,18 +21,20 @@ var testForNoFailures = function() {
 describe('pcr primer class', function() {
   beforeEach(function() {
     if(!oldAssertion) {
-      var newAssertion = function(test, message) {
-        testResults.push({test, message});
+      var newAssertion = function(test, message, value=undefined) {
+        testResults.push({test, message, value});
       };
       oldAssertion = stubAssertion(newAssertion);
     }
   });
 
   it('can instantiate', function() {
-    var primerGood = new Primer({
-      sequence: 'AGCTAAAAAAAAAA',
-      from: 5,
-      to: 10,
+    new Primer({
+      parentSequence: new SequenceModel({sequence: 'ATGCATGCATGCATGCATGC'}),
+      range: {
+        from: 5,
+        size: 5,
+      },
       meltingTemperature: 48,
       gcContent: 0.5,
     });
@@ -36,48 +42,38 @@ describe('pcr primer class', function() {
     testResults = [];
   });
 
-  it('should be an error about `from` being more than `sequence.length`', function() {
-    var primerSequenceTooShort = new Primer({
-      sequence: 'AGCT',
-      from: 5,
-      to: 10,
+  it('should be an error about `from` and `to` being more than `sequence.length`', function() {
+    new Primer({
+      parentSequence: new SequenceModel({sequence: 'ATGC'}),
+      range: {
+        from: 5,
+        size: 5,
+      },
       meltingTemperature: 48,
       gcContent: 0.5,
     });
     var failures = getFailures();
-    expect(failures.length).toEqual(1);
+    expect(failures.length).toEqual(2);
     expect(failures[0].test).toEqual(false);
-    expect(failures[0].message).toEqual("length of sequence '4' is less than length of primer '6' (`from` 5 and `to` 10)");
+    expect(failures[0].message).toEqual("Range.from should be < len");
     testResults = [];
   });
 
   it('should error about a missing required field', function() {
-    var primerMissingField = new Primer({
-      from: 5,
-      to: 10,
+    // Primer missing a field
+    new Primer({
+      range: {
+        from: 5,
+        size: 5,
+      },
       meltingTemperature: 48,
       gcContent: 0.5,
     });
     var failures = getFailures();
-    expect(failures.length).toEqual(1);
+    expect(failures.length).toEqual(2);
     expect(failures[0].test).toEqual(false);
-    expect(failures[0].message).toEqual("Field `sequence` is absent");
-    testResults = [];
-  });
-
-  it('should error about invalid `from`, `to` and `reverse` values', function() {
-    var primerInvalidFromToFieldValues = new Primer({
-      sequence: 'AGCTAAAAAAAAAA',
-      from: 5,
-      to: 10,
-      reverse: true,
-      meltingTemperature: 48,
-      gcContent: 0.5,
-    });
-    var failures = getFailures();
-    expect(failures.length).toEqual(1);
-    expect(failures[0].test).toEqual(false);
-    expect(failures[0].message).toEqual("Invalid `from`, `to` and `reverse` values: 5, 10, true");
+    expect(failures[0].message).toEqual("Field `parentSequence` is absent");
+    expect(failures[1].message.match("`parentSequence` should be a instance of function SequenceModel()")).toBeTruthy();
     testResults = [];
   });
 

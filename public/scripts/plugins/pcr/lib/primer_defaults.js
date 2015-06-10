@@ -10,6 +10,11 @@ var defaultSequencingPrimerOptions = function(options={}) {
     minPrimerLength: 20,
     maxPrimerLength: 30,
     maxSearchSpace: 500,
+    // Maximum size of DNA sequence that will become useful products.
+    maxSequencedSize: 500,
+    // The number of bases after the end of a sequencing primer which are
+    // garbage (due to current limitations in Sanger sequencing techniques).
+    garbageSequenceDna: 80,
     targetGcContent: 0.5,
     targetGcContentTolerance: 0.1,
     targetMeltingTemperature: 63.5,
