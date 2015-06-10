@@ -109,7 +109,7 @@ var coerceRangeToWithinSequenceLength = function(sequence, value) {
 
 /**
 @method getExportString
-@param {Sequence} sequence
+@param {Object} sequence
 @returns {String} Sequence in SYBIL format
 **/
 FT_sybil.prototype.getExportString = function ( sequence ) {
@@ -161,8 +161,6 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
 
       s += oo[0].outerHTML + "\n";
     }
-
-
   }
   
   // Features
