@@ -494,19 +494,23 @@ rendered.
   SequenceChromatographCanvas.prototype.getBaseFromXYPos = function(posX, posY){
 
     posX -= this.layoutSettings.pageMargins.left;
-
     posX += this.layoutHelpers.yOffset;
 
-    var peaks = this.sequence.get('chromatogramPeaks'),
-        max = _.sortedIndex(peaks, posX),
-        min = Math.max(max-1, 0),
-        midpoint;
 
-    if (max == peaks.length) return max - 1;
+    // Old implementation using variable width.
+    // var peaks = this.sequence.get('chromatogramPeaks'),
+    //     max = _.sortedIndex(peaks, posX),
+    //     min = Math.max(max-1, 0),
+    //     midpoint;
 
-    midpoint = ((peaks[max] - peaks[min])/2) + peaks[min];
+    // if (max == peaks.length) return max - 1;
+    // midpoint = ((peaks[max] - peaks[min])/2) + peaks[min];
+    // return (posX < midpoint) ? min : max;
 
-    return (posX < midpoint) ? min : max;
+    // Offset posX so that click area is centered around base.
+    posX -= this.layoutSettings.chromatographDims.width/2;
+    return Math.floor(posX/this.layoutSettings.chromatographDims.width);
+
   };
 
   /**
@@ -891,12 +895,14 @@ rendered.
         posY = this.getYPosFromBase(base) + lineOffsets.dna;
       }
 
-      if (peaks){
-        posY = lineOffsets.dna;
-        posX = this.layoutSettings.pageMargins.left +
-               peaks[base] - this.layoutHelpers.yOffset -
-               this.layoutSettings.basePairDims.width/2;
-      }
+      posY = lineOffsets.dna;
+      // posX = this.layoutSettings.pageMargins.left +
+      //        peaks[base] - this.layoutHelpers.yOffset -
+      //        this.layoutSettings.basePairDims.width/2;
+      posX = this.layoutSettings.pageMargins.left +
+             (base + 1) * this.layoutSettings.chromatographDims.width -
+             this.layoutHelpers.yOffset -
+             this.layoutSettings.basePairDims.width/2;
 
 
       this.caret.move(posX, posY, base);
