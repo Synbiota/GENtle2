@@ -174,6 +174,11 @@ FT_abi.prototype.getBigEndianSignedShort = function(bytes, p) {
       return me.getBigEndianSignedShort(bytes, peaks.dataoffset + i*2);
     });
 
+    var quality = _.findWhere(abi.dirs, {name: 'PCON', number:1});
+    seq.chromatogramQuality = _.map(_.range(quality.datasize), function(i) {
+      return bytes[quality.dataoffset + i];
+    });
+
   	return [ seq ];
 	}
 

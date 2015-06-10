@@ -56,7 +56,8 @@ Options are:
       sequence.getSubSeq
     ).apply(sequence, baseRange);
 
-    var peaks = sequence.get('chromatogramPeaks')
+    var peaks = sequence.get('chromatogramPeaks'),
+        quality = sequence.get('chromatogramQuality');
     var peakSubSequence = peaks.slice(baseRange[0], baseRange[1]+1);
     var _this = this;
 
@@ -70,6 +71,8 @@ Options are:
         var baseWidth = _.isFunction(_this.baseWidth) ?
                      _this.baseWidth(k) :
                      (_this.baseWidth || 0);
+
+        var baseIndex = baseRange[0] + k;
 
         // baseWidth = peakSubSequence[k] - (peakSubSequence[k-1] || peaks[baseRange[0]+k-1] || 0);
         // baseWidth = ls.chromatographDims.width;
@@ -112,9 +115,19 @@ Options are:
 
           _this.setTextColour(character, k+baseRange[0]);
         }
+
+        if (quality[baseIndex] < 10) {
+          artist.updateStyle({fillStyle: "red"});
+        }
+
         artist.text(_.isObject(character) ? character.sequence[character.position] : character,
                     x,
                     y + (_this.baseLine === undefined ? _this.height : _this.baseLine));
+
+        // Debug printing value for quality scores.
+        // artist.text(quality[baseIndex],
+        //             x,
+        //             y + (_this.baseLine === undefined ? _this.height : _this.baseLine) + 30);
 
         // x += ls.basePairDims.width/2 + baseWidth/2;
         x += ls.basePairDims.width/2;
