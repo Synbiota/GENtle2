@@ -116,7 +116,7 @@ Options are:
           _this.setTextColour(character, k+baseRange[0]);
         }
 
-        if (quality[baseIndex] < 10) {
+        if (quality[baseIndex] < 30) {
           artist.updateStyle({fillStyle: "red"});
         }
 
