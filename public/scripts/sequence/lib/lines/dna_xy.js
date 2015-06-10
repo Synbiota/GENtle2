@@ -66,12 +66,20 @@ Options are:
 
         if(!subSequence[k]) return;
 
-        var diff;
 
-        diff = peakSubSequence[k] - (peakSubSequence[k-1] || peaks[baseRange[0]+k-1] || 0);
-        x += diff - ls.basePairDims.width/2;
+        var baseWidth = _.isFunction(_this.baseWidth) ?
+                     _this.baseWidth(k) :
+                     (_this.baseWidth || 0);
+
+        // baseWidth = peakSubSequence[k] - (peakSubSequence[k-1] || peaks[baseRange[0]+k-1] || 0);
+        // baseWidth = ls.chromatographDims.width;
+
+        // baseWidth is the width of the entire base (including padding)
+        // basePairDims is the width of the actual letter.
 
 
+        // x += baseWidth/2 - ls.basePairDims.width/2;
+        x += baseWidth - ls.basePairDims.width/2;
 
         character = _.isFunction(_this.transform) ?
           _this.transform.call(sequence, k+baseRange[0]) :
@@ -104,9 +112,13 @@ Options are:
 
           _this.setTextColour(character, k+baseRange[0]);
         }
-        artist.text(_.isObject(character) ? character.sequence[character.position] : character, x, y + (_this.baseLine === undefined ? _this.height : _this.baseLine));
+        artist.text(_.isObject(character) ? character.sequence[character.position] : character,
+                    x,
+                    y + (_this.baseLine === undefined ? _this.height : _this.baseLine));
 
+        // x += ls.basePairDims.width/2 + baseWidth/2;
         x += ls.basePairDims.width/2;
+
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
       });
     }

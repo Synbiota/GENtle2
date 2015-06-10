@@ -125,6 +125,9 @@ rendered.
       basePairDims: {
         width: 10,
         height: 15
+      },
+      chromatographDims: {
+        width: 30
       }
     };
 
@@ -196,7 +199,8 @@ rendered.
         textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, false),
         selectionColour: LineStyles.dna.selection.fill,
-        selectionTextColour: LineStyles.dna.selection.color
+        selectionTextColour: LineStyles.dna.selection.color,
+        baseWidth: this.layoutSettings.chromatographDims.width
       }),
 
       // Complements
@@ -207,6 +211,7 @@ rendered.
         textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
         highlightColour: _.partial(dnaStickyEndHighlightColour, true),
         getSubSeq: _.partial(this.sequence.getTransformedSubSeq, 'complements', {}),
+        baseWidth: this.layoutSettings.chromatographDims.width,
         visible: _.memoize2(function() {
           return _this.sequence.get('displaySettings.rows.complements');
         })
@@ -386,8 +391,10 @@ rendered.
         // Modified with margins
         // Need to switch from height to width for syntactical accuracy.
         // Impacts the minimap so change both at same time.
-        height: ls.pageMargins.top + ls.pageMargins.bottom + _this.sequence.get('chromatogramData')[0].length
+        // height: ls.pageMargins.top + ls.pageMargins.bottom + _this.sequence.get('chromatogramData')[0].length
         // height: _this.sequence.get('chromatogramData')[0].length
+        height: ls.pageMargins.top + ls.pageMargins.bottom +
+                _this.sequence.getLength() * _this.layoutSettings.chromatographDims.width
       };
 
       // canvas y scrolling offset
@@ -524,8 +531,9 @@ rendered.
     var initPosY = 0, // this location should be matched so that it evenly spaces with the comparison view.
         posY = initPosY;
 
-
     var sequence = this.sequence;
+
+    var normalizedWidth = layoutSettings.chromatographDims.width;
 
     var getChromaBaseRange = function(posX, width){
 
@@ -533,17 +541,24 @@ rendered.
 
       // find peak val where firstPeak >= posx
       // return value just before or at position
+      // var getIdx = function(posX){
+      //   // For reference, sortedIndex returns the index at which value (posX) would be
+      //   // located if inserted into the array (peaks). I want the value just before that
+      //   // index.
+      //   var idx = _.sortedIndex(peaks, posX) - 1;
+      //   idx = Math.max(idx, 0);
+      //   return idx;
+      // };
+
       var getIdx = function(posX){
-        // For reference, sortedIndex returns the index at which value (posX) would be
-        // located if inserted into the array (peaks). I want the value just before that
-        // index.
-        var idx = _.sortedIndex(peaks, posX) - 1;
-        idx = Math.max(idx, 0);
-        return idx;
+        return Math.floor(posX/normalizedWidth);
       };
 
       var firstBase = getIdx(posX),
           lastBase  = getIdx(posX + width);
+
+      firstBase = Math.max(firstBase, 0)
+      lastBase = Math.min(lastBase, peaks.length - 1)
 
       if (firstBase >= lastBase){
         lastBase = Math.min(peaks.length-1, firstBase+1);
@@ -559,7 +574,6 @@ rendered.
      * Corner cases are in place for the first and last bases (aka baserange[0] == 0 and
      * baserange[1] == peaks.length-1)
      */
-
     // Adjust offset to factor for page margins.
     xOffset -= layoutSettings.pageMargins.top;
 
@@ -569,27 +583,47 @@ rendered.
 
     // Update posX and width to reflect alignment with previous base (overlap)
     // New posx is the position of the previous peak.
-    var oldPosX = posX;
-    var fromPeak = Math.max(baseRange[0]-1, 0),
-        toPeak = Math.min(baseRange[1]+1, peaks.length-1);
+    // var oldPosX = posX;
+    // var fromPeak = Math.max(baseRange[0]-1, 0),
+    //     toPeak = Math.min(baseRange[1]+1, peaks.length-1);
 
-    posX = (baseRange[0] === 0 ? 0 : peaks[fromPeak]) - xOffset;
-    width += (oldPosX - posX);
+    // posX = (baseRange[0] === 0 ? 0 : peaks[fromPeak]) - xOffset;
+    // width += (oldPosX - posX);
 
+    //
+    // posX = baseRange[0] === 0 ? 0 : (fromPeak * normalizedWidth + normalizedWidth/2 - xOffset);
+    // width += (oldPosX - posX);
 
     // One single clear is called for the entire line.
-    var clearStart = baseRange[0] === 0 ? 0 : posX + layoutSettings.basePairDims.width/2,
-        clearWidth = (peaks[toPeak] - peaks[fromPeak]) - layoutSettings.basePairDims.width;
+    // var clearStart = baseRange[0] === 0 ? 0 : posX + layoutSettings.basePairDims.width/2,
+    //     clearWidth = (peaks[toPeak] - peaks[fromPeak]) - layoutSettings.basePairDims.width;
 
-        if (baseRange[0] === 0){
-          clearWidth = peaks[toPeak] - layoutSettings.basePairDims.width/2 + posX;
-        } else if (baseRange[1] >= peaks.length-1) {
-          clearWidth = (peaks[peaks.length-1] - xOffset);
-        }
+    //     if (baseRange[0] === 0){
+    //       clearWidth = peaks[toPeak] - layoutSettings.basePairDims.width/2 + posX;
+    //     } else if (baseRange[1] >= peaks.length-1) {
+    //       clearWidth = (peaks[peaks.length-1] - xOffset);
+    //     }
 
-    // console.log(posX, width, xOffset, "clearing", clearStart, clearWidth);
+    var oldPosX = posX
+    var posDiff = (posX + xOffset) % normalizedWidth;
 
-    this.artist.clear(clearStart, 0, clearWidth, 0);
+
+    if (xOffset < 0){
+      posX -= xOffset;
+      width += xOffset;
+    } else {
+      posX -= posDiff;
+      width += posDiff;
+    }
+
+
+    var clearStart = posX,
+        clearWidth = width;
+
+
+    console.log(posX, width, xOffset, "clearing", clearStart, clearWidth);
+
+    // this.artist.clear(clearStart, 0, clearWidth, 0);
 
 
     // if (xOffset <= layoutSettings.pageMargins.top){
@@ -622,7 +656,8 @@ rendered.
     //   });
     // }
 
-    // console.log("drawing", posX, baseRange)
+    console.log("drawing", posX, baseRange)
+
 
     if (baseRange[0] < this.sequence.getLength()) {
       _.each(lines, function(line, key) {
