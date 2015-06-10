@@ -1,7 +1,7 @@
 
 // Allows us to stub out in tests
 var _assertion = function(test, message, value=undefined) {
-  if(!test) message += JSON.stringify(value, null, 2);
+  if(!test && arguments.length === 3) message += (' ' + JSON.stringify(value, null, 2));
   console.assert(test, message);
   if(window.TESTS_RUNNING && !test) throw new Error(message);
 };
