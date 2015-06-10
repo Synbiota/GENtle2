@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import SequencingPrimerModel from './sequencing_primer';
+import SequencingPrimerModel from '../../pcr/lib/primer';
 import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import SequenceRange from '../../../library/sequence-model/range';
 
@@ -25,15 +25,17 @@ var forwardUniversalPrimers = function() {
 var reverseUniversalPrimers = function() {
   return [
   {
-    // forward strand, reverse complement is:  ATTACCGCCTTTGAGTGAGC
-    sequence: 'GCTCACTCAAAGGCGGTAAT',
+    sequence: 'GCTCACTCAAAGGCGGTAAT',  // Forward strand sequence
+    // The reverse strand which is the sequence ulitmately used as a
+    // the DNA primer: ATTACCGCCTTTGAGTGAGC
     name: "Sybiota universal reverse primer version 1.0",
     meltingTemperature: 62.4,
     gcContent: 0.5,
   },
   {
-    // forward strand, reverse complement is:  AATACGCCCGGTAGTGATC
-    sequence: 'GATCACTACCGGGCGTATT',
+    sequence: 'GATCACTACCGGGCGTATT',  // Forward strand sequence
+    // The reverse strand which is the sequence ulitmately used as a
+    // the DNA primer: AATACGCCCGGTAGTGATC
     name: "Sybiota universal reverse primer version 2.0",
     reverse: true,
     meltingTemperature: 61,
@@ -83,7 +85,7 @@ var findUniversalPrimer = function(sequenceModel, universalPrimers, findLast=fal
 
 
 /**
- * @function findPrimers
+ * @function findUniversalPrimers
  * @param  {SequenceModel} sequenceModel
  * @param  {Array}  forwardPrimers  Array of objects representing possible
  *                                  forward universal primers.
@@ -92,7 +94,7 @@ var findUniversalPrimer = function(sequenceModel, universalPrimers, findLast=fal
  * @return {Object} Object with keys `forwardSequencePrimer`, `reverseSequencePrimer`.
  *                  These will have values of `SequencingPrimerModel` or `undefined`
  */
-var findPrimers = function(sequenceModel, forwardPrimers, reversePrimers) {
+var findUniversalPrimers = function(sequenceModel, forwardPrimers, reversePrimers) {
   var forwardSequencePrimer = findUniversalPrimer(sequenceModel, forwardPrimers);
   var reverseSequencePrimer = findUniversalPrimer(sequenceModel, reversePrimers, true);
 
@@ -104,14 +106,14 @@ var findPrimers = function(sequenceModel, forwardPrimers, reversePrimers) {
 };
 
 
-var findPrimersHelper = function(sequenceModel) {
-  return findPrimers(sequenceModel, forwardUniversalPrimers(), reverseUniversalPrimers());
+var findUniversalPrimersHelper = function(sequenceModel) {
+  return findUniversalPrimers(sequenceModel, forwardUniversalPrimers(), reverseUniversalPrimers());
 };
 
 
 export default {
   forwardUniversalPrimers,
   reverseUniversalPrimers,
-  findPrimers,
-  findPrimersHelper,
+  findUniversalPrimers,
+  findUniversalPrimersHelper,
 };

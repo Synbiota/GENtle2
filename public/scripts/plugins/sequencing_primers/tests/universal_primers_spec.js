@@ -1,6 +1,6 @@
 import {stubCurrentUser} from '../../../common/tests/stubs';
 
-import {findPrimersHelper} from '../lib/universal_primers';
+import {findUniversalPrimersHelper} from '../lib/universal_primers';
 import TemporarySequenceModel from '../../../sequence/models/temporary_sequence';
 
 
@@ -10,7 +10,7 @@ describe('finding universal primers', function() {
   it('finds reverse primer', function() {
     var onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAAAAAAAAA' + 'GATCACTACCGGGCGTATT';
     var sequenceModel = new TemporarySequenceModel({sequence: onlyContainingReverseUniversalPrimer});
-    var {forwardSequencePrimer, reverseSequencePrimer} = findPrimersHelper(sequenceModel);
+    var {forwardSequencePrimer, reverseSequencePrimer} = findUniversalPrimersHelper(sequenceModel);
 
     expect(forwardSequencePrimer).toBeUndefined();
 
@@ -23,7 +23,7 @@ describe('finding universal primers', function() {
   it('finds forward primer', function() {
     var onlyContainingForwardUniversalPrimer = 'TGCCACCTGACGTCTAAGAA' + 'AAAAAAAAAA' + 'TGCCACCTGACGTCTAAGAA';
     var sequenceModel = new TemporarySequenceModel({sequence: onlyContainingForwardUniversalPrimer});
-    var {forwardSequencePrimer, reverseSequencePrimer} = findPrimersHelper(sequenceModel);
+    var {forwardSequencePrimer, reverseSequencePrimer} = findUniversalPrimersHelper(sequenceModel);
 
     expect(forwardSequencePrimer.range.from).toEqual(0);
     expect(forwardSequencePrimer.range.size).toEqual(20);
@@ -47,7 +47,7 @@ describe('finding universal primers', function() {
       'CG'                                                                       //  2: 558-559  (560)
     );
     var sequenceModel = new TemporarySequenceModel({sequence: shortSequence});
-    var {forwardSequencePrimer, reverseSequencePrimer} = findPrimersHelper(sequenceModel);
+    var {forwardSequencePrimer, reverseSequencePrimer} = findUniversalPrimersHelper(sequenceModel);
 
     expect(forwardSequencePrimer.range.from).toEqual(41);
     expect(forwardSequencePrimer.range.size).toEqual(20);
