@@ -65,9 +65,9 @@
   // Base64 utility methods (HTML5)
   // (https://github.com/inexorabletash/polyfill)
   //
-  (function (global) {
+  (function (globaL) {
     var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    global.atob = global.atob || function (input) {
+    globaL.atob = globaL.atob || function (input) {
       input = String(input);
       var position = 0,
           output = [],
@@ -105,7 +105,7 @@
       return output.join('');
     };
 
-    global.btoa = global.btoa || function (input) {
+    globaL.btoa = globaL.btoa || function (input) {
       input = String(input);
       var position = 0,
           out = [],
@@ -140,7 +140,7 @@
 
       return out.join('');
     };
-  }(this));
+  }(this || global));
   
 
   // 
