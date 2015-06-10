@@ -226,8 +226,8 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
   o.attr( { type:'dna' , name:sequence.name, circular: sequence.isCircular || 'false' } ) ;
   s += o[0].outerHTML + "\n" ;
 
-  var validMetaKeys = ['pcr'];
-  if(_.isObject(sequence.meta) && _.has.apply(null, [sequence.meta].concat(validMetaKeys))) {
+  var validMetaKeys = ['pcr', 'associations'];
+  if(_.isObject(sequence.meta) && _.union(_.keys(sequence.meta), validMetaKeys)) {
     var data = _.pick.apply(null, [sequence.meta].concat(validMetaKeys));
     s += convertToXML({metadata: data});
   }

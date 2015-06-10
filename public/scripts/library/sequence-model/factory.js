@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import pollyfill from '../../common/lib/polyfills';  // required for String.prototype.endsWith
 
 import classMethodsMixin from './sequence_class_methods_mixin';
 import smartMemoizeAndClear from './smart_memoize_and_clear';
@@ -13,9 +14,6 @@ const STICKY_END_FULL = 'full';
 const STICKY_END_OVERHANG = 'overhang';
 const STICKY_END_NONE = 'none';
 const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
-
-
-let associations = {};
 
 
 let instantiateSingle = function(constructor, otherArgs, fieldValue) {
@@ -52,6 +50,9 @@ let instantiate = function(association, fieldValue, otherArgs) {
 
 
 function sequenceModelFactory(BackboneModel) {
+  let associations = {};
+  let preProcessors = [];
+
   /**
    * Represents a sequence of nucleotides (DNA bases).
    * @class  BaseSequenceModel
@@ -60,7 +61,13 @@ function sequenceModelFactory(BackboneModel) {
   class Sequence extends BackboneModel {
 
     constructor(attributes, options) {
-      // this._validated = false;  // Commented out as "'this' is not allowed before super()"
+      // Make model instance as not validated yet.  Commented out as "'this'
+      // is not allowed before super()"
+      // this._validated = false;
+
+      // Run all preProcessors on attributes
+      attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
+
       super(attributes, options);
 
       this.validateFields(attributes);
@@ -81,11 +88,11 @@ function sequenceModelFactory(BackboneModel) {
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
 
-      // If a fieldValue has a `associationName` key, now run its `validate()`
-      // method.
-      _.each(associations, (association) => {
-        if(_.has(this.attributes, association.associationName)) {
-          let value = this.attributes[association.associationName];
+      // If a value in this.attributes has a key with the same value as an
+      // associations `associationName` then run its `validate()` method.
+      _.each(associations, (association, associationName) => {
+        if(_.has(this.attributes, associationName)) {
+          let value = this.attributes[associationName];
           if(association.many) {
             _.each(value, function(subVal) {
               if(_.isFunction(subVal.validate)) subVal.validate();
@@ -1439,6 +1446,20 @@ function sequenceModelFactory(BackboneModel) {
       this._throttledSave();
     }
 
+    toJSON() {
+      let attributes = super.toJSON();
+      // Move all associated fields into meta.associations
+      _.each(associations, function(value, associationName) {
+        if(_.has(attributes, associationName)) {
+          attributes.meta = attributes.meta || {};
+          attributes.meta.associations = attributes.meta.associations || {};
+          attributes.meta.associations[associationName] = attributes[associationName];
+          delete attributes[associationName];
+        }
+      });
+      return attributes;
+    }
+
     ensureBaseIsSelectable(base, strict = false) {
       var selectableRange = this.selectableRange();
       return Math.min(
@@ -1457,15 +1478,20 @@ function sequenceModelFactory(BackboneModel) {
   Sequence.STICKY_END_NONE = STICKY_END_NONE;
 
 
-  Sequence.registerAssociation = function(constructor, associationName, many=false) {
-    if(associationName.endsWith('s')) {
-      throw new Error(`associationName "${associationName}" can not end with an "s".`);
+  Sequence.registerAssociation = function(constructor, rawAssociationName, many=false) {
+    if(rawAssociationName.endsWith('s')) {
+      throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
     }
-    let fieldName = associationName + (many ? 's' : '');
-    if(associations[fieldName]) {
-      throw new Error(`Constructor "${associationName}" (${fieldName}) already registered.`);
+    let associationName = rawAssociationName + (many ? 's' : '');
+    if(associations[associationName]) {
+      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered.`);
     }
-    associations[fieldName] = {constructor, many, associationName};
+    associations[associationName] = {constructor, many, associationName};
+  };
+
+
+  Sequence.registerPreProcessor = function(preProcessor) {
+    preProcessors.push(preProcessor);
   };
 
 
