@@ -35,34 +35,35 @@ var logger = function(...msg) {
 /**
  * @function _getSequenceToSearch
  * function abstracted to aid testing.  Ultimately it sets several attributes on
- * the primerModel including:
+ * the potentialPrimerModel including:
  *   * totalSequenceLength
  *   * frm
  *   * sequenceToSearch
- * @param  {PotentialPrimer} primerModel
+ * @param  {PotentialPrimer} potentialPrimerModel
  */
-var _getSequenceToSearch = function(primerModel) {
-  primerModel.totalSequenceLength = primerModel.sequenceModel.getLength(primerModel.sequenceModel.STICKY_END_FULL);
+var _getSequenceToSearch = function(potentialPrimerModel) {
+  let primer = potentialPrimerModel;
+  primer.totalSequenceLength = primer.sequenceModel.getLength(primer.sequenceModel.STICKY_END_FULL);
 
-  primerModel.frm = primerModel.sequenceOptions.from;
-  if(primerModel.sequenceOptions.findOnReverseStrand) {
-    primerModel.frm = primerModel.totalSequenceLength - primerModel.frm;
-    primerModel.frm = Math.max(0, primerModel.frm - primerModel.sequenceOptions.maxSearchSpace);
+  primer.frm = primer.sequenceOptions.from;
+  if(primer.sequenceOptions.findOnReverseStrand) {
+    primer.frm = primer.totalSequenceLength - primer.frm;
+    primer.frm = Math.max(0, primer.frm - primer.sequenceOptions.maxSearchSpace);
   }
-  // logger(primerModel.sequenceOptions.findOnReverseStrand, totalSequenceLength, `primerModel.sequenceOptions.from:${primerModel.sequenceOptions.from}, ${primerModel.frm}`)
-  let to = primerModel.frm + primerModel.sequenceOptions.maxSearchSpace - 1;
-  primerModel.sequenceToSearch = primerModel.sequenceModel.getSubSeq(primerModel.frm, to, primerModel.sequenceModel.STICKY_END_FULL);
-  if(primerModel.sequenceOptions.findOnReverseStrand) {
-    primerModel.sequenceToSearch = SequenceTransforms.toReverseComplements(primerModel.sequenceToSearch);
+
+  let to = primer.frm + primer.sequenceOptions.maxSearchSpace - 1;
+  primer.sequenceToSearch = primer.sequenceModel.getSubSeq(primer.frm, to, primer.sequenceModel.STICKY_END_FULL);
+  if(primer.sequenceOptions.findOnReverseStrand) {
+    primer.sequenceToSearch = SequenceTransforms.toReverseComplements(primer.sequenceToSearch);
   }
 
   // Check there are enough bases to satisfy the minimum size for a primer
   // (a valid primer may of course still not be found)
-  if(primerModel.sequenceToSearch.length < primerModel.options.minPrimerLength) {
-    if(primerModel.sequenceOptions.findOnReverseStrand) {
-      primerModel.deferred.reject("sequence is too short to leave enough sequence length to find the primer");
+  if(primer.sequenceToSearch.length < primer.options.minPrimerLength) {
+    if(primer.sequenceOptions.findOnReverseStrand) {
+      primer.deferred.reject("sequence is too short to leave enough sequence length to find the primer");
     } else {
-      primerModel.deferred.reject("`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
+      primer.deferred.reject("`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
     }
   }
 };
@@ -72,7 +73,16 @@ class PotentialPrimer {
   /**
    * @constructor PotentialPrimer
    * @param  {SequenceModel} sequenceModel
-   * @param  {Object} sequenceOptions  Keys: `from`, `maxSearchSpace`, `findOnReverseStrand`
+   * @param  {Object} sequenceOptions  Keys:
+   *     `from`: The first base (0 indexed, and relative to the whole sequence (sticky ends included, using
+   *             `STICKY_END_FULL`).  If `findOnReverseStrand` is `true` then from refers to the reverse strand,
+   *             indexed from the end. e.g. if sequence.getLength(STICKY_END_FULL) returns 10, and
+   *             `findOnReverseStrand` is `true`, then a value of `from` of 3 refers to bases 7 (10 - 3).
+   *             NOTE:  the `frm` value then set on the PotentialPrimer instance refers to the position on the forward
+   *             strand which will be the lower bound used when calculating the subSequence of the sequenceModel,
+   *             regardless of `findOnReverseStrand`.
+   *     `maxSearchSpace`:  The maxmimum number of bases which can be searched to find a valid primer.
+   *     `findOnReverseStrand`
    * @param  {Object} options
    */
   constructor(sequenceModel, sequenceOptions, options) {
