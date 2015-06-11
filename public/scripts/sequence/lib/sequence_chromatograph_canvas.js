@@ -400,7 +400,6 @@ rendered.
       // canvas y scrolling offset
       lh.yOffset = lh.yOffset || _this.sequence.get('displaySettings.yOffset') || 0;
 
-
       // if (_this.layoutHelpers.BasePosition === undefined)
       //   _this.layoutHelpers.BasePosition = _this.getBaseFromXYPos(0, lh.yOffset + lh.rows.height);
 
@@ -491,13 +490,14 @@ rendered.
     });
   };
 
+
+  //Sequence utility overrides
   SequenceChromatographCanvas.prototype.getBaseFromXYPos = function(posX, posY){
 
-    posX -= this.layoutSettings.pageMargins.left;
-    posX += this.layoutHelpers.yOffset;
-
-
     // Old implementation using variable width.
+    // posX -= this.layoutSettings.pageMargins.left;
+    // posX += this.layoutHelpers.yOffset;
+    //
     // var peaks = this.sequence.get('chromatogramPeaks'),
     //     max = _.sortedIndex(peaks, posX),
     //     min = Math.max(max-1, 0),
@@ -508,10 +508,26 @@ rendered.
     // return (posX < midpoint) ? min : max;
 
     // Offset posX so that click area is centered around base.
+
+    posX += this.layoutHelpers.yOffset;
+    posX -= this.layoutSettings.pageMargins.left;
     posX -= this.layoutSettings.chromatographDims.width/2;
+
     return Math.floor(posX/this.layoutSettings.chromatographDims.width);
 
   };
+
+  SequenceChromatographCanvas.prototype.distanceToVisibleCanvas = function(base) {
+    var layoutHelpers = this.layoutHelpers,
+        layoutSettings = this.layoutSettings,
+        xPos = (base + 1) * this.layoutSettings.chromatographDims.width - layoutHelpers.yOffset + layoutSettings.pageMargins.top;
+
+    return  Math.max(0, xPos - this.$scrollingParent.width() ) +
+            Math.min(0, xPos);
+  };
+
+
+
 
   /**
   Draw row at position posY in the canvas
@@ -877,23 +893,27 @@ rendered.
 
     var peaks = this.sequence.get('chromatogramPeaks');
 
-    if (base === undefined && this.caretPosition !== undefined) {
+    if (_.isUndefined(base) && !_.isUndefined(this.caretPosition)) {
       base = this.caretPosition;
     }
+
+    if(_.isUndefined(base)) return false;
 
     if (base > this.sequence.getLength()) {
       base = this.sequence.getLength();
     }
 
+    base = this.sequence.ensureBaseIsSelectable(base);
+
     this.scrollBaseToVisibility(base).then(() => {
 
-      if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
-        posX = this.getXPosFromBase(base - 1) + this.layoutSettings.basePairDims.width;
-        posY = this.getYPosFromBase(base - 1) + lineOffsets.dna;
-      } else {
-        posX = this.getXPosFromBase(base);
-        posY = this.getYPosFromBase(base) + lineOffsets.dna;
-      }
+      // if(_.isArray(selection) && selection[1] % layoutHelpers.basesPerRow === layoutHelpers.basesPerRow -1) {
+      //   posX = this.getXPosFromBase(base - 1) + this.layoutSettings.basePairDims.width;
+      //   posY = this.getYPosFromBase(base - 1) + lineOffsets.dna;
+      // } else {
+      //   posX = this.getXPosFromBase(base);
+      //   posY = this.getYPosFromBase(base) + lineOffsets.dna;
+      // }
 
       posY = lineOffsets.dna;
       // posX = this.layoutSettings.pageMargins.left +

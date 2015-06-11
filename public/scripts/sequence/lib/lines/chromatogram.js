@@ -19,10 +19,10 @@ export default class Chromatogram extends Line {
     const pageMargins = layoutSettings.pageMargins;
 
     // Legacy const for vertical canvas. Keeping around just in case.
-    // const blocksPerRow = layoutHelpers.basesPerRow / layoutSettings.basesPerBlock;
-    // const effectiveWidth = blocksPerRow * layoutSettings.basesPerBlock *
-    //   layoutSettings.basePairDims.width +
-    //   (blocksPerRow - 1) * layoutSettings.gutterWidth;
+      // const blocksPerRow = layoutHelpers.basesPerRow / layoutSettings.basesPerBlock;
+      // const effectiveWidth = blocksPerRow * layoutSettings.basesPerBlock *
+      //   layoutSettings.basePairDims.width +
+      //   (blocksPerRow - 1) * layoutSettings.gutterWidth;
 
     const sequence = sequenceCanvas.sequence;
     const rawData = sequence.get('chromatogramData');
@@ -33,61 +33,61 @@ export default class Chromatogram extends Line {
 
 
     // Old non-uniform width base pair implementation. Distance between nucleotides was dependent on the number of
-    // const dataRelevantLength = rawData[0].length + 0*(peaks[peaks.length - 1] + 14);
-    // const dataRelevantLength = rawData[0].length;
-    // const dataRelevantOffset = 0 + 0*(rawData[0].length - peaks[peaks.length-1]);
+      // const dataRelevantLength = rawData[0].length + 0*(peaks[peaks.length - 1] + 14);
+      // const dataRelevantLength = rawData[0].length;
+      // const dataRelevantOffset = 0 + 0*(rawData[0].length - peaks[peaks.length-1]);
 
-    // const dataDensity = Math.floor( dataRelevantLength / sequence.getLength());
+      // const dataDensity = Math.floor( dataRelevantLength / sequence.getLength());
 
-    // const xInterval =  effectiveWidth / (toBase - fromBase + 1) / dataDensity;
-    // const xInterval =  1;
-    // data points between peaks.
-    // const relevantRawData = _.map(rawData, function(data) {
-    //   // return data.slice(dataRelevantOffset + fromBase * dataDensity, dataRelevantOffset + toBase * dataDensity);
-    //   // return data.slice(dataDensity * fromBase, dataDensity * (toBase+1));
+      // const xInterval =  effectiveWidth / (toBase - fromBase + 1) / dataDensity;
+      // const xInterval =  1;
+      // data points between peaks.
+      // const relevantRawData = _.map(rawData, function(data) {
+      //   // return data.slice(dataRelevantOffset + fromBase * dataDensity, dataRelevantOffset + toBase * dataDensity);
+      //   // return data.slice(dataDensity * fromBase, dataDensity * (toBase+1));
 
-    //   var start = fromBase === 0 ?
-    //                 0 :
-    //                 peaks[fromBase - 1],
+      //   var start = fromBase === 0 ?
+      //                 0 :
+      //                 peaks[fromBase - 1],
 
-    //       end   = toBase === peaks.length-1 ?
-    //                 data.length - 1 :
-    //                 peaks[toBase + 1];
+      //       end   = toBase === peaks.length-1 ?
+      //                 data.length - 1 :
+      //                 peaks[toBase + 1];
 
-    //       if (start > 0) start += layoutSettings.basePairDims.width/2;
-    //       if (end < peaks.length -1 ) end -= layoutSettings.basePairDims.width/2;
+      //       if (start > 0) start += layoutSettings.basePairDims.width/2;
+      //       if (end < peaks.length -1 ) end -= layoutSettings.basePairDims.width/2;
 
-    //   return data.slice(start, end+1);
-    // });
+      //   return data.slice(start, end+1);
+      // });
 
-    // var allPoints = _.map(relevantRawData, function(rawData_, i) {
+      // var allPoints = _.map(relevantRawData, function(rawData_, i) {
 
-    //   return _.map(rawData_, function(data, i) {
-    //     // return [x + pageMargins.left + i * xInterval, y + height * ( 1 - data / maxDataValue)];
-    //     var xPos = x + i * xInterval,
-    //         yPos = y + height * ( 1 - data / maxDataValue);
+      //   return _.map(rawData_, function(data, i) {
+      //     // return [x + pageMargins.left + i * xInterval, y + height * ( 1 - data / maxDataValue)];
+      //     var xPos = x + i * xInterval,
+      //         yPos = y + height * ( 1 - data / maxDataValue);
 
-    //     // If we are writing a section of the sequence (not beginning) then assume that the x is positioned right
-    //     // after the previous nucleotide letter.
-    //     if (fromBase > 0){
-    //       xPos += layoutSettings.basePairDims.width/2;
-    //     }
+      //     // If we are writing a section of the sequence (not beginning) then assume that the x is positioned right
+      //     // after the previous nucleotide letter.
+      //     if (fromBase > 0){
+      //       xPos += layoutSettings.basePairDims.width/2;
+      //     }
 
-    //     return [xPos, yPos];
-    //   });
-    // });
+      //     return [xPos, yPos];
+      //   });
+      // });
 
-    // artist.updateStyle({
-    //   lineWidth: 1
-    // });
+      // artist.updateStyle({
+      //   lineWidth: 1
+      // });
 
-    // _.each(allPoints, function(points, i) {
-    //   if (points.length){
-    //     artist.path(..._.flatten(points), {strokeStyle: colors[i]});
-    //   }
-    // });
+      // _.each(allPoints, function(points, i) {
+      //   if (points.length){
+      //     artist.path(..._.flatten(points), {strokeStyle: colors[i]});
+      //   }
+      // });
 
-    // artist.smoothLineGraph(points);
+      // artist.smoothLineGraph(points);
 
     const normalizedWidth = layoutSettings.chromatographDims.width;
 
