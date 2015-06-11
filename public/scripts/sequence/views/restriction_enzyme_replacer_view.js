@@ -79,6 +79,21 @@ define(function(require) {
                 return false;
               }
             }],
+
+
+            position: ['Position', {
+              height: 15,
+              baseLine: 15,
+              textFont: LineStyles.position.text.font,
+              textColour: LineStyles.position.text.color,
+              transform: function(base) { 
+                return base+_replacement.subSeqOffset;
+              },
+              //visible: _.memoize2(function() {
+              //  return _this.sequence.get('displaySettings.rows.numbering');
+              //})
+            }],
+
             // Aminoacids
             aa: ['DNA', {
               height: 15,
@@ -137,6 +152,7 @@ define(function(require) {
             }],
 
 
+
             // Restriction Enzyme Sites
             restrictionEnzymeSites: ['RestrictionEnzymeSites', {
               floating: true,
@@ -151,6 +167,8 @@ define(function(require) {
           });
 
           this.tempSequenceCanvas.refresh();
+          console.log("subseq");
+          console.log(_replacement.subSeqOffset);
         };
 
 
