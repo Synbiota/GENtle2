@@ -68,10 +68,15 @@ define(function(require) {
       if (this.showModal === true){
         $("#condonSubModal").modal("show");
         // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart.       
-        for (var i=1; i <= Object.keys(this.replacements).length; i++) {
-          var _replacement= this.replacements[i];
-          var paddedSubSeq= _replacement.paddedSubSeq;
-          var tempSequence = new Sequence({
+        //for (var i=1; i <= Object.keys(this.replacements).length; i++) {
+        //this.replacements.forEach(function(_replacement) {
+
+
+        for (obj in this.replacements) {
+          console.log(_replacement)
+          let _replacement = this.replacements[obj];
+          let paddedSubSeq= _replacement.paddedSubSeq;
+          let tempSequence = new Sequence({
             sequence: paddedSubSeq.subSeq,
             displaySettings: {
               rows: {
@@ -85,7 +90,7 @@ define(function(require) {
             },
           });
 
-          var sequenceCanvasLines = {
+          let sequenceCanvasLines = {
             // Blank line
             topSeparator: ['Blank', {
               height: 5,
@@ -197,9 +202,11 @@ define(function(require) {
             }],
           };
         
+          let canvasId = `.sequence-canvas-container-${obj - 1} canvas`;
+          console.log(canvasId)
           this.tempSequenceCanvas = new SequenceCanvas({
             view: this,
-            $canvas: this.$(`.sequence-canvas-container-${i - 1} canvas`).first(),
+            $canvas: this.$(canvasId).first(),
             sequence: tempSequence,
             lines: sequenceCanvasLines
           });
@@ -207,7 +214,7 @@ define(function(require) {
           this.tempSequenceCanvas.refresh();
           console.log("subseq");
           console.log(_replacement.subSeqOffset);
-        };
+        }; // forEach
 
 
 
