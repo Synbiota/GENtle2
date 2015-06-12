@@ -1,6 +1,7 @@
 import Q from 'q';
 import $ from 'jquery';
 import _ from 'underscore';
+import svg from 'svg.js';
 
 import template from './template.html';
 
@@ -121,6 +122,7 @@ class SequenceCanvasCore {
     };
 
     this.artist = new Artist(this.$canvas);
+    this.svg = svg(this.$scrollingChild[0]);
     this.caret = new Caret({
       $container: this.$scrollingChild,
       className: 'sequence-canvas-caret',
@@ -299,6 +301,7 @@ class SequenceCanvasCore {
   **/
   display() {
     var artist = this.artist,
+      svg = this.svg,
       ls = this.layoutSettings,
       lh = this.layoutHelpers,
       yOffset = lh.yOffset,
@@ -320,11 +323,19 @@ class SequenceCanvasCore {
         drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
         drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 
+        // let rowStart = _this.getRowFromYPos(drawStart);
+        // let rowEnd = _this.getRowFromYPos(drawEnd);
+        // for(let i = rowStart; i <= rowEnd; i++) {
+        //   let rowGroup = svg.get(`svg-row-${i}`);
+        //   if(rowGroup) rowGroup.remove();
+        // }
+
         lh.previousYOffset = undefined;
 
       } else {
 
         artist.clear();
+        svg.clear();
         drawStart = 0;
         drawEnd = canvasHeight;
 

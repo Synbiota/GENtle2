@@ -1253,6 +1253,7 @@ export default function sequenceModelFactory(BackboneModel) {
             feature.ranges = _.sortBy(feature.ranges, function(range) {
               return range.from;
             });
+            feature._id = feature._id || _.uniqueId();
             return feature;
           }), function(feature) {
             return feature.ranges[0].from;

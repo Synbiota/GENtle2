@@ -1,6 +1,7 @@
 import Line from './line';
 import _ from 'underscore';
 import switchSequenceContext from './_switch_sequence_context';
+import SVG from 'svg.js';
 
 /**
 Line class for displaying bases on SequenceCanvas. 
@@ -118,6 +119,8 @@ class Feature extends Line {
         gutterWidth     = layoutSettings.gutterWidth,
         features, startX, endX, deltaX, textWidth, backgroundFillStyle, textColour;
 
+    var row = sequenceCanvas.getRowFromYPos(y);
+
     features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     y += (this.topMargin || 0);
 
@@ -145,6 +148,35 @@ class Feature extends Line {
 
         backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
         textColour  = _.isFunction(this.textColour) ? this.textColour(feature._type) : this.textColour;
+
+
+        let svg = sequenceCanvas.svg;
+        let rowGroupId = `svg-row-${row}`;
+        let rowGroup = SVG.get(rowGroupId) || svg.group(rowGroupId).attr('id', rowGroupId);
+
+        let groupId = `svg-feature-${feature._id}-${baseRange[0]}-${baseRange[1]}`;
+
+        console.log(SVG.get(groupId), $('#'+groupId))
+        if(SVG.get(groupId)) return;
+
+        let shape = rowGroup.group().addClass('feature').attr('id', groupId);
+        
+        shape.rect(
+          deltaX, 
+          this.lineSize
+        ).move(
+          startX, 
+          y + this.margin + i*this.unitHeight + layoutHelpers.yOffset
+        ).fill(backgroundFillStyle);
+
+        shape.text(
+          feature.name
+        ).move(
+          startX,
+          y + this.margin + i * this.unitHeight + layoutHelpers.yOffset
+        ).fill(textColour);
+
+        return;
 
         artist.rect(startX,
                     y + this.margin + i*this.unitHeight,
