@@ -435,7 +435,7 @@ define(function(require) {
           replacement.bestEndBase = replacement.allMatches[0].endBase;
           
 
-          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset);
+          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset) + 1;
           if(marginOffset < 0) { marginOffset = 0; }
 
           replacement.paddedReplacementCodon = " ".repeat(marginOffset) + replacement.bestReplacementCodon;
