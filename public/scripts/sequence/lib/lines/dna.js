@@ -70,7 +70,7 @@ define(function(require) {
         if (_.isFunction(this.lineHighlightColor)) {
           
           var lhc = this.getLineHighlightColour(subSequence[k]); 
-          console.log(lhc)
+
           artist.rect(x, y-3, ls.basePairDims.width, this.height+6, { fillStyle: lhc});
         }
 

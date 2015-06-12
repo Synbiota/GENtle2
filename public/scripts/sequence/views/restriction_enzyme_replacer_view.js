@@ -55,9 +55,7 @@ define(function(require) {
     },
 
     highlightBlueText: function(_base) {
-      //console.log("highlightBlueText");
-      //console.log(_base);
-      //console.log(_base_pos);
+
       if (_base == " ")
         { return "#d3d3d3"; }
       else
