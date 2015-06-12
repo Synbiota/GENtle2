@@ -49,6 +49,22 @@ define(function(require) {
 
     },
 
+
+    colorWhiteText: function(changeableBases, offset, _base_pos) {
+      return "#FFFFFF";
+    },
+
+    highlightBlueText: function(_base) {
+      //console.log("highlightBlueText");
+      //console.log(_base);
+      //console.log(_base_pos);
+      if (_base == " ")
+        { return "#d3d3d3"; }
+      else
+        { return "#428BCA"; }
+    },
+
+
     afterRender: function() {
 
       if (this.showModal === true){
@@ -87,7 +103,7 @@ define(function(require) {
               textFont: LineStyles.position.text.font,
               textColour: LineStyles.position.text.color,
               transform: function(base) { 
-                return base+_replacement.subSeqOffset;
+                return base+_replacement.subSeqOffset-1;
               },
               //visible: _.memoize2(function() {
               //  return _this.sequence.get('displaySettings.rows.numbering');
@@ -149,6 +165,30 @@ define(function(require) {
                 type = 'type-'+type.toLowerCase();
                 return (colors[type] && colors[type].fill) || colors._default.fill;
               },
+            }],
+
+            midSeparator: ['Blank', {
+              height: 8,
+              visible: function() {
+                return true;
+              }
+            }],
+
+            substitution: ['DNA', {
+              height: 15,
+              baseLine: 15,
+              textFont: LineStyles.dna.text.font,
+              textColour: (_base, _base_pos) =>  {return this.colorWhiteText(_replacement.changeableBases, _replacement.subSeqOffset ,_base_pos);},
+              lineHighlightColor: (_base) => {return this.highlightBlueText(_base);},
+              
+              getSubSeq: function() { return _replacement.paddedReplacementCodon; } 
+            }],
+
+            bottomSeparator: ['Blank', {
+              height: 8,
+              visible: function() {
+                return true;
+              }
             }],
 
 
@@ -397,11 +437,11 @@ define(function(require) {
           replacement.bestEndBase = replacement.allMatches[0].endBase;
           
 
-          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset) * 10;
+          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset);
           if(marginOffset < 0) { marginOffset = 0; }
 
-          replacement.marginOffset = marginOffset;
-
+          replacement.paddedReplacementCodon = " ".repeat(marginOffset) + replacement.bestReplacementCodon;
+          replacement.marginOffset = marginOffset * 10
       }) 
 
     },

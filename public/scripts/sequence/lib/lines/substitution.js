@@ -8,7 +8,6 @@ Options are:
 - `this.textFont`: font style of the text.
 - `this.transformUnit` _(optional, default: `base`)_: argument passed to the `transform` function. Either `base` or `codon`.
 - `this.transform` _(optional)_: function transforming a `transformUnit` into another (e.g. complement..)
-- `this.lineHighlightColor` _(optional): function taking the character as an argument giving color of the text highlight
 @class Lines.DNA
 @module Sequence
 @submodule SequenceCanvas
@@ -18,15 +17,15 @@ define(function(require) {
   var Line = require('./line'),
       DNA;
 
-  DNA = function(sequenceCanvas, options) {
-    this.type = 'dna';
+  SUBSTITUTION = function(sequenceCanvas, options) {
+    this.type = 'substitution';
     this.sequenceCanvas = sequenceCanvas;
     this.cachedProperties = ['visible'];
     _.extend(this, options);
   };
   _.extend(DNA.prototype, Line.prototype);
 
-  DNA.prototype.setTextColour = function(base, pos) {
+  SUBSTITUTION.prototype.setTextColour = function(base, pos) {
     var artist = this.sequenceCanvas.artist;
     if(_.isFunction(this.textColour)) {
       artist.updateStyle({fillStyle: this.textColour(base, pos)});
@@ -35,15 +34,11 @@ define(function(require) {
     }
   };
 
-  DNA.prototype.getHighlightColour = function(base, pos) {
+  SUBSTITUTION.prototype.getHighlightColour = function(base, pos) {
     return this.highlightColour && this.highlightColour(base, pos);
   };
 
-  DNA.prototype.getLineHighlightColour = function(base) {
-    return this.lineHighlightColor(base);
-  };
-
-  DNA.prototype.draw = function(y, baseRange) { 
+  SUBSTITUTION.prototype.draw = function(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
@@ -66,14 +61,6 @@ define(function(require) {
     if(subSequence) {
       for(k = 0; k < lh.basesPerRow; k++){
         if(!subSequence[k]) break;
-        //console.log(subSequence[k])
-        if (_.isFunction(this.lineHighlightColor)) {
-          
-          var lhc = this.getLineHighlightColour(subSequence[k]); 
-          console.log(lhc)
-          artist.rect(x, y-3, ls.basePairDims.width, this.height+6, { fillStyle: lhc});
-        }
-
         if (!this.drawSingleStickyEnds || !sequence.isBeyondStickyEnd(k+baseRange[0], this.isComplement)){
           character = _.isFunction(this.transform) ?
             this.transform.call(sequence, k+baseRange[0]) :
@@ -115,5 +102,5 @@ define(function(require) {
 
   };
 
-  return DNA;
+  return SUBSTITUTION;
 });
