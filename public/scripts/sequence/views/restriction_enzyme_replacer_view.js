@@ -346,26 +346,33 @@ define(function(require) {
       var matchNum= 0;
 
       this.replacements = _.reduce(matches, function(memo, n, key) {
+        console.log("_reduce")
+        console.log(memo)
+        console.log(n)
+        console.log(key)
+        console.log(matchNum)
         matchNum++
         var matchString= String(matchNum);
         memo[matchString]={
           allMatches: []
         }
         var match = n[0];
+        
         var paddedSubSeq= sequence.getPaddedSubSeq(key, (Number(key) + match.seq.length - 1), 3, 0);
         var subSeq = paddedSubSeq.subSeq;
         var paddingOffset = key - paddedSubSeq.startBase;
         
         var getAASubSeq = function(sequence) { 
-          return _.map(sequence.match(/.{1,3}/g), SequenceTranforms.codonToAALong);
+          return _.map(sequence.match(/.{3}/g), SequenceTranforms.codonToAALong);
         };
 
         var baseAA= getAASubSeq(subSeq);
+        var aaData= SynbioData.codonOptimisations;
         // Get all possible substitutes
-        for(var i=0; i<baseAA.length; i++){
+        for(var i=0; i<baseAA.length; i += 1){
           var aminoAcid= baseAA[i];
-          var aaData= SynbioData.codonOptimisations;
-          var currentCodon= subSeq.match(/.{1,3}/g)[i];
+          
+          var currentCodon= subSeq.match(/.{3}/g)[i];
 
           var potentialCodons = _.clone(aaData[currentCodon]);
 
@@ -390,6 +397,11 @@ define(function(require) {
               } 
 
             } 
+
+            // check if codon is targeting a codon defined in reading frame
+            //console.log("codon")
+            //console.log(paddingOffset);
+            //console.log(i)
           }
 
           var codons= _.without(potentialCodons, ...codonsToRemove);
@@ -442,7 +454,7 @@ define(function(require) {
           replacement.bestEndBase = replacement.allMatches[0].endBase;
           
 
-          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset) + 1;
+          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset);
           if(marginOffset < 0) { marginOffset = 0; }
 
           replacement.paddedReplacementCodon = " ".repeat(marginOffset) + replacement.bestReplacementCodon;

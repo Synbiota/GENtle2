@@ -153,6 +153,8 @@ RestrictionEnzymes.getAllInSeq = function(seq, options = {}) {
   return matches;
 };
 
+
+
 RestrictionEnzymes.maxLength = _.memoize(function() {
   return _.max(_.map(RestrictionEnzymes.all(), function(enzyme) {
     return enzyme.seq.length;
