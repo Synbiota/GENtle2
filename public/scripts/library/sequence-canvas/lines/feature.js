@@ -2,6 +2,7 @@ import Line from './line';
 import _ from 'underscore';
 import switchSequenceContext from './_switch_sequence_context';
 import SVG from 'svg.js';
+import svgTextEllipsis from 'gentle-utils/svg_text_ellipsis';
 
 /**
 Line class for displaying bases on SequenceCanvas. 
@@ -120,18 +121,18 @@ class Feature extends Line {
         features, startX, endX, deltaX, textWidth, backgroundFillStyle, textColour;
 
     var row = sequenceCanvas.getRowFromYPos(y);
+    var textPadding = this.textPadding;
 
     features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     y += (this.topMargin || 0);
 
-    for(var i = 0; i < features.length; i++) {
-      var feature = features[i],
-          j = 0;
+    window.sequenceCanvas = sequenceCanvas
 
+
+    _.each(features, (feature, i) => {
       // Features can have multiple ranges
       var ranges = this.filterRanges(baseRange[0], baseRange[1], feature.ranges);
-      for(j = 0; j < ranges.length; j++) {
-        var range = ranges[j];
+      _.each(ranges, (range) => {
 
         var frm = range.from;
         var to = range.to;
@@ -156,51 +157,75 @@ class Feature extends Line {
 
         let groupId = `svg-feature-${feature._id}-${baseRange[0]}-${baseRange[1]}`;
 
-        console.log(SVG.get(groupId), $('#'+groupId))
+        // console.log(SVG.get(groupId), $('#'+groupId))
         if(SVG.get(groupId)) return;
 
-        let shape = rowGroup.group().addClass('feature').attr('id', groupId);
+        let featureClass = `svg-feature-${feature._id}`;
+        let shape = rowGroup.group().addClass(
+          `feature feature-type-${feature._type} ${featureClass}`
+        ).attr('id', groupId);
+
+        shape.move(
+          startX, 
+          y + this.margin + i*this.unitHeight + layoutHelpers.yOffset
+        );
+
+        shape.rect(
+          deltaX,
+          this.unitHeight - this.margin
+        ).addClass('event-region');
         
         shape.rect(
           deltaX, 
           this.lineSize
-        ).move(
-          startX, 
-          y + this.margin + i*this.unitHeight + layoutHelpers.yOffset
-        ).fill(backgroundFillStyle);
+        );
 
-        shape.text(
-          feature.name
-        ).move(
-          startX,
-          y + this.margin + i * this.unitHeight + layoutHelpers.yOffset
-        ).fill(textColour);
+        let text = shape.plain().move(
+          textPadding,
+          0
+        );
 
-        return;
+        svgTextEllipsis(text.node, feature.name, deltaX - textPadding * 2);
 
-        artist.rect(startX,
-                    y + this.margin + i*this.unitHeight,
-                    deltaX,
-                    this.lineSize,
-                    {
-                      fillStyle: backgroundFillStyle
-                    });
+        shape.rect(
+          text.bbox().width + this.textPadding * 2,
+          this.unitHeight - this.margin
+        ).backward();
 
-        artist.text(feature.name,
-                    startX,
-                    y + this.margin + i * this.unitHeight,
-                    {
-                      font: this.textFont,
-                      fillStyle: textColour,
-                      lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
-                      height: this.unitHeight - this.margin,
-                      textPadding: this.textPadding,
-                      backgroundFillStyle: backgroundFillStyle
-                    });
+        shape.on('mouseover', function() {
+          // SVG.select('.'+featureClass).addClass('active')
+          sequenceCanvas.highlightBaseRange(range.from, range.to)
+          console.log('lapin', range)
+        });
 
-      }
+        shape.on('mouseleave', function() {
+          // SVG.select('.'+featureClass).removeClass('active')
+          sequenceCanvas.highlightBaseRange()
+        });
 
-    }
+        // artist.rect(startX,
+        //             y + this.margin + i*this.unitHeight,
+        //             deltaX,
+        //             this.lineSize,
+        //             {
+        //               fillStyle: backgroundFillStyle
+        //             });
+
+        // artist.text(feature.name,
+        //             startX,
+        //             y + this.margin + i * this.unitHeight,
+        //             {
+        //               font: this.textFont,
+        //               fillStyle: textColour,
+        //               lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
+        //               height: this.unitHeight - this.margin,
+        //               textPadding: this.textPadding,
+        //               backgroundFillStyle: backgroundFillStyle
+        //             });
+
+      });
+
+    });
 
   }
 }

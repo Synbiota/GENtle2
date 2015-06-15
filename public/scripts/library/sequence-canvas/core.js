@@ -335,7 +335,6 @@ class SequenceCanvasCore {
       } else {
 
         artist.clear();
-        svg.clear();
         drawStart = 0;
         drawEnd = canvasHeight;
 
@@ -353,7 +352,7 @@ class SequenceCanvasCore {
   drawHighlight(posY, baseRange) {
     var layoutHelpers = this.layoutHelpers;
     var startX = this.getXPosFromBase(baseRange[0]);
-    var endX = this.getXPosFromBase(baseRange[1]);
+    var endX = this.getXPosFromBase(baseRange[1]) + this.layoutSettings.basePairDims.width;
 
     this.artist.rect(startX, posY, endX - startX, layoutHelpers.rows.height, {
       fillStyle: '#fcf8e3'
@@ -427,6 +426,7 @@ class SequenceCanvasCore {
     }
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
+      .then(() => this.svg.clear())
       .then(this.redraw)
       .done();
   }
@@ -533,7 +533,7 @@ class SequenceCanvasCore {
       this.highlight = [fromBase, toBase];
     }
 
-    this.refresh();
+    this.display();
   }
 
   /**
