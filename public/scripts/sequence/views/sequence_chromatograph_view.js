@@ -2,6 +2,7 @@ import template from '../templates/sequence_edition_view.hbs';
 import SequenceCanvas from '../lib/sequence_canvas';
 import Gentle from 'gentle';
 import ContextMenuView from '../../common/views/context_menu_view';
+import ChromatographMapView from '../../linear_map/views/linear_chromatograph_view';
 import LinearMapView from '../../linear_map/views/linear_map_view';
 import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
 import MatchedEnzymesView from './matched_enzymes_view';
@@ -41,6 +42,12 @@ export default Backbone.View.extend({
       .value();
 
     secondaryViews.push({
+      name: 'chromatograph',
+      title: 'Chromatograph Map',
+      view:   ChromatographMapView
+    });
+
+    secondaryViews.push({
       name: 'linear',
       title: 'Linear map',
       view: LinearMapView
@@ -52,7 +59,8 @@ export default Backbone.View.extend({
       view: PlasmidMapView
     });
 
-    currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
+    // currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
+    currentView = 'chromatograph';
 
     // if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
     //   currentView = 'linear';
@@ -82,7 +90,9 @@ export default Backbone.View.extend({
   changeSecondaryView: function(viewName, render) {
     var secondaryViewClass = _.findWhere(this.secondaryViews, {name: viewName});
     if(this.secondaryView) this.secondaryView.remove();
-    this.secondaryView = new secondaryViewClass.view();
+    this.secondaryView = new secondaryViewClass.view({
+      horizontal: true
+    });
 
     this.model.set('displaySettings.secondaryView', viewName).throttledSave();
 
