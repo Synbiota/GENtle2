@@ -3,9 +3,9 @@ import Sequence from './sequence';
 
 
 class TemporarySequenceModel extends Sequence {
-  save() {
-    // noop
-    return this;
+  constructor(attributes, options={}) {
+    options.disabledSave = true;
+    super(attributes, options);
   }
 
   asSequence() {

@@ -60,8 +60,14 @@ function sequenceModelFactory(BackboneModel) {
    */
   class Sequence extends BackboneModel {
 
-    constructor(attributes, options) {
-      // Make model instance as not validated yet.  Commented out as "'this'
+    /**
+     * @constructor
+     * @param  {Object} attributes
+     * @param  {Object} options  List of available options:
+     *                     `disabledSave`
+     */
+    constructor(attributes, options={}) {
+      // Mark model instance as not validated yet.  Commented out as "'this'
       // is not allowed before super()"
       // this._validated = false;
 
@@ -69,6 +75,7 @@ function sequenceModelFactory(BackboneModel) {
       attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
 
       super(attributes, options);
+      this.disabledSave = options.disabledSave;
 
       this.validateFields(attributes);
 
@@ -221,8 +228,8 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     transformAttributeValue(attribute, val) {
-      if(_.has(associations, attribute)) {
-        let association = associations[attribute];
+      let association = associations[attribute];
+      if(association) {
         // `doNotValidated` and `this._validated` only relevant to the
         // constructor and skipping validation of associated child models.
         val = instantiate(association, val, {parentSequence: this, doNotValidated: !this._validated});
@@ -1437,6 +1444,11 @@ function sequenceModelFactory(BackboneModel) {
 
     getLength(stickyEndFormat=undefined) {
       return this.getSequence(stickyEndFormat).length;
+    }
+
+    save() {
+      if(this.disabledSave) return this;
+      return super.save();
     }
 
     throttledSave() {
