@@ -2,7 +2,7 @@ import {optimalPrimer4} from '../../pcr/lib/primer_calculation';
 import _ from 'underscore.mixed';
 import Q from 'q';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
-import Product from '../../pcr/lib/product';
+import Product from './product';
 import SequenceRange from '../../../library/sequence-model/range';
 import {findUniversalPrimersHelper} from './universal_primers';
 import errors from './errors';

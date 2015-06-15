@@ -6,7 +6,6 @@ import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import Product from '../../pcr/lib/product';
 import errors from '../lib/errors';
 import _ from 'underscore';
 

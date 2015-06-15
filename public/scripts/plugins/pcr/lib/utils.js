@@ -1,4 +1,3 @@
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import stickyEnds from '../../../common/lib/sticky_ends';
 import _ from 'underscore';
 
@@ -29,26 +28,7 @@ var transformStickyEndData = function(stickyEndAttributes) {
 
 
 var getPcrProductsFromSequence = function(sequenceModel) {
-  var attributesOfPcrProducts = sequenceModel.get('meta.pcr.products') || [];
-
-  attributesOfPcrProducts = _.each(attributesOfPcrProducts, (productAttributes) => {
-    //Backwards compatibility.  Some of the pcr products were stored without the sequence attribute calculated.
-    if(!productAttributes.sequence) {
-      var sequenceNts = sequenceModel.getSequence();
-      var opts = _.pick(productAttributes, ['from', 'to', 'stickyEnds']);
-      var {productSequence: productSequenceNts} = TemporarySequence.calculateProduct(sequenceNts, opts);
-      productAttributes.sequence = productSequenceNts;
-    }
-
-    //Backwards compatibility.  Some of the pcr products were stored with incomplete stickyEnd data.
-    productAttributes.stickyEnds = transformStickyEndData(productAttributes.stickyEnds);
-    productAttributes._type = 'pcr_product';
-  });
-
-  var products = _.map(attributesOfPcrProducts, (productAttributes) => new TemporarySequence(productAttributes));
-
-  // if(products.length) debugger
-  return products;
+  return sequenceModel.get('PcrProducts') || [];
 };
 
 

@@ -1,7 +1,7 @@
 import Gentle from 'gentle';
 import View from './views/sequencing_primers_view';
 import SequenceModel from '../../sequence/models/sequence';
-import SequencingProduct from '../pcr/lib/product';
+import SequencingProduct from './lib/product';
 import SequenceRange from '../../library/sequence-model/range';
 
 
