@@ -1,3 +1,6 @@
+// TODO implement and test conversion from old to new feature and range
+// instances
+
 import _ from 'underscore.mixed';
 
 

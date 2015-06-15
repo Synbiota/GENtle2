@@ -326,22 +326,34 @@ function sequenceModelFactory(BackboneModel) {
 
     getFeatures(stickyEndFormat = undefined) {
       stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
-      var adjustedFeatures = _.deepClone(super.get('features'));
       var length = this.getLength(stickyEndFormat);
+      let offset = this.getOffset(stickyEndFormat);
+      let maxValue = offset + length;
 
       var filterAndAdjustRanges = function(offset, maxValue, feature) {
         feature.ranges = _.filter(feature.ranges, function(range) {
-          return range.from < maxValue && range.to >= offset;
+          let include;
+          if(range instanceof SequenceRange) {
+            include = range.from < maxValue && range.to > offset;
+          } else {
+            if(range.from <= range.to) {
+              include = range.from < maxValue && range.to >= offset;
+            } else {
+              // going in reverse
+              include = range.to < (maxValue - 2) && range.from >= offset;
+            }
+          }
+          return include;
         });
+
         _.each(feature.ranges, function(range) {
           range.from =  Math.max(Math.min(range.from - offset, length -1), 0);
           range.to =  Math.max(Math.min(range.to - offset, length -1), 0);
         });
       };
 
-      let offset = this.getOffset(stickyEndFormat);
-      let maxValue = offset + length;
       let func = _.partial(filterAndAdjustRanges, offset, maxValue);
+      let adjustedFeatures = _.deepClone(super.get('features'));
       _.map(adjustedFeatures, func);
       adjustedFeatures = _.reject(adjustedFeatures, (feature) => !feature.ranges.length);
 
