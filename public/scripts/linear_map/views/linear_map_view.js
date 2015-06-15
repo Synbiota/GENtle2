@@ -19,15 +19,15 @@ export default Backbone.View.extend({
     this.model = Gentle.currentSequence;
     this.minFeatureWidth = 4;
     this.topFeatureOffset = 0;
-    
-    _.bindAll(this, 
-      'scrollSequenceCanvas', 
+
+    _.bindAll(this,
+      'scrollSequenceCanvas',
       'updateScrollHelperPosition',
       'refresh'
     );
 
     this.listenTo(
-      this.model, 
+      this.model,
       'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
       _.debounce(this.refresh, 500),
       this
@@ -66,7 +66,7 @@ export default Backbone.View.extend({
     for(var i = 0; i < this.features.length; i++) {
       feature = this.features[i];
       featureWidth = Math.max(
-        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
+        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight),
         this.minFeatureWidth
       );
       $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
@@ -124,7 +124,7 @@ export default Backbone.View.extend({
     } else {
       this.enzymes = [];
     }
-    
+
     if(render !== false) this.render();
   },
 
@@ -197,7 +197,7 @@ export default Backbone.View.extend({
     this.$scrollHelper = $scrollHelper;
 
     $scrollHelper.height(Math.floor(
-      scrollingParentHeight / 
+      scrollingParentHeight /
       scrollingChildHeight *
       elemHeight
     )).draggable({
@@ -217,8 +217,8 @@ export default Backbone.View.extend({
 
     if($scrollHelper) {
       $scrollHelper.css({
-        top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset / 
-                          scrollingChildHeight * 
+        top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
+                          scrollingChildHeight *
                           elemHeight)
       });
     }
@@ -227,7 +227,7 @@ export default Backbone.View.extend({
   scrollSequenceCanvas: function() {
     this.sequenceCanvas.scrollTo(Math.floor(
       this.$scrollHelper.position().top /
-      this.$el.height() * 
+      this.$el.height() *
       this.sequenceCanvas.$scrollingChild.height()
     ), false);
   },
@@ -239,7 +239,7 @@ export default Backbone.View.extend({
       this.sequenceCanvas = sequenceCanvas;
 
       sequenceCanvas.on(
-        'scroll', 
+        'scroll',
         this.updateScrollHelperPosition
       );
 

@@ -2,7 +2,7 @@ import template from '../templates/sequence_edition_view.hbs';
 import SequenceCanvas from '../lib/sequence_canvas';
 import Gentle from 'gentle';
 import ContextMenuView from '../../common/views/context_menu_view';
-import ChromatographMapView from '../../linear_map/views/linear_chromatograph_view';
+import ChromatographMapView from '../../chromatograph_map/views/chromatograph_map_view';
 import LinearMapView from '../../linear_map/views/linear_map_view';
 import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
 import MatchedEnzymesView from './matched_enzymes_view';

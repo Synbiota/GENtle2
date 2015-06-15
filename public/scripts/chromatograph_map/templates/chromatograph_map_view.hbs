@@ -1,0 +1,22 @@
+<div class="chromatograph-map-visible-range"></div>
+<div class="chromatograph-map-position-marks">
+  {{#each positionMarks}}
+    <div class="chromatograph-map-position-mark" data-base="{{base}}" style="top: {{top}}px;">
+      {{label}}
+    </div>
+  {{/each}}
+</div>
+<div class="chromatograph-map-features">
+  {{#each features}}
+    <div href="#" class="chromatograph-map-feature chromatograph-map-feature-{{type}}" data-feature_id="{{id}}">
+      {{name}}
+    </div>
+  {{/each}}
+</div>
+<div class="chromatograph-map-enzymes">
+  {{#each enzymes}}
+    <div href="#" class="chromatograph-map-enzyme" data-position="{{position}}">
+      <span>{{label}}</span>
+    </div>
+  {{/each}}
+</div>

@@ -1,13 +1,13 @@
 import Backbone from 'backbone';
 import Gentle from 'gentle';
-import template from '../templates/linear_map_view.hbs';
+import template from '../templates/chromatograph_map_view.hbs';
 import _ from 'underscore';
 import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
 
 export default Backbone.View.extend({
   manage: true,
   template: template,
-  className: 'linear-map',
+  className: 'chromatograph-map',
   minPositionMarkInterval: 60,
   initialRender: true,
 
@@ -33,8 +33,6 @@ export default Backbone.View.extend({
       _.debounce(this.refresh, 500),
       this
     );
-
-    this.$el.addClass( this.horizontal ? 'horizontal' : 'vertical');
 
   },
 

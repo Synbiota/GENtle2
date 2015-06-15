@@ -1,30 +1,33 @@
-.linear-map {
+.chromatograph-map {
   position: fixed;
-  // top: 81px;
-  top: 111px;
-  right: 0;
-  bottom: 0;
-  width: 150px;
 
-  .linear-map-canvas {
+    left: 50px;
+    right: 0;
+    top: 110;
+    height: 70px;
+
+  .chromatograph-map-visible-range {
+    top: 0;
     height: 100%;
-    position: absolute;
   }
 
-  .linear-map-visible-range {
-    position: absolute;
-    left: 0;
-    width: 100%;
-    background: rgba(20,20,20, .1);
-    cursor: move;
-  }
+  // .chromatograph-map-canvas {
+  //   height: 100%;
+  //   position: absolute;
+  // }
 
-  .linear-map-features {
+  // .chromatograph-map-visible-range {
+  //   position: absolute;
+  //   background: rgba(20,20,20, .1);
+  //   cursor: move;
+  // }
+
+  .chromatograph-map-features {
     position: absolute;
     right: 0;
     $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"), "features"), "color");
 
-    .linear-map-feature {
+    .chromatograph-map-feature {
       cursor: pointer;
       font-size: 10px;
       box-sizing: border-box;
@@ -42,14 +45,14 @@
       // TODO: IE8 vertical text
 
       @for $i from 0 to 4 {
-        &.linear-map-feature-stacked-#{$i} {
+        &.chromatograph-map-feature-stacked-#{$i} {
           left: -2px - 17px * $i;
         }
       }
 
       @each $feature-type, $v in $__colors {
         @if $feature-type != '_default' {
-          &.linear-map-feature-#{$feature-type} {
+          &.chromatograph-map-feature-#{$feature-type} {
             color: map_get($v, 'color');
             background: map_get($v, 'fill');
           }
@@ -62,31 +65,33 @@
     }
   }
 
-  .linear-map-position-marks {
+  .chromatograph-map-position-marks {
     @include user-select(none);
     cursor: default;
-    .linear-map-position-mark {
+    .chromatograph-map-position-mark {
 
       position: absolute;
       font-family: Monospace;
       font-size: 10px;
       color: #005;
-      border-top: 1px solid #888;
+
+      border-left: 1px solid #888;
       &:first-child {
-        border-top: none;
+        border-left: none;
       }
+
     }
   }
 
   $res-color: map_get(map_get(map_get(map_get(map_get($shared-styles, 'sequences'), 'lines'), 'RES'), 'text'), 'color');
 
-  .linear-map-enzymes {
+  .chromatograph-map-enzymes {
     position: relative;
     height: 100%;
     z-index: 1;
   }
 
-  .linear-map-enzyme {
+  .chromatograph-map-enzyme {
     position: absolute;
     left: 0;
     font: 10px Monospace;
