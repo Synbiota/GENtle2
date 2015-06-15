@@ -43,8 +43,8 @@ var defaultLines = function(sequence) {
       unitHeight: 10,
       textFont: LineStyles.RES.text.font,
       textColour: LineStyles.RES.text.color,
-      get displaySettings() { 
-        return sequence.get('displaySettings.rows.res') || {}; 
+      get displaySettings() {
+        return sequence.get('displaySettings.rows.res') || {};
       },
       visible: function() {
         return sequence.get('displaySettings.rows.res.display');
@@ -150,6 +150,7 @@ var defaultLines = function(sequence) {
 
 export default class SequenceCanvas extends SequenceCanvasMixin {
   constructor(options = {}) {
+
     var sequence = options.sequence;
     _.defaults(options, {
       lines: defaultLines(sequence),
