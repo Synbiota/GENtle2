@@ -80,6 +80,8 @@ class SequenceCanvasCore {
     **/
     this.$scrollingParent = $container.find('.scrolling-parent');
 
+    this.$childrenContainer = $container.find('.children-container');
+
     this.$canvas = $container.find('canvas');
 
     /**
@@ -123,6 +125,7 @@ class SequenceCanvasCore {
 
     this.artist = new Artist(this.$canvas);
     this.svg = svg(this.$scrollingChild[0]);
+
     this.caret = new Caret({
       $container: this.$scrollingChild,
       className: 'sequence-canvas-caret',
@@ -301,7 +304,6 @@ class SequenceCanvasCore {
   **/
   display() {
     var artist = this.artist,
-      svg = this.svg,
       ls = this.layoutSettings,
       lh = this.layoutHelpers,
       yOffset = lh.yOffset,
@@ -426,7 +428,10 @@ class SequenceCanvasCore {
     }
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
-      .then(() => this.svg.clear())
+      .then(() => {
+        this.svg.clear();
+        this.$childrenContainer.empty();
+      })
       .then(this.redraw)
       .done();
   }
@@ -744,6 +749,10 @@ class SequenceCanvasCore {
       cursor: style
     });
   } 
+
+  destroy() {
+    this.sequence.off(null, this.refresh);
+  }
 
 
 }

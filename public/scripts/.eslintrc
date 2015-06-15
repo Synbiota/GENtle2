@@ -7,7 +7,8 @@
     "strict": 0,
     "curly": 0,
     "quotes": [1, "single"],
-    "space-infix-ops": 0
+    "space-infix-ops": 0,
+    "eol-last": 0
   },
   "globals": {
     "requestAnimationFrame": true

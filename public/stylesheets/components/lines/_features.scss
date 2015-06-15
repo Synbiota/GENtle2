@@ -1,0 +1,76 @@
+.sequence-canvas-wrapper {
+  $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"), "features"), "color");
+  .feature {
+    font-family: Monospace;
+    font-size: 10px;
+
+    rect.event-region {
+      fill: none !important;
+      pointer-events: all;
+    }
+
+    cursor: pointer;
+    
+    rect, polygon {
+      fill: lighten(map_get(map_get($__colors, '_default'), 'fill'), 10%);
+    }
+
+    text {
+      fill: map_get(map_get($__colors, '_default'), 'color');
+    }
+
+    .feature-label {
+      background-color: lighten(map_get(map_get($__colors, '_default'), 'fill'), 10%); 
+      color: map_get(map_get($__colors, '_default'), 'color');
+    }
+
+    &.active {
+      rect, polygon {
+        fill: map_get(map_get($__colors, '_default'), 'fill');
+      }
+      .feature-label {
+        background-color: map_get(map_get($__colors, '_default'), 'fill');
+      }
+    }
+
+    @each $feature-type, $v in $__colors {
+      @if $feature-type != '_default' {
+        &.feature-#{$feature-type} {
+          rect, polygon {
+            fill: lighten(map_get($v, 'fill'), 20%);
+          }
+
+          &.active {
+            rect, polygon {
+              fill: map_get($v, 'fill');
+            }
+          }
+
+          text {
+            fill: map_get($v, 'color');
+          }
+        }
+      }
+    }
+  }
+
+  .feature-label {
+    font-family: Monospace;
+    font-size: 10px;
+    line-height: 10px;
+    height: 10px;
+    position: absolute;
+    padding: 0 3px;
+    pointer-events: none;
+    @include text-overflow();
+    @each $feature-type, $v in $__colors {
+      @if $feature-type != '_default' {
+        &.feature-#{$feature-type} {
+          color: map_get($v, 'color');
+        }
+      }
+    }
+  }
+
+
+}

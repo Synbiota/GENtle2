@@ -1,8 +1,25 @@
 import Line from './line';
 import _ from 'underscore';
 import switchSequenceContext from './_switch_sequence_context';
+import drawAnnotation from './_feature_draw_annotation';
+import drawPrimer from './_feature_draw_primer';
 import SVG from 'svg.js';
-import svgTextEllipsis from 'gentle-utils/svg_text_ellipsis';
+
+
+function onMouseOver(sequenceCanvas, featureClass, rangeFrom, rangeTo) {
+  SVG.select('.'+featureClass).addClass('active');
+  sequenceCanvas.highlightBaseRange(rangeFrom, rangeTo);
+}
+
+function onMouseLeave(sequenceCanvas, featureClass) {
+  SVG.select('.'+featureClass).removeClass('active');
+  sequenceCanvas.highlightBaseRange();
+}
+
+function onMouseDown(sequenceCanvas, rangeFrom, rangeTo, event) {
+  event.stopPropagation();
+  sequenceCanvas.select(rangeFrom, rangeTo);
+}
 
 /**
 Line class for displaying bases on SequenceCanvas. 
@@ -110,23 +127,16 @@ class Feature extends Line {
   @param {array} baseRange 
   **/
   draw(y, baseRange) {
-    var sequenceCanvas  = this.sequenceCanvas,
-        layoutSettings  = sequenceCanvas.layoutSettings,
-        layoutHelpers   = sequenceCanvas.layoutHelpers,
-        sequence        = sequenceCanvas.sequence,
-        artist          = sequenceCanvas.artist,
-        basesPerBlock   = layoutSettings.basesPerBlock,
-        baseWidth       = layoutSettings.basePairDims.width,
-        gutterWidth     = layoutSettings.gutterWidth,
-        features, startX, endX, deltaX, textWidth, backgroundFillStyle, textColour;
+    var sequenceCanvas = this.sequenceCanvas;
+    var {layoutSettings, svg} = sequenceCanvas;
+    var baseWidth = layoutSettings.basePairDims.width;
+    var row = sequenceCanvas.getAbsRowFromYPos(y);
 
-    var row = sequenceCanvas.getRowFromYPos(y);
-    var textPadding = this.textPadding;
+    var featuresRowClass = `features-row-${row}`;
+    if(document.getElementsByClassName(featuresRowClass).length) return;
 
-    features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
-    y += (this.topMargin || 0);
-
-    window.sequenceCanvas = sequenceCanvas
+    var features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
+    y += (this.topMargin || 0) + sequenceCanvas.layoutHelpers.yOffset;
 
 
     _.each(features, (feature, i) => {
@@ -136,92 +146,48 @@ class Feature extends Line {
 
         var frm = range.from;
         var to = range.to;
-        var reversed = false;
+
         if(range.from > range.to) {
           frm = range.to + 1;
           to = range.from;
-          reversed = true;
         }
 
-        startX = sequenceCanvas.getXPosFromBase(Math.max(frm, baseRange[0]));
-        endX   = sequenceCanvas.getXPosFromBase(Math.min(to, baseRange[1]));
-        deltaX = endX - startX + 1 + baseWidth;
+        var startX = sequenceCanvas.getXPosFromBase(Math.max(frm, baseRange[0]));
+        var endX   = sequenceCanvas.getXPosFromBase(Math.min(to, baseRange[1]));
+        var deltaX = endX - startX + 1 + baseWidth;
 
-        backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
-        textColour  = _.isFunction(this.textColour) ? this.textColour(feature._type) : this.textColour;
+        var groupId = `svg-feature-${feature._id}-${baseRange[0]}-${baseRange[1]}`;
 
+        if(SVG.get(groupId)) return null;
 
-        let svg = sequenceCanvas.svg;
-        let rowGroupId = `svg-row-${row}`;
-        let rowGroup = SVG.get(rowGroupId) || svg.group(rowGroupId).attr('id', rowGroupId);
-
-        let groupId = `svg-feature-${feature._id}-${baseRange[0]}-${baseRange[1]}`;
-
-        // console.log(SVG.get(groupId), $('#'+groupId))
-        if(SVG.get(groupId)) return;
-
-        let featureClass = `svg-feature-${feature._id}`;
-        let shape = rowGroup.group().addClass(
-          `feature feature-type-${feature._type} ${featureClass}`
+        var featureClass = `svg-feature-${feature._id}`;
+        var shape = svg.group().addClass(
+          `feature ${featuresRowClass} feature-type-${feature._type} ${featureClass}`
         ).attr('id', groupId);
 
-        shape.move(
-          startX, 
-          y + this.margin + i*this.unitHeight + layoutHelpers.yOffset
-        );
+        var currentY = y + i*this.unitHeight;
 
-        shape.rect(
-          deltaX,
-          this.unitHeight - this.margin
-        ).addClass('event-region');
-        
-        shape.rect(
-          deltaX, 
-          this.lineSize
-        );
-
-        let text = shape.plain().move(
-          textPadding,
-          0
-        );
-
-        svgTextEllipsis(text.node, feature.name, deltaX - textPadding * 2);
-
-        shape.rect(
-          text.bbox().width + this.textPadding * 2,
-          this.unitHeight - this.margin
-        ).backward();
-
-        shape.on('mouseover', function() {
-          // SVG.select('.'+featureClass).addClass('active')
-          sequenceCanvas.highlightBaseRange(range.from, range.to)
-          console.log('lapin', range)
+        (feature._type === 'primer' ? drawPrimer : drawAnnotation)(this, shape, {
+          feature, range, row, startX, deltaX, i, baseRange, 
+          y: currentY,
+          rangeFrom: frm,
+          rangeTo: to
         });
 
-        shape.on('mouseleave', function() {
-          // SVG.select('.'+featureClass).removeClass('active')
-          sequenceCanvas.highlightBaseRange()
-        });
+        shape.on('mouseover', _.partial(
+          onMouseOver, 
+          sequenceCanvas, featureClass, range.from, range.to
+        ));
 
-        // artist.rect(startX,
-        //             y + this.margin + i*this.unitHeight,
-        //             deltaX,
-        //             this.lineSize,
-        //             {
-        //               fillStyle: backgroundFillStyle
-        //             });
+        shape.on('mouseleave', _.partial(
+          onMouseLeave, 
+          sequenceCanvas, featureClass
+        ));
 
-        // artist.text(feature.name,
-        //             startX,
-        //             y + this.margin + i * this.unitHeight,
-        //             {
-        //               font: this.textFont,
-        //               fillStyle: textColour,
-        //               lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
-        //               height: this.unitHeight - this.margin,
-        //               textPadding: this.textPadding,
-        //               backgroundFillStyle: backgroundFillStyle
-        //             });
+        shape.on('mousedown', _.partial(
+          onMouseDown, 
+          sequenceCanvas, range.from, range.to
+        ));
 
       });
 

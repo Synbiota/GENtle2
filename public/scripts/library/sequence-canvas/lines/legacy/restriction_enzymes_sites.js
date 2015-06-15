@@ -1,7 +1,6 @@
 import Line from './line';
 import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import {each} from 'underscore';
-import tracedLog from '../../../common/lib/traced_log';
 
 class RestrictionEnzymeSites extends Line {
 
@@ -51,21 +50,13 @@ class RestrictionEnzymeSites extends Line {
         _this = this;
 
     y -= 2; // Styling
-    y += layoutHelpers.yOffset;
 
-    var row = sequenceCanvas.getAbsRowFromYPos(y);
-    var rowClass = `res-sites-row-${row}`;
-    if(document.getElementsByClassName(rowClass).length) return;
-
-    // artist.updateStyle({
-    //   strokeStyle: '#59955C',
-    //   lineWidth: 1
-    // });
-    // 
-    var i = -1;
+    artist.updateStyle({
+      strokeStyle: '#59955C',
+      lineWidth: 1
+    });
 
     each(enzymes, function(enzymes_, position) {
-      i++;
       position = +position - (baseRange[0] === 0 ? 0 : subSeqPadding);
       initPosition = position;
 
@@ -83,27 +74,27 @@ class RestrictionEnzymeSites extends Line {
 
         // Line above DNA
         if(enzyme.cut > 0 && position <= baseRangeLength && position + enzyme.cut > 0) {
-          points.push(
-            [_this.getBaseX(position, baseRange, !negativeOffset), y + dnaY],
-            [_this.getBaseX(initPosition + enzyme.cut, baseRange, negativeOffset), y + dnaY]
-          );
+          points = points.concat([
+            _this.getBaseX(position, baseRange, !negativeOffset), y + dnaY,
+            _this.getBaseX(initPosition + enzyme.cut, baseRange, negativeOffset), y + dnaY
+          ]);
         }
 
         // First cut
         position = (negativeOffset ? initPosition : position) + enzyme.cut;
         if(position >= 0 && position < baseRangeLength) {
           x = _this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0);
-          points.push(
-            [x, y + dnaY],
-            [x, y + complementsY]
+          points = points.concat(
+            x, y + dnaY,
+            x, y + complementsY
           );
         }
 
         // Line below DNA
         if((negativeOffset && position > 0 && position + enzyme.offset <= baseRangeLength) || position <= baseRangeLength && position + enzyme.offset > 0) {
-          points.push(
-            [_this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0), y + complementsY],
-            [_this.getBaseX(position + enzyme.offset, baseRange), y + complementsY]
+          points = points.concat(
+            _this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0), y + complementsY,
+            _this.getBaseX(position + enzyme.offset, baseRange), y + complementsY
           );
         }
 
@@ -111,9 +102,9 @@ class RestrictionEnzymeSites extends Line {
         position += enzyme.offset;
         if(position >= 0 && position < baseRangeLength) {
           x = _this.getBaseX(position, baseRange);
-          points.push(
-            [x, y + complementsY],
-            [x, y + complementsY + complementsHeight]
+          points = points.concat(
+            x, y + complementsY,
+            x, y + complementsY + complementsHeight
           );
         }
 
@@ -122,20 +113,16 @@ class RestrictionEnzymeSites extends Line {
           x = _this.getBaseX(position, baseRange);
           x2 = _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange);
           if(x !== x2) {
-            points.push(
-              [_this.getBaseX(position, baseRange), 
-                            y + complementsY + complementsHeight],
-              [_this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
-                            y + complementsY + complementsHeight]
+            points = points.concat(
+              _this.getBaseX(position, baseRange), 
+              y + complementsY + complementsHeight,
+              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
+              y + complementsY + complementsHeight
             );
           }
         }
 
-        var resClass = `res-${initPosition + baseRange[0]}`;
-        
-        sequenceCanvas.svg
-          .polyline(points)
-          .addClass(`res-site ${rowClass} ${resClass}`).dmove(-1, 0);
+        if(points.length) artist.path(...points);
 
       });
     });

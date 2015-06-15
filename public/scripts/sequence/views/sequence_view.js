@@ -37,6 +37,8 @@
 
       this.initPrimaryViews();
       this.initStatusbarView();
+
+      this.on('empty', function() { console.log('haha')})
     },
 
     analyzeFragment: function(fragment){
@@ -166,9 +168,8 @@
       return this.sequenceSettingsView.$el.width();
     },
 
-    remove: function() {
+    cleanup: function() {
       $(window).off('resize', this.handleResize);
-      Backbone.View.prototype.remove.apply(this, arguments);
     }
 
   });
