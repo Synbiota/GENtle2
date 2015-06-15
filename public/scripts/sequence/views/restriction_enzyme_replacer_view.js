@@ -73,7 +73,6 @@ define(function(require) {
 
 
         for (obj in this.replacements) {
-          console.log(_replacement)
           let _replacement = this.replacements[obj];
           let paddedSubSeq= _replacement.paddedSubSeq;
           let tempSequence = new Sequence({
@@ -203,7 +202,6 @@ define(function(require) {
           };
         
           let canvasId = `.sequence-canvas-container-${obj - 1} canvas`;
-          console.log(canvasId)
           this.tempSequenceCanvas = new SequenceCanvas({
             view: this,
             $canvas: this.$(canvasId).first(),
@@ -212,8 +210,7 @@ define(function(require) {
           });
 
           this.tempSequenceCanvas.refresh();
-          console.log("subseq");
-          console.log(_replacement.subSeqOffset);
+          
         }; // forEach
 
 
@@ -297,13 +294,8 @@ define(function(require) {
 
       if(event) { event.preventDefault();}
       var sequence = this.sequence;
-      //var sequenceCanvas = this.sequenceCanvas;
-      //console.log(this.replacements);
 
       _.each(this.replacements, function(replacement) {
-        console.log("replacing " + replacement.bestReplacementCodon);
-
-        //console.log(sequence);
 
         sequence.deleteBases(replacement.bestStartBase, 3, true);
         sequence.insertBases(replacement.bestReplacementCodon, replacement.bestStartBase, true);
@@ -346,11 +338,7 @@ define(function(require) {
       var matchNum= 0;
 
       this.replacements = _.reduce(matches, function(memo, n, key) {
-        console.log("_reduce")
-        console.log(memo)
-        console.log(n)
-        console.log(key)
-        console.log(matchNum)
+
         matchNum++
         var matchString= String(matchNum);
         memo[matchString]={
@@ -398,10 +386,6 @@ define(function(require) {
 
             } 
 
-            // check if codon is targeting a codon defined in reading frame
-            //console.log("codon")
-            //console.log(paddingOffset);
-            //console.log(i)
           }
 
           var codons= _.without(potentialCodons, ...codonsToRemove);
@@ -431,7 +415,7 @@ define(function(require) {
       }, {});
   
       _.each(this.replacements, function(replacement) {
-        console.log("replacement", replacement);
+
         // Get all the bases that can be changed
 
 
