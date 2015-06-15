@@ -1,11 +1,21 @@
 <div class="chromatograph-map-visible-range"></div>
 <div class="chromatograph-map-position-marks">
   {{#each positionMarks}}
-    <div class="chromatograph-map-position-mark" data-base="{{base}}" style="top: {{top}}px;">
+    <div class="chromatograph-map-position-mark" data-base="{{base}}" style="left: {{offset}}px;">
       {{label}}
     </div>
   {{/each}}
 </div>
+
+<div class="chromtagraph-map-fragments">
+  {{#each fragments}}
+    <div href="#" class="chromatograph-map-sequence chromatograph-map-fragment">
+    </div>
+  {{/each}}
+</div>
+
+
+
 <div class="chromatograph-map-features">
   {{#each features}}
     <div href="#" class="chromatograph-map-feature chromatograph-map-feature-{{type}}" data-feature_id="{{id}}">

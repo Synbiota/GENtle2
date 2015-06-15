@@ -36,6 +36,22 @@ export default Backbone.View.extend({
 
   },
 
+  processFragments: function() {
+    var id = -1,
+        _this = this;
+
+    this.fragments = [];
+
+    _.forEach(this.model.getFragments(), function(fragment){
+      _this.fragment.push({
+        name: fragment.name,
+        id: ++id,
+        from: fragment.from,
+        to: fragment.to
+      });
+    });
+  },
+
   processFeatures: function() {
     var id = -1,
         _this = this;
@@ -108,8 +124,7 @@ export default Backbone.View.extend({
     } else {
       return {
         features: this.features,
-        verticalPositionMarks: this.verticalPositionMarks,
-        horizontalPositionMarks: this.horizontalPositionMarks,
+        positionMarks: this.positionMarks,
         enzymes: this.enzymes
       };
     }
@@ -133,13 +148,14 @@ export default Backbone.View.extend({
 
   processPositionMarks: function() {
     var sequenceCanvas = this.sequenceCanvas,
-        length = this.horizontal ? this.$el.width() : this.$el.height(),
+        length = this.$el.width(),
         maxBase = sequenceCanvas.maxVisibleBase(),
         magnitudeOrder = Math.floor(Math.log10(maxBase)),
         divider = Math.pow(10, magnitudeOrder - 1),
-        maxBaseForCalc = Math.ceil(maxBase / divider) * divider,
-        positionMarks = [];
+        maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
 
+
+    this.positionMarks = [];
     this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
     this.maxBaseForCalc = maxBaseForCalc;
 
@@ -155,15 +171,8 @@ export default Backbone.View.extend({
             offset: Math.floor(i / maxBase * length)
           };
 
-      positionMarks.push(data);
+      this.positionMarks.push(data);
     }
-
-    if (this.horizontal){
-      this.horizontalPositionMarks = positionMarks;
-    } else {
-      this.verticalPositionMarks = positionMarks;
-    }
-
 
   },
 
