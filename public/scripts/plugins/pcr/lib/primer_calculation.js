@@ -34,7 +34,7 @@ var logger = function(...msg) {
 
 /**
  * @function _getSequenceToSearch
- * function abstracted to aid testing.  Ultimately it sets several attributes on
+ * function extracted to aid testing.  Ultimately it sets several attributes on
  * the potentialPrimerModel including:
  *   * totalSequenceLength
  *   * frm
@@ -334,7 +334,11 @@ class PotentialPrimer {
       var scores = _.map(assessedPrimerAttributes, _.bind(this.scorePrimer, this));
       var optimalIndex = _.indexOf(scores, _.max(scores));
       var nearestBestPrimerAttributes = assessedPrimerAttributes[optimalIndex];
-      return this.toPrimer(nearestBestPrimerAttributes);
+      if(nearestBestPrimerAttributes) {
+        return this.toPrimer(nearestBestPrimerAttributes);
+      } else {
+        return nearestBestPrimerAttributes;
+      }
     });
     return promiseNearestBestPrimer;
   }
@@ -412,7 +416,7 @@ class PotentialPrimer {
 var optimalPrimer4 = function(sequenceModel, sequenceOptions, opts) {
   sequenceOptions = _.defaults(sequenceOptions, {
     from: 0,
-    maxSearchSpace: sequenceModel.getLength(sequenceModel.STICKY_END_FULL),
+    maxSearchSpace: opts.maxSearchSpace,
     findOnReverseStrand: false,
   });
 

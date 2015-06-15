@@ -36,10 +36,9 @@ var savePcrProductsToSequence = function(sequenceModel, products = []) {
   if(!_.isArray(products)) throw `Expected an array: ${JSON.stringify(products)}`;
 
   var attributesOfPcrProducts = _.map(products, function(product) {
-    // Originally the model attributes were just stored and handled as a hash,
+    // Originally the model attributes were just stored and handled as an object,
     // we now want to use a model to handle them.
-    // We use Backbone's toJSON to convert both the vanilla hashes and
-    // backbone models into vanilla hashes.
+    // We use Backbone's toJSON to convert backbone models into vanilla objects.
     return (product.toJSON && product.toJSON()) || product;
   });
 
