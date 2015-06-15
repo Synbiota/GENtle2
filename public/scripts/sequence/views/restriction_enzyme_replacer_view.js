@@ -39,10 +39,10 @@ define(function(require) {
       } 
     },
 
-    colorRedText: function(changeableBases, offset, _base_pos) {
+    colorRESText: function(changeableBases, offset, _base_pos) {
       _base_pos = Number(_base_pos) + Number(offset);
       if (_.includes(changeableBases, _base_pos)) {
-        return "#FF0000";
+        return "#000000";
       } else {
         return LineStyles.complements.text.color;
       }
@@ -132,7 +132,7 @@ define(function(require) {
               baseLine: 15,
               drawSingleStickyEnds: true,
               textFont: LineStyles.dna.text.font,
-              textColour: (_base, _base_pos) =>  {return this.colorRedText(_replacement.changeableBases, _replacement.subSeqOffset ,_base_pos);},
+              textColour: (_base, _base_pos) =>  {return this.colorRESText(_replacement.changeableBases, _replacement.subSeqOffset ,_base_pos);},
               selectionColour: LineStyles.dna.selection.fill,
               selectionTextColour: LineStyles.dna.selection.color
             }],
