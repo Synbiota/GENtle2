@@ -1,7 +1,7 @@
 import template from '../templates/pcr_list_view.hbs';
-import {fastAExportSequenceFromID, getProductAndSequenceForSequenceID} from '../../../common/lib/utils';
+import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
-import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import {getPcrProductsFromSequence} from '../lib/utils';
 import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 import _ from 'underscore';
 
