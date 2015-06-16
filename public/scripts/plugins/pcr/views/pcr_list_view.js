@@ -14,16 +14,36 @@ export default Backbone.View.extend({
   events: {
     'click .show-pcr-product': 'showPcrProduct',
     'click .panel-title': 'showPcrProduct',
-    'click .delete-pcr-product': 'deletePcrProduct',
+    // 'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
     'click .export-sequence': 'exportSequence',
     'click .selectable-sequence': 'selectSequence',
   },
 
   serialize: function() {
-    return {
-      products: _.map(this.getProducts(), (product) => product.toJSON()),
+    var convertChildSequence = function(childSequence) {
+      var attributes = childSequence.toJSON();
+      attributes.sequence = childSequence.getSequence(childSequence.parentSequence.STICKY_END_FULL);
+      attributes.from = childSequence.range.from;
+      attributes.length = childSequence.range.size;
+      attributes.to = childSequence.range.to;
+      return attributes;
     };
+
+    var attributes = {
+      products: _.map(this.getProducts(), (product) => {
+        var attributes = product.toJSON();
+        delete attributes.meta.associations;
+        var forwardPrimer = product.get('forwardPrimer');
+        var reversePrimer = product.get('reversePrimer');
+        attributes.forwardPrimer = convertChildSequence(forwardPrimer);
+        attributes.reversePrimer = convertChildSequence(reversePrimer);
+        attributes.forwardPrimer.annealingRegion = convertChildSequence(forwardPrimer.annealingRegion);
+        attributes.reversePrimer.annealingRegion = convertChildSequence(reversePrimer.annealingRegion);
+        return attributes;
+      }),
+    };
+    return attributes;
   },
 
   showProduct: function(product) {
@@ -47,7 +67,7 @@ export default Backbone.View.extend({
   },
 
   getProducts: function() {
-    return getPcrProductsFromSequence(this.model);
+    return this.showingProduct ? [this.showingProduct] : []; //getPcrProductsFromSequence(this.model);
   },
 
   getProduct: function(event) {
@@ -64,12 +84,12 @@ export default Backbone.View.extend({
     }
   },
 
-  deletePcrProduct: function(event) {
-    var product = this.getProduct(event);
-    if(product) {
-      this.parentView().deleteProduct(product);
-    }
-  },
+  // deletePcrProduct: function(event) {
+  //   var product = this.getProduct(event);
+  //   if(product) {
+  //     this.parentView().deleteProduct(product);
+  //   }
+  // },
 
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
