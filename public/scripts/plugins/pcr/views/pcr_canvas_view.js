@@ -37,9 +37,11 @@ export default Backbone.View.extend({
 
     if(!this.product) return defaultColor;
 
-    if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
+    let forwardPrimer = this.product.get('forwardPrimer');
+    let reversePrimer = this.product.get('reversePrimer');
+    if(pos > forwardPrimer.range.to && pos <= reversePrimer.range.to) {
       return defaultColor;
-    } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
+    } else if(pos >= forwardPrimer.annealingRegion.range.from && pos <= reversePrimer.annealingRegion.range.from){
       return colors.annealingRegion.fill;
     } else {
       return colors.stickyEnd.fill;
