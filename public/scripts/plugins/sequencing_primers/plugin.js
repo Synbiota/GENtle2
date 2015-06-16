@@ -1,8 +1,10 @@
+import _ from 'underscore';
 import Gentle from 'gentle';
 import View from './views/sequencing_primers_view';
 import SequenceModel from '../../sequence/models/sequence';
 import SequencingProduct from './lib/product';
 import SequenceRange from '../../library/sequence-model/range';
+import {version1GenericPreProcessor} from '../utils';
 
 
 Gentle.addPlugin('sequence-primary-view', {
@@ -14,7 +16,7 @@ Gentle.addPlugin('sequence-primary-view', {
 
 
 /**
- * @function version0to1PreProcessor
+ * @function version0to1SequencingProductPreProcessor
  * Transforms data from:
  *     {
  *     meta: {
@@ -54,7 +56,7 @@ Gentle.addPlugin('sequence-primary-view', {
  * @param  {Object} attributes
  * @return {Object}
  */
-let version0to1PreProcessor = function(attributes) {
+let version0to1SequencingProductPreProcessor = function(attributes) {
   if(_.isObject(attributes.meta) && _.isObject(attributes.meta.sequencingPrimers)) {
     attributes.meta.associations = attributes.meta.associations || {};
     attributes.meta.associations.sequencingProducts = _.map(attributes.meta.sequencingPrimers.products, function(product) {
@@ -74,35 +76,8 @@ let version0to1PreProcessor = function(attributes) {
 };
 
 
-/**
- * @function version1PreProcessor
- *
- * Transforms data from:
- *     {
- *     meta: {
- *       associations: {
- *         sequencingProducts: [...
- *
- * To:
- *     {
- *     sequencingProducts: [...
- *
- * @param  {Object} attributes
- * @return {Object}
- */
-let version1PreProcessor = function(attributes) {
-  if(_.isObject(attributes.meta) && 
-     _.isObject(attributes.meta.associations) && 
-     attributes.meta.associations.sequencingProducts) {
-    attributes.sequencingProducts = attributes.meta.associations.sequencingProducts;
-    delete attributes.meta.associations.sequencingProducts;
-    if(!_.keys(attributes.meta.associations).length) delete attributes.meta.associations;
-    if(!_.keys(attributes.meta).length) delete attributes.meta;
-  }
-  return attributes;
-};
+var version1SequencingProductPreProcessor = version1GenericPreProcessor('sequencingProducts');
 
-
+SequenceModel.registerPreProcessor(version0to1SequencingProductPreProcessor);
+SequenceModel.registerPreProcessor(version1SequencingProductPreProcessor);
 SequenceModel.registerAssociation(SequencingProduct, 'sequencingProduct', true);
-SequenceModel.registerPreProcessor(version0to1PreProcessor);
-SequenceModel.registerPreProcessor(version1PreProcessor);
