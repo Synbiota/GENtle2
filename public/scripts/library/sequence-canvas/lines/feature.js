@@ -4,21 +4,33 @@ import switchSequenceContext from './_switch_sequence_context';
 import drawAnnotation from './_feature_draw_annotation';
 import drawPrimer from './_feature_draw_primer';
 import SVG from 'svg.js';
+import tooltip from 'gentle-utils/tooltip';
+import tooltipTemplate from './_feature_tooltip_template.html';
 
 
-function onMouseOver(sequenceCanvas, featureClass, rangeFrom, rangeTo) {
+function onMouseOver(sequenceCanvas, featureClass, name, rangeFrom, rangeTo) {
   SVG.select('.'+featureClass).addClass('active');
+  tooltip.show(tooltipTemplate({
+    name,
+    from: _.formatThousands(rangeFrom + 1),
+    to: _.formatThousands(rangeTo + 1),
+    size: _.formatThousands(rangeTo - rangeFrom + 1)
+  }));
   sequenceCanvas.highlightBaseRange(rangeFrom, rangeTo);
 }
 
 function onMouseLeave(sequenceCanvas, featureClass) {
   SVG.select('.'+featureClass).removeClass('active');
+  tooltip.hide();
   sequenceCanvas.highlightBaseRange();
 }
 
 function onMouseDown(sequenceCanvas, rangeFrom, rangeTo, event) {
   event.stopPropagation();
   sequenceCanvas.select(rangeFrom, rangeTo);
+  sequenceCanvas.scrollBaseToVisibility(rangeTo).then(function() {
+    sequenceCanvas.displayCaret(rangeTo+1)
+  })
 }
 
 /**
@@ -176,7 +188,7 @@ class Feature extends Line {
 
         shape.on('mouseover', _.partial(
           onMouseOver, 
-          sequenceCanvas, featureClass, range.from, range.to
+          sequenceCanvas, featureClass, feature.name, range.from, range.to
         ));
 
         shape.on('mouseleave', _.partial(

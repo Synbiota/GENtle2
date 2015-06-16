@@ -23,10 +23,4 @@ Backbone.View.prototype.parentView = function(depth) {
   return parent;
 };
 
-var f = Backbone.Layout.prototype.remove;
-Backbone.Layout.prototype.remove = function() {
-  console.log('LAPIN')
-  f.apply(this, arguments);
-}
-
 module.exports = Backbone;

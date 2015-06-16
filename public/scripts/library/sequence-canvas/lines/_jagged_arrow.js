@@ -62,7 +62,6 @@ export default function drawJaggedArrow(shape, {
   }
 
   shape.move(Math.floor(fromX)+0.5, Math.floor(fromY)+0.5);
-  console.log('rotate', angle)
   shape.rotate(angle);
   shape.polygon(points);
 

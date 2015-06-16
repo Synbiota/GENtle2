@@ -12,5 +12,8 @@
   },
   "globals": {
     "requestAnimationFrame": true
+  },
+  "env": {
+    "browser": true
   }
 }

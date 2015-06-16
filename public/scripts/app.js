@@ -20,6 +20,8 @@ import blast from './plugins/blast/plugin';
 import pcr from './plugins/pcr/plugin';
 import sequencing_primers from './plugins/sequencing_primers/plugin';
 
+import tooltip from 'gentle-utils/tooltip';
+
 var plugins = [ncbi, designer, blast, pcr, sequencing_primers];
 
 Gentle.config = config;
@@ -51,6 +53,7 @@ window.testProcess = process.env;
 $(function() {
   Gentle.layout = new Layout();
   Backbone.history.start();
+  Gentle.layout.on('afterRender', () => tooltip.insert())
 
   _.each(_.where(Gentle.plugins, {type: 'init'}), function(plugin) {
     if(plugin.data.afterDomReady) plugin.data.afterDomReady(Gentle);

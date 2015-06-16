@@ -37,8 +37,6 @@
 
       this.initPrimaryViews();
       this.initStatusbarView();
-
-      this.on('empty', function() { console.log('haha')})
     },
 
     analyzeFragment: function(fragment){
