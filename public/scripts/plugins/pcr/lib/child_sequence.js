@@ -18,12 +18,12 @@ class ChildSequence {
     _.each(this.allFields, (field) => {
       let writable = true;
       let configurable = true;
-      if(_.has(attributes, field)) {
+      let enumerable = !_.contains(this.nonEnumerableFields, field);
+      if(_.has(attributes, field) || !enumerable) {
         // Makes non-enumerable fields we want to remain hidden and only used by
         // the class instance.  e.g. Which won't be found with `for(x of this)`
-        let enumerable = !_.contains(this.nonEnumerableFields, field);
         if(!enumerable) {
-          configurable = writable = false;
+          configurable = false;
         }
         let value = attributes[field];
         Object.defineProperty(this, field, {enumerable, value, writable, configurable});

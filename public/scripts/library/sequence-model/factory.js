@@ -109,6 +109,8 @@ function sequenceModelFactory(BackboneModel) {
           }
         }
       });
+
+      this.setNonEnumerableFields();
     }
 
     get STICKY_END_FULL() {
@@ -158,8 +160,33 @@ function sequenceModelFactory(BackboneModel) {
         'reverse',
         'readOnly',
         'isCircular',
-        'stickyEndFormat'
+        'stickyEndFormat',
+        'parentSequence',
       ];
+    }
+
+    /**
+     * @method  nonEnumerableFields
+     * @return {Array}
+     */
+    get nonEnumerableFields() {
+      return [
+        'parentSequence',
+      ];
+    }
+
+    setNonEnumerableFields() {
+      _.each(this.nonEnumerableFields, (fieldName) => {
+        // Makes non-enumerable fields we want to remain hidden and only used by
+        // the class instance.  e.g. Which won't be found with `for(x of this.attributes)`
+        var configurable = false;
+        var writable = true;
+        var enumerable = false;
+        var value = this.attributes[fieldName];
+        if(_.has(this.attributes, fieldName)) {
+          Object.defineProperty(this.attributes, fieldName, {enumerable, value, writable, configurable});
+        }
+      });
     }
 
     validateFields(attributes) {
@@ -226,7 +253,9 @@ function sequenceModelFactory(BackboneModel) {
           attribute[attr] = this.transformAttributeValue(attr, val);
         });
       }
-      return super.set(attribute, value, options);
+      var ret = super.set(attribute, value, options);
+      this.setNonEnumerableFields();
+      return ret;
     }
 
     transformAttributeValue(attribute, val) {
@@ -1482,6 +1511,9 @@ function sequenceModelFactory(BackboneModel) {
           attributes.meta.associations[associationName] = attributes[associationName];
           delete attributes[associationName];
         }
+      });
+      _.each(this.nonEnumerableFields, function(fieldName) {
+        delete attributes[fieldName];
       });
       return attributes;
     }
