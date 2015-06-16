@@ -42,6 +42,7 @@ describe('Sequence model', function() {
     let products = sequenceModel.get('sequencingProducts');
     expect(products.length).toEqual(1);
     var product = products[0];
+    expect(product.version).toEqual(1);
     expect(product.range.from).toEqual(1);
     expect(product.range.size).toEqual(9);
     expect(product.range.reverse).toEqual(false);
@@ -57,6 +58,7 @@ describe('Sequence model', function() {
     expect(data.meta.associations.sequencingProducts).toBeTruthy();
     expect(data.meta.associations.sequencingProducts.length).toEqual(1);
     let product = data.meta.associations.sequencingProducts[0];
+    expect(product.version).toEqual(1);
     expect(product.primer.range.size).toEqual(3);
   });
 
@@ -66,6 +68,7 @@ describe('Sequence model', function() {
     let products = sequenceModel2.get('sequencingProducts');
     expect(products).toBeTruthy();
     expect(products.length).toEqual(1);
+    expect(products[0].version).toEqual(1);
     expect(products[0].primer.range.size).toEqual(3);
   });
 });

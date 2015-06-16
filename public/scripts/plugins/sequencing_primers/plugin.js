@@ -40,6 +40,7 @@ Gentle.addPlugin('sequence-primary-view', {
  *       associations: {
  *         sequencingProducts: [
  *           {
+ *             version: 1,
  *             range: {
  *               from: 1,
  *               size: 9,
@@ -60,6 +61,7 @@ let version0to1SequencingProductPreProcessor = function(attributes) {
   if(_.isObject(attributes.meta) && _.isObject(attributes.meta.sequencingPrimers)) {
     attributes.meta.associations = attributes.meta.associations || {};
     attributes.meta.associations.sequencingProducts = _.map(attributes.meta.sequencingPrimers.products, function(product) {
+      product.version = 1;
       product.range = SequenceRange.newFromOld(product, 'antisense', true);
       delete product.from;
       delete product.to;

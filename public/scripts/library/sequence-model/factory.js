@@ -151,6 +151,7 @@ function sequenceModelFactory(BackboneModel) {
       return [
         'id',
         'name',
+        'version',
         'desc',
         'stickyEnds',
         'features',
@@ -179,6 +180,7 @@ function sequenceModelFactory(BackboneModel) {
     defaults() {
       return {
         id: _.uniqueId(),
+        version: 0,
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),

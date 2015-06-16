@@ -12,6 +12,7 @@ class ChildSequence {
     _.defaults(attributes, {
       id: id,
       name: `Child sequence ${id}`,
+      version: 0,
     });
 
     _.each(this.allFields, (field) => {
@@ -67,6 +68,7 @@ class ChildSequence {
     return [
       'id',
       'name',
+      'version',
     ];
   }
 
