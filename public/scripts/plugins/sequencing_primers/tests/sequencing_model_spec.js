@@ -39,7 +39,7 @@ describe('Sequence model', function() {
     };
     sequenceModel = new SequenceModel(v0data);
 
-    let products = sequenceModel.get('SequencingProducts');
+    let products = sequenceModel.get('sequencingProducts');
     expect(products.length).toEqual(1);
     var product = products[0];
     expect(product.range.from).toEqual(1);
@@ -54,16 +54,16 @@ describe('Sequence model', function() {
     let data = sequenceModel.toJSON();
     expect(data.meta).toBeTruthy();
     expect(data.meta.associations).toBeTruthy();
-    expect(data.meta.associations.SequencingProducts).toBeTruthy();
-    expect(data.meta.associations.SequencingProducts.length).toEqual(1);
-    let product = data.meta.associations.SequencingProducts[0];
+    expect(data.meta.associations.sequencingProducts).toBeTruthy();
+    expect(data.meta.associations.sequencingProducts.length).toEqual(1);
+    let product = data.meta.associations.sequencingProducts[0];
     expect(product.primer.range.size).toEqual(3);
   });
 
   it('should deserialise from v1 data correctly', function() {
     let sequenceModel2 = new SequenceModel(sequenceModel.toJSON());
 
-    let products = sequenceModel2.get('SequencingProducts');
+    let products = sequenceModel2.get('sequencingProducts');
     expect(products).toBeTruthy();
     expect(products.length).toEqual(1);
     expect(products[0].primer.range.size).toEqual(3);

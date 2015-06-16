@@ -28,7 +28,7 @@ var transformStickyEndData = function(stickyEndAttributes) {
 
 
 var getPcrProductsFromSequence = function(sequenceModel) {
-  return sequenceModel.get('PcrProducts') || [];
+  return sequenceModel.get('pcrProducts') || [];
 };
 
 
@@ -41,8 +41,7 @@ var savePcrProductsToSequence = function(sequenceModel, products = []) {
     // We use Backbone's toJSON to convert backbone models into vanilla objects.
     return (product.toJSON && product.toJSON()) || product;
   });
-
-  return sequenceModel.set('meta.pcr.products', attributesOfPcrProducts).throttledSave();
+  return sequenceModel.set('pcrProducts', attributesOfPcrProducts).throttledSave();
 };
 
 

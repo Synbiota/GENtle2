@@ -56,7 +56,7 @@ export default class SequenceModel extends sequenceModelFactory(Backbone.DeepMod
   }
 
   clearSequencingPrimers() {
-    return this.clearObjectAttribute('SequencingProducts');
+    return this.clearObjectAttribute('sequencingProducts');
   }
 
   clearObjectAttribute(attribute) {

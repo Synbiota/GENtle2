@@ -22,7 +22,7 @@ export default Backbone.View.extend({
     this.model = Gentle.currentSequence;
 
     var products = this.getProducts();
-    this.model.set('SequencingProducts', products);
+    this.model.set('sequencingProducts', products);
 
     this.productsView = new ProductsView(); 
     this.setView('.sequencing-primers-products-container', this.productsView);
@@ -31,7 +31,7 @@ export default Backbone.View.extend({
   },
 
   getProducts: function () {
-    return this.model.get('SequencingProducts') || [];
+    return this.model.get('sequencingProducts') || [];
   },
 
   serialize: function() {
@@ -62,7 +62,7 @@ export default Backbone.View.extend({
       }
     })
     .then((results) => {
-      this.model.set('SequencingProducts', results).throttledSave();
+      this.model.set('sequencingProducts', results).throttledSave();
       this.render();
     })
     .catch((error) => {

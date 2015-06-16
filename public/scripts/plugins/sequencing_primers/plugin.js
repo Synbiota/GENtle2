@@ -36,7 +36,7 @@ Gentle.addPlugin('sequence-primary-view', {
  *     {
  *     meta: {
  *       associations: {
- *         SequencingProducts: [
+ *         sequencingProducts: [
  *           {
  *             range: {
  *               from: 1,
@@ -57,7 +57,7 @@ Gentle.addPlugin('sequence-primary-view', {
 let version0to1PreProcessor = function(attributes) {
   if(_.isObject(attributes.meta) && _.isObject(attributes.meta.sequencingPrimers)) {
     attributes.meta.associations = attributes.meta.associations || {};
-    attributes.meta.associations.SequencingProducts = _.map(attributes.meta.sequencingPrimers.products, function(product) {
+    attributes.meta.associations.sequencingProducts = _.map(attributes.meta.sequencingPrimers.products, function(product) {
       product.range = SequenceRange.newFromOld(product, 'antisense', true);
       delete product.from;
       delete product.to;
@@ -81,11 +81,11 @@ let version0to1PreProcessor = function(attributes) {
  *     {
  *     meta: {
  *       associations: {
- *         SequencingProducts: [...
+ *         sequencingProducts: [...
  *
  * To:
  *     {
- *     SequencingProducts: [...
+ *     sequencingProducts: [...
  *
  * @param  {Object} attributes
  * @return {Object}
@@ -93,9 +93,9 @@ let version0to1PreProcessor = function(attributes) {
 let version1PreProcessor = function(attributes) {
   if(_.isObject(attributes.meta) && 
      _.isObject(attributes.meta.associations) && 
-     attributes.meta.associations.SequencingProducts) {
-    attributes.SequencingProducts = attributes.meta.associations.SequencingProducts;
-    delete attributes.meta.associations.SequencingProducts;
+     attributes.meta.associations.sequencingProducts) {
+    attributes.sequencingProducts = attributes.meta.associations.sequencingProducts;
+    delete attributes.meta.associations.sequencingProducts;
     if(!_.keys(attributes.meta.associations).length) delete attributes.meta.associations;
     if(!_.keys(attributes.meta).length) delete attributes.meta;
   }
@@ -103,6 +103,6 @@ let version1PreProcessor = function(attributes) {
 };
 
 
-SequenceModel.registerAssociation(SequencingProduct, 'SequencingProduct', true);
+SequenceModel.registerAssociation(SequencingProduct, 'sequencingProduct', true);
 SequenceModel.registerPreProcessor(version0to1PreProcessor);
 SequenceModel.registerPreProcessor(version1PreProcessor);
