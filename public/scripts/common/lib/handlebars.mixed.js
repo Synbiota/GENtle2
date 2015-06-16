@@ -149,7 +149,7 @@ Handlebars.registerHelper('displaySequence', function(sequence) {
 
 Handlebars.registerHelper('displaySelectableSequence', function(sequenceModel) {
   var displaySelectableSequenceTemplate = require('../templates/display_selectable_sequence.hbs');
-  var sequence = sequenceModel;
+  var sequence = sequenceModel && sequenceModel.sequence || sequenceModel;
   if(_.isObject(sequenceModel) && _.isFunction(sequenceModel.getSequence)) {
     sequence = sequenceModel.getSequence(sequenceModel.STICKY_END_FULL);
   }
