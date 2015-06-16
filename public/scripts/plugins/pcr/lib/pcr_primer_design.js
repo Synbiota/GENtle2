@@ -99,6 +99,7 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
     frm = annealingFrom = pcrProductSequence.length - size;
   }
   return {
+    version: 1,
     name: name,
     range: {
       from: frm,
@@ -106,6 +107,7 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
       reverse: !isForward,
     },
     annealingRegion: {
+      version: 1,
       name: name + ' - Annealing Region',
       meltingTemperature: annealingPrimer.meltingTemperature,
       gcContent: annealingPrimer.gcContent,
@@ -141,6 +143,7 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
   var reversePrimer = preparePcrPrimerAttributesFromAnnealingPrimer(reverseAnnealingRegion, startStickyEnd, endStickyEnd, pcrProductSequence);
 
   var pcrProduct = new PcrProductSequence({
+    version: 1,
     name: opts.name,
     sequence: pcrProductSequence,
     forwardPrimer: forwardPrimer,
