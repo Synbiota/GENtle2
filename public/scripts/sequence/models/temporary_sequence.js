@@ -15,7 +15,7 @@ class TemporarySequenceModel extends Sequence {
 
 
 TemporarySequenceModel.ensureTemporary = function(sequence, silenceWarning=false) {
-  if(!(sequence.constructor instanceof TemporarySequenceModel)) {
+  if(!(sequence instanceof TemporarySequenceModel)) {
     if(!silenceWarning) {
       console.warn('Sequence should be a TemporarySequence');
     }
