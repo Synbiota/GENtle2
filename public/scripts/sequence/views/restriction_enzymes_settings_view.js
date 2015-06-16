@@ -2,7 +2,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import DisplaySettingsView from './display_settings_view';
 import Gentle from 'gentle';
-import RestrictionEnzymes from '../lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import RestrictionEnzymesSettingsListView from './restriction_enzymes_settings_list_view';
 import template from '../templates/restriction_enzymes_settings_view.hbs';
 

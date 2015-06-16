@@ -1,4 +1,4 @@
-define(function(require){
+// define(function(require){
 
   var Backbone = require('backbone'),
       template = require('../templates/sequence_analysis_view.hbs'),
@@ -104,6 +104,6 @@ define(function(require){
 
   })
 
-  return SequenceAnalysisView;
-
-})
+  // return SequenceAnalysisView;
+export default SequenceAnalysisView;
+// })

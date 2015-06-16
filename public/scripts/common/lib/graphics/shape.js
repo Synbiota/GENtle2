@@ -1,8 +1,8 @@
 /**
 @class Shape
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = function() {};
-
-  return Shape;
-});
+export default Shape;
+  // return Shape;
+// });

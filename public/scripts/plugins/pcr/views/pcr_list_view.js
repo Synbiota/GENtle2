@@ -1,7 +1,9 @@
 import template from '../templates/pcr_list_view.hbs';
-import {fastAExportSequenceFromID} from '../../../common/lib/utils';
+import {fastAExportSequenceFromID, getProductAndSequenceForSequenceID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
+import _ from 'underscore';
 
 
 export default Backbone.View.extend({
@@ -15,6 +17,7 @@ export default Backbone.View.extend({
     'click .delete-pcr-product': 'deletePcrProduct',
     'click .open-pcr-product': 'openPcrProduct',
     'click .export-sequence': 'exportSequence',
+    'click .selectable-sequence': 'selectSequence',
   },
 
   serialize: function() {
@@ -30,8 +33,10 @@ export default Backbone.View.extend({
   afterRender: function() {
     var showingProduct = this.showingProduct;
     if(showingProduct) {
-      var id = showingProduct.get('id');
-      this.$(`[data-product_id="${id}"]`).addClass('panel-info');
+      let id = showingProduct.get('id');
+      let $element = this.$(`[data-product_id="${id}"]`);
+      $element.addClass('panel-info');
+      $element.find('.selectable-sequence').first().select();
       this.scrollToProduct(id);
       this.parentView().showCanvas(showingProduct);
     }
@@ -68,8 +73,25 @@ export default Backbone.View.extend({
 
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
+
     if(product) {
-      Gentle.addSequencesAndNavigate([product.asSequence()]);
+      product = product.toJSON();
+
+      let stickyEnds = product.stickyEnds;
+
+      product.features = _.where(product.features, {
+        _type: 'sticky_end'
+      }).concat({
+        _type: 'misc',
+        name: `${stickyEnds.start.name}-${product.name}-${stickyEnds.end.name}`,
+        desc: '',
+        ranges: [{
+          from: 0,
+          to: product.sequence.length
+        }]
+      });
+    
+      Gentle.addSequencesAndNavigate([product]);
     }
   },
 
@@ -79,9 +101,12 @@ export default Backbone.View.extend({
     fastAExportSequenceFromID(products, sequenceID);
   },
 
+  selectSequence: onClickSelectableSequence,
+
   scrollToProduct: function(productId) {
-    var $container = this.$('#pcr-list-outer-container');
+    var $container = $('#pcr-list-outer-container');
     var $target = this.$('[data-product_id="' + productId + '"]');
+    // debugger
     $container.scrollTop($target.offset().top);
   },
 

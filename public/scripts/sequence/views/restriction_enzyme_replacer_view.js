@@ -3,14 +3,14 @@
 @module Sequence
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/restriction_enzyme_replacer_view.hbs'),
     Backbone = require('backbone'),
-    SequenceTranforms = require('../lib/sequence_transforms'),
+    SequenceTranforms = require('gentle-sequence-transforms'),
     SynbioData = require('../../common/lib/synbio_data'),
-    RestrictionEnzymes= require('../lib/restriction_enzymes'),
+    RestrictionEnzymes= require('gentle-restriction-enzymes'),
     Sequence = require('../models/sequence'),
-    SequenceCanvas = require('../lib/sequence_canvas'),
+    SequenceCanvas = require('gentle-sequence-canvas'),
     Styles = require('../../styles.json'),
     CondonSubView;
 
@@ -57,7 +57,7 @@ define(function(require) {
     highlightBlueText: function(_base) {
 
       if (_base == " ")
-        { return "#d3d3d3"; }
+        { return "#ffffff"; }
       else
         { return "#428BCA"; }
     },
@@ -66,20 +66,21 @@ define(function(require) {
     afterRender: function() {
 
       if (this.showModal === true){
+        this.sequenceCanvases = [];
         $("#condonSubModal").modal("show");
         // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart.       
         //for (var i=1; i <= Object.keys(this.replacements).length; i++) {
         //this.replacements.forEach(function(_replacement) {
 
 
-        for (obj in this.replacements) {
-          let _replacement = this.replacements[obj];
+        _.each(this.replacements, (_replacement, i) => {
+          i = i^0 + 1;
           let paddedSubSeq= _replacement.paddedSubSeq;
           let tempSequence = new Sequence({
             sequence: paddedSubSeq.subSeq,
             displaySettings: {
               rows: {
-                aaOffset: 0,
+                aaOffset: (paddedSubSeq.startBase) % 3,
                 hasGutters: false,
                 res: {
                   manual: ['BsaI', 'NotI']
@@ -90,14 +91,8 @@ define(function(require) {
           });
 
           let sequenceCanvasLines = {
-            // Blank line
-            topSeparator: ['Blank', {
-              height: 5,
-              visible: function() {
-                return false;
-              }
-            }],
 
+            topSeparator: ['Blank', {height: 5}],
 
             position: ['Position', {
               height: 15,
@@ -148,33 +143,7 @@ define(function(require) {
               getSubSeq: _.partial(tempSequence.getTransformedSubSeq, 'complements', {}),
             }],
 
-            // Annotations
-            features: ['Feature', {
-              unitHeight: 15,
-              baseLine: 10,
-              textFont: LineStyles.features.font,
-              topMargin: 3,
-              textColour: function(type) {
-                var colors = LineStyles.features.color;
-                type = 'type-'+type.toLowerCase();
-                return (colors[type] && colors[type].color) || colors._default.color;
-              },
-              textPadding: 2,
-              margin: 2,
-              lineSize: 2,
-              colour: function(type) {
-                var colors = LineStyles.features.color;
-                type = 'type-'+type.toLowerCase();
-                return (colors[type] && colors[type].fill) || colors._default.fill;
-              },
-            }],
-
-            midSeparator: ['Blank', {
-              height: 8,
-              visible: function() {
-                return true;
-              }
-            }],
+            substitutionSeparator: ['Blank', {height: 2}],
 
             substitution: ['DNA', {
               height: 15,
@@ -186,32 +155,33 @@ define(function(require) {
               getSubSeq: function() { return _replacement.paddedReplacementCodon; } 
             }],
 
-            bottomSeparator: ['Blank', {
-              height: 8,
-              visible: function() {
-                return true;
-              }
-            }],
-
-
-
             // Restriction Enzyme Sites
-            restrictionEnzymeSites: ['RestrictionEnzymeSites', {
+            restrictionEnzymeSites: ['RestrictionEnzymesSites', {
               floating: true,
             }],
           };
         
-          let canvasId = `.sequence-canvas-container-${obj - 1} canvas`;
-          this.tempSequenceCanvas = new SequenceCanvas({
-            view: this,
-            $canvas: this.$(canvasId).first(),
+          // let canvasId = `.sequence-canvas-container-${obj - 1} canvas`;
+          // let tempSequenceCanvas = new SequenceCanvas({
+          //   view: this,
+          //   $canvas: this.$(canvasId).first(),
+          //   sequence: tempSequence,
+          //   lines: sequenceCanvasLines
+          // });
+
+          var tempSequenceCanvas = new SequenceCanvas({
             sequence: tempSequence,
-            lines: sequenceCanvasLines
+            container: this.$(`.sequence-canvas-outlet-${i}`).first(),
+            lines: sequenceCanvasLines,
+            layoutSettings: {
+              basesPerBlock: 10
+            }
           });
 
-          this.tempSequenceCanvas.refresh();
+          tempSequenceCanvas.refresh();
+          this.sequenceCanvases.push(tempSequenceCanvas);
           
-        }; // forEach
+        }); // forEach
 
 
 
@@ -438,7 +408,7 @@ define(function(require) {
           replacement.bestEndBase = replacement.allMatches[0].endBase;
           
 
-          marginOffset = (replacement.bestStartBase - replacement.subSeqOffset);
+          var marginOffset = (replacement.bestStartBase - replacement.subSeqOffset);
           if(marginOffset < 0) { marginOffset = 0; }
 
           replacement.paddedReplacementCodon = " ".repeat(marginOffset) + replacement.bestReplacementCodon;
@@ -449,5 +419,5 @@ define(function(require) {
 
   });
 
-  return CondonSubView;
-});
+  export default CondonSubView;
+// });

@@ -3,7 +3,7 @@
 @extends Shape
 @module Graphics
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       Path;
 
@@ -34,6 +34,6 @@ define(function(require) {
 
     context.stroke();
   };
-
-  return Path;
-});
+export default Path;
+  // return Path;
+// });

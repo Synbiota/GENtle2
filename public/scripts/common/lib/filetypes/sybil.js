@@ -10,7 +10,12 @@ var getArrayElementName = function(key) {
 
 var convertToXML = function(data, namespace) {
   var formatKeyName = function(key) { 
-    return _.snakify(key).replace(/_/g, '-');
+    var prefix = '';
+    if(key[0] === '_') {
+      prefix = 'underscore-';
+      key = key.substr(1, key.length-1);
+    }
+    return prefix + _.snakify(key).replace(/_/g, '-');
   };
   var createElement = function(key) {
     return $('<'+formatKeyName(key)+'/>');
@@ -39,7 +44,12 @@ var convertToXML = function(data, namespace) {
 
 var convertToObject = function(xml) {
   var formatKey = function(string) {
-    return _.camelize(string.toLowerCase());
+    var prefix = '';
+    if(/^underscore\-/.test(string)) {
+      prefix = '_';
+      string = string.substr("underscore-".length, string.length-1);
+    }
+    return prefix + _.camelize(string.toLowerCase());
   };
   var formatContent = function(string) {
     return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;

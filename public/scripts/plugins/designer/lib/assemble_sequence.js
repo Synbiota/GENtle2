@@ -126,9 +126,9 @@ class AssembleSequenceModel {
     var finalSequence = SequenceModel.concatenateSequences(this.sequences, this.model.get('isCircular'));
 
     this.set({
-      sequence: finalSequence.get('sequence'),
-      features: finalSequence.get('features'),
-      stickyEnds: finalSequence.get('stickyEnds'),
+      sequence: finalSequence.getSequence(),
+      features: finalSequence.getFeatures(),
+      stickyEnds: finalSequence.getStickyEnds(),
       meta: undefined
     });
 
@@ -137,12 +137,12 @@ class AssembleSequenceModel {
 
   processSequences () {
     return _.map(this.sequences, function(sequence, i) {
-      var features = sequence.get('features');
+      var features = sequence.getFeatures();
       var name = sequence.get('name');
       var type;
 
       if(features.length == 1) {
-        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length() -1) {
+        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
           name = features[0].name;
           type = features[0].type;
         }

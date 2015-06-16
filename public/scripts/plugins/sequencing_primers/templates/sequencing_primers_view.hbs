@@ -8,9 +8,20 @@
           <button class="start-sequencing-primers btn btn-default">Calculate primers</button>
 
           <div class="new-sequencing-primers-progress" style="display: none;">
-            <p class="text-muted">
-              Please wait while we calculate the best sequencing primers
-            </p>
+            <div class="status">
+              <p class="text-muted">
+                Please wait while we calculate the best sequencing primers
+              </p>
+              <p class="text-danger no-universal-primers-found" style="display: none;">
+                <b>Warning: Unsequence DNA</b>
+                <br>
+                Some of the DNA in your sequence will be unsequenced because
+                suitable forward and reverse sequencing could not be found.
+                This is likely due to your sequence not containing recognised
+                forward and reverse universal primers.
+                Alternatively your sequence is too short.
+              </p>
+            </div>
             <div class="progress">
               <div class="progress-bar" role="progressbar"></div>
             </div>

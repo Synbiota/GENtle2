@@ -1,5 +1,5 @@
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import {calculatePcrProductFromPrimers, getSequencesToSearch} from '../lib/pcr_primer_design';
+import SequenceTransforms from 'gentle-sequence-transforms';
+import {calculatePcrProductFromPrimers} from '../lib/pcr_primer_design';
 
 
 var startOffsetSequence = 'AGAGCAAGA';
@@ -135,17 +135,5 @@ describe('calculating PCR product from primers', function() {
     expect(reversePrimer.sequence).toEqual(SequenceTransforms.toReverseComplements(opts.stickyEnds.end.sequence) + reverseAnnealingRegionSequenceComplement);
     expect(reversePrimer.from).toEqual(pcrProduct.sequence.length - 1);
     expect(reversePrimer.to).toEqual(reversePrimer.from - reversePrimer.sequence.length);
-  });
-});
-
-
-describe('getSequencesToSearch', function() {
-  it('correct sequences', function() {
-    var {
-      forwardSequenceToSearch: forwardSequenceToSearch,
-      reverseSequenceToSearch: reverseSequenceToSearch
-    } = getSequencesToSearch(sequence, opts);
-    expect(forwardSequenceToSearch.indexOf(forwardAnnealingRegionSequence)).toEqual(0);
-    expect(reverseSequenceToSearch.indexOf(reverseAnnealingRegionSequenceComplement)).toEqual(0);
   });
 });

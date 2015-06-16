@@ -101,7 +101,7 @@ export default Backbone.View.extend({
   },
 
   getResults: function() {
-    var sequenceLength = this.model.length();
+    var sequenceLength = this.model.getLength();
     // this.incrementProgressBar();
     this.blastRequest.getResults().then((results) => {
       if(!this.blastRequest) return;

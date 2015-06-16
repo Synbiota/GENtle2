@@ -3,7 +3,7 @@
 @module Sequence
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var Backbone    = require('backbone'),
       template    = require('../templates/export_view.hbs'),
       Filetypes   = require('../../common/lib/filetypes/filetypes'),
@@ -41,6 +41,6 @@ define(function(require) {
     }
 
   });
-
-  return ExportView;
-});
+export default ExportView;
+  // return ExportView;
+// });

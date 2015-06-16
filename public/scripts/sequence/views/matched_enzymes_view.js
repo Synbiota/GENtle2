@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import template from '../templates/matched_enzymes_view.hbs';
 import _ from 'underscore';
 import Gentle from 'gentle';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import RestrictionEnzymeReplacerView from '../views/restriction_enzyme_replacer_view';
 
 export default Backbone.View.extend({
@@ -41,7 +41,7 @@ export default Backbone.View.extend({
   serialize: function() {
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {
+    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
       length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
       hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false

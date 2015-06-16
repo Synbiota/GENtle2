@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import Gentle from 'gentle';
 import template from '../templates/linear_map_view.hbs';
 import _ from 'underscore';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
 
 export default Backbone.View.extend({
   manage: true,
@@ -19,7 +19,12 @@ export default Backbone.View.extend({
     this.model = Gentle.currentSequence;
     this.minFeatureWidth = 4;
     this.topFeatureOffset = 0;
-    _.bindAll(this, 'scrollSequenceCanvas');
+    
+    _.bindAll(this, 
+      'scrollSequenceCanvas', 
+      'updateScrollHelperPosition',
+      'refresh'
+    );
 
     this.listenTo(
       this.model, 
@@ -35,7 +40,7 @@ export default Backbone.View.extend({
 
     this.features = [];
 
-    _.each(this.model.get('features'), function(feature) {
+    _.each(this.model.getFeatures(), function(feature) {
       _.each(feature.ranges, function(range) {
         _this.features.push({
           name: feature.name,
@@ -53,7 +58,7 @@ export default Backbone.View.extend({
   },
 
   positionFeatures: function() {
-    var maxBase = this.maxBaseForCalc || this.model.length(),
+    var maxBase = this.maxBaseForCalc || this.model.getLength(),
         viewHeight = this.$el.height(),
         $featureElement, feature, featureWidth,
         overlapStack = [], overlapIndex;
@@ -68,7 +73,7 @@ export default Backbone.View.extend({
 
       $featureElement.css({
         width: featureWidth,
-        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset,
+        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset
       });
 
       overlapIndex =  overlapStack.length;
@@ -151,18 +156,25 @@ export default Backbone.View.extend({
   processEnzymes: function() {
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {
+    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
       // length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
       // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
       hideNonPalindromicStickyEndSites: false
     });
 
-    this.enzymes = _.map(enzymes, function(enzymeArray, position) {
+    this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
+      position = position^0;
+
+      enzymeArray = _.filter(enzymeArray, function(enzyme) {
+        return model.isRangeEditable(position, position + enzyme.seq.length);
+      });
+
+      if(enzymeArray.length === 0) return;
       var label = enzymeArray[0].name;
       if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
       return {position, label};
-    });
+    }));
   },
 
   positionEnzymes: function() {
@@ -226,18 +238,14 @@ export default Backbone.View.extend({
       this.initialRender = false;
       this.sequenceCanvas = sequenceCanvas;
 
-      this.listenTo(
-        sequenceCanvas, 
+      sequenceCanvas.on(
         'scroll', 
-        this.updateScrollHelperPosition, 
-        this
+        this.updateScrollHelperPosition
       );
 
-      this.listenTo(
-        sequenceCanvas,
+      sequenceCanvas.on(
         'change:layoutHelpers',
-        this.refresh,
-        this
+        this.refresh
       );
 
     } else {
@@ -258,6 +266,6 @@ export default Backbone.View.extend({
       //   _this.positionFeatures();
       // });
     }
-  },
+  }
 
 });

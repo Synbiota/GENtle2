@@ -3,7 +3,7 @@
 @submodule Views
 @class FeaturesView
 **/
-define(function(require) {
+// define(function(require) {
   var template = require('../templates/features_view.hbs'),
     Gentle = require('gentle'),
     SynbioData = require('../../common/lib/synbio_data'),
@@ -39,7 +39,7 @@ define(function(require) {
       var $element = $(element),
         featureId = $element.data('feature_id');
 
-      return _.find(this.model.get('features'), function(_feature) {
+      return _.find(this.model.getFeatures(), function(_feature) {
         return _feature._id == featureId;
       });
     },
@@ -96,9 +96,9 @@ define(function(require) {
         return _.extend(range, {
           _id: i,
           _canDelete: ranges.length > 1,
-          from: range.from == -1 ? '' : range.from + 1,
-          to: range.to == -1 ? '' : range.to + 1,
-          _canAdd: i == ranges.length - 1
+          from: range.from === -1 ? '' : range.from + 1,
+          to: range.to === -1 ? '' : range.to + 1,
+          _canAdd: i === ranges.length - 1
         });
       });
     },
@@ -136,14 +136,15 @@ define(function(require) {
     },
 
     readRanges: function() {
-      return _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function(row) {
-        var $row = $(row),
-          from = $row.find('[name="from"]').val() * 1 - 1,
-          to = $row.find('[name="to"]').val() * 1 - 1,
-          reverseComplement = $row.find('[name="rc"]').prop('checked');
+      var offset = this.model.getOffset();
+      return _.map(this.$('form').find('.sequence-feature-edit-ranges-list tbody tr'), function (row) {
+        var $row = $(row);
+        var frm = $row.find('[name="from"]').val() * 1 - 1 + offset;
+        var to = $row.find('[name="to"]').val() * 1 - 1 + offset;
+        var reverseComplement = $row.find('[name="rc"]').prop('checked');
 
         return {
-          from: from,
+          from: frm,
           to: to,
           reverseComplement: reverseComplement
         };
@@ -153,7 +154,7 @@ define(function(require) {
     saveFeature: function() {
       var ranges;
       var acceptedRanges;
-      var length = this.model.length();
+      var length = this.model.getLength(this.model.STICKY_END_FULL);
 
       this.readValues();
       this.errors = {};
@@ -222,7 +223,7 @@ define(function(require) {
           return {
             readOnly: this.model.get('readOnly'),
             isOpen: true,
-            features: this.model.get('features')
+            features: this.model.getFeatures()
           };
         }
       } else return {};
@@ -241,6 +242,6 @@ define(function(require) {
     },
 
   });
-
-  return FeaturesView;
-});
+export default FeaturesView;
+  // return FeaturesView;
+// });

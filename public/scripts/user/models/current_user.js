@@ -10,7 +10,7 @@ export default Backbone.DeepModel.extend({
           display: true,
           // lengths: ['4','5','6', '7'],
           // hideNonPalindromicStickyEndSites: false,
-          manual: ['BsaI', 'NotI']
+          custom: ['BsaI', 'NotI']
         }
       }
     }

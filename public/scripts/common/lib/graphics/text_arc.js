@@ -3,7 +3,7 @@
 @extends Shape
 @module Graphics
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       TextArc;
 
@@ -26,6 +26,7 @@ define(function(require) {
         context = artist.context,
         text,
         textLen = this.text.length,
+        angle,
         i = textLen;
 
     artist.updateStyle(styleOptions);
@@ -65,6 +66,6 @@ define(function(require) {
 
     return totalAngle;
   };
-
-  return TextArc;
-});
+export default TextArc;
+  // return TextArc;
+// });

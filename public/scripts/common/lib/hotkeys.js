@@ -1,4 +1,4 @@
-define({
+export default {
   TAB:        9,
   ENTER:      13,
   LEFT:       37,  
@@ -8,4 +8,4 @@ define({
   ESC:        27,
   BACKSPACE:  8,
   COMMA:      188
-});
+};

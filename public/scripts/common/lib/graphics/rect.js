@@ -3,7 +3,7 @@
 @extends Shape
 @module Graphics
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       Rect;
 
@@ -23,6 +23,6 @@ define(function(require) {
     artist.updateStyle(styleOptions);
     artist.context.fillRect(this.x, this.y, this.width, this.height);
   };
-
-  return Rect;
-});
+export default Rect;
+  // return Rect;
+// });

@@ -3,14 +3,14 @@ import PCRView from './views/pcr_view';
 
 Gentle.addPlugin('sequence-primary-view', {
   name: 'pcr',
-  title: 'PCR Product',
+  title: 'RDP part designer',
   view: PCRView,
   visible: Gentle.featureFlag('pcr')
 });
 
 Gentle.addPlugin('sequence-canvas-context-menu', {
   name: 'pcr',
-  title: 'Create PCR product',
+  title: 'Create RDP part',
   icon: 'wrench',
   selectionOnly: true,
   callback: function() {

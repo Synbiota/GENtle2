@@ -34,7 +34,7 @@ var getPcrProductsFromSequence = function(sequenceModel) {
   attributesOfPcrProducts = _.each(attributesOfPcrProducts, (productAttributes) => {
     //Backwards compatibility.  Some of the pcr products were stored without the sequence attribute calculated.
     if(!productAttributes.sequence) {
-      var sequenceNts = sequenceModel.get('sequence');
+      var sequenceNts = sequenceModel.getSequence();
       var opts = _.pick(productAttributes, ['from', 'to', 'stickyEnds']);
       var {productSequence: productSequenceNts} = TemporarySequence.calculateProduct(sequenceNts, opts);
       productAttributes.sequence = productSequenceNts;
@@ -42,9 +42,12 @@ var getPcrProductsFromSequence = function(sequenceModel) {
 
     //Backwards compatibility.  Some of the pcr products were stored with incomplete stickyEnd data.
     productAttributes.stickyEnds = transformStickyEndData(productAttributes.stickyEnds);
+    productAttributes._type = 'pcr_product';
   });
 
   var products = _.map(attributesOfPcrProducts, (productAttributes) => new TemporarySequence(productAttributes));
+
+  // if(products.length) debugger
   return products;
 };
 

@@ -1,15 +1,31 @@
-<h6 class="designer-available-sequence-name">{{sequence.name}}</h6>
+<h5 class="designer-available-sequence-name">
+  <i class="glyphicon glyphicon-info-sign incompatible-sequences" title="Sticky ends are not complementary with ends in assembled sequence."></i>
+  <i class="glyphicon glyphicon-warning-sign lacks-sticky-end-sequences" title="One or both ends lack sticky ends."></i>
+  {{sequence.name}}
+  <br>
+  <small>
+    {{#if isPcrProduct}}
+      <strong>RDP Part</strong>
+    {{else}}
+      {{descriptiveAnnotationContent}}
+    {{/if}}
+    &nbsp;
+  </small>
+</h5>
 
 {{#unless sequence.hidden}}
-  <div class="designer-available-sequence-entireseq btn btn-sm btn-default" data-entireSeq-id="{{sequence.id}}">
-    Entire Sequence ({{formatThousands sequence.length}}bp)
+  <div class="designer-available-sequence-entireseq btn btn-sm btn-default {{#unless sequence.usable}}disabled{{/unless}}">
+    Entire Sequence ({{formatThousands sequence.length}}bp) {{#unless sequence.usable}}&#x20E0;{{/unless}}
   </div>
 {{/unless}}
 
+{{_type}}
+
+{{#if showAnnotations}}
 {{#if features}}
   <div class="designer-available-sequence-features">
     {{#each features}}
-      <div class="designer-available-sequence-feature designer-available-sequence-feature-type-{{_type}}" data-feature-id="{{id}}" title="{{name}}{{#if reverseComplement}} &larr;{{else}} &rarr;{{/if}}">
+      <div class="designer-available-sequence-feature designer-available-sequence-feature-{{_type}}" data-feature_id="{{id}}" title="{{name}}{{#if reverseComplement}} &larr;{{else}} &rarr;{{/if}}">
         {{name}}
         {{#if reverseComplement}}
           &larr;
@@ -19,4 +35,5 @@
       </div>
     {{/each}}
   </div>
+{{/if}}
 {{/if}}

@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   var Point = require('./point'),
       TransformationMatrix;
 
@@ -85,6 +85,6 @@ define(function(require) {
   TransformationMatrix.prototype.toString = function() {
     return "transform[" + this.m + "]";
   };
-
-  return TransformationMatrix;
-});
+export default TransformationMatrix;
+  // return TransformationMatrix;
+// });
