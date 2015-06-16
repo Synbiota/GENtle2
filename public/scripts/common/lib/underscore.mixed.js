@@ -160,6 +160,7 @@ _.mixin({
     });
   },
 
+  // Similar to `_.throttle(func, wait, {leading: false})`
   afterLastCall: function(func, wait) {
     var timeoutId, args, thisArg, delayed;
 
@@ -176,6 +177,7 @@ _.mixin({
       }
 
       timeoutId = setTimeout(delayed, wait);
+      return this;
     };
   }
 });

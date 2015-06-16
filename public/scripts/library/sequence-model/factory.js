@@ -1498,7 +1498,7 @@ function sequenceModelFactory(BackboneModel) {
       if(!this._throttledSave) {
         this._throttledSave = _.afterLastCall(_.bind(this.save, this), 300);
       }
-      this._throttledSave();
+      return this._throttledSave();
     }
 
     toJSON() {
