@@ -1,7 +1,7 @@
 import Backbone from 'backbone.mixed';
 import template from '../templates/sequencing_primers_canvas_view.hbs';
 import Gentle from 'gentle';
-import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
+import SequenceCanvas from 'gentle-sequence-canvas';
 import _ from 'underscore.mixed';
 import Styles from '../../../styles.json';
 
@@ -31,7 +31,7 @@ export default Backbone.View.extend({
     }
   },
 
-  onScroll: function(data) {
+  onScroll: function(event, data) {
     if(data && !_.isUndefined(data.yOffset) && !this._freezeScrolling) {
       let canvasHeight = this.$('canvas').height();
 
@@ -57,7 +57,8 @@ export default Backbone.View.extend({
 
   afterRender: function() {
     this.setSequence();
-    if(!this.model) return;
+    var sequence = this.model;
+    if(!sequence) return;
 
     var topFeatures = this.getFeatures();
     var bottomFeatures = this.getFeatures(true);
@@ -72,47 +73,49 @@ export default Backbone.View.extend({
       margin: 2,
       lineSize: 2,
       textColour: colors.color,
-      colour: colors.fill,
+      colour: colors.fill
+    };
+
+    var lines = {
+      topSeparator: ['Blank', { height: 5 }],
+      position: ['Position', {
+        height: 15,
+        baseLine: 15,
+        textFont: '10px Monospace',
+        textColour: '#005',
+        transform: _.formatThousands
+      }],
+      topFeatures: ['FeatureArrow', _.extend({
+        features: topFeatures
+      }, featuresConfig)],
+      dna: ['DNA', {
+        height: 15,
+        baseLine: 15,
+        textFont: '15px Monospace',
+        textColour: '#bbb',
+        selectionColour: 'red',
+        selectionTextColour: 'white'
+      }],
+      complements: ['DNA', {
+        height: 15,
+        baseLine: 15,
+        textFont: LineStyles.complements.text.font,
+        textColour: '#bbb',
+        getSubSeq: this.getComplements
+      }],
+      bottomFeatures: ['FeatureArrow', _.extend({
+        features: bottomFeatures
+      }, featuresConfig)],
+      bottomSeparator: ['Blank', { height: 5 }]
     };
 
     var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
-      view: this,
-      $canvas: this.$('.sequence-canvas-container canvas').first(),
-      lines: {
-        topSeparator: ['Blank', { height: 5 }],
-        position: ['Position', {
-          height: 15,
-          baseLine: 15,
-          textFont: '10px Monospace',
-          textColour: '#005',
-          transform: _.formatThousands,
-        }],
-        topFeatures: ['FeatureArrow', _.extend({
-          features: topFeatures
-        }, featuresConfig)],
-        dna: ['DNA', {
-          height: 15,
-          baseLine: 15,
-          textFont: '15px Monospace',
-          textColour: '#bbb',
-          selectionColour: 'red',
-          selectionTextColour: 'white',
-        }],
-        complements: ['DNA', {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.complements.text.font,
-          textColour: '#bbb',
-          getSubSeq: this.getComplements,
-        }],
-        bottomFeatures: ['FeatureArrow', _.extend({
-          features: bottomFeatures
-        }, featuresConfig)],
-        bottomSeparator: ['Blank', { height: 5 }],
-      },
+      sequence: sequence,
+      container: this.$('.sequence-canvas-outlet').first(),
+      lines: lines,
+      editable: false
     });
     
-    sequenceCanvas.refresh();
     sequenceCanvas.on('scroll', this.onScroll);
   }
 });

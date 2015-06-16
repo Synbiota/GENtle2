@@ -2,9 +2,9 @@ import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 import {stubCurrentUser} from '../../../common/tests/stubs';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import {optimalPrimer4, _getSequenceToSearch} from '../lib/primer_calculation';
 import SequenceModel from '../../../sequence/models/sequence';
+import SequenceTransforms from 'gentle-sequence-transforms';
 
 
 stubCurrentUser();

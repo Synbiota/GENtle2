@@ -1,7 +1,7 @@
 // runs the calls to registerAssociation
 import plugin from '../plugin';
 
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 import {getPcrProductAndPrimers, calculatePcrProductFromPrimers} from '../lib/pcr_primer_design';
 import Primer from '../lib/primer';
 import PcrPrimer from '../lib/pcr_primer';

@@ -1,3 +1,11 @@
+var setCanvasDimensions = function(canvas, context, width, height, pixelRatio, transformRatio) {
+  if(canvas.width != width || canvas.height != height) {
+    canvas.width = width * pixelRatio;
+    canvas.height = height * pixelRatio;
+  }
+  context.setTransform(transformRatio, 0, 0, transformRatio, 0, 0);
+};
+
 /**
   
 Provides tools for drawing on canvas
@@ -36,6 +44,8 @@ Includes Shape system for handling mouse events.
     canvas = canvas instanceof $ ? canvas[0] : canvas;
     this.canvas = canvas;
     this.context = canvas.getContext('2d');
+    this.buffer = document.createElement('canvas');
+    this.bufferContext = this.buffer.getContext('2d');
     this.shapes = [];
     //// This fixes anti-alising in Firefox for non-HiDPI screens
     //// But also slows down scrolling.. Need more testing.
@@ -54,15 +64,9 @@ Includes Shape system for handling mouse events.
   @param {Integer} height
   **/
   Artist.prototype.setDimensions = function(width, height) {
-    var canvas = this.canvas,
-        pixelRatio = this.getPixelRatio();
-
-    if(canvas.width != width || canvas.height != height) {
-      canvas.width = width * pixelRatio;
-      canvas.height = height * pixelRatio;
-    }
-
-   this.context.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+    var pixelRatio = this.getPixelRatio();
+    setCanvasDimensions(this.canvas, this.context, width, height, pixelRatio, pixelRatio);
+    setCanvasDimensions(this.buffer, this.bufferContext, width, height, pixelRatio, 1);
   };
 
   /**
@@ -376,12 +380,19 @@ Includes Shape system for handling mouse events.
   **/
   Artist.prototype.scroll = function(offset) {
     var canvas = this.canvas,
+        buffer = this.buffer,
         context = this.context,
-        pixelRatio = this.getPixelRatio(),
-        imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+        bufferContext = this.bufferContext,
+        pixelRatio = this.getPixelRatio();
     
-    this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-    context.putImageData(imageData, 0, offset * pixelRatio);
+
+    bufferContext.clearRect(0, 0, buffer.width, buffer.height);
+    // bufferContext.clearRect(0, 0, buffer.width, buffer.height);
+    bufferContext.drawImage(canvas, 0, 0);
+    // context.fillStyle = '#fff';
+    context.clearRect(0, 0, buffer.width, buffer.height);
+    // this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
+    context.drawImage(buffer, 0, offset, buffer.width / pixelRatio, buffer.height/pixelRatio);
 
   };
 

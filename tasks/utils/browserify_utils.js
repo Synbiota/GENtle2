@@ -18,9 +18,10 @@ var vendorLibs = [
   'jquery-ui-touch-punch',
   'q',
   'underscore-deep-extend'
-]
+];
 
 var appTransforms = [
+  [ 'jstify', {} ],
   [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
   [ 'babelify', {} ],
   [ 'aliasify', {aliases: aliases} ]

@@ -2,7 +2,7 @@ import _ from 'underscore';
 import {assertion, assertIsInstance} from '../../../common/lib/testing_utils';
 import SequenceModel from '../../../sequence/models/sequence';
 import SequenceRange from '../../../library/sequence-model/range';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 
 
 class ChildSequence {

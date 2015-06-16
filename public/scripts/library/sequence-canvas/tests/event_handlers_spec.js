@@ -1,6 +1,11 @@
-import Handlers from '../lib/_sequence_canvas_handlers';
-import Sequence from '../models/sequence';
-import {stubCurrentUser} from '../../common/tests/stubs';
+import sequenceModelFactory from 'gentle-sequence-model/factory';
+import Backbone from 'backbone';
+
+// Todo – test with Backbone.Model instead of Backbone.DeepModel
+var Sequence = sequenceModelFactory(Backbone.DeepModel);
+
+import Handlers from '../event_handlers';
+import {stubCurrentUser} from '../../../common/tests/stubs';
 
 
 describe('handling keyboard selection events', function() {

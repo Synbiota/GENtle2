@@ -1,4 +1,4 @@
-import SynbioData from '../../common/lib/synbio_data';
+import SynbioData from 'gentle-utils/synbio_data';
 import SequenceTransforms from 'gentle-sequence-transforms';
 import _ from 'underscore';
 

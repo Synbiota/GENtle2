@@ -1,6 +1,6 @@
 import _ from 'underscore';
+
 import SequencingPrimerModel from '../../pcr/lib/primer';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
 import SequenceRange from '../../../library/sequence-model/range';
 
 

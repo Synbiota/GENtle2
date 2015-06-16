@@ -1,19 +1,10 @@
-// define(function(require) {
-  var Line = require('./line'),
-      RestrictionEnzymes = require('../restriction_enzymes'),
-      RestrictionEnzymeSites;
+import Line from './line';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import {each} from 'underscore';
 
-  RestrictionEnzymeSites = function(sequenceCanvas, options) {
-    this.type = 'restrictionEnzymeSites';
-    this.cache = {};
-    this.sequenceCanvas = sequenceCanvas;
-    this.cachedProperties = ['visible'];
-    _.extend(this, options);
-  };
+class RestrictionEnzymeSites extends Line {
 
-  _.extend(RestrictionEnzymeSites.prototype, Line.prototype);
-
-  RestrictionEnzymeSites.prototype.getBaseX = function(base, baseRange, isStart) {
+  getBaseX(base, baseRange, isStart) {
     var layoutSettings = this.sequenceCanvas.layoutSettings,
         layoutHelpers = this.sequenceCanvas.layoutHelpers,
         basesPerBlock = layoutSettings.basesPerBlock,
@@ -28,9 +19,9 @@
     }
 
     return x;
-  };
+  }
 
-  RestrictionEnzymeSites.prototype.draw = function(y, baseRange) {
+  draw(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
         artist = sequenceCanvas.artist,
         sequence = sequenceCanvas.sequence,
@@ -38,7 +29,7 @@
         layoutHelpers = sequenceCanvas.layoutHelpers,
         dnaY = layoutHelpers.lineOffsets.dna,
         complementsY = layoutHelpers.lineOffsets.complements,
-        complementsHeight = layoutSettings.lines.complements.height,
+        complementsHeight = sequenceCanvas.lines.complements.height,
         displaySettings = sequence.get('displaySettings.rows.res') || {},
         // enzymeOptions = {
         //   length: displaySettings.lengths || [],
@@ -65,11 +56,11 @@
       lineWidth: 1
     });
 
-    _.each(enzymes, function(enzymes_, position) {
+    each(enzymes, function(enzymes_, position) {
       position = +position - (baseRange[0] === 0 ? 0 : subSeqPadding);
       initPosition = position;
 
-      _.each(enzymes_, function(enzyme) {
+      each(enzymes_, function(enzyme) {
 
         if(!sequence.isRangeEditable(
           position + baseRange[0],
@@ -131,12 +122,12 @@
           }
         }
 
-        if(points.length) artist.path.apply(artist, points);
+        if(points.length) artist.path(...points);
 
       });
     });
 
-  };
-export default RestrictionEnzymeSites
-  // return RestrictionEnzymeSites;
-// });
+  }
+}
+
+export default RestrictionEnzymeSites;

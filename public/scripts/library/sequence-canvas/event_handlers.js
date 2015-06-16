@@ -1,22 +1,55 @@
+import _ from 'underscore';
+import tracedLog from '../../common/lib/traced_log';
+import Hotkeys from '../../common/lib/hotkeys';
+
+var alertUneditableStickyEnd = () => alert('Unable to edit the sticky ends of a sequence');
+
 /**
 Event handlers for SequenceCanvas
 @class SequenceCanvasHandlers
 **/
 
-  var Hotkeys = require('../../common/lib/hotkeys'),
-    tracedLog = require('../../common/lib/traced_log'),
-    Handlers;
+class Handlers {
+  _init(options) {
+    _.bindAll(this,
+      'handleScrolling',
+      'handleMousedown',
+      'handleMousemove',
+      'handleMouseup',
+      'handleClick',
+      'handleKeypress',
+      'handleKeydown',
+      'handleBlur'
+    );
 
-  Handlers = function() {};
+    this.invertHotkeys = _.invert(Hotkeys);
+    this.commandKeys = _.reduce(['A', 'C', 'Z', 'V'], (memo, key) => {
+      memo[key] = key.charCodeAt(0);
+      return memo;
+    }, {});
 
-  var alertUneditableStickyEnd = () => alert('Unable to edit the sticky ends of a sequence');
+    if(this.selectable) {
+      this.$scrollingParent.on('mousedown', this.handleMousedown);
+      this.$scrollingParent.on('keydown', this.handleKeydown);
+      this.$scrollingParent.on('blur', this.handleBlur);
+    }
+
+    if(this.editable) {
+      this.$scrollingParent.on('keypress', this.handleKeypress);
+    }
+
+    if(this.scrollable) {
+      this.$scrollingParent.on('scroll', this.handleScrolling);
+    }
+
+  }
 
   /**
   Handles keystrokes on keypress events (used for inputs)
   @method handleKeypress
   @param event [event] Keypress event
   **/
-  Handlers.prototype.handleKeypress = function(event) {
+  handleKeypress(event) {
     event.preventDefault();
 
     if (!~_.values(Hotkeys).indexOf(event.which)) {
@@ -24,7 +57,7 @@ Event handlers for SequenceCanvas
         selection = this.selection,
         caretPosition = this.caretPosition;
 
-      if (!this.readOnly && ~this.allowedInputChars.indexOf(base)) {
+      if (this.editable && ~this.allowedInputChars.indexOf(base)) {
 
         if (!selection && caretPosition !== undefined) {
 
@@ -63,14 +96,14 @@ Event handlers for SequenceCanvas
         }
       }
     }
-  };
+  }
 
   /**
   Handles keystrokes on keydown events (used for hotkeys)
   @method handleKeydown
   @param event [event] Keydown event
   **/
-  Handlers.prototype.handleKeydown = function(event) {
+  handleKeydown(event) {
 
     if (~_.values(Hotkeys).indexOf(event.which)) {
 
@@ -79,6 +112,7 @@ Event handlers for SequenceCanvas
     } else if (event.metaKey && event.which == this.commandKeys.A) {
       event.preventDefault();
       let editableRange = this.sequence.editableRange(true);
+
 
       this.selectRange(editableRange);
       // Select next character
@@ -98,9 +132,9 @@ Event handlers for SequenceCanvas
 
     }
 
-  };
+  }
 
-  Handlers.prototype.handleHotkey = function(event) {
+  handleHotkey(event) {
     var keyName = this.invertHotkeys[event.which.toString()].toLowerCase(),
       handlerName = 'handle' +
       keyName.charAt(0).toUpperCase() +
@@ -112,10 +146,10 @@ Event handlers for SequenceCanvas
       this[handlerName].call(this, event.shiftKey, event.metaKey);
     }
 
-  };
+  }
 
-  Handlers.prototype.handleBackspaceKey = function(shift, meta) {
-    if(!this.readOnly) {
+  handleBackspaceKey(shift, meta) {
+    if(this.editable) {
       if (this.selection) {
         var selection = this.selection;
         if(this.sequence.isBaseEditable(...selection)) {
@@ -145,14 +179,14 @@ Event handlers for SequenceCanvas
         }
       }
     }
-  };
+  }
 
-  Handlers.prototype.handleEscKey = function(shift, meta) {
+  handleEscKey(shift, meta) {
     this.hideCaret();
     this.caretPosition = undefined;
-  };
+  }
 
-  Handlers.prototype.handleLeftKey = function(shift, meta) {
+  handleLeftKey(shift, meta) {
     var previousCaret = this.caretPosition,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
@@ -168,7 +202,7 @@ Event handlers for SequenceCanvas
     nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
 
     if (shift) {
-      if (previousCaret != nextCaret) {
+      if (previousCaret !== nextCaret) {
         if (selection) {
           this.expandSelectionToNewCaret(nextCaret);
         } else {
@@ -185,9 +219,9 @@ Event handlers for SequenceCanvas
       }
     }
 
-  };
+  }
 
-  Handlers.prototype.handleRightKey = function(shift, meta) {
+  handleRightKey(shift, meta) {
     var previousCaret = this.caretPosition,
       basesPerRow = this.layoutHelpers.basesPerRow,
       selection = this.selection,
@@ -221,9 +255,9 @@ Event handlers for SequenceCanvas
       }
     }
 
-  };
+  }
 
-  Handlers.prototype.handleUpKey = function(shift, meta) {
+  handleUpKey(shift, meta) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
       previousCaret = this.caretPosition,
       selection = this.selection,
@@ -233,8 +267,6 @@ Event handlers for SequenceCanvas
 
     nextCaret = meta ? 0 : Math.max(0, this.caretPosition - basesPerRow);
     nextCaret = this.sequence.ensureBaseIsEditable(nextCaret);
-
-    // tracedLog('handleUpKey', previousCaret, nextCaret);
 
     if(previousCaret === nextCaret) return;
 
@@ -254,9 +286,9 @@ Event handlers for SequenceCanvas
         this.moveCaret(nextCaret);
       }
     }
-  };
+  }
 
-  Handlers.prototype.handleDownKey = function(shift, meta) {
+  handleDownKey(shift, meta) {
     var basesPerRow = this.layoutHelpers.basesPerRow,
       previousCaret = this.caretPosition,
       selection = this.selection,
@@ -292,9 +324,10 @@ Event handlers for SequenceCanvas
       }
     }
 
-  };
 
-  Handlers.prototype.handleCopy = function() {
+  }
+
+  handleCopy() {
     var selection = this.selection;
 
     if (selection) {
@@ -302,14 +335,14 @@ Event handlers for SequenceCanvas
         this.sequence.getSubSeq(selection[0], selection[1])
       );
     }
-  };
+  }
 
-  Handlers.prototype.handlePaste = function() {
+  handlePaste() {
     var _this = this,
       selection = _this.selection,
       caretPosition = _this.caretPosition;
 
-    if(!this.readOnly) {
+    if(!this.editable) {
 
       this.copyPasteHandler.paste().then(function(text) {
         if (caretPosition !== undefined && !selection) {
@@ -326,10 +359,10 @@ Event handlers for SequenceCanvas
       });
 
     }
-  };
+  }
 
-  Handlers.prototype.handleUndo = function(event) {
-    if (!this.readOnly && this.caretPosition !== undefined) {
+  handleUndo(event) {
+    if (this.editable && this.caretPosition !== undefined) {
       event.preventDefault();
       var previousCaret = this.caretPosition;
 
@@ -347,11 +380,11 @@ Event handlers for SequenceCanvas
       
       this.sequence.undo();
     }
-  };
+  }
 
   /**
    **/
-  Handlers.prototype.handleMousedown = function(event) {
+  handleMousedown(event) {
     var _this = this,
       mouse = this.normalizeMousePosition(event),
       previousCaret = this.caretPosition;
@@ -384,11 +417,11 @@ Event handlers for SequenceCanvas
         _this.handleMousemove(event);
       }
     });
-  };
+  }
 
   /**
    **/
-  Handlers.prototype.handleMousemove = function(event) {
+  handleMousemove(event) {
     var _this = this,
       layoutHelpers = _this.layoutHelpers,
       caretPosition = _this.caretPosition,
@@ -426,11 +459,11 @@ Event handlers for SequenceCanvas
     }
     _this.displayCaret(_this.caretPosition);
     _this.redrawSelection(_this.selection);
-  };
+  }
 
   /**
    **/
-  Handlers.prototype.handleMouseup = function(event) {
+  handleMouseup(event) {
     if (!this.selection || !this.selecting) {
       this.handleClick(event);
     }
@@ -439,14 +472,14 @@ Event handlers for SequenceCanvas
       this.displayCaret(this.caretPosition);
     }
     this.selecting = false;
-  };
+  }
 
   /**
   Displays the caret at the mouse click position
   @method handleClick
   @param event [event] Click event
   **/
-  Handlers.prototype.handleClick = function(event) {
+  handleClick(event) {
     var mouse = this.normalizeMousePosition(event),
       _this = this,
       shiftKey = event.shiftKey,
@@ -476,21 +509,21 @@ Event handlers for SequenceCanvas
     }
 
     _this.redraw();
-  };
+  }
 
   /**
   Handles scrolling events
   @method handleScrolling
   **/
-  Handlers.prototype.handleScrolling = function(event) {
+  handleScrolling(event) {
     this.scrollTo($(event.delegateTarget).scrollTop());
-  };
+  }
 
   /**
   Removes the caret on blur events
   @method handleBlur
   **/
-  Handlers.prototype.handleBlur = function(event) {
+  handleBlur(event) {
 
     if (this.caretPosition !== undefined && !$(event.relatedTarget).hasClass('sequence-dropdown')) {
       this.hideCaret(false);
@@ -498,16 +531,17 @@ Event handlers for SequenceCanvas
       this.redraw();
     }
 
-  };
+  }
 
-  Handlers.prototype.normalizeMousePosition = function(event) {
+  normalizeMousePosition(event) {
     var scrollingParentPosition = this.$scrollingParent.offset();
 
     return {
       left: event.pageX - scrollingParentPosition.left,
       top: event.pageY - scrollingParentPosition.top
     };
-  };
-
+  }
+}
 
 export default Handlers;
+

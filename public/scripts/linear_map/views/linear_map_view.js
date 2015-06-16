@@ -19,7 +19,12 @@ export default Backbone.View.extend({
     this.model = Gentle.currentSequence;
     this.minFeatureWidth = 4;
     this.topFeatureOffset = 0;
-    _.bindAll(this, 'scrollSequenceCanvas');
+    
+    _.bindAll(this, 
+      'scrollSequenceCanvas', 
+      'updateScrollHelperPosition',
+      'refresh'
+    );
 
     this.listenTo(
       this.model, 
@@ -68,7 +73,7 @@ export default Backbone.View.extend({
 
       $featureElement.css({
         width: featureWidth,
-        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset,
+        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset
       });
 
       overlapIndex =  overlapStack.length;
@@ -233,18 +238,14 @@ export default Backbone.View.extend({
       this.initialRender = false;
       this.sequenceCanvas = sequenceCanvas;
 
-      this.listenTo(
-        sequenceCanvas, 
+      sequenceCanvas.on(
         'scroll', 
-        this.updateScrollHelperPosition, 
-        this
+        this.updateScrollHelperPosition
       );
 
-      this.listenTo(
-        sequenceCanvas,
+      sequenceCanvas.on(
         'change:layoutHelpers',
-        this.refresh,
-        this
+        this.refresh
       );
 
     } else {
@@ -265,6 +266,6 @@ export default Backbone.View.extend({
       //   _this.positionFeatures();
       // });
     }
-  },
+  }
 
 });

@@ -1,5 +1,6 @@
 import Line from './line';
 import _ from 'underscore';
+import switchSequenceContext from './_switch_sequence_context';
 
 /**
 Line class for displaying bases on SequenceCanvas. 
@@ -18,17 +19,10 @@ Options are:
 @submodule SequenceCanvas
 @extends Lines.Line
 **/
-class FeatureArrow extends Line {
-
+class Feature extends Line {
   constructor(sequenceCanvas, options) {
     super(sequenceCanvas, options);
-    this.type = 'FeatureArrow';
-    this.sequenceCanvas = sequenceCanvas;
-    this.sequenceCanvas.sequence.on('change:features', this.clearCache, this);
-    _.extend(this, options);
-    this.featureStack = [];
-    this.cachedProperties = ['visible', 'maxNbFeaturesPerRow'];
-    this.maxNbFeaturesPerRow = _.memoize2(this.maxNbFeaturesPerRow);
+    this.memoize('maxNbFeaturesPerRow', 'change:features')
   }
 
   /**
@@ -52,14 +46,15 @@ class FeatureArrow extends Line {
   @param {object} feature2
   @returns {boolean}
   **/
-  featuresOverlap(feature1, feature2) {
-    if(feature1 == feature2) return false;
-    return _.some(feature1.ranges, function(range1) {
-      return _.some(feature2.ranges, function(range2) {
-        return range2.to >= range1.from && range2.from <= range1.to;
-      });
-    });
-  }
+  // featuresOverlap(feature1, feature2) {
+  //   if(feature1 == feature2) return false;
+  //   return _.some(feature1.ranges, function(range1) {
+  //     return _.some(feature2.ranges, function(range2) {
+  //       return range2.to >= range1.from && range2.from <= range1.to;
+  //     });
+  //   });
+  // };
+  
 
   /**
   Checks whether one of the ranges of a feature ends in a give base range
@@ -72,12 +67,12 @@ class FeatureArrow extends Line {
   @param {integer} endBase
   @returns {boolean}
   **/
-  featureEndInRange(feature, startBase, endBase) {
-    return _.some(feature.ranges, function(range) {
-      return range.from <= startBase && range.to <= endBase;
-    });
+  // featureEndInRange(feature, startBase, endBase) {
+  //   return _.some(feature.ranges, function(range) {
+  //     return range.from <= startBase && range.to <= endBase;
+  //   });
 
-  }
+  // };
 
   /**
   Returns the max number of ranges to be found in one row for the entire sequence
@@ -151,56 +146,25 @@ class FeatureArrow extends Line {
         backgroundFillStyle = _.isFunction(this.colour) ? this.colour(feature._type) : this.colour;
         textColour  = _.isFunction(this.textColour) ? this.textColour(feature._type) : this.textColour;
 
-        let arrowY = y + this.margin + (i + 0.5)*this.unitHeight + i;
-        let arrowStartX = startX;
-        let arrowEndX = endX + baseWidth;
-        let reverse = range.reverseComplement;
+        artist.rect(startX,
+                    y + this.margin + i*this.unitHeight,
+                    deltaX,
+                    this.lineSize,
+                    {
+                      fillStyle: backgroundFillStyle
+                    });
 
-        let continuingBefore = frm < baseRange[0];
-        let continuingAfter = to > baseRange[1];
-
-        if(reverse) {
-          [arrowStartX, arrowEndX] = [arrowEndX, arrowStartX];
-          [continuingAfter, continuingBefore] = [continuingBefore, continuingAfter];
-        }
-
-        if(continuingBefore) {
-          arrowStartX += reverse ? 5 : -5;
-        }
-
-        if(continuingAfter) {
-          arrowEndX += reverse ? -5 : 5;
-        }
-
-        artist.jaggedArrow(
-          arrowStartX, arrowY,
-          arrowEndX, arrowY,
-          this.unitHeight, 7, this.unitHeight, 
-          continuingBefore, continuingAfter, 
-          {
-            fillStyle: backgroundFillStyle,
-            strokeStyle: '#fff'
-          }
-        );
-
-        if((reverse && !continuingAfter)) {
-          startX += 7;
-        }
-
-        artist.text(
-          feature.name,
-          startX,
-          y + this.margin + i * this.unitHeight + i,
-          {
-            textOverflow: true,
-            maxWidth: Math.abs(arrowEndX - arrowStartX),
-            font: this.textFont,
-            fillStyle: textColour,
-            lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
-            height: this.unitHeight - this.margin,
-            textPadding: this.textPadding
-          }
-        );
+        artist.text(feature.name,
+                    startX,
+                    y + this.margin + i * this.unitHeight,
+                    {
+                      font: this.textFont,
+                      fillStyle: textColour,
+                      lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
+                      height: this.unitHeight - this.margin,
+                      textPadding: this.textPadding,
+                      backgroundFillStyle: backgroundFillStyle
+                    });
 
       }
 
@@ -209,20 +173,10 @@ class FeatureArrow extends Line {
   }
 }
 
-var switchContext = function(fn) {
-  var args = _.toArray(arguments);
-  var sequence = this.sequenceCanvas.sequence;
-  var context = (this.features === undefined) ? sequence : sequence.clone().set({ 
-    features: this.features 
-  }, {silent: true});
 
-  args.shift();
 
-  return sequence[fn].apply(context, args);
-};
+Feature.prototype.featuresInRange = switchSequenceContext('featuresInRange');
+Feature.prototype.nbFeaturesInRange = switchSequenceContext('nbFeaturesInRange');
+Feature.prototype.filterRanges = switchSequenceContext('filterRanges');
 
-FeatureArrow.prototype.featuresInRange = _.partial(switchContext, 'featuresInRange');
-FeatureArrow.prototype.nbFeaturesInRange = _.partial(switchContext, 'nbFeaturesInRange');
-FeatureArrow.prototype.filterRanges = _.partial(switchContext, 'filterRanges');
-
-export default FeatureArrow;
+export default Feature;
