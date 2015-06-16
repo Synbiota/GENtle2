@@ -70,10 +70,8 @@ describe('pcr primer class', function() {
       gcContent: 0.5,
     });
     var failures = getFailures();
-    expect(failures.length).toEqual(2);
-    expect(failures[0].test).toEqual(false);
-    expect(failures[0].message).toEqual("Field `parentSequence` is absent");
-    expect(failures[1].message.match("`parentSequence` should be a instance of function SequenceModel()")).toBeTruthy();
+    expect(failures.length).toEqual(1);
+    expect(failures[0].message.match("`parentSequence` should be a instance of SequenceModel")).toBeTruthy();
     testResults = [];
   });
 

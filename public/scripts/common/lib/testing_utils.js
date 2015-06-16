@@ -3,7 +3,7 @@ import _ from 'underscore';
 
 // Allows us to stub out in tests
 var _assertion = function(test, message, value=undefined) {
-  if(!test && arguments.length === 3) message += (' ' + JSON.stringify(value, null, 2));
+  if(!test && value) message += value;
   console.assert(test, message);
   if(window.TESTS_RUNNING && !test) throw new Error(message);
 };
@@ -41,7 +41,7 @@ var assertIsBoolean = function(value, fieldName) {
 
 var assertIsInstance = function(value, klass, fieldName) {
   // N.B. klass.className is manually set on backbone models
-  _assertion(value instanceof klass, `\`${fieldName}\` should be a instance of ${klass.className || klass.name || klass} but is`, value);
+  _assertion(value instanceof klass, `\`${fieldName}\` should be a instance of ${klass.className || klass.name || klass} but is`, ' ' + JSON.stringify(value, null, 2));
 };
 
 
