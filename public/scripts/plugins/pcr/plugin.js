@@ -3,6 +3,7 @@ import PCRView from './views/pcr_view';
 import PcrProductSequence from './lib/product';
 import PcrPrimer from '../pcr/lib/pcr_primer';
 import SequenceModel from '../../sequence/models/sequence';
+import SequencesCollection from '../../sequence/models/sequence';
 import {version1GenericPreProcessor} from '../utils';
 
 
@@ -40,3 +41,4 @@ SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 SequenceModel.registerAssociation(PcrProductSequence, 'pcrProduct', true);
 PcrProductSequence.registerAssociation(PcrPrimer, 'forwardPrimer', false);
 PcrProductSequence.registerAssociation(PcrPrimer, 'reversePrimer', false);
+SequencesCollection.registerConstructor(PcrProductSequence, 'pcr_product');
