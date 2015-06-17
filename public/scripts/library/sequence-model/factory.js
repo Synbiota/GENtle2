@@ -162,6 +162,8 @@ function sequenceModelFactory(BackboneModel) {
         'isCircular',
         'stickyEndFormat',
         'parentSequence',
+        '_type',
+        'shortName'
       ];
     }
 
@@ -266,6 +268,10 @@ function sequenceModelFactory(BackboneModel) {
         val = instantiate(association, val, {parentSequence: this, doNotValidated: !this._validated});
       }
       return val;
+    }
+
+    getShortName() {
+      return super.get('shortName') || super.get('name');
     }
 
     getStickyEnds() {

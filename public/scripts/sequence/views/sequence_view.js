@@ -139,7 +139,11 @@
 
     maximizePrimaryView: function() {
       var $outlet = $('#sequence-primary-view-outlet');
-      if(this.primaryView.maximize) {
+
+      var maximize = this.primaryView.maximize;
+      maximize = _.isFunction(maximize) ? maximize(this.model) : !!maximize;
+
+      if(maximize) {
         $outlet.addClass('maximize');
       } else {
         $outlet.removeClass('maximize');

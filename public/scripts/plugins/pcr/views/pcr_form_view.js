@@ -2,6 +2,7 @@ import Gentle from 'gentle';
 import template from '../templates/pcr_form_view.hbs';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import StickyEnds from '../../../common/lib/sticky_ends';
+import _ from 'underscore';
 
 
 export default Backbone.View.extend({
@@ -21,8 +22,11 @@ export default Backbone.View.extend({
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength()-1,
-    }, this.model.get('meta.pcr.defaults') || {},
-    {targetMeltingTemperature: 68.5});
+      name: this.model.get('name')
+    }, this.model.get('meta.pcr.defaults') || {}, {
+      targetMeltingTemperature: 68.5, 
+      partType: 'CDS'
+    });
     this.validateState();
   },
 
@@ -33,12 +37,14 @@ export default Backbone.View.extend({
   serialize: function() {
     return {
       state: this.state,
+      sourceSequenceName: this.model.get('sourceSequenceName'),
       availableStickyEnds: _.map(StickyEnds(), function(end) {
         return {
           name: end.name,
           value: end.name
         };
-      })
+      }),
+      availablePartTypes: [{name: 'CDS', value: 'CDS'}]
     };
   },
 
@@ -66,10 +72,14 @@ export default Backbone.View.extend({
   },
 
   updateState: function() {
-    this.state.name = this.getFieldFor('name').val();
-    this.state.from = this.getFieldFor('from').val() - 1;
-    this.state.to = this.getFieldFor('to').val() - 1;
-    this.state.targetMeltingTemperature = +this.getFieldFor('targetMeltingTemperature').val();
+    _.extend(this.state, {
+      name: this.getFieldFor('name').val(),
+      shortName: this.getFieldFor('shortName').val(),
+      from: this.getFieldFor('from').val() - 1,
+      to: this.getFieldFor('to').val() - 1,
+      partType: this.getFieldFor('partType').val()
+    })
+    
     this.validateState();
     this.updateFormErrors();
   },
@@ -78,11 +88,12 @@ export default Backbone.View.extend({
     var isInteger = (val) => _.isNumber(val) && !_.isNaN(val) && val >= 0;
     var validBp = (val) => isInteger(val) && val < this.model.getLength();
 
-    this.state.invalid = {};
-    this.state.invalid.name = !this.state.name;
-    this.state.invalid.from = !validBp(this.state.from);
-    this.state.invalid.to = !validBp(this.state.to);
-    this.state.invalid.targetMeltingTemperature = !isInteger(this.state.targetMeltingTemperature);
+    this.state.invalid = {
+      name: !this.state.name,
+      from: !validBp(this.state.from),
+      to: !validBp(this.state.to),
+      targetMeltingTemperature: !isInteger(this.state.targetMeltingTemperature),
+    };
 
     this.state.invalid.any = _.reduce(this.validateFields(), (memo, field) => memo || this.state.invalid[field], false);
 
@@ -116,22 +127,29 @@ export default Backbone.View.extend({
     return {sequence: sequenceNts, from: frm, to: to};
   },
 
-  getFormData: function() {
-    return {
-      name: this.state.name,
-      from: this.state.from,
-      to: this.state.to,
-      targetMeltingTemperature: this.state.targetMeltingTemperature,
-      stickyEnds: _.find(StickyEnds(), {name: this.getFieldFor('stickyEnds').val()})
-    };
+  getData: function() {
+    var data = _.pick(this.state, 
+      'name', 
+      'from', 
+      'to', 
+      'targetMeltingTemperature',
+      'partType',
+      'shortName'
+    );
+
+    data.stickyEnds = _.find(StickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
+
+    return data;
   },
 
   createNewPcrProduct: function(event) {
+    console.log(this.getData())
     event.preventDefault();
+    return; // TODO remove
     if(this.state.invalid.any) {
       alert("Some PCR primer details are incorrect or missing.  Please correct them first.");
     } else {
-      var data = this.getFormData();
+      var data = this.getData();
       this.parentView().makePrimer(data);
     }
   },

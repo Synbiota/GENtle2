@@ -6,6 +6,7 @@ import ListView from './pcr_list_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import EditsView from './pcr_edits_view';
 
 
 var viewStates = {
@@ -43,6 +44,8 @@ export default Backbone.View.extend({
     this.formView = new FormView(_.extend(argumentsForFormView, args));
     this.listView = new ListView(args);
     this.progressView = new ProgressView(args);
+    console.log(new EditsView(this.model))
+    this.setView('.pcr-edits-container', new EditsView({model: this.model}))
   },
 
   beforeRender: function() {

@@ -1,12 +1,12 @@
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
+import Sequence from '../../../sequence/models/sequence';
 
-
-class PcrProductSequence extends TemporarySequence {
+class PcrProductSequence extends Sequence {
   get requiredFields() {
     return super.requiredFields.concat([
       'forwardPrimer',
       'reversePrimer',
       'stickyEnds',
+      'partType'
     ]);
   }
 }
