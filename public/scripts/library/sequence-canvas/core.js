@@ -365,9 +365,7 @@ class SequenceCanvasCore {
       highlight = this.highlight,
       initPosY = posY;
 
-    this.artist.rect(0, posY, canvasWidth, rowsHeight, {
-      fillStyle: '#fff'
-    });
+    this.artist.clear(posY, rowsHeight);
 
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {

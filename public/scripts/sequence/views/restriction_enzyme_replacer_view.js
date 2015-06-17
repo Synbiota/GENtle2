@@ -12,6 +12,7 @@
     Sequence = require('../models/sequence'),
     SequenceCanvas = require('gentle-sequence-canvas'),
     Styles = require('../../styles.json'),
+    _ = require('underscore'),
     CondonSubView;
 
   var LineStyles = Styles.sequences.lines;
@@ -39,9 +40,9 @@
       } 
     },
 
-    colorRESText: function(changeableBases, offset, _base_pos) {
-      _base_pos = Number(_base_pos) + Number(offset);
-      if (_.includes(changeableBases, _base_pos)) {
+    colorRESText: function(changeableBases, offset, basePos) {
+      basePos = Number(basePos) + Number(offset);
+      if (_.includes(changeableBases, basePos)) {
         return "#000000";
       } else {
         return LineStyles.complements.text.color;
@@ -50,14 +51,14 @@
     },
 
 
-    colorWhiteText: function(changeableBases, offset, _base_pos) {
+    colorWhiteText: function(changeableBases, offset) {
       return "#FFFFFF";
     },
 
     highlightBlueText: function(_base) {
 
       if (_base == " ")
-        { return "#ffffff"; }
+        { return 'rgb(236, 236, 236)'; }
       else
         { return "#428BCA"; }
     },
@@ -67,14 +68,18 @@
 
       if (this.showModal === true){
         this.sequenceCanvases = [];
-        $("#condonSubModal").modal("show");
+        $("#condonSubModal").modal("show").on('hide.bs.modal', () => {
+          this.showModal = false;
+        });
+
         // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart.       
         //for (var i=1; i <= Object.keys(this.replacements).length; i++) {
         //this.replacements.forEach(function(_replacement) {
+        var replacements = _.sortBy(_.values(this.replacements), (_replacement) => {
+          return _replacement.subSeqOffset;
+        });
 
-
-        _.each(this.replacements, (_replacement, i) => {
-          i = i^0 + 1;
+        _.each(replacements, (_replacement, i) => {
           let paddedSubSeq= _replacement.paddedSubSeq;
           let tempSequence = new Sequence({
             sequence: paddedSubSeq.subSeq,
@@ -100,7 +105,7 @@
               textFont: LineStyles.position.text.font,
               textColour: LineStyles.position.text.color,
               transform: function(base) { 
-                return base+_replacement.subSeqOffset-1;
+                return base+_replacement.paddedSubSeq.startBase;
               },
               //visible: _.memoize2(function() {
               //  return _this.sequence.get('displaySettings.rows.numbering');
@@ -127,7 +132,7 @@
               baseLine: 15,
               drawSingleStickyEnds: true,
               textFont: LineStyles.dna.text.font,
-              textColour: (_base, _base_pos) =>  {return this.colorRESText(_replacement.changeableBases, _replacement.subSeqOffset ,_base_pos);},
+              textColour: (_base, _base_pos) =>  {return this.colorRESText(_replacement.changeableBases, _replacement.paddedSubSeq.startBase ,_base_pos);},
               selectionColour: LineStyles.dna.selection.fill,
               selectionTextColour: LineStyles.dna.selection.color
             }],
@@ -272,16 +277,6 @@
 
       })
 
-      //this.sequenceCanvas.afterNextRedraw(function() {
-
-      //  this.highlight = undefined;
-      //  this.select(
-      //    replacementCodonStartBase, (replacementCodonStartBase + 2)
-      //  );          
-      // this.displayCaret(replacementCodonStartBase + 3);
-      //  this.focus();
-      //});
-
       this.showModal=false;
       $("#condonSubModal").modal("hide");
       this.sequenceCanvas.redraw(); 
@@ -326,6 +321,7 @@
 
         var baseAA= getAASubSeq(subSeq);
         var aaData= SynbioData.codonOptimisations;
+
         // Get all possible substitutes
         for(var i=0; i<baseAA.length; i += 1){
           var aminoAcid= baseAA[i];
@@ -392,9 +388,7 @@
           var startBases = _.map(replacement.allMatches, function(_match) {return _match.startBase;})
           var changeableBases = [];
           _.each(startBases, function(startBase) {
-            changeableBases.push(startBase);
-            changeableBases.push(startBase + 1);
-            changeableBases.push(startBase + 2);
+            changeableBases.push(startBase, startBase + 1, startBase + 2);
           });
 
           replacement.changeableBases = changeableBases;
@@ -407,8 +401,7 @@
           replacement.bestStartBase = replacement.allMatches[0].startBase;
           replacement.bestEndBase = replacement.allMatches[0].endBase;
           
-
-          var marginOffset = (replacement.bestStartBase - replacement.subSeqOffset);
+          var marginOffset = (replacement.bestStartBase - replacement.paddedSubSeq.startBase);
           if(marginOffset < 0) { marginOffset = 0; }
 
           replacement.paddedReplacementCodon = " ".repeat(marginOffset) + replacement.bestReplacementCodon;
