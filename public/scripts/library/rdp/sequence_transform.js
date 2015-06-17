@@ -257,7 +257,6 @@ var validateTerminalCBase = function(sequenceModel, allowTransform=true) {
     let offset = sequenceModel.getOffset(sequenceModel.STICKY_END_NONE);
     let frm = offset + len - 3;
     let lastCodon = sequenceModel.getSubSeq(frm, frm + 2, sequenceModel.STICKY_END_FULL);
-    // console.log(offset, len, frm, lastCodon)
     if(lastCodon[2] !== 'C') {
       let replacement = terminalCBaseAaMap[lastCodon];
       let errored;

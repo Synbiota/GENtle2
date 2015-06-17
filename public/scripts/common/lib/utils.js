@@ -4,6 +4,7 @@ import Sequence from '../../sequence/models/sequence';
 
 
 export function getProductAndSequenceForSequenceID (products, sequenceID) {    
+  // TODO: remove this PCR plugin specific code.
   var fields = ['forwardPrimer', 'reversePrimer'];
   var sequence;
   var product = _.find(products, function(product) {

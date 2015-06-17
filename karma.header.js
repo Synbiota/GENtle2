@@ -2,3 +2,5 @@
 
 window._ = require('underscore.mixed');
 var Backbone = require('backbone.mixed');
+
+window.TESTS_RUNNING = true;

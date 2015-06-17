@@ -6,7 +6,6 @@ import CanvasView from './sequencing_primers_canvas_view';
 import Gentle from 'gentle';
 import Sequence from '../../../sequence/models/sequence';
 import {namedHandleError} from '../../../common/lib/handle_error';
-import Product from '../../pcr/lib/product';
 import errors from '../lib/errors';
 import _ from 'underscore';
 
@@ -21,9 +20,9 @@ export default Backbone.View.extend({
 
   initialize: function() {
     this.model = Gentle.currentSequence;
+
     var products = this.getProducts();
-    _.map((productData) => new Product(productData), products);
-    this.model.set('meta.sequencingPrimers.products', products);
+    this.model.set('sequencingProducts', products);
 
     this.productsView = new ProductsView(); 
     this.setView('.sequencing-primers-products-container', this.productsView);
@@ -32,7 +31,7 @@ export default Backbone.View.extend({
   },
 
   getProducts: function () {
-    return this.model.get('meta.sequencingPrimers.products') || [];
+    return this.model.get('sequencingProducts') || [];
   },
 
   serialize: function() {
@@ -50,8 +49,7 @@ export default Backbone.View.extend({
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
 
-    var sequenceBases = this.model.get('sequence');
-    getAllPrimersAndProductsHelper(sequenceBases)
+    getAllPrimersAndProductsHelper(this.model)
     .progress((progressOrStatus) => {
       if(progressOrStatus.level) {
         var $message = $('<p>').text(progressOrStatus.message);
@@ -64,7 +62,7 @@ export default Backbone.View.extend({
       }
     })
     .then((results) => {
-      this.model.set('meta.sequencingPrimers.products', results).throttledSave();
+      this.model.set('sequencingProducts', results).throttledSave();
       this.render();
     })
     .catch((error) => {
@@ -95,9 +93,9 @@ export default Backbone.View.extend({
           name: primer.name,
           _type: 'primer',
           ranges: [{
-            from: primer.from,
-            to: primer.to,
-            reverseComplement: !!primer.antisense
+            from: primer.range.from,
+            to: primer.range.to,
+            reverseComplement: primer.range.reverse,
           }]
         });
       }
@@ -114,7 +112,7 @@ export default Backbone.View.extend({
     var product = _.findWhere(this.getProducts(), {id: productId});
     var canvasView = this.canvasView;
     canvasView._freezeScrolling = true;
-    canvasView.sequenceCanvas.scrollToBase(product.primer.from, false).then(() => {
+    canvasView.sequenceCanvas.scrollToBase(product.primer.range.from, false).then(() => {
       canvasView._freezeScrolling = false;
     });
   },

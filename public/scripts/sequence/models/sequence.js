@@ -1,11 +1,10 @@
 import Backbone from 'backbone';
 import sequenceModelFactory from 'gentle-sequence-model/factory';
-import HistorySteps from './history_steps';
 import Gentle from 'gentle';
 import _ from 'underscore';
 
 
-export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
+export default class SequenceModel extends sequenceModelFactory(Backbone.DeepModel) {
   defaults() {
     return _.extend(super.defaults(), {
       displaySettings: {
@@ -57,7 +56,7 @@ export default class Sequence extends sequenceModelFactory(Backbone.DeepModel) {
   }
 
   clearSequencingPrimers() {
-    return this.clearObjectAttribute('meta.sequencingPrimers');
+    return this.clearObjectAttribute('sequencingProducts');
   }
 
   clearObjectAttribute(attribute) {

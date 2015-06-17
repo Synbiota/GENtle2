@@ -34,8 +34,8 @@ export default Backbone.View.extend({
   initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
 
-    var products = getPcrProductsFromSequence(this.model);
-    savePcrProductsToSequence(this.model, products);
+    var products = []; //getPcrProductsFromSequence(this.model);
+    // savePcrProductsToSequence(this.model, products);
 
     this.viewState = (showForm || !products.length) ? viewStates.form : viewStates.products;
 
@@ -61,7 +61,7 @@ export default Backbone.View.extend({
     this.render();
   },
 
-  showProducts: function(product) {
+  parentShowProduct: function(product) {
     this.hideCanvas();
     this.listView.showProduct(product);
     this.viewState = viewStates.products;
@@ -96,16 +96,16 @@ export default Backbone.View.extend({
     this.removeView('#pcr-canvas-container');
   },
 
-  deleteProduct: function(product) {
-    var products = getPcrProductsFromSequence(this.model);
-    var idx = products.indexOf(product);
-    products.splice(idx, 1);
-    savePcrProductsToSequence(this.model, products);
-    if(_.isEmpty(products)) {
-      this.showFormFn();
-    } else {
-      this.showProducts();
-    }
-  },
+  // deleteProduct: function(product) {
+  //   var products = getPcrProductsFromSequence(this.model);
+  //   var idx = products.indexOf(product);
+  //   products.splice(idx, 1);
+  //   savePcrProductsToSequence(this.model, products);
+  //   if(_.isEmpty(products)) {
+  //     this.showFormFn();
+  //   } else {
+  //     this.showProducts();
+  //   }
+  // },
 
 });

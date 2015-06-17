@@ -6,6 +6,7 @@ import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import _ from 'underscore';
 import Styles from '../../../styles.json';
 
+
 var LineStyles = Styles.sequences.lines;
 var featuresColors = LineStyles.features.color;
 var defaultColor = LineStyles.complements.text.color;
@@ -37,9 +38,11 @@ export default Backbone.View.extend({
 
     if(!this.product) return defaultColor;
 
-    if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
+    let forwardPrimer = this.product.get('forwardPrimer');
+    let reversePrimer = this.product.get('reversePrimer');
+    if(pos >= forwardPrimer.range.to && pos < reversePrimer.range.from) {
       return defaultColor;
-    } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
+    } else if(pos >= forwardPrimer.annealingRegion.range.from && pos < reversePrimer.annealingRegion.range.to){
       return colors.annealingRegion.fill;
     } else {
       return colors.stickyEnd.fill;
