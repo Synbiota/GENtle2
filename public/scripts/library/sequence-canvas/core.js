@@ -469,13 +469,13 @@ class SequenceCanvasCore {
     if (yOffset !== undefined) {
       layoutHelpers.yOffset = yOffset;
 
-      // this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
-      // this.sequence.set('displaySettings.yOffset',
-      //   layoutHelpers.yOffset = yOffset, {
-      //     silent: true
-      //   }
-      // );
-      // this.sequence.throttledSave();
+      this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
+      this.sequence.set('displaySettings.yOffset',
+        layoutHelpers.yOffset = yOffset, {
+          silent: true
+        }
+      );
+      this.sequence.throttledSave();
     }
 
     this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
