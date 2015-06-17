@@ -1,164 +1,209 @@
+import _ from 'underscore';
 import data from '../../common/lib/synbio_data';
 
 import SequenceRange from '../sequence-model/range';
-import SequenceFeature from '../sequence-model/feature';
-import ValidationResponse from './validation_response';
+import RdpSequenceFeature from './rdp_sequence_feature';
+import RdpEdit from './rdp_edit';
+
+
+var CONTEXT_BASE_PAIRS = 9;
+
+
+var len = function(sequenceModel) {
+ return sequenceModel.getLength(sequenceModel.STICKY_END_NONE);
+};
+
+
+var isMultipleOf3 = function(sequenceModel) {
+  return len(sequenceModel) % 3 === 0;
+};
+
+
+var errorOnNotMultipleOf3 = function(sequenceModel, rdpEditType) {
+  var error;
+  if(!isMultipleOf3(sequenceModel)) {
+    var errorMsg = `Requires sequence to be a mutliple of 3 but is "${len(sequenceModel)}" long.`;
+    error = new RdpEdit(rdpEditType, undefined, undefined, errorMsg);
+  }
+  return error;
+};
 
 
 /**
- * @method  validateMultipleOf3
+ * @method  multipleOf3
  * Does not transform by default.
  *
  * @param  {SequenceModel}  sequenceModel
- * @param  {Boolean} allowTransform=false
- * @return {ValidationResponse}
+ * @return {RdpEdit}
  */
-var validateMultipleOf3 = function(sequenceModel, allowTransform=false) {
-  let errors = [];
-  let transforms = [];
+var multipleOf3 = function(sequenceModel) {
   let offset = sequenceModel.getOffset(sequenceModel.STICKY_END_NONE);
-  let len = sequenceModel.getLength(sequenceModel.STICKY_END_NONE);
-  let size = len % 3;
+  let length = len(sequenceModel);
+  let size = length % 3;
+  var rdp_edit;
   if(size !== 0) {
-    let errored = false;
-    let frm = offset + len - size;
-    var name;
-    let desc;
-    if(allowTransform) {
-      name = 'Removed bases';
-      desc = 'Sequence was not a multiple of 3';
-      sequenceModel.deleteBases(frm, size, {stickyEndFormat: sequenceModel.STICKY_END_FULL});
-    } else {
-      name = 'Extra bases';
-      desc = 'Sequence not a multiple of 3';
-      errored = true;
-    }
-    let ranges = [new SequenceRange({
+    let frm = offset + length - size;
+    let _type = RdpEdit.types.MULTIPLE_OF_3;
+    var name = 'Will remove bases';
+    var desc = 'Will remove bases to make a multiple of 3';
+    var ranges = [new SequenceRange({
       name: name,
       from: frm,
       size: size,
     })];
-    let _type = errored ? 'error' : 'note';
-    let feature = new SequenceFeature({name, desc, ranges, _type});
-    if(errored) {
-      errors = [feature];
-    } else {
-      transforms = [feature];
-    }
+
+    // Get a snippet of sequence to show the situation before the edit.
+    var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
+    var contextualTo = frm + size;
+    var sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+    var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+
+    sequenceModel.deleteBases(frm, size, {stickyEndFormat: sequenceModel.STICKY_END_FULL});
+
+    name = 'Removed bases';
+    desc = 'Sequence was not a multiple of 3';
+    ranges = [];
+
+    // Get a snippet of sequence to show the situation after the edit.
+    contextualTo = frm;
+    sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+
+    var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+    rdp_edit = new RdpEdit(_type, contextBefore, contextAfter);
   }
-  return new ValidationResponse(errors, transforms);
+  return rdp_edit;
 };
 
 
 /**
- * @method  validateMethionineStartCodon
+ * @method  methionineStartCodon
  * @param  {SequenceModel}  sequenceModel
- * @param  {Boolean} allowTransform=true
- * @return {ValidationResponse}
+ * @return {RdpEdit}
  */
-var validateMethionineStartCodon = function(sequenceModel, allowTransform=true) {
-  let errors = [];
-  let transforms = [];
-  let frm = sequenceModel.getOffset(sequenceModel.STICKY_END_NONE);
-  let sequenceBases = sequenceModel.getSubSeq(frm, frm + 2, sequenceModel.STICKY_END_FULL);
+var methionineStartCodon = function(sequenceModel) {
+  var _type = RdpEdit.types.METHIONINE_START_CODON;
+  var length = len(sequenceModel);
+  if(length < 3) {
+    var errorMsg = `Requires sequence to at least 3 base pairs long but is "{len(sequenceModel)}" long.`;
+    return new RdpEdit(_type, undefined, undefined, errorMsg);
+  }
+
+  var rdpEdit;
+  var offset = sequenceModel.getOffset(sequenceModel.STICKY_END_NONE);
+  let sequenceBases = sequenceModel.getSubSeq(offset, offset + 2, sequenceModel.STICKY_END_FULL);
   const METHIONINE = _.find(data.aa, (aa) => aa.short === 'M').codons[0];
+
   if(sequenceBases !== METHIONINE) {
-    var name;
-    let desc;
-    let errored = false;
-    if(allowTransform) {
-      let options = {stickyEndFormat: sequenceModel.STICKY_END_FULL};
-      if(sequenceBases === 'GTG' || sequenceBases === 'TTG') {
-        name = 'Modfied ATG';
-        desc = 'Modfied start codon to be ATG (Methionine)';
-        sequenceModel.changeBases(frm, METHIONINE, options);
-      } else {
-        name = 'Inserted ATG';
-        desc = 'Inserted ATG (Methionine) start codon';
-        sequenceModel.insertBases(METHIONINE, frm, options);
-      }
+    var name, desc, sequence, contextBefore, contextAfter, contextualTo;
+    var ranges = [];
+    var size = 3;
+    var contextualFrom = offset;
+
+    let options = {stickyEndFormat: sequenceModel.STICKY_END_FULL};
+    if(sequenceBases === 'GTG' || sequenceBases === 'TTG') {
+      name = 'Will modify ' + sequenceBases;
+      desc = 'Will modify start codon to be ATG (Methionine)';
+      ranges = [new SequenceRange({
+        name: name,
+        from: offset,
+        size: size,
+      })];
+
+      // Get a sequence snippet before
+      contextualTo = offset + size + CONTEXT_BASE_PAIRS;
+      sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+      contextBefore = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+
+      sequenceModel.changeBases(offset, METHIONINE, options);
+
+      name = 'Modified ' + sequenceBases;
+      desc = 'Modified start codon to be ATG (Methionine)';
+      ranges = [new SequenceRange({
+        name: name,
+        from: offset,
+        size: size,
+      })];
+
+      // Get a sequence snippet after
+      sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+      contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
     } else {
-      name = 'Not ATG';
-      desc = 'Not a Methionine start codon';
-      errored = true;
+      name = 'Will insert ATG';
+      desc = 'Will insert ATG (Methionine) start codon';
+
+      // Get a sequence snippet before
+      contextualTo = offset + CONTEXT_BASE_PAIRS;
+      sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+      contextBefore = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+      
+      name = 'Inserted ATG';
+      desc = 'Inserted ATG (Methionine) start codon';
+      sequenceModel.insertBases(METHIONINE, offset, options);
+
+      ranges = [new SequenceRange({
+        name: name,
+        from: offset,
+        size: size,
+      })];
+      // Get a sequence snippet after
+      contextualTo = offset + size + CONTEXT_BASE_PAIRS;
+      sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+      contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
     }
-    let ranges = [new SequenceRange({
-      name: name,
-      from: frm,
-      size: 3
-    })];
-    let _type = errored ? 'error' : 'note';
-    let feature = new SequenceFeature({name, desc, ranges, _type});
-    if(errored) {
-      errors = [feature];
-    } else {
-      transforms = [feature];
-    }
+
+    rdpEdit = new RdpEdit(_type, contextBefore, contextAfter);
   }
-  return new ValidationResponse(errors, transforms);
+  return rdpEdit;
 };
 
 
 /**
- * @method validateNoStopCodon
+ * @method noTerminalStopCodon
  * @param  {SequenceModel}  sequenceModel
- * @param  {Boolean} allowTransform=true
- * @return {ValidationResponse}
+ * @return {RdpEdit}
  */
-var validateNoStopCodon = function(sequenceModel, allowTransform=true) {
-  let validationResponse = validateMultipleOf3(sequenceModel, allowTransform);
-  if(!validationResponse.success) return validationResponse;
+var noTerminalStopCodon = function(sequenceModel) {
+  var _type = RdpEdit.types.NO_TERMINAL_STOP_CODON;
+  var error = errorOnNotMultipleOf3(sequenceModel, _type);
+  if(error) return error;
 
+  var rdpEdit;
   let offset = sequenceModel.getOffset(sequenceModel.STICKY_END_NONE);
-  let len = sequenceModel.getLength(sequenceModel.STICKY_END_NONE);
-  let aAs = sequenceModel.getAAs(offset, len, sequenceModel.STICKY_END_FULL);
+  let length = len(sequenceModel);
+  var frm = Math.max(offset, offset + length - 3);
+  let aAs = sequenceModel.getAAs(frm, 3, sequenceModel.STICKY_END_FULL);
 
-  let indexes = [];
-  _.each(aAs, (codon, i) => {
-    if(codon === 'X') {
-      indexes.push(offset + i*3);
-    }
-  });
-  // Sort indexes in reverse order so that when we remove them, we remove the
-  // correct bases
-  indexes = _.sortBy(indexes, (index) => len - index);
+  if(aAs.length === 1 && aAs[0] === 'X') {
+    var name = 'Will remove stop codon';
+    var desc = 'Will remove terminal stop codon';
+    var ranges = [new SequenceRange({
+      name: 'Stop codon',
+      from: frm,
+      size: 3,
+    })];
 
-  let errors = [];
-  let transforms = [];
-  if(indexes.length) {
-    let errored = false;
-    var name;
-    let desc;
-    if(allowTransform) {
-      // Remove stop codons
-      name = 'Removed stop codon(s)';
-      desc = `Removed ${indexes.length} stop codons`;
-      _.each(indexes, function(index) {
-        sequenceModel.deleteBases(index, 3, {stickyEndFormat: sequenceModel.STICKY_END_FULL});
-      });
-    } else {
-      name = 'Stop codon(s) present';
-      desc = `Stop codons should not be present in RDP parts but ${indexes.length} present`;
-      errored = true;
-    }
-    let ranges = [];
-    _.each(indexes, function(index) {
-      ranges.push(new SequenceRange({
-        name: name,
-        from: index,
-        size: 3,
-      }));
-    });
-    let _type = errored ? 'error' : 'note';
-    let feature = new SequenceFeature({name, desc, ranges, _type});
-    if(errored) {
-      errors = [feature];
-    } else {
-      transforms = [feature];
-    }
+    // Get a sequence snippet before
+    var contextualFrom = Math.max(offset, frm - CONTEXT_BASE_PAIRS);
+    var contextualTo = frm + 3;
+    var sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+    var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+
+    sequenceModel.deleteBases(frm, 3, {stickyEndFormat: sequenceModel.STICKY_END_FULL});
+
+    // Remove terminal stop codon
+    name = 'Removed stop codon';
+    desc = `Removed terminal stop codon`;
+    ranges = [];
+
+    // Get a sequence snippet after
+    contextualTo = frm;
+    sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+    var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+
+    rdpEdit = new RdpEdit(_type, contextBefore, contextAfter);
   }
 
-  return new ValidationResponse(errors, transforms);
+  return rdpEdit;
 };
 
 
@@ -238,93 +283,96 @@ var terminalCBaseAaMap = {
 
 
 /**
- * @method validateTerminalCBase
+ * @method terminalCBase
  * @param  {SequenceModel}  sequenceModel
- * @param  {Boolean} allowTransform=true
- * @return {ValidationResponse}
+ * @return {RdpEdit}
  */
-var validateTerminalCBase = function(sequenceModel, allowTransform=true) {
-  let validationResponse = validateMultipleOf3(sequenceModel, allowTransform);
-  if(!validationResponse.success) return validationResponse;
+var terminalCBase = function(sequenceModel) {
+  var _type = RdpEdit.types.TERMINAL_C_BASE;
+  var error = errorOnNotMultipleOf3(sequenceModel, _type);
+  if(error) return error;
 
-  let len = sequenceModel.getLength(sequenceModel.STICKY_END_NONE);
+  var length = len(sequenceModel);
+  var rdpEdit;
 
-  let errors = [];
-  let transforms = [];
   if(len !== 0) {
-    // Due to validation from `validateMultipleOf3` length will either be 0 or
+    // Due to validation from `multipleOf3` length will either be 0 or
     // a multiple of 3.
     let offset = sequenceModel.getOffset(sequenceModel.STICKY_END_NONE);
-    let frm = offset + len - 3;
+    let frm = offset + length - 3;
     let lastCodon = sequenceModel.getSubSeq(frm, frm + 2, sequenceModel.STICKY_END_FULL);
     if(lastCodon[2] !== 'C') {
       let replacement = terminalCBaseAaMap[lastCodon];
-      let errored;
-      var name;
-      let desc;
-      if(replacement) {
-        if(allowTransform) {
-          name = 'Last base changed to "C".';
-          desc = `The last base of sequence must be "C".  Codon has been automatically transform from "${lastCodon}" to "${replacement}".`;
-          sequenceModel.changeBases(frm, replacement, {stickyEndFormat: sequenceModel.STICKY_END_FULL});
-        } else {
-          errored = true;
-          name = 'Last base not "C"';
-          desc = 'The last base of sequence must be "C" but automatic transform disabled.';
-        }
-      } else {
-        errored = true;
-        name = 'Last base not "C"';
-        desc = `The last base of sequence must be "C" but there is not replacement for the codon: "${lastCodon}".`;
-      }
-      let ranges = [new SequenceRange({
-        name: name,
-        from: frm,
-        size: 3
+      var name = 'Last base should be "C"';
+      var desc = '';
+
+      var ranges = [new SequenceRange({
+        name: 'Not C',
+        from: frm + 2,
+        size: 1
       })];
-      let _type = errored ? 'error' : 'note';
-      let feature = new SequenceFeature({name, desc, ranges, _type});
-      if(errored) {
-        errors = [feature];
+
+      // Get a sequence snippet before
+      var contextualFrom = Math.max(offset, frm - CONTEXT_BASE_PAIRS);
+      var contextualTo = frm + 3;
+      var sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+      var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+
+      var rangeName;
+      if(replacement) {
+        sequenceModel.changeBases(frm, replacement, {stickyEndFormat: sequenceModel.STICKY_END_FULL});
+
+        name = 'Last base changed to "C".';
+        desc = `The last base of sequence must be "C".  Codon has been automatically transform from "${lastCodon}" to "${replacement}".`;
+        rangeName = 'Changed to C';
       } else {
-        transforms = [feature];
+        name = 'Last base not C';
+        rangeName = 'Not C';
+        desc = error = `The last base of sequence must be "C" but there is no replacement for the codon: "${lastCodon}".`;
       }
+      ranges = [new SequenceRange({
+        name: rangeName,
+        from: frm + 2,
+        size: 1
+      })];
+
+      sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
+      var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
+
+      rdpEdit = new RdpEdit(_type, contextBefore, contextAfter, error);
     }
   }
-  return new ValidationResponse(errors, transforms);
+  return rdpEdit;
 };
 
 
 /**
- * @method  validateRDPSequence
+ * @method  transformSequenceForRdp
  * @param  {SequenceModel}  sequenceModel
- * @param  {Boolean} allowTransform=undefined
- * @return {ValidationResponse}
+ * @return {Array}  array of RdpEdit instances
  */
-var validateRDPSequence = function(sequenceModel, allowTransform=undefined) {
-  let functions = [
-    validateMultipleOf3,
-    validateMethionineStartCodon,
-    validateNoStopCodon,
-    validateTerminalCBase,
+var transformSequenceForRdp = function(sequenceModel) {
+  let transformationFunctions = [
+    multipleOf3,
+    methionineStartCodon,
+    noTerminalStopCodon,
+    terminalCBase,
   ];
-  let response;
-  _.some(functions, function(validation) {
-    let tempResponse = validation(sequenceModel, allowTransform);
-    if(response) {
-      tempResponse = ValidationResponse.merge(response, tempResponse);
+  var rdpEdits = [];
+  _.each(transformationFunctions, function(transformation) {
+    var rdpEdit = transformation(sequenceModel);
+    if(rdpEdit) {
+      rdpEdits.push(rdpEdit);
     }
-    response = tempResponse;
-    return !response.success;
   });
-  return response;
+  return rdpEdits;
 };
 
 
 export default {
-  validateMultipleOf3,
-  validateMethionineStartCodon,
-  validateNoStopCodon,
-  validateTerminalCBase,
-  validateRDPSequence,
+  multipleOf3,
+  methionineStartCodon,
+  noTerminalStopCodon,
+  terminalCBase,
+  transformSequenceForRdp,
 };

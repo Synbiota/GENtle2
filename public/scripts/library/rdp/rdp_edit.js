@@ -1,32 +1,26 @@
+import _ from 'underscore';
 
 
 /**
- * @class ValidationResponse
+ * @class RdpEdit
  */
-class ValidationResponse {
-  errors: Array;  // Array of SequenceFeatures
-  transforms: Array;  // Array of SequenceFeatures
-  success: Boolean;
-
-  constructor(errors=[], transforms=[]) {
-    this.errors = errors;
-    this.transforms = transforms;
-    this.success = errors.length === 0;
+class RdpEdit {
+  constructor(type, contextBefore, contextAfter, error=undefined) {
+    this.type = type;
+    if(!_.chain(RdpEdit.types).values().contains(this.type)) throw new TypeError('type is unknown: ' + type);
+    this.contextBefore = contextBefore;
+    this.contextAfter = contextAfter;
+    this.error = error;
   }
 }
 
 
-/**
- * @method merge
- * @param  {ValidationResponse} validationResponse1
- * @param  {ValidationResponse} validationResponse2
- * @return {ValidationResponse}
- */
-ValidationResponse.merge = function(validationResponse1, validationResponse2) {
-  var errors = validationResponse1.errors.concat(validationResponse2.errors);
-  var transforms = validationResponse1.transforms.concat(validationResponse2.transforms);
-  return new ValidationResponse(errors, transforms);
+RdpEdit.types = {
+  MULTIPLE_OF_3: 'RDP_EDIT_MULTIPLE_OF_3',
+  METHIONINE_START_CODON: 'RDP_EDIT_METHIONINE_START_CODON',
+  NO_TERMINAL_STOP_CODON: 'RDP_EDIT_NO_TERMINAL_STOP_CODON',
+  TERMINAL_C_BASE: 'RDP_EDIT_TERMINAL_C_BASE',
 };
 
 
-export default ValidationResponse;
+export default RdpEdit;
