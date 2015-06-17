@@ -338,27 +338,24 @@ class Handlers {
   }
 
   handlePaste() {
-    var _this = this,
-      selection = _this.selection,
-      caretPosition = _this.caretPosition;
+    var selection = this.selection;
+    var caretPosition = this.caretPosition;
 
     if(!this.editable) {
-
-      this.copyPasteHandler.paste().then(function(text) {
+      this.copyPasteHandler.paste().then((text) => {
         if (caretPosition !== undefined && !selection) {
-          text = _this.cleanPastedText(text);
-          _this.hideCaret();
-          _this.sequence.insertBases(text, caretPosition);
-          _this.caretPosition = caretPosition + text.length;
-          _this.afterNextRedraw(() => {
-            _this.displayCaret();
+          text = this.cleanPastedText(text);
+          this.hideCaret();
+          this.sequence.insertBases(text, caretPosition);
+          this.caretPosition = caretPosition + text.length;
+          this.afterNextRedraw(() => {
+            this.displayCaret();
           });
-          _this.focus();
+          this.focus();
         }
-
       });
-
     }
+
   }
 
   handleUndo(event) {

@@ -753,8 +753,7 @@ class SequenceCanvasCore {
   destroy() {
     this.sequence.off(null, this.refresh);
   }
-
-
 }
+
 
 export default SequenceCanvasCore;
