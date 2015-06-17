@@ -30,7 +30,7 @@ export default function drawAnnotation(line, shape, {
     arrowEndX += reverse ? -5 : 5;
   }
 
-  drawJaggedArrow(shape, {
+  var arrow = drawJaggedArrow(shape, {
     fromX: arrowStartX, 
     fromY: arrowY, 
     toX: arrowEndX, 
@@ -50,6 +50,6 @@ export default function drawAnnotation(line, shape, {
     left: startX + textOffsetLeft,
     maxWidth: deltaX - textOffsetLeft - textOffsetRight
   });
-  
 
+  return arrow;
 }

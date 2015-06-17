@@ -65,4 +65,5 @@ export default function drawJaggedArrow(shape, {
   shape.rotate(angle);
   shape.polygon(points);
 
+  return shape;
 }

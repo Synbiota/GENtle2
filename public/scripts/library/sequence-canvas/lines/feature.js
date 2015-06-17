@@ -179,24 +179,27 @@ class Feature extends Line {
 
         var currentY = y + i*this.unitHeight;
 
-        (feature._type === 'primer' ? drawPrimer : drawAnnotation)(this, shape, {
+        var drawFunction = feature._type === 'primer' ? drawPrimer : drawAnnotation;
+        var eventRegion = drawFunction(this, shape, {
           feature, range, row, startX, deltaX, i, baseRange, 
           y: currentY,
           rangeFrom: frm,
           rangeTo: to
         });
 
-        shape.on('mouseover', _.partial(
+        eventRegion.addClass('event-region');
+
+        eventRegion.on('mouseover', _.partial(
           onMouseOver, 
           sequenceCanvas, featureClass, feature.name, range.from, range.to
         ));
 
-        shape.on('mouseleave', _.partial(
+        eventRegion.on('mouseleave', _.partial(
           onMouseLeave, 
           sequenceCanvas, featureClass
         ));
 
-        shape.on('mousedown', _.partial(
+        eventRegion.on('mousedown', _.partial(
           onMouseDown, 
           sequenceCanvas, range.from, range.to
         ));

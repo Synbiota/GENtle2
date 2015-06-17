@@ -10,12 +10,8 @@ export default function drawAnnotation(line, shape, {
     startX, 
     y
   );
-
-  shape.rect(
-    deltaX,
-    line.unitHeight - line.margin
-  ).addClass('event-region');
   
+  // Draw thin line for full length of annotation
   shape.rect(
     deltaX, 
     line.lineSize
@@ -28,7 +24,7 @@ export default function drawAnnotation(line, shape, {
     maxWidth: deltaX
   });
 
-  shape.rect(
+  return shape.rect(
     $label.outerWidth(),
     height
   ).backward();
