@@ -4,7 +4,7 @@ import Q from 'q';
 import PrimerCalculation from '../../pcr/lib/primer_calculation';
 import {getAllPrimersAndProductsHelper} from '../lib/sequencing_primers_design';
 import idtMeltingTemperatureStub from '../../pcr/tests/idt_stub';
-import TemporarySequenceModel from '../../../sequence/models/Temporary_Sequence';
+import TemporarySequenceModel from '../../../sequence/models/temporary_sequence';
 import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 
 import {stubCurrentUser} from '../../../common/tests/stubs';
