@@ -341,7 +341,7 @@ class Handlers {
     var selection = this.selection;
     var caretPosition = this.caretPosition;
 
-    if(!this.editable) {
+    if(this.editable) {
       this.copyPasteHandler.paste().then((text) => {
         if (caretPosition !== undefined && !selection) {
           text = this.cleanPastedText(text);
