@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import Gentle from 'gentle';
 import template from '../templates/linear_map_view.hbs';
 import _ from 'underscore';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
 
 export default Backbone.View.extend({
   manage: true,

@@ -365,9 +365,7 @@ class SequenceCanvasCore {
       highlight = this.highlight,
       initPosY = posY;
 
-    this.artist.rect(0, posY, canvasWidth, rowsHeight, {
-      fillStyle: '#fff'
-    });
+    this.artist.clear(posY, rowsHeight);
 
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
@@ -482,12 +480,17 @@ class SequenceCanvasCore {
   **/
   scrollBaseToVisibility(base) {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
+    var distance = 0;
+    var buffer = this.$scrollingParent.height()/2;
+ 
+     if (distanceToVisibleCanvas !== 0) {
+      distance = this.layoutHelpers.yOffset + distanceToVisibleCanvas;
+      distance += (distanceToVisibleCanvas > 0) ? buffer : -buffer;
 
-    if (distanceToVisibleCanvas !== 0) {
-      return this.scrollTo(this.layoutHelpers.yOffset + distanceToVisibleCanvas);
-    } else {
-      return Q.resolve();
-    }
+      return this.scrollTo(distance);
+     } else {
+       return Q.resolve();
+     }
   }
 
   scrollToBase(base) {

@@ -1,0 +1,18 @@
+.codon-selected {
+  background: $brand-primary !important;
+  color: white;
+}
+
+.canvas-overlay{
+  pointer-events: none;
+  margin-top: -20px;
+  canvas {
+    background-color: rgb(236, 236, 236);
+  }
+}
+
+#condonSubModalContainer {
+  .row {
+    overflow: hidden;
+  }
+}

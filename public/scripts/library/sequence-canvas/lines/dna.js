@@ -31,6 +31,10 @@ class DNA extends Line {
     return this.highlightColour && this.highlightColour(base, pos);
   }
 
+  getLineHighlightColour(base) {
+    return this.lineHighlightColor(base);
+  };
+
   draw(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
@@ -51,6 +55,18 @@ class DNA extends Line {
     if(subSequence) {
       for(k = 0; k < lh.basesPerRow; k++){
         if(!subSequence[k]) break;
+
+        if (_.isFunction(this.lineHighlightColor)) {          
+          let lhc = this.getLineHighlightColour(subSequence[k]); 
+
+          artist.rect(
+            x, 
+            y + 2, 
+            ls.basePairDims.width, 
+            this.height+4, 
+            {fillStyle: lhc}
+          );
+        }
         
         character = _.isFunction(this.transform) ?
           this.transform.call(sequence, k+baseRange[0]) :
