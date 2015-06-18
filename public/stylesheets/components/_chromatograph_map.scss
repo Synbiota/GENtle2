@@ -15,7 +15,7 @@
   }
 
   overflow: hidden;
-  border-bottom: 20px solid lightgray;
+  border-bottom: 20px solid #e5e5e5;
 
   .chromatograph-toggle-dropdown {
     height: 50px;
@@ -40,7 +40,7 @@
       background-color: #488fb2;
     }
 
-    .main-sequence {
+    &.main-sequence {
       width: 100%;
       background-color: #202022;
     }
