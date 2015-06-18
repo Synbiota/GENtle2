@@ -162,8 +162,8 @@ function sequenceModelFactory(BackboneModel) {
         'isCircular',
         'stickyEndFormat',
         'parentSequence',
-        '_type',
-        'shortName'
+        'shortName',
+        '_type'
       ];
     }
 
@@ -269,11 +269,6 @@ function sequenceModelFactory(BackboneModel) {
       }
       return val;
     }
-
-    getShortName() {
-      return super.get('shortName') || super.get('name');
-    }
-
     getStickyEnds() {
       var stickyEnds = super.get('stickyEnds');
       return stickyEnds && _.defaults({}, stickyEnds, {

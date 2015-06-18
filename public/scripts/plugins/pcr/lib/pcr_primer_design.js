@@ -17,26 +17,26 @@ var processReports = function(progressReports) {
 };
 
 
-var calculateFeatures = function(pcrProductModel) {
+var calculateFeaturesLegacy = function(pcrProductModel) {
   var features = [];
-  let stickEnds = pcrProductModel.getStickyEnds();
+  let stickyEnds = pcrProductModel.getStickyEnds();
 
-  if(stickEnds) {
+  if(stickyEnds) {
     let sequenceNts = pcrProductModel.getSequence(pcrProductModel.STICKY_END_FULL);
     features = [{
-      name: stickEnds.start.name + ' end',
+      name: stickyEnds.start.name + ' end',
       _type: 'sticky_end',
       ranges: [{
         from: 0,
-        to: stickEnds.start.sequence.length-1
+        to: stickyEnds.start.sequence.length-1
       }]
     },
     {
-      name: stickEnds.end.name + ' end',
+      name: stickyEnds.end.name + ' end',
       _type: 'sticky_end',
       ranges: [{
         from: sequenceNts.length - 1,
-        to: sequenceNts.length - stickEnds.end.sequence.length - 2,
+        to: sequenceNts.length - stickyEnds.end.sequence.length - 2,
       }]
     }];
   }
@@ -78,6 +78,43 @@ var calculateFeatures = function(pcrProductModel) {
     }]
   }
   ]);
+  return features;
+};
+
+var calculateFeatures = function(pcrProductModel) {
+  var features = [];
+  let stickyEnds = pcrProductModel.getStickyEnds();
+
+  if(stickyEnds) {
+    let sequenceNts = pcrProductModel.getSequence(pcrProductModel.STICKY_END_FULL);
+    features = [{
+      name: stickyEnds.start.name + ' end',
+      _type: 'sticky_end',
+      ranges: [{
+        from: 0,
+        to: stickyEnds.start.sequence.length-1
+      }]
+    },
+    {
+      name: stickyEnds.end.name + ' end',
+      _type: 'sticky_end',
+      ranges: [{
+        from: sequenceNts.length - 1,
+        to: sequenceNts.length - stickyEnds.end.sequence.length - 2,
+      }]
+    }];
+  }
+
+  features.push({
+    _type: 'misc',
+    name: pcrProductModel.get('shortName'),
+    desc: '',
+    ranges: [{
+      from: 0,
+      to: pcrProductModel.getLength(pcrProductModel.STICKY_END_FULL) - 1
+    }]
+  });
+
   return features;
 };
 
@@ -132,11 +169,19 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
  * @return {PcrProductSequence}
  */
 var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion) {
-  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
+  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds', 'partType', 'shortName', 'rdpEdits', 'sourceSequenceName']);
 
   var regionOfInterest = sequenceModel.getSubSeq(opts.from, opts.to, sequenceModel.STICKY_END_FULL);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start && opts.stickyEnds.start.sequence || '';
   var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end && opts.stickyEnds.end.sequence || '';
+
+  var shortName = opts.shortName || opts.name;
+  if(startStickyEnd) {
+    shortName = opts.stickyEnds.start.name + '-' + shortName;
+  }
+  if(endStickyEnd) {
+    shortName = shortName + '-' + opts.stickyEnds.end.name;
+  }
 
   var pcrProductSequence = startStickyEnd + regionOfInterest + endStickyEnd;
   var forwardPrimer = preparePcrPrimerAttributesFromAnnealingPrimer(forwardAnnealingRegion, startStickyEnd, endStickyEnd, pcrProductSequence);
@@ -149,6 +194,10 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
     stickyEnds: opts.stickyEnds,
+    partType: opts.partType,
+    shortName: shortName,
+    rdpEdits: opts.rdpEdits || [],
+    sourceSequenceName: opts.sourceSequenceName
   });
   pcrProduct.set('features', calculateFeatures(pcrProduct));
   pcrProduct.set('meta.pcr.options', opts);
@@ -244,6 +293,7 @@ var getPcrProductAndPrimers = function(sequenceModel, opts) {
     .then(function(primerResults) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];
+      console.log('then calculatePcrProductFromPrimers opts', opts)
       var pcrProduct = calculatePcrProductFromPrimers(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion);
       pcrProduct.set('meta.pcr.options', opts);
       resolve(pcrProduct);

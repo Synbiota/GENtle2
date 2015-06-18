@@ -18,14 +18,15 @@ export default Backbone.View.extend({
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'confirmRdpEdits',
-    'click .cancel-new-pcr-product-form': 'showProducts',
+    'click .cancel-new-pcr-product-form': 'cancel',
   },
 
   initialize: function({selectionFrom, selectionTo}) {
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength()-1,
-      name: this.model.get('name')
+      name: this.model.get('name'),
+      sourceSequenceName: this.model.get('sourceSequenceName')
     }, this.model.get('meta.pcr.defaults') || {}, {
       targetMeltingTemperature: 68.5, 
       partType: 'CDS'
@@ -40,7 +41,6 @@ export default Backbone.View.extend({
   serialize: function() {
     return {
       state: this.state,
-      sourceSequenceName: this.model.get('sourceSequenceName'),
       availableStickyEnds: _.map(StickyEnds(), function(end) {
         return {
           name: end.name,
@@ -52,6 +52,8 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
+    var $inputs = this.$('input, select');
+    $inputs.attr('disabled', this.state.calculating ? 'disabled' : null);
     this.renderCanvasSequence();
   },
 
@@ -138,7 +140,9 @@ export default Backbone.View.extend({
       'to', 
       'targetMeltingTemperature',
       'partType',
-      'shortName'
+      'shortName',
+      'rdpEdits',
+      'sourceSequenceName'
     );
 
     data.stickyEnds = _.find(StickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
@@ -149,12 +153,11 @@ export default Backbone.View.extend({
   confirmRdpEdits: function(event) {
     if(event) event.preventDefault();
     if(this.state.invalid.any) {
-      alert("Some PCR primer details are incorrect or missing.  Please correct them first.");
+      alert('Some RDP part details are incorrect or missing.  Please correct them first.');
     } else {
       let tempSequence = new this.model.constructor(this.getSequenceAttributes());
       let transforms = transformSequenceForRdp(tempSequence);
-
-      console.log('transforms', transforms)
+      this.state.rdpEdits = transforms;
 
       let transformsTypes = _.pluck(transforms, 'type');
       if(_.includes(transformsTypes, 'RDP_EDIT_MULTIPLE_OF_3')) {
@@ -165,24 +168,33 @@ export default Backbone.View.extend({
         Modal.show({
           title: 'Make source sequence RDP-compliant',
           subTitle: 'The following edit(s) must be made to the source sequence to convert it to an RDP-compliant part',
+          confirmLabel: 'Make edits',
           bodyView: new EditsView({
             transforms: transforms
           })
-        }).once('confirm', () => this.createNewPcrProduct());
+        }).once('confirm', () => {
+          this.state.rdpEdits = transforms;
+          this.createNewPcrProduct()
+        });
       }
     }
   },
 
   createNewPcrProduct: function(event) {
-    console.log('data', this.getData())
-    return;
     if(event) event.preventDefault();
     if(event && this.state.invalid.any) {
-      alert("Some PCR primer details are incorrect or missing.  Please correct them first.");
+      alert('Some PCR primer details are incorrect or missing.  Please correct them first.');
     } else {
       var data = this.getData();
+      this.state.calculating = true;
       this.parentView().makePrimer(data);
     }
+  },
+
+  cancel: function(event) {
+    if(event) event.preventDefault();
+    this.model.destroy();
+    Gentle.router.home();
   }
 
 });

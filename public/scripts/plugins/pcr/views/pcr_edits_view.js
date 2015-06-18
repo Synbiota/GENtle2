@@ -17,7 +17,9 @@ export default Backbone.View.extend({
       throw new Error('PcrEditView is missing a transforms attribute');
     }
 
-    this.post = _.isUndefined(this.post) ? false : this.post;
+    _.defaults(this, {
+      isAfterTransform: false
+    });
 
     this.messages = {
       RDP_EDIT_NO_TERMINAL_STOP_CODON: {
@@ -49,7 +51,6 @@ export default Backbone.View.extend({
     };
 
     this.transforms = _.compact(_.map(_.keys(this.messages), findTransform));
-    console.log('this.transforms', this.transforms)
   },
 
   serialize() {
@@ -87,9 +88,6 @@ export default Backbone.View.extend({
       });
 
       var aaOffset = 0;
-
-      console.log(context)
-     
       
       var sequenceCanvasLines = {
 
@@ -98,7 +96,7 @@ export default Backbone.View.extend({
           baseLine: 15,
           textFont: LineStyles.position.text.font,
           textColour: LineStyles.position.text.color,
-          transform: base => base + context.contextualFrom + 1
+          transform: base => base + context.contextualFrom
         }],
 
         // Aminoacids

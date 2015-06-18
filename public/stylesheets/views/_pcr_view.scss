@@ -18,13 +18,22 @@
 
 .rdp-edit-arrow {
   $color: #666;
+  $padding: 180px;
 
   float: left;
-  width: 100px;
+  width: 100%;
   height: 2px;
+  margin: 40px (-$padding) 0 (- $padding);
+  padding: 0 ($padding + 10px);
   position: relative;
-  background: $color;
-  margin: 40px 10px 0 10px;
+
+  &:after {
+    display: block;
+    content: "";
+    background: $color;
+    height: 2px;
+    width: 100%;
+  }
 
   &:before {
     content: "";
@@ -36,7 +45,7 @@
     height: 0px;
     margin-top: -4px;
     position: absolute;
-    right: 0;
+    right: $padding;
   }
 }
 
@@ -55,6 +64,12 @@
   }
   .scrolling-parent {
     overflow: hidden !important;
+  }
+}
+
+.pcr-product {
+  table, table small {
+    font-size: 11.9px;
   }
 }
    

@@ -7,11 +7,12 @@ import HomePcrView from './views/home_pcr_view';
 import SequenceModel from '../../sequence/models/sequence';
 import SequencesCollection from '../../sequence/models/sequences';
 import {version1GenericPreProcessor} from '../utils';
+import RdpEdit from 'gentle-rdp/rdp_edit';
 
 
 Gentle.addPlugin('sequence-primary-view', {
   name: 'pcr',
-  title: 'RDP part designer',
+  title: 'PCR primers',
   view: PCRView,
   visible: (sequence) => {
     return Gentle.featureFlag('pcr') && sequence instanceof PcrProductSequence;
@@ -54,6 +55,7 @@ var version1reversePrimerPreProcessor = version1GenericPreProcessor('reversePrim
 
 SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 SequenceModel.registerAssociation(PcrProductSequence, 'pcrProduct', true);
+// SequenceModel.registerAssociation(RdpEdit, 'rdpEdit', true);
 PcrProductSequence.registerPreProcessor(version1forwardPrimerPreProcessor);
 PcrProductSequence.registerPreProcessor(version1reversePrimerPreProcessor);
 PcrProductSequence.registerAssociation(PcrPrimer, 'forwardPrimer', false);

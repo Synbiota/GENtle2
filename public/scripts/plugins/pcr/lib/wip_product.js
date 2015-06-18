@@ -3,11 +3,9 @@ import _ from 'underscore';
 
 
 class WipPcrProductSequence extends Sequence {
-  defaults() {
-    return _.extend(super.defaults(), {
-      inProgress: true,
-      _type: 'wip_pcr_product'
-    });
+  constructor() {
+    super(...arguments);
+    this.set('_type', 'wip_pcr_product', {silent: true});
   }
 
   get requiredFields() {
