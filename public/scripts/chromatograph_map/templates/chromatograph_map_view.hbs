@@ -1,4 +1,8 @@
-<div class="chromatograph-map-visible-range"></div>
+<canvas id='chromatograph_map_canvas' class="chromatograph-map-canvas"></canvas>
+
+<a href="#" class="chromatograph-toggle-dropdown">Toggle</a>
+
+{{!-- <div class="chromatograph-map-visible-range"></div> --}}
 <div class="chromatograph-map-position-marks">
   {{#each positionMarks}}
     <div class="chromatograph-map-position-mark" data-base="{{base}}" style="left: {{offset}}px;">
@@ -7,26 +11,11 @@
   {{/each}}
 </div>
 
+<div class="chromatograph-map-fragment main-sequence"></div>
+
 <div class="chromtagraph-map-fragments">
   {{#each fragments}}
-    <div href="#" class="chromatograph-map-sequence chromatograph-map-fragment">
-    </div>
-  {{/each}}
-</div>
-
-
-
-<div class="chromatograph-map-features">
-  {{#each features}}
-    <div href="#" class="chromatograph-map-feature chromatograph-map-feature-{{type}}" data-feature_id="{{id}}">
-      {{name}}
-    </div>
-  {{/each}}
-</div>
-<div class="chromatograph-map-enzymes">
-  {{#each enzymes}}
-    <div href="#" class="chromatograph-map-enzyme" data-position="{{position}}">
-      <span>{{label}}</span>
+    <div href="#" class="chromatograph-map-fragment sequence-fragment" data-fragment-id="{{id}}">
     </div>
   {{/each}}
 </div>

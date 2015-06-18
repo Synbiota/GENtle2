@@ -5,7 +5,7 @@ import ContextMenuView from '../../common/views/context_menu_view';
 import ChromatographMapView from '../../chromatograph_map/views/chromatograph_map_view';
 import LinearMapView from '../../linear_map/views/linear_map_view';
 import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
-import MatchedEnzymesView from './matched_enzymes_view';
+// import MatchedEnzymesView from './matched_enzymes_view';
 import Backbone from 'backbone';
 import Q from 'q';
 
@@ -26,8 +26,8 @@ export default Backbone.View.extend({
 
     this.contextMenuView = new ContextMenuView({context: 'sequence'});
 
-    this.matchedEnzymesView = new MatchedEnzymesView();
-    this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
+    // this.matchedEnzymesView = new MatchedEnzymesView();
+    // this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
 
     this.initSecondaryViews();
   },

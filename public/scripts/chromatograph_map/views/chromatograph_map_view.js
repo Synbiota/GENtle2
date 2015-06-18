@@ -1,8 +1,13 @@
 import Backbone from 'backbone';
 import Gentle from 'gentle';
+import {handleError} from '../../common/lib/handle_error';
+import Q from 'q';
+import Artist from '../../common/lib/graphics/artist';
 import template from '../templates/chromatograph_map_view.hbs';
 import _ from 'underscore';
 import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import ChromatographMapCanvas from './chromatograph_map_canvas';
+
 
 export default Backbone.View.extend({
   manage: true,
@@ -12,13 +17,27 @@ export default Backbone.View.extend({
   initialRender: true,
 
   events: {
-    'click .linear-map-feature': 'goToFeature'
+    'click .chromatograph-toggle-dropdown': 'toggleDropdown'
+    // 'click .linear-map-feature': 'goToFeature'
   },
 
   initialize: function() {
     this.model = Gentle.currentSequence;
     this.minFeatureWidth = 4;
     this.topFeatureOffset = 0;
+
+    this.tempDims = {
+      baseWidth: 10,
+      fragmentWidth: 10,
+      fragmentHeight: 10,
+      fragmentMargin: 10,
+      yOffset: 50,
+      consensusGoodHeight: 40,
+      consensusMediumHeight: 30,
+      consensusBadHeight: 20
+    }
+
+
     // _.bindAll(this, 'scrollSequenceCanvas');
 
     _.bindAll(this,
@@ -36,14 +55,46 @@ export default Backbone.View.extend({
 
   },
 
+  toggleDropdown: function(e){
+    e.preventDefault();
+    this.$el.toggleClass('open');
+
+  },
+
   processFragments: function() {
     var id = -1,
         _this = this;
 
     this.fragments = [];
 
+    this.model.getFragments = function(){
+      return [
+        {
+          name: 'f1',
+          from: 200,
+          to: 400
+        },
+        {
+          name: 'f2',
+          from: 345,
+          to: 500
+        },
+        {
+          name: 'f3',
+          from: 400,
+          to: 700
+        },
+        {
+          name: 'f4',
+          from: 400,
+          to: 700
+        }
+      ]
+    }
+
+
     _.forEach(this.model.getFragments(), function(fragment){
-      _this.fragment.push({
+      _this.fragments.push({
         name: fragment.name,
         id: ++id,
         from: fragment.from,
@@ -51,6 +102,25 @@ export default Backbone.View.extend({
       });
     });
   },
+
+  positionFragments: function() {
+    var $el, _this = this;
+
+    var baseWidth = this.$el.width()/this.model.getLength();
+
+    _.forEach(this.fragments, function(fragment, i){
+      $el = _this.$('[data-fragment-id="'+fragment.id+'"]');
+
+      $el.css({
+        left: fragment.from * baseWidth,
+        width: (fragment.to - fragment.from) * baseWidth,
+        // top: i * featureHeight
+      });
+
+    });
+
+  },
+
 
   processFeatures: function() {
     var id = -1,
@@ -123,37 +193,42 @@ export default Backbone.View.extend({
       return {};
     } else {
       return {
-        features: this.features,
+        fragments: this.fragments,
+        // features: this.features,
         positionMarks: this.positionMarks,
-        enzymes: this.enzymes
+        // enzymes: this.enzymes
       };
     }
   },
 
-  displayEnzymes: function() {
-    return this.model.get('displaySettings.rows.res.display');
-  },
+  // displayEnzymes: function() {
+  //   return this.model.get('displaySettings.rows.res.display');
+  // },
 
   refresh: function(render) {
-    this.processFeatures();
-    this.processPositionMarks();
-    if(this.displayEnzymes()) {
-      this.processEnzymes();
-    } else {
-      this.enzymes = [];
-    }
+    var _this = this;
 
-    if(render !== false) this.render();
+    _this.processFragments();
+    // _this.processFeatures();
+    _this.processPositionMarks();
+    // if(_this.displayEnzymes()) {
+    //   _this.processEnzymes();
+    // } else {
+    //   _this.enzymes = [];
+    // }
+
+    if(render !== false) _this.render();
+
   },
 
   processPositionMarks: function() {
     var sequenceCanvas = this.sequenceCanvas,
         length = this.$el.width(),
-        maxBase = sequenceCanvas.maxVisibleBase(),
+        // maxBase = sequenceCanvas.maxVisibleBase(),
+        maxBase = this.model.getLength(),
         magnitudeOrder = Math.floor(Math.log10(maxBase)),
         divider = Math.pow(10, magnitudeOrder - 1),
         maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
-
 
     this.positionMarks = [];
     this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
@@ -176,39 +251,39 @@ export default Backbone.View.extend({
 
   },
 
-  processEnzymes: function() {
-    var model = this.model;
-    var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
-      // length: displaySettings.lengths || [],
-      customList: displaySettings.custom || [],
-      // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
-      hideNonPalindromicStickyEndSites: false
-    });
+  // processEnzymes: function() {
+  //   var model = this.model;
+  //   var displaySettings = model.get('displaySettings.rows.res') || {};
+  //   var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
+  //     // length: displaySettings.lengths || [],
+  //     customList: displaySettings.custom || [],
+  //     // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+  //     hideNonPalindromicStickyEndSites: false
+  //   });
 
-    this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
-      position = position^0;
+  //   this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
+  //     position = position^0;
 
-      enzymeArray = _.filter(enzymeArray, function(enzyme) {
-        return model.isRangeEditable(position, position + enzyme.seq.length);
-      });
+  //     enzymeArray = _.filter(enzymeArray, function(enzyme) {
+  //       return model.isRangeEditable(position, position + enzyme.seq.length);
+  //     });
 
-      if(enzymeArray.length === 0) return;
-      var label = enzymeArray[0].name;
-      if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
-      return {position, label};
-    }));
-  },
+  //     if(enzymeArray.length === 0) return;
+  //     var label = enzymeArray[0].name;
+  //     if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
+  //     return {position, label};
+  //   }));
+  // },
 
-  positionEnzymes: function() {
-    var maxBase = this.sequenceCanvas.maxVisibleBase();
+  // positionEnzymes: function() {
+  //   var maxBase = this.sequenceCanvas.maxVisibleBase();
 
-    _.each(this.$('.linear-map-enzyme'), (element) => {
-      var $element = this.$(element);
-      var relativePosition = $element.data('position')/ maxBase * 100 ;
-      $element.css('top', relativePosition + '%');
-    });
-  },
+  //   _.each(this.$('.linear-map-enzyme'), (element) => {
+  //     var $element = this.$(element);
+  //     var relativePosition = $element.data('position')/ maxBase * 100 ;
+  //     $element.css('top', relativePosition + '%');
+  //   });
+  // },
 
   setupScrollHelper: function() {
     var sequenceCanvas = this.sequenceCanvas,
@@ -278,9 +353,16 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
+
+    this.chromatographMapCanvas = new ChromatographMapCanvas({
+      view: this,
+      $canvas: this.$('#chromatograph_map_canvas')
+    });
+
     if(this.initialRender) {
-      var sequenceCanvas = this.parentView().sequenceCanvas;
       this.initialRender = false;
+
+      var sequenceCanvas = this.parentView().sequenceCanvas;
       this.sequenceCanvas = sequenceCanvas;
 
       // this.listenTo(
@@ -302,16 +384,19 @@ export default Backbone.View.extend({
         this.updateScrollHelperPosition
       );
 
+
+      var _this = this;
       sequenceCanvas.on(
         'change:layoutHelpers',
-        this.refresh
+        this.refresh(null, _this)
       );
 
     } else {
+      this.positionFragments();
 
       this.setupScrollHelper();
-      this.positionFeatures();
-      if(this.displayEnzymes()) this.positionEnzymes();
+      // this.positionFeatures();
+      // if(this.displayEnzymes()) this.positionEnzymes();
 
       // When SequenceCanvas' layoutHelpers are calculated, we fetch the
       // max base number (>= sequence length)

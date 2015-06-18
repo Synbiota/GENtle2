@@ -7,7 +7,7 @@ var setCanvasDimensions = function(canvas, context, width, height, pixelRatio, t
 };
 
 /**
-  
+
 Provides tools for drawing on canvas
 
 Includes Shape system for handling mouse events.
@@ -73,11 +73,11 @@ Includes Shape system for handling mouse events.
   Clears entire canvas
 
   @method clear
-  @param {integer} [posY] 
+  @param {integer} [posY]
   @param {integer} [height]
   **/
   Artist.prototype.clear = function() {
-    var canvas = this.canvas, 
+    var canvas = this.canvas,
         context = this.context,
         posY = arguments[0],
         height = arguments[1];
@@ -187,7 +187,7 @@ Includes Shape system for handling mouse events.
   @param {Integer} y
   @param {Integer} width
   @param {Integer} height
-  @param {Object} [options] Available options are the same as for 
+  @param {Object} [options] Available options are the same as for
     {{#crossLink "Artist/updateStyle"}}{{/crossLink}}
   @returns {Rect} instance of {{#crossLink "Rect"}}{{/crossLink}}
   **/
@@ -211,7 +211,7 @@ Includes Shape system for handling mouse events.
   @param {Integer} y
   @param {Integer} width
   @param {Integer} height
-  @param {Object} [options] Available options are the same as for 
+  @param {Object} [options] Available options are the same as for
     {{#crossLink "Artist/updateStyle"}}{{/crossLink}}
   @returns {Rect} instance of {{#crossLink "Rect"}}{{/crossLink}}
   **/
@@ -244,9 +244,9 @@ Includes Shape system for handling mouse events.
    var radialLineGraph = new RadialLineGraph(this,centreX, centreY, radius, offset, lineData);
 
    this.onTemporaryTransformation(
-    function() {  
+    function() {
     this.context.rotate(Math.PI);
-    radialLineGraph.draw(options); 
+    radialLineGraph.draw(options);
     });
     // this.shapes.push(washer);
    return radialLineGraph;
@@ -265,7 +265,7 @@ Includes Shape system for handling mouse events.
 
   Artist.prototype.arc = function(x, y, radius, startAngle, endAngle, anticlockwise, options) {
     var arc;
-    
+
     options = options || {};
     arc = new Arc(this, x, y, radius, startAngle, endAngle, anticlockwise);
 
@@ -276,7 +276,7 @@ Includes Shape system for handling mouse events.
 
   Artist.prototype.textArc = function(text, x, y, radius, startAngle, maxAngle, options) {
     var arc;
-    
+
     options = options || {};
     arc = new TextArc(this, text, x, y, radius, startAngle, maxAngle);
 
@@ -304,7 +304,7 @@ Includes Shape system for handling mouse events.
 
     // this.shapes.push(textShape);
     textShape.draw();
-    
+
     return textShape;
   };
 
@@ -326,7 +326,7 @@ Includes Shape system for handling mouse events.
 
     // this.shapes.push(textShape);
     textShape.rotateAndWriteText();
-    
+
     return textShape;
   };
 
@@ -384,7 +384,7 @@ Includes Shape system for handling mouse events.
         context = this.context,
         bufferContext = this.bufferContext,
         pixelRatio = this.getPixelRatio();
-    
+
 
     bufferContext.clearRect(0, 0, buffer.width, buffer.height);
     // bufferContext.clearRect(0, 0, buffer.width, buffer.height);
