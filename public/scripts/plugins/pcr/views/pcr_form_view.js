@@ -2,7 +2,10 @@ import Gentle from 'gentle';
 import template from '../templates/pcr_form_view.hbs';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import StickyEnds from '../../../common/lib/sticky_ends';
+import Modal from '../../../common/views/modal_view';
+import EditsView from './pcr_edits_view';
 import _ from 'underscore';
+import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 
 
 export default Backbone.View.extend({
@@ -14,7 +17,7 @@ export default Backbone.View.extend({
     'change input': 'updateState',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
-    'submit .new-pcr-product-form': 'createNewPcrProduct',
+    'submit .new-pcr-product-form': 'confirmRdpEdits',
     'click .cancel-new-pcr-product-form': 'showProducts',
   },
 
@@ -124,7 +127,8 @@ export default Backbone.View.extend({
     var frm = this.state.from;
     var to = this.state.to;
     var sequenceNts = this.model.getSequence().substr(frm, to - frm + 1);
-    return {sequence: sequenceNts, from: frm, to: to};
+    var name = this.model.get('name');
+    return {sequence: sequenceNts, from: frm, to: to, name};
   },
 
   getData: function() {
@@ -142,16 +146,43 @@ export default Backbone.View.extend({
     return data;
   },
 
-  createNewPcrProduct: function(event) {
-    console.log(this.getData())
-    event.preventDefault();
-    return; // TODO remove
+  confirmRdpEdits: function(event) {
+    if(event) event.preventDefault();
     if(this.state.invalid.any) {
+      alert("Some PCR primer details are incorrect or missing.  Please correct them first.");
+    } else {
+      let tempSequence = new this.model.constructor(this.getSequenceAttributes());
+      let transforms = transformSequenceForRdp(tempSequence);
+
+      console.log('transforms', transforms)
+
+      let transformsTypes = _.pluck(transforms, 'type');
+      if(_.includes(transformsTypes, 'RDP_EDIT_MULTIPLE_OF_3')) {
+        alert('The target sequence length needs to be a multiple of 3');
+      } else if(transforms.length === 0) {
+        this.createNewPcrProduct()
+      } else {
+        Modal.show({
+          title: 'Make source sequence RDP-compliant',
+          subTitle: 'The following edit(s) must be made to the source sequence to convert it to an RDP-compliant part',
+          bodyView: new EditsView({
+            transforms: transforms
+          })
+        }).once('confirm', () => this.createNewPcrProduct());
+      }
+    }
+  },
+
+  createNewPcrProduct: function(event) {
+    console.log('data', this.getData())
+    return;
+    if(event) event.preventDefault();
+    if(event && this.state.invalid.any) {
       alert("Some PCR primer details are incorrect or missing.  Please correct them first.");
     } else {
       var data = this.getData();
       this.parentView().makePrimer(data);
     }
-  },
+  }
 
 });

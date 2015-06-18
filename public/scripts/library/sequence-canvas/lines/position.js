@@ -24,7 +24,7 @@ class Position extends Line {
     var x = ls.pageMargins.left;
 
     for(let k = baseFrom; k <= baseTo; k += ls.basesPerBlock){
-      let text = isFunction(this.transform) ? this.transform(k+1) : k+1;
+      let text = isFunction(this.transform) ? this.transform(k) : k+1;
       let baseLine = isUndefined(this.baseLine) ? this.height : this.baseLine;
 
       artist.text(text, x, y + baseLine, {

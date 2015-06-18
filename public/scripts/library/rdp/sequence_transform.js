@@ -365,6 +365,7 @@ var transformSequenceForRdp = function(sequenceModel) {
       rdpEdits.push(rdpEdit);
     }
   });
+
   return rdpEdits;
 };
 

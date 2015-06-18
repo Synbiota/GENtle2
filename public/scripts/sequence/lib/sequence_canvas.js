@@ -85,7 +85,7 @@ var defaultLines = function(sequence) {
       height: 15,
       baseLine: 15,
       textFont: LineStyles.dna.text.font,
-      textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+      textColour: LineStyles.dna.text.color,
       selectionColour: LineStyles.dna.selection.fill,
       selectionTextColour: LineStyles.dna.selection.color
     }],

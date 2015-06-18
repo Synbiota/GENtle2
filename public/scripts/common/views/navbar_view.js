@@ -27,7 +27,7 @@
       _.bindAll(this, 'render');
       this.debouncedRender = _.debounce(this.render, 200);
       Gentle.sequences.on('add reset sort', this.render, this);
-      Gentle.sequences.on('change', this.debouncedRender, this);
+      // Gentle.sequences.on('change', this.debouncedRender, this);
       $(window).on('resize', this.debouncedRender);
     },
 

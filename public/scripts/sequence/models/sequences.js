@@ -15,7 +15,6 @@ var SequencesCollection = Backbone.Collection.extend({
     if(attrs._type && constructors[attrs._type]) {
       Constructor = constructors[attrs._type];
     }
-    console.log(attrs, Constructor.name)
     return new Constructor(attrs, options);
   },
 

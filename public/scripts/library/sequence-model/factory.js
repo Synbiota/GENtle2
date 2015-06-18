@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import pollyfill from '../../common/lib/polyfills';  // required for String.prototype.endsWith
+import '../../common/lib/polyfills';  // required for String.prototype.endsWith
 
 import classMethodsMixin from './sequence_class_methods_mixin';
 import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
@@ -1505,6 +1505,10 @@ function sequenceModelFactory(BackboneModel) {
         this._throttledSave = _.afterLastCall(_.bind(this.save, this), 300);
       }
       return this._throttledSave();
+    }
+
+    clone() {
+      return new this.constructor(_.omit(this.attributes, 'id', 'history'));
     }
 
     toJSON() {
