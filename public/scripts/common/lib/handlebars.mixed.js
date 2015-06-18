@@ -156,5 +156,10 @@ Handlebars.registerHelper('displaySelectableSequence', function(sequenceModel) {
   return displaySelectableSequenceTemplate({sequence});
 });
 
+Handlebars.registerHelper('primer', function(primer) {
+  var display = require('../templates/primer_partial.hbs');
+  return display(primer);
+});
+
 
 module.exports = Handlebars;

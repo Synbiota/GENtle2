@@ -1,9 +1,11 @@
-import template from '../templates/pcr_list_view.hbs';
+import template from '../templates/pcr_product_view.hbs';
 import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence} from '../lib/utils';
 import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 import _ from 'underscore';
+import EditsView from './pcr_edits_view';
+import {gcContent} from '../../../sequence/lib/sequence_calculations';
 
 
 export default Backbone.View.extend({
@@ -12,37 +14,39 @@ export default Backbone.View.extend({
   className: 'pcr-product',
 
   events: {
-    'click .show-pcr-product': 'showPcrProduct',
-    'click .panel-title': 'showPcrProduct',
-    // 'click .delete-pcr-product': 'deletePcrProduct',
-    'click .open-pcr-product': 'openPcrProduct',
-    'click .export-sequence': 'exportSequence',
+    // 'click .show-pcr-product': 'showPcrProduct',
+    // 'click .panel-title': 'showPcrProduct',
+    // // 'click .delete-pcr-product': 'deletePcrProduct',
+    // 'click .open-pcr-product': 'openPcrProduct',
+    // 'click .export-sequence': 'exportSequence',
     'click .selectable-sequence': 'selectSequence',
+    'click .primer': 'scrollToPrimer'
+  },
+
+  initialize: function() {
+    // let transforms = transformSequenceForRdp(tempSequence);
+    this.setView('.pcr-edits-outlet', new EditsView({
+      transforms: this.model.get('rdpEdits'),
+      isAfterTransform: true
+    }));
   },
 
   serialize: function() {
-    var convertChildSequence = function(childSequence) {
-      var attributes = childSequence.toJSON();
-      attributes.sequence = childSequence.getSequence(childSequence.parentSequence.STICKY_END_FULL);
-      attributes.from = childSequence.range.from;
-      attributes.length = childSequence.range.size;
-      attributes.to = childSequence.range.to;
-      return attributes;
-    };
+    var attributes = this.model.toJSON();
 
-    var attributes = {
-      products: _.map(this.getProducts(), (product) => {
-        var attributes = product.toJSON();
-        delete attributes.meta.associations;
-        var forwardPrimer = product.get('forwardPrimer');
-        var reversePrimer = product.get('reversePrimer');
-        attributes.forwardPrimer = convertChildSequence(forwardPrimer);
-        attributes.reversePrimer = convertChildSequence(reversePrimer);
-        attributes.forwardPrimer.annealingRegion = convertChildSequence(forwardPrimer.annealingRegion);
-        attributes.reversePrimer.annealingRegion = convertChildSequence(reversePrimer.annealingRegion);
-        return attributes;
-      }),
-    };
+    var forwardPrimer = attributes.meta.associations.forwardPrimer;
+    var reversePrimer = attributes.meta.associations.reversePrimer;
+
+    attributes.stickyEnds.name = attributes.stickyEnds.start.name + '-' + attributes.stickyEnds.end.name;
+
+    attributes.productLength = this.model.getLength(this.model.STICKY_END_OVERHANG);
+    
+    forwardPrimer.sequence = this.model.get('forwardPrimer').getSequence();
+    forwardPrimer.gcContent = gcContent(forwardPrimer.sequence);
+
+    reversePrimer.sequence = this.model.get('reversePrimer').getSequence();
+    reversePrimer.gcContent = gcContent(reversePrimer.sequence);
+
     return attributes;
   },
 
@@ -79,9 +83,7 @@ export default Backbone.View.extend({
 
   showPcrProduct: function(event) {
     var product = this.getProduct(event);
-    if(product) {
-      this.parentView().showCanvas(product);
-    }
+    this.parentView().showCanvas(product);
   },
 
   // deletePcrProduct: function(event) {
@@ -123,11 +125,21 @@ export default Backbone.View.extend({
 
   selectSequence: onClickSelectableSequence,
 
-  scrollToProduct: function(productId) {
-    var $container = $('#pcr-list-outer-container');
-    var $target = this.$('[data-product_id="' + productId + '"]');
-    // debugger
-    $container.scrollTop($target.offset().top);
-  },
+  // scrollToProduct: function(productId) {
+  //   var $container = $('#pcr-list-outer-container');
+  //   var $target = this.$('[data-product_id="' + productId + '"]');
+  //   // debugger
+  //   $container.scrollTop($target.offset().top);
+  // },
+
+  scrollToPrimer: function(event) {
+    var $target = $(event.currentTarget);
+    var id = $target.data('product_id');
+    var primer = _.find([
+      this.model.get('forwardPrimer'), 
+      this.model.get('reversePrimer')
+    ], {id});
+    this.parentView().canvasView.sequenceCanvas.scrollToBase(primer.range.from)
+  }
 
 });

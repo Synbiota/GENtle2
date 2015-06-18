@@ -21,8 +21,8 @@ export default Backbone.View.extend({
     return {
       readOnly: !!Gentle.currentSequence.get('readOnly'),
       primaryView: parentView.primaryView.title,
-      primaryViews: _.filter(parentView.primaryViews, function(view) {
-        return _.isUndefined(view.visible) || view.visible();
+      primaryViews: _.filter(parentView.primaryViews, (view) => {
+        return _.isUndefined(view.visible) || view.visible(this.model);
       })
     };
   },

@@ -2,15 +2,18 @@ import template from '../templates/pcr_view.hbs';
 import Backbone from 'backbone';
 import FormView from './pcr_form_view';
 import ProgressView from './pcr_progress_view';
-import ListView from './pcr_list_view';
+import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
-
+import EditsView from './pcr_edits_view';
+import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
+import PcrProductSequence from '../lib/product';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 
 var viewStates = {
   form: 'form',
-  products: 'products',
+  product: 'product',
   progress: 'progress',
 };
 
@@ -34,25 +37,91 @@ export default Backbone.View.extend({
   initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
 
-    var products = []; //getPcrProductsFromSequence(this.model);
-    // savePcrProductsToSequence(this.model, products);
-
-    this.viewState = (showForm || !products.length) ? viewStates.form : viewStates.products;
+    this.viewState = this.model instanceof PcrProductSequence ? 
+      viewStates.product : viewStates.form;
 
     var args = {model: this.model};
     this.formView = new FormView(_.extend(argumentsForFormView, args));
-    this.listView = new ListView(args);
     this.progressView = new ProgressView(args);
   },
 
   beforeRender: function() {
     if(this.viewState === viewStates.form) {
       this.setView('.pcr-view-container', this.formView);
-    } else if(this.viewState === viewStates.products) {
-      this.setView('.pcr-view-container', this.listView);
+      this.removeView('.pcr-view-container2');
+    } else if(this.viewState === viewStates.product) {
+      this.setView('.pcr-view-container', new ProductView({model: this.model}));
+      this.showCanvas(null, this.getBluntEndedSequence());
+      this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.progress) {
-      this.setView('.pcr-view-container', this.progressView);
+      this.setView('.pcr-view-container', this.formView);
+      this.setView('.pcr-view-container2', this.progressView);
     }
+  },
+
+  getBluntEndedSequence() {
+    var model = this.model;
+    var sequence = model.clone();
+    sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
+
+    var forwardPrimer = sequence.get('forwardPrimer');
+    var reversePrimer = sequence.get('reversePrimer');
+    var stickyEnds = sequence.getStickyEnds();
+
+    var features = [
+    {
+      name: 'Annealing region',
+      _type: 'annealing_region',
+      ranges: [{
+        from: forwardPrimer.annealingRegion.range.from,
+        to: forwardPrimer.annealingRegion.range.to - 1,
+      }]
+    },
+    {
+      name: 'Annealing region',
+      _type: 'annealing_region',
+      ranges: [{
+        from: reversePrimer.annealingRegion.range.from,
+        to: reversePrimer.annealingRegion.range.to -1,
+      }]
+    },
+    {
+      name: forwardPrimer.name,
+      _type: 'primer',
+      ranges: [{
+        from: forwardPrimer.range.from,
+        to: forwardPrimer.range.to - 1,
+      }]
+    },
+    {
+      name: reversePrimer.name,
+      _type: 'primer',
+      ranges: [{
+        from: reversePrimer.range.from,
+        to: reversePrimer.range.to - 1,
+      }]
+    },
+    {
+      name: stickyEnds.start.name + ' end',
+      _type: 'sticky_end',
+      ranges: [{
+        from: 0,
+        to: stickyEnds.start.size + stickyEnds.start.offset - 1
+      }]
+    },
+    {
+      name: stickyEnds.end.name + ' end',
+      _type: 'sticky_end',
+      ranges: [{
+        from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
+        to:  sequence.getLength() - 1
+      }]
+    }];
+
+
+    sequence.set('features', features);
+
+    return sequence;
   },
 
   showFormFn: function(event) {
@@ -76,7 +145,7 @@ export default Backbone.View.extend({
 
   //TODO refactor
   showCanvas: function(product, temporarySequence) {
-    var view = new CanvasView();
+    var view = this.canvasView = new CanvasView();
     this.setView('#pcr-canvas-container', view);
 
     if(product) {
@@ -94,7 +163,7 @@ export default Backbone.View.extend({
 
   hideCanvas: function() {
     this.removeView('#pcr-canvas-container');
-  },
+  }
 
   // deleteProduct: function(product) {
   //   var products = getPcrProductsFromSequence(this.model);

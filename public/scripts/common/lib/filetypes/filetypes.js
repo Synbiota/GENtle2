@@ -41,7 +41,6 @@ Guesses filetype and parse sequence from string (Class method)
 **/
 Filetypes.guessTypeAndParseFromText = function(text, name) {
   var sequences = [];
-
   return Q.promise(function(resolve, reject) {
     text = text.trim();
     for(var filetypeName in Filetypes.types) {
@@ -70,7 +69,6 @@ Guesses filetype and parse sequence from ArrayBuffer (Class method)
 **/
 Filetypes.guessTypeAndParseFromArrayBuffer = function(ab, name) {
   var sequences = [];
-
   return Q.promise(function(resolve, reject) {
     for(var filetypeName in Filetypes.types) {
       try {

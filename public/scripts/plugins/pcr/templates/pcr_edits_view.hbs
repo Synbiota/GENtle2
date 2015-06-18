@@ -1,0 +1,13 @@
+{{#each transforms}}
+  <p><strong>{{title}}</strong></p>
+  <div class="edit-canvas-outlets-container">
+    <div class="edit-canvas-outlet" data-edit_type="{{type}}" data-edit_step="before"></div>
+    <div class="rdp-edit-arrow"></div>
+    <div class="edit-canvas-outlet pull-right" data-edit_type="{{type}}" data-edit_step="after"></div>
+    {{#if postCaption}}
+      <small style="margin-left: 295px;">{{postCaption}}</small>
+    {{/if}}
+    <div class="clearfix"></div>
+    <br>
+  </div>
+{{/each}}
