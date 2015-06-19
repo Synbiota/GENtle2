@@ -32,7 +32,7 @@ class SequenceCanvasCore {
   _init(options = {}) {
 
     // Context binding (context is lost in Promises' `.then` and `.done`)
-    _.bindAll(this, 
+    _.bindAll(this,
       'calculateLayoutSettings',
       'updateCanvasDims',
       'redrawSelection',
@@ -152,7 +152,7 @@ class SequenceCanvasCore {
   /**
    * Converts `$container` into a jQuery object if necessary and insert relevant
    * scrolling helper elements in it.
-   * @param  {Element, Node or $ object} $container DOM element in which to 
+   * @param  {Element, Node or $ object} $container DOM element in which to
    *                        insert the necessary elements
    * @return {$ object} container as instance of $
    */
@@ -166,7 +166,7 @@ class SequenceCanvasCore {
       .html(template({id: this.id}));
 
     return $container;
-  } 
+  }
 
   _initLines(lines) {
     assertIsObject(lines, 'options.lines');
@@ -359,13 +359,13 @@ class SequenceCanvasCore {
       lines = this.lines,
       layoutHelpers = this.layoutHelpers,
       yOffset = layoutHelpers.yOffset,
-      rowsHeight = layoutHelpers.rows.height,
+      rowHeight = layoutHelpers.rows.height,
       canvasWidth = layoutSettings.canvasDims.width,
       baseRange = this.getBaseRangeFromYPos(posY + yOffset),
       highlight = this.highlight,
       initPosY = posY;
 
-    this.artist.rect(0, posY, canvasWidth, rowsHeight, {
+    this.artist.rect(0, posY, canvasWidth, rowHeight, {
       fillStyle: '#fff'
     });
 
@@ -389,6 +389,65 @@ class SequenceCanvasCore {
         }
       });
     }
+  }
+
+  drawRowSegment(type, y, baseRange){
+    var
+        lines = this.getLines(type),
+        lineOffset = 0;
+
+    if (baseRange[0] < this.sequence.getLength()) {
+      _.each(lines, function(line) {
+        if (line.visible === undefined || line.visible()) {
+          if(line.floating) {
+            line.draw(y, baseRange);
+          } else {
+            line.draw(y + lineOffset, baseRange);
+            lineOffset += line.height;
+          }
+        }
+      });
+    }
+  }
+
+  /**
+   * draw a section at a given x, y coordinate on the canvas.
+   * @method drawSection
+   * @param  {Integer} x [description]
+   * @param  {Integer} y [description]
+   */
+  drawSection(x, y, width, height){
+    var layoutHelpers = this.layoutHelpers,
+        baseWidth = layoutHelpers.baseWidth,
+        rowHeight = layoutHelpers.rows.Height,
+        rows = this.rows,
+        visibleRows = [],
+        baseRange, rowOffset = 0;
+
+    // Quantify coordinates and dimensions in increments of grid values (width in baseWidth, height in rowHeight)
+    x = Math.floor(x/baseWidth);
+    y = Math.floor(y/rowHeight);
+
+    width = Math.ceil(width/baseWidth);
+    height = Math.ceil(height/rowHeight);
+
+    // convert width to baseRange
+    baseRange = this.getBaseRangeFromXPos(x, width);
+
+    // clear area we are going to draw
+    this.artist.clear(x, y, width, height);
+
+
+    // determine which rows we need to render
+    // slice values should be integers since we quantify them beforehand
+    visibleRows = rows.slice(y/rowHeight, (y + height)/rowHeight);
+
+    // draw the row segment
+    _.forEach(visibleRows, function(row){
+      this.drawRowSegment(row.type, y + rowOffset, baseRange);
+      rowOffset += rowHeight;
+    });
+
   }
 
   /**
@@ -582,7 +641,7 @@ class SequenceCanvasCore {
       } else {
         info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
       }
-      
+
     } else {
       info = toString(this.caretPosition + 1);
     }
@@ -678,9 +737,9 @@ class SequenceCanvasCore {
     this.redraw();
   }
 
-  /** 
+  /**
    * @method selectRange
-   * @param {Range} range 
+   * @param {Range} range
    * @return {Undefined}
    */
   selectRange(range) {
@@ -728,11 +787,11 @@ class SequenceCanvasCore {
     this.$scrollingParent.focus();
   }
 
-  setCursorStyle(style) { 
+  setCursorStyle(style) {
     this.$scrollingParent.css({
       cursor: style
     });
-  } 
+  }
 
 
 }

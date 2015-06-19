@@ -17,7 +17,8 @@ export default Backbone.View.extend({
   initialRender: true,
 
   events: {
-    'click .chromatograph-toggle-dropdown': 'toggleDropdown'
+    'click .chromatograph-toggle-dropdown': 'toggleDropdown',
+    'click .chromatograph-map-fragment': 'goToFragment'
     // 'click .linear-map-feature': 'goToFeature'
   },
 
@@ -121,6 +122,15 @@ export default Backbone.View.extend({
 
   },
 
+  goToFragment: function(event) {
+    var fragmentId = $(event.currentTarget).data('fragment-id'),
+        fragment = _.findWhere(this.fragments, {id: fragmentId});
+
+    this.$el.removeClass('open')
+    this.sequenceCanvas.scrollToBase(fragment.from);
+
+    event.preventDefault();
+  },
 
   processFeatures: function() {
     var id = -1,

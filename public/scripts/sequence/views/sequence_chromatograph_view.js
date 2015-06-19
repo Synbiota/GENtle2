@@ -1,5 +1,6 @@
 import template from '../templates/sequence_edition_view.hbs';
-import SequenceCanvas from '../lib/sequence_canvas';
+// import SequenceCanvas from '../lib/sequence_canvas';
+import ChromatographCanvas from '../lib/chromatograph_canvas';
 import Gentle from 'gentle';
 import ContextMenuView from '../../common/views/context_menu_view';
 import ChromatographMapView from '../../chromatograph_map/views/chromatograph_map_view';
@@ -53,11 +54,11 @@ export default Backbone.View.extend({
       view: LinearMapView
     });
 
-    secondaryViews.push({
-      name: 'plasmid',
-      title: 'Plasmid map',
-      view: PlasmidMapView
-    });
+    // secondaryViews.push({
+    //   name: 'plasmid',
+    //   title: 'Plasmid map',
+    //   view: PlasmidMapView
+    // });
 
     // currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
     currentView = 'chromatograph';
@@ -71,7 +72,8 @@ export default Backbone.View.extend({
 
   handleResizeRight: function(trigger) {
     $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
-      'right': this.secondaryView.$el.width(),
+      // 'right': this.secondaryView.$el.width(),
+      top: this.secondaryView.$el.height()
     });
     if(trigger !== false) {
       this.trigger('resize');
@@ -115,12 +117,13 @@ export default Backbone.View.extend({
 
   afterRender: function() {
     this.$('.sequence-canvas-outlet').css({
-      'right': this.secondaryView.$el.width(),
+      top: this.secondaryView.$el.height()
+      // 'right': this.secondaryView.$el.width(),
     });
 
     var sequence = this.model;
 
-    var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
+    var sequenceCanvas = this.sequenceCanvas = new ChromatographCanvas({
       sequence: sequence,
       container: this.$('.sequence-canvas-outlet').first(),
       yOffset: sequence.get('displaySettings.yOffset'),
