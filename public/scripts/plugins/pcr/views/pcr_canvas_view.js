@@ -54,9 +54,7 @@ export default Backbone.View.extend({
     this.product = product;
   },
 
-  //TODO refactor this
   setSequence: function(sequence) {
-    sequence = TemporarySequence.ensureTemporary(sequence);
     sequence.setStickyEndFormat('full');
     this.model = sequence;
   },

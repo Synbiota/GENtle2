@@ -1,12 +1,11 @@
 import Backbone from 'backbone';
 import _ from 'underscore';
 import template from '../templates/pcr_edits_view.hbs';
-import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
-import {types as RdpEditTypes} from 'gentle-rdp/rdp_edit';
 import Styles from '../../../styles.json';
 import SequenceCanvas from 'gentle-sequence-canvas';
 import Sequence from '../../../sequence/models/sequence';
 var LineStyles = Styles.sequences.lines;
+
 
 export default Backbone.View.extend({
   manage: true,

@@ -1,5 +1,5 @@
 import Sequence from '../../../sequence/models/sequence';
-import _ from 'underscore';
+
 
 class PcrProductSequence extends Sequence {
   constructor(attrs, ...args) {

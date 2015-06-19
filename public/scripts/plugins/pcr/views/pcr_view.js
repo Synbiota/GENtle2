@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import template from '../templates/pcr_view.hbs';
 import Backbone from 'backbone';
 import FormView from './pcr_form_view';
@@ -5,11 +6,8 @@ import ProgressView from './pcr_progress_view';
 import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
-import EditsView from './pcr_edits_view';
-import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 import PcrProductSequence from '../lib/product';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
+
 
 var viewStates = {
   form: 'form',
