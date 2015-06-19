@@ -4,6 +4,7 @@ import _ from 'underscore';
 import Gentle from 'gentle';
 import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import RestrictionEnzymeReplacerView from '../views/restriction_enzyme_replacer_view';
+import Modal from '../../common/views/modal_view';
 
 export default Backbone.View.extend({
   template: template,
@@ -26,16 +27,6 @@ export default Backbone.View.extend({
       this.render,
       this
     );
-
-    var _this= this; 
-    
-    var restrictionEnzymeReplacerView = this.restrictionEnzymeReplacerView = new RestrictionEnzymeReplacerView({
-      showModal: {},
-      sequence: _this.model,
-      nonCompliantMatches: RestrictionEnzymes.getAllInSeq(_this.model.get('sequence'), {customList: ['BsaI', "NotI"]})
-
-    });
-    this.setView('#condonSubModalContainer', restrictionEnzymeReplacerView);
   },
 
   serialize: function() {
@@ -119,17 +110,26 @@ export default Backbone.View.extend({
   launchModal: function(event) {
     if(event) event.preventDefault();
 
-    var sequenceCanvas = this.getSequenceCanvas();
-    var restrictionEnzymeReplacerView = this.restrictionEnzymeReplacerView;
-
-    sequenceCanvas.afterNextRedraw(function() {
-        restrictionEnzymeReplacerView.showModal= true;
-        restrictionEnzymeReplacerView.caretPosition = sequenceCanvas.caretPosition;
-        restrictionEnzymeReplacerView.sequenceCanvas= sequenceCanvas;
-        restrictionEnzymeReplacerView.render();
+    var replacerView = new RestrictionEnzymeReplacerView({
+      sequence: this.model,
+      nonCompliantMatches: RestrictionEnzymes.getAllInSeq(
+        this.model.getSequence(), {
+        customList: ['BsaI', 'NotI']
+      })
     });
 
-    sequenceCanvas.redraw();
+    Modal.show({
+      bodyView: replacerView,
+      title: 'Fix all BsaI/NotI sites',
+      subTitle: 'The following codon(s) will be substituted to make this sequence into an RDP part.',
+      confirmLabel: 'Replace'
+    }).on('confirm', () => {
+      replacerView.fixSequence();
+    }).on('hide', () => {
+      replacerView.cleanup();
+      replacerView = null;
+    });
+
   },
 
   openSettings: function(event) {

@@ -1,58 +1,9 @@
-<div class="modal" id="condonSubModal"tabindex="-1">
-    <div class="modal-dialog" style="width: 350px;" >
-      <div class="modal-content">
-        
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span class="glyphicon glyphicon-remove close-sequence"></span>
-          </button>
-          <h4 class="modal-title">
-            Fix all BsaI/NotI sites
-          </h5>
-
-          <small style="font-weight: normal;">
-            The following codon(s) will be substituted to make this sequence into an RDP part.
-          </small>
-          
-
-        </div>
-        
-        <div class="modal-body" style="max-height: 400px; overflow-y: scroll;">
-
-        
-          <div class="row">
-            <center>
-              {{#each replacements}}
-                <div class="row">
-                  <div class="col-sm-12">
-                    <div class='canvas-overlay'> 
-                      <div class="sequence-canvas-outlet-{{@index}}" style="    width: 250px; position: relative;"></div>   
-                    </div>
-                  </div>
-
-                  {{!-- <div class="col-sm-12">
-                    <div class="codon-group" align="left" style="margin-left:70px;">
-                      <br />
-                    </div>
-                  </div> --}}
-                </div>
-
-              {{/each}}
-            </center>
-          </div>
-        </div>
-
-        <div class="modal-footer" style="text-align: center;">         
-          <button class="cancel btn btn-default" style="margin-bottom:5px !important;">
-            Cancel
-          </button>
-
-          <button class="replace btn btn-default" style="margin-bottom:5px !important;">
-            Replace
-          </button>
-        </div>
-      </div>
-    </div>
-
-</div>
-
+{{#each replacements}}
+  <div class="edit-canvas-outlets-container-lg">
+    <div class="edit-canvas-outlet edit-canvas-outlet-{{@index}}-before" data-edit_type="{{type}}" data-edit_step="before"></div>
+    <div class="edit-canvas-arrow"></div>
+    <div class="edit-canvas-outlet edit-canvas-outlet-{{@index}}-after pull-right" data-edit_type="{{type}}" data-edit_step="after"></div>
+    <div class="clearfix"></div>
+    <br>
+  </div>
+{{/each}}
