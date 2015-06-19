@@ -50,6 +50,8 @@ class RestrictionEnzymeSites extends Line {
         x, x2, initPosition, points, negativeOffset, basesLength,
         _this = this;
 
+
+    if(_.keys(enzymes).length) console.log(y, layoutHelpers.yOffset)
     y -= 2; // Styling
     y += layoutHelpers.yOffset;
 
@@ -133,9 +135,7 @@ class RestrictionEnzymeSites extends Line {
 
         var resClass = `res-${initPosition + baseRange[0]}`;
         
-        sequenceCanvas.svg
-          .polyline(points)
-          .addClass(`res-site ${rowClass} ${resClass}`).dmove(-1, 0);
+        sequenceCanvas.svg.polyline(points).addClass(`res-site ${rowClass} ${resClass}`);
 
       });
     });
