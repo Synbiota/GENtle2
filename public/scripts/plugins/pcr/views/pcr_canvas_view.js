@@ -2,7 +2,6 @@ import Backbone from 'backbone';
 import template from '../templates/pcr_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from 'gentle-sequence-canvas';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import _ from 'underscore';
 import Styles from '../../../styles.json';
 

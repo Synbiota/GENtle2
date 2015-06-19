@@ -80,6 +80,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: forwardPrimer.annealingRegion.range.from,
         to: forwardPrimer.annealingRegion.range.to - 1,
+        reverseComplement: false,
       }]
     },
     {
@@ -88,6 +89,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: reversePrimer.annealingRegion.range.from,
         to: reversePrimer.annealingRegion.range.to -1,
+        reverseComplement: true,
       }]
     },
     {
@@ -96,6 +98,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: forwardPrimer.range.from,
         to: forwardPrimer.range.to - 1,
+        reverseComplement: false,
       }]
     },
     {
@@ -104,6 +107,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: reversePrimer.range.from,
         to: reversePrimer.range.to - 1,
+        reverseComplement: true,
       }]
     },
     {
@@ -111,7 +115,8 @@ export default Backbone.View.extend({
       _type: 'sticky_end',
       ranges: [{
         from: 0,
-        to: stickyEnds.start.size + stickyEnds.start.offset - 1
+        to: stickyEnds.start.size + stickyEnds.start.offset - 1,
+        reverseComplement: false,
       }]
     },
     {
@@ -119,10 +124,12 @@ export default Backbone.View.extend({
       _type: 'sticky_end',
       ranges: [{
         from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
-        to:  sequence.getLength() - 1
+        to:  sequence.getLength() - 1,
+        reverseComplement: true,
       }]
     }];
 
+    _.each(features, (feature) => feature._id = _.uniqueId());
 
     sequence.set('features', features);
 
