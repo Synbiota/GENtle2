@@ -7,6 +7,7 @@ import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import PcrProductSequence from '../lib/product';
+import WipPcrProductSequence from '../lib/wip_product';
 
 
 var viewStates = {
@@ -34,10 +35,16 @@ export default Backbone.View.extend({
   // will throw an exception.
   initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
-
-    this.viewState = this.model instanceof PcrProductSequence ? 
-      viewStates.product : viewStates.form;
-
+    if(this.model instanceof PcrProductSequence) {
+      this.viewState = viewStates.product;
+    } else {
+      this.viewState = viewStates.form;
+      if(!(this.model instanceof WipPcrProductSequence)) {
+        // TODO: set the displaySettings.primaryView of the current `this.model`
+        // back to the Edit Sequence view?
+        this.model = new WipPcrProductSequence(this.model.toJSON());
+      }
+    }
     var args = {model: this.model};
     this.formView = new FormView(_.extend(argumentsForFormView, args));
     this.progressView = new ProgressView(args);
