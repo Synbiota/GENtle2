@@ -3,6 +3,7 @@ import template from '../templates/pcr_progress_view.hbs';
 import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
+import RdpSequence from '../../../library/rdp/rdp_sequence';
 
 
 export default Backbone.View.extend({
@@ -33,14 +34,20 @@ export default Backbone.View.extend({
 
     getPcrProductAndPrimers(this.model, dataAndOptions)
     .then((pcrProduct) => {
+      // Copy over RDP specific attributes.
+      var rdpAttributes = _.extend(pcrProduct.toJSON(), _.pick(dataAndOptions,
+          'partType', 'shortName', 'rdpEdits', 'sourceSequenceName'));
+      rdpAttributes.displaySettings = rdpAttributes.displaySettings || {};
+      rdpAttributes.displaySettings.primaryView = 'pcr';
+      rdpAttributes.rdpEdits = rdpAttributes.rdpEdits || [];
+      var rdpProduct = new RdpSequence(rdpAttributes);
+
       this.updateProgressBar(1);
-      pcrProduct.set('displaySettings.primaryView', 'pcr');
-      Gentle.sequences.add(pcrProduct);
+      Gentle.sequences.add(rdpProduct);
       // We don't need to call `this.model.destroy` as it will be an instance of
       // WipPcrProductSequence and therefore not saved.
-      this.model = pcrProduct;
-      Gentle.router.sequence(pcrProduct.get('id'));
-
+      this.model = rdpProduct;
+      Gentle.router.sequence(rdpProduct.get('id'));
     })
     .progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));

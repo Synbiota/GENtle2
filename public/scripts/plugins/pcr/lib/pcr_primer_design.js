@@ -169,7 +169,7 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
  * @return {PcrProductSequence}
  */
 var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion) {
-  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds', 'partType', 'shortName', 'rdpEdits', 'sourceSequenceName']);
+  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds']);
 
   var regionOfInterest = sequenceModel.getSubSeq(opts.from, opts.to, sequenceModel.STICKY_END_FULL);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start && opts.stickyEnds.start.sequence || '';
@@ -194,10 +194,6 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
     stickyEnds: opts.stickyEnds,
-    partType: opts.partType,
-    shortName: shortName,
-    rdpEdits: opts.rdpEdits || [],
-    sourceSequenceName: opts.sourceSequenceName
   });
   pcrProduct.set('features', calculateFeatures(pcrProduct));
   pcrProduct.set('meta.pcr.options', opts);
