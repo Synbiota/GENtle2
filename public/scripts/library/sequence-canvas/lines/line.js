@@ -1,4 +1,4 @@
-import {extend} from 'underscore';
+import {extend, defaults} from 'underscore';
 import Memoizable from 'gentle-utils/memoizable';
 
 /**
@@ -13,7 +13,9 @@ class Line extends Memoizable {
     super();
     this.sequenceCanvas = sequenceCanvas;
     this.type = this.constructor.name;
-    extend(this, options);
+    extend(this, defaults(options, {
+      visible: () => true
+    }));
     this.memoize('visible', 'change');
   }
 

@@ -429,6 +429,7 @@ class SequenceCanvasCore {
     this.updateCanvasDims()
       .then(this.calculateLayoutSettings)
       .then(() => {
+        this.clearCache();
         this.svg.clear();
         this.$childrenContainer.empty();
       })
@@ -516,10 +517,10 @@ class SequenceCanvasCore {
     }
   }
 
-  clearCache() {
-    this.getXPosFromBase.cache = {};
-    // this.getYPosFromBase.cache = {};
-  }
+  // clearCache() {
+  //   this.getXPosFromBase.cache = {};
+  //   // this.getYPosFromBase.cache = {};
+  // }
 
   afterNextRedraw() {
     var _this = this,
@@ -752,6 +753,8 @@ class SequenceCanvasCore {
 
   destroy() {
     this.sequence.off(null, this.refresh);
+    this.cleanupMemoized();
+    _.each(this.lines, line => line.cleanupMemoized());
   }
 }
 
