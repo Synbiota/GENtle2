@@ -1,0 +1,65 @@
+@mixin edit-canvas($size) {
+   overflow: hidden;
+
+  .edit-canvas-outlet {
+    width: $size;
+    float: left;
+    height: 95px;
+    margin-top: -15px;
+    overflow: hidden;
+    pointer-events: none;
+    position: relative;
+    canvas {
+      background-color: rgb(236, 236, 236);
+    }
+    .scrolling-parent {
+      overflow: hidden !important;
+    }
+  }
+
+  .edit-canvas-arrow {
+    $color: #666;
+    $padding: $size + 5px;
+
+    float: left;
+    width: 100%;
+    height: 2px;
+    margin: 40px (-$padding) 0 (- $padding);
+    padding: 0 ($padding + 10px);
+    position: relative;
+
+    &:after {
+      display: block;
+      content: "";
+      background: $color;
+      height: 2px;
+      width: 100%;
+    }
+
+    &:before {
+      content: "";
+      display: block;
+      border-left: 10px solid $color;
+      border-bottom: 5px solid white;
+      border-top: 5px solid white;
+      width: 10px;
+      height: 0px;
+      margin-top: -4px;
+      position: absolute;
+      right: $padding;
+    }
+  }
+
+}
+
+
+
+
+.edit-canvas-outlets-container {
+  @include edit-canvas(175px);
+}
+
+
+.edit-canvas-outlets-container-lg {
+  @include edit-canvas(240px);
+}

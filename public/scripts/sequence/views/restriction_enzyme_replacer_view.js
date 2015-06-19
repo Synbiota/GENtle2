@@ -17,6 +17,8 @@
 
   var LineStyles = Styles.sequences.lines;
 
+  var recognitionSiteRegexps = /GAGACC|GGTCTC|GCGGCCGC/;
+
 
   CondonSubView = Backbone.View.extend({
     template: template,
@@ -26,178 +28,144 @@
       this.replacements = [];
     },
 
-
-
     serialize: function() {
-      var _this = this;
-
-      if (this.showModal === true) {
-        _this.autoCorrectSuggestionForMatch(this.nonCompliantMatches);
-        // this.autoCorrectSuggestionForMatch(this.sequenceCanvas.selection);
-        return {
-          replacements: this.replacements,
-        };     
-      } 
+      this.autoCorrectSuggestionForMatch(this.nonCompliantMatches);
+      return {
+        replacements: this.replacements
+      };     
     },
 
-    colorRESText: function(changeableBases, offset, basePos) {
-      basePos = Number(basePos) + Number(offset);
-      if (_.includes(changeableBases, basePos)) {
-        return "#000000";
-      } else {
-        return LineStyles.complements.text.color;
-      }
+    getSequenceCanvasLines: function(tempSequence, _replacement) {
 
+      var recognitionSiteMatch = recognitionSiteRegexps.exec(tempSequence.getSequence());
+
+      return {
+        topSeparator: ['Blank', {height: 5}],
+
+        position: ['Position', {
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.position.text.font,
+          textColour: LineStyles.position.text.color,
+          transform: function(base) { 
+            return base+_replacement.paddedSubSeq.startBase;
+          }
+        }],
+
+        // Aminoacids
+        aa: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          textFont: LineStyles.aa.text.font,
+          transform: function(base) {
+            return tempSequence.getAA(
+              tempSequence.get('displaySettings.rows.aa'), 
+              base, 
+              parseInt(tempSequence.get('displaySettings.rows.aaOffset'))
+            );
+          },
+          textColour: function(codon) {
+            var colors = LineStyles.aa.text.color;
+            return colors[codon.sequence] || colors._default;
+          }
+        }],
+
+        // DNA Bases
+        dna: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          drawSingleStickyEnds: true,
+          textFont: LineStyles.dna.text.font,
+          textColour: (_base, pos) =>  {
+            if(recognitionSiteMatch && pos >= recognitionSiteMatch.index && pos < recognitionSiteMatch.index + recognitionSiteMatch[0].length) {
+              return '#000';
+            } else {
+              return LineStyles.complements.text.color;
+            }
+          },
+          selectionColour: LineStyles.dna.selection.fill,
+          selectionTextColour: LineStyles.dna.selection.color,
+          highlightColour: (base, pos) => {
+            return (pos >= _replacement.marginOffset && pos < _replacement.marginOffset + 3) ? 
+              '#78ABD8' : 'rgb(236, 236, 236)';
+          }
+        }],
+
+        // Complements
+        complements: ['DNA', {
+          height: 15,
+          baseLine: 15,
+          drawSingleStickyEnds: true,
+          isComplement: true,
+          textFont: LineStyles.complements.text.font,
+          textColour: LineStyles.complements.text.color,
+          getSubSeq: _.partial(tempSequence.getTransformedSubSeq, 'complements', {})
+        }],
+
+        // Restriction Enzyme Sites
+        restrictionEnzymeSites: ['RestrictionEnzymesSites', {
+          floating: true
+        }]
+      };
     },
 
+    getTempSequence(replacement, afterEdit = false) {
+      var paddedSubSeq = replacement.paddedSubSeq;
+      var sequence = afterEdit ? 
+        replacement.paddedAfterEditSequence : 
+        paddedSubSeq.subSeq;
 
-    colorWhiteText: function(changeableBases, offset) {
-      return "#FFFFFF";
+      return new Sequence({
+        sequence: sequence,
+        displaySettings: {
+          rows: {
+            aaOffset: (paddedSubSeq.startBase) % 3,
+            hasGutters: false,
+            res: {
+              manual: ['BsaI', 'NotI']
+            }
+          }
+        },
+      });
     },
 
-    highlightBlueText: function(_base) {
+    getSequenceCanvas(replacement, i, afterEdit = false) {
+      var sequence = this.getTempSequence(replacement, afterEdit);
+      var editStep = afterEdit ? 'after' : 'before';
+      var containerClassName = `.edit-canvas-outlet-${i}-${editStep}`;
 
-      if (_base == " ")
-        { return 'rgb(236, 236, 236)'; }
-      else
-        { return "#428BCA"; }
+      return new SequenceCanvas({
+        sequence: sequence,
+        container: this.$(containerClassName).first(),
+        lines: this.getSequenceCanvasLines(sequence, replacement),
+        layoutSettings: {
+          basesPerBlock: 10
+        }
+      });
     },
 
 
     afterRender: function() {
+      this.sequenceCanvases = [];
+      // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart.       
+      //for (var i=1; i <= Object.keys(this.replacements).length; i++) {
+      //this.replacements.forEach(function(_replacement) {
+      var replacements = _.sortBy(_.values(this.replacements), (_replacement) => {
+        return _replacement.subSeqOffset;
+      });
 
-      if (this.showModal === true){
-        this.sequenceCanvases = [];
-        $("#condonSubModal").modal("show").on('hide.bs.modal', () => {
-          this.showModal = false;
-        });
+      _.each(replacements, (_replacement, i) => {
+        var tempSequenceCanvasBefore = this.getSequenceCanvas(_replacement, i);
+        var tempSequenceCanvasAfter = this.getSequenceCanvas(_replacement, i, true);
 
-        // highlight first one TODO: relies on the a specific structure to the handbars template, which is not smart.       
-        //for (var i=1; i <= Object.keys(this.replacements).length; i++) {
-        //this.replacements.forEach(function(_replacement) {
-        var replacements = _.sortBy(_.values(this.replacements), (_replacement) => {
-          return _replacement.subSeqOffset;
-        });
+        tempSequenceCanvasBefore.refresh();
+        tempSequenceCanvasAfter.refresh();
 
-        _.each(replacements, (_replacement, i) => {
-          let paddedSubSeq= _replacement.paddedSubSeq;
-          let tempSequence = new Sequence({
-            sequence: paddedSubSeq.subSeq,
-            displaySettings: {
-              rows: {
-                aaOffset: (paddedSubSeq.startBase) % 3,
-                hasGutters: false,
-                res: {
-                  manual: ['BsaI', 'NotI']
-                },
-
-              }
-            },
-          });
-
-          let sequenceCanvasLines = {
-
-            topSeparator: ['Blank', {height: 5}],
-
-            position: ['Position', {
-              height: 15,
-              baseLine: 15,
-              textFont: LineStyles.position.text.font,
-              textColour: LineStyles.position.text.color,
-              transform: function(base) { 
-                return base+_replacement.paddedSubSeq.startBase;
-              },
-              //visible: _.memoize2(function() {
-              //  return _this.sequence.get('displaySettings.rows.numbering');
-              //})
-            }],
-
-            // Aminoacids
-            aa: ['DNA', {
-              height: 15,
-              baseLine: 15,
-              textFont: LineStyles.aa.text.font,
-              transform: function(base) {
-                return tempSequence.getAA(tempSequence.get('displaySettings.rows.aa'), base, parseInt(tempSequence.get('displaySettings.rows.aaOffset')));
-              },
-              textColour: function(codon) {
-                var colors = LineStyles.aa.text.color;
-                return colors[codon.sequence] || colors._default;
-              }
-            }],
-
-            // DNA Bases
-            dna: ['DNA', {
-              height: 15,
-              baseLine: 15,
-              drawSingleStickyEnds: true,
-              textFont: LineStyles.dna.text.font,
-              textColour: (_base, _base_pos) =>  {return this.colorRESText(_replacement.changeableBases, _replacement.paddedSubSeq.startBase ,_base_pos);},
-              selectionColour: LineStyles.dna.selection.fill,
-              selectionTextColour: LineStyles.dna.selection.color
-            }],
-
-            // Complements
-            complements: ['DNA', {
-              height: 15,
-              baseLine: 15,
-              drawSingleStickyEnds: true,
-              isComplement: true,
-              textFont: LineStyles.complements.text.font,
-              textColour: LineStyles.complements.text.color,
-              getSubSeq: _.partial(tempSequence.getTransformedSubSeq, 'complements', {}),
-            }],
-
-            substitutionSeparator: ['Blank', {height: 2}],
-
-            substitution: ['DNA', {
-              height: 15,
-              baseLine: 15,
-              textFont: LineStyles.dna.text.font,
-              textColour: (_base, _base_pos) =>  {return this.colorWhiteText(_replacement.changeableBases, _replacement.subSeqOffset ,_base_pos);},
-              lineHighlightColor: (_base) => {return this.highlightBlueText(_base);},
-              
-              getSubSeq: function() { return _replacement.paddedReplacementCodon; } 
-            }],
-
-            // Restriction Enzyme Sites
-            restrictionEnzymeSites: ['RestrictionEnzymesSites', {
-              floating: true,
-            }],
-          };
+        this.sequenceCanvases.push(tempSequenceCanvasBefore, tempSequenceCanvasAfter);
         
-          // let canvasId = `.sequence-canvas-container-${obj - 1} canvas`;
-          // let tempSequenceCanvas = new SequenceCanvas({
-          //   view: this,
-          //   $canvas: this.$(canvasId).first(),
-          //   sequence: tempSequence,
-          //   lines: sequenceCanvasLines
-          // });
+      }); 
 
-          var tempSequenceCanvas = new SequenceCanvas({
-            sequence: tempSequence,
-            container: this.$(`.sequence-canvas-outlet-${i}`).first(),
-            lines: sequenceCanvasLines,
-            layoutSettings: {
-              basesPerBlock: 10
-            }
-          });
-
-          tempSequenceCanvas.refresh();
-          this.sequenceCanvases.push(tempSequenceCanvas);
-          
-        }); // forEach
-
-
-
-      }
     },
-
-    events: {
-      'click .cancel': 'closeModal',
-      'click .replace': 'fixSequence',
-    },
-
 
     selectableClicked: function(event){
       if(event) event.preventDefault();
@@ -267,7 +235,7 @@
       //   }
       // }
 
-      if(event) { event.preventDefault();}
+      if(event) event.preventDefault();
       var sequence = this.sequence;
 
       _.each(this.replacements, function(replacement) {
@@ -275,11 +243,7 @@
         sequence.deleteBases(replacement.bestStartBase, 3, true);
         sequence.insertBases(replacement.bestReplacementCodon, replacement.bestStartBase, true);
 
-      })
-
-      this.showModal=false;
-      $("#condonSubModal").modal("hide");
-      this.sequenceCanvas.redraw(); 
+      });
     },
     
     hasRelevantRES: function(sequence) {
@@ -405,10 +369,25 @@
           if(marginOffset < 0) { marginOffset = 0; }
 
           replacement.paddedReplacementCodon = " ".repeat(marginOffset) + replacement.bestReplacementCodon;
-          replacement.marginOffset = marginOffset * 10
-      }) 
+
+          var subSeq = replacement.paddedSubSeq.subSeq;
+
+          replacement.paddedAfterEditSequence = 
+            subSeq.substr(0, marginOffset) + 
+            replacement.bestReplacementCodon + 
+            subSeq.substr(marginOffset + 3, subSeq.length - marginOffset - 3);
+
+
+          replacement.marginOffset = marginOffset;
+      });
 
     },
+
+    cleanup: function() {
+      if(_.isArray(this.sequenceCanvases)) {
+        this.sequenceCanvases.forEach(sequenceCanvas => sequenceCanvas.destroy());
+      }
+    }
 
   });
 
