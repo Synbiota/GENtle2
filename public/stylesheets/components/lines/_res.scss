@@ -1,0 +1,40 @@
+.sequence-canvas-wrapper {
+  $styles: deep_map_get($shared-styles, "sequences", "lines", "RES", "text"); 
+  $color: deep_map_get($styles, "color");
+  $font: deep_map_get($styles, "font");
+
+  .res-label-container {
+    position: absolute;
+    font: $font;
+    color: $color;
+    margin-left: -1px;
+
+    &.active {
+      .res-label-line {
+        border-left-style: solid;
+      }
+    }
+  }
+
+  .res-label-line {
+    border-left: 1px dotted $color;
+    opacity: 0.5;
+  }
+
+  .res-label {
+    cursor: pointer;
+  }
+
+  .res-site {
+    margin-left: -1px;
+    stroke: $color;
+    stroke-width: 1px;
+    fill: none;
+    shape-rendering: crispEdges;
+
+    &.active {
+      stroke-width: 2px;
+    }
+  }
+}
+

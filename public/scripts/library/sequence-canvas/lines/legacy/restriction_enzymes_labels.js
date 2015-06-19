@@ -1,24 +1,18 @@
-// define(function(require) {
-  var Line = require('./line'),
-      RestrictionEnzymes = require('../restriction_enzymes'),
-      RestrictionEnzymesSites = require('./restriction_enzymes_sites'),
-      RestrictionEnzymesLabels;
+import RestrictionEnzymesSites from './restriction_enzymes_sites';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import _ from 'underscore';
 
-  RestrictionEnzymesLabels = function(sequenceCanvas, options) {
-    this.type = 'restrictionEnzymesLabels';
-    this.cache = {};
-    this.sequenceCanvas = sequenceCanvas;
-    this.sequenceCanvas.sequence.on('change:sequence', this.clearCache, this);
-    this.cachedProperties = ['visible', 'maxNbRESPerRow'];
-    _.extend(this, options);
-  };
-  _.extend(RestrictionEnzymesLabels.prototype, Line.prototype);
+class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
+  constructor(sequenceCanvas, options) {
+    super(sequenceCanvas, options);
+    this.memoize('maxNbRESPerRow', 'change:sequence');
+  }
 
-  RestrictionEnzymesLabels.prototype.calculateHeight = function() {
+  calculateHeight() {
     this.height = this.unitHeight * this.maxNbRESPerRow();
-  },
+  }
 
-  RestrictionEnzymesLabels.prototype.maxNbRESPerRow = _.memoize2(function() {
+  maxNbRESPerRow() {
     var nbRES           = [],
         sequenceCanvas  = this.sequenceCanvas,
         sequence        = sequenceCanvas.sequence,
@@ -30,9 +24,9 @@
           customList: displaySettings.custom || [],
           // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
         },
-        subSeq, enzymes, countEnzymes, i;
+        subSeq, enzymes;
 
-    for(i = 0; i <= Math.floor(sequence.getLength() / basesPerRow); i++) {
+    for(let i = 0; i <= Math.floor(sequence.getLength() / basesPerRow); i++) {
       subSeq = sequence.getSubSeq(
         sequence.ensureBaseIsEditable(i * basesPerRow - subSeqPadding),
         sequence.ensureBaseIsEditable((i+1) * basesPerRow - 1 + subSeqPadding)
@@ -42,18 +36,16 @@
     }
 
     return nbRES.length ? _.max(nbRES) : 0;
-  });
+  }
 
-  RestrictionEnzymesLabels.prototype.getBaseX = RestrictionEnzymesSites.prototype.getBaseX;
-
-  RestrictionEnzymesLabels.prototype.onlyVisibleEnzymes = function(enzymes, firstBase, subSeqPadding) {
+  onlyVisibleEnzymes(enzymes, firstBase, subSeqPadding) {
     var basesPerRow = this.sequenceCanvas.layoutHelpers.basesPerRow,
         adjustedPosition, areVisibleRES,
         output = {};
 
     _.each(enzymes, function(enzymes_, position) {
       adjustedPosition = position - (firstBase === 0 ? 0 : subSeqPadding);
-      areVisibleRES = _.some(enzymes_, function(enzyme) {
+      areVisibleRES = _.some(enzymes_, function() {
         return adjustedPosition < basesPerRow && adjustedPosition >= 0;
       });
       if(areVisibleRES) {
@@ -62,13 +54,12 @@
     });
 
     return output;
-  };
+  }
 
-  RestrictionEnzymesLabels.prototype.draw = function(y, baseRange) {
+  draw(y, baseRange) {
     var sequenceCanvas = this.sequenceCanvas,
         artist = sequenceCanvas.artist,
         sequence = sequenceCanvas.sequence,
-        layoutSettings = sequenceCanvas.layoutSettings,
         layoutHelpers = sequenceCanvas.layoutHelpers,
         subSeqPadding = RestrictionEnzymes.maxLength(),
         displaySettings = sequence.get('displaySettings.rows.res') || {},
@@ -84,7 +75,7 @@
         enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions),
         _this = this,
         initY = y,
-        x, text;
+        x;
 
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
 
@@ -123,7 +114,7 @@
 
     artist.setLineDash([]);
     
-  };
+  }
+}
+
 export default RestrictionEnzymesLabels;
-  // return RestrictionEnzymesLabels;
-// });

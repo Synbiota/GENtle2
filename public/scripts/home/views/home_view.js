@@ -22,7 +22,7 @@
 
       defaultTabs = [{
         name: 'new-sequence',
-        title: 'New',
+        title: 'New sequence',
         view: NewSequenceView,
         active: true
       }, {

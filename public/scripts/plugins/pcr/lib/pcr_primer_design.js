@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import SequenceCalculations from '../../../sequence/lib/sequence_calculations';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 import {optimalPrimer4, getSequenceToSearch} from './primer_calculation';
 import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';

@@ -1,3 +1,6 @@
+import Line from './line';
+import _ from 'underscore';
+
 /**
 Line class for displaying bases on SequenceCanvas. 
 Options are: 
@@ -13,32 +16,22 @@ Options are:
 @submodule SequenceCanvas
 @extends Lines.Line
 **/
-// define(function(require) {
-  var Line = require('./line'),
-      DNA;
+class DNA extends Line {
 
-  DNA = function(sequenceCanvas, options) {
-    this.type = 'dna';
-    this.sequenceCanvas = sequenceCanvas;
-    this.cachedProperties = ['visible'];
-    _.extend(this, options);
-  };
-  _.extend(DNA.prototype, Line.prototype);
-
-  DNA.prototype.setTextColour = function(base, pos) {
+  setTextColour(base, pos) {
     var artist = this.sequenceCanvas.artist;
     if(_.isFunction(this.textColour)) {
       artist.updateStyle({fillStyle: this.textColour(base, pos)});
     } else {
       artist.updateStyle({fillStyle: this.textColour});
     }
-  };
+  }
 
-  DNA.prototype.getHighlightColour = function(base, pos) {
+  getHighlightColour(base, pos) {
     return this.highlightColour && this.highlightColour(base, pos);
-  };
+  }
 
-  DNA.prototype.draw = function(y, baseRange) {
+  draw(y, baseRange) {
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
@@ -99,6 +92,5 @@ Options are:
     }
             
   };
+}
 export default DNA;
-  // return DNA;
-// });

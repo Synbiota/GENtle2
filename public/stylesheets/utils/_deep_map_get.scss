@@ -1,0 +1,7 @@
+@function deep_map_get($map, $keys...) {
+  $currentMap: $map;
+  @each $key in $keys {
+    $currentMap: map_get($currentMap, $key)
+  }
+  @return $currentMap;
+}

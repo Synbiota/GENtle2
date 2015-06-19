@@ -1,19 +1,20 @@
 import _ from 'underscore.mixed';
 
+
 export default function testAllSequenceModels(Sequence) {
 
   var initialSequenceContent = 'ATCGATCGATCGATCG';
   var initialSequenceLength = initialSequenceContent.length;
   var stickyEnds = {
     start: {
-      sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+      sequence: 'CCTGCAGTCAGTGGTCTCT' + 'AGAG',
       reverse: false,
       offset: 19,
       size: 4,
       name: "X",
     },
     end: {
-      sequence: 'GAGATGAGACCGTCAGTCACGAG',
+      sequence: 'GAGA' + 'TGAGACCGTCAGTCACGAG',
       reverse: true,
       offset: 19,
       size: 4,
@@ -26,7 +27,8 @@ export default function testAllSequenceModels(Sequence) {
   var stickyEndedSequenceContentWithOverhang = stickyEndedSequenceContent.substring(stickyEnds.start.offset, stickyEndedSequenceContent.length - stickyEnds.end.offset);
 
 
-  var fixtures = [{
+  var fixtures = [
+  {
     name: 'Test sequence',
     sequence: initialSequenceContent,
     features: [{
@@ -38,160 +40,208 @@ export default function testAllSequenceModels(Sequence) {
       desc: 'test feature description',
       type: 'gene'
     }]
-  },{
+  },
+  {
     name: 'Sticky Ended Sequence',
     sequence: stickyEndedSequenceContent,
-    features: [{
+    features: [
+    {
+      id: 1,
+      name: 'Sticky End Feature',
+      desc: 'This one will not show on clipped sticky ends.',
       ranges: [{
         from: 0,
         to: 2
       }],
-      name: 'Sticky End Feature',
-      desc: 'This one will not show on clipped sticky ends.',
       type: 'gene',
-    },{
+    },
+    {
+      id: 2,
+      name: 'Start Clipped Feature',
+      desc: 'This one will be a shortened feature for clipped sticky end format.',
       ranges: [{
         from: 1,
         to: 30
       }],
-      name: 'Start Clipped Feature',
-      desc: 'This one will be a shortened feature for clipped sticky end format.',
       type: 'gene',
-    },{
+    },
+    {
+      id: 3,
+      name: 'Normal Feature',
+      desc: 'This one will not be affected by clipped sticky ends.',
       ranges: [{
         from: 24,
         to: 27
       }],
-      name: 'Normal Feature',
-      desc: 'This one will not be affected by clipped sticky ends.',
       type: 'gene',
-    },{
+    },
+    {
+      id: 4,
+      name: 'End Clipped Feature',
+      desc: 'This one will be shortened at the end for clipped sticky end format.',
       ranges: [{
         from: 30,
         to: stickyEndedSequenceContent.length - 2
+      },
+      {
+        // This range should be dropped if stickyEndFormat is not "full"
+        from: stickyEndedSequenceContent.length - 19,
+        to: stickyEndedSequenceContent.length - 1
       }],
-      name: 'End Clipped Feature',
-      desc: 'This one will be shortened at the end for clipped sticky end format.',
       type: 'gene',
-    }
+    },
+    {
+      id: 5,
+      name: 'End Feature dropped',
+      desc: 'This one sould be dropped if stickyEndFormat is not "full"',
+      ranges: [{
+        from: stickyEndedSequenceContent.length - 19,
+        to: stickyEndedSequenceContent.length - 1
+      }],
+      type: 'gene',
+    },
     ],
     stickyEnds: stickyEnds
-  },{
-          sequence: 'CCCCCCCCCCCGGTACC',
-          id: 1,
-          from: 0,
-          to: 16,
-          stickyEnds: {
-            // Leave a TA sticky end
-            end: {
-              reverse: false,
-              offset: 2,
-              size: 2,
-            }
-          },
-          features: [{
-            name: 'Sequence1Annotation',
-            _type: 'sequence',
-            ranges: [{
-              from: 3,
-              to: 8,
-            }]
-          },
-          {
-            name: 'Sequence1EndAnnotation',
-            _type: 'sequence',
-            ranges: [{
-              from: 11, // let's say the GGTT is the RE site
-              to: 14,
-            }]
-          }]
-        }, {
-          sequence: 'CCTACCCCCCCCCCC',
-          id: 2,
-          from: 0,
-          to: 14,
-          stickyEnds: {
-            // Leave a AT sticky end
-            start: {
-              reverse: true,
-              offset: 2,
-              size: 2,
-            }
-          },
-          features: [
-          {
-            name: 'Sequence2AnnotationShouldStay',
-            _type: 'sequence',
-            ranges: [{
-              from: 2,
-              to: 2,
-            }]
-          },
-          {
-            name: 'Sequence2AnnotationShouldBeRemoved',
-            _type: 'sequence',
-            ranges: [{
-              from: 1,
-              to: 2, // let's say the CCTT is the RE site
-            }]
-          }
-          ]
-        },
+  },
   {
-          sequence: 'GGGTACCGGGGGGGGGTAGG',
-          id: 3,
-          from: 0,
-          to: 19,
-          stickyEnds: {
-            // Leave a AT sticky end
-            start: {
-              reverse: true,
-              offset: 3,
-              size: 2,
-            },
-            // Leave a TA sticky end
-            end: {
-              reverse: false,
-              offset: 2,
-              size: 2,
-            }
-          },
-          features: [{
-            name: 'Sequence3Annotation',
-            _type: 'sequence',
-            ranges: [{
-              from: 17,
-              to: 17,
-            }]
-          },
-          {
-            name: 'Sequence3AnnotationShouldBeRemoved',
-            _type: 'sequence',
-            ranges: [{
-              from: 17,
-              to: 18,
-            }]
-          },
-          {
-            name: 'Sequence3AnnotationShouldAlsoBeRemoved',
-            _type: 'sequence',
-            ranges: [{
-              from: 18,
-              to: 17,
-            }]
-          }]
-        }
-
+    name: 'sequence1',
+    sequence: 'CCCCCCCCCCCGGTACC',
+    id: 1,
+    from: 0,
+    to: 16,
+    stickyEnds: {
+      // Leave a TA sticky end
+      end: {
+        reverse: false,
+        offset: 2,
+        size: 2,
+      }
+    },
+    features: [{
+      name: 'Sequence1Annotation',
+      _type: 'sequence',
+      ranges: [{
+        from: 3,
+        to: 8,
+      }]
+    },
+    {
+      name: 'Sequence1EndAnnotation',
+      _type: 'sequence',
+      ranges: [{
+        from: 11, // let's say the GGTT is the RE site
+        to: 14,
+      }]
+    }]
+  },
+  {
+    name: 'sequence2',
+    sequence: 'CCTACCCCCCCCCCC',
+    id: 2,
+    from: 0,
+    to: 14,
+    stickyEnds: {
+      // Leave a AT sticky end
+      start: {
+        reverse: true,
+        offset: 2,
+        size: 2,
+      }
+    },
+    features: [
+    {
+      name: 'Sequence2AnnotationShouldStay',
+      _type: 'sequence',
+      ranges: [{
+        from: 2,
+        to: 2,
+      }]
+    },
+    {
+      name: 'Sequence2AnnotationShouldBeRemoved',
+      _type: 'sequence',
+      ranges: [{
+        from: 1,
+        to: 2, // let's say the CCTT is the RE site
+      }]
+    }
+    ]
+  },
+  {
+    name: 'sequence3',
+    sequence: 'GGGTACCGGGGGGGGGTAGG',
+    id: 3,
+    from: 0,
+    to: 19,
+    stickyEnds: {
+      // Leave a AT sticky end
+      start: {
+        reverse: true,
+        offset: 3,
+        size: 2,
+      },
+      // Leave a TA sticky end
+      end: {
+        reverse: false,
+        offset: 2,
+        size: 2,
+      }
+    },
+    features: [{
+      name: 'Sequence3Annotation',
+      _type: 'sequence',
+      ranges: [{
+        from: 17,
+        to: 17,
+      }]
+    },
+    {
+      name: 'Sequence3AnnotationShouldBeRemoved',
+      _type: 'sequence',
+      ranges: [{
+        from: 17,
+        to: 18,
+      }]
+    },
+    {
+      name: 'Sequence3AnnotationShouldAlsoBeRemoved',
+      _type: 'sequence',
+      ranges: [{
+        from: 18,
+        to: 17,
+      }]
+    }]
+  },
+  {
+    name: 'Empty Sticky Ended Sequence',
+    sequence: stickyEnds.start.sequence + stickyEnds.end.sequence,
+    features: [],
+    stickyEnds: stickyEnds
+  },
+  {
+    name: 'Empty Sequence',
+    sequence: '',
+    features: []
+  }
   ];
 
-  var opts;
-
-  var sequence, stickyEndedSequence, sequence1, sequence2, sequence3;
+  var sequence;
+  var stickyEndedSequence;
+  var sequence1;
+  var sequence2;
+  var sequence3;
+  var stickyEndedEmptySequence;
+  var emptySequence;
 
   var setStickyEndFormat = function(format) {
     beforeEach(function() {
       stickyEndedSequence.setStickyEndFormat(format);  
     });
+  };
+
+  var spyAndStub = function(_sequence) {
+    spyOn(_sequence, 'save');
+    spyOn(_sequence, 'throttledSave');
   };
 
   beforeEach(function() {
@@ -200,32 +250,39 @@ export default function testAllSequenceModels(Sequence) {
     sequence1 = new Sequence(fixtures[2]);
     sequence2 = new Sequence(fixtures[3]);
     sequence3 = new Sequence(fixtures[4]);
+    stickyEndedEmptySequence = new Sequence(fixtures[5]);
+    emptySequence = new Sequence(fixtures[6]);
 
-    [sequence, stickyEndedSequence, sequence1, sequence2, sequence3].forEach(function(_sequence) {
-      spyOn(_sequence, 'save');
-      spyOn(_sequence, 'throttledSave');
-    });
+    ([
+      sequence,
+      stickyEndedSequence,
+      sequence1,
+      sequence2,
+      sequence3,
+      stickyEndedEmptySequence,
+      emptySequence,
+    ]).forEach(spyAndStub);
   });
 
 
   describe('creating and reading a sequence', function() {
-
     it('should instantiate', function() {
-      var bases = 'ATCGGGCTTAAGCGTA'; 
+      var bases = 'ATCGGGCTTAAGCGTA';
       var sequence = new Sequence({
         name: 'Test Sequence',
         sequence: bases
       });
       expect(sequence).toBeTruthy();
+      spyAndStub(sequence);
     });
 
     it('should be able to get the name', function() {
       expect(sequence.get('name')).toEqual('Test sequence');
     });
 
-    describe('without sticky ends', function(){
+    describe('without sticky ends', function() {
       it('should be able to get the sequence', function() {
-        expect(sequence.get('sequence')).toEqual(initialSequenceContent);
+        expect(sequence.getSequence()).toEqual(initialSequenceContent);
       });
 
       it('should be able to get a subsequence', function() {
@@ -233,15 +290,14 @@ export default function testAllSequenceModels(Sequence) {
       });
     });
 
-    describe('with sticky ends', function(){
-
-      describe('with full sticky end formatting', function(){
+    describe('with sticky ends', function() {
+      describe('with full sticky end formatting', function() {
         beforeEach(function() {
           stickyEndedSequence.setStickyEndFormat('full');
         });
 
         it('should be able to get the sequence', function() {
-          expect(stickyEndedSequence.get('sequence')).toEqual(stickyEndedSequenceContent);
+          expect(stickyEndedSequence.getSequence()).toEqual(stickyEndedSequenceContent);
         });
 
         it('should be able to get a subsequence', function() {
@@ -249,9 +305,9 @@ export default function testAllSequenceModels(Sequence) {
         });
       });
 
-      describe('with overhang sticky end formatting', function(){
+      describe('with overhang sticky end formatting', function() {
         it('should be able to get the sequence', function() {
-          expect(stickyEndedSequence.get('sequence')).toEqual(stickyEndedSequenceContentWithOverhang);
+          expect(stickyEndedSequence.getSequence()).toEqual(stickyEndedSequenceContentWithOverhang);
         });
 
         it('should be able to get a subsequence', function() {
@@ -259,13 +315,13 @@ export default function testAllSequenceModels(Sequence) {
         });
       });
 
-      describe('with sticky ends removed', function(){
+      describe('with sticky ends removed', function() {
         beforeEach(function() {
           stickyEndedSequence.setStickyEndFormat('none');
         });
 
         it('should be able to get the sequence', function() {
-          expect(stickyEndedSequence.get('sequence')).toEqual(initialSequenceContent);
+          expect(stickyEndedSequence.getSequence()).toEqual(initialSequenceContent);
         });
 
         it('should be able to get a subsequence', function() {
@@ -273,17 +329,31 @@ export default function testAllSequenceModels(Sequence) {
         });
       });
 
+      describe('with alternating stickyEndFormat', function() {
+        it('should return return the correct length', function() {
+          stickyEndedSequence.setStickyEndFormat(stickyEndedSequence.STICKY_END_OVERHANG);
+          expect(stickyEndedSequence.getLength()).toEqual(24);
+          stickyEndedSequence.setStickyEndFormat(stickyEndedSequence.STICKY_END_NONE);
+          expect(stickyEndedSequence.getLength()).toEqual(16);
+          stickyEndedSequence.setStickyEndFormat(stickyEndedSequence.STICKY_END_FULL);
+          expect(stickyEndedSequence.getLength()).toEqual(62);
+        });
+      });
     });
+
 
     describe('getting transformed and subsequences', function() {
       var sequence;
       var bases = 'ATCGGGCTTAAGCGTA';
-      it('should instantiate', function() {
+      var allBases = stickyEnds.start.sequence + bases + stickyEnds.end.sequence;
+      beforeEach(function() {
         sequence = new Sequence({
           name: 'Test Sequence',
-          sequence: bases
+          sequence: allBases,
+          stickyEnds: stickyEnds,
         });
-        expect(sequence).toBeTruthy();
+        spyAndStub(sequence);
+        sequence.setStickyEndFormat(sequence.STICKY_END_NONE);
       });
 
       it('should be able to get a padded subsequence', function() {
@@ -308,7 +378,7 @@ export default function testAllSequenceModels(Sequence) {
         expect(result.endBase).toEqual(9);
       });
 
-      it('should be able get a transformed subsequence', function() {
+      it('should be able to get a transformed subsequence', function() {
         var transformedSubSequence, error;
         try {
           transformedSubSequence = sequence.getTransformedSubSeq('WRonG', {}, 3, 8);
@@ -331,6 +401,20 @@ export default function testAllSequenceModels(Sequence) {
 
         transformedSubSequence = sequence.getTransformedSubSeq('aa-short', {complements: true}, 3, 8);
         expect(transformedSubSequence).toEqual(' P  E ');
+      });
+
+      it('should return amino acids', function() {
+        var aAs;
+        sequence.setStickyEndFormat(sequence.STICKY_END_NONE);
+        aAs = sequence.getAAs(3, 6);
+        expect(aAs).toEqual(['G', 'L']);
+
+        aAs = sequence.getAAs(2, 6);
+        expect(aAs).toEqual(['R', 'A']);
+
+        sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
+        aAs = sequence.getAAs(3, 6);
+        expect(aAs).toEqual(['A', 'V']);
       });
 
       it('should be able get a codon', function() {
@@ -404,83 +488,119 @@ export default function testAllSequenceModels(Sequence) {
 
   });
 
-  describe('getting features from sticky ended sequences', function(){
 
-    var features;
+  describe('getting features from sticky ended sequences', function() {
     var originalCoords = _.pluck(fixtures[1].features, 'ranges');
 
-    describe('with full sticky end formatting', function(){
-      beforeEach(function(){
-        features = stickyEndedSequence.get('features', {
-          stickyEndFormat: 'full'
-        });
+    describe('with full sticky end formatting', function() {
+      var features;
+      setStickyEndFormat('full');
+
+      beforeEach(function() {
+        features = stickyEndedSequence.getFeatures();
       });
 
-      it('should not distort any features', function(){
+      it('should not distort any features', function() {
         var coords = _.pluck(features, 'ranges');
 
         var zippedCoords = _.zip(originalCoords, coords);
 
-        var hasDistortedFeature = _.some(zippedCoords, function(set){
+        var hasDistortedFeature = _.some(zippedCoords, function(set) {
                                     return ((set[0].from != set[1].from) || (set[0].to != set[1].to));
                                   });
 
         expect(hasDistortedFeature).toBe(false);
-
       });
     });
 
-    describe('with overhang sticky end formatting', function(){
-      beforeEach(function(){
-        features = stickyEndedSequence.get('features');
+    describe('with overhang sticky end formatting', function() {
+      var features;
+      setStickyEndFormat('overhang');
+
+      beforeEach(function() {
+        features = stickyEndedSequence.getFeatures();
       });
 
-      it('should set features beyond the overhang as [0,0]', function(){
+      it('should not return features before or after the overhang', function() {
+        expect(features[0].id).toEqual(2);
+        expect(features.length).toEqual(3);
+      });
+
+      it('should shorten features that extend beyond the beginning of the overhang to start at 0', function() {
+        expect(features[0].id).toEqual(2);
         expect(features[0].ranges[0].from).toEqual(0);
-        expect(features[0].ranges[0].to).toEqual(0);
       });
 
-      it('should shorten features that extend beyond the beginning of the overhang to start at 0', function(){
-        expect(features[1].ranges[0].from).toEqual(0);
+      it('should adjust the position of features on the sequence by the leading sticky end offset', function() {
+        expect(features[0].ranges[0].to).toEqual(originalCoords[1][0].to - stickyEnds.start.offset);
+
+        expect(features[1].ranges[0].from).toEqual(originalCoords[2][0].from - stickyEnds.start.offset);
+        expect(features[1].ranges[0].to).toEqual(originalCoords[2][0].to - stickyEnds.start.offset);
+
+        expect(features[2].ranges[0].from).toEqual(originalCoords[3][0].from - stickyEnds.start.offset);
       });
 
-      it('should adjust the position of features on the sequence by the leading sticky end offset', function(){
-        expect(features[1].ranges[0].to).toEqual(originalCoords[1][0].to - stickyEnds.start.offset);
-
-        expect(features[2].ranges[0].from).toEqual(originalCoords[2][0].from - stickyEnds.start.offset);
-        expect(features[2].ranges[0].to).toEqual(originalCoords[2][0].to - stickyEnds.start.offset);
-
-        expect(features[3].ranges[0].from).toEqual(originalCoords[3][0].from - stickyEnds.start.offset);
-      });
-
-      it('should shorten features that extend beyond the end of the overhang to end at sequence length', function(){
+      it('should shorten features that extend beyond the end of the overhang to end at sequence length', function() {
         var sequenceLength = stickyEndedSequence.getLength();
-        expect(features[3].ranges[0].to).toEqual(sequenceLength - 1);
+        expect(features[2].ranges[0].to).toEqual(sequenceLength - 1);
       });
 
-
+      it('should remove feature ranges that extend beyond the end of the overhang to end at sequence length', function() {
+        expect(features[2].id).toEqual(4);
+        expect(features[2].ranges.length).toEqual(1);
+      });
     });
 
-    describe('without sticky ends', function(){
-      beforeEach(function(){
-        stickyEndedSequence.get('features', {
-          stickyEndFormat: 'none'
-        });
+    describe('with sticky end formatting of "none"', function() {
+      var features;
+      var offset = stickyEnds.start.offset + stickyEnds.start.size;
+      setStickyEndFormat('none');
+
+      beforeEach(function() {
+        features = stickyEndedSequence.getFeatures();
+      });
+
+      it('should not return features before or after the main sequence', function() {
+        expect(features[0].id).toEqual(2);
+        expect(features.length).toEqual(3);
+      });
+
+      it('should shorten features that extend beyond the beginning of the main sequence to start at 0', function() {
+        expect(features[0].id).toEqual(2);
+        expect(features[0].ranges[0].from).toEqual(0);
+      });
+
+      it('should adjust the position of features on the sequence by the leading sticky end offset', function() {
+        expect(features[0].ranges[0].to).toEqual(originalCoords[1][0].to - offset);
+
+        expect(features[1].ranges[0].from).toEqual(originalCoords[2][0].from - offset);
+        expect(features[1].ranges[0].to).toEqual(originalCoords[2][0].to - offset);
+
+        expect(features[2].ranges[0].from).toEqual(originalCoords[3][0].from - offset);
+      });
+
+      it('should shorten features that extend beyond the end of the main sequence to end at sequence length', function() {
+        var sequenceLength = stickyEndedSequence.getLength();
+        expect(features[2].ranges[0].to).toEqual(sequenceLength - 1);
+      });
+
+      it('should remove feature ranges that extend beyond the end of the main sequence to end at sequence length', function() {
+        expect(features[2].id).toEqual(4);
+        expect(features[2].ranges.length).toEqual(1);
       });
     });
 
   });
 
+
   describe('when inserting bases into a sequence', function() {
-
-    describe('without sticky ends', function(){
-
-      beforeEach(function(){
+    describe('without sticky ends', function() {
+      beforeEach(function() {
         sequence.insertBases('AAA', 3);
       });
 
       it('should update the sequence', function() {
-        expect(sequence.get('sequence')).toEqual('ATCAAAGATCGATCGATCG');
+        expect(sequence.getSequence()).toEqual('ATCAAAGATCGATCGATCG');
         expect(sequence.getSubSeq(3, 5)).toEqual('AAA');
         expect(sequence.throttledSave).toHaveBeenCalled();
       });
@@ -492,61 +612,119 @@ export default function testAllSequenceModels(Sequence) {
       });
     });
 
-    describe('with sticky ends', function(){
-
-      describe('with full sticky end formatting', function(){
-
-        beforeEach(function(){
+    describe('with sticky ends', function() {
+      describe('with full sticky end formatting', function() {
+        beforeEach(function() {
           stickyEndedSequence.setStickyEndFormat('full');
           stickyEndedSequence.insertBases('AAA', 3);
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.get('sequence')).toEqual('CCTAAAGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTAAAGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
       });
 
-      describe('with overhang sticky end formatting', function(){
-
-        beforeEach(function(){
+      describe('with overhang sticky end formatting', function() {
+        beforeEach(function() {
           stickyEndedSequence.insertBases('AAA', 3);
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.get('sequence')).toEqual('AGAAAAGATCGATCGATCGATCGGAGA');
+          expect(stickyEndedSequence.getSequence(stickyEndedSequence.STICKY_END_FULL)).toEqual('CCTGCAGTCAGTGGTCTCTAGA' + 'AAA' + 'GATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
       });
 
-      describe('with sticky ends removed', function(){
-
-        beforeEach(function(){
+      describe('with sticky ends removed', function() {
+        beforeEach(function() {
           stickyEndedSequence.setStickyEndFormat('none');
           stickyEndedSequence.insertBases('AAA', 3);
         });
 
         it('should update the sequence', function() {
-          expect(stickyEndedSequence.get('sequence')).toEqual('ATCAAAGATCGATCGATCG');
+          expect(stickyEndedSequence.getSequence(stickyEndedSequence.STICKY_END_FULL)).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATC' + 'AAA' + 'GATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+    });
+  });
+
+
+  describe('when changing bases into a sequence', function() {
+    describe('without sticky ends', function() {
+      beforeEach(function() {
+        sequence.changeBases(3, 'AAA');
+      });
+
+      it('should update the sequence', function() {
+        expect(sequence.getSequence()).toEqual('ATCAAACGATCGATCG');
+        expect(sequence.getSubSeq(3, 5)).toEqual('AAA');
+        expect(sequence.throttledSave).toHaveBeenCalled();
+      });
+
+      it('should not move the features', function() {
+        var featureRange = sequence.get('features.0.ranges.0');
+        expect(featureRange.from).toEqual(3);
+        expect(featureRange.to).toEqual(7);
+      });
+    });
+
+    describe('with sticky ends', function() {
+      describe('with full sticky end formatting', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('full');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSequence()).toEqual('CCT' + 'AAA' + 'GTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
           expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
           expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
         });
       });
 
+      describe('with overhang sticky end formatting', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('overhang');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          stickyEndedSequence.setStickyEndFormat('full');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGA' + 'AAA' + 'CGATCGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
+
+      describe('with sticky ends removed', function() {
+        beforeEach(function() {
+          stickyEndedSequence.setStickyEndFormat('none');
+          stickyEndedSequence.changeBases(3, 'AAA');
+        });
+
+        it('should update the sequence', function() {
+          expect(stickyEndedSequence.getSubSeq(3, 5)).toEqual('AAA');
+          stickyEndedSequence.setStickyEndFormat('full');
+          expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATC' + 'AAA' + 'CGATCGATCGGAGATGAGACCGTCAGTCACGAG');
+          expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
+        });
+      });
     });
   });
 
 
   describe('when deleting bases from a sequence in the middle of a feature', function() {
-
     beforeEach(function() {
       sequence.deleteBases(2, 2);
     });
 
     it('should update the sequence', function() {
-      expect(sequence.get('sequence')).toEqual('ATATCGATCGATCG');
+      expect(sequence.getSequence()).toEqual('ATATCGATCGATCG');
       expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
       expect(sequence.throttledSave).toHaveBeenCalled();
     });
@@ -564,72 +742,76 @@ export default function testAllSequenceModels(Sequence) {
 
 
   describe('when deleting bases containing an entire sequence', function() {
-
     beforeEach(function() {
       sequence.deleteBases(2, 6);
     });
 
     it('should update the sequence', function() {
-      expect(sequence.get('sequence')).toEqual('ATATCGATCG');
+      expect(sequence.getSequence()).toEqual('ATATCGATCG');
       expect(sequence.getSubSeq(3, 5)).toEqual('TCG');
       expect(sequence.throttledSave).toHaveBeenCalled();
     });
 
     it('should delete the feature', function() {
-      var features = sequence.get('features');
+      var features = sequence.getFeatures();
       expect(features.length).toEqual(0);
     });
   });
 
-  describe('when deleting bases from a stickyEnded sequence', function(){
 
-
-    describe('with full sticky end formatting', function(){
+  describe('when deleting bases from a stickyEnded sequence', function() {
+    describe('with full sticky end formatting', function() {
       setStickyEndFormat('full');
 
-      beforeEach(function(){
+      beforeEach(function() {
         stickyEndedSequence.deleteBases(21, 26);
       });
 
-      it('should update the sequence', function(){
-        expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
+      it('should update the sequence', function() {
+        expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGACCGTCAGTCACGAG');
         expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
     });
 
-    describe('with overhang sticky end formatting', function(){
-      beforeEach(function(){
+    describe('with overhang sticky end formatting', function() {
+      beforeEach(function() {
         stickyEndedSequence.deleteBases(21, 16);
       });
 
-      it('should update the sequence', function(){
-        expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
+      it('should update the sequence', function() {
+        expect(stickyEndedSequence.getStickyEndFormat()).toEqual('overhang');
+        expect(stickyEndedSequence.getSequence()).toEqual('AGAGATCG');
+        stickyEndedSequence.setStickyEndFormat('full');
+        expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGCACGAG');
         expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
     });
 
-    describe('with none sticky end formatting', function(){
+    describe('with none sticky end formatting', function() {
       setStickyEndFormat('none');
 
-      beforeEach(function(){
+      beforeEach(function() {
         stickyEndedSequence.deleteBases(21, 16);
       });
 
-      it('should update the sequence', function(){
-        expect(stickyEndedSequence.superGet('sequence')).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
+      it('should update the sequence', function() {
+        expect(stickyEndedSequence.getStickyEndFormat()).toEqual('none');
+        expect(stickyEndedSequence.getSequence()).toEqual('');
+        stickyEndedSequence.setStickyEndFormat('full');
+        expect(stickyEndedSequence.getSequence()).toEqual('CCTGCAGTCAGTGGTCTCTAGAGATCGATCGATCGATCGGAGATAG');
         expect(stickyEndedSequence.throttledSave).toHaveBeenCalled();
       });
     });
-
-
   });
-  
+
+
   describe('sticky end functions', function() {
     beforeEach(function() {
       sequence1.setStickyEndFormat('full');
       sequence2.setStickyEndFormat('full');
       sequence3.setStickyEndFormat('full');
     });
+
     it('isBeyondEndStickyEnd', function() {
       expect(sequence1.isBeyondEndStickyEnd(15)).toEqual(true);
       expect(sequence1.isBeyondEndStickyEnd(14, true)).toEqual(true);
@@ -673,6 +855,7 @@ export default function testAllSequenceModels(Sequence) {
       expect(sequence2.stickyEndConnects(sequence1)).toEqual(false);
     });
   }); //-describe('sticky end functions')
+
 
   describe('concatenateSequences', function() {
     it('concatenates sequence1, sequence2', function() {
@@ -772,8 +955,8 @@ export default function testAllSequenceModels(Sequence) {
       }
       expect(error).toEqual('Can not concatenate sequences 2 and 1 as they have incompatible sticky ends: `` and ``');
     });
-
   });
+
 
   describe('#selectableRange', function() {
     describe('with overhang sticky end formatting', function() {
@@ -792,10 +975,14 @@ export default function testAllSequenceModels(Sequence) {
     });
   });
 
+
   describe('#editableRange', function() {
     describe('with overhang sticky end formatting', function() {
       it('should return the boundaries of the sequence without the sticky ends', function() {
-        expect(stickyEndedSequence.editableRange()).toEqual([4, 19]);
+        var range = stickyEndedSequence.editableRange();
+        expect(range.from).toEqual(4);
+        // NOTE: remember range.to is exclusive so 21 is *not* included in range
+        expect(range.to).toEqual(21);
       });
     });
 
@@ -808,92 +995,169 @@ export default function testAllSequenceModels(Sequence) {
     });
   });
 
+
   describe('#isBaseEditable', function() {
-    var baseShouldBeEditable = function(editable, strict, base) {
-      // console.log('isBaseEditable', base, stickyEndedSequence.isBaseEditable(base))
-      expect(stickyEndedSequence.isBaseEditable(base, strict)).toEqual(editable);
+    var basesShouldBeEditable = function(editableBases, strict) {
+      editableBases.forEach(function(baseNumber) {
+        it('should return true for editable base number ' + baseNumber, function() {
+          expect(stickyEndedSequence.isBaseEditable(baseNumber, strict)).toEqual(true);
+        });
+      });
     };
 
-    var shouldWork = function(editableBases, nonEditableBases = [], strict = false) {
-      it('should return true for editable bases', function() {
-        editableBases.forEach(_.partial(baseShouldBeEditable, true, strict));
-      });
-
-      it('should return false for non editable bases', function() {
-        nonEditableBases.forEach(_.partial(baseShouldBeEditable, false, strict));
+    var basesShouldNotBeEditable = function(nonEditableBases, strict) {
+      nonEditableBases.forEach(function(baseNumber) {
+        it('should return false for editable base number ' + baseNumber, function() {
+          expect(stickyEndedSequence.isBaseEditable(baseNumber, strict)).toEqual(false);
+        });
       });
     };
 
     describe('in strict mode', function() {
+      var strict = true;
       describe('with overhang sticky end formatting', function() {
         setStickyEndFormat('overhang');
-        shouldWork([4, 10, 12, 19], [0, 2, 20, 21, 40], true);
+        basesShouldBeEditable([4, 19], strict);
+        basesShouldNotBeEditable([3, 20], strict);
       });
 
       describe('with full sticky end formatting', function() {
         setStickyEndFormat('full');
-        shouldWork([19, 20, 27, 38].concat([0, 3, 49, 39]), [], true);
+        basesShouldBeEditable([0, 61], strict);
+        basesShouldNotBeEditable([-1, 62], strict);
       });
     });
 
     describe('in non-strict mode', function() {
+      var strict = false;
       describe('with overhang sticky end formatting', function() {
         setStickyEndFormat('overhang');
-        shouldWork([4, 10, 12, 19, 20], [0, 2, 21, 40], false);
+        basesShouldBeEditable([4, 20], strict);
+        basesShouldNotBeEditable([3, 21], strict);
       });
 
       describe('with full sticky end formatting', function() {
         setStickyEndFormat('full');
-        shouldWork([19, 20, 27, 38, 39].concat([0, 3, 49]), [], false);
+        basesShouldBeEditable([0, 62], strict);
+        basesShouldNotBeEditable([-1, 63], strict);
       });
     });
   });
 
-  describe('#isRangeEditable', function() {
-    var rangeShouldBeEditable = function(editable, range) {
-      expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(editable);
-    };
 
-    var shouldWork = function(editableRanges, nonEditableRanges = []) {
-      it('should return true for editable ranges', function() {
-        editableRanges.forEach(_.partial(rangeShouldBeEditable, true));
-      });
-
-      it('should return false for non editable ranges', function() {
-        nonEditableRanges.forEach(_.partial(rangeShouldBeEditable, false));
-      });
-    };
-
+  describe('#ensureBaseIsEditable', function() {
     describe('with overhang sticky end formatting', function() {
-      var nonEditableRanges = [
-        [0, 3],
-        [2, 6],
-        [17, 24],
-        [4, 20],
-      ];
-
-      var editableRanges = [
-        [4, 19],
-        [7, 15]
-      ];
       setStickyEndFormat('overhang');
-      shouldWork(editableRanges, nonEditableRanges);
+
+      it('should get the correct sequence', function () {
+        expect(stickyEndedSequence.getSequence()).toEqual('AGAG' + initialSequenceContent + 'GAGA');
+      });
+
+      describe('and without being strict', function() {
+        it('should correct uneditable bases', function() {
+          expect(stickyEndedSequence.ensureBaseIsEditable(4)).toEqual(4);
+          expect(stickyEndedSequence.ensureBaseIsEditable(3)).toEqual(4);
+          expect(stickyEndedSequence.ensureBaseIsEditable(20)).toEqual(20);
+          expect(stickyEndedSequence.ensureBaseIsEditable(21)).toEqual(20);
+        });
+      });
+
+      describe('and with being strict', function() {
+        it('should correct uneditable bases', function() {
+          expect(stickyEndedSequence.ensureBaseIsEditable(4, true)).toEqual(4);
+          expect(stickyEndedSequence.ensureBaseIsEditable(3, true)).toEqual(4);
+          expect(stickyEndedSequence.ensureBaseIsEditable(19, true)).toEqual(19);
+          expect(stickyEndedSequence.ensureBaseIsEditable(20, true)).toEqual(19);
+        });
+      });
     });
 
-    describe('with full sticky end formatting', function() {
-      var nonEditableRanges = [
-        [0, 3],
-        [2, 6],
-        [17, 24],
-        [4, 20],
-      ];
+    describe('with overhang sticky end formatting and no sequence length', function() {
+      setStickyEndFormat('overhang');
 
-      var editableRanges = [
-        [4, 19],
-        [7, 15]
-      ];
+      describe('and without being strict', function() {
+        it('should correct uneditable bases', function() {
+          expect(stickyEndedEmptySequence.ensureBaseIsEditable(4)).toEqual(4);
+          expect(stickyEndedEmptySequence.ensureBaseIsEditable(3)).toEqual(4);
+          expect(stickyEndedEmptySequence.ensureBaseIsEditable(5)).toEqual(4);
+        });
+      });
+
+      describe('and with being strict', function() {
+        it('should correct uneditable bases', function() {
+          expect(stickyEndedEmptySequence.ensureBaseIsEditable(4, true)).toEqual(undefined);
+          expect(stickyEndedEmptySequence.ensureBaseIsEditable(3, true)).toEqual(undefined);
+          expect(stickyEndedEmptySequence.ensureBaseIsEditable(5, true)).toEqual(undefined);
+        });
+      });
+    });
+
+    describe('with an empty sequence', function() {
+      setStickyEndFormat('overhang');
+
+      describe('and without being strict', function() {
+        it('should correct uneditable bases', function() {
+          expect(emptySequence.ensureBaseIsEditable(0)).toEqual(0);
+          expect(emptySequence.ensureBaseIsEditable(-1)).toEqual(0);
+          expect(emptySequence.ensureBaseIsEditable(1)).toEqual(0);
+        });
+      });
+
+      describe('and with being strict', function() {
+        it('should correct uneditable bases', function() {
+          // TODO: should these throw exceptions?... we're trying to get the
+          // "stict" editable range for an empty sequence.
+          expect(emptySequence.ensureBaseIsEditable(0, true)).toEqual(undefined);
+          expect(emptySequence.ensureBaseIsEditable(-1, true)).toEqual(undefined);
+          expect(emptySequence.ensureBaseIsEditable(1, true)).toEqual(undefined);
+        });
+      });
+    });
+  });
+
+
+  describe('#isRangeEditable', function() {
+    var rangesShouldBeEditable = function(ranges) {
+      ranges.forEach(function(range) {
+        it('should return true for editable range ' + JSON.stringify(range), function() {
+          expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(true);
+        });
+      });
+    };
+
+    var rangesShouldNotBeEditable = function(ranges) {
+      ranges.forEach(function(range) {
+        it('should return false for non editable range ' + JSON.stringify(range), function() {
+          expect(stickyEndedSequence.isRangeEditable(...range)).toEqual(false);
+        });
+      });
+    };
+
+    var nonEditableRanges = [
+      [3, 6],
+      [18, 21],
+    ];
+
+    var editableRanges = [
+      [4, 6],
+      [18, 20]
+    ];
+
+    describe('with full sticky end formatting', function() {
       setStickyEndFormat('full');
-      shouldWork(editableRanges.concat(nonEditableRanges), []);
+      rangesShouldBeEditable(editableRanges.concat(nonEditableRanges));
+    });
+
+    describe('with overhang sticky end formatting', function() {
+      setStickyEndFormat('overhang');
+      rangesShouldBeEditable(editableRanges);
+      rangesShouldNotBeEditable(nonEditableRanges);
+    });
+
+    describe('with none sticky end formatting', function() {
+      setStickyEndFormat('none');
+      rangesShouldBeEditable([[0, 2], [14, 16]]);
+      rangesShouldNotBeEditable([[-1, 2], [14, 17]]);
     });
   });
 

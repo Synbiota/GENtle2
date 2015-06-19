@@ -1,128 +1,130 @@
+import template from '../templates/sequence_edition_view.hbs';
+import SequenceCanvas from '../lib/sequence_canvas';
+import Gentle from 'gentle';
+import ContextMenuView from '../../common/views/context_menu_view';
+import LinearMapView from '../../linear_map/views/linear_map_view';
+import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
+import MatchedEnzymesView from './matched_enzymes_view';
+import Backbone from 'backbone';
+import Q from 'q';
+
 /**
 @module Sequence
 @submodule Views
 @class SequenceEditionView
 **/
-// define(function(require) {
-  var template = require('../templates/sequence_edition_view.hbs'),
-      SequenceCanvas = require('../lib/sequence_canvas'),
-      Gentle = require('gentle'),
-      ContextMenuView = require('../../common/views/context_menu_view'),
-      LinearMapView = require('../../linear_map/views/linear_map_view'),
-      PlasmidMapView = require('../../plasmid_map/views/plasmid_map_view'),
-      MatchedEnzymesView = require('./matched_enzymes_view'),
-      Backbone = require('backbone'),
-      Q = require('q'),
-      SequenceEditionView;
+export default Backbone.View.extend({
+  manage: true,
+  template: template,
+  className: 'sequence-view',
 
-  SequenceEditionView = Backbone.View.extend({
-    manage: true,
-    template: template,
-    className: 'sequence-view',
+  initialize: function() {
+    var _this = this;
 
-    initialize: function() {
-      var _this = this;
+    this.model = Gentle.currentSequence;
 
-      this.model = Gentle.currentSequence;
+    this.contextMenuView = new ContextMenuView({context: 'sequence'});
 
-      this.contextMenuView = new ContextMenuView({context: 'sequence'});
-      this.setView('#sequence-canvas-context-menu-outlet', this.contextMenuView);
+    this.matchedEnzymesView = new MatchedEnzymesView();
+    this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
 
-      this.matchedEnzymesView = new MatchedEnzymesView();
-      this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
+    this.initSecondaryViews();
+  },
 
-      this.initSecondaryViews();
-    },
+  initSecondaryViews: function(trigger) {
+    var secondaryViews,
+        currentView;
 
-    initSecondaryViews: function(trigger) {
-      var secondaryViews,
-          currentView;
+    secondaryViews = _.chain(Gentle.plugins)
+      .where({type: 'sequence-secondary-view'})
+      .pluck('data')
+      .value();
 
-      secondaryViews = _.chain(Gentle.plugins)
-        .where({type: 'sequence-secondary-view'})
-        .pluck('data')
-        .value();
+    secondaryViews.push({
+      name: 'linear',
+      title: 'Linear map',
+      view: LinearMapView
+    });
 
-      secondaryViews.push({
-        name: 'linear',
-        title: 'Linear map',
-        view: LinearMapView
-      });
+    secondaryViews.push({
+      name: 'plasmid',
+      title: 'Plasmid map',
+      view: PlasmidMapView
+    });
 
-      secondaryViews.push({
-        name: 'plasmid',
-        title: 'Plasmid map',
-        view: PlasmidMapView
-      });
+    currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
 
-      currentView = this.model.get('isCircular') ? 'plasmid' : 'linear';
+    // if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
+    //   currentView = 'linear';
 
-      // if(!~_.pluck(secondaryViews, 'name').indexOf(currentView))
-      //   currentView = 'linear';
+    this.secondaryViews = secondaryViews;
+    this.changeSecondaryView(currentView, false);
+  },
 
-      this.secondaryViews = secondaryViews;
-      this.changeSecondaryView(currentView, false);
-    },
+  handleResizeRight: function(trigger) {
+    $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
+      'right': this.secondaryView.$el.width(),
+    });
+    if(trigger !== false) {
+      this.trigger('resize');
+      this.secondaryView.trigger('resize');
+    }
+  },
 
-    handleResizeRight: function(trigger) {
-      $('#sequence-canvas-primary-view-outlet').css({
-        'right': this.secondaryView.$el.width(),
-      });
-      $('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.secondaryView.$el.width(),
-      });
-      if(trigger !== false) {
-        this.trigger('resize');
-        this.secondaryView.trigger('resize');
-      }
-    },
+  secondaryViewRightPos: function() {
+    return $('#sequence-secondary-view-outlet').width();
+  },
 
-    secondaryViewRightPos: function() {
-      return $('#sequence-secondary-view-outlet').width();
-    },
+   primaryViewLeftPos: function() {
+    return $('#sequence-primary-view-outlet').width();
+  },
 
-     primaryViewLeftPos: function() {
-      return $('#sequence-primary-view-outlet').width();
-    },
+  changeSecondaryView: function(viewName, render) {
+    var secondaryViewClass = _.findWhere(this.secondaryViews, {name: viewName});
+    if(this.secondaryView) this.secondaryView.remove();
+    this.secondaryView = new secondaryViewClass.view();
 
-    changeSecondaryView: function(viewName, render) {
-      var secondaryViewClass = _.findWhere(this.secondaryViews, {name: viewName});
-      if(this.secondaryView) this.secondaryView.remove();
-      this.secondaryView = new secondaryViewClass.view();
+    this.model.set('displaySettings.secondaryView', viewName).throttledSave();
 
-      this.model.set('displaySettings.secondaryView', viewName).throttledSave();
-
-      this.setView('#sequence-canvas-secondary-view-outlet', this.secondaryView);
-      var secondaryViewPromise;
+    this.setView('#sequence-canvas-secondary-view-outlet', this.secondaryView);
+    var secondaryViewPromise;
+    if(render !== false) {
+      secondaryViewPromise = this.secondaryView.render();
+    } else {
+      secondaryViewPromise = Q.resolve();
+    }
+    // `handleResizeRight` requires secondaryView to be rendered so that
+    // it (`this.secondaryView.$el.width()`) is the correct value.
+    secondaryViewPromise.then(() => {
+      this.handleResizeRight(false);
       if(render !== false) {
-        secondaryViewPromise = this.secondaryView.render();
-      } else {
-        secondaryViewPromise = Q.resolve();
+       this.sequenceCanvas.refresh();
       }
-      // `handleResizeRight` requires secondaryView to be rendered so that
-      // it (`this.secondaryView.$el.width()`) is the correct value.
-      secondaryViewPromise.then(() => {
-        this.handleResizeRight(false);
-        if(render !== false) {
-         this.sequenceCanvas.refresh();
-        }
-      });
-    },
+    });
+  },
 
-    afterRender: function() {
-      this.$('.sequence-canvas-container, .scrolling-parent').css({
-        'right': this.secondaryView.$el.width(),
-      });
-      this.sequenceCanvas = new SequenceCanvas({
-        view: this,
-        $canvas: this.$('.sequence-canvas-container canvas').first()
-      });
-      this.sequenceCanvas.refresh();
-      this.contextMenuView.$assumedParent = this.$('.scrolling-parent').focus();
-      this.contextMenuView.boundTo = this.sequenceCanvas;
-    },
+  afterRender: function() {
+    this.$('.sequence-canvas-outlet').css({
+      'right': this.secondaryView.$el.width(),
+    });
 
-  });
-export default SequenceEditionView;
-  // return SequenceEditionView;
-// });
+    var sequence = this.model;
+
+    var sequenceCanvas = this.sequenceCanvas = new SequenceCanvas({
+      sequence: sequence,
+      container: this.$('.sequence-canvas-outlet').first(),
+      yOffset: sequence.get('displaySettings.yOffset'),
+      // non library options
+      contextMenu: this.contextMenuView,
+      view: this
+    });
+
+    sequenceCanvas.refresh();
+  },
+
+  cleanup: function() {
+    this.sequenceCanvas.destroy();
+    this.sequenceCanvas = null;
+  }
+
+});

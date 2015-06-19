@@ -63,7 +63,7 @@ var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers,
     .then(function(nextPrimer) {
       if(options.findOnReverseStrand) {
         nextPrimer.reverseDirection();
-        nextPrimer.shift(frm + nextPrimer.length() - sequenceToSearch.length);
+        nextPrimer.shift(frm + nextPrimer.getLength() - sequenceToSearch.length);
       } else {
         nextPrimer.shift(frm);
         if(!previousPrimer) options.findFrom3PrimeEnd = originalFindFrom3PrimeEnd;
@@ -90,12 +90,23 @@ var _getPrimersAndProducts = function(sequenceBases, options, sequencingPrimers,
  * @return {Product}
  */
 var calculateProductAndPrimer = function(sequenceLength) {
+  var hasForwardUniversalPrimer = false;
   return function(primer, index) {
-    var direction = primer.antisense ? 'reverse' : 'forward';
-    var productName = `Product ${index + 1} (${direction})`;
+    if(index === 0) hasForwardUniversalPrimer = false;
+    var productName;
+    if(/universal/.test(primer.name)) {
+      if(primer.antisense) {
+        productName = 'U-rvs';
+      } else {
+        productName = 'U-fwd';
+        hasForwardUniversalPrimer = true;
+      }
+    } else  {
+      productName = `${primer.antisense ? 'Rvs' : 'Fwd'}-${hasForwardUniversalPrimer ? index : index + 1}`
+    }
 
     // Modify primer
-    primer.name = productName + ' - primer';
+    primer.name = productName + ' primer';
 
     // Calculate product
     var subSequenceLength = primer.antisense ? (primer.from + 1) : (sequenceLength - primer.from);

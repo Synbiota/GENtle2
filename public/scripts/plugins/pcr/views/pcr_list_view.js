@@ -3,6 +3,7 @@ import {fastAExportSequenceFromID, getProductAndSequenceForSequenceID} from '../
 import Gentle from 'gentle';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
+import _ from 'underscore';
 
 
 export default Backbone.View.extend({
@@ -72,8 +73,25 @@ export default Backbone.View.extend({
 
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
+
     if(product) {
-      Gentle.addSequencesAndNavigate([product.asSequence()]);
+      product = product.toJSON();
+
+      let stickyEnds = product.stickyEnds;
+
+      product.features = _.where(product.features, {
+        _type: 'sticky_end'
+      }).concat({
+        _type: 'misc',
+        name: `${stickyEnds.start.name}-${product.name}-${stickyEnds.end.name}`,
+        desc: '',
+        ranges: [{
+          from: 0,
+          to: product.sequence.length
+        }]
+      });
+    
+      Gentle.addSequencesAndNavigate([product]);
     }
   },
 

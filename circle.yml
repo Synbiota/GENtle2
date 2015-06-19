@@ -6,6 +6,10 @@ dependencies:
   pre:
     - pip install awscli
 
+test:
+  override:
+    - ./node_modules/karma/bin/karma start --single-run --reporters dots
+
 deployment:
   nightly:
     branch: develop

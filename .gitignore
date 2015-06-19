@@ -6,10 +6,15 @@ docs
 npm-debug.log
 public/scripts/app.min.js
 public/scripts/app.min-*.js
+public/scripts/vendor.js
+public/scripts/vendor-*.js
 public/stylesheets/app.css
 public/stylesheets/app-*.css
 public/scripts/app.min.js.gz
 public/scripts/app.min-*.js.gz
+public/scripts/vendor.js.gz
+public/scripts/vendor-*.js.gz
+public/scripts/*.map
 public/scripts/styles.scss
 public/stylesheets/app.css.gz
 public/stylesheets/app-*.css.gz
@@ -17,3 +22,6 @@ rev-manifest.json
 *.orig
 npm-debug.log
 .sass-cache
+app.env
+log
+disc*.html
