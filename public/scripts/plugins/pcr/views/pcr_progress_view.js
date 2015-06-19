@@ -33,15 +33,12 @@ export default Backbone.View.extend({
 
     getPcrProductAndPrimers(this.model, dataAndOptions)
     .then((pcrProduct) => {
-      var parentView = this.parentView();
-      var savedPcrProduct = pcrProduct.asSequence().throttledSave();
       this.updateProgressBar(1);
-      Gentle.sequences.add(savedPcrProduct);
+      pcrProduct.set('displaySettings.primaryView', 'pcr');
+      Gentle.sequences.add(pcrProduct);
+      this.model.destroy();
+      Gentle.router.sequence(pcrProduct.get('id'));
 
-      // var products = getPcrProductsFromSequence(this.model);
-      // products.push(pcrProduct);
-      // savePcrProductsToSequence(this.model, products);
-      parentView.parentShowProduct(savedPcrProduct);
     })
     .progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));

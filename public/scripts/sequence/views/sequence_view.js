@@ -14,6 +14,7 @@
       // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone'),
       Q                       = require('q'),
+      Modal                   = require('../../common/views/modal_view'),
       SequenceView;
 
   SequenceView = Backbone.View.extend({
@@ -44,17 +45,17 @@
       var sequenceAnalysisView = new SequenceAnalysisView();
       var canvasView = this.actualPrimaryView.sequenceCanvas;
 
-      Modal.modalTitle = 'Analysis';
-      Modal.setView('.modal-body', sequenceAnalysisView);
-
       sequenceAnalysisView.calculateResults(fragment);
-      sequenceAnalysisView.render();
+
+      Modal.show({
+        title: 'Analysis',
+        bodyView: sequenceAnalysisView,
+        displayFooter: false
+      });
 
       canvasView.hideCaret();
-      canvasView.selection = "";
+      canvasView.selection = undefined;
       canvasView.redraw();
-
-      Modal.show();
     },
 
     changeSecondaryView: function() {
@@ -139,7 +140,11 @@
 
     maximizePrimaryView: function() {
       var $outlet = $('#sequence-primary-view-outlet');
-      if(this.primaryView.maximize) {
+
+      var maximize = this.primaryView.maximize;
+      maximize = _.isFunction(maximize) ? maximize(this.model) : !!maximize;
+
+      if(maximize) {
         $outlet.addClass('maximize');
       } else {
         $outlet.removeClass('maximize');

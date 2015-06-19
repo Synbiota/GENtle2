@@ -36,10 +36,10 @@ export default Backbone.View.extend({
   getSequenceColour: function(base, pos, defaultColor) {
     defaultColor = defaultColor || colors.default.text;
 
-    if(!this.product) return defaultColor;
+    let forwardPrimer = this.model.get('forwardPrimer');
+    let reversePrimer = this.model.get('reversePrimer');
 
-    let forwardPrimer = this.product.get('forwardPrimer');
-    let reversePrimer = this.product.get('reversePrimer');
+    if(!forwardPrimer || !reversePrimer) return defaultColor;
     if(pos >= forwardPrimer.range.to && pos < reversePrimer.range.from) {
       return defaultColor;
     } else if(pos >= forwardPrimer.annealingRegion.range.from && pos < reversePrimer.annealingRegion.range.to){
