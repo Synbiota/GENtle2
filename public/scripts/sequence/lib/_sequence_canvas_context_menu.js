@@ -9,6 +9,13 @@ Hooks to the ContextMenuView attached to the SequenceCanvas (`this.contextMenu`)
 import Gentle from 'gentle';
 import _ from 'underscore';
 import {assertIsDefinedAndNotNull} from '../../common/lib/testing_utils';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import SequenceTranforms from 'gentle-sequence-transforms';
+
+var hasRelevantRES = function(sequence) {
+  var matches = RestrictionEnzymes.getAllInSeq(sequence, {customList: ['BsaI', "NotI"]});  
+  return !_.isUndefined(matches[0]);
+};
 
 class SequenceCanvasContextMenu {
 
@@ -74,6 +81,10 @@ class SequenceCanvasContextMenu {
       // menu.add(data.title, data.icon, data.callback)
       menu.add(data.title, _.bind(data.callback, this));
     });
+
+    if(this.selection && this.autoCorrectable()) {
+      menu.add(this.selectionReplacementName(this.selection), this.replaceSelection);
+    }
 
     if(menu.menuItems.length || menu.menuIcons.length) {
       menu.show();
@@ -152,6 +163,82 @@ class SequenceCanvasContextMenu {
       );
     }
 
+  }
+
+  // Takes the existing selection and checks for [BAS1, Stop Codons and Not1]
+  autoCorrectable(){
+    return this.selection && hasRelevantRES(this.sequence.getSubSeq(...this.selection));
+  }
+
+  autoCorrectFor(selection){
+      // TODO: Get correct reading frame
+    var paddedSubSeq= this.sequence.getPaddedSubSeq(selection[0], selection[1], 3, 0);
+    var subSeq = paddedSubSeq.subSeq;
+    var paddingOffset = selection[0] - paddedSubSeq.startBase;
+    var getAASubSeq = function(sequence) { 
+        return _.map(sequence.match(/.{1,3}/g), SequenceTranforms.codonToAALong).join();
+    };
+
+    var baseAA= getAASubSeq(subSeq);
+    var trialBases= ['A', 'T', 'C', 'G'];
+    this._selectionAutocorrect = null;
+    this._changedCharIndex= null;
+
+    for (var bp=0; bp < subSeq.length; bp++){
+        for (var i=0; i<trialBases.length; i++) {
+          if(trialBases[i] == subSeq[bp] ){
+            continue;
+        }
+        let newSubSeq = subSeq.substr(0, bp) + trialBases[i] + subSeq.substr(bp + 1, subSeq.length - bp);
+        let newAASubSeq = getAASubSeq(newSubSeq);
+        let newUnpaddedSubSeq = newSubSeq.substr(paddingOffset, subSeq.length);
+        let hasRES = hasRelevantRES(newUnpaddedSubSeq);
+        if (newAASubSeq === baseAA && !hasRES){
+            this._selectionAutocorrect = newUnpaddedSubSeq;
+          this._changedCharIndex= bp - paddingOffset;
+          break; 
+        }
+      }
+      if(this._selectionAutocorrect){
+          break;
+      }
+    }
+    return this._selectionAutocorrect || 'No Replacement Found';
+  }
+
+  selectionReplacementName(selection){
+      var htmlName= null; 
+    this.autoCorrectFor(selection);
+    htmlName = this._selectionAutocorrect.substr(0, (this._changedCharIndex)) + 
+      "<b style='color:red;'>" +
+      this._selectionAutocorrect.substr(this._changedCharIndex, 1) + 
+      "</b>" + 
+      this._selectionAutocorrect.substr((this._changedCharIndex + 1), (this._selectionAutocorrect.length - this._changedCharIndex));
+
+    return htmlName;
+  }
+
+  replaceSelection(){
+      if (!(this._selectionAutocorrect === 'No Replacement Found' || this._selectionAutocorrect === null || _.isUndefined(this._selectionAutocorrect))){
+        var selection = this.selection,
+      text = this._selectionAutocorrect,
+      caretPosition = this.caretPosition;
+
+      if(text) {
+          if(selection) {
+            this.selection = undefined;
+          this.sequence.deleteBases(
+            selection[0],
+            selection[1] - selection[0] + 1
+          );
+        }
+        this.sequence.insertBases(text, caretPosition);
+        this.displayCaret(caretPosition + text.length);
+        this.focus();
+      }
+    } else {
+        console.log("nothing found");
+    }
   }
 }
 

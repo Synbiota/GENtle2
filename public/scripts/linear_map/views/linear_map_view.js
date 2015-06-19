@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import Gentle from 'gentle';
 import template from '../templates/linear_map_view.hbs';
 import _ from 'underscore';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import tooltip from 'gentle-utils/tooltip';
 import tooltipTemplate from 'gentle-sequence-canvas/lines/_feature_tooltip_template.html';
 import SVG from 'svg.js';

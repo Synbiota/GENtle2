@@ -51,7 +51,6 @@ class RestrictionEnzymeSites extends Line {
         _this = this;
 
 
-    if(_.keys(enzymes).length) console.log(y, layoutHelpers.yOffset)
     y -= 2; // Styling
     y += layoutHelpers.yOffset;
 

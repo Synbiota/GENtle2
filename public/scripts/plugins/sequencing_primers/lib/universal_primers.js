@@ -1,20 +1,15 @@
 import _ from 'underscore';
-import SequencingPrimerModel from './sequencing_primer';
-import SequenceTransforms from 'gentle-sequence-transforms';
+
+import SequencingPrimerModel from '../../pcr/lib/primer';
+import SequenceRange from '../../../library/sequence-model/range';
 
 
-var universalPrimers = function() {
-  var primers = [
+var forwardUniversalPrimers = function() {
+  return [
   {
     sequence: 'TGCCACCTGACGTCTAAGAA',
     name: "Sybiota universal forward primer version 1.0",
     meltingTemperature: 63,
-    gcContent: 0.5,
-  },
-  {
-    sequence: 'ATTACCGCCTTTGAGTGAGC', // reverse complement of: GCTCACTCAAAGGCGGTAAT
-    name: "Sybiota universal reverse primer version 1.0",
-    meltingTemperature: 62.4,
     gcContent: 0.5,
   },
   {
@@ -23,67 +18,102 @@ var universalPrimers = function() {
     meltingTemperature: 61.8,
     gcContent: 0.647,
   },
+  ];
+};
+
+
+var reverseUniversalPrimers = function() {
+  return [
   {
-    sequence: 'AATACGCCCGGTAGTGATC', // reverse complement: GATCACTACCGGGCGTATT
+    sequence: 'GCTCACTCAAAGGCGGTAAT',  // Forward strand sequence
+    // The reverse strand which is the sequence ulitmately used as a
+    // the DNA primer: ATTACCGCCTTTGAGTGAGC
+    name: "Sybiota universal reverse primer version 1.0",
+    meltingTemperature: 62.4,
+    gcContent: 0.5,
+  },
+  {
+    sequence: 'GATCACTACCGGGCGTATT',  // Forward strand sequence
+    // The reverse strand which is the sequence ulitmately used as a
+    // the DNA primer: AATACGCCCGGTAGTGATC
     name: "Sybiota universal reverse primer version 2.0",
-    antisense: true,
+    reverse: true,
     meltingTemperature: 61,
     gcContent: 0.526,
-  }
+  },
   ];
-
-  return _.map(primers, (primerAttributes) => new SequencingPrimerModel(primerAttributes));
 };
 
 
 /**
- * @function findPrimers
- * @param  {string} sequenceBases
- * @param  {array}  universalPrimerModels   Array of `SequencingPrimerModel`s
- *                                          representing possible universal primers.
- * @return {object} Object with keys `forwardSequencePrimer`, `reverseSequencePrimer`.
+ * @function findUniversalPrimer
+ * @param  {SequenceModel}  sequenceModel
+ * @param  {Array}  universalPrimers  Array of objects representing possible
+ *                                    universal primers.
+ * @param  {Boolean} findLast=false
+ * @return {SequencingPrimerModel or undefined}
+ */
+var findUniversalPrimer = function(sequenceModel, universalPrimers, findLast=false) {
+  var sequenceBases = sequenceModel.getSequence(sequenceModel.STICKY_END_FULL);
+  var primerModel;
+  var primerInSequence = function(universalPrimer) {
+    var regexp = new RegExp(universalPrimer.sequence, 'ig');
+    var position;
+    while(regexp.exec(sequenceBases)) {
+      position = regexp.lastIndex - universalPrimer.sequence.length;
+      if(!findLast) break;
+    }
+    if(position !== undefined) {
+      var rangeModel = new SequenceRange({
+        from: position,
+        size: universalPrimer.sequence.length,
+        reverse: false,
+      });
+      primerModel = new SequencingPrimerModel({
+        parentSequence: sequenceModel,
+        name: universalPrimer.name,
+        range: rangeModel,
+        meltingTemperature: universalPrimer.meltingTemperature,
+        gcContent: universalPrimer.gcContent,
+      });
+    }
+    return primerModel;
+  };
+  _.find(universalPrimers, primerInSequence);
+  return primerModel;
+};
+
+
+/**
+ * @function findUniversalPrimers
+ * @param  {SequenceModel} sequenceModel
+ * @param  {Array}  forwardPrimers  Array of objects representing possible
+ *                                  forward universal primers.
+ * @param  {Array}  reversePrimers  Array of objects representing possible
+ *                                  reverse universal primers.
+ * @return {Object} Object with keys `forwardSequencePrimer`, `reverseSequencePrimer`.
  *                  These will have values of `SequencingPrimerModel` or `undefined`
  */
-var findPrimers = function(sequenceBases, universalPrimerModels) {
-  var forwardPrimerInSequence = function(universalPrimer, findLast=false) {
-    var found = false;
-    if(!universalPrimer.antisense) {
-      var regexp = new RegExp(universalPrimer.sequence, 'ig');
-      var position;
-      while(regexp.exec(sequenceBases)) {
-        found = true;
-        position = regexp.lastIndex - universalPrimer.sequence.length;
-        if(!findLast) break;
-      }
-      if(found) {
-        universalPrimer.from = position;
-        universalPrimer.to = position + universalPrimer.sequence.length - 1;
-      }
-    }
-    return found;
-  };
-  var forwardSequencePrimer = _.find(universalPrimerModels, forwardPrimerInSequence);
+var findUniversalPrimers = function(sequenceModel, forwardPrimers, reversePrimers) {
+  var forwardSequencePrimer = findUniversalPrimer(sequenceModel, forwardPrimers);
+  var reverseSequencePrimer = findUniversalPrimer(sequenceModel, reversePrimers, true);
 
-  var reversePrimerInSequence = function(universalPrimer) {
-    var found = false;
-    if(universalPrimer.antisense) {
-      var attributes = universalPrimer.toJSON();
-      attributes.sequence = SequenceTransforms.toReverseComplements(universalPrimer.sequence);
-      attributes.antisense = false;
-      var sequenceModel = new SequencingPrimerModel(attributes);
-
-      found = forwardPrimerInSequence(sequenceModel, true);
-      if(found) {
-        universalPrimer.from = sequenceModel.to;
-        universalPrimer.to = sequenceModel.from - 1; // May be equal to -1
-      }
-    }
-    return found;
-  };
-  var reverseSequencePrimer = _.find(universalPrimerModels, reversePrimerInSequence);
+  if(reverseSequencePrimer) {
+    reverseSequencePrimer.range.reverse = true;
+  }
 
   return {forwardSequencePrimer, reverseSequencePrimer};
 };
 
 
-export default {universalPrimers, findPrimers};
+var findUniversalPrimersHelper = function(sequenceModel) {
+  return findUniversalPrimers(sequenceModel, forwardUniversalPrimers(), reverseUniversalPrimers());
+};
+
+
+export default {
+  forwardUniversalPrimers,
+  reverseUniversalPrimers,
+  findUniversalPrimers,
+  findUniversalPrimersHelper,
+};

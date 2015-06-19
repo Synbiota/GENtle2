@@ -1,4 +1,5 @@
 import _ from 'underscore';
+import pollyfill from '../../common/lib/polyfills';  // required for String.prototype.endsWith
 
 import classMethodsMixin from './sequence_class_methods_mixin';
 import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
@@ -15,7 +16,43 @@ const STICKY_END_NONE = 'none';
 const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
 
 
-export default function sequenceModelFactory(BackboneModel) {
+let instantiateSingle = function(constructor, otherArgs, fieldValue) {
+  let instance = fieldValue;
+  if(!_.isUndefined(instance) && !(instance instanceof constructor)) {
+    if(otherArgs.parentSequence) {
+      instance.parentSequence = otherArgs.parentSequence;
+    }
+    let opts = {};
+    if(_.has(otherArgs, 'doNotValidated')) opts.doNotValidated = otherArgs.doNotValidated;
+    // Instantiate a new instance of the given constructor with instance
+    instance = new constructor(instance, opts);
+  }
+  return instance;
+};
+
+
+/**
+ * @function instantiate
+ * @param  {String} association
+ * @param  {Any} fieldValue
+ * @param  {Object} otherArgs
+ * @return {Instance or undefined}
+ */
+let instantiate = function(association, fieldValue, otherArgs) {
+  if(association.many) {
+    // Instantiate an array of new instances of the given constructor
+    fieldValue = _.map(fieldValue, _.partial(instantiateSingle, association.constructor, otherArgs));
+  } else if(!_.isUndefined(fieldValue)) {
+    fieldValue = instantiateSingle(association.constructor, otherArgs, fieldValue);
+  }
+  return fieldValue;
+};
+
+
+function sequenceModelFactory(BackboneModel) {
+  let associations = {};
+  let preProcessors = [];
+
   /**
    * Represents a sequence of nucleotides (DNA bases).
    * @class  BaseSequenceModel
@@ -23,8 +60,22 @@ export default function sequenceModelFactory(BackboneModel) {
    */
   class Sequence extends BackboneModel {
 
-    constructor(attributes, options) {
+    /**
+     * @constructor
+     * @param  {Object} attributes
+     * @param  {Object} options  List of available options:
+     *                     `disabledSave`
+     */
+    constructor(attributes, options={}) {
+      // Mark model instance as not validated yet.  Commented out as "'this'
+      // is not allowed before super()"
+      // this._validated = false;
+
+      // Run all preProcessors on attributes
+      attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
+
       super(attributes, options);
+      this.disabledSave = options.disabledSave;
 
       this.validateFields(attributes);
 
@@ -43,6 +94,23 @@ export default function sequenceModelFactory(BackboneModel) {
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
+
+      // If a value in this.attributes has a key with the same value as an
+      // associations `associationName` then run its `validate()` method.
+      _.each(associations, (association, associationName) => {
+        if(_.has(this.attributes, associationName)) {
+          let value = this.attributes[associationName];
+          if(association.many) {
+            _.each(value, function(subVal) {
+              if(_.isFunction(subVal.validate)) subVal.validate();
+            });
+          } else {
+            if(_.isFunction(value.validate)) value.validate();
+          }
+        }
+      });
+
+      this.setNonEnumerableFields();
     }
 
     get STICKY_END_FULL() {
@@ -85,14 +153,40 @@ export default function sequenceModelFactory(BackboneModel) {
       return [
         'id',
         'name',
+        'version',
         'desc',
         'stickyEnds',
         'features',
         'reverse',
         'readOnly',
         'isCircular',
-        'stickyEndFormat'
+        'stickyEndFormat',
+        'parentSequence',
       ];
+    }
+
+    /**
+     * @method  nonEnumerableFields
+     * @return {Array}
+     */
+    get nonEnumerableFields() {
+      return [
+        'parentSequence',
+      ];
+    }
+
+    setNonEnumerableFields() {
+      _.each(this.nonEnumerableFields, (fieldName) => {
+        // Makes non-enumerable fields we want to remain hidden and only used by
+        // the class instance.  e.g. Which won't be found with `for(x of this.attributes)`
+        var configurable = false;
+        var writable = true;
+        var enumerable = false;
+        var value = this.attributes[fieldName];
+        if(_.has(this.attributes, fieldName)) {
+          Object.defineProperty(this.attributes, fieldName, {enumerable, value, writable, configurable});
+        }
+      });
     }
 
     validateFields(attributes) {
@@ -107,11 +201,13 @@ export default function sequenceModelFactory(BackboneModel) {
       if(extraAttributes.length) {
         // console.warn(`Assigned the following disallowed attributes to ${this.constructor.name}: ${extraAttributes.join(', ')}`);
       }
+      this._validated = true;
     }
 
     defaults() {
       return {
         id: _.uniqueId(),
+        version: 0,
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
@@ -124,10 +220,9 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-
      * Wraps the standard get function to use a custom getNnnnnnn if available.
      * @param  {String} attribute
-     * @param  {Object} options={}
+     * @param  {Object} options=undefined
      * @return {Any}
      */
     get(attribute, options = undefined) {
@@ -144,6 +239,35 @@ export default function sequenceModelFactory(BackboneModel) {
       return value;
     }
 
+    /**
+     * @method  set
+     * @param {String} attribute
+     * @param {Any} value
+     * @param {Object} options
+     */
+    set(attribute, value, options) {
+      if(_.isString(attribute)) {
+        value = this.transformAttributeValue(attribute, value);
+      } else if (_.isObject(attribute)) {
+        _.each(attribute, (val, attr) => {
+          attribute[attr] = this.transformAttributeValue(attr, val);
+        });
+      }
+      var ret = super.set(attribute, value, options);
+      this.setNonEnumerableFields();
+      return ret;
+    }
+
+    transformAttributeValue(attribute, val) {
+      let association = associations[attribute];
+      if(association) {
+        // `doNotValidated` and `this._validated` only relevant to the
+        // constructor and skipping validation of associated child models.
+        val = instantiate(association, val, {parentSequence: this, doNotValidated: !this._validated});
+      }
+      return val;
+    }
+
     getStickyEnds() {
       var stickyEnds = super.get('stickyEnds');
       return stickyEnds && _.defaults({}, stickyEnds, {
@@ -158,7 +282,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
     validateStickyEndFormat(value) {
       if(value && !~stickyEndFormats.indexOf(value)) {
-        throw `'${value}' is not an acceptable sticky end format`;
+        throw `'${JSON.stringify(value, null, 2)}' is not an acceptable sticky end format`;
       }
     }
 
@@ -180,8 +304,8 @@ export default function sequenceModelFactory(BackboneModel) {
       var sequence        = super.get('sequence');
       var stickyEnds      = this.getStickyEnds();
       var startPostion, endPosition;
-      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
-          
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+
       this.validateStickyEndFormat(stickyEndFormat);
 
       if (stickyEnds && stickyEndFormat){
@@ -233,24 +357,34 @@ export default function sequenceModelFactory(BackboneModel) {
 
     getFeatures(stickyEndFormat = undefined) {
       stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
-      var adjustedFeatures = _.deepClone(super.get('features'));
       var length = this.getLength(stickyEndFormat);
+      let offset = this.getOffset(stickyEndFormat);
+      let maxValue = offset + length;
 
       var filterAndAdjustRanges = function(offset, maxValue, feature) {
         feature.ranges = _.filter(feature.ranges, function(range) {
-          var frm = Math.min(range.from, range.to);
-          var to = Math.max(range.from, range.to);
-          return frm < maxValue && to >= offset;
+          let include;
+          if(range instanceof SequenceRange) {
+            include = range.from < maxValue && range.to > offset;
+          } else {
+            if(range.from <= range.to) {
+              include = range.from < maxValue && range.to >= offset;
+            } else {
+              // going in reverse
+              include = range.to < (maxValue - 2) && range.from >= offset;
+            }
+          }
+          return include;
         });
+
         _.each(feature.ranges, function(range) {
           range.from =  Math.max(Math.min(range.from - offset, length -1), 0);
           range.to =  Math.max(Math.min(range.to - offset, length -1), 0);
         });
       };
 
-      let offset = this.getOffset(stickyEndFormat);
-      let maxValue = offset + length;
       let func = _.partial(filterAndAdjustRanges, offset, maxValue);
+      let adjustedFeatures = _.deepClone(super.get('features'));
       _.map(adjustedFeatures, func);
       adjustedFeatures = _.reject(adjustedFeatures, (feature) => !feature.ranges.length);
 
@@ -745,10 +879,8 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     moveBases(firstBase, length, newFirstBase, options = {}) {
-      var lastBase = firstBase + length - 1,
-          history = this.getHistory(),
-          _this = this,
-          featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
+      var lastBase = firstBase + length - 1;
+      var featuresInRange, subSeq, deletionTimestamp, insertionTimestamp;
 
       options = _.defaults(options, {updateHistory: true});
 
@@ -769,7 +901,7 @@ export default function sequenceModelFactory(BackboneModel) {
         options
       );
 
-      _.each(featuresInRange, function(feature) {
+      _.each(featuresInRange, (feature) => {
         feature.ranges = _.map(_.filter(feature.ranges, function(range) {
           return range.from >= firstBase && range.to <= lastBase;
         }), function(range) {
@@ -783,9 +915,8 @@ export default function sequenceModelFactory(BackboneModel) {
           };
         });
 
-        _this.createFeature(feature, options);
+        this.createFeature(feature, options);
       });
-
     }
 
     /**
@@ -1359,11 +1490,33 @@ export default function sequenceModelFactory(BackboneModel) {
       return this.getSequence(stickyEndFormat).length;
     }
 
+    save() {
+      if(this.disabledSave) return this;
+      return super.save();
+    }
+
     throttledSave() {
       if(!this._throttledSave) {
         this._throttledSave = _.afterLastCall(_.bind(this.save, this), 300);
       }
-      this._throttledSave();
+      return this._throttledSave();
+    }
+
+    toJSON() {
+      let attributes = super.toJSON();
+      // Move all associated fields into meta.associations
+      _.each(associations, function(value, associationName) {
+        if(_.has(attributes, associationName)) {
+          attributes.meta = attributes.meta || {};
+          attributes.meta.associations = attributes.meta.associations || {};
+          attributes.meta.associations[associationName] = attributes[associationName];
+          delete attributes[associationName];
+        }
+      });
+      _.each(this.nonEnumerableFields, function(fieldName) {
+        delete attributes[fieldName];
+      });
+      return attributes;
     }
 
     ensureBaseIsSelectable(base, strict = false) {
@@ -1376,11 +1529,33 @@ export default function sequenceModelFactory(BackboneModel) {
 
   }
 
+
   Sequence = classMethodsMixin(Sequence);
 
   Sequence.STICKY_END_FULL = STICKY_END_FULL;
   Sequence.STICKY_END_OVERHANG = STICKY_END_OVERHANG;
   Sequence.STICKY_END_NONE = STICKY_END_NONE;
 
+
+  Sequence.registerAssociation = function(constructor, rawAssociationName, many=false) {
+    if(rawAssociationName.endsWith('s')) {
+      throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
+    }
+    let associationName = rawAssociationName + (many ? 's' : '');
+    if(associations[associationName]) {
+      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered.`);
+    }
+    associations[associationName] = {constructor, many, associationName};
+  };
+
+
+  Sequence.registerPreProcessor = function(preProcessor) {
+    preProcessors.push(preProcessor);
+  };
+
+
   return Sequence;
 }
+
+
+export default sequenceModelFactory;

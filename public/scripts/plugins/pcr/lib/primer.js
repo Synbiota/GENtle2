@@ -1,19 +1,22 @@
 import {assertIsNumber} from '../../../common/lib/testing_utils';
-import Sequence from './sequence';
+import ChildSequence from './child_sequence';
 
 
-class Primer extends Sequence {
-  optionalFields () {
-    var fields =  super.optionalFields();
-    fields.push('ourMeltingTemperature');
-    return fields;
+class Primer extends ChildSequence {
+  get requiredFields() {
+    return super.requiredFields.concat([
+      'meltingTemperature',
+      'gcContent',
+    ]);
   }
 
-  requiredFields () {
-    return ['sequence', 'from', 'to', 'meltingTemperature', 'gcContent'];
+  get optionalFields() {
+    return super.optionalFields.concat([
+      'ourMeltingTemperature',
+    ]);
   }
 
-  validate () {
+  validate() {
     assertIsNumber(this.meltingTemperature, 'meltingTemperature');
     assertIsNumber(this.gcContent, 'gcContent');
     super.validate();

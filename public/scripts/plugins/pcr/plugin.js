@@ -1,5 +1,11 @@
 import Gentle from 'gentle';
 import PCRView from './views/pcr_view';
+import PcrProductSequence from './lib/product';
+import PcrPrimer from '../pcr/lib/pcr_primer';
+import SequenceModel from '../../sequence/models/sequence';
+import SequencesCollection from '../../sequence/models/sequences';
+import {version1GenericPreProcessor} from '../utils';
+
 
 Gentle.addPlugin('sequence-primary-view', {
   name: 'pcr',
@@ -27,3 +33,16 @@ Gentle.addPlugin('sequence-canvas-context-menu', {
   },
   visible: Gentle.featureFlag('pcr')
 });
+
+
+var version1PcrProductPreProcessor = version1GenericPreProcessor('pcrProducts');
+var version1forwardPrimerPreProcessor = version1GenericPreProcessor('forwardPrimer');
+var version1reversePrimerPreProcessor = version1GenericPreProcessor('reversePrimer');
+
+SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
+SequenceModel.registerAssociation(PcrProductSequence, 'pcrProduct', true);
+PcrProductSequence.registerPreProcessor(version1forwardPrimerPreProcessor);
+PcrProductSequence.registerPreProcessor(version1reversePrimerPreProcessor);
+PcrProductSequence.registerAssociation(PcrPrimer, 'forwardPrimer', false);
+PcrProductSequence.registerAssociation(PcrPrimer, 'reversePrimer', false);
+SequencesCollection.registerConstructor(PcrProductSequence, 'pcr_product');

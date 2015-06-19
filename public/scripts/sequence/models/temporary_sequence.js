@@ -2,21 +2,20 @@ import _ from 'underscore';
 import Sequence from './sequence';
 
 
-var TemporarySequenceModel = Sequence.extend({
-  save: function() {
-    // noop
-    return this;
-  },
+class TemporarySequenceModel extends Sequence {
+  constructor(attributes, options={}) {
+    options.disabledSave = true;
+    super(attributes, options);
+  }
 
-  asSequence: function () {
+  asSequence() {
     return new Sequence(this.attributes);
-  },
-
-});
+  }
+}
 
 
 TemporarySequenceModel.ensureTemporary = function(sequence, silenceWarning=false) {
-  if(sequence.constructor !== TemporarySequenceModel) {
+  if(!(sequence instanceof TemporarySequenceModel)) {
     if(!silenceWarning) {
       console.warn('Sequence should be a TemporarySequence');
     }
