@@ -1,6 +1,6 @@
+import _ from 'underscore';
 import template from '../templates/pcr_progress_view.hbs';
 import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
-import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
 
@@ -36,7 +36,9 @@ export default Backbone.View.extend({
       this.updateProgressBar(1);
       pcrProduct.set('displaySettings.primaryView', 'pcr');
       Gentle.sequences.add(pcrProduct);
-      this.model.destroy();
+      // We don't need to call `this.model.destroy` as it will be an instance of
+      // WipPcrProductSequence and therefore not saved.
+      this.model = pcrProduct;
       Gentle.router.sequence(pcrProduct.get('id'));
 
     })
