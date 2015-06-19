@@ -21,7 +21,7 @@ var vendorLibs = [
 ];
 
 var appTransforms = [
-  [ 'jstify', {} ],
+  [ 'jstify', {minifierOpts: {collapseWhitespace: false}} ],
   [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
   [ 'babelify', {} ],
   [ 'aliasify', {aliases: aliases} ]

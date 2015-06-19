@@ -68,6 +68,7 @@
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
     "string-just": "0.0.2",
+    "svg.js": "^2.0.0",
     "through2": "^1.0.0",
     "uglifyify": "^3.0.1",
     "underscore": "^1.6.0",

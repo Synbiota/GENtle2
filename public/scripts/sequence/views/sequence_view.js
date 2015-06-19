@@ -171,9 +171,8 @@
       return this.sequenceSettingsView.$el.width();
     },
 
-    remove: function() {
+    cleanup: function() {
       $(window).off('resize', this.handleResize);
-      Backbone.View.prototype.remove.apply(this, arguments);
     }
 
   });
