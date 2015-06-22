@@ -15,6 +15,7 @@ var exorcist = require('exorcist');
 var disc = require('disc');
 var open = require('opener');
 var fs = require('fs');
+var Q = require('q');
 
 var scriptFile = './public/scripts/app.js';
 var scriptPath = path.dirname(scriptFile);
@@ -28,7 +29,7 @@ var browserifyOptions = {
 
 var browserifyUtils = require('./utils/browserify_utils');
 
-var run = function(watch) {
+var run = function(watch, cb) {
   var browserified = watch ? 
     watchify(browserify(scriptFile, _.extend(browserifyOptions, watchify.args))) :
     browserify(scriptFile, browserifyOptions);
@@ -40,7 +41,7 @@ var run = function(watch) {
     browserified.on('update', _.partial(bundle, browserified, true));
   } 
 
-  bundle(browserified); 
+  bundle(browserified, null, null, cb); 
 };
 
 var productionTransforms = function(browserified) {
@@ -57,7 +58,7 @@ var productionTransforms = function(browserified) {
     .pipe(gulp.dest(destPath)); 
 };
 
-var bundle = function(browserified, watch, filepath) {
+var bundle = function(browserified, watch, filepath, cb) {
   var target = scriptFile;
 
   if(watch) {
@@ -67,8 +68,14 @@ var bundle = function(browserified, watch, filepath) {
   }
 
   browserified = browserified.bundle()
-    .on('error', bundleLogger.error)
-    .on('end', function() { bundleLogger.end(target, watch); })
+    .on('error', function(err) {
+      bundleLogger.error(err);
+      if(cb) cb(err);
+    })
+    .on('end', function() { 
+      bundleLogger.end(target, watch); 
+      if(cb) cb();
+    })
     .pipe(source(scriptFile))
     .pipe(rename({extname: destExtname}))
     .pipe(gulp.dest(destPath));
@@ -82,21 +89,40 @@ gulp.task('js:vendor', function() {
   var target = './public/scripts/vendor.js';
   bundleLogger.start(target);
   var browserified = browserify({debug: true});
+  var def = Q.defer();
 
   browserified = browserifyUtils.applyConfig('vendor', browserified)
     .bundle()
-    .on('error', bundleLogger.error)
-    .on('end', function() { bundleLogger.end(target, false); })
+    .on('error', function(err) {
+      bundleLogger.error(err);
+      def.reject();
+    })
+    .on('end', function() { 
+      bundleLogger.end(target, false); 
+      def.resolve();
+    })
     .pipe(source(target))
     .pipe(gulp.dest(destPath));
 
   if(!isDev) {
     browserified = productionTransforms(browserified);
   }
+
+  return def.promise;
 });
 
+gulp.task('js:app', function() {
+  var def = Q.defer();
 
-gulp.task('js', ['js:vendor'], function() { run(false); });
+  run(false, function(err) {
+    if(err) def.reject();
+    else def.resolve();
+  });
+
+  return def.promise;
+});
+
+gulp.task('js', ['js:vendor', 'js:app']);
 gulp.task('js:watch', ['js:vendor'], function() { run(true); });
 
 

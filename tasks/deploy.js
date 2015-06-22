@@ -52,5 +52,5 @@ gulp.task('deploy', ['publish'], function() {
 
 
 gulp.task('publish', ['build'], function() {
-  // TODO publish to s3
+  // Todo publish to s3
 });
