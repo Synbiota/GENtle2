@@ -1,6 +1,6 @@
 var gulp = require('gulp');
 var AWS = require('aws-sdk');
-var opsworks = new AWS.OpsWorks();
+var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
 
 
 //"aws --region='us-east-1' opsworks create-deployment --stack-id $AWS_NIGHTLY_STACK_ID --app-id $AWS_NIGHTLY_APP_ID --command '{\"Name\": \"deploy\", \"Args\": {\"migrate\": [\"false\"]}}'"
@@ -16,7 +16,6 @@ gulp.task('deploy', function() {
   var params = {
     StackId: STACK_ID,
     AppId: APP_ID,
-    Region: 'us-east-1',
     Command: {
       Name: 'deploy',
       Args: {
