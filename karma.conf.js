@@ -1,15 +1,14 @@
-var _ = require('underscore');
-
-
 var testFiles = [
     'karma.header.js',
     'public/scripts/**/tests/**/*.js'
 ];
 
-var preprocessors = _.reduce(testFiles, function(memo, file) {
+var preprocessors = testFiles.reduce(function(memo, file) {
     memo[file] = ['browserify'];
     return memo;
 }, {});
+
+var browserifyUtils = require('./tasks/utils/browserify_utils');
 
 module.exports = function(config) {
   config.set({
@@ -38,11 +37,7 @@ module.exports = function(config) {
 
     browserify: {
         debug: true,
-        transform: [
-            ['hbsfy', { compiler: 'require("handlebars.mixed");'}],
-            'babelify',
-            'deamdify'
-        ]
+        transform: browserifyUtils.appTransforms,
     },
 
 
@@ -76,6 +71,12 @@ module.exports = function(config) {
 
     // Continuous Integration mode
     // if true, Karma captures browsers, runs the tests and exits
-    singleRun: false
+    singleRun: false,
+
+    // to avoid DISCONNECTED messages
+    //See https://github.com/karma-runner/karma/issues/598#issuecomment-77105719
+    browserDisconnectTimeout: 10000, // default 2000
+    browserDisconnectTolerance: 1, // default 0
+    browserNoActivityTimeout : 60000 //default 10000
   });
 };

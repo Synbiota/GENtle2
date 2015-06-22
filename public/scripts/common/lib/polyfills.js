@@ -1,7 +1,7 @@
 /**
 @module Utilities
 **/
-define(function(require) {
+// define(function(require) {
   var _ = require('underscore');
 
   // Object.create polyfill (ES5)
@@ -65,9 +65,9 @@ define(function(require) {
   // Base64 utility methods (HTML5)
   // (https://github.com/inexorabletash/polyfill)
   //
-  (function (global) {
+  (function (globaL) {
     var B64_ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-    global.atob = global.atob || function (input) {
+    globaL.atob = globaL.atob || function (input) {
       input = String(input);
       var position = 0,
           output = [],
@@ -105,7 +105,7 @@ define(function(require) {
       return output.join('');
     };
 
-    global.btoa = global.btoa || function (input) {
+    globaL.btoa = globaL.btoa || function (input) {
       input = String(input);
       var position = 0,
           out = [],
@@ -140,7 +140,7 @@ define(function(require) {
 
       return out.join('');
     };
-  }(this));
+  }(this || global));
   
 
   // 
@@ -190,7 +190,23 @@ define(function(require) {
     }
   }
 
+  //
+  // String.prototype.endsWith
+  // https://developer.mozilla.org/en/docs/Web/JavaScript/Reference/Global_Objects/String/endsWith#Polyfill
+  //
+  if (!String.prototype.endsWith) {
+    String.prototype.endsWith = function(searchString, position) {
+        var subjectString = this.toString();
+        if (position === undefined || position > subjectString.length) {
+          position = subjectString.length;
+        }
+        position -= searchString.length;
+        var lastIndex = subjectString.indexOf(searchString, position);
+        return lastIndex !== -1 && lastIndex === position;
+    };
+  }
+
 
   // Polyfills mutate the global state so we export nothing
-  return;
-})
+  // return;
+// })

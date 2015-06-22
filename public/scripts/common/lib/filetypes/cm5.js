@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // Clone Manager CM5
 
@@ -123,6 +123,6 @@ define(function(require) {
   FT_cm5.prototype.getExportString = function ( sequence ) { // TODO
     return '' ;
   }
-
-  return FT_cm5;
-});
+export default FT_cm5;
+  // return FT_cm5;
+// });

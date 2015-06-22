@@ -1,7 +1,8 @@
 import template from '../templates/pcr_progress_view.hbs';
-import Gentle from 'gentle';
 import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
+import {handleError} from '../../../common/lib/handle_error';
+import Gentle from 'gentle';
 
 
 export default Backbone.View.extend({
@@ -12,7 +13,7 @@ export default Backbone.View.extend({
     'click .retry-create-pcr-primer': 'retryCreatingPcrPrimer'
   },
 
-  afterRender: function() {    
+  afterRender: function() {
     this.updateProgressBar(0);
   },
 
@@ -25,30 +26,32 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
-  makePrimer: function(data) {
-    this.pcrPrimerData = data;
-    var sequence = this.model;
+  makePrimer: function(dataAndOptions) {
+    this.pcrPrimerDataAndOptions = dataAndOptions;
+    var options = _.omit(dataAndOptions, 'name', 'from', 'to', 'stickyEnds');
+    this.model.set('meta.pcr.defaults', options);
 
-    getPcrProductAndPrimers(sequence, data).then((pcrProduct) => {
-      var parentView = this.parentView();
+    getPcrProductAndPrimers(this.model, dataAndOptions)
+    .then((pcrProduct) => {
+      this.updateProgressBar(1);
+      pcrProduct.set('displaySettings.primaryView', 'pcr');
+      Gentle.sequences.add(pcrProduct);
+      this.model.destroy();
+      Gentle.router.sequence(pcrProduct.get('id'));
 
-      sequence.set('meta.pcr.defaults', _.omit(data, 'name', 'from', 'to', 'stickyEnds'));
-
-      var products = getPcrProductsFromSequence(sequence);
-      products.push(pcrProduct);
-      savePcrProductsToSequence(sequence, products);
-      parentView.showProducts(pcrProduct);
-
-    }).progress(({lastProgress, lastFallbackProgress}) => {
+    })
+    .progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));
-      if(lastFallbackProgress.total) {
+      if(lastFallbackProgress.total && lastFallbackProgress.current !== 0) {
         this.updateFallbackProgressBar(this.calcTotal(lastFallbackProgress));
       }
-    }).catch((e) => {
+    })
+    .catch((e) => {
       handleError('new PCR, view error:', e);
       this.$('.new-pcr-progress').slideUp();
       this.$('.new-pcr-progress-error').slideDown();
-    }).done();
+    })
+    .done();
   },
 
   calcTotal: function({current, total}) {
@@ -56,7 +59,7 @@ export default Backbone.View.extend({
   },
 
   retryCreatingPcrPrimer: function() {
-    this.parentView().makePrimer(this.pcrPrimerData);
+    this.parentView().makePrimer(this.pcrPrimerDataAndOptions);
   },
 
 });

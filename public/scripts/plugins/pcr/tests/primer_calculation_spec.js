@@ -1,17 +1,21 @@
 import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
+import {stubCurrentUser} from '../../../common/tests/stubs';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import {optimalPrimer4} from '../lib/primer_calculation';
+import {optimalPrimer4, _getSequenceToSearch} from '../lib/primer_calculation';
+import SequenceModel from '../../../sequence/models/sequence';
+import SequenceTransforms from 'gentle-sequence-transforms';
 
 
-var setup;
+stubCurrentUser();
+
 var bothEndsSequence;
 var sequence1;
 var sequence1Reversed;
 var sequence2;
 var sequence2Reversed;
 var polyASequence;
+var onlyContainingReverseUniversalPrimer;
 
 var micro = 1e-6;
 
@@ -24,34 +28,35 @@ var checkResult = function(primer, expectations={}) {
     maximumMeltingTemperature: 65,
     optimal: true,
   });
-  // console.log(`Testing with primer:`, primer);
   expect(primer.meltingTemperature).toBeGreaterThan(expectations.minimumMeltingTemperature - micro);
   expect(primer.meltingTemperature).toBeLessThan(expectations.maximumMeltingTemperature + micro);
   expect(primer.gcContent).toBeGreaterThan(expectations.gcContentGreaterThan - micro);
   expect(primer.gcContent).toBeLessThan(expectations.gcContentLessThan + micro);
   expect(primer.optimal).toEqual(expectations.optimal);
 
-  var fieldsToCheck = [
-    ['expectedSequence', 'sequence'],
-    ['expectedFrom', 'from'],
-    ['expectedTo', 'to'],
-  ];
-  _.each(fieldsToCheck, function(fieldPair) {
-    var expectation = expectations[fieldPair[0]];
-    var field = fieldPair[1];
-    var actual = primer[field];
-    if(expectation) {
-      expect(actual).toEqual(expectation);
-    }
-  });
+  var actual;
+  if(_.has(expectations, 'expectedSequence')) {
+    actual = primer.getSequence();
+    expect(actual).toEqual(expectations.expectedSequence);
+  }
+  if(_.has(expectations, 'expectedFrom')) {
+    expect(primer.range.from).toEqual(expectations.expectedFrom);
+  }
+  if(_.has(expectations, 'expectedTo')) {
+    expect(primer.range.to).toEqual(expectations.expectedTo);
+  }
 };
 
 
-var optimalPrimer4_TestFactory = function(done, sequence, expectations, options={}) {
-  // console.log(`Set up optimalPrimer4 test`);
-  optimalPrimer4(sequence, options)
+var optimalPrimer4_TestFactory = function(done, sequenceBases, expectations, options={}, sequenceOptions={}) {
+  let sequenceModel = new SequenceModel({sequence: sequenceBases});
+  sequenceOptions = _.defaults(sequenceOptions, {
+    from: 0,
+    maxSearchSpace: 500,
+    findOnReverseStrand: false,
+  });
+  optimalPrimer4(sequenceModel, sequenceOptions, options)
   .then(function(primer) {
-    // console.log(`Got optimalPrimer4 results, primer:`, primer);
     checkResult(primer, expectations);
   })
   .finally(done).done();
@@ -59,6 +64,7 @@ var optimalPrimer4_TestFactory = function(done, sequence, expectations, options=
 
 
 describe('finding optimal primers', function() {
+  var setup;
   beforeEach(function(done) {
     if(!setup) {
       setup = true;
@@ -68,6 +74,7 @@ describe('finding optimal primers', function() {
       sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
       sequence2Reversed = SequenceTransforms.toReverseComplements(sequence2);
       polyASequence = 'GAAAGAAGAAGAAGAAGAAGAAGAAGAAAAAAA';
+      onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAAAAAAAAA' + 'GATCACTACCGGGCGTATT';
 
       stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
     }
@@ -79,14 +86,14 @@ describe('finding optimal primers', function() {
    *********************/
   it('should find sequencing primer for bothEndsSequence', function(done) {
     optimalPrimer4_TestFactory(done, bothEndsSequence,
-      {expectedSequence: 'ATTGATTACGTACAGCACGTATGG', expectedFrom: 0, expectedTo: 23},
+      {expectedSequence: 'ATTGATTACGTACAGCACGTATGG', expectedFrom: 0, expectedTo: 24},
       defaultSequencingPrimerOptions({findFrom3PrimeEnd: false})
     );
   });
 
   it('optimalPrimer4 for Sequencing primer with bothEndsSequence', function(done) {
     optimalPrimer4_TestFactory(done, bothEndsSequence,
-      {expectedSequence: 'GTGTATCTATTCCTTTTATTGGAGAGGGAG', expectedFrom: 30, expectedTo: 59},
+      {expectedSequence: 'GTGTATCTATTCCTTTTATTGGAGAGGGAG', expectedFrom: 30, expectedTo: 60},
       defaultSequencingPrimerOptions({findFrom3PrimeEnd: true})
     );
   });
@@ -116,6 +123,27 @@ describe('finding optimal primers', function() {
     optimalPrimer4_TestFactory(done, sequence2,
       {expectedSequence: 'ACTTGGTATGCACGACATGC'},
       defaultSequencingPrimerOptions()
+    );
+  });
+
+  it('optimalPrimer4 for Sequencing primer with onlyContainingReverseUniversalPrimer', function(done) {
+    optimalPrimer4_TestFactory(done, onlyContainingReverseUniversalPrimer,
+      {expectedSequence: 'GATCACTACCGGGCGTATTAAAA', expectedFrom: 0, expectedTo: 23},
+      defaultSequencingPrimerOptions({findFrom3PrimeEnd: false})
+    );
+  });
+
+  it('optimalPrimer4 for Sequencing primer with onlyContainingReverseUniversalPrimer and allowed shorter primer', function(done) {
+    // Current universal primer doesn't pass the length or melting temperature
+    // requirements for sequencing primers.
+    var opts = defaultSequencingPrimerOptions({
+      findFrom3PrimeEnd: false,
+      minPrimerLength: 19,
+    });
+    opts.targetMeltingTemperature -= 1;
+    optimalPrimer4_TestFactory(done, onlyContainingReverseUniversalPrimer,
+      {expectedSequence: 'GATCACTACCGGGCGTATT', expectedFrom: 0, expectedTo: 19, minimumMeltingTemperature: 61},
+      opts
     );
   });
 
@@ -230,3 +258,76 @@ describe('finding optimal primers', function() {
   });
 });
 
+
+describe('getting sequence to search for primer', function() {
+  var sequence = 'GCTCAAGCCGCTGATTCATACGTCGCGCACGGCGCAATAT';
+  var minPrimerLength = 5;
+  var maxSearchSpace = 10;
+  var errors;
+
+  var constructPrimerModel = function(correctedFrom, reverseStrand=false, minPrimerLen=undefined) {
+    errors = [];
+    var sequenceModel = new SequenceModel({sequence});
+    var primerModel = {
+      deferred: {
+        reject: function(error) {
+          errors.push(error);
+        },
+      },
+      sequenceModel: sequenceModel,
+      sequenceOptions: {
+        from: correctedFrom,
+        maxSearchSpace: maxSearchSpace,
+        findOnReverseStrand: reverseStrand,
+      },
+      options: {
+        minPrimerLength: minPrimerLen || minPrimerLength
+      },
+    };
+    _getSequenceToSearch(primerModel);
+    return primerModel;
+  };
+
+  it('returns the forward sequence, defaulting to start', function() {
+    var primerModel = constructPrimerModel(0);
+    expect(primerModel.frm).toEqual(0);
+    expect(primerModel.sequenceToSearch).toEqual('GCTCAAGCCG');
+  });
+
+  it('returns the forward sequence', function() {
+    var primerModel = constructPrimerModel(35, false);
+    expect(primerModel.frm).toEqual(35);
+    expect(primerModel.sequenceToSearch).toEqual('AATAT');
+  });
+
+  it('errors if frm is too large (and the forward sequence is requested)', function() {
+    constructPrimerModel(36, false);
+    expect(errors.length).toEqual(1);
+    expect(errors[0]).toEqual("`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
+  });
+
+  it('returns the reverse sequence, defaulting to end', function() {
+    var primerModel = constructPrimerModel(0, true);
+    expect(primerModel.frm).toEqual(30);
+    expect(primerModel.sequenceToSearch).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
+  });
+
+  it('returns the reverse sequence', function() {
+    var primerModel = constructPrimerModel(5, true);
+    expect(primerModel.frm).toEqual(25);
+    expect(primerModel.sequenceToSearch).toEqual('GCGCCGTGCG');  // complement of CGCACGGCGC
+  });
+
+  it('copes when frm is too large and the reverse strand is requested', function() {
+    var primerModel = constructPrimerModel(35, true);
+    expect(errors.length).toEqual(0);
+    expect(primerModel.frm).toEqual(0);
+    expect(primerModel.sequenceToSearch).toEqual('CGGCTTGAGC');  // complement of GCTCAAGCCG
+  });
+
+  it('errors when sequence is too small and the reverse strand is requested', function() {
+    constructPrimerModel(0, true, 41);
+    expect(errors.length).toEqual(1);
+    expect(errors[0]).toEqual("sequence is too short to leave enough sequence length to find the primer");
+  });
+});

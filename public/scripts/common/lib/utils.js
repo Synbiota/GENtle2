@@ -4,11 +4,12 @@ import Sequence from '../../sequence/models/sequence';
 
 
 export function getProductAndSequenceForSequenceID (products, sequenceID) {    
+  // TODO: remove this PCR plugin specific code.
   var fields = ['forwardPrimer', 'reversePrimer'];
   var sequence;
   var product = _.find(products, function(product) {
     _.each(fields, function(field) {
-      var _sequence = product[field];
+      var _sequence = product.attributes[field];
       if(!sequence && _sequence && _sequence.id && _sequence.id === sequenceID) sequence = _sequence;
     });
     return sequence; // if `sequence` is found, stops find loop with matching `product`
@@ -27,6 +28,8 @@ export function fastAExportSequenceFromID (products, sequenceID){
   var result = getProductAndSequenceForSequenceID(products, sequenceID);
   if(result) fastAExportSequence(result);
 }
+
+
 
 export function naiveReverseString (string) {
   // Use this library for unicode strings with special chars

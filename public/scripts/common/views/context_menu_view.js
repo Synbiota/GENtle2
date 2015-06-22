@@ -2,9 +2,10 @@
 @module Common
 @submodule Views
 **/
-define(function(require) {
+// define(function(require) {
   var template        = require('../templates/context_menu_view.hbs'),
       Backbone        = require('backbone'),
+      _ = require('underscore'),
       ContextMenuView;
 
   ContextMenuView = Backbone.View.extend({
@@ -25,9 +26,15 @@ define(function(require) {
       this.width = 240;
       this.menuItemHeight = 25;
       this.menuIconWidth = 34;
+      this.rightPadding = 20;
       this.reset();
       _.bindAll(this, 'hide');
-      $('body').on('click', this.hide);
+
+      // This is the race condition event that James' previous comment was referring to.
+      // It is a catchall binding to make sure that clicks anywhere in the window will hide
+      // the context menu. The click even was changed to mousedown to prevent the issue.
+      // (a drag action is considered a click by jquery standards.)
+      $('body').on('mousedown', this.hide);
 
       this.context = options && options.context;
     },
@@ -87,22 +94,14 @@ define(function(require) {
             parentWidth = $parent.width(),
             parentHeight = $parent.height();
 
+
         this.pullRight = this.posX - $parent.position().left - this.width > 0;
         this.dropup = this.posY + this.menuItemHeight * itemNb + 40 >= parentHeight;
+        this.stickToRight = this.posX + this.rightPadding + this.width - $parent.offset().left >= parentWidth;
 
-        _.defer(() => {
-          // RACY  this `defer`, and the conditional in hide for `this.display`
-          // ensures `show` is run after the `hide` function which 
-          // erroneously gets triggered on the 'click' event from a selection 
-          // operation...??!!  This was introduced somewhere between:
-          //  BAD:  0b9f24a
-          //        468a904
-          //        37d5e1c  // <- likely "culprit":  `Using gulp instead of grunt (TBC)`
-          //  GOOD: 92737fb
-          this.render();
-          $parent.focus();
-          this.display = true;
-        });
+        this.display = true;
+        this.render();
+        $parent.focus();
       }
 
       return this;
@@ -148,6 +147,7 @@ define(function(require) {
         posX: this.posX,
         posY: this.posY,
         pullRight: this.pullRight,
+        stickToRight: this.stickToRight,
         dropup: this.dropup,
         context: this.context || 'generic'
       };
@@ -162,6 +162,6 @@ define(function(require) {
 
 
   });
-
-  return ContextMenuView;
-});
+export default ContextMenuView;
+  // return ContextMenuView;
+// });

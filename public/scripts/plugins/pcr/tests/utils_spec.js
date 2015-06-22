@@ -29,15 +29,16 @@ var getOldStickyEndAttributesZXp = function() {
 
 
 describe('pcr utils', function() {
-  it("should correctly transform old X-Z' stickyEnd data", function() {
-    var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributesXZp());
-    expect(transformedStickyEndData).toEqual(stickyEnds()[0]);
-  });
+  // TODO remove those tests and the functions they are testing
+  // it("should correctly transform old X-Z' stickyEnd data", function() {
+  //   var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributesXZp());
+  //   expect(transformedStickyEndData).toEqual(stickyEnds()[0]);
+  // });
 
-  it("should correctly transform old Z-X' stickyEnd data", function() {
-    var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributesZXp());
-    expect(transformedStickyEndData).toEqual(stickyEnds()[1]);
-  });
+  // it("should correctly transform old Z-X' stickyEnd data", function() {
+  //   var transformedStickyEndData = transformStickyEndData(getOldStickyEndAttributesZXp());
+  //   expect(transformedStickyEndData).toEqual(stickyEnds()[1]);
+  // });
 
   it('should leave already correct stickyEnd data unaltered', function() {
     var transformedStickyEndData = transformStickyEndData(stickyEnds()[0]);

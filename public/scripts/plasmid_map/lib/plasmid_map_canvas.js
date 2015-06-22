@@ -1,14 +1,14 @@
-define(function(require) {
-  var Q = require('q'),
-      Artist = require('../../common/lib/graphics/artist'),
-      _ = require('underscore'),
-      RestrictionEnzymes = require('../../sequence/lib/restriction_enzymes'),
-      Styles = require('../../styles.json'),
-      PlasmidMapCanvas;
+import {handleError} from '../../common/lib/handle_error';
+import Q from 'q';
+import Artist from '../../common/lib/graphics/artist';
+import _ from 'underscore';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import Styles from '../../styles.json';
 
-  var LineStyles = Styles.sequences.lines;
+var LineStyles = Styles.sequences.lines;
 
-  PlasmidMapCanvas = function(options) {
+export default class PlasmidMapCanvas {
+  constructor(options) {
     this.mouseTool = {};
     this.mouseTool.drag = false;
 
@@ -59,10 +59,9 @@ define(function(require) {
     this.view.parentView().on('resize', _.debounce(this.refresh, 200));
     this.$canvas.on('click', this.handleClick);
 
-  };
+  }
 
-  PlasmidMapCanvas.prototype.render = function () {
-
+  render() {
     this.clear();
 
     this.drawPositionMarks();
@@ -71,20 +70,19 @@ define(function(require) {
     this.drawGCAT();
     this.drawRES();
     this.drawFeatures();
+  }
 
-  };
+  refresh() {
+    this.setupCanvas()
+      .then(this.render)
+      .catch(handleError);
+  }
 
-  PlasmidMapCanvas.prototype.refresh = function () {
-    this.setupCanvas().then(this.render).catch(function(e) {
-      console.error(e);
-    });
-  };
-
-  PlasmidMapCanvas.prototype.setupCanvas = function() {
+  setupCanvas() {
     var _this = this,
         artist = _this.artist;
 
-    return Q.promise(function(resolve, reject) {
+    return Q.promise(function(resolve) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
       _this.$canvas.width(_this.$el.width());
 
@@ -104,9 +102,9 @@ define(function(require) {
 
       resolve();
     });
-  };
+  }
 
-  PlasmidMapCanvas.prototype.updateRadii = function(obj) {
+  updateRadii(obj) {
     var _this = this,
         size = Math.min(_this.canvasDims.width, _this.canvasDims.height) / 2,
         result = {};
@@ -117,11 +115,11 @@ define(function(require) {
 
     return result;
 
-  };
+  }
 
-  PlasmidMapCanvas.prototype.drawPositionMarks = function() {
+  drawPositionMarks() {
 
-    var len = this.model.length(),
+    var len = this.model.getLength(),
         lineNumberIncrement = this.bestLineNumbering(len, 100) ,
         angleIncrement = Math.PI*2 / ( len/lineNumberIncrement) ,
         r = - this.radii.lineNumbering.r,
@@ -153,20 +151,24 @@ define(function(require) {
       }
     });
 
-  };
+  }
 
-  PlasmidMapCanvas.prototype.drawRES = function() {
-    var displaySettings = this.model.get('displaySettings.rows.res') || {},
-        enzymes = RestrictionEnzymes.getAllInSeq(this.model.get('sequence'), {
-          length: displaySettings.lengths || [],
+  drawRES() {
+    var model = this.model,
+        displaySettings = model.get('displaySettings.rows.res') || {},
+        enzymes = RestrictionEnzymes.getAllInSeq(this.model.getSequence(), {
+          // length: displaySettings.lengths || [],
           customList: displaySettings.custom || [],
-          hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+          hideNonPalindromicStickyEndSites: false
         }),
-        len = this.model.length(),
+        len = model.getLength(),
         previousPosition = 0,
         artist = this.artist,
         radii = this.radii.RES,
         angle = 0;
+
+    if(!displaySettings.display) return;
 
     // artist.setLineDash([1.5,3]);
 
@@ -180,13 +182,21 @@ define(function(require) {
 
     artist.onTemporaryTransformation(function() {
       _.each(enzymes, function(enzymes_, position) {
+        position = position^0;
+
+        enzymes_ = _.filter(enzymes_, function(enzyme) {
+          return model.isRangeEditable(position, position + enzyme.seq.length);
+        });
+
+        if(enzymes_.length === 0) return;
+
         var names = _.pluck(enzymes_, 'name');
         names = (names.length <= 2 ) ? names.join(', ') : (names[0] + ' +' + (names.length-1));
         position = 1*position;
         artist.rotate(Math.PI * 2 * (position - previousPosition) / len);
         artist.path(-radii.R, 0, -radii.r, 0);
-        angle += (Math.PI * 2 * (position - previousPosition) / len);
-        namelen = names.length;
+        angle += (Math.PI * 2 * (position - previousPosition) / len)
+        var namelen = names.length;
 
         if((angle*180/Math.PI)<=270 && (angle*180/Math.PI)>=90)
           artist.rotatedText(names, radii.label+(namelen*6), 2);
@@ -195,15 +205,14 @@ define(function(require) {
         previousPosition = position;
       });
     });
-  };
+  }
 
-  PlasmidMapCanvas.prototype.drawFeatures = function() {
+  drawFeatures() {
     var featuresStack = _.first(this.processFeatures(), 4),
-        len = this.model.length(),
+        len = this.model.getLength(),
         _this = this,
         artist = _this.artist,
-        startAngle, endAngle, arrowHead, r, R,
-        colors = LineStyles.features.color;
+        colors = LineStyles.features.color,
         radii = this.radii.features;
 
     _.each(featuresStack, function(features, i) {
@@ -218,25 +227,25 @@ define(function(require) {
         artist.rotate(-Math.PI);
 
         artist.washer(0, 0, r, R, startAngle, endAngle, false, arrowHead, false, feature.name, {
-          fillStyle: (colors[type] && colors[`type-${type}`].fill) || colors['type-_default'].fill,
+          fillStyle: (colors[type] && colors[`type-${type}`].fill) || colors._default.fill,
           font: '9px Monospace',
-          textStyle: (colors[type] && colors[`type-${type}`].color) || colors['type-_default'].color,
+          textStyle: (colors[type] && colors[`type-${type}`].color) || colors._default.color,
           textAlign: 'center'
         });
 
         artist.rotate(Math.PI);
       });
     });
-  };
+  }
 
-  PlasmidMapCanvas.prototype.processFeatures = function() {
+  processFeatures() {
     var id = -1,
         features = [],
         overlapStack = [],
         output = [],
         overlapIndex;
 
-    _.each(this.model.get('features'), function(feature) {
+    _.each(this.model.getFeatures(), function(feature) {
       _.each(feature.ranges, function(range) {
         features.push({
           name: feature.name,
@@ -250,7 +259,7 @@ define(function(require) {
     });
 
     for(var i = 0; i < features.length; i++) {
-      feature = features[i];
+      let feature = features[i];
 
       overlapIndex =  overlapStack.length;
 
@@ -267,11 +276,11 @@ define(function(require) {
     }
 
     return output;
-  };
+  }
 
-  PlasmidMapCanvas.prototype.drawSequenceInfo = function() {
+  drawSequenceInfo() {
     var context = this.artist.context,
-        len = this.model.length();
+        len = this.model.getLength();
 
     context.fillStyle = "white";
     context.textAlign = 'center';
@@ -288,9 +297,9 @@ define(function(require) {
     context.font = "italic 12px Arial";
     context.fillText(""+_.formatThousands(len)+" bp", 0,line_height*(name_lines.length*2/3));
 
-  };
+  }
 
-  PlasmidMapCanvas.prototype.drawSequence = function() {
+  drawSequence() {
     var artist = this.artist;
 
     artist.arc(0,0,this.radii.plasmidCircle.r,0,Math.PI*2, true, {
@@ -301,22 +310,22 @@ define(function(require) {
     artist.updateStyle({
       lineWidth: 5
     });
-  };
+  }
 
-  PlasmidMapCanvas.prototype.drawGCAT = function() {
+  drawGCAT() {
 
     var gcatCalc = this.calcGCAT(this.model, 300),
         radii = this.radii.linegraph;
     this.artist.radialLineGraph(0, 0, radii.r, 20, gcatCalc, {
       fillStyle: 'rgba(90,90,90,.4)'
     });
-  };
+  }
 
-  PlasmidMapCanvas.prototype.calcGCAT = function(sequence,res){
+  calcGCAT(sequence,res){
   //determine quantities of G,C,A,T in chunks, given resolution
   var gcat_chunks = [],
       gcat_ratio = [],
-      seq_length = sequence.length(),
+      seq_length = sequence.getLength(),
       chunk_size = Math.ceil(seq_length/res),
       chunk_res = Math.ceil(seq_length/chunk_size),
       chunk, gs, cs, as, ts, i;
@@ -348,9 +357,9 @@ define(function(require) {
   window.ratio = gcat_ratio;
 
   return gcat_ratio;
-};
+}
 
-  PlasmidMapCanvas.prototype.bestLineNumbering = function(bp,radius){
+  bestLineNumbering(bp,radius){
 
     var min_d = 25;
     var max_d = 100;
@@ -382,28 +391,25 @@ define(function(require) {
     guess = Math.floor(q[i]*Math.pow(10,n));
 
     return guess === 0 ? Math.max(1,Math.floor(bp/2)) : guess;
-  };
+  }
 
-  PlasmidMapCanvas.prototype.clear = function() {
+  clear() {
     var width = this.canvasDims.width,
         height = this.canvasDims.height;
     // TODO Refactor this Artist
     this.artist.context.clearRect(-width/2, -height/2, width, height);
-  };
+  }
 
-  PlasmidMapCanvas.prototype.handleClick = function(event) {
+  handleClick(event) {
     var artist = this.artist,
         parentOffset = this.$canvas.offset(),
         centerPoint = artist.point(this.$canvas.width()/2, this.$canvas.height()/2),
         mousePoint = artist.point(event.pageX - parentOffset.left, event.pageY - parentOffset.top).sub(centerPoint),
-        refPoint = artist.point(0, centerPoint.y).sub(centerPoint);
+        refPoint = artist.point(0, centerPoint.y).sub(centerPoint),
         angle = artist.normaliseAngle(Artist.angleBetween(refPoint, mousePoint));
 
     this.view.parentView().sequenceCanvas.scrollToBase(
-      Math.floor(this.model.length() * angle / Math.PI / 2)
+      Math.floor(this.model.getLength() * angle / Math.PI / 2)
     );
-  };
-
-
-  return PlasmidMapCanvas;
-});
+  }
+}

@@ -3,7 +3,7 @@
 @submodule Views
 @class SequenceView
 **/
-define(function(require) {
+// define(function(require) {
   var template                = require('../templates/sequence_view.hbs'),
       Gentle                  = require('gentle'),
       SequenceSettingsView    = require('./settings_view'),
@@ -14,6 +14,7 @@ define(function(require) {
       // StatusbarSecondaryViewSwitcherview = require('./statusbar_secondary_view_switcher_view'),
       Backbone                = require('backbone'),
       Q                       = require('q'),
+      Modal                   = require('../../common/views/modal_view'),
       SequenceView;
 
   SequenceView = Backbone.View.extend({
@@ -44,17 +45,17 @@ define(function(require) {
       var sequenceAnalysisView = new SequenceAnalysisView();
       var canvasView = this.actualPrimaryView.sequenceCanvas;
 
-      Modal.modalTitle = 'Analysis';
-      Modal.setView('.modal-body', sequenceAnalysisView);
-
       sequenceAnalysisView.calculateResults(fragment);
-      sequenceAnalysisView.render();
+
+      Modal.show({
+        title: 'Analysis',
+        bodyView: sequenceAnalysisView,
+        displayFooter: false
+      });
 
       canvasView.hideCaret();
-      canvasView.selection = "";
+      canvasView.selection = undefined;
       canvasView.redraw();
-
-      Modal.show();
     },
 
     changeSecondaryView: function() {
@@ -114,8 +115,7 @@ define(function(require) {
 
     changePrimaryView: function(viewName, render, argumentsForView=[]) {
       var primaryView = _.findWhere(this.primaryViews, {name: viewName});
-      // TODO replace this with `new primaryView.view(...argumentsForview)`
-      var actualView = new primaryView.view(argumentsForView[0], argumentsForView[1], argumentsForView[2]);
+      var actualView = new primaryView.view(...argumentsForView);
 
       _.each(this.primaryViews, function(view) {
         view.current = false;
@@ -140,7 +140,11 @@ define(function(require) {
 
     maximizePrimaryView: function() {
       var $outlet = $('#sequence-primary-view-outlet');
-      if(this.primaryView.maximize) {
+
+      var maximize = this.primaryView.maximize;
+      maximize = _.isFunction(maximize) ? maximize(this.model) : !!maximize;
+
+      if(maximize) {
         $outlet.addClass('maximize');
       } else {
         $outlet.removeClass('maximize');
@@ -167,12 +171,11 @@ define(function(require) {
       return this.sequenceSettingsView.$el.width();
     },
 
-    remove: function() {
+    cleanup: function() {
       $(window).off('resize', this.handleResize);
-      Backbone.View.prototype.remove.apply(this, arguments);
     }
 
   });
-
-  return SequenceView;
-});
+export default SequenceView;
+  // return SequenceView;
+// });

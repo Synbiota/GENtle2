@@ -3,7 +3,7 @@
 @submodule Views
 @class ToolsView
 **/
-define(function(require) {
+// define(function(require) {
   var template        = require('../templates/tools_view.hbs'),
       Backbone        = require('backbone'),
       ToolsView;
@@ -34,6 +34,6 @@ define(function(require) {
     }
 
   });
-
-  return ToolsView;
-});
+export default ToolsView;
+  // return ToolsView;
+// });

@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import SequenceTransforms from './sequence_transforms';
+import SequenceTransforms from 'gentle-sequence-transforms';
 
 var compose = _.compose;
 var partial = _.partial;
@@ -15,7 +15,7 @@ var getStringSequence = function(sequence) {
   if(_.isString(sequence)) {
     return sequence;
   } else {
-    return sequence.get('sequence');
+    return sequence.getSequence();
   }
 };
 

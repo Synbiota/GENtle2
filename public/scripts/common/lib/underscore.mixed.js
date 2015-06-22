@@ -134,11 +134,14 @@ _.mixin({
     if (_.isDate(obj)) return new Date(obj.getTime());
     if (_.isRegExp(obj)) return new RegExp(obj.source, obj.toString().replace(/.*\//, ""));
     var isArr = (_.isArray(obj) || _.isArguments(obj));
+    var isObj = (_.isObject(obj) && !_.isDate(obj));
     var func = function (memo, value, key) {
       if (isArr)
         memo.push(_.deepClone(value, depthLeft-1));
-      else
+      else if (isObj)
         memo[key] = _.deepClone(value, depthLeft-1);
+      else
+        memo[key] = _.deepClone(value, depthLeft);
       return memo;
     };
     return _.reduce(obj, func, isArr ? [] : {});
@@ -157,6 +160,7 @@ _.mixin({
     });
   },
 
+  // Similar to `_.throttle(func, wait, {leading: false})`
   afterLastCall: function(func, wait) {
     var timeoutId, args, thisArg, delayed;
 
@@ -173,6 +177,7 @@ _.mixin({
       }
 
       timeoutId = setTimeout(delayed, wait);
+      return this;
     };
   }
 });

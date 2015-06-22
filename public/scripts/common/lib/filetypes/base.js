@@ -3,7 +3,7 @@
     @class FT_base
     @module Filetypes
 **/
-define(function(require) {
+// define(function(require) {
   function FT_base () {
     this.fileTypeValidated = false ;
     this.typeName = 'none' ;
@@ -29,14 +29,23 @@ define(function(require) {
 	}
 
   FT_base.prototype.asString = function () {
-  	var me = this ;
-  	if ( typeof me.ascii != 'undefined' ) return me.ascii ;
-  	if ( typeof me.array_buffer == 'undefined' ) me.ascii = '' ;
-	else {
-//		var uint8 = new Uint8Array(me.array_buffer) ;
-		me.ascii = me.ab2str(me.array_buffer);//String.fromCharCode.apply(null, uint8);
-	}
-  	return me.ascii ;
+    var output = '';
+
+    if(typeof this.ascii !== 'undefined') {
+      output = this.ascii;
+    } else if(typeof this.array_buffer !== 'undefined') {
+      output = this.ab2str(this.array_buffer);
+    }
+
+    output = output.replace(/Ã¢ÂÂ/g, '\'');
+
+    // Hack against incorrect encodings
+    // see http://stackoverflow.com/a/5396742
+    try {
+      output = decodeURIComponent(escape(output));
+    } catch(e) {}
+
+    return output;
   }
   
   FT_base.prototype.asArrayBuffer = function () {
@@ -120,11 +129,11 @@ define(function(require) {
       return ret ;
     }
 
-    ret.filetype = "text/plain;charset=utf-8" ;
+    ret.filetype = "text/plain;charset=UTF-8" ;
 
     try {
       var dt = [ t ] ;
-      ret.blob = new Blob ( dt , { type:"text/plain;charset=utf-8" } ) ;
+      ret.blob = new Blob ( dt , { encoding: 'UTF-8', type:"text/plain;charset=UTF-8" } ) ;
     } catch ( e ) {
       alert('Could not export file');
       ret.error = true;
@@ -180,6 +189,6 @@ define(function(require) {
   FT_base.prototype.getFileExtension = function () {
     return '' ;
   }
-
-  return FT_base;
-});
+export default FT_base;
+  // return FT_base;
+// });

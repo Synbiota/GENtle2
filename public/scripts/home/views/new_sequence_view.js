@@ -3,7 +3,7 @@
 @submodule Views
 @class NewSequenceView
 **/
-define(function(require) {
+// define(function(require) {
   var Backbone    = require('backbone'),
       template    = require('../templates/new_sequence_view.hbs'),
       Filetypes   = require('../../common/lib/filetypes/filetypes'),
@@ -26,7 +26,6 @@ define(function(require) {
           text      = this.convertSmartQuotes($form.find('[name=sequence]').val()),
           name      = $form.find('[name=name]').val() || 'Unnamed';
 
-      console.log(text)     
       Filetypes.guessTypeAndParseFromText(text, name).then(Gentle.addSequencesAndNavigate)
         .catch((e) => console.log(e));
     },
@@ -38,7 +37,6 @@ define(function(require) {
     }
 
   });
-
-  
-  return NewSequenceView;
-});
+export default NewSequenceView;
+  // return NewSequenceView;
+// });

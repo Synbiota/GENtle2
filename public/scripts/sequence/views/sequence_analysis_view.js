@@ -1,4 +1,4 @@
-define(function(require){
+// define(function(require){
 
   var Backbone = require('backbone'),
       template = require('../templates/sequence_analysis_view.hbs'),
@@ -54,20 +54,26 @@ define(function(require){
 
     {
       name: "Molecular Weight",
-      unit: "g/mole",
-      formula: SequenceCalculations.molecularWeight,
+      unit: "g/mol",
+      formula: function(fragment){
+        return SequenceCalculations.molecularWeight(fragment).toFixed(2)
+      },
     },
 
     {
       name: "CG Content",
       unit: "%",
-      formula: SequenceCalculations.gcContent,
+      formula: function(fragment){
+        return SequenceCalculations.gcContent(fragment).toFixed(1)
+      },
     },
 
     {
       name: "Melting Temperature",
       unit: "ºC",
-      formula: SequenceCalculations.meltingTemperature
+      formula: function(fragment){
+        return SequenceCalculations.meltingTemperature(fragment).toFixed(2)
+      },
     }
 
   ]
@@ -98,6 +104,6 @@ define(function(require){
 
   })
 
-  return SequenceAnalysisView;
-
-})
+  // return SequenceAnalysisView;
+export default SequenceAnalysisView;
+// })

@@ -12,7 +12,7 @@ file.file = {name: 'sequence.txt'}
 @extends FT_base
 **/
 
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // Plain text
 
@@ -73,6 +73,6 @@ define(function(require) {
     if ( this.asString().match ( /[^a-zA-Z0-0\s]/ ) ) return false ;
     return true ;
   };
-
-  return FT_plaintext;
-});
+export default FT_plaintext;
+  // return FT_plaintext;
+// });

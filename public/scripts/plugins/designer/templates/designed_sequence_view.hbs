@@ -70,8 +70,10 @@
       
       <br>
       <button class="btn btn-primary assemble-sequence-btn">Assemble sequence</button>
-      <label for="circularise-dna">Circularise</label>
-      <input id="circularise-dna" type="checkbox" {{#if circulariseDna}}checked="1"{{/if}}></input>
+      <div style="display: inline-block; margin-right: -10px; line-height: 32px;">
+        &nbsp;<label for="circularise-dna">Circularise</label>
+        <input id="circularise-dna" type="checkbox" {{#if circulariseDna}}checked="1"{{/if}}>
+      </div>
 
     {{/if}}
 

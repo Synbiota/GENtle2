@@ -128,7 +128,7 @@ export default Backbone.View.extend({
 
   cleanUpDraggable: function() {
     draggableCleanup(
-      this, 
+      this,
       '.designer-designed-sequence-chunk',
       'div.designer-designed-sequence-chunk-trash',
       '.designer-designed-sequence-chunk-droppable',
@@ -148,12 +148,12 @@ export default Backbone.View.extend({
   afterRender: function() {
     var _this = this;
     this.$('.designer-designed-sequence-chunk').draggable({
-      zIndex: 2000, 
-      revert: 'invalid', 
+      zIndex: 2000,
+      revert: 'invalid',
       helper: 'clone',
       // refreshPositions: true,
       cursorAt: {
-        top: 5, 
+        top: 5,
         left: 5
       },
     }).hover(

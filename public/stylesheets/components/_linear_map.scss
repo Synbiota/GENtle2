@@ -1,6 +1,7 @@
 .linear-map {
   position: fixed;
-  top: 81px;
+  // top: 81px;
+  top: 111px;
   right: 0;
   bottom: 0;
   width: 150px;
@@ -74,6 +75,40 @@
       &:first-child {
         border-top: none;
       }
+    }
+  }
+
+  $res-color: map_get(map_get(map_get(map_get(map_get($shared-styles, 'sequences'), 'lines'), 'RES'), 'text'), 'color');
+
+  .linear-map-enzymes {
+    position: relative;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .linear-map-enzyme {
+    position: absolute;
+    left: 0;
+    font: 10px Monospace;
+    color: $res-color;
+
+    & > span {
+      display: inline-block;
+      margin-left: 40px;
+      background: white;
+      border-radius: 2px;
+      padding: 0 3px 1px 3px;
+      box-shadow: 1px 1px 0 #ddd;
+      @include text-overflow();
+    }
+
+    &:before {
+      display: block;
+      content: "";
+      width: 38px;
+      margin-bottom: -8px;
+      border-bottom: 1px dashed $res-color;
     }
   }
 }

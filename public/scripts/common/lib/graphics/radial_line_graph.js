@@ -3,7 +3,7 @@
 @extends Shape
 @module Graphics
 **/
-define(function(require) {
+// define(function(require) {
   var Shape = require('./shape'),
       RadialLineGraph;
 
@@ -44,6 +44,6 @@ define(function(require) {
     ctx.fillStyle = this.fill;
     ctx.fill();
   };
-
-  return RadialLineGraph;
-});
+export default RadialLineGraph;
+  // return RadialLineGraph;
+// });

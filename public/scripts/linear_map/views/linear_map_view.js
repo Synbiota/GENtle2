@@ -1,240 +1,317 @@
-define(function(require) {
-  var Backbone        = require('backbone'),
-      Gentle          = require('gentle'),
-      template        = require('../templates/linear_map_view.hbs'),
-      LinearMapView;
+import Backbone from 'backbone';
+import Gentle from 'gentle';
+import template from '../templates/linear_map_view.hbs';
+import _ from 'underscore';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import tooltip from 'gentle-utils/tooltip';
+import tooltipTemplate from 'gentle-sequence-canvas/lines/_feature_tooltip_template.html';
+import SVG from 'svg.js';
 
-  LinearMapView = Backbone.View.extend({
-    manage: true,
-    template: template,
-    className: 'linear-map',
-    minPositionMarkInterval: 60,
-    initialRender: true,
+function onFeatureMouseOver(sequenceCanvas, {name, from: frm, to, _id}) {
+  SVG.select(`.svg-feature-${_id}`).addClass('active');
+  sequenceCanvas.highlightBaseRange(frm, to);
+  tooltip.show(tooltipTemplate({
+    name,
+    from: _.formatThousands(frm + 1),
+    to: _.formatThousands(to + 1),
+    size: _.formatThousands(to - frm + 1)
+  }));
+}
 
-    events: {
-      'click .linear-map-feature': 'goToFeature'
-    },
+function onFeatureMouseOut(sequenceCanvas, {_id}) {
+   SVG.select(`.svg-feature-${_id}`).removeClass('active');
+   sequenceCanvas.highlightBaseRange();
+   tooltip.hide();
+}
 
-    initialize: function() {
-      this.model = Gentle.currentSequence;
-      this.minFeatureWidth = 4;
-      this.topFeatureOffset = 0;
-      _.bindAll(this, 'scrollSequenceCanvas');
+function onFeatureClick(sequenceCanvas, {from: frm, to}) {
+  sequenceCanvas.focus();
+  sequenceCanvas.select(frm, to);
+  sequenceCanvas.scrollToBase(frm);
+  sequenceCanvas.scrollBaseToVisibility(to).then(function() {
+    sequenceCanvas.displayCaret(to+1)
+  })
+}
 
-      this.listenTo(
-        this.model, 
-        'change:sequence change:features.* change:features',
-        _.debounce(this.refresh, 500),
-        this
+export default Backbone.View.extend({
+  manage: true,
+  template: template,
+  className: 'linear-map',
+  minPositionMarkInterval: 60,
+  initialRender: true,
+
+  events: {
+    'click .linear-map-feature': 'goToFeature'
+  },
+
+  initialize: function() {
+    this.model = Gentle.currentSequence;
+    this.minFeatureWidth = 4;
+    this.topFeatureOffset = 0;
+    
+    _.bindAll(this, 
+      'scrollSequenceCanvas', 
+      'updateScrollHelperPosition',
+      'refresh'
+    );
+
+    this.listenTo(
+      this.model, 
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
+      _.debounce(this.refresh, 500),
+      this
+    );
+  },
+
+  processFeatures: function() {
+    var id = -1,
+        _this = this;
+
+    this.features = [];
+
+    _.each(this.model.getFeatures(), function(feature) {
+      _.each(feature.ranges, function(range) {
+        _this.features.push({
+          name: feature.name,
+          id: ++id,
+          _id: feature._id,
+          from: range.from,
+          to: range.to,
+          type: feature._type.toLowerCase()
+        });
+      });
+    });
+
+    this.features = _.sortBy(this.features, function(feature) {
+      return feature.from;
+    });
+  },
+
+  positionFeatures: function() {
+    var maxBase = this.maxBaseForCalc || this.model.getLength(),
+        viewHeight = this.$el.height(),
+        $featureElement, featureWidth,
+        overlapStack = [], overlapIndex;
+
+    _.each(this.features, (feature) => {
+      featureWidth = Math.max(
+        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
+        this.minFeatureWidth
       );
-    },
+      $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
 
-    processFeatures: function() {
-      var id = -1,
-          _this = this;
-
-      this.features = [];
-
-      _.each(this.model.get('features'), function(feature) {
-        _.each(feature.ranges, function(range) {
-          _this.features.push({
-            name: feature.name,
-            id: ++id,
-            from: range.from,
-            to: range.to,
-            type: feature._type.toLowerCase()
-          });
-        });
+      $featureElement.css({
+        width: featureWidth,
+        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset
       });
 
-      this.features = _.sortBy(this.features, function(feature) {
-        return feature.from;
-      });
-    },
+      var sequenceCanvas = this.sequenceCanvas;
 
-    positionFeatures: function() {
-      var maxBase = this.maxBaseForCalc || this.model.length(),
-          viewHeight = this.$el.height(),
-          $featureElement, feature, featureWidth,
-          overlapStack = [], overlapIndex;
+      $featureElement.on('mouseover', _.partial(
+        onFeatureMouseOver, 
+        sequenceCanvas, feature
+      ));
 
-      for(var i = 0; i < this.features.length; i++) {
-        feature = this.features[i];
-        featureWidth = Math.max(
-          Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight), 
-          this.minFeatureWidth
-        );
-        $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
+      $featureElement.on('mouseout', _.partial(
+        onFeatureMouseOut, 
+        sequenceCanvas, feature
+      ));
 
-        $featureElement.css({
-          width: featureWidth,
-          top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset,
-        });
+      $featureElement.on('click', _.partial(
+        onFeatureClick,
+        sequenceCanvas, feature
+      ));
 
-        overlapIndex =  overlapStack.length;
+      overlapIndex =  overlapStack.length;
 
-        for(var j = overlapStack.length - 1; j >= 0; j--) {
-          if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
-            overlapStack[j] = undefined;
-            overlapIndex = j;
-          }
+      for(var j = overlapStack.length - 1; j >= 0; j--) {
+        if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
+          overlapStack[j] = undefined;
+          overlapIndex = j;
         }
-
-        $featureElement.addClass('linear-map-feature-stacked-'+overlapIndex);
-
-        overlapStack[overlapIndex] = [feature.from, feature.to];
-      }
-    },
-
-    goToFeature: function(event) {
-      var featureId = $(event.currentTarget).data('feature_id'),
-          feature = _.findWhere(this.features, {id: featureId});
-
-      this.sequenceCanvas.scrollToBase(feature.from);
-
-      event.preventDefault();
-    },
-
-    serialize: function() {
-      if(this.initialRender) {
-        return {};
-      } else {
-        return {
-          features: this.features,
-          positionMarks: this.positionMarks
-        };
-      }
-    },
-
-    refresh: function(render) {
-      this.processFeatures();
-      this.processPositionMarks();
-      if(render !== false) this.render();
-    },
-
-    processPositionMarks: function(layoutHelpers) {
-      var sequenceCanvas = this.sequenceCanvas,
-          height = this.$el.height(),
-          maxBase = sequenceCanvas.maxVisibleBase(),
-          magnitudeOrder = Math.floor(Math.log10(maxBase)),
-          divider = Math.pow(10, magnitudeOrder - 1),
-          maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
-
-      this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
-      this.maxBaseForCalc = maxBaseForCalc;
-
-      while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
-        this.positionMarksInterval = Math.floor(this.positionMarksInterval * 2);
       }
 
-      this.positionMarks = [];
-      for(var i = 0; i < maxBase; i += this.positionMarksInterval) {
-        this.positionMarks.push({
-          base: i,
-          label: _.formatThousands(i+1),
-          top: Math.floor(i / maxBase * height)
-        });
-      }
+      $featureElement.addClass('linear-map-feature-stacked-'+overlapIndex);
 
+      overlapStack[overlapIndex] = [feature.from, feature.to];
+    });
+  },
 
-    },
+  goToFeature: function(event) {
+    var featureId = $(event.currentTarget).data('feature_id'),
+        feature = _.findWhere(this.features, {id: featureId});
 
-    // positionPositionMarks: function() {
-    //   var _this = this;
-    //   this.$('linar-map-position-mark').each(function(i, element) {
-    //     var $mark = $(element);
-    //     $mark.css({
-    //       top: Math.floor($mark.data('base') / _this.maxBase * canvasHeight)
-    //     });
-    //   });
-    // },
+    this.sequenceCanvas.scrollToBase(feature.from);
 
-    setupScrollHelper: function() {
-      var sequenceCanvas = this.sequenceCanvas,
-          $scrollHelper = this.$('.linear-map-visible-range'),
-          scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
-          scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-          elemHeight = this.$el.height();
+    event.preventDefault();
+  },
 
-      this.$scrollHelper = $scrollHelper;
+  serialize: function() {
+    if(this.initialRender) {
+      return {};
+    } else {
+      return {
+        features: this.features,
+        positionMarks: this.positionMarks,
+        enzymes: this.enzymes
+      };
+    }
+  },
 
-      $scrollHelper.height(Math.floor(
-        scrollingParentHeight / 
-        scrollingChildHeight *
-        elemHeight
-      )).draggable({
-        axis: 'y',
-        containment: 'parent',
-        drag: _.throttle(this.scrollSequenceCanvas, 50)
+  displayEnzymes: function() {
+    return this.model.get('displaySettings.rows.res.display');
+  },
+
+  refresh: function(render) {
+    this.processFeatures();
+    this.processPositionMarks();
+    if(this.displayEnzymes()) {
+      this.processEnzymes();
+    } else {
+      this.enzymes = [];
+    }
+    
+    if(render !== false) this.render();
+  },
+
+  processPositionMarks: function() {
+    var sequenceCanvas = this.sequenceCanvas,
+        height = this.$el.height(),
+        maxBase = sequenceCanvas.maxVisibleBase(),
+        magnitudeOrder = Math.floor(Math.log10(maxBase)),
+        divider = Math.pow(10, magnitudeOrder - 1),
+        maxBaseForCalc = Math.ceil(maxBase / divider) * divider;
+
+    this.positionMarksInterval = Math.floor(maxBaseForCalc / 10);
+    this.maxBaseForCalc = maxBaseForCalc;
+
+    while(this.positionMarksInterval / this.maxBase * height < this.minPositionMarkInterval) {
+      this.positionMarksInterval = Math.floor(this.positionMarksInterval * 2);
+    }
+
+    this.positionMarks = [];
+    for(var i = 0; i < maxBase; i += this.positionMarksInterval) {
+      this.positionMarks.push({
+        base: i,
+        label: _.formatThousands(i+1),
+        top: Math.floor(i / maxBase * height)
+      });
+    }
+  },
+
+  processEnzymes: function() {
+    var model = this.model;
+    var displaySettings = model.get('displaySettings.rows.res') || {};
+    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
+      // length: displaySettings.lengths || [],
+      customList: displaySettings.custom || [],
+      // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
+      hideNonPalindromicStickyEndSites: false
+    });
+
+    this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
+      position = position^0;
+
+      enzymeArray = _.filter(enzymeArray, function(enzyme) {
+        return model.isRangeEditable(position, position + enzyme.seq.length);
       });
 
-      this.updateScrollHelperPosition();
-    },
+      if(enzymeArray.length === 0) return;
+      var label = enzymeArray[0].name;
+      if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
+      return {position, label};
+    }));
+  },
 
-    updateScrollHelperPosition: function() {
-      var sequenceCanvas = this.sequenceCanvas,
-          $scrollHelper = this.$scrollHelper,
-          scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-          elemHeight = this.$el.height();
+  positionEnzymes: function() {
+    var maxBase = this.sequenceCanvas.maxVisibleBase();
 
-      if($scrollHelper) {
-        $scrollHelper.css({
-          top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset / 
-                            scrollingChildHeight * 
-                            elemHeight)
-        });
-      }
-    },
+    _.each(this.$('.linear-map-enzyme'), (element) => {
+      var $element = this.$(element);
+      var relativePosition = $element.data('position')/ maxBase * 100 ;
+      $element.css('top', relativePosition + '%');
+    });
+  },
 
-    scrollSequenceCanvas: function(event, ui) {
-      this.sequenceCanvas.scrollTo(Math.floor(
-        this.$scrollHelper.position().top /
-        this.$el.height() * 
-        this.sequenceCanvas.$scrollingChild.height()
-      ), false);
-    },
+  setupScrollHelper: function() {
+    var sequenceCanvas = this.sequenceCanvas,
+        $scrollHelper = this.$('.linear-map-visible-range'),
+        scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
+        scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
+        elemHeight = this.$el.height();
 
-    afterRender: function() {
-      if(this.initialRender) {
-        var sequenceCanvas = this.parentView().sequenceCanvas;
-        this.initialRender = false;
-        this.sequenceCanvas = sequenceCanvas;
+    this.$scrollHelper = $scrollHelper;
 
-        this.listenTo(
-          sequenceCanvas, 
-          'scroll', 
-          this.updateScrollHelperPosition, 
-          this
-        );
+    $scrollHelper.height(Math.floor(
+      scrollingParentHeight / 
+      scrollingChildHeight *
+      elemHeight
+    )).draggable({
+      axis: 'y',
+      containment: 'parent',
+      drag: _.throttle(this.scrollSequenceCanvas, 50)
+    });
 
-        this.listenTo(
-          sequenceCanvas,
-          'change:layoutHelpers',
-          this.refresh,
-          this
-        );
+    this.updateScrollHelperPosition();
+  },
 
-      } else {
+  updateScrollHelperPosition: function() {
+    var sequenceCanvas = this.sequenceCanvas,
+        $scrollHelper = this.$scrollHelper,
+        scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
+        elemHeight = this.$el.height();
 
-        this.setupScrollHelper();
-        this.positionFeatures();
+    if($scrollHelper) {
+      $scrollHelper.css({
+        top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset / 
+                          scrollingChildHeight * 
+                          elemHeight)
+      });
+    }
+  },
 
-        // When SequenceCanvas' layoutHelpers are calculated, we fetch the
-        // max base number (>= sequence length)
-        // sequenceCanvas.redraw();
-        // sequenceCanvas.afterNextRedraw(function() {
-        //   var layoutHelpers = sequenceCanvas.layoutHelpers;
-        //   _this.maxBase = layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
+  scrollSequenceCanvas: function() {
+    this.sequenceCanvas.scrollTo(Math.floor(
+      this.$scrollHelper.position().top /
+      this.$el.height() * 
+      this.sequenceCanvas.$scrollingChild.height()
+    ), false);
+  },
 
-        //   _this.setupScrollHelper();
+  afterRender: function() {
+    if(this.initialRender) {
+      var sequenceCanvas = this.parentView().sequenceCanvas;
+      this.initialRender = false;
+      this.sequenceCanvas = sequenceCanvas;
 
-        //   _this.positionFeatures();
-        // });
-      }
-    },
+      sequenceCanvas.on(
+        'scroll', 
+        this.updateScrollHelperPosition
+      );
 
-  });
+      sequenceCanvas.on(
+        'change:layoutHelpers',
+        this.refresh
+      );
 
-  return LinearMapView;
+    } else {
+
+      this.setupScrollHelper();
+      this.positionFeatures();
+      if(this.displayEnzymes()) this.positionEnzymes();
+
+      // When SequenceCanvas' layoutHelpers are calculated, we fetch the
+      // max base number (>= sequence length)
+      // sequenceCanvas.redraw();
+      // sequenceCanvas.afterNextRedraw(function() {
+      //   var layoutHelpers = sequenceCanvas.layoutHelpers;
+      //   _this.maxBase = layoutHelpers.rows.total * layoutHelpers.basesPerRow - 1;
+
+      //   _this.setupScrollHelper();
+
+      //   _this.positionFeatures();
+      // });
+    }
+  }
 
 });

@@ -1,5 +1,21 @@
-import SequenceTransforms from '../../../sequence/lib/sequence_transforms';
-import {calculatePcrProductFromPrimers, getSequencesToSearch} from '../lib/pcr_primer_design';
+// runs the calls to registerAssociation
+import plugin from '../plugin';
+
+import SequenceTransforms from 'gentle-sequence-transforms';
+import {getPcrProductAndPrimers, calculatePcrProductFromPrimers} from '../lib/pcr_primer_design';
+import Primer from '../lib/primer';
+import PcrPrimer from '../lib/pcr_primer';
+import PcrProductSequence from '../lib/product';
+import SequenceModel from '../../../sequence/models/sequence';
+import SequenceRange from '../../../library/sequence-model/range';
+
+import idtMeltingTemperatureStub from './idt_stub';
+import {stubCurrentUser} from '../../../common/tests/stubs';
+import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
+
+
+stubCurrentUser();
+stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
 
 
 var startOffsetSequence = 'AGAGCAAGA';
@@ -20,125 +36,279 @@ var sequence = (
   reverseAnnealingRegionSequence +
   remainingSequence
 );
+var sequenceModel;
 
 var frm = 9;
 var to = 149;
 
-var opts;
-var pcrProduct;
-var reverseAnnealingRegionSequenceComplement;
-var forwardPrimer;
-var reversePrimer;
-
-
-describe('calculating PCR product from primers', function() {
-  beforeEach(function() {
-    if(!pcrProduct) {
-      reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
-      var primerResults = {
-        forwardAnnealingRegion: {
-          sequence: forwardAnnealingRegionSequence,
-          from: 0,
-          to: 18,
-          meltingTemperature: 64.1,
-          gcContent: 0.5789473684210527,
-          id: "1426877294103-16080",
-          name: "Sequence 1426877294103-16080",
-          ourMeltingTemperature: 64.77312154400113,
-        },
-        reverseAnnealingRegion: {
-          sequence: reverseAnnealingRegionSequenceComplement,
-          from: 0,
-          to: 16,
-          meltingTemperature: 63.5,
-          gcContent: 0.5882352941176471,
-          id: "1426877290866-1893c",
-          name: "Sequence 1426877290866-1893c",
-        },
-      };
-      opts = {
-        from: frm,
-        to: to,
-        name: "vioA",
-        targetMeltingTemperature: 65,
-        stickyEnds: {
-          name: "X-Z'",
-          startName: "X",
-          endName: "Z'",
-          start: "CCTGCAGTCAGTGGTCTCTAGAG",
-          end: "GAGATGAGACCGTCAGTCACGAG",
-          startOffset: 19,
-          endOffset: -19
-        },
-        minPrimerLength: 10,
-        maxPrimerLength: 40,
-        meltingTemperatureTolerance: 1.5,
-        targetGcContent: 0.5,
-        useIDT: true,
-      };
-
-      pcrProduct = calculatePcrProductFromPrimers(sequence, opts, _.deepClone(primerResults)).attributes;
-      forwardPrimer = pcrProduct.forwardPrimer;
-      reversePrimer = pcrProduct.reversePrimer;
+var opts = {
+  from: frm,
+  to: to,
+  name: "vioA",
+  stickyEnds: {
+    start: {
+      sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
+      reverse: false,
+      offset: 19,
+      size: 4,
+      name: "X",
+    },
+    end: {
+      sequence: 'GAGATGAGACCGTCAGTCACGAG',
+      reverse: true,
+      offset: 19,
+      size: 4,
+      name: "Z'",
     }
-  });
+  },
+  targetMeltingTemperature: 65,
+  minPrimerLength: 10,
+  maxPrimerLength: 40,
+  meltingTemperatureTolerance: 1.5,
+  targetGcContent: 0.5,
+  useIDT: true,
+};
 
-  it('correct other attributes', function() {
-    expect(pcrProduct.to).toEqual(to);
-    expect(pcrProduct.from).toEqual(frm);
-    expect(pcrProduct.name).toEqual('vioA');
-    expect(pcrProduct.sequence).toEqual(
-      forwardPrimer.sequence +
-      interveningSequence +
-      SequenceTransforms.toReverseComplements(reversePrimer.sequence)
-    );
-    expect(pcrProduct.meltingTemperature).toBeGreaterThan(91.0);
-    expect(pcrProduct.meltingTemperature).toBeLessThan(91.1);
-  });
 
-  it('correct forward Annealing Region', function() {
-    var forwardAnnealingRegion = pcrProduct.forwardAnnealingRegion;
-    expect(forwardAnnealingRegion.sequence).toEqual(forwardAnnealingRegionSequence);
-    expect(forwardAnnealingRegion.from).toEqual(23);
-    expect(forwardAnnealingRegion.to).toEqual(41);
-  });
+let forward = opts.stickyEnds.start.sequence + forwardAnnealingRegionSequence;
+let reverse = reverseAnnealingRegionSequence + opts.stickyEnds.end.sequence;
 
-  it('correct reverse Annealing Region', function() {
-    var reverseAnnealingRegion = pcrProduct.reverseAnnealingRegion;
-    expect(reverseAnnealingRegion.sequence).toEqual(reverseAnnealingRegionSequenceComplement);
-    expect(reverseAnnealingRegion.from).toEqual((
-      opts.stickyEnds.start.length +
-      forwardAnnealingRegionSequence.length +
-      interveningSequence.length +
-      reverseAnnealingRegionSequence.length - 1)
-    );
-    expect(reverseAnnealingRegion.to).toEqual((
-      reverseAnnealingRegion.from -
-      reverseAnnealingRegionSequence.length)
-    );
-  });
+var expectedPcrProductSequence = forward + interveningSequence + reverse;
 
-  it('correct forward Primer', function() {
-    expect(forwardPrimer.sequence).toEqual(opts.stickyEnds.start + forwardAnnealingRegionSequence);
-    expect(forwardPrimer.from).toEqual(0);
-    expect(forwardPrimer.to).toEqual(41);
-  });
+let reverseComplement = SequenceTransforms.toReverseComplements(reverse);
+var reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
 
-  it('correct reverse Primer', function() {
-    expect(reversePrimer.sequence).toEqual(SequenceTransforms.toReverseComplements(opts.stickyEnds.end) + reverseAnnealingRegionSequenceComplement);
-    expect(reversePrimer.from).toEqual(pcrProduct.sequence.length - 1);
-    expect(reversePrimer.to).toEqual(reversePrimer.from - reversePrimer.sequence.length);
-  });
+
+
+beforeEach(function() {
+  sequenceModel = new SequenceModel({sequence});
 });
 
 
-describe('getSequencesToSearch', function() {
-  it('correct sequences', function() {
-    var {
-      forwardSequenceToSearch: forwardSequenceToSearch,
-      reverseSequenceToSearch: reverseSequenceToSearch
-    } = getSequencesToSearch(sequence, opts);
-    expect(forwardSequenceToSearch.indexOf(forwardAnnealingRegionSequence)).toEqual(0);
-    expect(reverseSequenceToSearch.indexOf(reverseAnnealingRegionSequenceComplement)).toEqual(0);
+describe('calculating PCR primers', function() {
+  it('errors on from being < to', function(done) {
+    let options = {
+      from: 10,
+      to: 9,
+    };
+    getPcrProductAndPrimers(sequenceModel, options)
+    .then(function() {
+      // We should not get here.
+      expect(true).toEqual(undefined);
+      done();
+    })
+    .catch(function(e) {
+      expect(e.toString()).toEqual('`from` must be <= `to`');
+      done();
+    })
+    .done();
+  });
+
+  it('errors on `to - from` being too small', function(done) {
+    let options = {
+      from: 10,
+      to: 18, // remember to is inclusive
+    };
+    getPcrProductAndPrimers(sequenceModel, options)
+    .then(function() {
+      // We should not get here.
+      expect(true).toEqual(undefined);
+      done();
+    })
+    .catch(function(e) {
+      expect(e.toString()).toEqual('`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer');
+      done();
+    })
+    .done();
+  });
+
+  it('succeeds', function(done) {
+    getPcrProductAndPrimers(sequenceModel, opts)
+    .then(function(pcrProduct) {
+      // models and child models/associations
+      expect(pcrProduct instanceof PcrProductSequence).toEqual(true);
+      let forwardPrimer = pcrProduct.get('forwardPrimer');
+      let reversePrimer = pcrProduct.get('reversePrimer');
+      expect(forwardPrimer instanceof PcrPrimer).toEqual(true);
+      expect(reversePrimer instanceof PcrPrimer).toEqual(true);
+      expect(forwardPrimer.range instanceof SequenceRange).toEqual(true);
+      expect(reversePrimer.range instanceof SequenceRange).toEqual(true);
+      let forwardAnnealingRegion = forwardPrimer.annealingRegion;
+      let reverseAnnealingRegion = reversePrimer.annealingRegion;
+      expect(forwardAnnealingRegion instanceof Primer).toEqual(true);
+      expect(reverseAnnealingRegion instanceof Primer).toEqual(true);
+      expect(forwardAnnealingRegion.range instanceof SequenceRange).toEqual(true);
+      expect(reverseAnnealingRegion.range instanceof SequenceRange).toEqual(true);
+
+      // Sequences
+      expect(forwardAnnealingRegion.getSequence()).toEqual(forwardAnnealingRegionSequence);
+      expect(reverseAnnealingRegion.getSequence()).toEqual(reverseAnnealingRegionSequenceComplement);
+      expect(forwardPrimer.getSequence()).toEqual(forward);
+      expect(reversePrimer.getSequence()).toEqual(reverseComplement);
+      expect(pcrProduct.getSequence(pcrProduct.STICKY_END_FULL)).toEqual(expectedPcrProductSequence);
+
+      // Range (new SequenceRange class instances) & size
+      expect(forwardAnnealingRegion.range.from).toEqual(23);
+      expect(forwardPrimer.range.from).toEqual(0);
+      expect(forwardAnnealingRegion.range.to).toEqual(23+19);  // exclusive
+      expect(forwardPrimer.range.to).toEqual(23+19);  // exclusive
+      expect(reverseAnnealingRegion.range.from).toEqual(23+19+105);
+      expect(reversePrimer.range.from).toEqual(23+19+105);
+      expect(reverseAnnealingRegion.range.to).toEqual(23+19+105+17);  // exclusive
+      expect(reversePrimer.range.to).toEqual(23+19+105+17+23);  // exclusive
+      expect(pcrProduct.getLength(pcrProduct.STICKY_END_FULL)).toEqual(expectedPcrProductSequence.length);
+      let mid = forwardAnnealingRegionSequence + interveningSequence + reverseAnnealingRegionSequence;
+      expect(pcrProduct.getLength(pcrProduct.STICKY_END_NONE)).toEqual(mid.length);
+
+      // Test Features
+      // TODO, use new SequenceRange class:  range objects are old objects where
+      // from can be > to and to
+      // is inclusive, except when it's not (i.e. `to < from` which means the
+      // range is a reverse strand range))
+      let features = pcrProduct.getFeatures(pcrProduct.STICKY_END_FULL);
+      expect(features.length).toEqual(3);
+      // Start stickyEnd
+      expect(features[0].name).toEqual("X end");
+      expect(features[0]._type).toEqual("sticky_end");
+      expect(features[0].ranges[0].from).toEqual(0);
+      expect(features[0].ranges[0].to).toEqual(23 - 1);  // inclusive
+      // End stickyEnd
+      expect(features[1].name).toEqual("Z' end");
+      expect(features[1]._type).toEqual("sticky_end");
+      expect(features[1].ranges[0].from).toEqual(23+19+105+17+23 - 1);
+      expect(features[1].ranges[0].to).toEqual(23+19+105+17 - 2);  // exclusive as in reverse
+      // // Forward Annealing region
+      // expect(features[2].name).toEqual("Annealing region");
+      // expect(features[2]._type).toEqual("annealing_region");
+      // expect(features[2].ranges[0].from).toEqual(23);
+      // expect(features[2].ranges[0].to).toEqual(23+19 - 1);  // inclusive
+      // // Reverse Annealing region
+      // expect(features[3].name).toEqual("Annealing region");
+      // expect(features[3]._type).toEqual("annealing_region");
+      // expect(features[3].ranges[0].from).toEqual(23+19+105+17 - 1);
+      // expect(features[3].ranges[0].to).toEqual(23+19+105 - 2);  // exclusive as in reverse
+      // // Forward Primer
+      // expect(features[4].name).toEqual("Forward primer");
+      // expect(features[4]._type).toEqual("primer");
+      // expect(features[4].ranges[0].from).toEqual(0);
+      // expect(features[4].ranges[0].to).toEqual(23+19 - 1);  // inclusive
+      // // Reverse Primer
+      // expect(features[5].name).toEqual("Reverse primer");
+      // expect(features[5]._type).toEqual("primer");
+      // expect(features[5].ranges[0].from).toEqual(23+19+105+17+23 - 1);
+      // expect(features[5].ranges[0].to).toEqual(23+19+105 - 2);  // exclusive as in reverse
+
+      // features = pcrProduct.getFeatures(pcrProduct.STICKY_END_NONE);
+      // expect(features.length).toEqual(4);
+      // // Forward Annealing region
+      // expect(features[0].name).toEqual("Annealing region");
+      // expect(features[0]._type).toEqual("annealing_region");
+      // expect(features[0].ranges[0].from).toEqual(0);
+      // expect(features[0].ranges[0].to).toEqual(19 - 1);  // inclusive
+      // // Reverse Annealing region
+      // expect(features[1].name).toEqual("Annealing region");
+      // expect(features[1]._type).toEqual("annealing_region");
+      // expect(features[1].ranges[0].from).toEqual(19+105+17 - 1);
+      // expect(features[1].ranges[0].to).toEqual(19+105 - 2);  // exclusive as in reverse
+      // // Forward Primer
+      // expect(features[2].name).toEqual("Forward primer");
+      // expect(features[2]._type).toEqual("primer");
+      // expect(features[2].ranges[0].from).toEqual(0);
+      // expect(features[2].ranges[0].to).toEqual(19 - 1);  // inclusive
+      // // Reverse Primer
+      // expect(features[3].name).toEqual("Reverse primer");
+      // expect(features[3]._type).toEqual("primer");
+      // expect(features[3].ranges[0].from).toEqual(19+105+17 - 1);
+      // expect(features[3].ranges[0].to).toEqual(19+105 - 2);  // exclusive as in reverse
+
+
+      done();
+    })
+    .catch(function(e) {
+      // We should not get here.
+      expect(e).toEqual(undefined);
+      done();
+    })
+    .done();
+    
+  });
+  
+  it('tearsdown', function() {
+    restoreIDTMeltingTemperature();
+  }); 
+});
+
+
+describe('calculating PCR product from primers', function() {
+  var pcrProduct;
+  var forwardPrimer;
+  var reversePrimer;
+  beforeEach(function() {
+    if(!pcrProduct) {
+      let forwardAnnealingRegion = new Primer({
+        parentSequence: sequenceModel,
+        range: {
+          from: 9,
+          size: 19,
+        },
+        meltingTemperature: 64.1,
+        gcContent: 0.5789473684210527,
+      });
+
+      let reverseAnnealingRegion = new Primer({
+        parentSequence: sequenceModel,
+        range: {
+          from: 133,
+          size: 17,
+          reverse: true,
+        },
+        meltingTemperature: 63.5,
+        gcContent: 0.5882352941176471,
+      });
+
+      pcrProduct = calculatePcrProductFromPrimers(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion);
+      forwardPrimer = pcrProduct.get('forwardPrimer');
+      reversePrimer = pcrProduct.get('reversePrimer');
+    }
+  });
+
+  it('correct attributes', function() {
+    expect(pcrProduct.get('meta.pcr.options.to')).toEqual(to);
+    expect(pcrProduct.get('meta.pcr.options.from')).toEqual(frm);
+    expect(pcrProduct.get('name')).toEqual('vioA');
+    expect(pcrProduct.getSequence(pcrProduct.STICKY_END_FULL)).toEqual(expectedPcrProductSequence);
+  });
+
+  it('correct forward Primer', function() {
+    expect(forwardPrimer.getSequence()).toEqual(opts.stickyEnds.start.sequence + forwardAnnealingRegionSequence);
+    expect(forwardPrimer.range.from).toEqual(0);
+    expect(forwardPrimer.range.to).toEqual(42);
+  });
+
+  it('correct reverse Primer', function() {
+    expect(reversePrimer.getSequence()).toEqual(SequenceTransforms.toReverseComplements(opts.stickyEnds.end.sequence) + reverseAnnealingRegionSequenceComplement);
+    expect(reversePrimer.range.from).toEqual(expectedPcrProductSequence.length - opts.stickyEnds.end.sequence.length - reverseAnnealingRegionSequence.length);
+    expect(reversePrimer.range.to).toEqual(expectedPcrProductSequence.length);
+  });
+
+  it('correct forward Annealing Region', function() {
+    var forwardAnnealingRegion = forwardPrimer.annealingRegion;
+    expect(forwardAnnealingRegion.getSequence()).toEqual(forwardAnnealingRegionSequence);
+    expect(forwardAnnealingRegion.range.from).toEqual(23);
+    expect(forwardAnnealingRegion.range.to).toEqual(42);
+  });
+
+  it('correct reverse Annealing Region', function() {
+    var reverseAnnealingRegion = reversePrimer.annealingRegion;
+    expect(reverseAnnealingRegion.getSequence()).toEqual(reverseAnnealingRegionSequenceComplement);
+    expect(reverseAnnealingRegion.range.from).toEqual((
+      expectedPcrProductSequence.length -
+      opts.stickyEnds.end.sequence.length -
+      reverseAnnealingRegionSequence.length)
+    );
+    expect(reverseAnnealingRegion.range.to).toEqual((
+      expectedPcrProductSequence.length -
+      opts.stickyEnds.end.sequence.length)
+    );
   });
 });

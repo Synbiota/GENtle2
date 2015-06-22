@@ -3,12 +3,13 @@
 @submodule Views
 @class HomeView
 **/
-define(function(require) {
+// define(function(require) {
   var template        = require('../templates/home_view.hbs'),
       Backbone        = require('backbone'),
       Gentle          = require('gentle'),
       NewSequenceView = require('./new_sequence_view'),
       OpenFileView    = require('./open_file_view'),
+      _               = require('underscore'),
       HomeView;
 
   HomeView = Backbone.View.extend({
@@ -22,7 +23,7 @@ define(function(require) {
 
       defaultTabs = [{
         name: 'new-sequence',
-        title: 'New',
+        title: 'New sequence',
         view: NewSequenceView,
         active: true
       }, {
@@ -52,13 +53,13 @@ define(function(require) {
 
     serialize: function() {
       return {
-        tabs: _.filter(this.tabs, function(tab) {
+        tabs: _.sortBy(_.filter(this.tabs, function(tab) {
           return tab.visible === undefined || tab.visible();
-        })
+        }), (tab) => tab.order || 0)
       };
     }
 
   });
-
-  return HomeView;
-});
+export default HomeView;
+  // return HomeView;
+// });

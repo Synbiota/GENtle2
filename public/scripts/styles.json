@@ -12,8 +12,8 @@
           "font": "15px Monospace",
           "color": {
             "_default": "#79B6F9",
-            "STP": "red",
-            "S  ": "red"
+            " X ": "red",
+            "STP": "red"
           }
         }
       },
@@ -37,8 +37,8 @@
         "font": "11px Monospace",
         "color": {
           "_default": {
-            "fill": "#a12e29",
-            "color": "white"
+            "fill": "#99CCFF",
+            "color": "#333333"
           },
           "type-CDS": {
             "fill": "#3c4589",
@@ -53,23 +53,23 @@
             "color": "#3e0208"
           },
           "type-promoter": { 
-            "fill": "#a12e29",
-            "color": "white"
+            "fill": "#99CCFF",
+            "color": "#333333"
           },
           "type-rbs": {
-            "fill": "#a12e29",
-            "color": "white"
+            "fill": "#99CCFF",
+            "color": "#333333"
           },
           "type-protein_bind": {
-            "fill": "#a12e29",
-            "color": "white"
+            "fill": "#99CCFF",
+            "color": "#333333"
           },
           "type-note": {
             "fill": "#3c6e39",
             "color": "white"
           },
           "type-primer": {
-            "fill": "blue",
+            "fill": "#6491C8",
             "color": "white"
           },
           "type-sticky_end": {

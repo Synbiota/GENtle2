@@ -1,11 +1,25 @@
-<h3>Create new PCR product</h3>
+<h3>Create RDP part</h3>
 <br>
-<form class="form-horizontal new-pcr-product-form">
+<form class="form-horizontal new-pcr-product-form" style="line-height: 9px;">
 
   <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_name"><small>PCR product name</small></label>
+    <label class="col-sm-6 control-label" for="newProduct_name"><small>RDP Part name</small></label>
     <div class="col-sm-6 {{#if state.invalid.name}}has-error{{/if}}">
-      <input type="text" class="form-control input-sm form-control" id="newProduct_name" maxlength="255" required="required">
+      <input type="text" class="form-control input-sm form-control" id="newProduct_name" maxlength="255" required="required" value="{{state.name}}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-sm-6 control-label" for="newProduct_shortName"><small>RDP Part short name</small></label>
+    <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
+      <input type="text" class="form-control input-sm form-control" id="newProduct_shortName" maxlength="255" required="required" value="{{state.shortName}}">
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-sm-6 control-label"><small>Source sequence</small></label>
+    <div class="col-sm-6">
+      <p class="form-control-static"><small>{{state.sourceSequenceName}}</small></p>
     </div>
   </div>
 
@@ -24,41 +38,57 @@
   </div>
 
   <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>Sticky ends</small></label>
+    <label class="col-sm-6 control-label" for="newProduct_partType"><small>RDP Part type</small></label>
+    <div class="col-sm-6">
+      {{{select availablePartTypes id="newProduct_partType" class="col-sm-6 form-control input-sm"}}}
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>RDP orientation</small></label>
     <div class="col-sm-6">
       {{{select availableStickyEnds id="newProduct_stickyEnds" class="col-sm-6 form-control input-sm"}}}
     </div>
   </div>
 
-  <div class="form-group">
+  {{!-- <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_targetMeltingTemperature"><small>Target melting temperature (&deg;C)</small></label>
     <div class="col-sm-6 {{#if state.invalid.targetMeltingTemperature}}has-error{{/if}}">
       <input type="number" class="form-control input-sm form-control" id="newProduct_targetMeltingTemperature" placeholder="{{state.targetMeltingTemperature}}" value="{{state.targetMeltingTemperature}}" required="required">
     </div>
-  </div>
+  </div> --}}
+  {{#unless state.calculating}}
+    <br>
+    <strong>Optimized RDP PCR primer parameters</strong>
+    <div class="separator"></div>
+    <div class="form-group" style="line-height: 10px;">
+      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Melting temperature</small></label>
+      <div class="col-sm-6">
+        <p class="form-control-static"><small>68.5&deg;C</small></p>
+      </div>
+      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Oligo concentration</small></label>
+      <div class="col-sm-6">
+        <p class="form-control-static"><small>0.25&mu;m</small></p>
+      </div>
+      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Na<sup>+</sup> concentration</small></label>
+      <div class="col-sm-6">
+        <p class="form-control-static"><small>50mM</small></p>
+      </div>
+      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Mg<sup>++</sup> concentration</small></label>
+      <div class="col-sm-6">
+        <p class="form-control-static"><small>2mM</small></p>
+      </div>
+      <label class="col-sm-5 col-sm-offset-1 control-label"><small>dNTPs concentration</small></label>
+      <div class="col-sm-6">
+        <p class="form-control-static"><small>0.2mM</small></p>
+      </div>
+    </div>
 
-  <div class="form-group">
-    <label class="col-sm-6 control-label"><small>Oligo concentration</small></label>
-    <div class="col-sm-6">
-      <p class="form-control-static"><small>0.25&mu;m</small></p>
-    </div>
-    <label class="col-sm-6 control-label"><small>Na<sup>+</sup> concentration</small></label>
-    <div class="col-sm-6">
-      <p class="form-control-static"><small>50mM</small></p>
-    </div>
-    <label class="col-sm-6 control-label"><small>Mg<sup>++</sup> concentration</small></label>
-    <div class="col-sm-6">
-      <p class="form-control-static"><small>2mM</small></p>
-    </div>
-    <label class="col-sm-6 control-label"><small>dNTPs concentration</small></label>
-    <div class="col-sm-6">
-      <p class="form-control-static"><small>0.2mM</small></p>
-    </div>
-  </div>
+    <br>
 
-  <br>
-
-  <button class="btn btn-primary">Create new PCR product</button>
-  <button class="cancel-new-pcr-product-form btn btn-default">Cancel</button>
+    <button class="btn btn-primary">Create new RDP part</button>
+    <button class="cancel-new-pcr-product-form btn btn-default">Cancel</button>
+    <br><br>
+  {{/unless}}
 
 </form>

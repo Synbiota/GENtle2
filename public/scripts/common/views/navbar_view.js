@@ -3,7 +3,7 @@
 @submodule Views
 @class NavbarView
 **/
-define(function(require) {
+// define(function(require) {
   var template    = require('../templates/navbar_view.hbs'),
       Gentle      = require('gentle'),
       Backbone    = require('backbone'),
@@ -26,8 +26,8 @@ define(function(require) {
     initialize: function() {
       _.bindAll(this, 'render');
       this.debouncedRender = _.debounce(this.render, 200);
-      Gentle.sequences.on('add reset sort', this.render, this);
-      Gentle.sequences.on('change', this.debouncedRender, this);
+      Gentle.sequences.on('add remove reset sort', this.render, this);
+      // Gentle.sequences.on('change', this.debouncedRender, this);
       $(window).on('resize', this.debouncedRender);
     },
 
@@ -153,6 +153,6 @@ define(function(require) {
 
     }
   });
-
-  return NavbarView;
-});
+export default NavbarView;
+  // return NavbarView;
+// });

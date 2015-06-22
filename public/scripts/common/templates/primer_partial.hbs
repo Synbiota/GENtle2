@@ -1,0 +1,30 @@
+<div class="panel panel-default sequencing-primers-product primer" data-product_id="{{id}}">
+  <table class="table table-condensed table-no-border">
+    <thead>
+      <th>{{name}}</th>
+      <th><small>Size</small></th>
+      <th><small>GC</small></th>
+      <th>{{#if meltingTemperature}}<small>Tm</small>{{/if}}</th>
+      <th class="text-right"><small><spann class="show-primer">
+        Show
+        <i class="glyphicon glyphicon-arrow-right"></i>
+      </span></small></th>
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td><small>{{formatThousands range.size}}bp</small></td>
+        <td><small>{{round gcContent 1 true}}%</small></td>
+        <td>{{#if meltingTemperature}}<small>{{round meltingTemperature 1}}&deg;C</small>{{/if}}</td>
+        <td></td>
+      </tr>
+      <tr>  
+        <td colspan="5" class="sequence">
+          <div class="separator"></div>
+          {{{displaySelectableSequence sequence}}}
+        </td>
+      <tr>
+      
+    </tbody>
+  </table>
+</div>

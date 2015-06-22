@@ -1,4 +1,5 @@
 import Backbone from 'backbone';
+import _ from 'underscore';
 
 export default Backbone.DeepModel.extend({
   defaults: {
@@ -7,9 +8,9 @@ export default Backbone.DeepModel.extend({
       rows: {
         res: {
           display: true,
-          lengths: ['4','5','6'],
-          hideNonPalindromicStickyEndSites: true,
-          manual: ['HindIII', 'KpnI', 'PvuII', 'XhoI', 'BsaI']
+          // lengths: ['4','5','6', '7'],
+          // hideNonPalindromicStickyEndSites: false,
+          custom: ['BsaI', 'NotI']
         }
       }
     }

@@ -1,12 +1,7 @@
 .sequencing-primers, 
 .sequencing-primers-products-outer-container, 
 .sequencing-primers-canvas-container {
-  bottom: 0;
-  left: 0;
-  overflow: scroll;
-  position: absolute;
-  right: 0;
-  top: 0;
+  @extend %primary-view-panel;
 }
 
 .sequencing-primers-products-outer-container {
@@ -16,6 +11,41 @@
 
 .sequencing-primers-canvas-container {
   left: 50%;
+}
+
+.sequencing-primers-product {
+  cursor: pointer;
+
+  &:hover {
+    background-color: #F5F5F5;
+  }
+
+  .show-primer {
+    color: #A4A5A8;
+    font-weight: normal;
+    display: inline-block;
+    height: 13px;
+    width: 55px;
+  }
+
+  &.active {
+    background-color: #D8ECF5;
+
+    .show-primer {
+      font-weight: bold;  
+      color: $gray-dark;
+    }
+  }
+}
+
+.sequencing-primers-product-missing {
+  background-color: $state-danger-bg;
+}
+
+.sequencing-primers-product, .sequencing-primers-product-missing {
+  table tr td {
+    line-height: 0;
+  }
 }
 
 

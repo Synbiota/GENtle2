@@ -6,12 +6,15 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 // Shared styles
 @import '../scripts/styles.scss';
 
+//Utils
+@import "utils/*";
+
 // // Views
 @import "views/*";
 @import "views/shared/*";
 
 // // Components
-@import "components/*";
+@import "components/**/*";
 
 // // Animations
 @import "animations/*";
@@ -19,6 +22,7 @@ $icon-font-path: '../vendor/bootstrap/fonts/';
 
 body {
   margin: 0;
+  overflow: hidden;
 }
 
 #content {
@@ -44,12 +48,25 @@ body {
   margin: 0 !important;
 }
 
+table.table-no-border {
+  tr {
+    th, td {
+      border: none;
+    }
+  }
+}
+
 .navbar[unselectable] {
   @include user-select(none);
 }
 
-.separator {
-  display: block;
-  margin-bottom: .6em;
+@for $i from 1 to 6 {
+  .separator-#{$i} {
+    display: block;
+    margin-bottom: $i * .6em;
+  }  
 }
+
+.separator { @extend .separator-1 }
+
 

@@ -1,5 +1,5 @@
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import stickyEnds from '../../../common/lib/sticky_ends';
+import _ from 'underscore';
 
 
 var transformStickyEndData = function(stickyEndAttributes) {
@@ -28,33 +28,20 @@ var transformStickyEndData = function(stickyEndAttributes) {
 
 
 var getPcrProductsFromSequence = function(sequenceModel) {
-  var attributesOfPcrProducts = sequenceModel.get('meta.pcr.products') || [];
-
-  attributesOfPcrProducts = _.each(attributesOfPcrProducts, (productAttributes) => {
-    //Backwards compatibility.  Some of the pcr products were stored without the sequence attribute calculated.
-    if(!productAttributes.sequence) {
-      var sequenceNts = sequenceModel.get('sequence');
-      var opts = _.pick(productAttributes, ['from', 'to', 'stickyEnds']);
-      var {productSequence: productSequenceNts} = TemporarySequence.calculateProduct(sequenceNts, opts);
-      productAttributes.sequence = productSequenceNts;
-    }
-
-    //Backwards compatibility.  Some of the pcr products were stored with incomplete stickyEnd data.
-    productAttributes.stickyEnds = transformStickyEndData(productAttributes.stickyEnds);
-  });
-
-  var products = _.map(attributesOfPcrProducts, (productAttributes) => new TemporarySequence(productAttributes));
-  return products;
+  return sequenceModel.get('pcrProducts') || [];
 };
 
 
-var savePcrProductsToSequence = function(sequenceModel, products) {
-  // Originally the model attributes were just stored and handled as a hash,
-  // we now want to use a model to handle them.
-  // We use Backbone's toJSON to convert both the vanilla hashes and
-  // backbone models into vanilla hashes.
-  var attributesOfPcrProducts = (products.toJSON && products.toJSON()) || products;
-  return sequenceModel.set('meta.pcr.products', attributesOfPcrProducts).throttledSave();
+var savePcrProductsToSequence = function(sequenceModel, products = []) {
+  if(!_.isArray(products)) throw `Expected an array: ${JSON.stringify(products)}`;
+
+  var attributesOfPcrProducts = _.map(products, function(product) {
+    // Originally the model attributes were just stored and handled as an object,
+    // we now want to use a model to handle them.
+    // We use Backbone's toJSON to convert backbone models into vanilla objects.
+    return (product.toJSON && product.toJSON()) || product;
+  });
+  return sequenceModel.set('pcrProducts', attributesOfPcrProducts).throttledSave();
 };
 
 

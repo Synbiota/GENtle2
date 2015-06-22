@@ -3,7 +3,14 @@
   <i class="glyphicon glyphicon-warning-sign lacks-sticky-end-sequences" title="One or both ends lack sticky ends."></i>
   {{sequence.name}}
   <br>
-  <small>{{descriptiveAnnotationContent}}&nbsp;</small>
+  <small>
+    {{#if isPcrProduct}}
+      <strong>RDP Part</strong>
+    {{else}}
+      {{descriptiveAnnotationContent}}
+    {{/if}}
+    &nbsp;
+  </small>
 </h5>
 
 {{#unless sequence.hidden}}
@@ -11,6 +18,8 @@
     Entire Sequence ({{formatThousands sequence.length}}bp) {{#unless sequence.usable}}&#x20E0;{{/unless}}
   </div>
 {{/unless}}
+
+{{_type}}
 
 {{#if showAnnotations}}
 {{#if features}}

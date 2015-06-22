@@ -1,6 +1,7 @@
-import Gentle from 'gentle';
 import SequenceModel from '../../../sequence/models/sequence';
+import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {getPcrProductsFromSequence} from '../../pcr/lib/utils';
+import _ from 'underscore';
 
 
 class AssembleSequenceModel {
@@ -23,13 +24,16 @@ class AssembleSequenceModel {
   }
 
   _parseAssembleSequences () {
-    var assembleSequencesJSON = this.get('meta.assembleSequences') || '[]';
+    var assembleSequencesJSON = this.get('meta.designer.assembleSequences') || '[]';
     var attributesOfSequences = JSON.parse(assembleSequencesJSON);
     return _.map(attributesOfSequences, (sequenceAttributes) => new SequenceModel(sequenceAttributes));
   }
 
   updateInsertabilityState () {
-    this.allSequences = Gentle.sequences.without(this.model);
+    // 
+    // this.allSequences = Gentle.sequences.without(this.model);
+    this.allSequences = _.map(this.model.get('meta.designer.sequences'), (sequence) => new TemporarySequence(sequence));
+    
     // Add any PCR product sequences within the model
     this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {
       var pcrProducts = getPcrProductsFromSequence(sequence);
@@ -59,7 +63,8 @@ class AssembleSequenceModel {
   }
 
   throttledSave () {
-    this.model.set('meta.assembleSequences', JSON.stringify(this.sequences));
+    if(!this.get('sequence'))
+      this.model.set('meta.designer.assembleSequences', JSON.stringify(this.sequences));
     return this.model.throttledSave();
   }
   
@@ -119,22 +124,25 @@ class AssembleSequenceModel {
 
   assembleSequences () {
     var finalSequence = SequenceModel.concatenateSequences(this.sequences, this.model.get('isCircular'));
+
     this.set({
-      sequence: finalSequence.get('sequence'),
-      features: finalSequence.get('features'),
-      stickyEnds: finalSequence.get('stickyEnds'),
+      sequence: finalSequence.getSequence(),
+      features: finalSequence.getFeatures(),
+      stickyEnds: finalSequence.getStickyEnds(),
+      meta: undefined
     });
+
     return this;
   }
 
   processSequences () {
     return _.map(this.sequences, function(sequence, i) {
-      var features = sequence.get('features');
+      var features = sequence.getFeatures();
       var name = sequence.get('name');
       var type;
 
       if(features.length == 1) {
-        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.length() -1) {
+        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
           name = features[0].name;
           type = features[0].type;
         }

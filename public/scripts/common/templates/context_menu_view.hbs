@@ -1,6 +1,6 @@
 {{#if display}}
-  <div class="btn-group context-menu {{#unless dropup}}no-{{/unless}}dropup" style="position: absolute; top: {{posY}}px; left: {{posX}}px; z-index: 1000;" tabindex="-1">
-    {{!-- <div class="btn-group"> --}}
+  <div class="btn-group context-menu {{#unless dropup}}no-{{/unless}}dropup {{#if stickToRight}}stick-to-right{{/if}}" style="position: absolute; top: {{posY}}px; left: {{posX}}px; z-index: 1000;" tabindex="-1">
+    <div class="btn-group">
     {{#each menuIcons}}
       <a href="#" class="btn btn-default btn-sm menu-item" data-id="{{id}}">
         <i class="glyphicon glyphicon-{{icon}}"></i>
@@ -11,16 +11,17 @@
       <a href="#" data-toggle="dropdown" class="btn btn-default btn-sm dropdown-toggle {{context}}-dropdown">
         <i class="glyphicon glyphicon-chevron-down"></i>
       </a>
-      {{!-- </div> --}}
       <ul class="dropdown-menu {{#unless pullRight}}no-{{/unless}}pull-right" role="menu">
         {{#each menuItems}}
           <li>
             <a href="#" class="menu-item" data-id="{{id}}">
-              {{label}}
+              {{{label}}}
             </a>
           </li>
         {{/each}}
       </ul>
     {{/if}}
+    </div>
+
   </div>
 {{/if}}

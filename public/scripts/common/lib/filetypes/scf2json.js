@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // SCF2JSON
 
@@ -47,6 +47,6 @@ define(function(require) {
     return false ;
   }
 
-  return FT_scf2json
-
-});
+  // return FT_scf2json
+export default FT_scf2json;
+// });

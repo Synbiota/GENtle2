@@ -1,4 +1,4 @@
-define(function(require) {
+// define(function(require) {
   //________________________________________________________________________________________
   // GeneBank
 
@@ -146,6 +146,6 @@ define(function(require) {
     
     return [seq];
   }
-
-  return FT_genebank;
-});
+export default FT_genebank;
+  // return FT_genebank;
+// });

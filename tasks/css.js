@@ -1,3 +1,4 @@
+Object.assign = require('object-assign');
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var rename = require('gulp-rename');
@@ -47,6 +48,14 @@ var autoprefixerOptions = {
   cascade: false
 };
 
+
+var autoprefixerOptionsDev = {
+  browsers: [
+    'last 1 version', 
+  ],
+  cascade: false
+};
+
 var run = function(watch) {
   var target = filepath;
 
@@ -59,13 +68,14 @@ var run = function(watch) {
 
   var bundle = gulp.src(filepath, {base: './public'})
     .pipe(plumber({errorHandler: bundleLogger.error}))
-    .pipe(cached('stylesheets'))
+    // .pipe(cached('stylesheets'))
     .pipe(cssGlobbing(cssGlobbingOptions));
 
   if(isDev) {
     bundle = bundle
       .pipe(sourcemaps.init())
       .pipe(sass(sassOptions))
+      .pipe(autoprefixer(autoprefixerOptionsDev))
       .pipe(sourcemaps.write());
   } else {
     bundle = bundle
@@ -77,7 +87,7 @@ var run = function(watch) {
   bundle = bundle
     .on('end', function() { bundleLogger.end(target.replace('.scss', '.css')); })
     .on('error', bundleLogger.error)
-    .pipe(remember('stylesheets')) 
+    // .pipe(remember('stylesheets')) 
     .pipe(rename({ extname: '.css' }))
     .pipe(gulp.dest(destPath));
 
@@ -96,8 +106,6 @@ var run = function(watch) {
   return bundle;
 };
 
-var runAndWatch = _.partial(run, true);
-
 var buildTheme = function(cb) {
   bundleLogger.start(themeJsonPath);
   fs.createReadStream(themeJsonPath)
@@ -112,7 +120,9 @@ var buildTheme = function(cb) {
       cb();
     })
     .pipe(gulp.dest(themeScssDest));
-  };
+};
+
+var runAndWatch = _.partial(buildTheme, _.partial(run, true));
 
 gulp.task('theme', buildTheme);
 

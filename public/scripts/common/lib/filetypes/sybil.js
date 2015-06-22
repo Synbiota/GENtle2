@@ -10,7 +10,12 @@ var getArrayElementName = function(key) {
 
 var convertToXML = function(data, namespace) {
   var formatKeyName = function(key) { 
-    return _.snakify(key).replace(/_/g, '-');
+    var prefix = '';
+    if(key[0] === '_') {
+      prefix = 'underscore-';
+      key = key.substr(1, key.length-1);
+    }
+    return prefix + _.snakify(key).replace(/_/g, '-');
   };
   var createElement = function(key) {
     return $('<'+formatKeyName(key)+'/>');
@@ -33,16 +38,28 @@ var convertToXML = function(data, namespace) {
       return createElement(key).append(convertToXML(value, getArrayElementName(key)));
     }));
   } else {
-    return data;
+    return data.toString();
   }
 };
 
 var convertToObject = function(xml) {
   var formatKey = function(string) {
-    return _.camelize(string.toLowerCase());
+    var prefix = '';
+    if(/^underscore\-/.test(string)) {
+      prefix = '_';
+      string = string.substr("underscore-".length, string.length-1);
+    }
+    return prefix + _.camelize(string.toLowerCase());
   };
   var formatContent = function(string) {
-    return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
+    console.log(string)
+    if(/^[0-9]+(\.[0-9]+)?$/.test(string)) {
+      return parseFloat(string);
+    } else if(/^true|false$/.test(string)) {
+      return string === 'true';
+    } else {
+      return /^[0-9]+(\.[0-9]+)?$/.test(string) ? parseFloat(string) : string;
+    }
   };
   var areArrayElements = function(parentNodeName, contents) {
     var uniqueTagNames = _.compact(_.uniq(_.pluck(contents, 'tagName')));
@@ -100,7 +117,7 @@ var coerceRangeToWithinSequenceLength = function(sequence, value) {
 
 /**
 @method getExportString
-@param {Sequence} sequence
+@param {Object} sequence
 @returns {String} Sequence in SYBIL format
 **/
 FT_sybil.prototype.getExportString = function ( sequence ) {
@@ -152,8 +169,6 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
 
       s += oo[0].outerHTML + "\n";
     }
-
-
   }
   
   // Features
@@ -216,11 +231,16 @@ FT_sybil.prototype.getExportString = function ( sequence ) {
   
   o = $("<sequence></sequence>") ;
   o.text ( sequence.sequence ) ;
-  o.attr( { type:'dna' , name:sequence.name, circular: sequence.isCircular || 'false' } ) ;
+
+  o.attr( { type: (sequence._type || 'dna') , name:sequence.name, circular: sequence.isCircular || 'false' } ) ;
+
+  if(sequence.partType) o.attr('part-type', sequence.partType);
+  if(sequence.shortName) o.attr('short-name', sequence.shortName);
+  if(sequence.sourceSequenceName) o.attr('source-sequence-name', sequence.sourceSequenceName);
   s += o[0].outerHTML + "\n" ;
 
-  var validMetaKeys = ['pcr'];
-  if(_.isObject(sequence.meta) && _.has.apply(null, [sequence.meta].concat(validMetaKeys))) {
+  var validMetaKeys = ['associations'];
+  if(_.isObject(sequence.meta) && _.union(_.keys(sequence.meta), validMetaKeys)) {
     var data = _.pick.apply(null, [sequence.meta].concat(validMetaKeys));
     s += convertToXML({metadata: data});
   }
@@ -243,6 +263,7 @@ FT_sybil.prototype.parseFile = function () {
   var sybil           = $($.parseXML(this.asString())),
       sequences       = [];
 
+
   sybil.find('session').each ( function ( k1 , v1 ) {
     $(v1).find('circuit').each ( function ( k2 , v2 ) {
       var s = $(v2).find('sequence').get(0) ;
@@ -251,8 +272,14 @@ FT_sybil.prototype.parseFile = function () {
       var seq = { 
         name: s.attr('name'), 
         sequence: sequence,
-        isCircular: s.attr('circular') == "true"
+        isCircular: s.attr('circular') == "true",
+        _type: s.attr('type'),
       };
+
+      if(s.attr('part-type')) seq.partType = s.attr('part-type');
+      if(s.attr('short-name')) seq.shortName = s.attr('short-name');
+      if(s.attr('source-sequence-name')) seq.sourceSequenceName = s.attr('source-sequence-name');
+
       seq.desc = $(v2).find('general_description').text() ;
 
       $(v2).find('sticky-end').each( function (i, e) {
@@ -291,11 +318,11 @@ FT_sybil.prototype.parseFile = function () {
         seq.features.push ( feature ) ;
       } ) ;
 
+
       var $metadata = $(v2).find('metadata').contents();
       if($metadata.length) {
         seq.meta = convertToObject($metadata);
       }
-      
       sequences.push ( seq ) ;
     } ) ;
   } ) ;
