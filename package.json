@@ -77,7 +77,7 @@
     "vinyl-transform": "^1.0.0",
     "watchify": "^2.4.0",
     "yuidoc-bootstrap-theme": "^1.0.4",
-    "aws-sdk": "^2.1.35",
+    "aws-sdk": "^2.1.35"
   },
   "devDependencies": {
     "amdefine": "~0.1.0",
