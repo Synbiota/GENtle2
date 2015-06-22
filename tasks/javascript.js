@@ -22,7 +22,7 @@ var scriptPath = path.dirname(scriptFile);
 
 var destPath = './';
 var destExtname = '.min.js';
-var isDev = process.env.NODE_ENV !== 'production';
+var isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
 var browserifyOptions = {
   debug: true
 };
