@@ -268,9 +268,12 @@ describe('RDP sequence with terminal C base validation and transformation', func
         setSequence(codon);
         var rdpEdit = terminalCBase(sequenceModel);
         expect(rdpEdit.error).toBeUndefined();
-        expect(rdpEdit.type).toEqual(RdpEdit.types.TERMINAL_C_BASE);
+        var type = ((codon === LYSINE1 || codon === LYSINE2) ?
+          RdpEdit.types.TERMINAL_C_BASE :
+          RdpEdit.types.TERMINAL_C_BASE_NO_AA_CHANGE);
+        expect(rdpEdit.type).toEqual(type);
 
-        expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.TERMINAL_C_BASE);
+        expect(rdpEdit.contextBefore._type).toEqual(type);
         expect(rdpEdit.contextBefore.name).toEqual('Last base should be "C"');
         expect(rdpEdit.contextBefore.ranges[0].from).toEqual(7);
         expect(rdpEdit.contextBefore.ranges[0].to).toEqual(8);
@@ -279,7 +282,7 @@ describe('RDP sequence with terminal C base validation and transformation', func
         expect(rdpEdit.contextBefore.contextualFrom).toEqual(5);
         expect(rdpEdit.contextBefore.contextualTo).toEqual(8);
 
-        expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.TERMINAL_C_BASE);
+        expect(rdpEdit.contextAfter._type).toEqual(type);
         expect(rdpEdit.contextAfter.name).toEqual('Last base changed to "C".');
         expect(rdpEdit.contextAfter.ranges[0].from).toEqual(7);
         expect(rdpEdit.contextAfter.ranges[0].to).toEqual(8);
