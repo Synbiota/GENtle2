@@ -80,6 +80,7 @@
   },
   "devDependencies": {
     "amdefine": "~0.1.0",
+    "aws-sdk": "^2.1.35",
     "benchmark": "~1.0.0",
     "karma": "^0.12.31",
     "karma-browserify": "^4.0.0",
