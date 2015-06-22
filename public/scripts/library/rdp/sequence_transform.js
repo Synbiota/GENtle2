@@ -23,7 +23,7 @@ var errorOnNotMultipleOf3 = function(sequenceModel, rdpEditType) {
   var error;
   if(!isMultipleOf3(sequenceModel)) {
     var errorMsg = `Requires sequence to be a mutliple of 3 but is "${len(sequenceModel)}" long.`;
-    error = new RdpEdit(rdpEditType, undefined, undefined, errorMsg);
+    error = new RdpEdit({type: rdpEditType, error: errorMsg});
   }
   return error;
 };
@@ -69,7 +69,7 @@ var multipleOf3 = function(sequenceModel) {
     sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
 
     var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
-    rdp_edit = new RdpEdit(_type, contextBefore, contextAfter);
+    rdp_edit = new RdpEdit({type: _type, contextBefore, contextAfter});
   }
   return rdp_edit;
 };
@@ -84,8 +84,8 @@ var methionineStartCodon = function(sequenceModel) {
   var _type = RdpEdit.types.METHIONINE_START_CODON;
   var length = len(sequenceModel);
   if(length < 3) {
-    var errorMsg = `Requires sequence to at least 3 base pairs long but is "{len(sequenceModel)}" long.`;
-    return new RdpEdit(_type, undefined, undefined, errorMsg);
+    var error = `Requires sequence to at least 3 base pairs long but is "{len(sequenceModel)}" long.`;
+    return new RdpEdit({type: _type, error});
   }
 
   var rdpEdit;
@@ -151,7 +151,7 @@ var methionineStartCodon = function(sequenceModel) {
       contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
     }
 
-    rdpEdit = new RdpEdit(_type, contextBefore, contextAfter);
+    rdpEdit = new RdpEdit({type: _type, contextBefore, contextAfter});
   }
   return rdpEdit;
 };
@@ -200,7 +200,7 @@ var noTerminalStopCodon = function(sequenceModel) {
     sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
     var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
 
-    rdpEdit = new RdpEdit(_type, contextBefore, contextAfter);
+    rdpEdit = new RdpEdit({type: _type, contextBefore, contextAfter});
   }
 
   return rdpEdit;
@@ -339,7 +339,7 @@ var terminalCBase = function(sequenceModel) {
       sequence = sequenceModel.getSubSeq(contextualFrom, contextualTo - 1, sequenceModel.STICKY_END_FULL);
       var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type, sequence, contextualFrom, contextualTo});
 
-      rdpEdit = new RdpEdit(_type, contextBefore, contextAfter, error);
+      rdpEdit = new RdpEdit({type: _type, contextBefore, contextAfter, error});
     }
   }
   return rdpEdit;

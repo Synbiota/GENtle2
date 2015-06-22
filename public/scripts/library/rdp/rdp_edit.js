@@ -8,23 +8,27 @@ import RdpSequenceFeature from './rdp_sequence_feature';
 class RdpEdit {
   /**
    * @constructor
-   * @param  {String} options.type
-   * @param  {Object or RdpSequenceFeature} options.contextBefore
-   * @param  {Object or RdpSequenceFeature} options.contextAfter
-   * @param  {String or undefined} options.error
+   * @param  {Object} attributes  Object containing the following keys:
+   * @param  {String} attributes.type
+   * @param  {Object or RdpSequenceFeature} attributes.contextBefore=undefined
+   * @param  {Object or RdpSequenceFeature} attributes.contextAfter=undefined
+   * @param  {String} attributes.error=undefined
    */
   constructor({type, contextBefore, contextAfter, error}) {
     this.type = type;
     if(!_.chain(RdpEdit.types).values().contains(this.type)) throw new TypeError('type is unknown: ' + type);
-    if(!(contextBefore instanceof RdpSequenceFeature)) {
+    if(contextBefore && !(contextBefore instanceof RdpSequenceFeature)) {
       contextBefore = new RdpSequenceFeature(contextBefore);
     }
-    if(!(contextAfter instanceof RdpSequenceFeature)) {
+    if(contextAfter && !(contextAfter instanceof RdpSequenceFeature)) {
       contextAfter = new RdpSequenceFeature(contextAfter);
     }
     this.contextBefore = contextBefore;
     this.contextAfter = contextAfter;
     this.error = error;
+    if((!this.error) && (!(this.contextBefore || this.contextAfter))) {
+      throw new TypeError('Must provide "error" or at least one of "contextBefore" or "contextAfter"');
+    }
   }
 }
 
