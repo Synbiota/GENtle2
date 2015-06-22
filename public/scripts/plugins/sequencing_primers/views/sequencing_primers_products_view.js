@@ -33,7 +33,7 @@ export default Backbone.View.extend({
 
   missingUniversalPrimer: function(reverse = false) {
     return !_.some(this.getProducts(), function(product) {
-      return (reverse ? /U-rvs/ : /U-fwd/).test(product.primer.name);
+      return (reverse ? /Rvs Cap/ : /Fwd Anchor/).test(product.primer.name);
     });
   },
 
