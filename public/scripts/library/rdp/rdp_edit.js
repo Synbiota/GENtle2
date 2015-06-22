@@ -1,13 +1,27 @@
 import _ from 'underscore';
+import RdpSequenceFeature from './rdp_sequence_feature';
 
 
 /**
  * @class RdpEdit
  */
 class RdpEdit {
-  constructor(type, contextBefore, contextAfter, error=undefined) {
+  /**
+   * @constructor
+   * @param  {String} options.type
+   * @param  {Object or RdpSequenceFeature} options.contextBefore
+   * @param  {Object or RdpSequenceFeature} options.contextAfter
+   * @param  {String or undefined} options.error
+   */
+  constructor({type, contextBefore, contextAfter, error}) {
     this.type = type;
     if(!_.chain(RdpEdit.types).values().contains(this.type)) throw new TypeError('type is unknown: ' + type);
+    if(!(contextBefore instanceof RdpSequenceFeature)) {
+      contextBefore = new RdpSequenceFeature(contextBefore);
+    }
+    if(!(contextAfter instanceof RdpSequenceFeature)) {
+      contextAfter = new RdpSequenceFeature(contextAfter);
+    }
     this.contextBefore = contextBefore;
     this.contextAfter = contextAfter;
     this.error = error;

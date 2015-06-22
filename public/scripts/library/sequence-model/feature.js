@@ -13,7 +13,9 @@ class SequenceFeature {
   constructor({name, desc, ranges, _type, _id, other}) {
     this.name = name || '';
     this.desc = desc || '';
-    this.ranges = ranges || [];
+    this.ranges = _.map((ranges || []), (range) => {
+      return (range instanceof SequenceRange) ? range : new SequenceRange(range);
+    });
     this._type = _type || '';
     this._id = _id || _.uniqueId();
     _.each(_.pairs(other || {}), (pair) => {
