@@ -59,6 +59,9 @@
   @include edit-canvas(175px);
 }
 
+.edit-canvas-outlets-container-md {
+  @include edit-canvas(200px);
+}
 
 .edit-canvas-outlets-container-lg {
   @include edit-canvas(240px);

@@ -96,6 +96,7 @@ export default Backbone.View.extend({
           baseLine: 15,
           textFont: LineStyles.position.text.font,
           textColour: LineStyles.position.text.color,
+          basesPerStep: 10,
           transform: base => base + context.contextualFrom
         }],
 
@@ -143,7 +144,7 @@ export default Backbone.View.extend({
         selectable: false,
         editable: false,
         layoutSettings: {
-          basesPerBlock: 10
+          basesPerBlock: 1
         }
       });
 
