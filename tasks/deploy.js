@@ -1,9 +1,10 @@
 var gulp = require('gulp');
 var AWS = require('aws-sdk');
 var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
-
-
-//"aws --region='us-east-1' opsworks create-deployment --stack-id $AWS_NIGHTLY_STACK_ID --app-id $AWS_NIGHTLY_APP_ID --command '{\"Name\": \"deploy\", \"Args\": {\"migrate\": [\"false\"]}}'"
+var s3 = new AWS.S3({region: 'us-west-2'});
+var _ = require('underscore');
+var Q = require('q');
+var fs = require('fs');
 
 gulp.task('deploy', ['publish'], function() {
 
@@ -11,9 +12,18 @@ gulp.task('deploy', ['publish'], function() {
   if(!STACK_ID) throw 'STACK_ID environment variable missing';
 
   var APP_ID = process.env.APP_ID;
-  if(!APP_ID) throw 'APP environment variable missing';
+  if(!APP_ID) throw 'APP_ID environment variable missing';
 
-  var manifest = require('../rev-manifest.json');
+  var S3_HOST = process.env.S3_HOST;
+  if(!S3_HOST) throw 'S3_HOST environment variable missing';  
+  if(!/\/$/.test(S3_HOST)) S3_HOST = S3_HOST + '/';
+
+  var ASSET_DIR = process.env.ASSET_DIR;
+  if(!ASSET_DIR) throw 'ASSET_DIR missing';
+
+  var manifest = _.mapObject(require('../rev-manifest.json'), function(file) {
+    return S3_HOST + ASSET_DIR + '/assets/' + file;
+  });
 
   var updateParams = {
     AppId: APP_ID,
@@ -49,5 +59,62 @@ gulp.task('deploy', ['publish'], function() {
 
 gulp.task('publish', ['build'], function() {
   // Todo publish to s3
-  console.log('manifest', require('../rev-manifest.json'))
+  var manifest = require('../rev-manifest.json');
+
+  var ASSET_DIR = process.env.ASSET_DIR;
+  if(!ASSET_DIR) throw 'ASSET_DIR missing';
+
+  var files = _.flatten(_.map(_.values(manifest), function(file) {
+    var output = [file, file + '.gz'];
+    if(/\.js$/.test(file)) output.push(file + '.map');
+    return output;
+  }));
+
+  var promises = _.map(files, function(file) {
+    var def = Q.defer();
+    var stream = fs.createReadStream('public/' + file);
+    var bucket = 'gentle';
+    var key =  ASSET_DIR + '/' + file;
+
+    var expires = new Date();
+    expires.setTime(expires.getTime() + 365 * 24 * 3600 * 1000);
+
+    s3.headObject({
+      Bucket: bucket,
+      Key: key
+    }, function(err) {
+      if(err) {
+        if(err.code === 'NotFound') {
+          console.log('Uploading', file, 'to',  ASSET_DIR + '/assets/' + file);
+
+          s3.putObject({
+            Bucket: bucket,
+            Key: key,
+            Body: stream,
+            ACL: 'public-read',
+            CacheControl: 'max-age=31536000',
+            ContentDisposition: 'inline',
+            Expires: expires
+          }, function(err_) {
+            if(err_) {
+              console.log('Unable to upload:', file, err_, err_.stack);
+              def.reject();
+            } else {
+              console.log('Uploaded', file);
+              def.resolve();
+            }
+          });
+        } else {
+          console.log('Unable to upload:', file, err, err.stack);
+          def.reject();
+        }
+      } else {
+        console.log('Skipping already existing file:', file);
+      }
+    });
+
+    return def.promise;
+  });
+
+  return Q.all(promises);
 });

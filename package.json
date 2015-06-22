@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "aliasify": "^1.7.2",
+    "aws-sdk": "^2.1.35",
     "babelify": "^6.1.1",
     "backbone": "~1.1.2",
     "backbone-deep-model": "~0.11.0",
@@ -76,8 +77,7 @@
     "vinyl-source-stream": "^1.0.0",
     "vinyl-transform": "^1.0.0",
     "watchify": "^2.4.0",
-    "yuidoc-bootstrap-theme": "^1.0.4",
-    "aws-sdk": "^2.1.35"
+    "yuidoc-bootstrap-theme": "^1.0.4"
   },
   "devDependencies": {
     "amdefine": "~0.1.0",
