@@ -16,6 +16,7 @@ gulp.task('deploy', function() {
   var params = {
     StackId: STACK_ID,
     AppId: APP_ID,
+    Region: 'us-east-1',
     Command: {
       Name: 'deploy',
       Args: {
