@@ -86,14 +86,6 @@ var run = function(watch, cb) {
   }
 
   bundle = bundle
-    .on('end', function() { 
-      bundleLogger.end(target.replace('.scss', '.css')); 
-      if(cb) cb();
-    })
-    .on('error', function(err) {
-      bundleLogger.error(err);
-      if(cb) cb(err);
-    })
     // .pipe(remember('stylesheets')) 
     .pipe(rename({ extname: '.css' }))
     .pipe(gulp.dest(destPath));
@@ -110,7 +102,15 @@ var run = function(watch, cb) {
       .pipe(gulp.dest(destPath + '../../')); 
   }
 
-  return bundle;
+  return bundle
+    .on('end', function() { 
+      bundleLogger.end(target.replace('.scss', '.css')); 
+      if(cb) cb();
+    })
+    .on('error', function(err) {
+      bundleLogger.error(err);
+      if(cb) cb(err);
+    });
 };
 
 var buildTheme = function(cb) {

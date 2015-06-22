@@ -55,7 +55,7 @@ var productionTransforms = function(browserified) {
     .pipe(rev.manifest({merge: true}))
     .pipe(replace('.gz', ''))
     .pipe(replace('public/', ''))
-    .pipe(gulp.dest(destPath)); 
+    .pipe(gulp.dest(destPath))
 };
 
 var bundle = function(browserified, watch, filepath, cb) {
@@ -68,14 +68,6 @@ var bundle = function(browserified, watch, filepath, cb) {
   }
 
   browserified = browserified.bundle()
-    .on('error', function(err) {
-      bundleLogger.error(err);
-      if(cb) cb(err);
-    })
-    .on('end', function() { 
-      bundleLogger.end(target, watch); 
-      if(cb) cb();
-    })
     .pipe(source(scriptFile))
     .pipe(rename({extname: destExtname}))
     .pipe(gulp.dest(destPath));
@@ -83,6 +75,16 @@ var bundle = function(browserified, watch, filepath, cb) {
   if(!isDev) {
     browserified = productionTransforms(browserified);
   }
+
+  browserified
+    .on('error', function(err) {
+      bundleLogger.error(err);
+      if(cb) cb(err);
+    })
+    .on('end', function() { 
+      bundleLogger.end(target, watch); 
+      if(cb) cb();
+    });
 };
 
 gulp.task('js:vendor', function() {
@@ -93,6 +95,14 @@ gulp.task('js:vendor', function() {
 
   browserified = browserifyUtils.applyConfig('vendor', browserified)
     .bundle()
+    .pipe(source(target))
+    .pipe(gulp.dest(destPath));
+
+  if(!isDev) {
+    browserified = productionTransforms(browserified);
+  }
+
+  browserified
     .on('error', function(err) {
       bundleLogger.error(err);
       def.reject();
@@ -100,13 +110,7 @@ gulp.task('js:vendor', function() {
     .on('end', function() { 
       bundleLogger.end(target, false); 
       def.resolve();
-    })
-    .pipe(source(target))
-    .pipe(gulp.dest(destPath));
-
-  if(!isDev) {
-    browserified = productionTransforms(browserified);
-  }
+    });
 
   return def.promise;
 });

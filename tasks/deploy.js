@@ -14,15 +14,12 @@ gulp.task('deploy', ['publish'], function() {
   if(!APP_ID) throw 'APP environment variable missing';
 
   var manifest = require('../rev-manifest.json');
-  var customJson = {
-    revManifest: manifest
-  };
 
   var updateParams = {
     AppId: APP_ID,
     Environment: [{
       Key: 'REV_MANIFEST', 
-      Value: JSON.stringify(customJson), 
+      Value: JSON.stringify(manifest), 
       Secure: false
     }]
   };
@@ -35,8 +32,7 @@ gulp.task('deploy', ['publish'], function() {
       Args: {
         migrate: ['false']
       }
-    },
-    CustomJson: JSON.stringify(customJson)
+    }
   };
 
   opsworks.updateApp(updateParams, function(err) {
@@ -53,4 +49,5 @@ gulp.task('deploy', ['publish'], function() {
 
 gulp.task('publish', ['build'], function() {
   // Todo publish to s3
+  console.log('manifest', require('../rev-manifest.json'))
 });
