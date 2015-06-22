@@ -1,25 +1,26 @@
+import _ from 'underscore';
 import SequenceRange from './range';
 
 
 class SequenceFeature {
-  name: String;
-  desc: String;
-  ranges: Array;  // Array of `SequenceRange`s
-  _type: String;
-  _id: Integer;  // May be undefined
+  // name: String;
+  // desc: String;
+  // ranges: Array;  // Array of `SequenceRange`s
+  // _type: String;
+  // _id: Integer;  // May be undefined
   // note, gene, protein, product, bound_moiety, may also be present.
 
-  constructor({name, desc, ranges, _type, _id, other={}}) {
+  constructor({name, desc, ranges, _type, _id, other}) {
     this.name = name || '';
     this.desc = desc || '';
     this.ranges = ranges || [];
     this._type = _type || '';
     this._id = _id || _.uniqueId();
-    _.each(_.pairs(other), (pair) => {
+    _.each(_.pairs(other || {}), (pair) => {
       let key = pair[0];
       if(this[key]) throw new Error(`Attribute "${key}" already exists on SequenceFeature.`);
       this[key] = pair[1];
-    })
+    });
   }
 }
 
