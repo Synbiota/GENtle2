@@ -13,7 +13,7 @@ gulp.task('deploy', ['publish'], function() {
   var APP_ID = process.env.APP_ID;
   if(!APP_ID) throw 'APP environment variable missing';
 
-  var manifest = require('../rev-manifest');
+  var manifest = require('../rev-manifest.json');
   var customJson = {
     revManifest: manifest
   };
