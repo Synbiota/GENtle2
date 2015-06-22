@@ -30,6 +30,10 @@ export default Backbone.View.extend({
         titleBefore: 'Make final codon C-terminal',
         postCaption: '(Conservative amino acid change)'
       },
+      RDP_EDIT_TERMINAL_C_BASE_NO_AA_CHANGE: {
+        titleAfter: 'Made final codon C-terminal',
+        titleBefore: 'Make final codon C-terminal',
+      },
       RDP_EDIT_METHIONINE_START_CODON: {
         titleAfter: 'Made first codon ATG (Met)',
         titleBefore: 'Make first codon ATG (Met)'

@@ -207,7 +207,7 @@ var noTerminalStopCodon = function(sequenceModel) {
 };
 
 
-var terminalCBaseAaMap = {
+var terminalCBaseAaMapConservativeChange = {
   // Tryptophan -> Tyrosine
   "TGG": "TAC",
   // Glutamine -> Asparagine
@@ -221,7 +221,9 @@ var terminalCBaseAaMap = {
   // Glutamic acid -> Aspartic acid
   "GAA": "GAC",
   "GAG": "GAC",
+};
 
+var terminalCBaseAaMap = _.extend(_.clone(terminalCBaseAaMapConservativeChange), {
   // Alanine
   "GCT": "GCC",
   "GCA": "GCC",
@@ -279,7 +281,7 @@ var terminalCBaseAaMap = {
   "TAG": undefined,
   "TGA": undefined,
   "TAA": undefined,
-};
+});
 
 
 /**
@@ -303,6 +305,9 @@ var terminalCBase = function(sequenceModel) {
     let lastCodon = sequenceModel.getSubSeq(frm, frm + 2, sequenceModel.STICKY_END_FULL);
     if(lastCodon[2] !== 'C') {
       let replacement = terminalCBaseAaMap[lastCodon];
+      // Check to see if amino acid changed
+      var aaChanged = !!terminalCBaseAaMapConservativeChange[lastCodon];
+      _type = (replacement && !aaChanged) ? RdpEdit.types.TERMINAL_C_BASE_NO_AA_CHANGE : _type;
       var name = 'Last base should be "C"';
       var desc = '';
 
