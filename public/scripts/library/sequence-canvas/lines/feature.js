@@ -25,12 +25,13 @@ function onMouseLeave(sequenceCanvas, featureClass) {
   sequenceCanvas.highlightBaseRange();
 }
 
-function onMouseDown(sequenceCanvas, rangeFrom, rangeTo, event) {
+function onMouseDown(sequenceCanvas, rangeFrom, rangeTo, id, event) {
   event.stopPropagation();
   sequenceCanvas.select(rangeFrom, rangeTo);
   sequenceCanvas.scrollBaseToVisibility(rangeTo).then(function() {
-    sequenceCanvas.displayCaret(rangeTo+1)
-  })
+    sequenceCanvas.displayCaret(rangeTo+1);
+  });
+  sequenceCanvas.trigger('feature:click', {featureId: id});
 }
 
 /**
@@ -201,7 +202,7 @@ class Feature extends Line {
 
         eventRegion.on('mousedown', _.partial(
           onMouseDown, 
-          sequenceCanvas, range.from, range.to
+          sequenceCanvas, range.from, range.to, feature._id
         ));
 
       });

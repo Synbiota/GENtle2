@@ -175,8 +175,10 @@ class SequenceCanvasCore {
 
   _initLines(lines) {
     assertIsObject(lines, 'options.lines');
-    return _.mapObject(lines, (value) => {
-      return new Lines[value[0]](this, value[1] || {});
+    return _.mapObject(lines, ([lineConstructorName, lineOptions], lineName) => {
+      return new Lines[lineConstructorName](this, _.extend(lineOptions || {}, {
+        lineName: lineName
+      }));
     });
   }
 

@@ -118,9 +118,9 @@ var calculateProductAndPrimer = function(sequenceLength, maxSequencedSize) {
     var productName;
     if(/universal/.test(primer.name)) {
       if(primer.range.reverse) {
-        productName = 'U-rvs';
+        productName = 'Rvs Cap';
       } else {
-        productName = 'U-fwd';
+        productName = 'Fwd Anchor';
         hasForwardUniversalPrimer = true;
       }
     } else  {

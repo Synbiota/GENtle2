@@ -9,7 +9,10 @@ class PcrProductSequence extends Sequence {
       attrs.rdpEdits = rdpEdits;
     } catch(e) {} finally {
       super(attrs, ...args);
-      this.set('_type', 'pcr_product', {silent: true});  
+      this.set({
+        _type: 'pcr_product',
+        readOnly: true
+      }, {silent: true});  
     }
   }
 

@@ -26,11 +26,11 @@ describe('Sequence model', function() {
                 meltingTemperature: 63,
                 gcContent: 0.5,
                 id: '1433410703536-1bdc3',
-                name: 'U-fwd primer',
+                name: 'Fwd Anchor primer',
                 antisense: true
               },
               id: '1433410707772-1dbe8',
-              name: 'U-fwd',
+              name: 'Fwd Anchor',
               antisense: false
             }
           ]

@@ -86,15 +86,18 @@ export default Backbone.View.extend({
     var products = this.getProducts();
     if(_.isEmpty(products)) return;
 
+    console.log(products)
+
     _.each(products, function(product) {
       var primer = product.primer;
       if(primer) {
         features.push({
           name: primer.name,
           _type: 'primer',
+          _id: product.id,
           ranges: [{
             from: primer.range.from,
-            to: primer.range.to,
+            to: primer.range.to - 1,
             reverseComplement: primer.range.reverse,
           }]
         });

@@ -117,5 +117,12 @@ export default Backbone.View.extend({
     });
     
     sequenceCanvas.on('scroll', this.onScroll);
+    sequenceCanvas.on('feature:click', (event, data) => {
+      this.trigger('feature:click', event, data);
+    });
+  },
+
+  cleanup: function() {
+    this.sequenceCanvas.destroy();
   }
 });

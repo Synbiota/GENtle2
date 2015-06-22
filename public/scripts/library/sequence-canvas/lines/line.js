@@ -9,7 +9,7 @@ Base Line class from which to extend.
 @submodule SequenceCanvas
 **/
 class Line extends Memoizable {
-  constructor(sequenceCanvas, options) {
+  constructor(sequenceCanvas, options = {}) {
     super();
     this.sequenceCanvas = sequenceCanvas;
     this.type = this.constructor.name;
