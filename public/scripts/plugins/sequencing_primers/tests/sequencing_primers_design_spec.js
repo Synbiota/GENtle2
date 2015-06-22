@@ -244,14 +244,14 @@ var shortSequence = new TemporarySequenceModel({
 
 var expectedShortSequencePrimers = [
   {
-    "name": "U-fwd",
+    "name": "Fwd Anchor",
     "range": {
       "from": 41,
       "size": 500,
       "reverse": false,
     },
     "primer": {
-      "name": "U-fwd primer",
+      "name": "Fwd Anchor primer",
       "range": {
         "from": 41,
         "size": 20,
@@ -263,14 +263,14 @@ var expectedShortSequencePrimers = [
     },
   },
   {
-    "name": "U-rvs",
+    "name": "Rvs Cap",
     "range": {
       "from": 58,
       "size": 500,
       "reverse": true,
     },
     "primer": {
-      "name": "U-rvs primer",
+      "name": "Rvs Cap primer",
       "range": {
         "from": 539,
         "size": 19,
