@@ -13,5 +13,6 @@ Gentle.addPlugin('sequence-primary-view', {
 Gentle.addPlugin('home', {
   name: 'designer',
   title: 'Designer',
-  view: HomeDesignerView
+  view: HomeDesignerView,
+  order: 10
 });
