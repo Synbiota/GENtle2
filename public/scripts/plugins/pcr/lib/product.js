@@ -3,9 +3,9 @@ import Sequence from '../../../sequence/models/sequence';
 
 class PcrProductSequence extends Sequence {
   constructor(attrs, ...args) {
-    attrs._type = 'pcr_product';
     attrs.readOnly = true;
     super(attrs, ...args);
+    this.set({_type: 'pcr_product'}, {silent: true});
   }
 
   get requiredFields() {

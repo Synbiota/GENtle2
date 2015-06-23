@@ -2,16 +2,17 @@ import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 import PcrProductSequence from '../../plugins/pcr/lib/product';
 import RdpEdit from './rdp_edit';
 import SequencesCollection from '../../sequence/models/sequences';
+import tracedLog from '../../common/lib/traced_log';
 
 
 class RdpSequence extends PcrProductSequence {
   constructor(attrs, ...args) {
-    var rdp_pcr_product = 'rdp_pcr_product';
-    if(attrs._type && attrs._type !== rdp_pcr_product) {
-      throw new TypeError(`RdpSequence expected _type of "${rdp_pcr_product}" but was "${attrs._type}"`);
+    var rdpPcrProduct = 'rdp_pcr_product';
+    if(attrs._type && attrs._type !== rdpPcrProduct) {
+      throw new TypeError(`RdpSequence expected _type of "${rdpPcrProduct}" but was "${attrs._type}"`);
     }
-    attrs._type = rdp_pcr_product;
     super(attrs, ...args);
+    this.set({_type: rdpPcrProduct}, {silent: true});
   }
 
   get requiredFields() {
@@ -20,7 +21,7 @@ class RdpSequence extends PcrProductSequence {
       'sourceSequenceName',
       'shortName',
       'partType',
-      'rdpEdits',
+      'rdpEdits'
     ]);
   }
 }

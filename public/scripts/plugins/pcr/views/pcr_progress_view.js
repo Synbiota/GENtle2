@@ -4,6 +4,7 @@ import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
 import RdpSequence from '../../../library/rdp/rdp_sequence';
+import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 
 
 export default Backbone.View.extend({
@@ -29,23 +30,34 @@ export default Backbone.View.extend({
 
   makePrimer: function(dataAndOptions) {
     this.pcrPrimerDataAndOptions = dataAndOptions;
-    var options = _.omit(dataAndOptions, 'name', 'from', 'to', 'stickyEnds');
-    this.model.set('meta.pcr.defaults', options);
 
-    getPcrProductAndPrimers(this.model, dataAndOptions)
+    var tempSequence = new this.model.constructor({
+      name: dataAndOptions.name,
+      sequence: dataAndOptions.sequence
+    });
+
+    transformSequenceForRdp(tempSequence);
+
+    dataAndOptions.from = 0;
+    dataAndOptions.to = dataAndOptions.sequence.length - 1;
+    delete dataAndOptions.sequence;
+
+    getPcrProductAndPrimers(tempSequence, dataAndOptions)
     .then((pcrProduct) => {
       // Copy over RDP specific attributes.
-      var rdpAttributes = _.extend(pcrProduct.toJSON(), _.pick(dataAndOptions,
-          'partType', 'shortName', 'rdpEdits', 'sourceSequenceName'));
+      var rdpAttributes = _.extend({}, pcrProduct.toJSON(), _.pick(dataAndOptions,
+          'partType', 'rdpEdits', 'sourceSequenceName'));
+
       rdpAttributes.displaySettings = rdpAttributes.displaySettings || {};
       rdpAttributes.displaySettings.primaryView = 'pcr';
       rdpAttributes.rdpEdits = rdpAttributes.rdpEdits || [];
+      rdpAttributes._type = 'rdp_pcr_product';
+
       var rdpProduct = new RdpSequence(rdpAttributes);
 
       this.updateProgressBar(1);
       Gentle.sequences.add(rdpProduct);
-      // We don't need to call `this.model.destroy` as it will be an instance of
-      // WipPcrProductSequence and therefore not saved.
+      this.model.destroy();
       this.model = rdpProduct;
       Gentle.router.sequence(rdpProduct.get('id'));
     })

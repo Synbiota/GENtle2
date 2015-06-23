@@ -97,7 +97,7 @@ Filetypes.exportToFile = function(format, sequence)  {
     throw new TypeError();
   }
   file = new FileType();
-  saveAs(file.getExportBlob(sequence).blob, sequence.name + '.' + file.getFileExtension());
+  saveAs(file.getExportBlob(sequence).blob, (sequence.shortName || sequence.name) + '.' + file.getFileExtension());
 };
 
 
