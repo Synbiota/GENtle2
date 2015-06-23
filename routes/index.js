@@ -6,7 +6,7 @@ var stylePath = 'stylesheets/app.css';
 var manifest = {};
 
 if(!isDev) {
-  manifest = require('../rev-manifest.json');
+  manifest = global.appEnv.REV_MANIFEST || {};
   appPath = (manifest[appPath] || appPath);
   stylePath = (manifest[stylePath] || stylePath);
   vendorPath = (manifest[vendorPath] || vendorPath);
