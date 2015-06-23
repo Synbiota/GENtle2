@@ -59,18 +59,20 @@ $(function() {
   });
 });
 
-$(function() {
-  UserVoice=[];
-  var uv=document.createElement('script');
-  uv.type='text/javascript';
-  uv.async=true;
-  uv.src='//widget.uservoice.com/RAfn1r1Ta0EPTZ5MypKQ.js';
-  var s=document.getElementsByTagName('script')[0];
-  s.parentNode.insertBefore(uv,s);
-  window.UserVoice.push(['addTrigger', {
-    trigger_position: 'bottom-left',
-  }]);
-});
+if(process.env.ENABLE_USERVOICE) {
+  $(function() {
+    UserVoice=[];
+    var uv=document.createElement('script');
+    uv.type='text/javascript';
+    uv.async=true;
+    uv.src='//widget.uservoice.com/' + process.env.USERVOICE_API_KEY + '.js';
+    var s=document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(uv,s);
+    window.UserVoice.push(['addTrigger', {
+      trigger_position: 'bottom-left',
+    }]);
+  });
+}
 
 //$(function() {
 
