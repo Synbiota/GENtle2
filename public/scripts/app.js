@@ -47,7 +47,6 @@ if(process.env.ENABLE_BUGSNAG) {
 window.testBugsnag = function() {
   Bugsnag.notify('bugsnag/sourcemaps test');
 };
-
 window.testProcess = process.env;
 
 $(function() {
@@ -59,3 +58,27 @@ $(function() {
     if(plugin.data.afterDomReady) plugin.data.afterDomReady(Gentle);
   });
 });
+
+$(function() {
+  UserVoice=[];
+  var uv=document.createElement('script');
+  uv.type='text/javascript';
+  uv.async=true;
+  uv.src='//widget.uservoice.com/RAfn1r1Ta0EPTZ5MypKQ.js';
+  var s=document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(uv,s);
+  window.UserVoice.push(['addTrigger', {
+    trigger_position: 'bottom-left',
+  }]);
+});
+
+//$(function() {
+
+  //UserVoice = window.UserVoice || [];
+  //console.log(UserVoice);
+
+  //window.UserVoice.push(['addTrigger', {
+    //trigger_position: 'right',
+  //}]);
+  //console.log("pushed");
+//});
