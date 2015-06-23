@@ -77,7 +77,7 @@ gulp.task('publish', ['build'], function() {
     var def = Q.defer();
     var stream = fs.createReadStream('public/' + file);
     var bucket = 'gentle';
-    var key =  ASSET_DIR + '/' + file;
+    var key =  ASSET_DIR + '/assets/' + file;
 
     var expires = new Date();
     expires.setTime(expires.getTime() + 365 * 24 * 3600 * 1000);
@@ -121,4 +121,14 @@ gulp.task('publish', ['build'], function() {
   });
 
   return Q.allSettled(promises);
+});
+
+
+gulp.task('manifest', function() {
+  var revManifest = require('./utils/import_app_env').REV_MANIFEST;
+  if(!revManifest) throw 'REV_MANIFEST environment variable missing';
+
+  revManifest = revManifest.replace(/\\"/g, '"');
+
+  fs.writeFileSync('rev-manifest.json', revManifest);
 });

@@ -10,7 +10,8 @@ var envVarKeys = [
   'ENABLE_BUGSNAG',
   'BUGSNAG_API_KEY',
   'BUGSNAG_RELEASE_STAGE',
-  'BUGSNAG_SERVER_API_KEY'
+  'BUGSNAG_SERVER_API_KEY',
+  'REV_MANIFEST'
 ];
 
 // Hack to work around Opsworks weird app.env syntax
