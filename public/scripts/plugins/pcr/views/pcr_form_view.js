@@ -83,7 +83,7 @@ export default Backbone.View.extend({
       from: this.getFieldFor('from').val() - 1,
       to: this.getFieldFor('to').val() - 1,
       partType: this.getFieldFor('partType').val()
-    })
+    });
     
     this.validateState();
     this.updateFormErrors();
@@ -125,12 +125,15 @@ export default Backbone.View.extend({
   },
 
   getSequenceAttributes: function() {
-    // OPTIMIZE: this may not be very efficient for long sequences.
-    var frm = this.state.from;
-    var to = this.state.to;
-    var sequenceNts = this.model.getSequence().substr(frm, to - frm + 1);
-    var name = this.model.get('name');
-    return {sequence: sequenceNts, from: frm, to: to, name};
+    // // OPTIMIZE: this may not be very efficient for long sequences.
+    // var frm = this.state.from;
+    // var to = this.state.to;
+    // var sequenceNts = this.model.getSubSeq(frm, to);
+    // var name = this.model.get('name');
+    // var sourceSequenceName = this.model.get('sourceSequenceName');
+    // // There should be no stickyEnds to copy over.
+    // return {sequence: sequenceNts, from: frm, to: to, name, sourceSequenceName};
+    return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName');
   },
 
   getData: function() {
@@ -146,6 +149,10 @@ export default Backbone.View.extend({
     );
 
     data.stickyEnds = _.find(StickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
+
+    var frm = this.state.from;
+    var to = this.state.to;
+    data.sequence = this.model.getSubSeq(frm, to);
 
     return data;
   },
@@ -163,7 +170,7 @@ export default Backbone.View.extend({
       if(_.includes(transformsTypes, 'RDP_EDIT_MULTIPLE_OF_3')) {
         alert('The target sequence length needs to be a multiple of 3');
       } else if(transforms.length === 0) {
-        this.createNewPcrProduct()
+        this.createNewPcrProduct();
       } else {
         Modal.show({
           title: 'Make source sequence RDP-compliant',
@@ -174,21 +181,16 @@ export default Backbone.View.extend({
           })
         }).once('confirm', () => {
           this.state.rdpEdits = transforms;
-          this.createNewPcrProduct()
+          this.createNewPcrProduct();
         });
       }
     }
   },
 
-  createNewPcrProduct: function(event) {
-    if(event) event.preventDefault();
-    if(event && this.state.invalid.any) {
-      alert('Some PCR primer details are incorrect or missing.  Please correct them first.');
-    } else {
-      var data = this.getData();
-      this.state.calculating = true;
-      this.parentView().makePrimer(data);
-    }
+  createNewPcrProduct: function() {
+    var data = this.getData();
+    this.state.calculating = true;
+    this.parentView().makePrimer(data);
   },
 
   cancel: function(event) {

@@ -3,13 +3,13 @@ import Gentle from 'gentle';
 import View from './views/sequencing_primers_view';
 import SequenceModel from '../../sequence/models/sequence';
 import SequencingProduct from './lib/product';
-import SequenceRange from '../../library/sequence-model/range';
-import {version1GenericPreProcessor} from '../utils';
+import SequenceRange from 'gentle-sequence-model/range';
+import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 
 
 Gentle.addPlugin('sequence-primary-view', {
   name: 'sequencing_primers',
-  title: 'Sequencing primers',
+  title: 'RDP Sequencing primers',
   view: View,
   visible: Gentle.featureFlag('sequencingPrimers'),
 });

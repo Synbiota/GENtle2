@@ -128,20 +128,25 @@ _.mixin({
   https://github.com/jashkenas/underscore/blob/95ada0839e5ee206e72d831dd62b5e41f18fdcae/underscore.js
   @method _.deepClone
   **/
-  deepClone: function(obj, depthLeft=100) {
-    if (depthLeft <= 0) throw "deepClone recursion limit exceeded";
+  deepClone: function(obj, depthLeft=100, debuggingKeys=[]) {
+    if (depthLeft <= 0) {
+      console.warn(debuggingKeys);
+      throw "deepClone recursion limit exceeded";
+    }
     if (!_.isObject(obj) || _.isFunction(obj)) return obj;
     if (_.isDate(obj)) return new Date(obj.getTime());
     if (_.isRegExp(obj)) return new RegExp(obj.source, obj.toString().replace(/.*\//, ""));
     var isArr = (_.isArray(obj) || _.isArguments(obj));
     var isObj = (_.isObject(obj) && !_.isDate(obj));
     var func = function (memo, value, key) {
+      debuggingKeys.push(key);
       if (isArr)
-        memo.push(_.deepClone(value, depthLeft-1));
+        memo.push(_.deepClone(value, depthLeft-1, debuggingKeys));
       else if (isObj)
-        memo[key] = _.deepClone(value, depthLeft-1);
+        memo[key] = _.deepClone(value, depthLeft-1, debuggingKeys);
       else
-        memo[key] = _.deepClone(value, depthLeft);
+        memo[key] = _.deepClone(value, depthLeft, debuggingKeys);
+      debuggingKeys.pop();
       return memo;
     };
     return _.reduce(obj, func, isArr ? [] : {});

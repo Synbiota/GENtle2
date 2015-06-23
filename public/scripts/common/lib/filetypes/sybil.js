@@ -38,7 +38,7 @@ var convertToXML = function(data, namespace) {
       return createElement(key).append(convertToXML(value, getArrayElementName(key)));
     }));
   } else {
-    return data.toString();
+    return _.isUndefined(data) ? '' : data.toString();
   }
 };
 
@@ -52,7 +52,6 @@ var convertToObject = function(xml) {
     return prefix + _.camelize(string.toLowerCase());
   };
   var formatContent = function(string) {
-    console.log(string)
     if(/^[0-9]+(\.[0-9]+)?$/.test(string)) {
       return parseFloat(string);
     } else if(/^true|false$/.test(string)) {

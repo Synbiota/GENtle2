@@ -169,7 +169,7 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
  * @return {PcrProductSequence}
  */
 var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion) {
-  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds', 'partType', 'shortName', 'rdpEdits', 'sourceSequenceName']);
+  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds', 'shortName']);
 
   var regionOfInterest = sequenceModel.getSubSeq(opts.from, opts.to, sequenceModel.STICKY_END_FULL);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start && opts.stickyEnds.start.sequence || '';
@@ -194,13 +194,10 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
     stickyEnds: opts.stickyEnds,
-    partType: opts.partType,
-    shortName: shortName,
-    rdpEdits: opts.rdpEdits || [],
-    sourceSequenceName: opts.sourceSequenceName
+    shortName: shortName
   });
   pcrProduct.set('features', calculateFeatures(pcrProduct));
-  pcrProduct.set('meta.pcr.options', opts);
+  // pcrProduct.set('meta.pcr.options', opts);
   return pcrProduct;
 };
 
@@ -294,7 +291,8 @@ var getPcrProductAndPrimers = function(sequenceModel, opts) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];
       var pcrProduct = calculatePcrProductFromPrimers(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion);
-      pcrProduct.set('meta.pcr.options', opts);
+      console.log(pcrProduct, pcrProduct.toJSON())
+      // pcrProduct.set('meta.pcr.options', opts);
       resolve(pcrProduct);
     })
     .catch((e) => {

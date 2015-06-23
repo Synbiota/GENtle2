@@ -4,7 +4,7 @@ import _ from 'underscore';
 /**
  * @function version1GenericPreProcessor
  *
- * returns a function that transforms data from:
+ * returns a function that transforms data (from server) from:
  *     {
  *     meta: {
  *       associations: {

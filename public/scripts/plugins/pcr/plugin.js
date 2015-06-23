@@ -6,8 +6,7 @@ import PcrPrimer from '../pcr/lib/pcr_primer';
 import HomePcrView from './views/home_pcr_view';
 import SequenceModel from '../../sequence/models/sequence';
 import SequencesCollection from '../../sequence/models/sequences';
-import {version1GenericPreProcessor} from '../utils';
-import RdpEdit from 'gentle-rdp/rdp_edit';
+import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 
 
 Gentle.addPlugin('sequence-primary-view', {
@@ -22,25 +21,25 @@ Gentle.addPlugin('sequence-primary-view', {
   }
 });
 
-Gentle.addPlugin('sequence-canvas-context-menu', {
-  name: 'pcr',
-  title: 'Create RDP part',
-  icon: 'wrench',
-  selectionOnly: true,
-  callback: function() {
-    // `this` is the SequenceCanvas instance
-    var sequenceView = this.view.parentView();
-    var [selectionFrom, selectionTo] = this.selection;
-    var argumentsForView = [{
-      showForm: true,
-    }, {
-      selectionFrom: selectionFrom,
-      selectionTo: selectionTo,
-    }];
-    sequenceView.changePrimaryView('pcr', true, argumentsForView);
-  },
-  visible: Gentle.featureFlag('pcr')
-});
+// Gentle.addPlugin('sequence-canvas-context-menu', {
+//   name: 'pcr',
+//   title: 'Create RDP part',
+//   icon: 'wrench',
+//   selectionOnly: true,
+//   callback: function() {
+//     // `this` is the SequenceCanvas instance
+//     var sequenceView = this.view.parentView();
+//     var [selectionFrom, selectionTo] = this.selection;
+//     var argumentsForView = [{
+//       showForm: true,
+//     }, {
+//       selectionFrom: selectionFrom,
+//       selectionTo: selectionTo,
+//     }];
+//     sequenceView.changePrimaryView('pcr', true, argumentsForView);
+//   },
+//   visible: Gentle.featureFlag('pcr')
+// });
 
 Gentle.addPlugin('home', {
   name: 'pcr',
@@ -55,7 +54,6 @@ var version1reversePrimerPreProcessor = version1GenericPreProcessor('reversePrim
 
 SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 SequenceModel.registerAssociation(PcrProductSequence, 'pcrProduct', true);
-// SequenceModel.registerAssociation(RdpEdit, 'rdpEdit', true);
 PcrProductSequence.registerPreProcessor(version1forwardPrimerPreProcessor);
 PcrProductSequence.registerPreProcessor(version1reversePrimerPreProcessor);
 PcrProductSequence.registerAssociation(PcrPrimer, 'forwardPrimer', false);
