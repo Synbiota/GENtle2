@@ -86,8 +86,6 @@ export default Backbone.View.extend({
     var products = this.getProducts();
     if(_.isEmpty(products)) return;
 
-    console.log(products)
-
     _.each(products, function(product) {
       var primer = product.primer;
       if(primer) {
