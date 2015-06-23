@@ -8,7 +8,7 @@ var AWS = require('aws-sdk');
 var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
 var s3 = new AWS.S3({region: 'us-west-2'});
 
-gulp.task('deploy', [/*'publish'*/], function() {
+gulp.task('deploy', ['publish'], function() {
 
   var STACK_ID = process.env.STACK_ID;
   if(!STACK_ID) throw 'STACK_ID environment variable missing';
