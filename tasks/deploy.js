@@ -1,10 +1,13 @@
 var gulp = require('gulp');
-var AWS = require('aws-sdk');
-var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
-var s3 = new AWS.S3({region: 'us-west-2'});
 var _ = require('underscore');
 var Q = require('q');
 var fs = require('fs');
+var bundleLogger = require('./utils/bundle_logger');
+
+var AWS = require('aws-sdk');
+var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
+// var s3 = new AWS.S3({region: 'us-west-2', logger: process.stdout});
+var s3 = new AWS.S3({region: 'us-west-2'});
 
 gulp.task('deploy', ['publish'], function() {
 
@@ -57,7 +60,7 @@ gulp.task('deploy', ['publish'], function() {
 });
 
 
-gulp.task('publish', ['build'], function() {
+gulp.task('publish', [/*'build'*/], function() {
   // Todo publish to s3
   var manifest = require('../rev-manifest.json');
 
@@ -85,7 +88,7 @@ gulp.task('publish', ['build'], function() {
     }, function(err) {
       if(err) {
         if(err.code === 'NotFound') {
-          console.log('Uploading', file, 'to',  ASSET_DIR + '/assets/' + file);
+          bundleLogger.upload(file);
 
           s3.putObject({
             Bucket: bucket,
@@ -100,7 +103,7 @@ gulp.task('publish', ['build'], function() {
               console.log('Unable to upload:', file, err_, err_.stack);
               def.reject();
             } else {
-              console.log('Uploaded', file);
+              bundleLogger.uploadDone(file);
               def.resolve();
             }
           });
@@ -109,12 +112,13 @@ gulp.task('publish', ['build'], function() {
           def.reject();
         }
       } else {
-        console.log('Skipping already existing file:', file);
+        def.resolve();
+        bundleLogger.skip(file);
       }
     });
 
     return def.promise;
   });
 
-  return Q.all(promises);
+  return Q.allSettled(promises);
 });
