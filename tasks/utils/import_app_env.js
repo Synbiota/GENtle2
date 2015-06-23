@@ -21,6 +21,12 @@ var pickedEnvVars = envVarKeys.reduce(function(memo, key) {
   return memo;
 }, {});
 
+if(pickedEnvVars.REV_MANIFEST) {
+  pickedEnvVars.REV_MANIFEST = JSON.parse(pickedEnvVars.REV_MANIFEST.replace(/\\"/g, '"'));
+}  else {
+  pickedEnvVars.REV_MANIFEST = {};
+}
+
 pickedEnvVars.BUGSNAG_APP_VERSION = packageConfig.version;
 
 module.exports = pickedEnvVars;

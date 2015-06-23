@@ -2,12 +2,12 @@ var path = require('path');
 var fs = require('fs');
 var PORT = process.env.PORT || 3000;
 var isDev = process.env.NODE_ENV !== 'production';
-var appEnv = require('./tasks/utils/import_app_env');
+var appEnv = global.appEnv = require('./tasks/utils/import_app_env');
 
 var express = require('express');
 var app = express();
 var bugsnag = require('bugsnag');
-bugsnag.register(appEnv.BUGSNAG_SERVER_API_KEY, { 
+bugsnag.register(appEnv.BUGSNAG_SERVER_API_KEY, {
   releaseStage: process.env.BUGSNAG_RELEASE_STAGE || 'production'
 });
 
