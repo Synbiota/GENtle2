@@ -117,27 +117,11 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
   return new this(newSequenceAttributes);
 };
 
-var calculateProduct = function(sequenceBases, opts) {
-  if(_.isUndefined(opts.from) || _.isUndefined(opts.to)) {
-    throw "Must specify `opts.from` and `opts.to`";
-  }
-  var regionOfInterest = sequenceBases.slice(opts.from, opts.to + 1);
-  var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start || '';
-  var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end || '';
-
-  if(!_.isString(startStickyEnd)) startStickyEnd = startStickyEnd.sequence;
-  if(!_.isString(endStickyEnd)) endStickyEnd = endStickyEnd.sequence;
-
-  var productSequence = startStickyEnd + regionOfInterest + endStickyEnd;
-  return {productSequence, regionOfInterest, startStickyEnd, endStickyEnd};
-};
-
 
 var sequenceClassMethodsMixin = function(Klass) {
   var classMethods = {
     calculateOverhang,
     concatenateSequences,
-    calculateProduct
   };
   _.each(classMethods, function(methodFunction, methodName) {
     Klass[methodName] = _.bind(methodFunction, Klass);

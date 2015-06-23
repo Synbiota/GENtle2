@@ -54,7 +54,6 @@ export default class {
   }
 
   paste() {
-    var _this = this;
     return Q.promise((resolve) => {
       this.createBufferElement(function(text) {
         resolve(text);

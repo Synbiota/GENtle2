@@ -9,6 +9,7 @@
       Gentle          = require('gentle'),
       NewSequenceView = require('./new_sequence_view'),
       OpenFileView    = require('./open_file_view'),
+      _               = require('underscore'),
       HomeView;
 
   HomeView = Backbone.View.extend({
@@ -22,7 +23,7 @@
 
       defaultTabs = [{
         name: 'new-sequence',
-        title: 'New',
+        title: 'New sequence',
         view: NewSequenceView,
         active: true
       }, {
@@ -52,9 +53,9 @@
 
     serialize: function() {
       return {
-        tabs: _.filter(this.tabs, function(tab) {
+        tabs: _.sortBy(_.filter(this.tabs, function(tab) {
           return tab.visible === undefined || tab.visible();
-        })
+        }), (tab) => tab.order || 0)
       };
     }
 

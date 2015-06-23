@@ -1,17 +1,13 @@
-machine:
-  python:
-    version: 2.7.3
-
-dependencies:
-  pre:
-    - pip install awscli
+test:
+  override:
+    - ./node_modules/karma/bin/karma start --single-run --reporters dots
 
 deployment:
   nightly:
     branch: develop
     commands:
-      - "aws --region='us-east-1' opsworks create-deployment --stack-id $AWS_NIGHTLY_STACK_ID --app-id $AWS_NIGHTLY_APP_ID --command '{\"Name\": \"deploy\", \"Args\": {\"migrate\": [\"false\"]}}'"
+      - "STACK_ID=$AWS_NIGHTLY_STACK_ID APP_ID=$AWS_NIGHTLY_APP_ID ASSET_DIR=nightly gulp deploy"
   beta:
     branch: master
     commands:
-      - "aws --region='us-east-1' opsworks create-deployment --stack-id $AWS_BETA_STACK_ID --app-id $AWS_BETA_APP_ID --command '{\"Name\": \"deploy\", \"Args\": {\"migrate\": [\"false\"]}}'"
+      - "STACK_ID=$AWS_BETA_STACK_ID APP_ID=$AWS_BETA_APP_ID ASSET_DIR=beta gulp deploy"

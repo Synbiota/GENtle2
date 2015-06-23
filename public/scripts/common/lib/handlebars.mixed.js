@@ -78,6 +78,8 @@ Handlebars.registerHelper('sequenceLength', function(sequenceModel) {
       length = sequenceModel.sequence.length;
     } else if(_.isFunction(sequenceModel.length)) {
       length = sequenceModel.getLength();
+    } else if(_.isFunction(sequenceModel.getLength)) {
+      length = sequenceModel.getLength(sequenceModel.STICKY_END_FULL);
     }
   }
   return formatThousands(length, 0);
@@ -145,10 +147,19 @@ Handlebars.registerHelper('displaySequence', function(sequence) {
   return displaySequenceTemplate({sequence});
 });
 
-Handlebars.registerHelper('displaySelectableSequence', function(sequence) {
+Handlebars.registerHelper('displaySelectableSequence', function(sequenceModel) {
   var displaySelectableSequenceTemplate = require('../templates/display_selectable_sequence.hbs');
+  var sequence = sequenceModel && sequenceModel.sequence || sequenceModel;
+  if(_.isObject(sequenceModel) && _.isFunction(sequenceModel.getSequence)) {
+    sequence = sequenceModel.getSequence(sequenceModel.STICKY_END_FULL);
+  }
   return displaySelectableSequenceTemplate({sequence});
-})
+});
+
+Handlebars.registerHelper('primer', function(primer) {
+  var display = require('../templates/primer_partial.hbs');
+  return display(primer);
+});
 
 
 module.exports = Handlebars;

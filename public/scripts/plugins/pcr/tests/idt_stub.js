@@ -7,7 +7,6 @@ var idtMeltingTemperatureStub = function(potentialPrimer) {
   return Q.promise(function(resolve) {
     var Tm = Tms[potentialPrimer];
     if(Tm) {
-      // console.log(`stubbedIDTMeltingTemperature received: ${potentialPrimer}, responding with Tm: ${Tm}`);
       resolve(Tm);
     } else {
       // Set to true to go and get the result from IDT and record it so that

@@ -2,7 +2,7 @@ var gutil = require('gulp-util');
 var prettyHrtime = require('pretty-hrtime');
 var notifier = require('node-notifier');
 var just = require('string-just');
-var startTime;
+var startTime = {};
 
 var header = function(str, color) {
   // color = 'bg' + color[0].toUpperCase() + color.substr(1, color.length - 1);
@@ -16,19 +16,34 @@ var filename = function(str, color) {
   return '\'' + gutil.colors[color](str)  + '\'';
 };
 
+var getStartTimeKey = function(operation, filepath) {
+  return operation+'-'+filepath.replace(/\.\w+$/, '');
+};
+
+var setStartTime = function(operation, filepath) {
+  startTime[getStartTimeKey(operation, filepath)] = process.hrtime();
+};
+
+var getStartTime = function(operation, filepath) {
+  var key = getStartTimeKey(operation, filepath);
+  var time = startTime[key];
+  delete startTime[key];
+  return time;
+};
+
 module.exports = {
   start: function(filepath) {
-    startTime = process.hrtime();
+    setStartTime('build', filepath);
     gutil.log(header('Bundling', 'cyan'), filename(filepath, 'cyan'));
   },
 
   watch: function(bundleName, recordTime) {
-    if(recordTime) startTime = process.hrtime();
+    if(recordTime) setStartTime('build', bundleName);
     gutil.log(header('Watching', 'yellow'), filename(bundleName, 'yellow'));
   },
 
   rebuild: function(filepath) {
-    startTime = process.hrtime();
+    setStartTime('rebuild', filepath);
     gutil.log(header('Changed', 'yellow'), filename(filepath, 'yellow'));
   },
 
@@ -61,8 +76,8 @@ module.exports = {
   },
 
   end: function(filepath, watch) {
-    var taskTime = process.hrtime(startTime);
-    var prettyTime = prettyHrtime(taskTime);
+    var time = getStartTime(watch ? 'rebuild' : 'build', filepath);
+    var prettyTime = prettyHrtime(process.hrtime(time));
     notifier.notify({
       title: 'Bundle complete',
       message: filepath,
@@ -73,5 +88,27 @@ module.exports = {
       filename(filepath, 'green'), 
       'after', gutil.colors.magenta(prettyTime)
     );
-  }
+  },
+
+
+  skip: function(filepath) {
+    gutil.log(header('Skipping', 'cyan'), filename(filepath, 'cyan'));
+  },
+
+  upload: function(filepath) {
+    startTime['upload-'+filepath] = process.hrtime();
+    gutil.log(header('Uploadng', 'yellow'), filename(filepath, 'yellow'));
+  },
+
+  uploadDone: function(filepath) {
+    var startTimeKey = 'upload-' + filepath;
+    var taskTime = process.hrtime(startTime[startTimeKey]);
+    delete startTime[startTimeKey];
+    var prettyTime = prettyHrtime(taskTime);
+    gutil.log(
+      header('Uploaded', 'green'), 
+      filename(filepath, 'green'), 
+      'after', gutil.colors.magenta(prettyTime)
+    );
+  }                   
 };

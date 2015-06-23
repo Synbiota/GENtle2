@@ -112,7 +112,6 @@ AvailableSequenceView = Backbone.View.extend({
   serialize: function() {
     var showAnnotations = this.showAnnotations();
     this.processFeatures();
-    console.log(this.model)
     return {
       sequence: this.sequenceInfo,
       descriptiveAnnotationContent: this.parentView().getDescriptiveAnnotationContent(this.model),

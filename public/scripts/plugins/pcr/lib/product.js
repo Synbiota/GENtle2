@@ -1,27 +1,39 @@
-import {assertIsInstance} from '../../../common/lib/testing_utils';
-import Sequence from './sequence';
-import Primer from './primer';
+import Sequence from '../../../sequence/models/sequence';
+import _ from 'underscore';
 
-
-class Product extends Sequence {
-  setup () {
-    super.setup();
-    if(this.primer.constructor !== Primer) {
-      this.primer = new Primer(this.primer);
+class PcrProductSequence extends Sequence {
+  constructor(attrs, ...args) {
+    try {
+      var rdpEdits = attrs.meta.associations.rdpEdits;
+      delete attrs.meta.associations.rdpEdits;
+      attrs.rdpEdits = rdpEdits;
+    } catch(e) {} finally {
+      super(attrs, ...args);
+      this.set({
+        _type: 'pcr_product',
+        readOnly: true
+      }, {silent: true});  
     }
   }
 
-  requiredFields () {
-    return [
-      // 'sequence',
-      'from', 'to', 'primer'];
+  get requiredFields() {
+    return super.requiredFields.concat([
+      'forwardPrimer',
+      'reversePrimer',
+      'stickyEnds',
+      'partType',
+      'rdpEdits'
+    ]);
   }
 
-  validate () {
-    assertIsInstance(this.primer, Primer, 'primer');
-    super.validate();
+  toJSON() {
+    var attributes = super.toJSON();
+    var rdpEdits = attributes.rdpEdits;
+    delete attributes.rdpEdits;
+    attributes.meta.associations.rdpEdits = rdpEdits;
+    return attributes;
   }
 }
 
 
-export default Product;
+export default PcrProductSequence;
