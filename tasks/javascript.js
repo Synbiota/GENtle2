@@ -62,7 +62,7 @@ var bundle = function(browserified, watch, filepath, cb) {
   var target = scriptFile;
 
   if(watch) {
-    bundleLogger.rebuild(path.relative(target, filepath[0]));
+    bundleLogger.rebuild(path.relative(target, filepath[0]), target);
   } else {
     bundleLogger.start(target);
   }

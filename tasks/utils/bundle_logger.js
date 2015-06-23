@@ -27,7 +27,6 @@ var setStartTime = function(operation, filepath) {
 var getStartTime = function(operation, filepath) {
   var key = getStartTimeKey(operation, filepath);
   var time = startTime[key];
-  delete startTime[key];
   return time;
 };
 
@@ -38,12 +37,12 @@ module.exports = {
   },
 
   watch: function(bundleName, recordTime) {
-    if(recordTime) setStartTime('build', bundleName);
+    if(recordTime) setStartTime('rebuild', bundleName);
     gutil.log(header('Watching', 'yellow'), filename(bundleName, 'yellow'));
   },
 
-  rebuild: function(filepath) {
-    setStartTime('rebuild', filepath);
+  rebuild: function(filepath, bundleName) {
+    setStartTime('rebuild', bundleName);
     gutil.log(header('Changed', 'yellow'), filename(filepath, 'yellow'));
   },
 
