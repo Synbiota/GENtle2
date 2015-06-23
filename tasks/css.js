@@ -159,7 +159,7 @@ gulp.task('css:watch', function() {
 
   gulp.watch('./public/{stylesheets,scripts}/**/*.scss', ['css-only'])
     .on('change', function (event) {
-      bundleLogger.rebuild(path.relative(filedir, event.path));
+      bundleLogger.rebuild(path.relative(filedir, event.path), filepath);
       if (event.type === 'deleted') {                  
         delete cached.caches.stylesheets[event.path];      
         remember.forget('stylesheets', event.path);        
