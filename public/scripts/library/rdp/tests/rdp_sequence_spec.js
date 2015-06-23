@@ -12,7 +12,7 @@ stubCurrentUser();
 
 describe('RdpSequence model', function() {
   var attributes = {
-    "_type": "pcr_product",
+    "_type": "rdp_pcr_product",
     "version": 1,
     "name": "Retro Graduated Ligase",
     "shortName": "Retu",
