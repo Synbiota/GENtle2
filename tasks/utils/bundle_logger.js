@@ -16,19 +16,34 @@ var filename = function(str, color) {
   return '\'' + gutil.colors[color](str)  + '\'';
 };
 
+var getStartTimeKey = function(operation, filepath) {
+  return operation+'-'+filepath.replace(/\.\w+$/, '');
+};
+
+var setStartTime = function(operation, filepath) {
+  startTime[getStartTimeKey(operation, filepath)] = process.hrtime();
+};
+
+var getStartTime = function(operation, filepath) {
+  var key = getStartTimeKey(operation, filepath);
+  var time = startTime[key];
+  delete startTime[key];
+  return time;
+};
+
 module.exports = {
   start: function(filepath) {
-    startTime['build-'+filepath] = process.hrtime();
+    setStartTime('build', filepath);
     gutil.log(header('Bundling', 'cyan'), filename(filepath, 'cyan'));
   },
 
   watch: function(bundleName, recordTime) {
-    if(recordTime) startTime = process.hrtime();
+    if(recordTime) setStartTime('build', bundleName);
     gutil.log(header('Watching', 'yellow'), filename(bundleName, 'yellow'));
   },
 
   rebuild: function(filepath) {
-    startTime['rebuild-'+filepath] = process.hrtime();
+    setStartTime('rebuild', filepath);
     gutil.log(header('Changed', 'yellow'), filename(filepath, 'yellow'));
   },
 
@@ -61,10 +76,8 @@ module.exports = {
   },
 
   end: function(filepath, watch) {
-    var startTimeKey = (watch ? 'rebuild-' : 'build-') + filepath;
-    var taskTime = process.hrtime(startTime[startTimeKey]);
-    delete startTime[startTimeKey];
-    var prettyTime = prettyHrtime(taskTime);
+    var time = getStartTime(watch ? 'rebuild' : 'build', filepath);
+    var prettyTime = prettyHrtime(process.hrtime(time));
     notifier.notify({
       title: 'Bundle complete',
       message: filepath,
