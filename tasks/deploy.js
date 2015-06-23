@@ -28,13 +28,9 @@ gulp.task('deploy', ['publish'], function() {
     return S3_HOST + ASSET_DIR + '/assets/' + file;
   });
 
-  var updateParams = {
-    AppId: APP_ID,
-    Environment: [{
-      Key: 'REV_MANIFEST', 
-      Value: JSON.stringify(manifest), 
-      Secure: false
-    }]
+  var describeParams = {
+    AppIds: [APP_ID],
+    StackId: STACK_ID
   };
 
   var deployParams = {
@@ -48,11 +44,31 @@ gulp.task('deploy', ['publish'], function() {
     }
   };
 
-  opsworks.updateApp(updateParams, function(err) {
-    if (err) console.log(err, err.stack); // an error occurred
+  opsworks.describeApps(describeParams, function(err, data) {
+    if(err) console.log(err, err.stack);
     else {
-      opsworks.createDeployment(deployParams, function(err_) {
+      var updateParams = {
+        AppId: APP_ID,
+        Environment: [{
+          Key: 'REV_MANIFEST', 
+          Value: JSON.stringify(manifest), 
+          Secure: false
+        }]
+      };
+
+      updateParams.Environment = updateParams.Environment.concat(
+        _.reject(data.Apps[0].Environment, function(envVar) { 
+          return envVar.Key === 'REV_MANIFEST';
+        })
+      );
+
+      opsworks.updateApp(updateParams, function(err_) {
         if (err_) console.log(err_, err_.stack); // an error occurred
+        else {
+          opsworks.createDeployment(deployParams, function(err__) {
+            if (err__) console.log(err__, err__.stack); // an error occurred
+          });
+        }
       });
     }
   });
