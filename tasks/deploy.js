@@ -3,6 +3,8 @@ var _ = require('underscore');
 var Q = require('q');
 var fs = require('fs');
 var bundleLogger = require('./utils/bundle_logger');
+var glob = require('glob');
+var mime = require('mime');
 
 var AWS = require('aws-sdk');
 var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
@@ -73,7 +75,6 @@ gulp.task('deploy', ['publish'], function() {
   
 });
 
-
 gulp.task('publish', ['build'], function() {
   // Todo publish to s3
   var manifest = require('../rev-manifest.json');
@@ -82,19 +83,39 @@ gulp.task('publish', ['build'], function() {
   if(!ASSET_DIR) throw 'ASSET_DIR missing';
 
   var files = _.flatten(_.map(_.values(manifest), function(file) {
-    var output = [file, file + '.gz'];
+    var output = [file];
     if(/\.js$/.test(file)) output.push(file + '.map');
     return output;
   }));
 
+  glob.sync('./public/vendor/bootstrap/fonts/*.*').forEach(function(file) {
+    files.push(file.replace('./public/', ''));
+  });
+
   var promises = _.map(files, function(file) {
     var def = Q.defer();
-    var stream = fs.createReadStream('public/' + file);
+    var localFile = 'public/' + file;
+    var gzip = fs.existsSync(localFile + '.gz');
+
+    var stream = fs.createReadStream(localFile + (gzip ? '.gz' : ''));
     var bucket = 'gentle';
     var key =  ASSET_DIR + '/assets/' + file;
 
     var expires = new Date();
     expires.setTime(expires.getTime() + 365 * 24 * 3600 * 1000);
+
+    var objParams = {
+      Bucket: bucket,
+      Key: key,
+      Body: stream,
+      ACL: 'public-read',
+      CacheControl: 'public, max-age=31536000',
+      ContentDisposition: 'inline',
+      ContentType: mime.lookup(localFile),
+      Expires: expires
+    };
+
+    if(gzip) objParams.ContentEncoding = 'gzip';
 
     s3.headObject({
       Bucket: bucket,
@@ -104,15 +125,7 @@ gulp.task('publish', ['build'], function() {
         if(err.code === 'NotFound') {
           bundleLogger.upload(file);
 
-          s3.putObject({
-            Bucket: bucket,
-            Key: key,
-            Body: stream,
-            ACL: 'public-read',
-            CacheControl: 'max-age=31536000',
-            ContentDisposition: 'inline',
-            Expires: expires
-          }, function(err_) {
+          s3.putObject(objParams, function(err_) {
             if(err_) {
               console.log('Unable to upload:', file, err_, err_.stack);
               def.reject();
