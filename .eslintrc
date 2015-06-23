@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "quotes": [1, "single"],
+    "no-trailing-spaces": 0,
+    "strict": 0,
+    "eol-last": 0
+  },
+  "env": {
+    "node": true
+  }
+}

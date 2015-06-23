@@ -12,7 +12,7 @@ class PcrProductSequence extends Sequence {
     return super.requiredFields.concat([
       'forwardPrimer',
       'reversePrimer',
-      'stickyEnds',
+      'stickyEnds'
     ]);
   }
 }

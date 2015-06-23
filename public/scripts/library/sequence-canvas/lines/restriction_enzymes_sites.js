@@ -55,7 +55,7 @@ class RestrictionEnzymeSites extends Line {
     y += layoutHelpers.yOffset;
 
     var row = sequenceCanvas.getAbsRowFromYPos(y);
-    var rowClass = `res-sites-row-${row}`;
+    var rowClass = `${sequenceCanvas.id}-res-sites-row-${row}`;
     if(document.getElementsByClassName(rowClass).length) return;
 
     // artist.updateStyle({
