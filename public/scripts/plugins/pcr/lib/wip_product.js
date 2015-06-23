@@ -1,7 +1,7 @@
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
+import Sequence from '../../../sequence/models/sequence';
 
 
-class WipPcrProductSequence extends TemporarySequence {
+class WipPcrProductSequence extends Sequence {
   constructor(attributes, ...other) {
     var wip_pcr_product = 'wip_pcr_product';
     if(attributes._type && attributes._type !== wip_pcr_product) {
