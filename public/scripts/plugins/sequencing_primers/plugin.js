@@ -9,7 +9,7 @@ import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 
 Gentle.addPlugin('sequence-primary-view', {
   name: 'sequencing_primers',
-  title: 'Sequencing primers',
+  title: 'RDP Sequencing primers',
   view: View,
   visible: Gentle.featureFlag('sequencingPrimers'),
 });
