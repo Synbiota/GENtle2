@@ -60,7 +60,7 @@ gulp.task('deploy', ['publish'], function() {
 });
 
 
-gulp.task('publish', [/*'build'*/], function() {
+gulp.task('publish', ['build'], function() {
   // Todo publish to s3
   var manifest = require('../rev-manifest.json');
 
