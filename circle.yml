@@ -6,4 +6,4 @@ deployment:
   nightly:
     branch: develop
     commands:
-      - "STACK_ID=$AWS_NIGHTLY_STACK_ID APP_ID=$AWS_NIGHTLY_APP_ID ASSET_DIR=nightly gulp deploy"
+      - "STACK_ID=$AWS_NIGHTLY_STACK_ID APP_ID=$AWS_NIGHTLY_APP_ID ASSET_DIR=nightly BUGSNAG_RELEASE_STAGE=nightly gulp publish"
