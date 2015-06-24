@@ -148,6 +148,7 @@ describe('RdpSequence model', function() {
 
   it('should instantiate from json data from server', function() {
     rdpSequence = new RdpSequence(attributes);
+    expect(rdpSequence.get('_type')).toEqual('rdp_pcr_product');
     expect(rdpSequence.get('rdpEdits').length).toEqual(1);
     var rdpEdit = rdpSequence.get('rdpEdits')[0];
     expect(rdpEdit instanceof RdpEdit).toEqual(true);
