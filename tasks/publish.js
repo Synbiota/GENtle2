@@ -68,7 +68,7 @@ gulp.task('publish', ['index'], function() {
 
     if(isIndex) {
       _.extend(objParams, {
-        CacheControl: 'no-cache'
+        CacheControl: 'max-age=0'
       });
 
       putObject(objParams, file, def);
