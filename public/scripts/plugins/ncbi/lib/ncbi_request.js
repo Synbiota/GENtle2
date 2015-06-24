@@ -5,9 +5,9 @@ import Filetypes from '../../../common/lib/filetypes/filetypes';
 import $ from 'jquery';
 
 var NCBIUrls = {
-  loadId: 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={{dbName}}&id={{id}}&rettype=gb&retmode=text',
-  search: 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={{dbName}}&term={{searchTerm}}',
-  loadIds: 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db={{dbName}}&id={{ids}}'
+  loadId: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={{dbName}}&id={{id}}&rettype=gb&retmode=text',
+  search: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={{dbName}}&term={{searchTerm}}',
+  loadIds: 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db={{dbName}}&id={{ids}}'
 };
 
 var NCBIIdRegexp = /^\s*[A-Z]{1,3}\B\d{1,10}(\.\d{1,5})?\s*$/i;
