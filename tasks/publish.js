@@ -110,7 +110,8 @@ gulp.task('index', ['build'], function() {
   var html = template({
     appPath: manifest['scripts/app.min.js'], 
     vendorPath: manifest['scripts/vendor.js'],
-    stylePath: manifest['stylesheets/app.css']
+    stylePath: manifest['stylesheets/app.css'],
+    packageVersion: require('../package.json').version
   });
 
   fs.writeFileSync('public/index.html', html);
