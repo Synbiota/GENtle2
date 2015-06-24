@@ -12,7 +12,7 @@ Gentle.addPlugin('sequence-primary-view', {
 
 Gentle.addPlugin('home', {
   name: 'designer',
-  title: 'New PCR circuit',
+  title: 'New RDP circuit',
   view: HomeDesignerView,
   order: 10
 });
