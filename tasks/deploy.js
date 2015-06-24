@@ -2,91 +2,41 @@ var gulp = require('gulp');
 var _ = require('underscore');
 var Q = require('q');
 var fs = require('fs');
+var path = require('path');
 var bundleLogger = require('./utils/bundle_logger');
 var glob = require('glob');
 var mime = require('mime');
+var jade = require('jade');
 
 var AWS = require('aws-sdk');
-var opsworks = new AWS.OpsWorks({region: 'us-east-1'});
 var s3 = new AWS.S3({region: 'us-west-2'});
 
-gulp.task('deploy', ['publish'], function() {
-
-  var STACK_ID = process.env.STACK_ID;
-  if(!STACK_ID) throw 'STACK_ID environment variable missing';
-
-  var APP_ID = process.env.APP_ID;
-  if(!APP_ID) throw 'APP_ID environment variable missing';
-
-  var S3_HOST = process.env.S3_HOST;
-  if(!S3_HOST) throw 'S3_HOST environment variable missing';  
-  if(!/\/$/.test(S3_HOST)) S3_HOST = S3_HOST + '/';
-
-  var ASSET_DIR = process.env.ASSET_DIR;
-  if(!ASSET_DIR) throw 'ASSET_DIR missing';
-
-  var manifest = _.mapObject(require('../rev-manifest.json'), function(file) {
-    return S3_HOST + ASSET_DIR + '/assets/' + file;
-  });
-
-  var describeParams = {
-    AppIds: [APP_ID]
-  };
-
-  var deployParams = {
-    StackId: STACK_ID,
-    AppId: APP_ID,
-    Command: {
-      Name: 'deploy',
-      Args: {
-        migrate: ['false']
-      }
-    }
-  };
-
-  opsworks.describeApps(describeParams, function(err, data) {
-    if(err) console.log(err, err.stack);
-    else {
-      var updateParams = {
-        AppId: APP_ID,
-        Environment: [{
-          Key: 'REV_MANIFEST', 
-          Value: JSON.stringify(manifest), 
-          Secure: false
-        }]
-      };
-
-      updateParams.Environment = updateParams.Environment.concat(
-        _.reject(data.Apps[0].Environment, function(envVar) { 
-          return envVar.Key === 'REV_MANIFEST';
-        })
-      );
-
-      opsworks.updateApp(updateParams, function(err_) {
-        if (err_) console.log(err_, err_.stack); // an error occurred
-        else {
-          opsworks.createDeployment(deployParams, function(err__) {
-            if (err__) console.log(err__, err__.stack); // an error occurred
-          });
-        }
-      });
+var putObject = function(params, file, def) {
+  bundleLogger.upload(file);
+  s3.putObject(params, function(err_) {
+    if(err_) {
+      console.log('Unable to upload:', file, err_, err_.stack);
+      def.reject();
+    } else {
+      bundleLogger.uploadDone(file);
+      def.resolve();
     }
   });
-  
-});
+};
 
-gulp.task('publish', ['build'], function() {
+gulp.task('publish', ['index'], function() {
   // Todo publish to s3
   var manifest = require('../rev-manifest.json');
 
   var ASSET_DIR = process.env.ASSET_DIR;
   if(!ASSET_DIR) throw 'ASSET_DIR missing';
 
-  var files = _.flatten(_.map(_.values(manifest), function(file) {
-    var output = [file];
-    if(/\.js$/.test(file)) output.push(file + '.map');
-    return output;
-  }));
+  var files = ['index.html'];
+
+  _.values(manifest).forEach(function(file) {
+    if(/\.js$/.test(file)) files.push(file + '.map');
+    files.push(file);
+  });
 
   glob.sync('./public/vendor/bootstrap/fonts/*.*').forEach(function(file) {
     files.push(file.replace('./public/', ''));
@@ -96,10 +46,11 @@ gulp.task('publish', ['build'], function() {
     var def = Q.defer();
     var localFile = 'public/' + file;
     var gzip = fs.existsSync(localFile + '.gz');
+    var isIndex = /index.html$/.test(file);
 
     var stream = fs.createReadStream(localFile + (gzip ? '.gz' : ''));
     var bucket = 'gentle';
-    var key =  ASSET_DIR + '/assets/' + file;
+    var key = ASSET_DIR + '/assets/' + file;
 
     var expires = new Date();
     expires.setTime(expires.getTime() + 365 * 24 * 3600 * 1000);
@@ -109,40 +60,41 @@ gulp.task('publish', ['build'], function() {
       Key: key,
       Body: stream,
       ACL: 'public-read',
-      CacheControl: 'public, max-age=31536000',
       ContentDisposition: 'inline',
-      ContentType: mime.lookup(localFile),
-      Expires: expires
+      ContentType: mime.lookup(localFile)
     };
 
     if(gzip) objParams.ContentEncoding = 'gzip';
 
-    s3.headObject({
-      Bucket: bucket,
-      Key: key
-    }, function(err) {
-      if(err) {
-        if(err.code === 'NotFound') {
-          bundleLogger.upload(file);
+    if(isIndex) {
+      _.extend(objParams, {
+        CacheControl: 'no-cache'
+      });
 
-          s3.putObject(objParams, function(err_) {
-            if(err_) {
-              console.log('Unable to upload:', file, err_, err_.stack);
-              def.reject();
-            } else {
-              bundleLogger.uploadDone(file);
-              def.resolve();
-            }
-          });
+      putObject(objParams, file, def);
+    } else {
+      _.extend(objParams, {
+        CacheControl: 'public, max-age=31536000',
+        Expires: expires
+      });
+
+      s3.headObject({
+        Bucket: bucket,
+        Key: key
+      }, function(err) {
+        if(err) {
+          if(err.code === 'NotFound') {
+            putObject(objParams, file, def);
+          } else {
+            console.log('Unable to upload:', file, err, err.stack);
+            def.reject();
+          }
         } else {
-          console.log('Unable to upload:', file, err, err.stack);
-          def.reject();
+          def.resolve();
+          bundleLogger.skip(file);
         }
-      } else {
-        def.resolve();
-        bundleLogger.skip(file);
-      }
-    });
+      });
+    } 
 
     return def.promise;
   });
@@ -151,11 +103,16 @@ gulp.task('publish', ['build'], function() {
 });
 
 
-gulp.task('manifest', function() {
-  var revManifest = require('./utils/import_app_env').REV_MANIFEST;
-  if(!revManifest) throw 'REV_MANIFEST environment variable missing';
+// TODO Link to build tasks
+gulp.task('index', function() {
+  var template = jade.compileFile(path.join(__dirname, '../views/index.jade'));
+  var manifest = require('../rev-manifest.json');
 
-  revManifest = revManifest.replace(/\\"/g, '"');
+  var html = template({
+    appPath: manifest['scripts/app.min.js'], 
+    vendorPath: manifest['scripts/vendor.js'],
+    stylePath: manifest['stylesheets/app.css']
+  });
 
-  fs.writeFileSync('rev-manifest.json', revManifest);
+  fs.writeFileSync('public/index.html', html);
 });

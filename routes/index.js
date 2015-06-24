@@ -6,7 +6,6 @@ var stylePath = 'stylesheets/app.css';
 var manifest = {};
 
 if(!isDev) {
-  manifest = global.appEnv.REV_MANIFEST || {};
   appPath = (manifest[appPath] || appPath);
   stylePath = (manifest[stylePath] || stylePath);
   vendorPath = (manifest[vendorPath] || vendorPath);

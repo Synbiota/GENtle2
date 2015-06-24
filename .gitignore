@@ -25,3 +25,5 @@ npm-debug.log
 app.env
 log
 disc*.html
+public/index.html
+.env

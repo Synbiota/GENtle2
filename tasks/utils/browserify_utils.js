@@ -1,7 +1,6 @@
 var aliases = require('./javascript_aliases');
-var envify = require('envify/custom');
-var appEnv = require('./import_app_env');
-var isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
+var isDev = global.isDev;
+process.env.BUGSNAG_APP_VERSION = require('../../package.json').version;
 
 var vendorLibs = [
   'jquery',
@@ -31,7 +30,7 @@ var vendorTransforms = [];
 
 if(!isDev) {
   appTransforms.push(
-    [ envify(appEnv), {} ],
+    [ 'envify', {} ],
     [ 'uglifyify', { global: true } ]
   );
 

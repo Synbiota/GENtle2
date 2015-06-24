@@ -1,8 +1,8 @@
 import Proxy from '../../../common/lib/proxy';
-import $ from 'jquery';
 import _ from 'underscore';
 import Q from 'q';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
+import $ from 'jquery';
 
 var NCBIUrls = {
   loadId: 'http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db={{dbName}}&id={{id}}&rettype=gb&retmode=text',
@@ -27,7 +27,7 @@ var NCBIRequest = {
 
     currentDbName = dbName;
 
-    return Proxy.get(url).then(NCBIRequest._parseNCBISearchResponseAndGetIds, function() {
+    return Proxy.yqlGetXml(url).then(NCBIRequest._parseNCBISearchResponseAndGetIds, function() {
       alert('There was an issue search the NCBI database');
     });
   },
@@ -39,41 +39,41 @@ var NCBIRequest = {
 
     currentDbName = dbName;
 
-    return Proxy.get(url).then(Filetypes.guessTypeAndParseFromText, function() {
+    return Q($.get(url)).then(Filetypes.guessTypeAndParseFromText, function() {
       alert('There was an issue accessing the NCBI database.');
     });
   },
 
   _parseNCBISearchResponseAndGetIds: function(response) {
-    var $response = $($.parseXML(response));
+    if(response.eSearchResult.Count === '0') {
+      return Q([]);
+    }
 
-    var ids = _.map($response.find('eSearchResult > IdList > Id'), function(id) {
-      return $(id).text();
-    });
+    var ids = response.eSearchResult.IdList.Id;
 
     var url = NCBIUrls.loadIds
       .replace('{{dbName}}', currentDbName)
       .replace('{{ids}}', ids.join(','));
 
-    return Proxy.get(url).then(NCBIRequest._parseNCBIIdsResponse, function() {
+    return Proxy.yqlGetXml(url).then(NCBIRequest._parseNCBIIdsResponse, function() {
       alert('There was an issue searching the NCBI database');
     });
   },
 
   _parseNCBIIdsResponse: function(response) {
-    var $response = $($.parseXML(response));
+    var attributes = ['Caption', 'Title', 'Length'];
 
-    return Q(_.map($response.find('DocSum'), function(result) {
-      var output = {},
-          attributes = ['Caption', 'Title', 'Length'];
+    return Q(_.map(response.eSummaryResult.DocSum, function(doc) {
+      var output = {};
 
       _.each(attributes, function(attribute) {
-        output[attribute.toLowerCase()] = $(result).find('[Name="'+attribute+'"]').text();
+        var item = _.find(doc.Item, {Name: attribute});
+        if(item) output[attribute.toLowerCase()] = item.content;
       });
 
       return output;
     }));
-  },
+  }
 };
 
 export default NCBIRequest;
