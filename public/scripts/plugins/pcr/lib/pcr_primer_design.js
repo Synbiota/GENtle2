@@ -291,7 +291,6 @@ var getPcrProductAndPrimers = function(sequenceModel, opts) {
       var forwardAnnealingRegion = primerResults[0];
       var reverseAnnealingRegion = primerResults[1];
       var pcrProduct = calculatePcrProductFromPrimers(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion);
-      console.log(pcrProduct, pcrProduct.toJSON())
       // pcrProduct.set('meta.pcr.options', opts);
       resolve(pcrProduct);
     })
