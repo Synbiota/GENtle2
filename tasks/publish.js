@@ -103,8 +103,7 @@ gulp.task('publish', ['index'], function() {
 });
 
 
-// TODO Link to build tasks
-gulp.task('index', function() {
+gulp.task('index', ['build'], function() {
   var template = jade.compileFile(path.join(__dirname, '../views/index.jade'));
   var manifest = require('../rev-manifest.json');
 
