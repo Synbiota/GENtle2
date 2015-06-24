@@ -145,12 +145,11 @@ class Feature extends Line {
     var baseWidth = layoutSettings.basePairDims.width;
     var row = sequenceCanvas.getAbsRowFromYPos(y);
 
-    var featuresRowClass = `features-row-${row}`;
+    var featuresRowClass = `features-${this.lineName}-row-${row}`;
     if(document.getElementsByClassName(featuresRowClass).length) return;
 
     var features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
     y += (this.topMargin || 0) + sequenceCanvas.layoutHelpers.yOffset;
-
 
     _.each(features, (feature, i) => {
       // Features can have multiple ranges

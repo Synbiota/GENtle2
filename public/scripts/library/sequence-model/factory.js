@@ -1554,6 +1554,13 @@ function sequenceModelFactory(BackboneModel) {
   };
 
 
+  Sequence._logRegisteredAssociations = function() {
+    // Used for debugging
+    console.log(JSON.stringify(associations, null, 2));
+    return associations;
+  };
+
+
   Sequence.registerPreProcessor = function(preProcessor) {
     preProcessors.push(preProcessor);
   };

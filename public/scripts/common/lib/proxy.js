@@ -88,7 +88,6 @@ export default {
     // setTimeout(() => deferredYqlQuery.reject({status: 503, statusText: "Bang"}), delay);
     // return;
 
-    console.log('Sending query', queryObject)
     var ajaxQuery = $.ajax(queryObject);
 
     Q(ajaxQuery).then((response)  => {

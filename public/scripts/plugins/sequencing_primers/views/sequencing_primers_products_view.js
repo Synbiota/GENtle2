@@ -116,9 +116,10 @@ export default Backbone.View.extend({
     var sortedProducts = this.sortProductsForScrolling();
 
     var product = _.find(sortedProducts, function(product_) {
-      
       return product_.primer.range.from <= baseRange[1] && product_.primer.range.to > baseRange[0];
     });
+
+
 
     // TODO REmove that and required functions if we indeed remove that behaviour
     // (maybe move the logic in a module)

@@ -20,7 +20,7 @@ var rev = require('gulp-rev');
 var replace = require('gulp-replace');
 var Q = require('q');
 
-var isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
+var isDev = global.isDev;
 
 var filepath = './public/stylesheets/app.scss';
 var filedir = path.dirname(filepath);
@@ -159,7 +159,7 @@ gulp.task('css:watch', function() {
 
   gulp.watch('./public/{stylesheets,scripts}/**/*.scss', ['css-only'])
     .on('change', function (event) {
-      bundleLogger.rebuild(path.relative(filedir, event.path));
+      bundleLogger.rebuild(path.relative(filedir, event.path), filepath);
       if (event.type === 'deleted') {                  
         delete cached.caches.stylesheets[event.path];      
         remember.forget('stylesheets', event.path);        

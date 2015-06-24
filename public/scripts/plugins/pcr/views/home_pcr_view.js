@@ -5,12 +5,10 @@
 **/
 import Backbone from 'backbone';
 import template from '../templates/home_pcr_view.hbs';
-import Sequence from '../../../sequence/models/sequence';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
 import WipPcrProductSequence from '../lib/wip_product';
 import Gentle from 'gentle';
-import Q from 'q';
-import _ from 'underscore';
+
 
 export default Backbone.View.extend({
   manage: true,

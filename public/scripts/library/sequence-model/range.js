@@ -7,9 +7,9 @@ import {assertIsNumber, assertIsBoolean} from '../../common/lib/testing_utils';
  *                             Is always <= `to()`.
  */
 class SequenceRange {
-  from: number;
-  size: number;
-  reverse: boolean;
+  // from: number;
+  // size: number;
+  // reverse: boolean;
 
   constructor({from, size, reverse = false}) {
     this.from = from;

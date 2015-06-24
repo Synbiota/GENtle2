@@ -1,7 +1,6 @@
 import template from '../templates/pcr_product_view.hbs';
 import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
-import {getPcrProductsFromSequence} from '../lib/utils';
 import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 import _ from 'underscore';
 import EditsView from './pcr_edits_view';
@@ -139,7 +138,7 @@ export default Backbone.View.extend({
       this.model.get('forwardPrimer'), 
       this.model.get('reversePrimer')
     ], {id});
-    this.parentView().canvasView.sequenceCanvas.scrollToBase(primer.range.from)
+    this.parentView().canvasView.sequenceCanvas.scrollToBase(primer.range.from);
   }
 
 });

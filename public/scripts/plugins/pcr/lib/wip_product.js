@@ -1,29 +1,20 @@
 import Sequence from '../../../sequence/models/sequence';
-import _ from 'underscore';
 
 
 class WipPcrProductSequence extends Sequence {
-  constructor() {
-    super(...arguments);
-    this.set('_type', 'wip_pcr_product', {silent: true});
-  }
-
-  get requiredFields() {
-    return super.requiredFields.concat([
-      // 'forwardPrimer',
-      // 'reversePrimer',
-      // 'stickyEnds'
-    ]);
+  constructor(attributes, ...other) {
+    var wip_pcr_product = 'wip_pcr_product';
+    if(attributes._type && attributes._type !== wip_pcr_product) {
+      throw new TypeError(`WipPcrProductSequence expected _type of "${wip_pcr_product}" but was "${attributes._type}"`);
+    }
+    attributes._type = wip_pcr_product;
+    super(attributes, ...other);
   }
 
   get optionalFields() {
     return super.optionalFields.concat([
       'inProgress',
       'sourceSequenceName',
-      // the following might be unnecessary
-      'forwardPrimer',
-      'reversePrimer',
-      'stickyEnds'
     ]);
   }
 }

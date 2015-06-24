@@ -22,7 +22,7 @@ var scriptPath = path.dirname(scriptFile);
 
 var destPath = './';
 var destExtname = '.min.js';
-var isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
+var isDev = global.isDev;
 var browserifyOptions = {
   debug: true
 };
@@ -62,7 +62,7 @@ var bundle = function(browserified, watch, filepath, cb) {
   var target = scriptFile;
 
   if(watch) {
-    bundleLogger.rebuild(path.relative(target, filepath[0]));
+    bundleLogger.rebuild(path.relative(target, filepath[0]), target);
   } else {
     bundleLogger.start(target);
   }

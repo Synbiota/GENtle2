@@ -1,4 +1,4 @@
-import SequenceFeature from '../sequence-model/feature';
+import SequenceFeature from 'gentle-sequence-model/feature';
 
 
 class RdpSequenceFeature extends SequenceFeature {
@@ -8,7 +8,7 @@ class RdpSequenceFeature extends SequenceFeature {
     this.contextualFrom = contextualFrom;
     this.contextualTo = contextualTo;
   }
-};
+}
 
 
 export default RdpSequenceFeature;

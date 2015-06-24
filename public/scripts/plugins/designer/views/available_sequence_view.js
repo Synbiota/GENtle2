@@ -114,10 +114,11 @@ AvailableSequenceView = Backbone.View.extend({
     this.processFeatures();
     return {
       sequence: this.sequenceInfo,
+      name: this.model.get('shortName') || this.model.get('name'),
       descriptiveAnnotationContent: this.parentView().getDescriptiveAnnotationContent(this.model),
       features: this.features,
       showAnnotations: showAnnotations,
-      isPcrProduct: this.model.get('_type') === 'pcr_product'
+      isPcrProduct: /pcr_product$/.test(this.model.get('_type'))
     };
   },
 

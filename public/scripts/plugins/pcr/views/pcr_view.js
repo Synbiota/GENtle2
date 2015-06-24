@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import template from '../templates/pcr_view.hbs';
 import Backbone from 'backbone';
 import FormView from './pcr_form_view';
@@ -5,11 +6,9 @@ import ProgressView from './pcr_progress_view';
 import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import {getPcrProductsFromSequence, savePcrProductsToSequence} from '../lib/utils';
-import EditsView from './pcr_edits_view';
-import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 import PcrProductSequence from '../lib/product';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
+import WipPcrProductSequence from '../lib/wip_product';
+
 
 var viewStates = {
   form: 'form',
@@ -36,10 +35,16 @@ export default Backbone.View.extend({
   // will throw an exception.
   initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
-
-    this.viewState = this.model instanceof PcrProductSequence ? 
-      viewStates.product : viewStates.form;
-
+    if(this.model instanceof PcrProductSequence) {
+      this.viewState = viewStates.product;
+    } else {
+      this.viewState = viewStates.form;
+      if(!(this.model instanceof WipPcrProductSequence)) {
+        // TODO: set the displaySettings.primaryView of the current `this.model`
+        // back to the Edit Sequence view?
+        this.model = new WipPcrProductSequence(this.model.toJSON());
+      }
+    }
     var args = {model: this.model};
     this.formView = new FormView(_.extend(argumentsForFormView, args));
     this.progressView = new ProgressView(args);
@@ -75,6 +80,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: forwardPrimer.annealingRegion.range.from,
         to: forwardPrimer.annealingRegion.range.to - 1,
+        reverseComplement: false,
       }]
     },
     {
@@ -83,6 +89,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: reversePrimer.annealingRegion.range.from,
         to: reversePrimer.annealingRegion.range.to -1,
+        reverseComplement: true,
       }]
     },
     {
@@ -91,6 +98,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: forwardPrimer.range.from,
         to: forwardPrimer.range.to - 1,
+        reverseComplement: false,
       }]
     },
     {
@@ -99,6 +107,7 @@ export default Backbone.View.extend({
       ranges: [{
         from: reversePrimer.range.from,
         to: reversePrimer.range.to - 1,
+        reverseComplement: true,
       }]
     },
     {
@@ -106,7 +115,8 @@ export default Backbone.View.extend({
       _type: 'sticky_end',
       ranges: [{
         from: 0,
-        to: stickyEnds.start.size + stickyEnds.start.offset - 1
+        to: stickyEnds.start.size + stickyEnds.start.offset - 1,
+        reverseComplement: false,
       }]
     },
     {
@@ -114,10 +124,12 @@ export default Backbone.View.extend({
       _type: 'sticky_end',
       ranges: [{
         from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
-        to:  sequence.getLength() - 1
+        to:  sequence.getLength() - 1,
+        reverseComplement: true,
       }]
     }];
 
+    _.each(features, (feature) => feature._id = _.uniqueId());
 
     sequence.set('features', features);
 
