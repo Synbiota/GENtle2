@@ -20,7 +20,7 @@ var rev = require('gulp-rev');
 var replace = require('gulp-replace');
 var Q = require('q');
 
-var isDev = process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'test';
+var isDev = global.isDev;
 
 var filepath = './public/stylesheets/app.scss';
 var filedir = path.dirname(filepath);
