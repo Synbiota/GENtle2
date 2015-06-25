@@ -17,7 +17,7 @@ stubCurrentUser();
 var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProducts) {
   expect(calculatedPrimersAndProducts.length).toEqual(expectedPrimersAndProducts.length);
 
-  // console.log(JSON.stringify(calculatedPrimersAndProducts,null,2))
+  // console.log('calculatedPrimersAndProducts: ', JSON.stringify(calculatedPrimersAndProducts,null,2))
 
   var fields = [
     'name', //'getSequence',
@@ -226,10 +226,16 @@ var expected863Primers = [
 ];
 
 
+var forwardUniversalPrimerV1 = 'TGCCACCTGACGTCTAAGAA';  // reverse complement is:  TTCTTAGACGTCAGGTGGCA
+var reverseUniversalPrimerV1 = 'GATCACTACCGGGCGTATT';
+// Due to various reasons the acceptable reverseUniversalPrimerV1 is found to
+// be longer than it should be.
+var reverseUniversalPrimerV1Long = reverseUniversalPrimerV1 + 'AAAA';
+
 var shortSequence = new TemporarySequenceModel({
   sequence: (
   'TTATGACAACTTGACGGCTACATCATTCACTTTTTCTTCAC' +                              // 41:   0- 40  (41)
-  'TGCCACCTGACGTCTAAGAA' +  // forward universal primer v1                   // 20:  41- 60  (61)
+  forwardUniversalPrimerV1 +                                                 // 20:  41- 60  (61)
   'AACCGGCACTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTG' +             // 58:  61-118  (119)
   'AAGCCAGTTACCTTCGGAAAA' + 'AGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTG' + // 70: 119-188  (189)
   'GTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTC' + // 70: 189-258  (259)
@@ -237,7 +243,7 @@ var shortSequence = new TemporarySequenceModel({
   'ATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTT' + // 70: 329-398  (399)
   'GGTCTGACAGCTCGAGGCTTGGATTCTCACCAATAAAAAACGCCCGGCGGCAACCGAGCGTTCTGAACAA' + // 70: 399-468  (469)
   'ATCCAGATGGAGTTCTGAGGTCATTACTGGATCTATCAACAGGAGTCCAAGCGAGCTCGATATCAAATTA' + // 70: 469-538  (539)
-  'GATCACTACCGGGCGTATT' +  // reverse universal primer v1                    // 19: 539-557  (558)
+  reverseUniversalPrimerV1 +                                                 // 19: 539-557  (558)
   'CG')                                                                      //  2: 558-559  (560)
 });
 
@@ -304,6 +310,14 @@ var expectedShortSequencePrimers = [
 
 
 describe('finding Sequencing Primers', function() {
+  var garbageLength = defaultSequencingPrimerOptions().garbageSequenceDna;
+  var spacerBases = function(numberOfSpacerBases) {
+    return _.times(numberOfSpacerBases, () => 'A').join('');
+  };
+  var onlyContainingReverseUniversalPrimer = function(numberOfSpacerBases) {
+    return reverseUniversalPrimerV1Long + spacerBases(numberOfSpacerBases) + reverseUniversalPrimerV1;
+  };
+
   beforeEach(function(done) {
     PrimerCalculation.stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
     done();
@@ -321,67 +335,250 @@ describe('finding Sequencing Primers', function() {
     .done();
   });
 
-  var onlyContainingReverseUniversalPrimer = function(numberOfSpacerBases) {
-    var spacerBases = _.times(numberOfSpacerBases, () => 'A').join('');
-    return 'GATCACTACCGGGCGTATT' + 'AAAA' + spacerBases + 'GATCACTACCGGGCGTATT';
-  };
-
-  it('expect notice of warning to find forwardUniversal primer', function(done) {
-    let garbageLength = defaultSequencingPrimerOptions().garbageSequenceDna;
-    let sequenceModel = new TemporarySequenceModel({
-      sequence: onlyContainingReverseUniversalPrimer(garbageLength)
+  describe('check for universal primers', function() {
+    beforeEach(function(done) {
+      done();
     });
-    var deferredProducts = Q.defer();
-    var deferredNotification = Q.defer();
 
-    getAllPrimersAndProductsHelper(sequenceModel)
-    .then(function(val) {
-      // console.log('then...', val)
-      deferredProducts.resolve(val);
-    })
-    .catch(function(val) {
-      // We should never get here.
-      console.error("ERROR : ", val);
-      expect(val).toBeUndefined();
-      done();
-    })
-    .progress(function(val) {
-      // console.log('progress...', val)
-      deferredNotification.resolve(val);
-    })
-    .done();
+    var findPrimersAndGetNotifications = function(sequence, done) {
+      let sequenceModel = new TemporarySequenceModel({sequence});
+      var deferredProducts = Q.defer();
+      var deferredNotification = Q.defer();
 
-    Q.all([deferredProducts.promise, deferredNotification.promise])
-    .then(function(args) {
-      var [calculatedProductsAndPrimers, notification] = args;
-      expect(calculatedProductsAndPrimers.length).toEqual(2);
-      expect(calculatedProductsAndPrimers[0].primer.getSequence()).toEqual('GATCACTACCGGGCGTATTAAAA');
-      expect(calculatedProductsAndPrimers[1].primer.getSequence()).toEqual('AATACGCCCGGTAGTGATC');
-      expect(notification.level).toEqual('warn');
-      expect(notification.error).toEqual(errors.UNIVERSAL_FORWARD_PRIMER_NOT_FOUND);
-      done();
+      getAllPrimersAndProductsHelper(sequenceModel)
+      .then(function(val) {
+        // console. log ('then...', val)
+        deferredProducts.resolve(val);
+      })
+      .catch(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+        done();
+      })
+      .progress(function(val) {
+        // console. log ('progress...', val)
+        deferredNotification.resolve(val);
+      })
+      .done();
+
+      return Q.all([deferredProducts.promise, deferredNotification.promise]);
+    };
+
+    it('expect notice of warning to find forwardUniversal primer', function(done) {
+      var sequence = onlyContainingReverseUniversalPrimer(garbageLength);
+      findPrimersAndGetNotifications(sequence, done)
+      .then(function(args) {
+        var [calculatedProductsAndPrimers, notification] = args;
+        expect(calculatedProductsAndPrimers.length).toEqual(2);
+        expect(calculatedProductsAndPrimers[0].primer.getSequence()).toEqual('GATCACTACCGGGCGTATTAAAA');
+        expect(calculatedProductsAndPrimers[1].primer.getSequence()).toEqual('AATACGCCCGGTAGTGATC');
+        expect(notification.data.level).toEqual('warn');
+        expect(notification instanceof errors.UniversalForwardPrimerNotFound).toEqual(true);
+        done();
+      });
+    });
+
+    it('expect notice of warning to find reverseUniversal primer', function(done) {
+      var sequence = forwardUniversalPrimerV1 + spacerBases(garbageLength) + forwardUniversalPrimerV1;
+      findPrimersAndGetNotifications(sequence, done)
+      .then(function(args) {
+        var [calculatedProductsAndPrimers, notification] = args;
+        expect(calculatedProductsAndPrimers.length).toEqual(2);
+        expect(calculatedProductsAndPrimers[0].primer.getSequence()).toEqual('TGCCACCTGACGTCTAAGAA');
+        expect(calculatedProductsAndPrimers[1].primer.getSequence()).toEqual('TTCTTAGACGTCAGGTGGCA');
+        expect(notification.data.level).toEqual('warn');
+        expect(notification instanceof errors.UniversalReversePrimerNotFound).toEqual(true);
+        done();
+      });
     });
   });
 
-  it('expect error when primers found but result in some DNA being left unsequenced', function(done) {
-    let garbageLength = defaultSequencingPrimerOptions().garbageSequenceDna;
-    let sequenceModel = new TemporarySequenceModel({
-      sequence: onlyContainingReverseUniversalPrimer(garbageLength - 1)
+
+  describe('erroring', function(){
+    /*
+     * Different scenarios:
+     * Note: You can use the presence of a `error.data.notifications.universalForwardPrimerNotFound`
+     * warning (error sent to progress) to distinguish scenarios 2 & 3 from each
+     * other and scenarios 1 & 5 from each other.
+     *
+     * Sequencing an RDP part:
+     * 1. Long stretch of sequence is highly repetitive / AT rich so no sequencing
+     *     primers are available for this part.
+     * 2. Sequence is too short so there is a stretch of DNA left unsequenced.
+     *
+     * Not sequencing an RDP part:
+     * 3. The first forward and reverse primers are too close to each other so
+     *     there is a stretch of DNA left unsequenced.
+     * 4. Sequence is too short (less than minimum primer)
+     * 5. Failure to find a single primer.  This leaves the whole sequence
+     *     unsequenced.
+     */
+    beforeEach(function(done) {
+      done();
     });
 
-    getAllPrimersAndProductsHelper(sequenceModel)
-    .then(function(val) {
-      // We should never get here.
-      console.error("ERROR : ", val);
-      expect(val).toBeUndefined();
-    })
-    .catch(function(val) {
-      expect(val.error).toEqual(errors.DNA_LEFT_UNSEQUENCED);
-      expect(val.data.overlappingSequencedBases).toEqual(-1);
-      expect(val.data.sequencingProductsAndPrimers.length).toEqual(2);
-      done();
-    })
-    .done();
+    it('scenario 1: should error when primer(s) for middle are not found.', function(done) {
+      var sequenceModel = new TemporarySequenceModel({
+        sequence: forwardUniversalPrimerV1 + spacerBases(1000) + reverseUniversalPrimerV1Long
+      });
+
+      getAllPrimersAndProductsHelper(sequenceModel)
+      .then(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .progress(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .catch(function(error) {
+        expect(error instanceof errors.NoPrimer).toEqual(true);
+        expect(error.data.returnNearestIfNotBest).toEqual(false);
+
+        expect(error.data.notifications.universalForwardPrimerNotFound).toEqual(undefined);
+        expect(error.data.notifications.universalReversePrimerNotFound).toEqual(undefined);
+        done();
+      })
+      .done();
+    });
+
+    it('Scenario 5: should error when no single primer is found', function(done) {
+      var sequenceModel = new TemporarySequenceModel({sequence: spacerBases(1000)});
+      var dNoForwardUniversalPrimerWarning = Q.defer();
+      var dNoReverseUniversalPrimerWarning = Q.defer();
+      var dError = Q.defer();
+
+      getAllPrimersAndProductsHelper(sequenceModel)
+      .then(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .progress(function(val) {
+        if(dNoForwardUniversalPrimerWarning.promise.isFulfilled()) {
+          dNoReverseUniversalPrimerWarning.resolve(val);
+        } else {
+          dNoForwardUniversalPrimerWarning.resolve(val);
+        }
+      })
+      .catch(function(val) {
+        dError.resolve(val);
+      })
+      .done();
+
+      Q.all([dNoForwardUniversalPrimerWarning.promise, dNoReverseUniversalPrimerWarning.promise, dError.promise])
+      .then(function(args) {
+        var [noForwardUniversalPrimerWarning, noReverseUniversalPrimerWarning, error] = args;
+        expect(noForwardUniversalPrimerWarning instanceof errors.UniversalForwardPrimerNotFound).toEqual(true);
+        expect(noForwardUniversalPrimerWarning.data.level).toEqual('warn');
+        expect(noReverseUniversalPrimerWarning instanceof errors.UniversalReversePrimerNotFound).toEqual(true);
+        expect(noReverseUniversalPrimerWarning.data.level).toEqual('warn');
+
+        expect(error instanceof errors.NoPrimer).toEqual(true);
+
+        expect(error.data.notifications.universalForwardPrimerNotFound).toBeTruthy();
+        expect(error.data.notifications.universalReversePrimerNotFound).toBeTruthy();
+        done();
+      })
+      .done();
+    });
+
+    it('scenario 2: should error when any primers found but result in some DNA being left unsequenced', function(done) {
+      var sequenceModel = new TemporarySequenceModel({
+        sequence: forwardUniversalPrimerV1 + spacerBases(garbageLength - 1) + reverseUniversalPrimerV1Long
+      });
+
+      getAllPrimersAndProductsHelper(sequenceModel)
+      .then(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .progress(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .catch(function(error) {
+        expect(error instanceof errors.DnaLeftUnsequenced).toEqual(true);
+        expect(error.data.overlappingSequencedBases).toEqual(-1);
+        expect(error.data.sequencingProductsAndPrimers.length).toEqual(2);
+
+        expect(error.data.notifications.universalForwardPrimerNotFound).toEqual(undefined);
+        expect(error.data.notifications.universalReversePrimerNotFound).toEqual(undefined);
+        done();
+      })
+      .done();
+    });
+
+    it('scenario 3: should error when any primers found but result in some DNA being left unsequenced', function(done) {
+      var sequenceModel = new TemporarySequenceModel({
+        sequence:  'TTTTTCCGAAGGTAACTGGCT' + spacerBases(garbageLength - 1) + 'GGTATCTGCGCTCTGCTGAA'
+      });
+      var dNoForwardUniversalPrimerWarning = Q.defer();
+      var dNoReverseUniversalPrimerWarning = Q.defer();
+      var dError = Q.defer();
+
+      getAllPrimersAndProductsHelper(sequenceModel)
+      .then(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .progress(function(val) {
+        if(dNoForwardUniversalPrimerWarning.promise.isFulfilled()) {
+          dNoReverseUniversalPrimerWarning.resolve(val);
+        } else {
+          dNoForwardUniversalPrimerWarning.resolve(val);
+        }
+      })
+      .catch(function(val) {
+        dError.resolve(val);
+      })
+      .done();
+
+      Q.all([dNoForwardUniversalPrimerWarning.promise, dNoReverseUniversalPrimerWarning.promise, dError.promise])
+      .then(function(args) {
+        var [noForwardUniversalPrimerWarning, noReverseUniversalPrimerWarning, error] = args;
+        expect(noForwardUniversalPrimerWarning instanceof errors.UniversalForwardPrimerNotFound).toEqual(true);
+        expect(noForwardUniversalPrimerWarning.data.level).toEqual('warn');
+        expect(noReverseUniversalPrimerWarning instanceof errors.UniversalReversePrimerNotFound).toEqual(true);
+        expect(noReverseUniversalPrimerWarning.data.level).toEqual('warn');
+        expect(error instanceof errors.DnaLeftUnsequenced).toEqual(true);
+        expect(error.data.overlappingSequencedBases).toEqual(-1);
+        expect(error.data.sequencingProductsAndPrimers.length).toEqual(2);
+        expect(error.data.notifications.universalForwardPrimerNotFound instanceof errors.UniversalForwardPrimerNotFound).toEqual(true);
+        expect(error.data.notifications.universalForwardPrimerNotFound).toEqual(noForwardUniversalPrimerWarning);
+        expect(error.data.notifications.universalReversePrimerNotFound instanceof errors.UniversalReversePrimerNotFound).toEqual(true);
+        expect(error.data.notifications.universalReversePrimerNotFound).toEqual(noReverseUniversalPrimerWarning);
+        done();
+      })
+      .done();
+    });
+
+    it('scenario 4: should error when sequence too short to find primers', function(done) {
+      var sequenceModel = new TemporarySequenceModel({sequence: 'ACTA'});
+
+      getAllPrimersAndProductsHelper(sequenceModel)
+      .then(function(val) {
+        // We should never get here.
+        console.error("ERROR : ", val);
+        expect(val).toBeUndefined();
+      })
+      .catch(function(error) {
+        expect(error instanceof errors.SequenceTooShort).toEqual(true);
+        expect(error.data.sequenceToSearch).toEqual('ACTA');
+        expect(error.data.minPrimerLength).toEqual(20);
+
+        expect(error.data.notifications.universalForwardPrimerNotFound).toBeTruthy();
+        expect(error.data.notifications.universalReversePrimerNotFound).toBeTruthy();
+        done();
+      })
+      .done();
+    });
   });
 
   it('finally: teardown', function(done) {
