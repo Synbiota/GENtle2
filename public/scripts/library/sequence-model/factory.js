@@ -343,13 +343,10 @@ function sequenceModelFactory(BackboneModel) {
       if(stickyEnds && stickyEnds.start) {
         var startStickyEnd = stickyEnds.start;
         stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
-        switch(stickyEndFormat) {
-          case STICKY_END_NONE:
-            offset = startStickyEnd.offset + startStickyEnd.size;
-            break;
-          case STICKY_END_OVERHANG:
-            offset = startStickyEnd.offset;
-            break;
+        if(stickyEndFormat === STICKY_END_NONE) {
+          offset = startStickyEnd.offset + startStickyEnd.size;
+        } else if(stickyEndFormat === STICKY_END_OVERHANG) {
+          offset = startStickyEnd.offset;
         }
       }
 
@@ -416,104 +413,47 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-     * @method isBeyondStickyEnd
-     * @param  {Integer} pos
-     * @param  {Boolean} reverse=false If true, assesses reverse strand.
-     * @return {Boolean}
-     */
-    isBeyondStickyEnd(pos, reverse = false) {
-      return this.isBeyondStartStickyEnd(pos, reverse) || this.isBeyondEndStickyEnd(pos, reverse);
-    }
-
-    /**
-     * @method overhangBeyondStartStickyEndOnBothStrands
+     * @method minOverhangBeyondStartStickyEndOnBothStrands
      * @param  {Integer} pos
      * @return {Integer}
      */
-    overhangBeyondStartStickyEndOnBothStrands(pos) {
+    minOverhangBeyondStartStickyEndOnBothStrands(pos) {
       return Math.min(this.overhangBeyondStartStickyEnd(pos, true), this.overhangBeyondStartStickyEnd(pos, false));
     }
 
     /**
-     * @method overhangBeyondEndStickyEndOnBothStrands
+     * @method minOverhangBeyondEndStickyEndOnBothStrands
      * @param  {Integer} pos
      * @return {Integer}
      */
-    overhangBeyondEndStickyEndOnBothStrands(pos) {
+    minOverhangBeyondEndStickyEndOnBothStrands(pos) {
       return Math.min(this.overhangBeyondEndStickyEnd(pos, true), this.overhangBeyondEndStickyEnd(pos, false));
     }
 
     /**
-     * @method isBeyondStartStickyEnd
+     * @method overhangBeyondStartStickyEnd
+     * If the start sticky end was digested to make it exposed, this function
+     * returns the number of bases beyond the end, depending on the strand.
+     *
+     * e.g. There is a sticky end on the forward strand with offset 3, size 2:
+     *
+     * AAA|TT GG...
+     *     --
+     * TTT AA|CC...
+     *
+     * reverse: | false  | true  |
+     *     pos: | 0 |  5 | 0 | 5 |
+     *  result: | 3 | -2 | 5 | 0 |
+     *
      * @param  {Integer} pos
      * @param  {Boolean} reverse=false  If true, assesses reverse strand.
-     * @return {Boolean}
+     * @return {Integer}
      */
-    isBeyondStartStickyEnd(pos, reverse) {
-      if (reverse === undefined) {
-        reverse = false;
-      }
-      return this.overhangBeyondStartStickyEnd(pos, reverse) > 0;
-    }
-
-    /**
-     * @method isBeyondStartStickyEndOnBothStrands
-     * @param  {Integer} pos
-     * @return {Boolean}
-     */
-    isBeyondStartStickyEndOnBothStrands(pos) {
-      return this.overhangBeyondStartStickyEndOnBothStrands(pos) > 0;
-    }
-
-    /**
-     * @method isBeyondEndStickyEndOnBothStrands
-     * @param  {Integer} pos
-     * @return {Boolean}
-     */
-    isBeyondEndStickyEndOnBothStrands(pos) {
-      return this.overhangBeyondEndStickyEndOnBothStrands(pos) > 0;
-    }
-
-    /**
-     * @method isBeyondEndStickyEnd
-     * @param  {Integer} pos
-     * @param  {Boolean} reverse=false  If true, assesses reverse strand.
-     * @return {Boolean}
-     */
-    isBeyondEndStickyEnd(pos, reverse = false) {
-      return this.overhangBeyondEndStickyEnd(pos, reverse) > 0;
-    }
-
-     /**
-       * @method overhangBeyondStartStickyEnd
-       * @param  {Integer} pos
-       * @param  {Boolean} reverse=false  If true, assesses reverse strand.
-       * @return {Integer}
-       */
     overhangBeyondStartStickyEnd(pos, reverse = false) {
-      var stickyEnds = this.getStickyEnds();
-      var stickyEndFormat = this.getStickyEndFormat();
-      var result = 0;
-
-      if(stickyEnds) {
-        var startStickyEnd = stickyEnds.start;
-        var offset = stickyEndFormat === STICKY_END_OVERHANG ? 0 : startStickyEnd.offset;
-
-        if(startStickyEnd) {
-          if(reverse) {
-            if(startStickyEnd.reverse) {
-              result = offset - pos;
-            } else {
-              result = (offset + startStickyEnd.size) - pos;
-            }
-          } else {
-            if(startStickyEnd.reverse) {
-              result = (offset + startStickyEnd.size) - pos;
-            } else {
-              result = offset - pos;
-            }
-          }
-        }
+      var startStickyEnd = this.getStickyEnds().start;
+      var result = startStickyEnd.offset - pos;
+      if(reverse !== startStickyEnd.reverse) {
+        result += startStickyEnd.size;
       }
       return result;
     }
@@ -525,46 +465,30 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Integer}
      */
     overhangBeyondEndStickyEnd(pos, reverse = false) {
-      var stickyEnds = this.getStickyEnds();
-      var stickyEndFormat = this.getStickyEndFormat();
-      var seqLength = this.getLength();
-      var result = 0;
+      var seqLength = this.getLength(STICKY_END_FULL);
+      var endStickyEnd = this.getStickyEnds().end;
 
-      if(stickyEnds) {
-        var startStickyEnd = stickyEnds.start;
-        var endStickyEnd = stickyEnds.end;
-
-        if(endStickyEnd) {
-          var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
-
-          switch (stickyEndFormat){
-            case STICKY_END_NONE:
-              stickyEndTo -= (startStickyEnd.offset + startStickyEnd.size);
-              break;
-            case STICKY_END_OVERHANG:
-              stickyEndTo -= startStickyEnd.offset;
-              break;
-          }
-
-
-          var stickyEndFrom = stickyEndTo - endStickyEnd.size + 1;
-
-          if(reverse) {
-            if(endStickyEnd.reverse) {
-              result = pos - stickyEndTo;
-            } else {
-              result = (pos + 1) - stickyEndFrom;
-            }
-          } else {
-            if(endStickyEnd.reverse) {
-              result = (pos + 1) - stickyEndFrom;
-            } else {
-              result = pos - stickyEndTo;
-            }
-          }
-        }
+      var result = pos - (seqLength - 1 - endStickyEnd.offset);
+      if(reverse !== endStickyEnd.reverse) {
+        result += endStickyEnd.size;
       }
       return result;
+    }
+
+    /**
+     * @method getStartStickyEndSequence
+     * @return {Object}  see `getStickyEndSequence` for description of return type
+     */
+    getStartStickyEndSequence() {
+      return this.getStickyEndSequence(true);
+    }
+
+    /**
+     * @method getEndStickyEndSequence
+     * @return {Object}  see `getStickyEndSequence` for description of return type
+     */
+    getEndStickyEndSequence() {
+      return this.getStickyEndSequence(false);
     }
 
     /**
@@ -603,22 +527,6 @@ function sequenceModelFactory(BackboneModel) {
         }
       }
       return {sequenceBases, isOnReverseStrand};
-    }
-
-    /**
-     * @method getStartStickyEndSequence
-     * @return {Object}  see `getStickyEndSequence` for description of return type
-     */
-    getStartStickyEndSequence() {
-      return this.getStickyEndSequence(true);
-    }
-
-    /**
-     * @method getEndStickyEndSequence
-     * @return {Object}  see `getStickyEndSequence` for description of return type
-     */
-    getEndStickyEndSequence() {
-      return this.getStickyEndSequence(false);
     }
 
     /**
@@ -845,7 +753,6 @@ function sequenceModelFactory(BackboneModel) {
 
     insertBases(bases, beforeBase, options = {}){
       var seq = super.get('sequence'),
-          stickyEnds = this.getStickyEnds(),
           stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat(),
           adjustedBeforeBase,
           timestamp;

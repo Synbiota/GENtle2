@@ -2,9 +2,9 @@
 import _ from 'underscore';
 
 
-var calculateOverhang = function(sequence, pos) {
-  var overhangStart = sequence.overhangBeyondStartStickyEndOnBothStrands(pos);
-  var overhangEnd = sequence.overhangBeyondEndStickyEndOnBothStrands(pos);
+var calculateOverhang = function(sequenceModel, pos) {
+  var overhangStart = sequenceModel.minOverhangBeyondStartStickyEndOnBothStrands(pos);
+  var overhangEnd = sequenceModel.minOverhangBeyondEndStickyEndOnBothStrands(pos);
   return Math.max(overhangStart, 0) - Math.max(overhangEnd, 0);
 };
 
@@ -67,8 +67,8 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
       var maxPos = Math.max(...positions);
       var minPos = Math.min(...positions);
       var accepted = true;
-      var overhangStart = sequenceModel.overhangBeyondStartStickyEndOnBothStrands(minPos);
-      var overhangEnd = sequenceModel.overhangBeyondEndStickyEndOnBothStrands(maxPos);
+      var overhangStart = sequenceModel.minOverhangBeyondStartStickyEndOnBothStrands(minPos);
+      var overhangEnd = sequenceModel.minOverhangBeyondEndStickyEndOnBothStrands(maxPos);
       if((circularise || !isFirst) && (overhangStart > 0)) {
         accepted = false;
       }
