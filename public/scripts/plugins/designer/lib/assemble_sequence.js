@@ -39,7 +39,7 @@ class AssembleSequenceModel {
       var pcrProducts = getPcrProductsFromSequence(sequence);
       return memo.concat(pcrProducts);
     }, this.allSequences);
-    [this.availableSequences, this.lackStickyEndSequences] = _.partition(this.allSequences, (seq) => seq.hasStickyEnds());
+    [this.availableSequences, this.lackStickyEndSequences] = _.partition(this.allSequences, (seq) => seq.hasBothStickyEnds());
 
     _.each(this.availableSequences, (availableSequence) => {
       var acceptableDropIndices = [];
