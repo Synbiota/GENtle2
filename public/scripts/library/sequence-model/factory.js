@@ -282,7 +282,7 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     validateStickyEndFormat(value) {
-      if(value && !~stickyEndFormats.indexOf(value)) {
+      if(!value || !~stickyEndFormats.indexOf(value)) {
         throw `'${JSON.stringify(value, null, 2)}' is not an acceptable sticky end format`;
       }
     }
@@ -1437,7 +1437,8 @@ function sequenceModelFactory(BackboneModel) {
      *  (i.e. account for sticky end format).
      *
      * Typically excludes sticky ends and overhangs
-     * @method editableRange      
+     * @method editableRange
+     * @param  {Boolean} strict  TODO: fill in description
      * @return {Array<Int>} array of first and last base in the editable range
      */
     editableRange(strict = false) {
