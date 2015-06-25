@@ -375,9 +375,9 @@ class Handlers {
           this.afterNextRedraw(function() {
             this.displayCaret(data.position);
           });
-         } 
+         }
       });
-      
+
       this.sequence.undo();
     }
   }
@@ -389,7 +389,7 @@ class Handlers {
       mouse = this.normalizeMousePosition(event),
       previousCaret = this.caretPosition;
 
-    _this.hideCaret(); 
+    _this.hideCaret();
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     if(event.shiftKey && previousCaret) {
       let dragStartBase;
@@ -500,11 +500,11 @@ class Handlers {
       } else {
         let previousCaret = this.caretPosition;
         if(shiftKey && previousCaret) {
-          this.selection = newCaret >= previousCaret ? 
+          this.selection = newCaret >= previousCaret ?
             [previousCaret, newCaret-1] : [newCaret, previousCaret];
           this.redrawSelection(this.selection);
         }
-        this.displayCaret(newCaret);  
+        this.displayCaret(newCaret);
       }
     }
 
@@ -516,7 +516,8 @@ class Handlers {
   @method handleScrolling
   **/
   handleScrolling(event) {
-    this.scrollTo($(event.delegateTarget).scrollTop());
+    var $target = $(event.delegateTarget)
+    this.scrollTo($target.scrollLeft(), $target.scrollTop());
   }
 
   /**

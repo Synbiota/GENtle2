@@ -7,7 +7,7 @@ import Styles from '../../styles.json';
 
 var LineStyles = Styles.sequences.lines;
 
-export default class PlasmidMapCanvas {
+export default class ChromatographMapCanvas {
   constructor(options) {
 
     // this.mouseTool = {};
@@ -99,7 +99,8 @@ export default class PlasmidMapCanvas {
 
     return Q.promise(function(resolve) {
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
-      _this.$canvas.width(_this.$el.width());
+      // _this.$canvas.width(_this.$el.width());
+      _this.$canvas.width('100%');
 
       var width = _this.$canvas[0].scrollWidth,
           height = _this.$canvas[0].scrollHeight;
@@ -165,18 +166,6 @@ export default class PlasmidMapCanvas {
     var consensus;
     var _this = this;
 
-    this.model.getConsensus = function(){
-      var c = []
-
-      _.forEach(_this.model.getSequence(), function(base, i){
-        c.push(
-          Math.floor(
-            Math.random()*15))
-      })
-
-      return c;
-    }
-
     var prevConsensus,
         prevMark;
 
@@ -197,9 +186,9 @@ export default class PlasmidMapCanvas {
 
       prevConsensus = consensus;
 
-      if (consensus > 2){
+      if (consensus > 10){
         drawGood(i);
-      } else if (consensus > 0) {
+      } else if (consensus > 5) {
         drawMedium(i);
       } else {
         drawBad(i);

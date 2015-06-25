@@ -76,13 +76,11 @@ Includes Shape system for handling mouse events.
   @param {integer} [posY]
   @param {integer} [height]
   **/
-  Artist.prototype.clear = function() {
+  Artist.prototype.clear = function(x, y, width, height) {
     var canvas = this.canvas,
-        context = this.context,
-        posY = arguments[0],
-        height = arguments[1];
+        context = this.context;
 
-    context.clearRect(0, posY || 0, canvas.width, height || canvas.height);
+    context.clearRect(x || 0, width || 0, width || canvas.width, height || canvas.height);
     this.shapes = [];
   };
 
@@ -254,7 +252,7 @@ Includes Shape system for handling mouse events.
 
 
   Artist.prototype.path = function() {
-    var args = arguments,
+    var args = _.toArray(arguments),
         options = _.isObject(args[args.length-1])? args.pop() : {},
         path = new Path(this, args);
 
@@ -378,13 +376,12 @@ Includes Shape system for handling mouse events.
   @method scroll
   @param {integer} offset
   **/
-  Artist.prototype.scroll = function(offset) {
+  Artist.prototype.scroll = function(x, y) {
     var canvas = this.canvas,
         buffer = this.buffer,
         context = this.context,
         bufferContext = this.bufferContext,
         pixelRatio = this.getPixelRatio();
-
 
     bufferContext.clearRect(0, 0, buffer.width, buffer.height);
     // bufferContext.clearRect(0, 0, buffer.width, buffer.height);
@@ -392,7 +389,8 @@ Includes Shape system for handling mouse events.
     // context.fillStyle = '#fff';
     context.clearRect(0, 0, buffer.width, buffer.height);
     // this.clear(offset > 0 ? 0 : canvas.height - offset, offset);
-    context.drawImage(buffer, 0, offset, buffer.width / pixelRatio, buffer.height/pixelRatio);
+    // context.drawImage(buffer, 0, offset, buffer.width / pixelRatio, buffer.height/pixelRatio);
+    context.drawImage(buffer, x, y, buffer.width / pixelRatio, buffer.height/pixelRatio);
 
   };
 

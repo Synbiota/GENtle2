@@ -181,7 +181,7 @@ export default function sequenceModelFactory(BackboneModel) {
       var stickyEnds      = this.getStickyEnds();
       var startPostion, endPosition;
       stickyEndFormat = stickyEndFormat || this.getStickyEndFormat(),
-          
+
       this.validateStickyEndFormat(stickyEndFormat);
 
       if (stickyEnds && stickyEndFormat){
@@ -1120,7 +1120,7 @@ export default function sequenceModelFactory(BackboneModel) {
 
 
       var offset = previousStickyEndFormat === STICKY_END_OVERHANG ?
-        this.getStickyEnds().start.offset : 
+        this.getStickyEnds().start.offset :
         0;
 
       var data = triggerWithPosition && {
@@ -1264,17 +1264,17 @@ export default function sequenceModelFactory(BackboneModel) {
 
     /**
      * Returns the positions of the first and last selectable ranges in
-     * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}} 
+     * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}}
      * (i.e. account for sticky end format).
      *
      * If `reverse` is set to `true`, the range will refer to the complement of the
-     *  sequence, *not the reverse complement* 
+     *  sequence, *not the reverse complement*
      *
      * @method  selectableRange
-     * 
+     *
      * @param  {Boolean} reverse whether to return the selectable range on the
      *                           complement of the sequence
-     *                           
+     *
      * @return {Array<Int>}      array of first and last base in the selectable range
      */
     selectableRange(reverse = false) {
@@ -1284,8 +1284,8 @@ export default function sequenceModelFactory(BackboneModel) {
 
       if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
         var getOffset = function(type) {
-          return stickyEnds[type].reverse ? 
-          (reverse ? 0 : stickyEnds[type].size) : 
+          return stickyEnds[type].reverse ?
+          (reverse ? 0 : stickyEnds[type].size) :
           (reverse ? stickyEnds[type].size : 0);
         };
 
@@ -1304,7 +1304,7 @@ export default function sequenceModelFactory(BackboneModel) {
      *  (i.e. account for sticky end format).
      *
      * Typically excludes sticky ends and overhangs
-     * @method editableRange      
+     * @method editableRange
      * @return {Array<Int>} array of first and last base in the editable range
      */
     editableRange(strict = false) {
@@ -1368,9 +1368,13 @@ export default function sequenceModelFactory(BackboneModel) {
     ensureBaseIsSelectable(base, strict = false) {
       var selectableRange = this.selectableRange();
       return Math.min(
-        Math.max(base, selectableRange[0]), 
+        Math.max(base, selectableRange[0]),
         selectableRange[1] + (strict ? 0 : 1)
       );
+    }
+
+    getConsensus(){
+      return this.get('chromatogramQuality')
     }
 
   }

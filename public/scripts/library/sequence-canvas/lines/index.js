@@ -5,6 +5,9 @@ import Position from './position';
 import RestrictionEnzymesLabels from './restriction_enzymes_labels';
 import RestrictionEnzymesSites from './restriction_enzymes_sites';
 import Blank from './blank';
+import Consensus from './consensus';
+import DNA_XY from './dna_xy';
+import Chromatogram from './chromatogram';
 
 export default {
   DNA,
@@ -13,5 +16,8 @@ export default {
   Position,
   RestrictionEnzymesLabels,
   RestrictionEnzymesSites,
-  Blank
+  Blank,
+  Consensus,
+  DNA_XY,
+  Chromatogram
 };

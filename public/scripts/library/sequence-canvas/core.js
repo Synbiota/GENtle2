@@ -37,6 +37,7 @@ class SequenceCanvasCore {
       'updateCanvasDims',
       'redrawSelection',
       'display',
+      'display2d',
       'refresh',
       'refreshFromResize',
       'redraw',
@@ -108,7 +109,7 @@ class SequenceCanvasCore {
       gutterWidth: 0,
       basesPerBlock: 10,
       basePairDims: {
-        width: 10,
+        width: 20,
         height: 15
       }
     });
@@ -117,6 +118,7 @@ class SequenceCanvasCore {
      * @property {Object} layoutHelpers Calculated layout properties
      */
     this.layoutHelpers = {
+      xOffset: options.xOffset || 0,
       yOffset: options.yOffset || 0
     };
 
@@ -194,7 +196,7 @@ class SequenceCanvasCore {
     return Q.promise((resolve) => {
 
       // Updates width of $canvas to take scrollbar of $scrollingParent into account
-      this.$canvas.width(this.$scrollingChild.width());
+      // this.$canvas.width(this.$scrollingChild.width());
 
       var width = this.$canvas[0].scrollWidth,
         height = this.$canvas[0].scrollHeight;
@@ -214,7 +216,8 @@ class SequenceCanvasCore {
   **/
   calculateLayoutSettings() {
     //line offsets
-    var line_offset = _.values(this.lines)[0].height;
+    // var line_offset = _.values(this.lines)[0].height;
+    var line_offset = 40;
     var ls = this.layoutSettings;
     var lh = this.layoutHelpers;
 
@@ -258,7 +261,8 @@ class SequenceCanvasCore {
 
       //page dims
       lh.pageDims = {
-        width: ls.canvasDims.width,
+        // width: ls.canvasDims.width,
+        width: (this.sequence.getLength() * ls.basePairDims.width) + ls.pageMargins.left + ls.pageMargins.right,
         height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
       };
 
@@ -391,18 +395,25 @@ class SequenceCanvasCore {
     }
   }
 
-  drawRowSegment(type, y, baseRange){
+  drawRowSegment(type, x, y, baseRange){
     var
-        lines = this.getLines(type),
+        // lines = this.getLines(type),
+        ls = this.layoutSettings,
+        baseWidth = ls.basePairDims.width,
+        lines,
         lineOffset = 0;
+    lines = this.lines
+    console.log('drs', lines)
 
     if (baseRange[0] < this.sequence.getLength()) {
       _.each(lines, function(line) {
         if (line.visible === undefined || line.visible()) {
+          // // clear area we are going to draw
+          // artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, line.height)
           if(line.floating) {
-            line.draw(y, baseRange);
+            line.draw(x, y, baseRange);
           } else {
-            line.draw(y + lineOffset, baseRange);
+            line.draw(x, y + lineOffset, baseRange);
             lineOffset += line.height;
           }
         }
@@ -410,43 +421,163 @@ class SequenceCanvasCore {
     }
   }
 
+  display2d() {
+    var artist = this.artist,
+      ls = this.layoutSettings,
+      lh = this.layoutHelpers,
+      yOffset = lh.yOffset,
+      _this = this,
+      canvasDims = [ls.canvasDims.width, ls.canvasDims.height],
+      drawStart, drawEnd, moveOffset;
+
+    return Q.promise(function(resolve, reject) {
+      // Determine draw area
+
+      moveOffset = [
+        lh.previousXOffset !== undefined ?
+                -lh.previousXOffset + lh.xOffset :
+                0,
+        lh.previousYOffset !== undefined ?
+                -lh.previousYOffset + lh.yOffset :
+                0
+      ]
+
+      if ((moveOffset[0] != 0) || (moveOffset[1] != 0)) {
+        // artist.scroll.apply(artist, moveOffset);
+        artist.scroll(-moveOffset[0], -moveOffset[1])
+
+
+        drawStart = _.map(moveOffset, function(n, i){
+          return n > 0 ? canvasDims[i] - n : 0;
+        })
+
+        drawEnd = _.map(moveOffset, function(n, i){
+          return n > 0 ? canvasDims[i] : -n;
+        })
+
+      } else {
+        artist.clear();
+
+        drawStart = [0, 0];
+        drawEnd = canvasDims;
+      }
+
+      // Quantify area into blocks and draw
+      _this.forEachBlockInRange(drawStart, drawEnd, _this.drawBlock)
+
+
+      _this.displayDeferred.resolve();
+      _this.displayDeferred = Q.defer();
+      resolve();
+
+
+    }).catch(namedHandleError('sequence_canvas, display2d'));
+  }
+
   /**
-   * draw a section at a given x, y coordinate on the canvas.
-   * @method drawSection
+  @method forEachRowInPosYRange
+  @param startY {integer} start of the visibility window
+  @param endY {integer} end of the visibility window
+  @param
+    callback {function} function to execute for each row.
+    Will be passed the y-offset in canvas.
+  */
+  forEachBlockInRange(start, end, callback) {
+    var layoutSettings = this.layoutSettings,
+        layoutHelpers = this.layoutHelpers,
+        blockDims = [layoutSettings.basePairDims.width, layoutHelpers.rows.height],
+        pageMargins = layoutSettings.pageMargins,
+        drawStart, drawEnd
+
+        // firstRowStartY  = this.getRowStartY(Math.max(startY + layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
+        // lastRowY = Math.min(endY, layoutSettings.canvasDims.height);
+
+  // Quantify coordinates and dimensions in increments of grid values (width in baseWidth, height in rowHeight)
+    drawStart = _.map(start, function(n, i){
+      return Math.floor(n/blockDims[i]) * blockDims[i];
+    })
+
+    drawEnd = _.map(end, function(n, i){
+      return Math.ceil(n/blockDims[i]) * blockDims[i];
+    })
+
+    // for (var i = drawStart[0]; i < drawEnd[0]; i += blockDims[0]){
+    //   for (var j = drawStart[1]; i < drawEnd[1]; i += blockDims[1]){
+    //     callback.call(this, x, y, blockDims[0], blockDims[1])
+    //   }
+    // }
+
+    var width = drawEnd[0] - drawStart[0]
+    var x = drawStart[0]
+    // var y = drawStart[1]
+
+    // console.log('drawegawe', drawStart, drawEnd, x, y, width)
+
+    callback.call(this,x, drawStart[1], width)
+
+    // for (var y = drawStart[1]; y < drawEnd[1]; y += blockDims[1]){
+    //   // Determine which row
+
+    //   // render the row
+    //   callback.call(this,x, y, width)
+
+    // }
+
+
+    // firstRowStartY  = this.getRowStartY(Math.max(startY + layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
+    // lastRowY = Math.min(endY, layoutSettings.canvasDims.height);
+
+    // for(var y = firstRowStartY;
+    //     y < lastRowY;
+    //     y += this.layoutHelpers.rows.height)
+    //   callback.call(this, y);
+
+  }
+
+  /**
+   * draw a block at a given x, y coordinate on the canvas.
+   * @method drawBlock
    * @param  {Integer} x [description]
    * @param  {Integer} y [description]
    */
-  drawSection(x, y, width, height){
+  drawBlock(x, y, width, height){
+    console.log('db')
     var layoutHelpers = this.layoutHelpers,
-        baseWidth = layoutHelpers.baseWidth,
+        layoutSettings = this.layoutSettings,
+        baseWidth = layoutSettings.basePairDims.width,
         rowHeight = layoutHelpers.rows.Height,
         rows = this.rows,
         visibleRows = [],
         baseRange, rowOffset = 0;
 
-    // Quantify coordinates and dimensions in increments of grid values (width in baseWidth, height in rowHeight)
-    x = Math.floor(x/baseWidth);
-    y = Math.floor(y/rowHeight);
+    // x = Math.floor(x/baseWidth);
+    // y = Math.floor(y/rowHeight);
 
-    width = Math.ceil(width/baseWidth);
-    height = Math.ceil(height/rowHeight);
+    // width = Math.ceil(width/baseWidth);
+    // height = Math.ceil(height/rowHeight);
 
     // convert width to baseRange
-    baseRange = this.getBaseRangeFromXPos(x, width);
+    // baseRange = this.getBaseRangeFromXPos(x, width);
+    // baseRange = [0, 20]
 
-    // clear area we are going to draw
-    this.artist.clear(x, y, width, height);
 
+    baseRange = [
+      Math.floor((x + layoutHelpers.xOffset)/baseWidth),
+      Math.floor((x + layoutHelpers.xOffset + width)/baseWidth)
+    ]
+
+
+    this.drawRowSegment(null, x, y, baseRange);
 
     // determine which rows we need to render
     // slice values should be integers since we quantify them beforehand
-    visibleRows = rows.slice(y/rowHeight, (y + height)/rowHeight);
+    // visibleRows = rows.slice(y/rowHeight, (y + height)/rowHeight);
 
-    // draw the row segment
-    _.forEach(visibleRows, function(row){
-      this.drawRowSegment(row.type, y + rowOffset, baseRange);
-      rowOffset += rowHeight;
-    });
+    // // draw the row segment
+    // _.forEach(visibleRows, function(row){
+    //   this.drawRowSegment(row.type, y + rowOffset, baseRange);
+    //   rowOffset += rowHeight;
+    // });
 
   }
 
@@ -458,6 +589,7 @@ class SequenceCanvasCore {
   resizeScrollHelpers() {
     var layoutHelpers = this.layoutHelpers;
     return Q.promise((resolve) => {
+      this.$scrollingChild.width(layoutHelpers.pageDims.width)
       this.$scrollingChild.height(layoutHelpers.pageDims.height);
       this.scrollTo();
       resolve();
@@ -499,15 +631,22 @@ class SequenceCanvasCore {
   @method redraw
   **/
   redraw() {
-    requestAnimationFrame(this.display);
+    // requestAnimationFrame(this.display);
+    requestAnimationFrame(this.display2d);
     return this.displayDeferred.promise;
   }
 
-  scrollTo(yOffset, triggerEvent) {
+  scrollTo(xOffset, yOffset, triggerEvent) {
+
     var deferred = Q.defer(),
       layoutHelpers = this.layoutHelpers;
 
+    layoutHelpers.previousXOffset = layoutHelpers.xOffset || 0;
     layoutHelpers.previousYOffset = layoutHelpers.yOffset || 0;
+
+    if (xOffset !== undefined) {
+      layoutHelpers.xOffset = xOffset
+    }
 
     if (yOffset !== undefined) {
       layoutHelpers.yOffset = yOffset;
@@ -521,6 +660,7 @@ class SequenceCanvasCore {
       // this.sequence.throttledSave();
     }
 
+    this.$scrollingParent.scrollLeft(layoutHelpers.xOffset);
     this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
 
     this.afterNextRedraw(deferred.resolve);
@@ -528,7 +668,7 @@ class SequenceCanvasCore {
     this.redraw();
 
     if (triggerEvent !== false) {
-      this.trigger('scroll', {yOffset});
+      this.trigger('scroll', {xOffset, yOffset});
     }
 
     return deferred.promise;
@@ -543,6 +683,7 @@ class SequenceCanvasCore {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
 
     if (distanceToVisibleCanvas !== 0) {
+      console.log('abc')
       return this.scrollTo(this.layoutHelpers.yOffset + distanceToVisibleCanvas);
     } else {
       return Q.resolve();
@@ -553,6 +694,7 @@ class SequenceCanvasCore {
     if (!this.isBaseVisible(base)) {
       var yPos = this.getYPosFromBase(base),
         maxY = this.$scrollingChild.height() - this.$scrollingParent.height();
+      console.log('abc123')
       return this.scrollTo(Math.min(yPos, maxY));
     } else {
       return Q.resolve();
