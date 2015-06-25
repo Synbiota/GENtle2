@@ -1556,7 +1556,7 @@ function sequenceModelFactory(BackboneModel) {
 
   Sequence._logRegisteredAssociations = function() {
     // Used for debugging
-    console.log(JSON.stringify(associations, null, 2));
+    console.log('registered associations: ', JSON.stringify(associations, null, 2));
     return associations;
   };
 
