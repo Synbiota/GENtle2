@@ -6,6 +6,7 @@ import IDT from './idt_query';
 import {namedHandleError} from '../../../common/lib/handle_error';
 import Primer from './primer';
 import SequenceRange from '../../../library/sequence-model/range';
+import errors from './errors';
 
 
 var checkForPolyN = SequenceCalculations.checkForPolyN;
@@ -60,10 +61,17 @@ var _getSequenceToSearch = function(potentialPrimerModel) {
   // Check there are enough bases to satisfy the minimum size for a primer
   // (a valid primer may of course still not be found)
   if(primer.sequenceToSearch.length < primer.options.minPrimerLength) {
+    var data = {sequenceToSearch: primer.sequenceToSearch, minPrimerLength: primer.options.minPrimerLength};
     if(primer.sequenceOptions.findOnReverseStrand) {
-      primer.deferred.reject("sequence is too short to leave enough sequence length to find the primer");
+      primer.deferred.reject(new errors.SequenceTooShort({
+        message: "sequence is too short to leave enough sequence length to find the primer",
+        data,
+      }));
     } else {
-      primer.deferred.reject("`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
+      primer.deferred.reject(new errors.SequenceTooShort({
+        message: "`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer",
+        data,
+      }));
     }
   }
 };
@@ -164,7 +172,8 @@ class PotentialPrimer {
     }
 
     // We have failed to find a good primer.
-    var msg = 'FAIL to findPrimer';
+    var message = 'FAIL to findPrimer';
+    var data = {returnNearestIfNotBest: this.returnNearestIfNotBest};
     if(this.returnNearestIfNotBest) {
       logger('FAILED to find a perfect primer, returning the best primer we have');
       this.nearestBestPrimer()
@@ -173,13 +182,15 @@ class PotentialPrimer {
           nearestBestPrimer.optimal = false;
           this.deferred.resolve(nearestBestPrimer);
         } else {
-          logger(msg + '. Searched for nearestBestPrimer');
-          this.deferred.reject(msg);
+          message += '. Searched for nearestBestPrimer.';
+          logger(message);
+          this.deferred.reject(new errors.NoPrimer({message, data}));
         }
       }).done();
     } else {
-      logger(msg + '. No nearestBestPrimer search');
-      this.deferred.reject(msg);
+      message += '. nearestBestPrimer search not allowed.';
+      logger(message);
+      this.deferred.reject(new errors.NoPrimer({message, data}));
     }
     return;
   }

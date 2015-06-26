@@ -12,14 +12,54 @@
               <p class="text-muted">
                 Please wait while we calculate the best sequencing primers
               </p>
-              <p class="text-danger no-universal-primers-found" style="display: none;">
-                <b>Warning: Unsequence DNA</b>
+
+              <p class="text-warning no-universal-forward-primer" style="display: none;">
+                No forward universal primer found.
+              </p>
+              <p class="text-warning no-universal-reverse-primer" style="display: none;">
+                No reverse universal primer found.
+              </p>
+
+              <p class="text-danger no-primer-possible" style="display: none;">
+                <b>Error: Sequence primers unavailable</b>
+                <br>
+                It is not possible to find any sequencing primers for this
+                sequence.  This is probably due to a long continguous A/T rich
+                stretch of bases for which it is not possible to find primers
+                suitable for sequencing from.
+                <br>
+                <span class="no-universal-primer" style="display: none;">
+                  Additionally the sequence provided lacks one or more universal
+                  primers which would otherwise provide some coverage of your
+                  sequence.
+                  <br>
+                </span>
+                If you would like to obtain the sequence of your DNA you may be
+                more successful with non-Sanger sequencing techniques.
+              </p>
+              <p class="text-danger sequence-too-short" style="display: none;">
+                <b>Error: Unsequenced DNA</b>
+                <br>
+                This is due to your sequence being too short.  Additionally it
+                lacks known universal primers.<br>
+                If you would like to obtain the sequence of your DNA you may be
+                more successful with non-Sanger sequencing techniques.
+              </p>
+              <p class="text-danger unsequenced-dna" style="display: none;">
+                <b>Error: Unsequenced DNA</b>
                 <br>
                 Some of the DNA in your sequence will be unsequenced because
-                suitable forward and reverse sequencing could not be found.
-                This is likely due to your sequence not containing recognised
-                forward and reverse universal primers.
-                Alternatively your sequence is too short.
+                <span class="no-universal-primer" style="display: none;">
+                  your sequence does not contain forward and reverse universal
+                  primers and no other suitable forward and reverse primers
+                  could be found.<br>
+                  It may additionally be because your sequence is too short.
+                </span>
+                <span class="universal-primers-present" style="display: none;">
+                  your sequence is too short.<br>
+                </span>
+                If you would like to obtain the sequence of your DNA you may be
+                more successful with non-Sanger sequencing techniques.
               </p>
             </div>
             <div class="progress">
