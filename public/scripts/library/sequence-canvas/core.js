@@ -431,10 +431,15 @@ class SequenceCanvasCore {
       .then(() => {
         this.clearCache();
         this.svg.clear();
-        this.$childrenContainer.empty();
+        this.$childrenContainer.empty()
+          .append($('<div class="children-placeholder"/>'));
       })
       .then(this.redraw)
       .done();
+  }
+
+  addChildrenPlaceholder(className) {
+    this.$childrenContainer.find('.children-placeholder').addClass(className);
   }
 
   /**

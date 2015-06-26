@@ -46,7 +46,6 @@ class RestrictionEnzymeSites extends Line {
           baseRange[1] + subSeqPadding
         ),
         baseRangeLength = baseRange[1] - baseRange[0] + 1,
-        enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions),
         x, x2, initPosition, points, negativeOffset, basesLength,
         _this = this;
 
@@ -56,7 +55,12 @@ class RestrictionEnzymeSites extends Line {
 
     var row = sequenceCanvas.getAbsRowFromYPos(y);
     var rowClass = `${sequenceCanvas.id}-res-sites-row-${row}`;
+
     if(document.getElementsByClassName(rowClass).length) return;
+
+    var enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions);
+
+    if(enzymes.length === 0) sequenceCanvas.addChildrenPlaceholder(rowClass);
 
     // artist.updateStyle({
     //   strokeStyle: '#59955C',
