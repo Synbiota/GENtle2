@@ -1304,20 +1304,18 @@ function sequenceModelFactory(BackboneModel) {
         });
     }
 
-
     /**
-     * Returns the positions of the first and last selectable ranges in
+     * @method selectableRange
+     * Returns the positions of the first and last selectable bases in
      * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}} 
-     * (i.e. account for sticky end format).
+     * (i.e. accounts for sticky end format).
      *
      * If `reverse` is set to `true`, the range will refer to the complement of the
-     *  sequence, *not the reverse complement* 
+     *  sequence, *not the reverse complement*, i.e. it will be 0-indexed
+     *  relative to the forward strand, not the reverse stand.
      *
-     * @method  selectableRange
-     * 
-     * @param  {Boolean} reverse whether to return the selectable range on the
-     *                           complement of the sequence
-     *                           
+     * @param {Boolean} reverse=false  If true will return the selectable range
+     *                                 for the reverse stand of the sequence.
      * @return {Array<Int>}      array of first and last base in the selectable range
      */
     selectableRange(reverse = false) {
@@ -1327,9 +1325,7 @@ function sequenceModelFactory(BackboneModel) {
 
       if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
         var getOffset = function(type) {
-          return stickyEnds[type].reverse ? 
-          (reverse ? 0 : stickyEnds[type].size) : 
-          (reverse ? stickyEnds[type].size : 0);
+          return (stickyEnds[type].reverse === reverse) ? 0 : stickyEnds[type].size;
         };
 
         return [
@@ -1339,6 +1335,47 @@ function sequenceModelFactory(BackboneModel) {
       } else {
         return [0, length - 1];
       }
+    }
+
+    /**
+     * @method ensureBaseIsSelectable
+     * TODO: Refactor this function and combine with `ensurePositionIsSelectable`
+     * @param  {[type]}  base   [description]
+     * @param  {Boolean} strict [description]
+     * @return {[type]}         [description]
+     */
+    ensureBaseIsSelectable(base, strict = false) {
+      var selectableRange = this.selectableRange();
+      return Math.min(
+        Math.max(base, selectableRange[0]),
+        selectableRange[1] + (strict ? 0 : 1)
+      );
+    }
+
+    /**
+     * @method ensurePositionIsSelectable
+     * TODO: Refactor this function and combine with `ensureBaseIsSelectable`
+     * @param  {Integer}  position 0-indexed relative to forward strand
+     * @param  {Boolean} reverse=false If true will return if this base position
+     *                                 is selectable on the reverse stand of the
+     *                                 sequence.
+     * @return {Integer}
+     */
+    ensurePositionIsSelectable(position, reverse = false) {
+      var selectableRange = this.selectableRange(reverse);
+      return Math.max(Math.min(position, selectableRange[1]), selectableRange[0]);
+    }
+
+    /**
+     * @method isPositionSelectable
+     * @param  {Integer}  position 0-indexed relative to forward strand
+     * @param  {Boolean} reverse=false If true will return if this base position
+     *                                 is selectable on the reverse stand of the
+     *                                 sequence.
+     * @return {Boolean}
+     */
+    isPositionSelectable(position, reverse = false) {
+      return position === this.ensurePositionIsSelectable(position, reverse);
     }
 
     /**
@@ -1371,7 +1408,7 @@ function sequenceModelFactory(BackboneModel) {
      *                                 following the stretch of editable sequence.
      * @return {Integer or Undefined}
      */
-    ensureBaseIsEditable (base, strict = false) {
+    ensureBaseIsEditable(base, strict = false) {
       var editableRange = this.editableRange(strict);
       if(editableRange.size === 0) {
         // NOTE:  This can only happen when strict is true and there is no
@@ -1434,15 +1471,6 @@ function sequenceModelFactory(BackboneModel) {
       });
       return attributes;
     }
-
-    ensureBaseIsSelectable(base, strict = false) {
-      var selectableRange = this.selectableRange();
-      return Math.min(
-        Math.max(base, selectableRange[0]), 
-        selectableRange[1] + (strict ? 0 : 1)
-      );
-    }
-
   }
 
 

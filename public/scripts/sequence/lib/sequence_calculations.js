@@ -1,7 +1,9 @@
 import _ from 'underscore';
 import SequenceTransforms from 'gentle-sequence-transforms';
+import Styles from '../../styles';
+const LineStyles = Styles.sequences.lines;
 
-var compose = _.compose;
+
 var partial = _.partial;
 
 var molecularWeights = {
@@ -279,6 +281,24 @@ var molecularWeight = function(sequence) {
   }, 0);
 };
 
+
+var dnaTextColour = function(sequenceModel, reverse, defaultColour, base_unused, position) {
+  var stickyEndFormat = sequenceModel.getStickyEndFormat();
+
+  var colour = '#fff';
+  if(stickyEndFormat === sequenceModel.STICKY_END_OVERHANG) {
+    if(sequenceModel.isBaseEditable(position, true)) {
+      return defaultColour;
+    } else if(sequenceModel.isPositionSelectable(position, reverse)) {
+      return LineStyles.RES.text.color;
+    }
+  } else if(sequenceModel.isBaseEditable(position, true)) {
+    colour = defaultColour;
+  }
+  return colour;
+};
+
+
 window.calc = {
   deltaEnthalpy: deltaEnthalpy,
   deltaEntropy: deltaEntropy,
@@ -300,5 +320,6 @@ export default {
   meltingTemperature1: meltingTemperature,
   gcContent: gcContent,
   molecularWeight: molecularWeight,
-  nearestNeighborsCalculator: nearestNeighborsCalculator
+  nearestNeighborsCalculator: nearestNeighborsCalculator,
+  dnaTextColour,
 };

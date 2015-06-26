@@ -7,7 +7,6 @@ import _ from 'underscore.mixed';
 export default function testAllSequenceModels(Sequence) {
 
   var initialSequenceContent = 'ATCGATCGATCGATCG';
-  var initialSequenceLength = initialSequenceContent.length;
   var stickyEnds = {
     start: {
       sequence: 'CCTGCAGTCAGTGGTCTCT' + 'AGAG',
