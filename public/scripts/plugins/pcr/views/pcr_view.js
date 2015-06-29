@@ -71,7 +71,7 @@ export default Backbone.View.extend({
 
     var forwardPrimer = sequence.get('forwardPrimer');
     var reversePrimer = sequence.get('reversePrimer');
-    var stickyEnds = sequence.getStickyEnds();
+    var stickyEnds = sequence.getStickyEnds(true);
 
     var features = [
     {

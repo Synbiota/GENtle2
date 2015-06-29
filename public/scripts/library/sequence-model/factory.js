@@ -270,12 +270,23 @@ function sequenceModelFactory(BackboneModel) {
       return val;
     }
 
-    getStickyEnds() {
-      var stickyEnds = super.get('stickyEnds');
-      return stickyEnds && _.defaults({}, stickyEnds, {
-        start: {size: 0, offset: 0},
-        end: {size: 0, offset: 0}
-      });
+    /**
+     * @method getStickyEnds
+     * @param  {Boolean} withDefaults=false
+     * @return {undefined or Object}
+     */
+    getStickyEnds(withDefaults=false) {
+      var stickyEnds = _.deepClone(super.get('stickyEnds'));
+      // If stickyEnds is an empty object, force it to be undefined so that
+      // `getStickyEnds(false)` can be used in conditionals for truthiness.
+      if(_.isEmpty(stickyEnds)) stickyEnds = undefined;
+      if(withDefaults) {
+         stickyEnds = _.defaults((stickyEnds || {}), {
+          start: {size: 0, offset: 0, reverse: false, name: ''},
+          end:   {size: 0, offset: 0, reverse: false, name: ''},
+        });
+      }
+      return stickyEnds;
     }
 
     getStickyEndFormat() {
@@ -308,17 +319,15 @@ function sequenceModelFactory(BackboneModel) {
       this.validateStickyEndFormat(stickyEndFormat);
 
       var startPostion = this.getOffset(stickyEndFormat);
-      var stickyEnds = this.getStickyEnds();
-      if(stickyEnds) {
-        var endPosition;
-        if(stickyEndFormat === STICKY_END_NONE) {
-          endPosition = sequence.length - stickyEnds.end.size - stickyEnds.end.offset;
-        } else if(stickyEndFormat === STICKY_END_OVERHANG) {
-          endPosition = sequence.length - stickyEnds.end.offset;
-        }
-        if(endPosition !== undefined) {
-          sequence = sequence.substring(startPostion, endPosition);
-        }
+      var endStickyEnds = this.getStickyEnds(true).end;
+      var endPosition;
+      if(stickyEndFormat === STICKY_END_NONE) {
+        endPosition = sequence.length - endStickyEnds.size - endStickyEnds.offset;
+      } else if(stickyEndFormat === STICKY_END_OVERHANG) {
+        endPosition = sequence.length - endStickyEnds.offset;
+      }
+      if(endPosition !== undefined) {
+        sequence = sequence.substring(startPostion, endPosition);
       }
 
       return sequence;
@@ -333,18 +342,13 @@ function sequenceModelFactory(BackboneModel) {
      */
     getOffset(stickyEndFormat=undefined) {
       var offset = 0;
-      var stickyEnds = this.getStickyEnds();
-      if(stickyEnds) {
-        var startStickyEnd = stickyEnds.start;
-
-        stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
-        if(stickyEndFormat === STICKY_END_NONE) {
-          offset = startStickyEnd.offset + startStickyEnd.size;
-        } else if(stickyEndFormat === STICKY_END_OVERHANG) {
-          offset = startStickyEnd.offset;
-        }
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+      var startStickyEnd = this.getStickyEnds(true).start;
+      if(stickyEndFormat === STICKY_END_NONE) {
+        offset = startStickyEnd.offset + startStickyEnd.size;
+      } else if(stickyEndFormat === STICKY_END_OVERHANG) {
+        offset = startStickyEnd.offset;
       }
-
       return offset;
     }
 
@@ -445,14 +449,11 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Integer}
      */
     overhangBeyondStartStickyEnd(pos, reverse = false) {
-      var stickyEnds = this.getStickyEnds();
+      var startStickyEnd = this.getStickyEnds(true).start;
       var result = 0;
-      if(stickyEnds) {
-        var startStickyEnd = stickyEnds.start;
-        result = startStickyEnd.offset - pos;
-        if(reverse !== startStickyEnd.reverse) {
-          result += startStickyEnd.size;
-        }
+      result = startStickyEnd.offset - pos;
+      if(reverse !== startStickyEnd.reverse) {
+        result += startStickyEnd.size;
       }
       return result;
     }
@@ -464,16 +465,11 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Integer}
      */
     overhangBeyondEndStickyEnd(pos, reverse = false) {
-      var stickyEnds = this.getStickyEnds();
-      var result = 0;
-      if(stickyEnds) {
-        var endStickyEnd = stickyEnds.end;
-        var seqLength = this.getLength(STICKY_END_FULL);
-
-        result = pos - (seqLength - 1 - endStickyEnd.offset);
-        if(reverse !== endStickyEnd.reverse) {
-          result += endStickyEnd.size;
-        }
+      var endStickyEnd = this.getStickyEnds(true).end;
+      var seqLength = this.getLength(STICKY_END_FULL);
+      var result = pos - (seqLength - 1 - endStickyEnd.offset);
+      if(reverse !== endStickyEnd.reverse) {
+        result += endStickyEnd.size;
       }
       return result;
     }
@@ -501,34 +497,26 @@ function sequenceModelFactory(BackboneModel) {
      *        sequenceBases: {String}  sequence bases of stickyEnd (if on reverse
      *                                 strand then complement is taken but not
      *                                 reverse complement)
-     *        isOnReverseStrand:  {Boolean}  true if sequence is on reverse strand
+     *        isOnReverseStrand: {Boolean}  true if sequence is on reverse strand
      */
     getStickyEndSequence(getStartStickyEnd) {
       var wholeSequence = super.get('sequence');
-      var stickyEnds = this.getStickyEnds() || {};
-      var isOnReverseStrand;
-      var sequenceBases = '';
-      var stickyEnd;
+      var stickyEnds = this.getStickyEnds(true);
 
+      var stickyEnd, offset;
       if(getStartStickyEnd) {
         stickyEnd = stickyEnds.start;
-        if(stickyEnd) {
-          sequenceBases = wholeSequence.substr(stickyEnd.offset, stickyEnd.size);
-        }
+        offset = stickyEnds.start.offset;
       } else {
         stickyEnd = stickyEnds.end;
-        if (stickyEnd) {
-          var offset = wholeSequence.length - (stickyEnd.offset + stickyEnd.size);
-          sequenceBases = wholeSequence.substr(offset, stickyEnd.size);
-        }
+        offset = wholeSequence.length - (stickyEnds.end.offset + stickyEnds.end.size);
+      }
+      var sequenceBases = wholeSequence.substr(offset, stickyEnd.size);
+      var isOnReverseStrand = stickyEnd.reverse;
+      if(isOnReverseStrand) {
+        sequenceBases = SequenceTransforms.toComplements(sequenceBases);
       }
 
-      if(stickyEnd) {
-        isOnReverseStrand = stickyEnd.reverse;
-        if(isOnReverseStrand) {
-          sequenceBases = SequenceTransforms.toComplements(sequenceBases);
-        }
-      }
       return {sequenceBases, isOnReverseStrand};
     }
 
@@ -554,7 +542,7 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Boolean}
      */
     hasBothStickyEnds() {
-      var stickyEnds = this.getStickyEnds();
+      var stickyEnds = this.getStickyEnds(false);
       return !!(stickyEnds && stickyEnds.start && stickyEnds.end);
     }
 
@@ -1162,7 +1150,7 @@ function sequenceModelFactory(BackboneModel) {
 
 
       var offset = previousStickyEndFormat === STICKY_END_OVERHANG ?
-        this.getStickyEnds().start.offset : 
+        this.getStickyEnds(true).start.offset :
         0;
 
       var data = triggerWithPosition && {
@@ -1320,10 +1308,10 @@ function sequenceModelFactory(BackboneModel) {
      */
     selectableRange(reverse = false) {
       var stickyEndFormat = this.getStickyEndFormat();
-      var stickyEnds = this.getStickyEnds();
+      var stickyEnds = this.getStickyEnds(true);
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
+      if(stickyEndFormat === STICKY_END_OVERHANG) {
         var getOffset = function(type) {
           return (stickyEnds[type].reverse === reverse) ? 0 : stickyEnds[type].size;
         };
@@ -1390,11 +1378,11 @@ function sequenceModelFactory(BackboneModel) {
      */
     editableRange(strict = false) {
       var stickyEndFormat = this.getStickyEndFormat();
-      var stickyEnds = this.getStickyEnds();
+      var stickyEnds = this.getStickyEnds(true);
       var frm = 0;
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
+      if(stickyEndFormat === STICKY_END_OVERHANG) {
         frm = stickyEnds.start.size;
         length = length - stickyEnds.end.size - stickyEnds.start.size;
       }

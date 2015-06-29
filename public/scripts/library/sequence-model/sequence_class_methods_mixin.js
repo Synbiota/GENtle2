@@ -22,27 +22,27 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
     previousStickyEndFormats[sequenceModel.get('id')] = sequenceModel.getStickyEndFormat();
     sequenceModel.setStickyEndFormat('full');
 
-    var stickyEnds = sequenceModel.getStickyEnds();
+    var stickyEnds = sequenceModel.getStickyEnds(false) || {};
     var appendSequenceBases = sequenceModel.getSequence();
 
     // Add sticky ends
     if(isFirst && !circularise) {
       if(stickyEnds.start) {
         // Add sticky end at start
-        attributes.stickyEnds.start = _.deepClone(stickyEnds.start);
+        attributes.stickyEnds.start = stickyEnds.start;
       }
     }
     if(isLast && !circularise) {
       if(stickyEnds.end) {
         // Add sticky end at end
-        attributes.stickyEnds.end = _.deepClone(stickyEnds.end);
+        attributes.stickyEnds.end = stickyEnds.end;
       }
     }
 
     var offset = 0;
     if(isFirst && circularise) {
       previousSequenceModel = sequenceModels[sequenceModels.length-1];
-      previousStickyEnds = previousSequenceModel.getStickyEnds();
+      previousStickyEnds = previousSequenceModel.getStickyEnds(true);
     }
     if(previousSequenceModel) {
       // Check sticky ends are compatible

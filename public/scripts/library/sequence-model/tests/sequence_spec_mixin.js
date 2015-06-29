@@ -822,12 +822,12 @@ export default function testAllSequenceModels(Sequence) {
         expect(startStickySequence.getStartStickyEndSequence().sequenceBases).toEqual('AT');
         expect(startStickySequence.getStartStickyEndSequence().isOnReverseStrand).toEqual(true);
         expect(endStickySequence.getStartStickyEndSequence().sequenceBases).toEqual('');
-        expect(endStickySequence.getStartStickyEndSequence().isOnReverseStrand).toEqual(undefined);
+        expect(endStickySequence.getStartStickyEndSequence().isOnReverseStrand).toEqual(false);
       });
 
       it('getEndStickyEndSequence', function() {
         expect(startStickySequence.getEndStickyEndSequence().sequenceBases).toEqual('');
-        expect(startStickySequence.getEndStickyEndSequence().isOnReverseStrand).toEqual(undefined);
+        expect(startStickySequence.getEndStickyEndSequence().isOnReverseStrand).toEqual(false);
         expect(endStickySequence.getEndStickyEndSequence().sequenceBases).toEqual('TA');
         expect(endStickySequence.getEndStickyEndSequence().isOnReverseStrand).toEqual(false);
       });
@@ -836,7 +836,7 @@ export default function testAllSequenceModels(Sequence) {
     describe('overhang beyond stickyEnds integer values', function() {
       describe('overhangBeyondStartStickyEnd', function() {
         it('with start stickyEnds', function() {
-          expect(startStickySequence.getStickyEnds().start.reverse).toEqual(true);
+          expect(startStickySequence.getStickyEnds(false).start.reverse).toEqual(true);
 
           expect(startStickySequence.overhangBeyondStartStickyEnd(3)).toEqual(1);
           expect(startStickySequence.overhangBeyondStartStickyEnd(4)).toEqual(0);
@@ -852,7 +852,7 @@ export default function testAllSequenceModels(Sequence) {
 
       it('overhangBeyondEndStickyEnd', function() {
         it('with end stickyEnds', function() {
-          expect(endStickySequence.getStickyEnds().end.reverse).toEqual(false);
+          expect(endStickySequence.getStickyEnds(false).end.reverse).toEqual(false);
           expect(endStickySequence.getLength()).toEqual(17);
 
           expect(endStickySequence.overhangBeyondEndStickyEnd(14)).toEqual(0);
@@ -945,7 +945,7 @@ export default function testAllSequenceModels(Sequence) {
     it('concatenates (and circularises) endStickySequence, stickySequence, startStickySequence', function() {
       var concatenatedSequence = Sequence.concatenateSequences([stickySequence, stickySequence], true, false);
       expect(concatenatedSequence.getSequence()).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
-      expect(_.isEmpty(concatenatedSequence.getStickyEnds()));
+      expect(_.isEmpty(concatenatedSequence.getStickyEnds(false)));
       var features = concatenatedSequence.getFeatures();
       expect(features.length).toEqual(2);
       expect(features[0].name).toEqual('stickySequenceAnnotation');

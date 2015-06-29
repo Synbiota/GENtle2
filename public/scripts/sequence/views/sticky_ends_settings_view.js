@@ -18,7 +18,7 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    var stickyEnds = this.model.getStickyEnds();
+    var stickyEnds = this.model.getStickyEnds(false);
     if(stickyEnds) {
       this.setFormData('start', stickyEnds.start);
       this.setFormData('end', stickyEnds.end);

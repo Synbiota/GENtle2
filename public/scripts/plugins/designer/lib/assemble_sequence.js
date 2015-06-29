@@ -128,7 +128,7 @@ class AssembleSequenceModel {
     this.set({
       sequence: finalSequence.getSequence(),
       features: finalSequence.getFeatures(),
-      stickyEnds: finalSequence.getStickyEnds(),
+      stickyEnds: finalSequence.getStickyEnds(false),
       meta: undefined
     });
 
