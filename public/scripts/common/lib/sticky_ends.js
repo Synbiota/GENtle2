@@ -35,8 +35,8 @@ var stickyEnds = [{
 
 _.each(stickyEnds, (stickyEnd) => stickyEnd.name = `${stickyEnd.start.name}-${stickyEnd.end.name}`);
 
-var getStickyEnds = function() {
+var allStickyEnds = function() {
   return _.deepClone(stickyEnds);
 };
 
-export default getStickyEnds;
+export default allStickyEnds;

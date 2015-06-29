@@ -1,4 +1,4 @@
-import stickyEnds from '../../../common/lib/sticky_ends';
+import allStickyEnds from '../../../common/lib/sticky_ends';
 import _ from 'underscore';
 
 
@@ -7,7 +7,7 @@ var transformStickyEndData = function(stickyEndAttributes) {
   if(_.isString(stickyEndAttributes.start)) {
     // We're dealing with an old stickyEnd.  Try to transform it into the
     // new form
-    var matchedStickyEnds = _.filter(stickyEnds(), (stickyEnd) => {
+    var matchedStickyEnds = _.filter(allStickyEnds(), (stickyEnd) => {
       return (
         stickyEnd.start.sequence === stickyEndAttributes.start &&
         stickyEnd.end.sequence === stickyEndAttributes.end &&
