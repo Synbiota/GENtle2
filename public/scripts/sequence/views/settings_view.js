@@ -6,7 +6,7 @@
 import FeaturesView         from './features_view';
 import HistoryView          from './history_view';
 import DisplaySettingsView  from './display_settings_view';
-import RestrictionEnzymesSettingsView 
+import RestrictionEnzymesSettingsView
                             from './restriction_enzymes_settings_view';
 import ExportView           from './export_view';
 import SidebarView          from '../../common/views/sidebar_view';
@@ -14,6 +14,8 @@ import ToolsView            from './tools_view';
 import EditView             from './edit_view';
 import Gentle               from 'gentle';
 import StickyEndsView       from './sticky_ends_settings_view';
+import ChromatographSettingsView
+                            from './chromatograph_settings_view';
 
 var SettingsView = SidebarView.extend({
 
@@ -27,7 +29,7 @@ var SettingsView = SidebarView.extend({
     //   icon: 'wrench',
     //   view: ToolsView,
     //   hoverable: true
-    // }, 
+    // },
 
     this.addTab([{
       name: 'edit',
@@ -72,13 +74,22 @@ var SettingsView = SidebarView.extend({
       visible: function() {
         return _this.parentView().primaryView.name == 'edition';
       },
-    }, {
+    },{
       name: 'stickEnds',
       title: 'Sticky ends',
       icon: 'align-left',
       view: StickyEndsView,
       visible: Gentle.featureFlag('stickyEnds')
-    }]);
+    },{
+      name: 'addChromtograph',
+      title: 'Add Chromatograph',
+      icon: 'align-left',
+      view: ChromatographSettingsView,
+      visible: function() {
+        return _this.parentView().primaryView.name == 'chromatograph'
+      }
+    }
+    ]);
 
     _.chain(Gentle.plugins)
       .where({type: 'sequence-settings-tab'})

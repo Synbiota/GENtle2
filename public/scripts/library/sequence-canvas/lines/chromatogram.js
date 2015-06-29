@@ -18,7 +18,7 @@ export default class Chromatogram extends Line {
     const layoutHelpers = sequenceCanvas.layoutHelpers;
     const pageMargins = layoutSettings.pageMargins;
 
-    const sequence = sequenceCanvas.sequence;
+    const sequence = this.sequence || sequenceCanvas.sequence;
     const rawData = sequence.get('chromatogramData');
     const maxDataValue = sequence.get('maxChromatogramValue') || 65536;
 
@@ -28,27 +28,27 @@ export default class Chromatogram extends Line {
     // const normalizedWidth = layoutSettings.chromatographDims.width;
     const normalizedWidth = layoutSettings.basePairDims.width;
 
+    // OPTIMIZATION: do this once on load
     /**
      * Slice the relevant data for a base from the provded raw data array.
-     * For base 0, we get the raw data from index 0 to peaks[0].
-     * For base peaks.length, we get the raw data from index peaks[peaks.length - 1]
-     * to rawData.length - 1.
+     * A base is defined as the peaks[base] in the center, with half the data points
+     * from the neighbouring bases on either side.
+     *
+     * For base 0, we start with data[0]. The right side is the same.
+     * For base peaks.length, the left side is the same, and we end with data[data.length-1].
      *
      * @param  {Array}    data  Individual array of raw chromatograph data (one nucleotide only).
      * @param  {Integer}  base  Index of base.
      * @return {Array}          Raw data of range base-1 to base.
-     *                          Base 0 will get rawData[0] to rawData[peak[0]].
-     *                          Base peaks.length will get rawData[peaks[peaks.length-1]] to
-     *                          rawData[rawData.length - 1]
      */
     function getRelevantData(data, base){
       var start = base === 0 ?
                     0 :
-                    peaks[base - 1],
+                    peaks[base] - Math.floor((peaks[base] - peaks[base - 1])/2),
 
           end   = base === peaks.length ?
                     data.length :
-                    peaks[base];
+                    peaks[base + 1] - Math.floor((peaks[base + 1] - peaks[base])/2);
 
       return data.slice(start, end);
     }

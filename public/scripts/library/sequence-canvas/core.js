@@ -38,6 +38,7 @@ class SequenceCanvasCore {
       'redrawSelection',
       'display',
       'display2d',
+      'addLines',
       'refresh',
       'refreshFromResize',
       'redraw',
@@ -87,7 +88,10 @@ class SequenceCanvasCore {
      * @type {Object<Lines>}
      * @property lines
      */
-    this.lines = this._initLines(options.lines);
+    // this.lines = this._initLines(options.lines);
+    this.lines = {};
+    this.lineId = 0;
+    this.addLines(options.lines)
 
     /**
         @property layoutSettings
@@ -170,11 +174,22 @@ class SequenceCanvasCore {
     return $container;
   }
 
-  _initLines(lines) {
-    assertIsObject(lines, 'options.lines');
-    return _.mapObject(lines, (value) => {
-      return new Lines[value[0]](this, value[1] || {});
-    });
+  // _initLines(lines) {
+  //   assertIsObject(lines, 'options.lines');
+  //   return _.mapObject(lines, (value) => {
+  //     return new Lines[value[0]](this, value[1] || {});
+  //   });
+  // }
+
+  addLines(newLines) {
+
+    var _this = this;
+
+    _.forEach(newLines, function([key, value]){
+      _this.lines[key + _this.lineId] = new Lines[key](_this, value || {})
+      _this.lineId++;
+    })
+
   }
 
   _mixinJqueryEvents() {
@@ -398,18 +413,16 @@ class SequenceCanvasCore {
   drawRowSegment(type, x, y, baseRange){
     var
         // lines = this.getLines(type),
+        artist = this.artist,
         ls = this.layoutSettings,
         baseWidth = ls.basePairDims.width,
-        lines,
+        lines = this.lines,
         lineOffset = 0;
-    lines = this.lines
-    console.log('drs', lines)
 
     if (baseRange[0] < this.sequence.getLength()) {
+      artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, ls.canvasDims.height - y)
       _.each(lines, function(line) {
         if (line.visible === undefined || line.visible()) {
-          // // clear area we are going to draw
-          // artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, line.height)
           if(line.floating) {
             line.draw(x, y, baseRange);
           } else {
@@ -462,6 +475,8 @@ class SequenceCanvasCore {
         drawEnd = canvasDims;
       }
 
+      console.log('moveOffset', moveOffset, 'drawStart', drawStart, 'drawEnd', drawEnd)
+
       // Quantify area into blocks and draw
       _this.forEachBlockInRange(drawStart, drawEnd, _this.drawBlock)
 
@@ -487,18 +502,20 @@ class SequenceCanvasCore {
         layoutHelpers = this.layoutHelpers,
         blockDims = [layoutSettings.basePairDims.width, layoutHelpers.rows.height],
         pageMargins = layoutSettings.pageMargins,
+        offset = [layoutHelpers.xOffset, layoutHelpers.yOffset],
         drawStart, drawEnd
+
 
         // firstRowStartY  = this.getRowStartY(Math.max(startY + layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
         // lastRowY = Math.min(endY, layoutSettings.canvasDims.height);
 
   // Quantify coordinates and dimensions in increments of grid values (width in baseWidth, height in rowHeight)
     drawStart = _.map(start, function(n, i){
-      return Math.floor(n/blockDims[i]) * blockDims[i];
+      return Math.floor( (n + offset[i])/blockDims[i]) * blockDims[i] - offset[i];
     })
 
     drawEnd = _.map(end, function(n, i){
-      return Math.ceil(n/blockDims[i]) * blockDims[i];
+      return Math.ceil((n + offset[i])/blockDims[i]) * blockDims[i] - offset[i];
     })
 
     // for (var i = drawStart[0]; i < drawEnd[0]; i += blockDims[0]){
@@ -512,6 +529,8 @@ class SequenceCanvasCore {
     // var y = drawStart[1]
 
     // console.log('drawegawe', drawStart, drawEnd, x, y, width)
+
+    console.log('fbrange', 'start/end', start, end, 'drawStart/End', drawStart, drawEnd, 'width', width)
 
     callback.call(this,x, drawStart[1], width)
 
@@ -541,7 +560,6 @@ class SequenceCanvasCore {
    * @param  {Integer} y [description]
    */
   drawBlock(x, y, width, height){
-    console.log('db')
     var layoutHelpers = this.layoutHelpers,
         layoutSettings = this.layoutSettings,
         baseWidth = layoutSettings.basePairDims.width,
@@ -565,7 +583,6 @@ class SequenceCanvasCore {
       Math.floor((x + layoutHelpers.xOffset)/baseWidth),
       Math.floor((x + layoutHelpers.xOffset + width)/baseWidth)
     ]
-
 
     this.drawRowSegment(null, x, y, baseRange);
 

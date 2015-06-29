@@ -115,7 +115,8 @@ export default function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
-        stickyEndFormat: STICKY_END_OVERHANG
+        stickyEndFormat: STICKY_END_OVERHANG,
+        chromatogramFragments: []
       };
     }
 
@@ -1375,6 +1376,13 @@ export default function sequenceModelFactory(BackboneModel) {
 
     getConsensus(){
       return this.get('chromatogramQuality')
+    }
+
+    addChromatogram(chromatogram){
+      var sequence = new Sequence(chromatogram)
+      this.set('chromatogramFragments',
+        this.get('chromatogramFragments').concat(sequence)
+        )
     }
 
   }

@@ -31,6 +31,12 @@ export default Backbone.View.extend({
     // this.setView('.sequence-matched-enzymes-outlet', this.matchedEnzymesView);
 
     this.initSecondaryViews();
+
+    this.listenTo(this.model, 'change:chromatogramFragments', function(sequence, fragments){
+      console.log(arguments)
+      var fragment = fragments[fragments.length-1];
+      _this.addChromatograph(fragment)
+    })
   },
 
   initSecondaryViews: function(trigger) {
@@ -48,11 +54,11 @@ export default Backbone.View.extend({
       view:   ChromatographMapView
     });
 
-    secondaryViews.push({
-      name: 'linear',
-      title: 'Linear map',
-      view: LinearMapView
-    });
+    // secondaryViews.push({
+    //   name: 'linear',
+    //   title: 'Linear map',
+    //   view: LinearMapView
+    // });
 
     // secondaryViews.push({
     //   name: 'plasmid',
@@ -113,6 +119,31 @@ export default Backbone.View.extend({
        this.sequenceCanvas.refresh();
       }
     });
+  },
+
+  addChromatograph: function(fragment){
+
+
+    var newLines = {
+      chromatogram: ['Chromatogram', {
+          height: 80,
+          baseLine: 15,
+          sequence: fragment
+        }],
+        chromatogram_dna: ['DNA_XY', {
+          height: 15,
+          baseLine: 15,
+          sequence: fragment
+          // textFont: LineStyles.dna.text.font,
+          // textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+          // selectionColour: LineStyles.dna.selection.fill,
+          // selectionTextColour: LineStyles.dna.selection.color
+        }],
+      }
+
+
+    this.sequenceCanvas.addLines(newLines)
+    this.sequenceCanvas.display2d()
   },
 
   afterRender: function() {
