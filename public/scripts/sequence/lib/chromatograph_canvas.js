@@ -9,7 +9,6 @@ import Utilities from 'gentle-sequence-canvas/utilities';
 import Memoizable from 'gentle-utils/memoizable';
 
 import ContextMenu from './_sequence_canvas_context_menu';
-import Row from '../../library/sequence-canvas/rows/row';
 
 var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, Core, Memoizable);
 // var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, BiDirectional, Core, Memoizable);
@@ -34,6 +33,12 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
 
     var sequence = options.sequence;
     _.defaults(options, {
+      rows: {
+        consensus: ['Consensus', {}],
+        chromatogram: ['Chromatogram', {}]
+      },
+
+      // Remove lines later, rows are the new thing.
       lines: {
         consensus: ['Consensus', {
           height: 80,
@@ -78,6 +83,15 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
 
   }
 
-  rowTypes: ['consensus', 'chromatograph']
+  addChromatograph(fragment){
+
+    this.addRows({
+      chromatogram: ['Chromatogram', {
+        sequence: fragment
+      }]
+    })
+
+    this.display2d()
+  }
 
 }

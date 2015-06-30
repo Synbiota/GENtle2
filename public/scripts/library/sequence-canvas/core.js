@@ -7,6 +7,7 @@ import template from './template.html';
 import Artist from '../../common/lib/graphics/artist';
 import CopyPasteHandler from '../../common/lib/copy_paste_handler';
 
+import Rows from './rows';
 import Lines from './lines';
 import Caret from './caret';
 
@@ -92,6 +93,12 @@ class SequenceCanvasCore {
     this.lines = {};
     this.lineId = 0;
     this.addLines(options.lines)
+
+    // this.rows = options.rows || [];
+    this.rows = {}
+    this.rowId = 0;
+    this.addRows(options.rows);
+
 
     /**
         @property layoutSettings
@@ -188,6 +195,17 @@ class SequenceCanvasCore {
     _.forEach(newLines, function([key, value]){
       _this.lines[key + _this.lineId] = new Lines[key](_this, value || {})
       _this.lineId++;
+    })
+
+  }
+
+  addRows(newRows) {
+
+    var _this = this;
+
+    _.forEach(newRows, function([key, value]){
+      _this.rows[key + _this.rowId] = new Rows[key](_this, value || {})
+      _this.rowId++;
     })
 
   }
@@ -410,29 +428,32 @@ class SequenceCanvasCore {
     }
   }
 
-  drawRowSegment(type, x, y, baseRange){
-    var
-        // lines = this.getLines(type),
-        artist = this.artist,
-        ls = this.layoutSettings,
-        baseWidth = ls.basePairDims.width,
-        lines = this.lines,
-        lineOffset = 0;
+  // drawRowSegment(type, x, y, baseRange){
+  //   var
+  //       // lines = this.getLines(type),
+  //       artist = this.artist,
+  //       ls = this.layoutSettings,
+  //       baseWidth = ls.basePairDims.width,
+  //       lines = this.lines,
+  //       lineOffset = 0;
 
-    if (baseRange[0] < this.sequence.getLength()) {
-      artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, ls.canvasDims.height - y)
-      _.each(lines, function(line) {
-        if (line.visible === undefined || line.visible()) {
-          if(line.floating) {
-            line.draw(x, y, baseRange);
-          } else {
-            line.draw(x, y + lineOffset, baseRange);
-            lineOffset += line.height;
-          }
-        }
-      });
-    }
-  }
+
+  //   this.rows['Consensus0'].draw(x, y, baseRange)
+
+  //   // if (baseRange[0] < this.sequence.getLength()) {
+  //   //   artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, ls.canvasDims.height - y)
+  //   //   _.each(lines, function(line) {
+  //   //     if (line.visible === undefined || line.visible()) {
+  //   //       if(line.floating) {
+  //   //         line.draw(x, y, baseRange);
+  //   //       } else {
+  //   //         line.draw(x, y + lineOffset, baseRange);
+  //   //         lineOffset += line.height;
+  //   //       }
+  //   //     }
+  //   //   });
+  //   // }
+  // }
 
   display2d() {
     var artist = this.artist,
@@ -584,17 +605,37 @@ class SequenceCanvasCore {
       Math.floor((x + layoutHelpers.xOffset + width)/baseWidth)
     ]
 
-    this.drawRowSegment(null, x, y, baseRange);
+    // this.drawRowSegment(null, x, y, baseRange);
 
     // determine which rows we need to render
     // slice values should be integers since we quantify them beforehand
     // visibleRows = rows.slice(y/rowHeight, (y + height)/rowHeight);
+    visibleRows = rows
 
-    // // draw the row segment
-    // _.forEach(visibleRows, function(row){
-    //   this.drawRowSegment(row.type, y + rowOffset, baseRange);
-    //   rowOffset += rowHeight;
-    // });
+    this.artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, layoutSettings.canvasDims.height - y)
+
+    // draw the row segment
+    _.forEach(visibleRows, function(row){
+      // this.drawRowSegment(row.type, y + rowOffset, baseRange);
+
+      var xOffset = 0;
+
+      if (row.sequence && row.sequence.map){
+        var position = row.sequence.map.best().position;
+        var relativePosition = baseRange[0] - position;
+
+        if (relativePosition < 0) {
+          xOffset -= relativePosition * baseWidth;
+        }
+
+        baseRange[0] = Math.max(baseRange[0] - position, 0);
+        baseRange[1] = Math.max(baseRange[1] - position, 0);
+
+      }
+
+      row.draw(x + xOffset, y + rowOffset, baseRange);
+      rowOffset += row.height;
+    });
 
   }
 

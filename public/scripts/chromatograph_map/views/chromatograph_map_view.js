@@ -49,7 +49,7 @@ export default Backbone.View.extend({
 
     this.listenTo(
       this.model,
-      'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments',
       _.debounce(this.refresh, 500),
       this
     );
@@ -68,38 +68,17 @@ export default Backbone.View.extend({
 
     this.fragments = [];
 
-    this.model.getFragments = function(){
-      return [
-        {
-          name: 'f1',
-          from: 200,
-          to: 400
-        },
-        {
-          name: 'f2',
-          from: 345,
-          to: 500
-        },
-        {
-          name: 'f3',
-          from: 400,
-          to: 700
-        },
-        {
-          name: 'f4',
-          from: 400,
-          to: 700
-        }
-      ]
-    }
+    _.forEach(this.model.get('chromatogramFragments'), function(fragment, i){
 
+      var position = 0;
 
-    _.forEach(this.model.getFragments(), function(fragment){
+      if (fragment.map) position = fragment.map.best().position;
+
       _this.fragments.push({
-        name: fragment.name,
         id: ++id,
-        from: fragment.from,
-        to: fragment.to
+        name: fragment.name || 'Fragment ' + id,
+        from: position,
+        to: position + fragment.getLength()
       });
     });
   },

@@ -8,6 +8,8 @@ import SequenceTransforms from 'gentle-sequence-transforms';
 import SequenceRange from './range';
 import HistorySteps from '../../sequence/models/history_steps';
 
+import Nt from 'ntseq';
+
 
 const STICKY_END_FULL = 'full';
 const STICKY_END_OVERHANG = 'overhang';
@@ -1380,6 +1382,14 @@ export default function sequenceModelFactory(BackboneModel) {
 
     addChromatogram(chromatogram){
       var sequence = new Sequence(chromatogram)
+
+      var seq1 = new Nt.Seq().read(this.getSequence());
+      var seq2 = new Nt.Seq().read(chromatogram.sequence);
+
+      var map = new Nt.MatchMap(seq1, seq2);
+
+      sequence.map = map
+
       this.set('chromatogramFragments',
         this.get('chromatogramFragments').concat(sequence)
         )
