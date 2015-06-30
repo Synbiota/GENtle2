@@ -19,8 +19,6 @@ export default Backbone.View.extend({
   className: 'sequence-view',
 
   initialize: function() {
-    var _this = this;
-
     this.model = Gentle.currentSequence;
 
     this.contextMenuView = new ContextMenuView({context: 'sequence'});
@@ -31,7 +29,7 @@ export default Backbone.View.extend({
     this.initSecondaryViews();
   },
 
-  initSecondaryViews: function(trigger) {
+  initSecondaryViews: function() {
     var secondaryViews,
         currentView;
 
@@ -62,7 +60,7 @@ export default Backbone.View.extend({
   },
 
   handleResizeRight: function(trigger) {
-    $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
+    $('.sequence-canvas-outlet').css({
       'right': this.secondaryView.$el.width(),
     });
     if(trigger !== false) {
