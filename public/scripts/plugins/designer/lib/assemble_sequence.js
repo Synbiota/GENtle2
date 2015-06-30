@@ -63,8 +63,9 @@ class AssembleSequenceModel {
   }
 
   throttledSave () {
-    if(!this.get('sequence'))
+    if(!this.get('sequence')) {
       this.model.set('meta.designer.assembleSequences', JSON.stringify(this.sequences));
+    }
     return this.model.throttledSave();
   }
   
