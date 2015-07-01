@@ -33,6 +33,7 @@
     "aliasify": "^1.7.2",
     "amdefine": "~0.1.0",
     "aws-sdk": "^2.1.35",
+    "babel-runtime": "^5.6.15",
     "babelify": "^6.1.1",
     "backbone": "~1.1.2",
     "backbone-deep-model": "~0.11.0",

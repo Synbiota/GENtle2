@@ -22,7 +22,7 @@ var vendorLibs = [
 var appTransforms = [
   [ 'jstify', {minifierOpts: {collapseWhitespace: false}} ],
   [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
-  [ 'babelify', {} ],
+  [ 'babelify', {optional: ['runtime']} ],
   [ 'aliasify', {aliases: aliases} ]
 ];
 
