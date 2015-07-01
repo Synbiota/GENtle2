@@ -1,50 +1,93 @@
-var Backbone = require('backbone'),
-    AssembleSequence = require('../lib/assemble_sequence'),
-    template = require('../templates/designer_view_template.hbs'),
-    AvailableSequenceView = require('./available_sequence_view'),
-    DesignedSequenceView = require('./designed_sequence_view'),
-    Gentle = require('gentle'),
-    DesignerView;
+import Backbone from 'backbone';
+import _ from 'underscore';
+import AssembleSequence from '../lib/assemble_sequence';
+import template from '../templates/designer_view_template.hbs';
+import AvailableSequencesView from './available_sequences_view';
+import DesignedSequenceView from './designed_sequence_view';
+import Gentle from 'gentle';
 
-DesignerView = Backbone.View.extend({
+var filterSequencesByStickyEnds = function(sequences, [stickyEndStartName, stickyEndEndName]) {
+  var stickyEndName = `${stickyEndStartName}-${stickyEndEndName}`.toLowerCase();
+  return function() {
+    return _.filter(sequences, function(sequence) {
+      var stickyEnds = sequence.getStickyEnds();
+      return stickyEnds && 
+        `${stickyEnds.start.name}-${stickyEnds.end.name}`.toLowerCase() === stickyEndName;
+    });
+  };
+};
+
+var DesignerView = Backbone.View.extend({
   template: template,
   manage: true,
   className: 'designer',
 
   events: {
-    'click .toggle-annotations': 'toggleAnnotations',
-    'click .toggle-uninsertable-sequences': 'toggleUninsertableSequences',
+    // 'click .toggle-annotations': 'toggleAnnotations',
+    // 'click .toggle-uninsertable-sequences': 'toggleUninsertableSequences',
+    'change #circularise-dna': 'updateCirculariseDna'
   },
 
   initialize: function() {
     this.model = new AssembleSequence(Gentle.currentSequence);
+
     // Default to `circular` true
     if(this.model.sequences.length === 0) {
       this.model.set({'isCircular': true}, {silent: true});
     }
-    Gentle.sequences.on('add remove reset sort', this.render, this);
+
+    console.log(this.model.allSequences)
+
+    this.setView(
+      '.designer-available-sequences-outlet.outlet-1', 
+      new AvailableSequencesView({
+        name: 'x-z\' Parts',
+        getSequences: filterSequencesByStickyEnds(this.model.allSequences, ['x', 'z\''])
+      })
+    );
+
+    this.setView(
+      '.designer-available-sequences-outlet.outlet-2', 
+      new AvailableSequencesView({
+        name: 'z-x\' Parts',
+        getSequences: filterSequencesByStickyEnds(this.model.allSequences, ['z', 'x\''])
+      })
+    );
+
+    var designedSequenceView = this.designedSequenceView = 
+      new DesignedSequenceView({model: this.model});
+    this.setView('.designer-designed-sequence-outlet', designedSequenceView);
   },
 
   serialize: function() {
     return {
-      insertableSequences: _.pluck(this.model.insertableSequences, 'id'),
-      uninsertableSequences: this.model.incompatibleSequences.length + this.model.lackStickyEndSequences.length,
-      incompatibleSequences: _.pluck(this.model.incompatibleSequences, 'id'),
-      lackStickyEndSequences: _.pluck(this.model.lackStickyEndSequences, 'id'),
-      showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
-      showUninsertableSequences: Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences') || false,
+      sequenceName: this.model.get('name'),
+      submitDisabled: this.model.sequences.length === 0,
+      circulariseDna: this.model.get('isCircular'),
+      // insertableSequences: _.pluck(this.model.insertableSequences, 'id'),
+      // uninsertableSequences: this.model.incompatibleSequences.length + this.model.lackStickyEndSequences.length,
+      // incompatibleSequences: _.pluck(this.model.incompatibleSequences, 'id'),
+      // lackStickyEndSequences: _.pluck(this.model.lackStickyEndSequences, 'id'),
+      // showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
+      // showUninsertableSequences: Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences') || false,
     };
   },
 
   beforeRender: function() {
-    this.removeAllViews();
-    this.model.updateInsertabilityState();
+    // this.removeAllViews();
+    // this.model.updateInsertabilityState();
   },
 
   afterRender: function() {
-    this.insertSequenceViews();
-    this.stopListening();
-    this.listenTo(this.parentView(), 'resize', this.render, this);
+    // this.insertSequenceViews();
+    // this.stopListening();
+    // this.listenTo(this.parentView(), 'resize', this.render, this);
+  },
+
+  updateCirculariseDna: function(event) {
+    event.preventDefault();
+    this.model.set('isCircular', event.target.checked).throttledSave();
+    this.render();
   },
 
   insertSequenceViews: function() {
@@ -77,19 +120,19 @@ DesignerView = Backbone.View.extend({
     this.designedSequenceView.unhighlightDropSites();
   },
 
-  toggleAnnotations: function(event) {
-    var showAnnotations = Gentle.currentUser.get('displaySettings.designerView.showAnnotations');
-    showAnnotations = _.isUndefined(showAnnotations) ? true : !showAnnotations;
-    Gentle.currentUser.set('displaySettings.designerView.showAnnotations', showAnnotations);
-    this.render();
-  },
+  // toggleAnnotations: function(event) {
+  //   var showAnnotations = Gentle.currentUser.get('displaySettings.designerView.showAnnotations');
+  //   showAnnotations = _.isUndefined(showAnnotations) ? true : !showAnnotations;
+  //   Gentle.currentUser.set('displaySettings.designerView.showAnnotations', showAnnotations);
+  //   this.render();
+  // },
 
-  toggleUninsertableSequences: function(event) {
-    var showUninsertableSequences = Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences');
-    showUninsertableSequences = _.isUndefined(showUninsertableSequences) ? true : !showUninsertableSequences;
-    Gentle.currentUser.set('displaySettings.designerView.showUninsertableSequences', showUninsertableSequences);
-    this.render();
-  },
+  // toggleUninsertableSequences: function(event) {
+  //   var showUninsertableSequences = Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences');
+  //   showUninsertableSequences = _.isUndefined(showUninsertableSequences) ? true : !showUninsertableSequences;
+  //   Gentle.currentUser.set('displaySettings.designerView.showUninsertableSequences', showUninsertableSequences);
+  //   this.render();
+  // },
 
   isInsertable: function(sequence) {
     return this.model.isInsertable(sequence);

@@ -8,10 +8,15 @@ import draggableCleanup from '../lib/draggable_cleanup';
 export default Backbone.View.extend({
   template: template,
   manage: true,
+  className: 'designer-designed-sequence',
 
   events: {
     'click .assemble-sequence-btn': 'assembleSequence',
-    'change #circularise-dna': 'updateCirculariseDna',
+    'scroll': 'handleScroll'
+  },
+
+  initialize: function() {
+    this.handleScroll = _.debounce(this.handleScroll, 200);
   },
 
   assembleSequence: function(event) {
@@ -25,10 +30,9 @@ export default Backbone.View.extend({
     }
   },
 
-  updateCirculariseDna: function(event) {
-    event.preventDefault();
-    this.model.set('isCircular', event.target.checked).throttledSave();
-    this.render();
+  handleScroll: function() {
+    this.scrollLeft = this.$el.scrollLeft();
+    console.log('scroll', this.scrollLeft, this)
   },
 
   serialize: function() {
@@ -81,24 +85,35 @@ export default Backbone.View.extend({
   },
 
   getSequenceFromAvailableSequenceDraggable: function($draggable) {
-    var sequenceId, availableSequenceView, feature;
-    sequenceId = $draggable.closest('[data-sequence_id]').data('sequence_id');
+    var sequenceId = $draggable.data('sequence_id');
+    var sequence = _.find(this.model.allSequences, (s) => s.get('id') === sequenceId);
 
-    availableSequenceView = this.parentView()
-      .getAvailableSequenceViewFromSequenceId(sequenceId);
-
-    if($draggable.hasClass('designer-available-sequence-entireseq')) {
-      return availableSequenceView.model;
-    } else {
-      feature = _.findWhere(availableSequenceView.features, {
-        id: $draggable.data('feature_id')
-      });
-
-      return {
-        feature: feature,
-        subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
-      };
+    if(sequence) {
+      return sequence;
     }
+
+
+
+
+
+    // var sequenceId, availableSequenceView, feature;
+    // sequenceId = $draggable.closest('[data-sequence_id]').data('sequence_id');
+
+    // availableSequenceView = this.parentView()
+    //   .getAvailableSequenceViewFromSequenceId(sequenceId);
+
+    // if($draggable.hasClass('designer-available-sequence-entireseq')) {
+    //   return availableSequenceView.model;
+    // } else {
+    //   feature = _.findWhere(availableSequenceView.features, {
+    //     id: $draggable.data('feature_id')
+    //   });
+
+    //   return {
+    //     feature: feature,
+    //     subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
+    //   };
+    // }
   },
 
   getSequenceFromDraggableChunk: function($draggable) {
@@ -137,15 +152,19 @@ export default Backbone.View.extend({
   },
 
   beforeRender: function() {
-    this.cleanUpDraggable();
+    this.cleanup();
   },
 
-  remove: function() {
+  cleanup: function() {
     this.cleanUpDraggable();
-    Backbone.View.prototype.remove.apply(this, arguments);
   },
 
   afterRender: function() {
+    console.log(this.scrollLeft)
+    if(!_.isUndefined(this.scrollLeft)) {
+      this.$el.scrollLeft(this.scrollLeft);
+    }
+
     var _this = this;
     this.$('.designer-designed-sequence-chunk').draggable({
       zIndex: 2000,

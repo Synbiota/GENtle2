@@ -154,6 +154,7 @@ class AssembleSequenceModel {
       return {
         name: name,
         type: type,
+        partType: sequence.get('partType') || '__default',
         index: i
       };
     });

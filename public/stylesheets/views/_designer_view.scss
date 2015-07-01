@@ -1,8 +1,55 @@
-$__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"), "features"), "color");
+$designer-header-height: 50px;
+$designer-designed-sequence-height: 108px;
+$designer-available-sequences-header-height: 44px;
+$designer-border-style: solid #ddd;
+
+$designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 
 .designer {
   height: 100%;
 }
+
+%draggable-style {
+  cursor: move;
+  width: 200px;
+  padding: 0 10px;
+  display: table;
+  table-layout: fixed;
+  text-align: left;
+  height: 40px;
+  line-height: 12px;
+  white-space: normal;
+  border-width: 2px;
+  font-size: 13px;
+
+  & > div {
+    display: table-cell;
+    vertical-align: middle;
+  }
+
+
+  &.ui-draggable-dragging {
+    padding: 10px 10px;
+    background: #ddd;
+    color: black;
+    box-shadow: 0 0 3px transparentize(#222, .5);
+    z-index: 4000;
+  }
+
+  @each $part-type, $colors in $designer-draggable-colors {
+    $dark: map_get($colors, 'dark');
+    $light: map_get($colors, 'light');
+    &.designer-part-#{$part-type} {
+      border-color: lighten($dark, 20%);
+      color: $dark;
+      &:hover, &:active, &.ui-draggable-dragging {
+        border-color: $dark;
+        background-color: lighten($light, 5%);
+      }
+    }
+  }
+}
+
 
 .designer-options {
   position: absolute;
@@ -11,29 +58,31 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   z-index: 1;
 }
 
-.designer-available-sequence-outlet-container {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  right: 0;
-  left: 0;
-  overflow: auto;
-  padding-top: 30px;
-  padding-left: 300px;
+.designer-header {
+  padding: 10px 20px;
+  border-bottom: 2px $designer-border-style;;
+  height: $designer-header-height;
+  background: white;
+  h4 {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
 }
 
-.designer-designed-sequence-outlet {
-  padding: 10px 20px;
-  border-right: 2px solid #ddd;
-  @include gradient-striped(rgba(255,255,255,.3)); // Bootstrap mixin
-  background-size: 40px 40px;
-  background-color: transparentize(#ddd, .5);
+.designer-designed-sequence {
+  padding: 20px 20px;
+  border-bottom: 1px $designer-border-style;;
+  background: white;
+  // @include gradient-striped(rgba(255,255,255,.3)); // Bootstrap mixin
+  // background-size: 40px 40px;
+  // background-color: transparentize(#ddd, .5);
   position: absolute;
   left: 0;
-  width: 300px;
-  bottom: 0;
-  top: 0;
+  width: 100%;
+  height: $designer-designed-sequence-height;
+  top: $designer-header-height;
   overflow-y: auto;
+  line-height: 15px;
 
   .designer-designed-sequence-empty-placeholder {
     border: 3px dashed #ddd;
@@ -41,7 +90,8 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
     text-align: center;
     font-size: 1.1em;
     padding: 15px 30px;
-    margin-top: 20px;
+    border-radius: 5px;
+    width: 250px;
 
     &.active {
       color: $link-hover-color;
@@ -50,24 +100,28 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   }
 
   .designer-designed-sequence-chunks {
-    margin-left: 50px;
+    white-space: nowrap;
   }
 
   .designer-designed-sequence-chunk-droppable {
+    display: inline-block;
     font-size: 10px;
     overflow: hidden;
     text-align: center;
     border: 1px dashed transparent;
-    display: block;
+    border-radius: 3px;
+    padding: 3px 12px;
     height: 40px;
-    margin: 10px 0;
-    padding: 12px 30px;
+    width: 85px;
+    line-height: 10px;
     border-color:  #ddd;
     color: #999;
     background-color: white;
+    white-space: normal;
     @include transition-property(background-color);
     @include transition-duration(.2s);
     @include transition-timing-function(ease-out);
+    margin-right: 10px;
 
     &.incompatible-ends {
       background-color: #ffdada;
@@ -85,6 +139,9 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
   }
 
   .designer-designed-sequence-chunk-container {
+    display: inline-block;
+    width: 200px;
+    margin-right: 10px;
 
     .designer-designed-sequence-chunk-trash {
       visibility: hidden;
@@ -119,23 +176,11 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
     }    
 
     .designer-designed-sequence-chunk {
-      position: relative;
-      background: map_get(map_get($__colors, '_default'), 'fill');
-      color: map_get(map_get($__colors, '_default'), 'color');
-      box-sizing: border-box;
-      font-size: 10px;
-      text-align: center;
-      border: 1px solid map_get(map_get($__colors, '_default'), 'color');
-      margin-bottom: 7px; 
-      cursor: move;
+      @extend %draggable-style;
 
-      .designer-designed-sequence-chunk-title {
-        padding: 13px 10px;
-      }
-
-      &.ui-draggable-dragging {
-        box-shadow: 0 0 3px transparentize(#222, .5);
-      }
+      // &.ui-draggable-dragging {
+      //   box-shadow: 0 0 3px transparentize(#222, .5);
+      // }
       // .designer-designed-sequence-chunk-droppable {
       //   position: absolute;
       //   top: 0;
@@ -189,127 +234,156 @@ $__colors: map_get(map_get(map_get(map_get($shared-styles, "sequences"), "lines"
         }
       }
 
-      @each $feature_type, $v in $__colors {
-        @if $feature_type != '_default' {
-          &.designer-designed-sequence-chunk-#{$feature_type} {
-            color: map_get($v, 'color');
-            border-color: map_get($v, 'color');
-            background: map_get($v, 'fill');
-          }
-        }
-      }
+      // @each $feature_type, $v in $__colors {
+      //   @if $feature_type != '_default' {
+      //     &.designer-designed-sequence-chunk-#{$feature_type} {
+      //       color: map_get($v, 'color');
+      //       border-color: map_get($v, 'color');
+      //       background: map_get($v, 'fill');
+      //     }
+      //   }
+      // }
     }
   }
 }
 
-.designer-available-sequences {
+// .designer-available-sequence-outlet-container {
+//   // position: absolute;
+//   // top: 150px;
+//   // bottom: 0;
+//   // right: 0;
+//   // left: 0;
+//   // overflow: auto;
+// }
+
+.designer-available-sequences-header {
   position: absolute;
-  left: 0;
-  padding-left: 300px;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
-}
-
-.designer-available-sequence-outlet {
+  top: $designer-header-height + $designer-designed-sequence-height;
+  height: $designer-available-sequences-header-height;
+  width: 100%;
   padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
+  border: 1px $designer-border-style;;
 
-
-  &.unusable-sequence {
-    color: #BBB;
-  }
-
-  &.incompatible-sequences {
-    i.incompatible-sequences {
-      display: initial;
-    }  
-  }
-
-  &.lacks-sticky-end-sequences {
-    i.lacks-sticky-end-sequences {
-      display: initial;
-    }
-  }
-
-  i {
-    display: none;
-  }
-
-  .designer-available-sequence {
-    position: relative;
-  }
-
-  .designer-available-sequence-name {
-    display: inline-block;
-  }
-
-  .designer-available-sequence-entireseq {
-    display: inline-block;
+  button {
     margin-left: 20px;
-    cursor: move;
-    text-align: center;
-    margin-top: -22px;
-    &.ui-draggable-dragging {
-      padding: 5px 10px;
-      background: #ddd;
-      color: black;
-      box-shadow: 0 0 3px transparentize(#222, .5);
-      z-index: 2000;
-    }
   }
 
-  .designer-available-sequence-features {
-    position: relative;
-    border-left: 1px dashed #444;
-    border-right: 1px dashed #444;
-    margin-top: 10px;
-
-    @for $i from 0 to 10 {
-      &.designer-available-sequence-features-max-overlap-#{$i} {
-        height: 16px + 27px * $i;
-      }
-    }
-  }
-
-  .designer-available-sequence-feature {
-    position: absolute;
-    margin-left: -1px;
-    background: map_get(map_get($__colors, '_default'), 'fill');
-    color: map_get(map_get($__colors, '_default'), 'color');
-    border-color: map_get(map_get($__colors, '_default'), 'color');
-    font-size: 10px;
-    box-sizing: border-box;
-    padding: 5px 3px;
-    // cursor: move;
-    text-align: center;
-    @include text-overflow();
-
-    &.ui-draggable-dragging {
-      padding: 5px 10px;
-      background: #ddd;
-      color: black;
-      width: 100px !important;
-      box-shadow: 0 0 3px transparentize(#222, .5);
-      z-index: 2000;
-    }
-
-    @for $i from 0 to 10 {
-      &.designer-available-sequence-feature-stacked-#{$i} {
-        top: 10px + 27px * $i;
-      }
-    }
-
-    @each $feature_type, $v in $__colors {
-      @if $feature_type != '_default' {
-        &.designer-available-sequence-feature-#{$feature_type} {
-          border-color: map_get($v, 'color');
-          color: map_get($v, 'color');
-          background: map_get($v, 'fill');
-        }
-      }
-    }
+  h5 {
+    margin: 0;
   }
 }
+
+.designer-available-sequences-outlet {
+  position: absolute;
+  top: $designer-header-height + $designer-designed-sequence-height + $designer-available-sequences-header-height;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  overflow: auto;
+  padding: 10px 20px;
+
+
+  &.outlet-1, &.outlet-2 {
+    width: 50%;
+  }
+
+  &.outlet-2 {
+    border-left: 1px $designer-border-style;
+    left: 50%;
+  }
+}
+
+// .designer-available-sequence-outlet {
+//   padding: 10px 20px;
+//   border-bottom: 1px $designer-border-style;;
+//   posi
+
+
+//   &.unusable-sequence {
+//     color: #BBB;
+//   }
+
+//   &.incompatible-sequences {
+//     i.incompatible-sequences {
+//       display: initial;
+//     }  
+//   }
+
+//   &.lacks-sticky-end-sequences {
+//     i.lacks-sticky-end-sequences {
+//       display: initial;
+//     }
+//   }
+
+//   i {
+//     display: none;
+//   }
+
+//   .designer-available-sequence {
+//     position: relative;
+//   }
+
+//   .designer-available-sequence-name {
+//     display: inline-block;
+//   }
+
+  
+
+//   .designer-available-sequence-features {
+//     position: relative;
+//     border-left: 1px dashed #444;
+//     border-right: 1px dashed #444;
+//     margin-top: 10px;
+
+//     @for $i from 0 to 10 {
+//       &.designer-available-sequence-features-max-overlap-#{$i} {
+//         height: 16px + 27px * $i;
+//       }
+//     }
+//   }
+
+//   .designer-available-sequence-feature {
+//     position: absolute;
+//     margin-left: -1px;
+//     background: map_get(map_get($__colors, '_default'), 'fill');
+//     color: map_get(map_get($__colors, '_default'), 'color');
+//     border-color: map_get(map_get($__colors, '_default'), 'color');
+//     font-size: 10px;
+//     box-sizing: border-box;
+//     padding: 5px 3px;
+//     // cursor: move;
+//     text-align: center;
+//     @include text-overflow();
+
+//     &.ui-draggable-dragging {
+//       padding: 5px 10px;
+//       background: #ddd;
+//       color: black;
+//       width: 100px !important;
+//       box-shadow: 0 0 3px transparentize(#222, .5);
+//       z-index: 2000;
+//     }
+
+//     @for $i from 0 to 10 {
+//       &.designer-available-sequence-feature-stacked-#{$i} {
+//         top: 10px + 27px * $i;
+//       }
+//     }
+
+//     @each $feature_type, $v in $__colors {
+//       @if $feature_type != '_default' {
+//         &.designer-available-sequence-feature-#{$feature_type} {
+//           border-color: map_get($v, 'color');
+//           color: map_get($v, 'color');
+//           background: map_get($v, 'fill');
+//         }
+//       }
+//     }
+//   }
+// }
+
+.designer-available-sequence-draggable {
+  margin-right: 20px;
+  margin-bottom: 10px;
+  @extend %draggable-style;
+}   
