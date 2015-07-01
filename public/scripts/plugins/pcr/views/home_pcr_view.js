@@ -27,7 +27,7 @@ export default Backbone.View.extend({
       name: name,
       sequence: loadedSequence.sequence,
       displaySettings: {
-        primaryView: 'pcr'
+        primaryView: 'rdp_pcr'
       },
       sourceSequenceName: loadedSequence.name,
     });

@@ -10,11 +10,23 @@ import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 
 
 Gentle.addPlugin('sequence-primary-view', {
-  name: 'pcr',
-  title: 'PCR primers',
+  name: 'rdp_pcr',
+  title: 'RDP PCR primers',
   view: PCRView,
   visible: (sequence) => {
-    return Gentle.featureFlag('pcr') && sequence instanceof PcrProductSequence;
+    return Gentle.featureEnabled('rdp') && sequence instanceof PcrProductSequence;
+  },
+  maximize: (sequence) => {
+    return sequence instanceof WipPcrProductSequence;
+  }
+});
+
+Gentle.addPlugin('sequence-primary-view', {
+  name: 'rdp_oligo',
+  title: 'RDP oligo-based parts',
+  view: PCRView,
+  visible: (sequence) => {
+    return Gentle.featureEnabled('rdp') && sequence instanceof PcrProductSequence;
   },
   maximize: (sequence) => {
     return sequence instanceof WipPcrProductSequence;
@@ -22,7 +34,7 @@ Gentle.addPlugin('sequence-primary-view', {
 });
 
 // Gentle.addPlugin('sequence-canvas-context-menu', {
-//   name: 'pcr',
+//   name: 'rdp',
 //   title: 'Create RDP part',
 //   icon: 'wrench',
 //   selectionOnly: true,
@@ -36,13 +48,13 @@ Gentle.addPlugin('sequence-primary-view', {
 //       selectionFrom: selectionFrom,
 //       selectionTo: selectionTo,
 //     }];
-//     sequenceView.changePrimaryView('pcr', true, argumentsForView);
+//     sequenceView.changePrimaryView('rdp_pcr', true, argumentsForView);
 //   },
-//   visible: Gentle.featureFlag('pcr')
+//   visible: Gentle.featureFlag('rdp')
 // });
 
 Gentle.addPlugin('home', {
-  name: 'pcr',
+  name: 'rdp',
   title: 'New RDP part',
   view: HomePcrView
 });

@@ -50,7 +50,7 @@ export default Backbone.View.extend({
           'partType', 'rdpEdits', 'sourceSequenceName'));
 
       rdpAttributes.displaySettings = rdpAttributes.displaySettings || {};
-      rdpAttributes.displaySettings.primaryView = 'pcr';
+      rdpAttributes.displaySettings.primaryView = 'rdp_pcr';
       rdpAttributes.rdpEdits = rdpAttributes.rdpEdits || [];
       rdpAttributes._type = 'rdp_pcr_product';
 
