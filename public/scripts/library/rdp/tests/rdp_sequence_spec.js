@@ -1,7 +1,7 @@
 // Runs the calls to registerAssociation and registerPreProcessor
 import plugin from '../../../plugins/pcr/plugin';
 
-import RdpSequence from '../rdp_sequence';
+import RdpPcrSequence from '../rdp_pcr_sequence';
 import {stubCurrentUser} from '../../../common/tests/stubs';
 import RdpEdit from '../rdp_edit';
 import RdpSequenceFeature from '../rdp_sequence_feature';
@@ -10,7 +10,7 @@ import SequenceRange from 'gentle-sequence-model/range';
 stubCurrentUser();
 
 
-describe('RdpSequence model', function() {
+describe('RdpPcrSequence model', function() {
   var attributes = {
     "_type": "rdp_pcr_product",
     "version": 1,
@@ -144,13 +144,13 @@ describe('RdpSequence model', function() {
       }
     }
   };
-  var rdpSequence;
+  var rdpPcrSequence;
 
   it('should instantiate from json data from server', function() {
-    rdpSequence = new RdpSequence(attributes);
-    expect(rdpSequence.get('_type')).toEqual('rdp_pcr_product');
-    expect(rdpSequence.get('rdpEdits').length).toEqual(1);
-    var rdpEdit = rdpSequence.get('rdpEdits')[0];
+    rdpPcrSequence = new RdpPcrSequence(attributes);
+    expect(rdpPcrSequence.get('_type')).toEqual('rdp_pcr_product');
+    expect(rdpPcrSequence.get('rdpEdits').length).toEqual(1);
+    var rdpEdit = rdpPcrSequence.get('rdpEdits')[0];
     expect(rdpEdit instanceof RdpEdit).toEqual(true);
     expect(rdpEdit.contextBefore instanceof RdpSequenceFeature).toEqual(true);
     expect(rdpEdit.contextAfter instanceof RdpSequenceFeature).toEqual(true);
@@ -159,7 +159,7 @@ describe('RdpSequence model', function() {
   });
 
   it('should serialise', function() {
-    var json = rdpSequence.toJSON();
+    var json = rdpPcrSequence.toJSON();
     expect(json.meta.associations.rdpEdits[0].contextAfter.ranges[0].size).toEqual(3);
   });
 });

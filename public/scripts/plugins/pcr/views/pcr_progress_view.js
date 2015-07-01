@@ -3,7 +3,7 @@ import template from '../templates/pcr_progress_view.hbs';
 import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
-import RdpSequence from '../../../library/rdp/rdp_sequence';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 
 
@@ -46,21 +46,21 @@ export default Backbone.View.extend({
     getPcrProductAndPrimers(tempSequence, dataAndOptions)
     .then((pcrProduct) => {
       // Copy over RDP specific attributes.
-      var rdpAttributes = _.extend({}, pcrProduct.toJSON(), _.pick(dataAndOptions,
+      var rdpPcrAttributes = _.extend({}, pcrProduct.toJSON(), _.pick(dataAndOptions,
           'partType', 'rdpEdits', 'sourceSequenceName'));
 
-      rdpAttributes.displaySettings = rdpAttributes.displaySettings || {};
-      rdpAttributes.displaySettings.primaryView = 'rdp_pcr';
-      rdpAttributes.rdpEdits = rdpAttributes.rdpEdits || [];
-      rdpAttributes._type = 'rdp_pcr_product';
+      rdpPcrAttributes.displaySettings = rdpPcrAttributes.displaySettings || {};
+      rdpPcrAttributes.displaySettings.primaryView = 'rdp_pcr';
+      rdpPcrAttributes.rdpEdits = rdpPcrAttributes.rdpEdits || [];
+      rdpPcrAttributes._type = 'rdp_pcr_product';
 
-      var rdpProduct = new RdpSequence(rdpAttributes);
+      var rdpPcrProduct = new RdpPcrSequence(rdpPcrAttributes);
 
       this.updateProgressBar(1);
-      Gentle.sequences.add(rdpProduct);
+      Gentle.sequences.add(rdpPcrProduct);
       this.model.destroy();
-      this.model = rdpProduct;
-      Gentle.router.sequence(rdpProduct.get('id'));
+      this.model = rdpPcrProduct;
+      Gentle.router.sequence(rdpPcrProduct.get('id'));
     })
     .progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));

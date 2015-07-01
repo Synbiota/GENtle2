@@ -6,7 +6,7 @@ import ProgressView from './pcr_progress_view';
 import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import PcrProductSequence from '../lib/product';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 import WipPcrProductSequence from '../lib/wip_product';
 
 
@@ -35,7 +35,7 @@ export default Backbone.View.extend({
   // will throw an exception.
   initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
-    if(this.model instanceof PcrProductSequence) {
+    if(this.model instanceof RdpPcrSequence) { // also an instanceof PcrProductSequence
       this.viewState = viewStates.product;
     } else {
       this.viewState = viewStates.form;
