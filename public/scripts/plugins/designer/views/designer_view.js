@@ -5,11 +5,12 @@ import template from '../templates/designer_view_template.hbs';
 import AvailableSequencesView from './available_sequences_view';
 import DesignedSequenceView from './designed_sequence_view';
 import Gentle from 'gentle';
+import uploadMultipleSequences from '../lib/upload_multiple_sequences';
 
-var filterSequencesByStickyEnds = function(sequences, [stickyEndStartName, stickyEndEndName]) {
+var filterSequencesByStickyEnds = function(assembleSequence, [stickyEndStartName, stickyEndEndName]) {
   var stickyEndName = `${stickyEndStartName}-${stickyEndEndName}`.toLowerCase();
   return function() {
-    return _.filter(sequences, function(sequence) {
+    return _.filter(assembleSequence.allSequences, function(sequence) {
       var stickyEnds = sequence.getStickyEnds();
       return stickyEnds && 
         `${stickyEnds.start.name}-${stickyEnds.end.name}`.toLowerCase() === stickyEndName;
@@ -25,7 +26,9 @@ var DesignerView = Backbone.View.extend({
   events: {
     // 'click .toggle-annotations': 'toggleAnnotations',
     // 'click .toggle-uninsertable-sequences': 'toggleUninsertableSequences',
-    'change #circularise-dna': 'updateCirculariseDna'
+    'change #circularise-dna': 'updateCirculariseDna',
+    'click .designer-available-sequences-header button': 'triggerFileInput',
+    'change .file-upload-input': 'uploadNewSequences'
   },
 
   initialize: function() {
@@ -36,13 +39,11 @@ var DesignerView = Backbone.View.extend({
       this.model.set({'isCircular': true}, {silent: true});
     }
 
-    console.log(this.model.allSequences)
-
     this.setView(
       '.designer-available-sequences-outlet.outlet-1', 
       new AvailableSequencesView({
         name: 'x-z\' Parts',
-        getSequences: filterSequencesByStickyEnds(this.model.allSequences, ['x', 'z\''])
+        getSequences: filterSequencesByStickyEnds(this.model, ['x', 'z\''])
       })
     );
 
@@ -50,13 +51,25 @@ var DesignerView = Backbone.View.extend({
       '.designer-available-sequences-outlet.outlet-2', 
       new AvailableSequencesView({
         name: 'z-x\' Parts',
-        getSequences: filterSequencesByStickyEnds(this.model.allSequences, ['z', 'x\''])
+        getSequences: filterSequencesByStickyEnds(this.model, ['z', 'x\''])
       })
     );
 
     var designedSequenceView = this.designedSequenceView = 
       new DesignedSequenceView({model: this.model});
     this.setView('.designer-designed-sequence-outlet', designedSequenceView);
+  },
+
+  triggerFileInput: function(event) {
+    event.preventDefault();
+    this.$('.file-upload-input').click();
+  },
+
+  uploadNewSequences: function(event) {
+    uploadMultipleSequences(event.target.files).then((sequences) => {
+      this.model.addSequences(sequences);
+      this.render();
+    }).done();
   },
 
   serialize: function() {

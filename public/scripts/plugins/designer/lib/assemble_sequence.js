@@ -29,10 +29,27 @@ class AssembleSequenceModel {
     return _.map(attributesOfSequences, (sequenceAttributes) => new SequenceModel(sequenceAttributes));
   }
 
+  addSequences(sequences) {
+    // sequences is expected to be an array of POJO
+    var existingSequences = this.model.get('meta.designer.sequences');
+    var addableSequences = _.reject(sequences, function(sequence) {
+      return _.some(existingSequences, function(existingSequence) {
+        return existingSequence.sequence === sequence.sequence;
+      });
+    });
+
+    this.model.set('meta.designer.sequences', existingSequences.concat(addableSequences));
+    this.model.save();
+    this.updateInsertabilityState();
+  }
+
   updateInsertabilityState () {
     // 
     // this.allSequences = Gentle.sequences.without(this.model);
-    this.allSequences = _.map(this.model.get('meta.designer.sequences'), (sequence) => new TemporarySequence(sequence));
+    this.allSequences = _.map(
+      _.sortBy(this.model.get('meta.designer.sequences'), sequence => sequence.shortName || sequence.name), 
+      (sequence) => new TemporarySequence(sequence)
+    );
     
     // Add any PCR product sequences within the model
     this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {

@@ -160,7 +160,6 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    console.log(this.scrollLeft)
     if(!_.isUndefined(this.scrollLeft)) {
       this.$el.scrollLeft(this.scrollLeft);
     }
