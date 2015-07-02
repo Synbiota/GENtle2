@@ -166,6 +166,15 @@ export default Backbone.View.extend({
 
     data.stickyEnds = _.find(allStickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
 
+    if(this.rdpOligoSequence) {
+      var start = data.stickyEnds.start;
+      start.sequence = start.sequence.substr(start.offset, start.size);
+      start.offset = 0;
+      var end = data.stickyEnds.end;
+      end.sequence = end.sequence.substr(0, end.size);
+      end.offset = 0;
+    }
+
     var frm = this.state.from;
     var to = this.state.to;
     data.sequence = this.model.getSubSeq(frm, to);
