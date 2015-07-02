@@ -169,11 +169,11 @@ export default Backbone.View.extend({
       zIndex: 2000,
       revert: 'invalid',
       helper: 'clone',
-      // refreshPositions: true,
+      appendTo: this.$el,
       cursorAt: {
         top: 5,
         left: 5
-      },
+      }
     }).hover(
     (event) => {
       var sequence = this.getSequenceFromDraggableChunk($(event.target));

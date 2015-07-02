@@ -13,7 +13,7 @@ var vendorLibs = [
   'backbone.localstorage',
   'bugsnag-js',
   'filesaver.js',
-  'jquery-ui',
+  // 'jquery-ui',
   'jquery-ui-touch-punch',
   'q',
   'underscore-deep-extend'

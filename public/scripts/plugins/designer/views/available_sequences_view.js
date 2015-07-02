@@ -2,6 +2,7 @@ import Backbone from 'backbone';
 import _ from 'underscore';
 import template from '../templates/available_sequences_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
+import xScrollingDraggable from '../lib/x_scrolling_draggable';
 
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
@@ -136,11 +137,12 @@ var AvailableSequenceView = Backbone.View.extend({
     //   }
     // });
     // var sequenceId = this.model.get('id');
-    this.$('.designer-available-sequence-draggable').draggable({
+    xScrollingDraggable('.designer-available-sequence-draggable', {
       // refreshPositions: true,
       appendTo: 'body',
       revert: 'invalid',
       helper: 'clone',
+      scrollingElement: '.designer-designed-sequence',
       cursorAt: {
         top: 5,
         left: 5

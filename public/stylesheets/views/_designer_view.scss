@@ -11,7 +11,6 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 
 %draggable-style {
   cursor: move;
-  width: 200px;
   padding: 0 10px;
   display: table;
   table-layout: fixed;
@@ -81,7 +80,7 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
   width: 100%;
   height: $designer-designed-sequence-height;
   top: $designer-header-height;
-  overflow-y: auto;
+  overflow-x: scroll;
   line-height: 15px;
 
   .designer-designed-sequence-empty-placeholder {
@@ -139,8 +138,7 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
   }
 
   .designer-designed-sequence-chunk-container {
-    display: inline-block;
-    width: 200px;
+    display: inline-block;;
     margin-right: 10px;
 
     .designer-designed-sequence-chunk-trash {
@@ -385,5 +383,6 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 .designer-available-sequence-draggable {
   margin-right: 20px;
   margin-bottom: 10px;
+  width: 200px;
   @extend %draggable-style;
 }   
