@@ -216,7 +216,7 @@ export default Backbone.View.extend({
 
       // ensures Gentle routes view to the RDP oligo product result view
       data.displaySettings = data.displaySettings || {};
-      data.displaySettings.primaryView = 'rdp_pcr';
+      data.displaySettings.primaryView = 'rdp_oligo';
 
       var newRdpOligoSequence = new RdpOligoSequence(data);
       Gentle.sequences.add(newRdpOligoSequence);
