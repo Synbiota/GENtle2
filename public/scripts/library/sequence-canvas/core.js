@@ -612,7 +612,13 @@ class SequenceCanvasCore {
     // visibleRows = rows.slice(y/rowHeight, (y + height)/rowHeight);
     visibleRows = rows
 
-    this.artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, layoutSettings.canvasDims.height - y)
+    // this.artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, layoutSettings.canvasDims.height - y)
+
+    if (layoutHelpers.xOffset){
+      this.artist.clear(x, 0, (baseRange[1] - baseRange[0]) * baseWidth, layoutSettings.canvasDims.height)
+    } else if (layoutHelpers.yOffset) {
+      this.artist.clear(0, y, layoutSettings.canvasDims.width, y + layoutHelpers.yOffset)
+    }
 
     // draw the row segment
     _.forEach(visibleRows, function(row){
