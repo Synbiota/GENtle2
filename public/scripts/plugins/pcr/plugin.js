@@ -16,7 +16,7 @@ Gentle.addPlugin('sequence-primary-view', {
   title: 'RDP PCR primers',
   view: PCRView,
   visible: (sequence) => {
-    return Gentle.featureEnabled('rdp') && sequence instanceof PcrProductSequence;
+    return Gentle.featureEnabled('rdp_pcr') && sequence instanceof PcrProductSequence;
   },
   maximize: (sequence) => {
     return sequence instanceof WipPcrProductSequence;
@@ -29,7 +29,7 @@ Gentle.addPlugin('sequence-primary-view', {
   title: 'RDP oligo-based parts',
   view: PCRView,
   visible: (sequence) => {
-    return Gentle.featureEnabled('rdp') && sequence instanceof RdpOligoSequence;
+    return Gentle.featureEnabled('rdp_oligo') && sequence instanceof RdpOligoSequence;
   },
   maximize: (sequence) => {
     return sequence instanceof WipRdpOligoSequence;
