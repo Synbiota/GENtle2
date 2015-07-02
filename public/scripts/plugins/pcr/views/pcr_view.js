@@ -8,6 +8,8 @@ import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 import WipPcrProductSequence from '../lib/wip_product';
+import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
+import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
 
 var viewStates = {
@@ -35,15 +37,10 @@ export default Backbone.View.extend({
   // will throw an exception.
   initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
-    if(this.model instanceof RdpPcrSequence) { // also an instanceof PcrProductSequence
+    if(this.model instanceof RdpPcrSequence || this.model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
-    } else {
+    } else if(this.model instanceof WipPcrProductSequence || this.model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
-      if(!(this.model instanceof WipPcrProductSequence)) {
-        // TODO: set the displaySettings.primaryView of the current `this.model`
-        // back to the Edit Sequence view?
-        this.model = new WipPcrProductSequence(this.model.toJSON());
-      }
     }
     var args = {model: this.model};
     this.formView = new FormView(_.extend(argumentsForFormView, args));
@@ -69,68 +66,72 @@ export default Backbone.View.extend({
     var sequence = model.clone();
     sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
 
-    var forwardPrimer = sequence.get('forwardPrimer');
-    var reversePrimer = sequence.get('reversePrimer');
     var stickyEnds = sequence.getStickyEnds(true);
+    var features = [];
+    if(this.model instanceof RdpPcrSequence) {
+      var forwardPrimer = sequence.get('forwardPrimer');
+      var reversePrimer = sequence.get('reversePrimer');
 
-    var features = [
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [{
-        from: forwardPrimer.annealingRegion.range.from,
-        to: forwardPrimer.annealingRegion.range.to - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [{
-        from: reversePrimer.annealingRegion.range.from,
-        to: reversePrimer.annealingRegion.range.to -1,
-        reverseComplement: true,
-      }]
-    },
-    {
-      name: forwardPrimer.name,
-      _type: 'primer',
-      ranges: [{
-        from: forwardPrimer.range.from,
-        to: forwardPrimer.range.to - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: reversePrimer.name,
-      _type: 'primer',
-      ranges: [{
-        from: reversePrimer.range.from,
-        to: reversePrimer.range.to - 1,
-        reverseComplement: true,
-      }]
-    },
-    {
-      name: stickyEnds.start.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: 0,
-        to: stickyEnds.start.size + stickyEnds.start.offset - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: stickyEnds.end.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
-        to:  sequence.getLength() - 1,
-        reverseComplement: true,
-      }]
-    }];
+      features = [
+      {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: forwardPrimer.annealingRegion.range.from,
+          to: forwardPrimer.annealingRegion.range.to - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: reversePrimer.annealingRegion.range.from,
+          to: reversePrimer.annealingRegion.range.to -1,
+          reverseComplement: true,
+        }]
+      },
+      {
+        name: forwardPrimer.name,
+        _type: 'primer',
+        ranges: [{
+          from: forwardPrimer.range.from,
+          to: forwardPrimer.range.to - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: reversePrimer.name,
+        _type: 'primer',
+        ranges: [{
+          from: reversePrimer.range.from,
+          to: reversePrimer.range.to - 1,
+          reverseComplement: true,
+        }]
+      }];
+    }
+    features = features.concat([
+      {
+        name: stickyEnds.start.name + ' end',
+        _type: 'sticky_end',
+        ranges: [{
+          from: 0,
+          to: stickyEnds.start.size + stickyEnds.start.offset - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: stickyEnds.end.name + ' end',
+        _type: 'sticky_end',
+        ranges: [{
+          from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
+          to:  sequence.getLength() - 1,
+          reverseComplement: true,
+        }]
+      }
+    ]);
 
     _.each(features, (feature) => feature._id = _.uniqueId());
-
     sequence.set('features', features);
 
     return sequence;
@@ -149,8 +150,8 @@ export default Backbone.View.extend({
     this.render();
   },
 
-  makePrimer: function(data) {
-    this.progressView.makePrimer(data);
+  makePrimers: function(data) {
+    this.progressView.makePrimers(data);
     this.viewState = viewStates.progress;
     this.render();
   },

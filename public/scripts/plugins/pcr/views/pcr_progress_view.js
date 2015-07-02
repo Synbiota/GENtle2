@@ -28,7 +28,7 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
-  makePrimer: function(dataAndOptions) {
+  makePrimers: function(dataAndOptions) {
     this.pcrPrimerDataAndOptions = dataAndOptions;
 
     var tempSequence = new this.model.constructor({
@@ -49,8 +49,10 @@ export default Backbone.View.extend({
       var rdpPcrAttributes = _.extend({}, pcrProduct.toJSON(), _.pick(dataAndOptions,
           'partType', 'rdpEdits', 'sourceSequenceName'));
 
+      // ensures Gentle routes view to the RDP PCR product result view
       rdpPcrAttributes.displaySettings = rdpPcrAttributes.displaySettings || {};
       rdpPcrAttributes.displaySettings.primaryView = 'rdp_pcr';
+
       rdpPcrAttributes.rdpEdits = rdpPcrAttributes.rdpEdits || [];
       rdpPcrAttributes._type = 'rdp_pcr_product';
 
@@ -59,7 +61,6 @@ export default Backbone.View.extend({
       this.updateProgressBar(1);
       Gentle.sequences.add(rdpPcrProduct);
       this.model.destroy();
-      this.model = rdpPcrProduct;
       Gentle.router.sequence(rdpPcrProduct.get('id'));
     })
     .progress(({lastProgress, lastFallbackProgress}) => {
@@ -81,7 +82,7 @@ export default Backbone.View.extend({
   },
 
   retryCreatingPcrPrimer: function() {
-    this.parentView().makePrimer(this.pcrPrimerDataAndOptions);
+    this.parentView().makePrimers(this.pcrPrimerDataAndOptions);
   },
 
 });

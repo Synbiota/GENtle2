@@ -1,4 +1,11 @@
-<h3>Create RDP part</h3>
+<h3>
+{{#if rdpOligoSequence }}
+  Create RDP oligo-based part
+{{else}}
+  Create RDP part
+{{/if}}
+</h3>
+
 <br>
 <form class="form-horizontal new-pcr-product-form" style="line-height: 9px;">
 
@@ -23,6 +30,7 @@
     </div>
   </div>
 
+  {{#unless rdpOligoSequence }}
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_from"><small>Base pair range for target sequence</small></label>
     <div class="col-sm-6">
@@ -36,6 +44,7 @@
       </div>
     </div>
   </div>
+  {{/unless}}
 
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_partType"><small>RDP Part type</small></label>
@@ -59,6 +68,7 @@
   </div> --}}
   {{#unless state.calculating}}
     <br>
+    {{#unless rdpOligoSequence }}
     <strong>Optimized RDP PCR primer parameters</strong>
     <div class="separator"></div>
     <div class="form-group" style="line-height: 10px;">
@@ -85,7 +95,7 @@
     </div>
 
     <br>
-
+    {{/unless}}
     <button class="btn btn-primary">Create new RDP part</button>
     <button class="cancel-new-pcr-product-form btn btn-default">Cancel</button>
     <br><br>

@@ -2,6 +2,8 @@ import Gentle from 'gentle';
 import PCRView from './views/pcr_view';
 import PcrProductSequence from './lib/product';
 import WipPcrProductSequence from './lib/wip_product';
+import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
+import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import PcrPrimer from '../pcr/lib/pcr_primer';
 import HomePcrView from './views/home_pcr_view';
 import SequenceModel from '../../sequence/models/sequence';
@@ -21,17 +23,19 @@ Gentle.addPlugin('sequence-primary-view', {
   }
 });
 
+
 Gentle.addPlugin('sequence-primary-view', {
   name: 'rdp_oligo',
   title: 'RDP oligo-based parts',
   view: PCRView,
   visible: (sequence) => {
-    return Gentle.featureEnabled('rdp') && sequence instanceof PcrProductSequence;
+    return Gentle.featureEnabled('rdp') && sequence instanceof RdpOligoSequence;
   },
   maximize: (sequence) => {
-    return sequence instanceof WipPcrProductSequence;
+    return sequence instanceof WipRdpOligoSequence;
   }
 });
+
 
 // Gentle.addPlugin('sequence-canvas-context-menu', {
 //   name: 'rdp',

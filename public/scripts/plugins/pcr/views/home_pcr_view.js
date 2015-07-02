@@ -7,6 +7,7 @@ import Backbone from 'backbone';
 import template from '../templates/home_pcr_view.hbs';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
 import WipPcrProductSequence from '../lib/wip_product';
+import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import Gentle from 'gentle';
 
 
@@ -22,14 +23,24 @@ export default Backbone.View.extend({
   
   createNewSequence: function(event, loadedSequence) {
     event.preventDefault();
+    var sequenceBases = loadedSequence.sequence;
+    var Klass, primaryView;
+    if(sequenceBases.length < 100) {
+      Klass = WipRdpOligoSequence;
+      primaryView = 'rdp_oligo';
+    } else {
+      Klass = WipPcrProductSequence;
+      primaryView = 'rdp_pcr';
+    }
     var name = loadedSequence.name + '-RDP';
-    var sequence = new WipPcrProductSequence({
+    var sequence = new Klass({
       name: name,
-      sequence: loadedSequence.sequence,
+      sequence: sequenceBases,
       displaySettings: {
-        primaryView: 'rdp_pcr'
+        primaryView: primaryView
       },
       sourceSequenceName: loadedSequence.name,
+      inProgress: true,
     });
 
     Gentle.addSequencesAndNavigate([sequence]);

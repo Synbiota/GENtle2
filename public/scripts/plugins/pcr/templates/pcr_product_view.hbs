@@ -23,6 +23,7 @@
   </tbody>
 </table>
 
+{{#if isRdpPcrSequence}}
 {{{primer meta.associations.forwardPrimer}}}
 {{{primer meta.associations.reversePrimer}}}
 
@@ -53,6 +54,17 @@
     </tr>
   </tbody>
 </table>
+{{/if}}
+
+
+{{#if isRdpOligoSequence}}
+<h5>Sense strand</h5>
+{{{primer senseStrand}}}
+<h5>Antisense strand</h5>
+{{{primer antisenseStrand}}}
+<br>
+{{/if}}
+
 
 <h4>Sequence edit history</h4>
 

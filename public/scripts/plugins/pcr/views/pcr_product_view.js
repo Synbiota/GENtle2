@@ -5,6 +5,8 @@ import onClickSelectableSequence from '../../../common/lib/onclick_selectable_se
 import _ from 'underscore';
 import EditsView from './pcr_edits_view';
 import {gcContent} from '../../../sequence/lib/sequence_calculations';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
+import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 
 
 export default Backbone.View.extend({
@@ -23,7 +25,6 @@ export default Backbone.View.extend({
   },
 
   initialize: function() {
-    // let transforms = transformSequenceForRdp(tempSequence);
     this.setView('.pcr-edits-outlet', new EditsView({
       transforms: this.model.get('rdpEdits'),
       isAfterTransform: true
@@ -32,19 +33,29 @@ export default Backbone.View.extend({
 
   serialize: function() {
     var attributes = this.model.toJSON();
-
-    var forwardPrimer = attributes.meta.associations.forwardPrimer;
-    var reversePrimer = attributes.meta.associations.reversePrimer;
+    attributes.isRdpPcrSequence = this.model instanceof RdpPcrSequence;
+    attributes.isRdpOligoSequence = this.model instanceof RdpOligoSequence;
 
     attributes.stickyEnds.name = attributes.stickyEnds.start.name + '-' + attributes.stickyEnds.end.name;
-
     attributes.productLength = this.model.getLength(this.model.STICKY_END_OVERHANG);
-    
-    forwardPrimer.sequence = this.model.get('forwardPrimer').getSequence();
-    forwardPrimer.gcContent = gcContent(forwardPrimer.sequence);
 
-    reversePrimer.sequence = this.model.get('reversePrimer').getSequence();
-    reversePrimer.gcContent = gcContent(reversePrimer.sequence);
+    // Provide attributes not present in serialisation (due to them being
+    // childSequences of the parent, which means they don't need and should not
+    // be serialised)
+    if(attributes.isRdpPcrSequence) {
+      var forwardPrimer = attributes.meta.associations.forwardPrimer;
+      var reversePrimer = attributes.meta.associations.reversePrimer;
+      forwardPrimer.sequence = this.model.get('forwardPrimer').getSequence();
+      forwardPrimer.gcContent = gcContent(forwardPrimer.sequence);
+
+      reversePrimer.sequence = this.model.get('reversePrimer').getSequence();
+      reversePrimer.gcContent = gcContent(reversePrimer.sequence);
+    }
+
+    if(attributes.isRdpOligoSequence) {
+      attributes.senseStrand = {sequence: this.model.getSenseStrand()};
+      attributes.antisenseStrand = {sequence: this.model.getAntisenseStrand()};
+    }
 
     return attributes;
   },
@@ -127,7 +138,6 @@ export default Backbone.View.extend({
   // scrollToProduct: function(productId) {
   //   var $container = $('#pcr-list-outer-container');
   //   var $target = this.$('[data-product_id="' + productId + '"]');
-  //   // debugger
   //   $container.scrollTop($target.offset().top);
   // },
 
