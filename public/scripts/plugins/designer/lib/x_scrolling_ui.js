@@ -27,7 +27,7 @@ var onMouseMove = _.throttle(function(options, event) {
   options.scrollPageY = event.pageY;
 }, 100);
 
-export default function xScrollingDraggable(element, options = {}) {
+export default function xScrollingUi(element, type, options = {}) {
   element = $(element);
   _.defaults(options, {scroll: true});
 
@@ -56,12 +56,12 @@ export default function xScrollingDraggable(element, options = {}) {
         }
       });
       testPosition(scrollingElement, left, top, right, bottom, options);
-      oldStart(event, ui);
+      oldStart.call(this, event, ui);
     };
 
     options.scroll = false;
 
-    element.draggable(options);
+    element[type](options);
 
   }
 

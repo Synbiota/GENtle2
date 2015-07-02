@@ -1,3 +1,5 @@
+var glob = require('glob');
+var path = require('path');
 var aliases = require('./javascript_aliases');
 var isDev = global.isDev;
 process.env.BUGSNAG_APP_VERSION = require('../../package.json').version;
@@ -19,9 +21,15 @@ var vendorLibs = [
   'underscore-deep-extend'
 ];
 
+var additionalHbsfyRequires = glob
+  .sync('./public/scripts/**/*_handlebars_helpers.js')
+  .reduce(function(memo, file) {
+    return memo + ' require("'+path.resolve(file)+'");';
+  }, '');
+
 var appTransforms = [
   [ 'jstify', {minifierOpts: {collapseWhitespace: false}} ],
-  [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
+  [ 'hbsfy', {compiler: 'require("handlebars.mixed");' + additionalHbsfyRequires} ],
   [ 'babelify', {optional: ['runtime']} ],
   [ 'aliasify', {aliases: aliases} ]
 ];

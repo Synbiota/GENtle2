@@ -121,6 +121,8 @@ class AssembleSequenceModel {
   }
 
   moveSequence (oldIndex, newIndex) {
+    if(oldIndex === newIndex) return;
+    if(oldIndex < newIndex) newIndex++;
     var sequence = this.sequences[oldIndex];
     this.sequences[oldIndex] = null;
     this.sequences.splice(newIndex, 0, sequence);
@@ -159,12 +161,12 @@ class AssembleSequenceModel {
       var name = sequence.get('shortName');
       var type;
 
-      if(features.length === 1) {
-        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
-          if(!name) name = features[0].name;
-          type = features[0].type;
-        }
-      } 
+      // if(features.length === 1) {
+      //   if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
+      //     if(!name) name = features[0].name;
+      //     type = features[0].type;
+      //   }
+      // } 
 
       if(!name) name = sequence.get('name');
 

@@ -9,28 +9,27 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
   height: 100%;
 }
 
-%draggable-style {
+.designer-draggable {
   cursor: move;
   padding: 0 10px;
-  display: table;
-  table-layout: fixed;
   text-align: left;
   height: 40px;
   line-height: 12px;
   white-space: normal;
   border-width: 2px;
   font-size: 13px;
-
   & > div {
-    display: table-cell;
-    vertical-align: middle;
+    display: table;
+    table-layout: fixed;
+    height: 36px;
+    & > div {
+      display: table-cell;
+      vertical-align: middle;
+    }
   }
 
 
   &.ui-draggable-dragging {
-    padding: 10px 10px;
-    background: #ddd;
-    color: black;
     box-shadow: 0 0 3px transparentize(#222, .5);
     z-index: 4000;
   }
@@ -69,7 +68,6 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 }
 
 .designer-designed-sequence {
-  padding: 20px 20px;
   border-bottom: 1px $designer-border-style;;
   background: white;
   // @include gradient-striped(rgba(255,255,255,.3)); // Bootstrap mixin
@@ -100,6 +98,7 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 
   .designer-designed-sequence-chunks {
     white-space: nowrap;
+    padding: 20px 20px;
   }
 
   .designer-designed-sequence-chunk-droppable {
@@ -137,112 +136,128 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 
   }
 
-  .designer-designed-sequence-chunk-container {
-    display: inline-block;;
+  .designer-designed-sequence-chunk-placeholder {
+    border: 1px dashed #ddd;
+    border-radius: 3px;
+    height: 40px;
+    width: 30px;
+    display: inline-block;
     margin-right: 10px;
-
-    .designer-designed-sequence-chunk-trash {
-      visibility: hidden;
-      float: left;
-      margin-left: -50px;
-      color: #888;
-      width: 42px;
-      text-align: left;
-      border: 1px solid #888;
-      background: white;
-      padding: 7px 0 2px 0;
-      text-align: center;
-      font-size: 1.5em;
-
-      &.enabled {
-        visibility: visible;
-      }
-      &.active {
-        color: red;
-      }
-    }  
-
-    .designer-designed-sequence-chunk-position {
-      float: left;
-      margin-left: -50px;
-      font-size: 10px;
-      color: #005;
-      border-top: 1px solid #888;
-      width: 42px;
-      text-align: left;
-      @include text-overflow();
-    }    
-
-    .designer-designed-sequence-chunk {
-      @extend %draggable-style;
-
-      // &.ui-draggable-dragging {
-      //   box-shadow: 0 0 3px transparentize(#222, .5);
-      // }
-      // .designer-designed-sequence-chunk-droppable {
-      //   position: absolute;
-      //   top: 0;
-      //   left: 0;
-      //   width: 100%;
-      //   height: 50%;
-      //   &.active {
-      //     background: linear-gradient(0deg, transparent, rgba(255,255,255,.7));
-      //     &::before {
-      //       content: "Insert before";
-      //       display: block;
-      //       position: absolute;
-      //       top: 0;
-      //       margin-top: -25px;
-      //       left: 50%;
-      //       margin-left: -50px;
-      //       width: 100px;
-      //       background: white;
-      //       color: #888;
-      //       padding: 3px 6px;
-      //       border: 1px dashed #888;
-      //       border-radius: 7px;
-      //     }
-      //   }
-      // }
-      // .designer-designed-sequence-chunk-droppable-after {
-      //   top: auto;
-      //   bottom: 0;
-      //   &.active {
-      //     background: linear-gradient(transparent, rgba(255,255,255,.7));
-      //     &::before {
-      //       top: auto;
-      //       bottom: 0;
-      //       margin-bottom: -25px;
-      //       content: "Insert after";
-      //       z-index: 1000;
-      //     }
-      //   }
-      // }
-
-      &.designer-designed-sequence-chunk-empty {
-        background: #ddd;
-        color: #888;
-        border: 1px solid #888;
-      }
-
-      &.ui-draggable-dragging {
-        width: 200px !important;
-        .designer-designed-sequence-chunk-title {
-          @include text-overflow();
-        }
-      }
-
-      // @each $feature_type, $v in $__colors {
-      //   @if $feature_type != '_default' {
-      //     &.designer-designed-sequence-chunk-#{$feature_type} {
-      //       color: map_get($v, 'color');
-      //       border-color: map_get($v, 'color');
-      //       background: map_get($v, 'fill');
-      //     }
-      //   }
-      // }
-    }
+    margin-bottom: -16px;
   }
+
+  .designer-draggable {
+    display: inline-block;
+    margin-right: 10px;
+    width: auto;
+  }
+
+  // .designer-designed-sequence-chunk-container {
+  //   display: inline-block;
+  //   margin-right: 10px;
+
+  //   .designer-designed-sequence-chunk-trash {
+  //     visibility: hidden;
+  //     float: left;
+  //     margin-left: -50px;
+  //     color: #888;
+  //     width: 42px;
+  //     text-align: left;
+  //     border: 1px solid #888;
+  //     background: white;
+  //     padding: 7px 0 2px 0;
+  //     text-align: center;
+  //     font-size: 1.5em;
+
+  //     &.enabled {
+  //       visibility: visible;
+  //     }
+  //     &.active {
+  //       color: red;
+  //     }
+  //   }  
+
+  //   .designer-designed-sequence-chunk-position {
+  //     float: left;
+  //     margin-left: -50px;
+  //     font-size: 10px;
+  //     color: #005;
+  //     border-top: 1px solid #888;
+  //     width: 42px;
+  //     text-align: left;
+  //     @include text-overflow();
+  //   }    
+
+  //   .designer-designed-sequence-chunk {
+
+
+  //     // &.ui-draggable-dragging {
+  //     //   box-shadow: 0 0 3px transparentize(#222, .5);
+  //     // }
+  //     // .designer-designed-sequence-chunk-droppable {
+  //     //   position: absolute;
+  //     //   top: 0;
+  //     //   left: 0;
+  //     //   width: 100%;
+  //     //   height: 50%;
+  //     //   &.active {
+  //     //     background: linear-gradient(0deg, transparent, rgba(255,255,255,.7));
+  //     //     &::before {
+  //     //       content: "Insert before";
+  //     //       display: block;
+  //     //       position: absolute;
+  //     //       top: 0;
+  //     //       margin-top: -25px;
+  //     //       left: 50%;
+  //     //       margin-left: -50px;
+  //     //       width: 100px;
+  //     //       background: white;
+  //     //       color: #888;
+  //     //       padding: 3px 6px;
+  //     //       border: 1px dashed #888;
+  //     //       border-radius: 7px;
+  //     //     }
+  //     //   }
+  //     // }
+  //     // .designer-designed-sequence-chunk-droppable-after {
+  //     //   top: auto;
+  //     //   bottom: 0;
+  //     //   &.active {
+  //     //     background: linear-gradient(transparent, rgba(255,255,255,.7));
+  //     //     &::before {
+  //     //       top: auto;
+  //     //       bottom: 0;
+  //     //       margin-bottom: -25px;
+  //     //       content: "Insert after";
+  //     //       z-index: 1000;
+  //     //     }
+  //     //   }
+  //     // }
+
+  //     &.designer-designed-sequence-chunk-empty {
+  //       background: #ddd;
+  //       color: #888;
+  //       border: 1px solid #888;
+  //     }
+
+  //     // &.ui-draggable-dragging {
+  //     //   width: 200px !important;
+  //     //   .designer-designed-sequence-chunk-title {
+  //     //     @include text-overflow();
+  //     //   }
+  //     // }
+
+  //     // @each $feature_type, $v in $__colors {
+  //     //   @if $feature_type != '_default' {
+  //     //     &.designer-designed-sequence-chunk-#{$feature_type} {
+  //     //       color: map_get($v, 'color');
+  //     //       border-color: map_get($v, 'color');
+  //     //       background: map_get($v, 'fill');
+  //     //     }
+  //     //   }
+  //     // }
+  //   }
+  // }
 }
 
 // .designer-available-sequence-outlet-container {
@@ -380,9 +395,10 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 //   }
 // }
 
-.designer-available-sequence-draggable {
-  margin-right: 20px;
-  margin-bottom: 10px;
-  width: 200px;
-  @extend %draggable-style;
+.designer-available-sequences {
+  .designer-draggable {
+    margin-right: 20px;
+    margin-bottom: 10px;
+    width: 200px;
+  }
 }   

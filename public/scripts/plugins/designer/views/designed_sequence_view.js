@@ -1,9 +1,8 @@
 import Backbone from 'backbone';
 import template from '../templates/designed_sequence_view.hbs';
-import SynbioData from '../../../common/lib/synbio_data';
 import Gentle from 'gentle';
-import Sequence from '../../../sequence/models/sequence';
 import draggableCleanup from '../lib/draggable_cleanup';
+import xScrollingUi from '../lib/x_scrolling_ui';
 
 export default Backbone.View.extend({
   template: template,
@@ -11,12 +10,7 @@ export default Backbone.View.extend({
   className: 'designer-designed-sequence',
 
   events: {
-    'click .assemble-sequence-btn': 'assembleSequence',
-    'scroll': 'handleScroll'
-  },
-
-  initialize: function() {
-    this.handleScroll = _.debounce(this.handleScroll, 200);
+    'click .assemble-sequence-btn': 'assembleSequence'
   },
 
   assembleSequence: function(event) {
@@ -28,11 +22,6 @@ export default Backbone.View.extend({
       this.parentView(1).remove();
       this.parentView(2).changePrimaryView('edition');
     }
-  },
-
-  handleScroll: function() {
-    this.scrollLeft = this.$el.scrollLeft();
-    console.log('scroll', this.scrollLeft, this)
   },
 
   serialize: function() {
@@ -56,20 +45,21 @@ export default Backbone.View.extend({
     this.model.throttledSave();
   },
 
-  insertFromAvailableSequence: function($draggable, beforeIndex = 0) {
-    $draggable.on('dragstop', () => {
-      var sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
-      this.model.insertSequence(beforeIndex, sequence);
-      this.renderAndSave();
-    });
+  insertFromAvailableSequence: function(sequenceId, beforeIndex = 0) {
+    var model = this.model;
+    var sequence = _.find(model.allSequences, (s) => s.get('id') === sequenceId);
+    model.insertSequence(beforeIndex, sequence);
+    model.throttledSave();
+    // $draggable.on('dragstop', () => {
+    //   var sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
+    //   this.model.insertSequence(beforeIndex, sequence);
+    //   this.renderAndSave();
+    // });
   },
 
-  moveSequence: function($draggable, newIndex) {
-    $draggable.on('dragstop', () => {
-      var oldIndex = this.getSequenceIndexFromDraggableChunk($draggable);
-      this.model.moveSequence(oldIndex, newIndex);
-      this.renderAndSave();
-    });
+  moveSequence: function(oldIndex, newIndex) {
+    this.model.moveSequence(oldIndex, newIndex);
+    this.model.throttledSave();
   },
 
   removeSequence: function($draggable, index) {
@@ -160,29 +150,26 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    if(!_.isUndefined(this.scrollLeft)) {
-      this.$el.scrollLeft(this.scrollLeft);
-    }
 
     var _this = this;
-    this.$('.designer-designed-sequence-chunk').draggable({
-      zIndex: 2000,
-      revert: 'invalid',
-      helper: 'clone',
-      appendTo: this.$el,
-      cursorAt: {
-        top: 5,
-        left: 5
-      }
-    }).hover(
-    (event) => {
-      var sequence = this.getSequenceFromDraggableChunk($(event.target));
-      this.parentView().hoveredOverSequence(sequence.get('id'));
-    },
-    (event) => {
-      var sequence = this.getSequenceFromDraggableChunk($(event.target));
-      this.parentView().unhoveredOverSequence(sequence.get('id'));
-    });
+    // this.$('.designer-designed-sequence-chunk').draggable({
+    //   zIndex: 2000,
+    //   revert: 'invalid',
+    //   helper: 'clone',
+    //   appendTo: this.$el,
+    //   cursorAt: {
+    //     top: 5,
+    //     left: 5
+    //   }
+    // }).hover(
+    // (event) => {
+    //   var sequence = this.getSequenceFromDraggableChunk($(event.target));
+    //   this.parentView().hoveredOverSequence(sequence.get('id'));
+    // },
+    // (event) => {
+    //   var sequence = this.getSequenceFromDraggableChunk($(event.target));
+    //   this.parentView().unhoveredOverSequence(sequence.get('id'));
+    // });
 
     this.$('div.designer-designed-sequence-chunk-trash').droppable({
       activeClass: 'enabled',
@@ -220,6 +207,35 @@ export default Backbone.View.extend({
       activeClass: 'active',
       tolerance: 'pointer',
       drop: (event, ui) => this.insertFromAvailableSequence(ui.draggable)
+    });
+
+    xScrollingUi('.designer-designed-sequence-chunks', 'sortable', {
+      placeholder: 'designer-designed-sequence-chunk-placeholder',
+      appendTo: 'body',
+      helper: 'clone',
+      scrollingElement: '.designer-designed-sequence',
+      revert: 100,
+      refreshPosition: true,
+      tolerance: 'pointer',
+      start: function(event, ui) {
+        var item = ui.item;
+        ui.placeholder.outerWidth(item.outerWidth());
+        if(!item.data('available')) {
+          item.data('previous_index', item.index());
+        }
+      },
+      update: (event, ui) => {
+        var item = ui.item;
+        var index = item.index();
+
+        if(item.data('available')) {
+          this.insertFromAvailableSequence(item.data('sequence_id'), index);
+        } else {
+          this.moveSequence(item.data('previous_index'), index);
+        }
+
+        ui.item.removeData('available');
+      }
     });
   },
 

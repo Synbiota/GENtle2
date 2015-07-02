@@ -1,11 +1,7 @@
 <h5>{{name}}</h5>
 
 {{#each sequences}}
-  <div class="designer-available-sequence-draggable btn btn-sm btn-default designer-part-{{partType}}" data-sequence_id="{{id}}">
-    <div>
-        {{name}}
-    </div>
-  </div>
+  {{>designer-draggable id=id name=name partType=partType}}
 {{/each}}
 
 {{!-- <h5 class="designer-available-sequence-name">

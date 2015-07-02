@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import _ from 'underscore';
 import template from '../templates/available_sequences_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
-import xScrollingDraggable from '../lib/x_scrolling_draggable';
+import xScrollingUi from '../lib/x_scrolling_ui';
 
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
@@ -137,15 +137,15 @@ var AvailableSequenceView = Backbone.View.extend({
     //   }
     // });
     // var sequenceId = this.model.get('id');
-    xScrollingDraggable('.designer-available-sequence-draggable', {
+    xScrollingUi('.designer-available-sequences .designer-draggable', 'draggable', {
       // refreshPositions: true,
       appendTo: 'body',
       revert: 'invalid',
       helper: 'clone',
+      connectToSortable: '.designer-designed-sequence-chunks',
       scrollingElement: '.designer-designed-sequence',
-      cursorAt: {
-        top: 5,
-        left: 5
+      start: function(event, ui) {
+        ui.helper.data('available', true);
       }
     }).hover(
     (event) => {
