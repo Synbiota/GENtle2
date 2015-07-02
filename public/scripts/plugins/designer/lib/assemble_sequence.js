@@ -3,6 +3,7 @@ import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {getPcrProductsFromSequence} from '../../pcr/lib/utils';
 import _ from 'underscore';
 
+var INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
 
 class AssembleSequenceModel {
   constructor (sequence) {
@@ -157,16 +158,8 @@ class AssembleSequenceModel {
 
   processSequences () {
     return _.map(this.sequences, function(sequence, i) {
-      var features = sequence.getFeatures();
       var name = sequence.get('shortName');
       var type;
-
-      // if(features.length === 1) {
-      //   if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
-      //     if(!name) name = features[0].name;
-      //     type = features[0].type;
-      //   }
-      // } 
 
       if(!name) name = sequence.get('name');
 
@@ -174,11 +167,32 @@ class AssembleSequenceModel {
         name: name,
         type: type,
         partType: sequence.get('partType') || '__default',
-        index: i
+        index: i,
+        id: sequence.get('id')
       };
     });
   }
+
+  diagnoseSequence() {
+    var output = [];
+
+    _.each(this.sequences, (sequence, i) => {
+      if(i > 0) {
+        var previousSequence = this.sequences[i-1];
+        if(!previousSequence.stickyEndConnects(sequence)) {
+          output.push({
+            type: INCOMPATIBLE_STICKY_ENDS,
+            index: i
+          });
+        }
+      }
+    });
+
+    return output;
+  }
 }
+
+AssembleSequenceModel.INCOMPATIBLE_STICKY_ENDS = INCOMPATIBLE_STICKY_ENDS;
 
 
 export default AssembleSequenceModel;

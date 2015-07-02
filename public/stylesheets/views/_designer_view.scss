@@ -10,6 +10,7 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 }
 
 .designer-draggable {
+  position: relative;
   cursor: move;
   padding: 0 10px;
   text-align: left;
@@ -18,7 +19,7 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
   white-space: normal;
   border-width: 2px;
   font-size: 13px;
-  & > div {
+  .designer-draggable-wrapper {
     display: table;
     table-layout: fixed;
     height: 36px;
@@ -46,15 +47,33 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
       }
     }
   }
+
+  .designer-draggable-trash {
+    display: none;
+  }
 }
 
-
-.designer-options {
+.designer-draggable-trash {
   position: absolute;
-  right: 10px;
-  top: 10px;
-  z-index: 1;
+  right: -8px;
+  top: -9px;
+  border: 1px solid red;
+  height: 20px;
+  width: 20px;
+  text-align: center;
+  border-radius: 10px;
+  color: red;
+  background-color: white;
+  padding-top: 1px;
+  cursor: pointer;
+  z-index: 4002;
+
+  &:hover {
+    background: red;
+    color: white;
+  }
 }
+
 
 .designer-header {
   padding: 10px 20px;
@@ -150,6 +169,12 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
     display: inline-block;
     margin-right: 10px;
     width: auto;
+
+    &:hover {
+      .designer-draggable-trash {
+        display: block;
+      }
+    }
   }
 
   // .designer-designed-sequence-chunk-container {
@@ -402,3 +427,20 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
     width: 200px;
   }
 }   
+
+.designer-diagnostic-error {
+  position: absolute;
+  top: 26px;
+  width: 26px;
+  height: 26px;
+  margin-left: -20px;
+  border: 2px solid red;
+  z-index: 4001;
+  background: white;
+  border-radius: 13px;
+  text-align: center;
+  padding-top: 3px;
+  color: red;
+  padding-left: 1px;
+  cursor: help;
+}
