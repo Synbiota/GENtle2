@@ -3,6 +3,14 @@
   width: 100%;
 }
 
+.chromatograph-map-cursor {
+  position: absolute;
+  background-color: black;
+  height: 100%;
+  width: 1px;
+  left: 0;
+}
+
 .chromatograph-map {
   position: fixed;
 

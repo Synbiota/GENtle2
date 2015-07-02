@@ -43,7 +43,8 @@ export default Backbone.View.extend({
 
     _.bindAll(this,
       'scrollSequenceCanvas',
-      'updateScrollHelperPosition',
+      // 'updateScrollHelperPosition',
+      'updateCursor',
       'refresh'
     );
 
@@ -274,63 +275,80 @@ export default Backbone.View.extend({
   //   });
   // },
 
-  setupScrollHelper: function() {
-    var sequenceCanvas = this.sequenceCanvas,
-        $scrollHelper = this.$('.linear-map-visible-range'),
-        scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
-        scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-        elemHeight = this.$el.height(),
-        elemWidth = this.$el.width();
+  // setupScrollHelper: function() {
+  //   var sequenceCanvas = this.sequenceCanvas,
+  //       $scrollHelper = this.$('.linear-map-visible-range'),
+  //       scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
+  //       scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
+  //       elemHeight = this.$el.height(),
+  //       elemWidth = this.$el.width();
 
 
-    this.$scrollHelper = $scrollHelper;
+  //   this.$scrollHelper = $scrollHelper;
 
-    if (this.horizontal){
-      $scrollHelper.width(Math.floor(
-        scrollingParentHeight /
-        scrollingChildHeight *
-        elemWidth
-      ));
-    } else {
-      $scrollHelper.height(Math.floor(
-        scrollingParentHeight /
-        scrollingChildHeight *
-        elemHeight
-      ));
-    }
+  //   if (this.horizontal){
+  //     $scrollHelper.width(Math.floor(
+  //       scrollingParentHeight /
+  //       scrollingChildHeight *
+  //       elemWidth
+  //     ));
+  //   } else {
+  //     $scrollHelper.height(Math.floor(
+  //       scrollingParentHeight /
+  //       scrollingChildHeight *
+  //       elemHeight
+  //     ));
+  //   }
 
-    $scrollHelper.draggable({
-        axis: 'y',
-        containment: 'parent',
-        drag: _.throttle(this.scrollSequenceCanvas, 50)
-      });
+  //   $scrollHelper.draggable({
+  //       axis: 'y',
+  //       containment: 'parent',
+  //       drag: _.throttle(this.scrollSequenceCanvas, 50)
+  //     });
 
-    this.updateScrollHelperPosition();
-  },
+  //   this.updateScrollHelperPosition();
+  // },
 
-  updateScrollHelperPosition: function() {
-    var sequenceCanvas = this.sequenceCanvas,
-        $scrollHelper = this.$scrollHelper,
-        scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
-        elemHeight = this.$el.height(),
-        elemWidth = this.$el.width();
+  // updateScrollHelperPosition: function() {
+  //   var sequenceCanvas = this.sequenceCanvas,
+  //       $scrollHelper = this.$scrollHelper,
+  //       scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
+  //       elemHeight = this.$el.height(),
+  //       elemWidth = this.$el.width();
 
-    if($scrollHelper) {
-      if (this.horizontal){
-        $scrollHelper.css({
-          left:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
-                            scrollingChildHeight *
-                            elemWidth)
-        });
-      } else {
-        $scrollHelper.css({
-          top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
-                            scrollingChildHeight *
-                            elemHeight)
-        });
-      }
+  //   if($scrollHelper) {
+  //     if (this.horizontal){
+  //       $scrollHelper.css({
+  //         left:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
+  //                           scrollingChildHeight *
+  //                           elemWidth)
+  //       });
+  //     } else {
+  //       $scrollHelper.css({
+  //         top:  Math.floor( sequenceCanvas.layoutHelpers.yOffset /
+  //                           scrollingChildHeight *
+  //                           elemHeight)
+  //       });
+  //     }
 
-    }
+  //   }
+  // },
+
+  updateCursor: function() {
+    var $cursor = this.$cursor || this.$('.chromatograph-map-cursor'),
+        sequenceCanvas = this.sequenceCanvas,
+        ls = sequenceCanvas.layoutSettings,
+        lh = sequenceCanvas.layoutHelpers,
+        elemWidth = this.$el.width(),
+        scrollingChildWidth = sequenceCanvas.$scrollingChild.width();
+
+
+    $cursor.css({
+      left: Math.floor( sequenceCanvas.layoutHelpers.xOffset /
+                        scrollingChildWidth *
+                        elemWidth)
+    });
+
   },
 
   scrollSequenceCanvas: function() {
@@ -368,10 +386,12 @@ export default Backbone.View.extend({
       //   this
       // );
 
-      sequenceCanvas.on(
-        'scroll',
-        this.updateScrollHelperPosition
-      );
+      // sequenceCanvas.on(
+      //   'scroll',
+      //   this.updateScrollHelperPosition
+      // );
+
+      sequenceCanvas.on('scroll', this.updateCursor);
 
 
       var _this = this;
