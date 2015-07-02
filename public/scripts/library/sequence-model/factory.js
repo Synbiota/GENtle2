@@ -50,7 +50,35 @@ let instantiate = function(association, fieldValue, otherArgs) {
 
 
 function sequenceModelFactory(BackboneModel) {
-  let associations = {};
+  // `associations` has the following form:
+  //  [
+  //    {
+  //      klass: ASequenceModelClass,
+  //      classAssociations: [
+  //        {
+  //          associationName: String,
+  //          many: Boolean,
+  //          constructor: SomeChildClass
+  //        },
+  //        ...
+  //      ]
+  //    },
+  //    ...
+  //  ]
+  let associations = [];
+
+  var associationsForKlass = function(klass) {
+    return _.find(associations, (association) => association.klass === klass);
+  };
+
+  var allAssociationsForInstance = function(instance) {
+    var allAssociations = [];
+    _.each(associations, (association) => {
+      if(instance instanceof association.klass) allAssociations = allAssociations.concat(association.classAssociations);
+    });
+    return allAssociations;
+  };
+
   let preProcessors = [];
 
   /**
@@ -97,10 +125,11 @@ function sequenceModelFactory(BackboneModel) {
 
       // If a value in this.attributes has a key with the same value as an
       // associations `associationName` then run its `validate()` method.
-      _.each(associations, (association, associationName) => {
+      var allAssociations = allAssociationsForInstance(this);
+      _.each(allAssociations, ({associationName, many}) => {
         if(_.has(this.attributes, associationName)) {
           let value = this.attributes[associationName];
-          if(association.many) {
+          if(many) {
             _.each(value, function(subVal) {
               if(_.isFunction(subVal.validate)) subVal.validate();
             });
@@ -261,7 +290,8 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     transformAttributeValue(attribute, val) {
-      let association = associations[attribute];
+      var allAssociations = allAssociationsForInstance(this);
+      var association = _(allAssociations).findWhere({associationName: attribute});
       if(association) {
         // `doNotValidated` and `this._validated` only relevant to the
         // constructor and skipping validation of associated child models.
@@ -1167,6 +1197,8 @@ function sequenceModelFactory(BackboneModel) {
       this.clearFeatureCache();
       this.set('features.' + id, editedFeature);
       this.sortFeatures();
+      // DOCUMENT:  why do we call save followed by throttledSave and not just
+      // one call to throttledSave once eveything is completed?
       this.save();
       if (record === true) {
         this.recordFeatureHistoryEdit(editedFeature);
@@ -1446,7 +1478,8 @@ function sequenceModelFactory(BackboneModel) {
     toJSON() {
       let attributes = super.toJSON();
       // Move all associated fields into meta.associations
-      _.each(associations, function(value, associationName) {
+      var classAssociations = allAssociationsForInstance(this);
+      _.each(classAssociations, function({associationName}) {
         if(_.has(attributes, associationName)) {
           attributes.meta = attributes.meta || {};
           attributes.meta.associations = attributes.meta.associations || {};
@@ -1474,15 +1507,24 @@ function sequenceModelFactory(BackboneModel) {
       throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
     }
     let associationName = rawAssociationName + (many ? 's' : '');
-    if(associations[associationName]) {
-      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered.`);
+    var klass = this;
+    var classAssociationsObject = associationsForKlass(klass);
+    if(!classAssociationsObject) {
+      classAssociationsObject = {klass, classAssociations: []};
+      associations.push(classAssociationsObject);
     }
-    associations[associationName] = {constructor, many, associationName};
+    if(_(classAssociationsObject.classAssociations).findWhere({associationName: associationName})) {
+      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered for "${klass.name}".`);
+    }
+    classAssociationsObject.classAssociations.push({associationName, many, constructor});
   };
 
 
+  /**
+   * @function _logRegisteredAssociations  Used for debugging
+   * @return {Object}  the registered associations.
+   */
   Sequence._logRegisteredAssociations = function() {
-    // Used for debugging
     console.log('registered associations: ', JSON.stringify(associations, null, 2));
     return associations;
   };
