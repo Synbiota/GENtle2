@@ -4,6 +4,7 @@ import Gentle from 'gentle';
 import SequenceCanvas from 'gentle-sequence-canvas';
 import _ from 'underscore';
 import Styles from '../../../styles.json';
+import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 
 
 var LineStyles = Styles.sequences.lines;
@@ -26,26 +27,44 @@ export default Backbone.View.extend({
   template: template,
 
   initialize: function() {
-    _.bindAll(this, 'getSequenceColour');
+    _.bindAll(this, 'makeSequenceColourGetter');
     this.listenTo(Gentle, 'resize', function() {
       this.trigger('resize');
     });
   },
 
-  getSequenceColour: function(base, pos, defaultColor) {
-    defaultColor = defaultColor || colors.default.text;
+  makeSequenceColourGetter: function(reverseStrand) {
+    var getSequenceColour = (base, pos, defaultColor) => {
+      defaultColor = defaultColor || colors.default.text;
+      var color;
 
-    let forwardPrimer = this.model.get('forwardPrimer');
-    let reversePrimer = this.model.get('reversePrimer');
+      if(this.model instanceof RdpOligoSequence) {
+        var stickyEnds = this.model.getStickyEnds(false);
+        var len = this.model.getLength(this.model.STICKY_END_FULL);
+        var white = '#FFF';
+        color = defaultColor;
+        if((pos < stickyEnds.start.size && stickyEnds.start.reverse !== reverseStrand) ||
+          (pos >= (len - stickyEnds.end.size) && stickyEnds.end.reverse !== reverseStrand)) {
+          color = white;
+        }
+      } else {
+        var forwardPrimer = this.model.get('forwardPrimer');
+        var reversePrimer = this.model.get('reversePrimer');
 
-    if(!forwardPrimer || !reversePrimer) return defaultColor;
-    if(pos >= forwardPrimer.range.to && pos < reversePrimer.range.from) {
-      return defaultColor;
-    } else if(pos >= forwardPrimer.annealingRegion.range.from && pos < reversePrimer.annealingRegion.range.to){
-      return colors.annealingRegion.fill;
-    } else {
-      return colors.stickyEnd.fill;
-    }
+        if(!forwardPrimer || !reversePrimer) {
+          color = defaultColor;
+        } else if(pos >= forwardPrimer.range.to && pos < reversePrimer.range.from) {
+           color = defaultColor;
+        } else if(pos >= forwardPrimer.annealingRegion.range.from && pos < reversePrimer.annealingRegion.range.to){
+          color = colors.annealingRegion.fill;
+        } else {
+          color = colors.stickyEnd.fill;
+        }
+      }
+
+      return color;
+    };
+    return getSequenceColour;
   },
 
   setProduct: function(product) {
@@ -75,7 +94,7 @@ export default Backbone.View.extend({
         height: 15,
         baseLine: 15,
         textFont: '15px Monospace',
-        textColour: this.getSequenceColour,
+        textColour: this.makeSequenceColourGetter(false),
         selectionColour: 'red',
         selectionTextColour: 'white'
       }],
@@ -83,7 +102,7 @@ export default Backbone.View.extend({
         height: 15,
         baseLine: 15,
         textFont: LineStyles.complements.text.font,
-        textColour: this.getSequenceColour,
+        textColour: this.makeSequenceColourGetter(true),
         getSubSeq: this.model.getComplements
       }],
       features: ['Feature', {
