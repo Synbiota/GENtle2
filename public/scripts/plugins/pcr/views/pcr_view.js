@@ -25,7 +25,7 @@ export default Backbone.View.extend({
   className: 'pcr',
 
   events: {
-    'click .show-new-pcr-product-form': 'showFormFn',
+    // 'click .show-new-pcr-product-form': 'showFormFn',
   },
 
   // `{showForm: showForm}={}` as first argument is required because
@@ -137,18 +137,13 @@ export default Backbone.View.extend({
     return sequence;
   },
 
+  /*
   showFormFn: function(event) {
     if(event) event.preventDefault();
     this.viewState = viewStates.form;
     this.render();
   },
-
-  parentShowProduct: function(product) {
-    this.hideCanvas();
-    this.listView.showProduct(product);
-    this.viewState = viewStates.products;
-    this.render();
-  },
+  */
 
   makePrimers: function(data) {
     this.progressView.makePrimers(data);
@@ -171,6 +166,7 @@ export default Backbone.View.extend({
       view.setSequence(temporarySequence);
     }
 
+    // Probably don't need this call to render.  Will be double rendering.
     view.render();
   },
 

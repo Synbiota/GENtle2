@@ -70,10 +70,10 @@ export default Backbone.View.extend({
     this.renderCanvasSequence();
   },
 
-  showProducts: function(event) {
-    event.preventDefault();
-    this.parentView().showProducts();
-  },
+  // showProducts: function(event) {
+  //   event.preventDefault();
+  //   this.parentView().showProducts();
+  // },
 
   updateStateAndRenderSequence: function(event) {
     this.updateState();

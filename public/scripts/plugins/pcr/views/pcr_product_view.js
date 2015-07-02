@@ -1,5 +1,5 @@
 import template from '../templates/pcr_product_view.hbs';
-import {fastAExportSequenceFromID} from '../../../common/lib/utils';
+// import {fastAExportSequenceFromID} from '../../../common/lib/utils';
 import Gentle from 'gentle';
 import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 import _ from 'underscore';
@@ -80,6 +80,7 @@ export default Backbone.View.extend({
     });
   },
 
+  /*
   getProducts: function() {
     return this.showingProduct ? [this.showingProduct] : []; //getPcrProductsFromSequence(this.model);
   },
@@ -96,12 +97,12 @@ export default Backbone.View.extend({
     this.parentView().showCanvas(product);
   },
 
-  // deletePcrProduct: function(event) {
-  //   var product = this.getProduct(event);
-  //   if(product) {
-  //     this.parentView().deleteProduct(product);
-  //   }
-  // },
+  deletePcrProduct: function(event) {
+    var product = this.getProduct(event);
+    if(product) {
+      this.parentView().deleteProduct(product);
+    }
+  },
 
   openPcrProduct: function(event) {
     var product = this.getProduct(event);
@@ -133,13 +134,14 @@ export default Backbone.View.extend({
     fastAExportSequenceFromID(products, sequenceID);
   },
 
-  selectSequence: onClickSelectableSequence,
+  scrollToProduct: function(productId) {
+    var $container = $('#pcr-list-outer-container');
+    var $target = this.$('[data-product_id="' + productId + '"]');
+    $container.scrollTop($target.offset().top);
+  },
+  */
 
-  // scrollToProduct: function(productId) {
-  //   var $container = $('#pcr-list-outer-container');
-  //   var $target = this.$('[data-product_id="' + productId + '"]');
-  //   $container.scrollTop($target.offset().top);
-  // },
+  selectSequence: onClickSelectableSequence,
 
   scrollToPrimer: function(event) {
     var $target = $(event.currentTarget);
