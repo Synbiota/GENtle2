@@ -1,7 +1,9 @@
 {{#if empty}}
 
   <div class="designer-designed-sequence-empty-placeholder">
-    Drag sequences in from the lists below
+    <div>
+      Drag parts in from the lists below
+    <div>
   </div>
 
 {{else}}
@@ -9,7 +11,7 @@
   <div class="designer-diagnostic"></div>
   <div class="designer-designed-sequence-chunks">
     {{#each sequences}}
-      {{> designer-draggable id=id name=name partType=partType}}
+      {{{designer-draggable .}}}
     {{/each}}
   </div>
 

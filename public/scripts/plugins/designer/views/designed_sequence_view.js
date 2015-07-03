@@ -14,7 +14,6 @@ export default Backbone.View.extend({
   className: 'designer-designed-sequence',
 
   events: {
-    'click .assemble-sequence-btn': 'assembleSequence',
     'click .designer-draggable-trash': 'onTrashClick'
   },
 
@@ -25,17 +24,6 @@ export default Backbone.View.extend({
     });
   },
 
-  assembleSequence: function(event) {
-    event.preventDefault();
-    if(this.model.incompatibleStickyEnds()) {
-      alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
-    } else {
-      this.model.assembleSequences().throttledSave();
-      this.parentView(1).remove();
-      this.parentView(2).changePrimaryView('edition');
-    }
-  },
-
   onTrashClick: function(event) {
     event.stopPropagation();
     var $element = $(event.currentTarget).parent();
@@ -44,13 +32,14 @@ export default Backbone.View.extend({
     this.emptyDiagnostic();
     this.updateDiagnostic();
     this.updateDraggableContainerWidth();
+    if(this.model.sequences.length === 0) this.render();
   },
 
   serialize: function() {
     var output = {};
 
     if(this.model.sequences.length) {
-      output.sequences = this.model.processSequences();
+      output.sequences = this.model.sequences;
     } else {
       output.empty = true;
     }
@@ -143,9 +132,12 @@ export default Backbone.View.extend({
     this.updateDraggableContainerWidth();
 
     this.$('.designer-designed-sequence-empty-placeholder').droppable({
-      activeClass: 'active',
+      hoverClass: 'active',
       tolerance: 'pointer',
-      drop: (event, ui) => this.insertFromAvailableSequence(ui.draggable)
+      drop: (event, ui) => {
+        this.insertFromAvailableSequence(ui.draggable.data('sequence_id'), 0);
+        this.render();
+      }
     });
 
     xScrollingUi('.designer-designed-sequence-chunks', 'sortable', {
@@ -253,7 +245,7 @@ export default Backbone.View.extend({
 
     // First and last sequence cannot connect
     var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
-    if(this.model.get('isCircular')) {
+    if(this.model.get('isCircular') && sequencesLength > 0) {
       if(cannotCircularize) {
         this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
           description: 'Cannot circularize because start and end sticky ends are not compatible'
@@ -274,10 +266,12 @@ export default Backbone.View.extend({
       return memo + $(element).outerWidth(true);
     }, 0);
 
+    var maxWidth = $draggableContainer.parent().width();
+
     var padding = parseInt($draggableContainer.css('paddingRight'), 10) + 
       parseInt($draggableContainer.css('paddingLeft'), 10);
 
-    $draggableContainer.width(totalWidth + padding + 200);
+    $draggableContainer.width(Math.max(totalWidth + padding + 200, maxWidth));
   }
 
 });

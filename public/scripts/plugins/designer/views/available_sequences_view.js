@@ -112,13 +112,15 @@ var AvailableSequenceView = Backbone.View.extend({
     // var showAnnotations = this.showAnnotations();
     // this.processFeatures();
 
-    var sequences = _.map(this.getSequences(), (sequence) => {
-      return {
-        name: sequence.get('shortName') || sequence.get('name'),
-        id: sequence.get('id'),
-        partType: sequence.get('partType') || '__default'
-      };
-    });
+    // var sequences = _.map(this.getSequences(), (sequence) => {
+    //   return {
+    //     name: sequence.get('shortName') || sequence.get('name'),
+    //     id: sequence.get('id'),
+    //     partType: sequence.get('partType') || '__default'
+    //   };
+    // });
+
+var sequences = this.getSequences();
     
 
     return {sequences, name: this.name};

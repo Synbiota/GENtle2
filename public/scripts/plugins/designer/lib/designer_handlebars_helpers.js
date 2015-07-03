@@ -1,8 +1,16 @@
 var Handlebars = require('handlebars.mixed');
 
-Handlebars.registerPartial('designer-draggable', require('../templates/designer_draggable_helper.hbs'));
+Handlebars.registerHelper('designer-draggable', function(sequence) {
+  var template = require('../templates/designer_draggable_helper.hbs');
 
-// Handlebars.registerHelper('designer-draggable', function(options) {
-//   var template = require('../templates/designer_draggable_helper.hbs');
-//   return template(options.hash);
-// });
+  var stickyEnds = _.mapObject(sequence.getStickyEnds(), (stickyEnd) => {
+    return stickyEnd.name.replace(/[^\w]/g, '').toLowerCase();
+  });
+
+  return template({
+    name: sequence.get('shortName') || sequence.get('name'),
+    partType: sequence.get('partType') || '__default',
+    id: sequence.get('id'),
+    stickyEnds
+  });
+});

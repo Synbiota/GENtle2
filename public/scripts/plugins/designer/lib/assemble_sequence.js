@@ -16,6 +16,7 @@ class AssembleSequenceModel {
     });
 
     this._setupSequenceForAssembling();
+    this.model.on('change:isCircular', this.diagnoseSequence());
   }
 
   _setupSequenceForAssembling () {
@@ -161,23 +162,6 @@ class AssembleSequenceModel {
     return this;
   }
 
-  processSequences () {
-    return _.map(this.sequences, function(sequence, i) {
-      var name = sequence.get('shortName');
-      var type;
-
-      if(!name) name = sequence.get('name');
-
-      return {
-        name: name,
-        type: type,
-        partType: sequence.get('partType') || '__default',
-        index: i,
-        id: sequence.get('id')
-      };
-    });
-  }
-
   diagnoseSequence() {
     var output = [];
     var sequences = this.sequences;
@@ -197,7 +181,7 @@ class AssembleSequenceModel {
     if(this.get('isCircular')) {
       let firstSequence = sequences[0];
       let lastSequence = sequences[sequences.length-1];
-      if(!lastSequence.stickyEndConnects(firstSequence)) {
+      if(sequences.length < 2 || !lastSequence.stickyEndConnects(firstSequence)) {
         output.push({
           type: CANNOT_CIRCULARIZE,
           index: 0
