@@ -7,3 +7,7 @@ deployment:
     branch: develop
     commands:
       - "STACK_ID=$AWS_NIGHTLY_STACK_ID APP_ID=$AWS_NIGHTLY_APP_ID ASSET_DIR=nightly BUGSNAG_RELEASE_STAGE=nightly gulp publish"
+  beta:
+    branch: master
+    commands:
+      - "STACK_ID=$AWS_BETA_STACK_ID APP_ID=$AWS_BETA_APP_ID ASSET_DIR=beta BUGSNAG_RELEASE_STAGE=beta gulp publish"

@@ -8,6 +8,8 @@ in the coming months.
 
 ![GENtle2 screenshot](./screenshot.png?raw=true)
 
+![CircleCI status](https://circleci.com/gh/Synbiota/GENtle2.svg?style=shield&circle-token=38f6a2ad9be191444f2c72b5b5335f084468d1cc)
+
 ## Getting started
 
 1. Clone the repository locally and `cd` into it
