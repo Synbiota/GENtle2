@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import template from '../templates/designed_sequence_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
 import xScrollingUi from '../lib/x_scrolling_ui';
-import {INCOMPATIBLE_STICKY_ENDS} from '../lib/assemble_sequence';
+import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/assemble_sequence';
 import diagnosticErrorTemplate from '../templates/diagnostic_error_template.hbs';
 import diagnosticSuccessTemplate from '../templates/diagnostic_success_template.hbs';
 import $ from 'jquery';
@@ -16,6 +16,13 @@ export default Backbone.View.extend({
   events: {
     'click .assemble-sequence-btn': 'assembleSequence',
     'click .designer-draggable-trash': 'onTrashClick'
+  },
+
+  initialize: function() {
+    this.listenTo(this.model.model, 'change:isCircular', () => {
+      this.emptyDiagnostic();
+      this.updateDiagnostic();
+    });
   },
 
   assembleSequence: function(event) {
@@ -40,17 +47,14 @@ export default Backbone.View.extend({
   },
 
   serialize: function() {
-    var output = {
-      sequenceName: this.model.get('name'),
-      circulariseDna: this.model.get('isCircular'),
-      incompatibleStickyEnds: this.model.incompatibleStickyEnds(),
-    };
+    var output = {};
+
     if(this.model.sequences.length) {
       output.sequences = this.model.processSequences();
-      output.lastId = this.model.sequences.length;
     } else {
       output.empty = true;
     }
+
     return output;
   },
 
@@ -199,39 +203,65 @@ export default Backbone.View.extend({
     this.$('.designer-diagnostic').empty();
   },
 
-  insertDiagnosticChild: function(index, html) {
+  insertDiagnosticChildren: function(indices, html) {
     var $diagnosticContainer = this.$('.designer-diagnostic');
     var $draggableContainer = this.$('.designer-designed-sequence-chunks');
     var $draggables = $draggableContainer.children();
-    var $draggable = $($draggables[index]);
 
-    var $element = $(html).css({
-      left: $draggable.offset().left + $draggableContainer.parent().scrollLeft()
-    }).tooltip({
-      container: 'body',
-      placement: 'top',
-      animation: false
+    if(!_.isArray(indices)) indices = [indices];
+    if(indices.length === 0) return;
+
+    _.each(indices, function(index) {
+      var last = index === $draggables.length;
+      var $draggable = $($draggables[last ? index-1 : index]);
+
+      var lastOffset = last ? $draggable.outerWidth(true) : 0;
+
+      var $element = $(html).css({
+        left: $draggable.offset().left + 
+          $draggableContainer.parent().scrollLeft() + 
+          lastOffset
+      }).tooltip({
+        container: 'body',
+        placement: 'top',
+        animation: false
+      });
+
+      $diagnosticContainer.append($element);
     });
-
-    $diagnosticContainer.append($element);
   },
 
   updateDiagnostic: function() {
     var errors = this.model.diagnoseSequence();
+    var sequencesLength = this.model.sequences.length;
 
-    var errorIndices = _.map(_.where(errors, {type: INCOMPATIBLE_STICKY_ENDS}), (error) => {
-      this.insertDiagnosticChild(error.index, diagnosticErrorTemplate({
-        description: 'Incompatible sticky ends'
-      }));
+    // Incompatible sticky ends
+    var errorIndices = _.pluck(
+      _.where(errors, {type: INCOMPATIBLE_STICKY_ENDS}),
+      'index'
+    );
 
-      return error.index;
-    });
+    this.insertDiagnosticChildren(errorIndices, diagnosticErrorTemplate({
+      description: 'Incompatible sticky ends'
+    }));
 
-    _.each(_.range(1, this.model.sequences.length), (index) => {
+    _.each(_.range(1, sequencesLength), (index) => {
       if(!~errorIndices.indexOf(index)) {
-        this.insertDiagnosticChild(index, diagnosticSuccessTemplate());
+        this.insertDiagnosticChildren(index, diagnosticSuccessTemplate());
       }
     });
+
+    // First and last sequence cannot connect
+    var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
+    if(this.model.get('isCircular')) {
+      if(cannotCircularize) {
+        this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
+          description: 'Cannot circularize because start and end sticky ends are not compatible'
+        }));
+      } else {
+        this.insertDiagnosticChildren([0, sequencesLength], diagnosticSuccessTemplate());
+      }
+    }
   },
 
   updateDraggableContainerWidth: function() {

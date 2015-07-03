@@ -4,6 +4,7 @@ import {getPcrProductsFromSequence} from '../../pcr/lib/utils';
 import _ from 'underscore';
 
 var INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
+var CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
 
 class AssembleSequenceModel {
   constructor (sequence) {
@@ -175,10 +176,11 @@ class AssembleSequenceModel {
 
   diagnoseSequence() {
     var output = [];
+    var sequences = this.sequences;
 
-    _.each(this.sequences, (sequence, i) => {
+    _.each(sequences, (sequence, i) => {
       if(i > 0) {
-        var previousSequence = this.sequences[i-1];
+        var previousSequence = sequences[i-1];
         if(!previousSequence.stickyEndConnects(sequence)) {
           output.push({
             type: INCOMPATIBLE_STICKY_ENDS,
@@ -188,11 +190,23 @@ class AssembleSequenceModel {
       }
     });
 
+    if(this.get('isCircular')) {
+      let firstSequence = sequences[0];
+      let lastSequence = sequences[sequences.length-1];
+      if(!lastSequence.stickyEndConnects(firstSequence)) {
+        output.push({
+          type: CANNOT_CIRCULARIZE,
+          index: 0
+        });
+      }
+    }
+
     return output;
   }
 }
 
 AssembleSequenceModel.INCOMPATIBLE_STICKY_ENDS = INCOMPATIBLE_STICKY_ENDS;
+AssembleSequenceModel.CANNOT_CIRCULARIZE = CANNOT_CIRCULARIZE;
 
 
 export default AssembleSequenceModel;

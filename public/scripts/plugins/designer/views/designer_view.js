@@ -100,7 +100,6 @@ var DesignerView = Backbone.View.extend({
   updateCirculariseDna: function(event) {
     event.preventDefault();
     this.model.set('isCircular', event.target.checked).throttledSave();
-    this.render();
   },
 
   insertSequenceViews: function() {
