@@ -20,6 +20,7 @@ class AssembleSequenceModel {
 
   _setupSequenceForAssembling () {
     this.sequences = this._parseAssembleSequences();
+    this.diagnoseSequence();
     // Dictionary of sequence ids and the positions they can be inserted into.
     this.insertabilityState = {};
     this.updateInsertabilityState();
@@ -120,6 +121,7 @@ class AssembleSequenceModel {
 
   insertSequence (beforeIndex, sequence) {
     this.sequences.splice(beforeIndex, 0, sequence);
+    this.diagnoseSequence();
   }
 
   moveSequence (oldIndex, newIndex) {
@@ -129,10 +131,12 @@ class AssembleSequenceModel {
     this.sequences[oldIndex] = null;
     this.sequences.splice(newIndex, 0, sequence);
     this.sequences = _.compact(this.sequences);
+    this.diagnoseSequence();
   }
 
   removeSequenceAtIndex (index) {
     this.sequences.splice(index, 1);
+    this.diagnoseSequence();
   }
 
   incompatibleStickyEnds () {
@@ -201,7 +205,7 @@ class AssembleSequenceModel {
       }
     }
 
-    return output;
+    this.errors = output;
   }
 }
 

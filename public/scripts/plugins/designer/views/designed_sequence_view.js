@@ -232,7 +232,7 @@ export default Backbone.View.extend({
   },
 
   updateDiagnostic: function() {
-    var errors = this.model.diagnoseSequence();
+    var errors = this.model.errors;
     var sequencesLength = this.model.sequences.length;
 
     // Incompatible sticky ends

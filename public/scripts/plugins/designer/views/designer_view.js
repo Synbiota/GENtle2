@@ -6,6 +6,8 @@ import AvailableSequencesView from './available_sequences_view';
 import DesignedSequenceView from './designed_sequence_view';
 import Gentle from 'gentle';
 import uploadMultipleSequences from '../lib/upload_multiple_sequences';
+import Modal from '../../../common/views/modal_view';
+import DiagnosticModalView from './designer_diagnostic_modal_view';
 
 var filterSequencesByStickyEnds = function(assembleSequence, [stickyEndStartName, stickyEndEndName]) {
   var stickyEndName = `${stickyEndStartName}-${stickyEndEndName}`.toLowerCase();
@@ -28,7 +30,8 @@ var DesignerView = Backbone.View.extend({
     // 'click .toggle-uninsertable-sequences': 'toggleUninsertableSequences',
     'change #circularise-dna': 'updateCirculariseDna',
     'click .designer-available-sequences-header button': 'triggerFileInput',
-    'change .file-upload-input': 'uploadNewSequences'
+    'change .file-upload-input': 'uploadNewSequences',
+    'click .assemble-sequence-btn': 'assembleSequence'
   },
 
   initialize: function() {
@@ -84,17 +87,6 @@ var DesignerView = Backbone.View.extend({
       // showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
       // showUninsertableSequences: Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences') || false,
     };
-  },
-
-  beforeRender: function() {
-    // this.removeAllViews();
-    // this.model.updateInsertabilityState();
-  },
-
-  afterRender: function() {
-    // this.insertSequenceViews();
-    // this.stopListening();
-    // this.listenTo(this.parentView(), 'resize', this.render, this);
   },
 
   updateCirculariseDna: function(event) {
@@ -167,6 +159,7 @@ var DesignerView = Backbone.View.extend({
 
   cleanup: function() {
     this.removeAllViews();
+    Gentle.sequences.off(null, null, this);
   },
 
   removeAllViews: function() {
@@ -176,9 +169,18 @@ var DesignerView = Backbone.View.extend({
     });
   },
 
-  remove: function() {
-    Gentle.sequences.off(null, null, this);
-    Backbone.View.prototype.remove.apply(this, arguments);
+  assembleSequence: function() {
+    var errors = this.model.errors;
+    if(errors.length > 0) {
+      Modal.show({
+        title: 'Cannot assemble circuit',
+        confirmLabel: 'OK',
+        cancelLabel: null,
+        bodyView: new DiagnosticModalView({
+          errors: _.uniq(_.pluck(errors, 'type'))
+        })
+      });
+    }
   }
 
 });

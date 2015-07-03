@@ -3,7 +3,7 @@
     <div style="margin-right: 30px; float: left; margin-top: 6px;">
       &nbsp;<input id="circularise-dna" type="checkbox" {{#if circulariseDna}}checked="1"{{/if}}>&nbsp;<label for="circularise-dna">Circularise</label>
     </div>
-    <button class="btn btn-primary assemble-sequence-btn" {{#if submitDisabled}}disabled="disabled"{{/if}}>Assemble sequence</button>
+    <button class="btn btn-primary assemble-sequence-btn" {{#if submitDisabled}}disabled="disabled"{{/if}}>Assemble circuit</button>
   </div>
   <h4>{{sequenceName}}</h4>
 </div>
@@ -12,8 +12,8 @@
 <div class="designer-available-sequences">
   <div class="designer-available-sequences-header">
     <h5>
-      Available sequences
-      <button class="btn btn-default btn-xs">Upload new sequences</button>
+      Available parts
+      <button class="btn btn-default btn-xs">Upload new part</button>
     </h5>
     <input type="file" novalidate class="file-upload-input" multiple style="display: none;"/>
   </div>
