@@ -24,9 +24,12 @@ var putObject = function(params, file, def) {
   });
 };
 
+var readManifest = function() {
+  return JSON.parse(fs.readFileSync('./rev-manifest.json', 'utf8'));
+};
+
 gulp.task('publish', ['index'], function() {
-  // Todo publish to s3
-  var manifest = require('../rev-manifest.json');
+  var manifest = readManifest();
 
   var ASSET_DIR = process.env.ASSET_DIR;
   if(!ASSET_DIR) throw 'ASSET_DIR missing';
@@ -105,7 +108,7 @@ gulp.task('publish', ['index'], function() {
 
 gulp.task('index', ['build'], function() {
   var template = jade.compileFile(path.join(__dirname, '../views/index.jade'));
-  var manifest = require('../rev-manifest.json');
+  var manifest = readManifest();
 
   var html = template({
     appPath: manifest['scripts/app.min.js'], 
