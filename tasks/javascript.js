@@ -73,10 +73,6 @@ var bundle = function(browserified, watch, filepath, cb) {
       bundleLogger.error(err);
       if(cb) cb(err);
     })
-    .on('end', function() { 
-      bundleLogger.end(target, watch); 
-      if(cb) cb();
-    })
     .pipe(source(scriptFile))
     .pipe(rename({extname: destExtname}))
     .pipe(gulp.dest(destPath));
@@ -84,6 +80,11 @@ var bundle = function(browserified, watch, filepath, cb) {
   if(!isDev) {
     browserified = productionTransforms(browserified);
   }
+
+  browserified.on('end', function() { 
+    bundleLogger.end(target, watch); 
+    if(cb) cb();
+  });
 };
 
 gulp.task('js:vendor', function() {
