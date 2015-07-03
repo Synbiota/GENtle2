@@ -428,19 +428,24 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
   }
 }   
 
-.designer-diagnostic-error {
+.designer-diagnostic-error, .designer-diagnostic-success {
   position: absolute;
   top: 26px;
   width: 26px;
   height: 26px;
   margin-left: -20px;
-  border: 2px solid red;
+  border: 2px solid $brand-danger;
   z-index: 4001;
   background: white;
   border-radius: 13px;
   text-align: center;
   padding-top: 3px;
-  color: red;
+  color: $brand-danger;
   padding-left: 1px;
   cursor: help;
+}
+
+.designer-diagnostic-success {
+  border-color: $brand-success;
+  color: $brand-success;
 }

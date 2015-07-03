@@ -1,49 +1,17 @@
-{{#if readOnly}}
+{{#if empty}}
 
-  <div class="alert alert-warning no-margin media">
-    <h4 class="media-object pull-left">
-      <i class="glyphicon glyphicon-exclamation-sign"></i>
-    </h4>
-    <div class="media-content">
-      <strong>This sequence is read only.</strong>
-    </div>
+  <div class="designer-designed-sequence-empty-placeholder">
+    Drag sequences in from the lists below
   </div>
 
 {{else}}
 
-
-  {{#if disabled}}
-
-    <div class="alert alert-warning no-margin media">
-      <h4 class="media-object pull-left">
-        <i class="glyphicon glyphicon-exclamation-sign"></i>
-      </h4>
-      <div class="media-content">
-        <strong>This sequence has overlapping annotations.</strong>
-        <br><br>
-        Try deleting some annotations or creating a new sequence to design.
-      </div>
-    </div>
-
-  {{else}}
-
-    {{#if empty}}
-
-      <div class="designer-designed-sequence-empty-placeholder">
-        Drag sequences in from the lists below
-      </div>
-
-    {{else}}
-      <div class="designer-diagnostic"></div>
-      <div class="designer-designed-sequence-chunks">
-        {{#each sequences}}
-          {{> designer-draggable id=id name=name partType=partType}}
-        {{/each}}
-      </div>
-
-    {{/if}}
-
-  {{/if}}
-  
+  <div class="designer-diagnostic"></div>
+  <div class="designer-designed-sequence-chunks">
+    {{#each sequences}}
+      {{> designer-draggable id=id name=name partType=partType}}
+    {{/each}}
+  </div>
 
 {{/if}}
+

@@ -146,6 +146,10 @@ var AvailableSequenceView = Backbone.View.extend({
       scrollingElement: '.designer-designed-sequence',
       start: function(event, ui) {
         ui.helper.data('available', true);
+      },
+      cursorAt: {
+        top: 5,
+        left: 5
       }
     }).hover(
     (event) => {
