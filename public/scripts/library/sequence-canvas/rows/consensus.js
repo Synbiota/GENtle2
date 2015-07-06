@@ -24,22 +24,24 @@ export default class Consensus extends Row {
   constructor(sequenceCanvas, options = {}){
 
     options.lines = {
-      consensus: ['Consensus', {
-        height: 80,
+      consensusSequence: ['DNA_XY', {
+        height: 15,
         baseLine: 15,
-        // textFont: LineStyles.dna.text.font,
-        // textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-        // selectionColour: LineStyles.dna.selection.fill,
-        // selectionTextColour: LineStyles.dna.selection.color
+        textFont: LineStyles.dna.text.font,
+        textColour: "#414",
+        getSubSeq: function(){
+          return this.getConsensusSubSeq.apply(this, arguments)
+        }
+      }],
+      consensus: ['Consensus', {
+        height: 65,
+        baseLine: 15,
       }],
       dna: ['DNA_XY', {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
-        textColour: "#414"
-        // textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-        // selectionColour: LineStyles.dna.selection.fill,
-        // selectionTextColour: LineStyles.dna.selection.color
+        textColour: "blue"
       }],
       }
 

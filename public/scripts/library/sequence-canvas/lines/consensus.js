@@ -8,7 +8,7 @@ export default class Consensus extends Line {
 
     this.dims = _.defaults(options, {
       baseWidth: 10,
-      yOffset: 80,
+      yOffset: 95,
       consensusGoodHeight: 40,
       consensusMediumHeight: 30,
       consensusBadHeight: 20
@@ -68,19 +68,6 @@ export default class Consensus extends Line {
           }
         );
     }
-
-    var consensus;
-    var _this = this;
-
-    var prevConsensus,
-        prevMark;
-
-    // artist.clear(
-    //   x,
-    //   y,
-    //   (baseRange[1] - baseRange[0]) * baseWidth,
-    //   yOffset
-    //   )
 
     _.forEach(sequence.getConsensus().slice(baseRange[0], baseRange[1]), function(consensus, i){
 

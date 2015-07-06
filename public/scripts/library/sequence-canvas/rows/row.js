@@ -35,7 +35,7 @@ export default class Row {
         artist = sequenceCanvas.artist,
         ls = sequenceCanvas.layoutSettings,
         baseWidth = ls.basePairDims.width,
-        lineOffset = 0;
+        lineOffset = 15;
 
     if (baseRange[0] < sequence.getLength()) {
       // artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, ls.canvasDims.height - y)

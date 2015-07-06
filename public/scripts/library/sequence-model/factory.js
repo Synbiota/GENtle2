@@ -45,6 +45,8 @@ export default function sequenceModelFactory(BackboneModel) {
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
+
+      this.ntSeq = new Nt.Seq().read(this.getSequence());
     }
 
     get STICKY_END_FULL() {
@@ -1377,7 +1379,38 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     getConsensus(){
-      return this.get('chromatogramQuality')
+
+      var startBase = 0,
+          endBase = this.getLength() - 1;
+
+      var test = this.getConsensusSubSeq(startBase, endBase);
+
+      return _.map(test, function(base){
+        if (_.contains(['A', 'C', 'G', 'T'], base)){
+          return 11
+        } else if (_.contains(['N'], base)){
+          return 6
+        } else {
+          return 0
+        }
+      })
+
+      // return this.get('chromatogramQuality')
+    }
+
+    getConsensusSubSeq(startBase, endBase){
+      var comparator, seq;
+
+      if (this.get('chromatogramFragments').length){
+        comparator = this.get('chromatogramFragments')[0].getSequence() || this.get('chromatogramFragments')[0].sequence
+        comparator = new Nt.Seq().read(comparator)
+      } else {
+        comparator = this.ntSeq
+      }
+
+      seq = this.ntSeq.mapSequence(comparator).best().alignmentMask().sequence()
+
+      return seq.substr(startBase, endBase - startBase + 1);
     }
 
     addChromatogram(chromatogram){

@@ -35,39 +35,35 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
     _.defaults(options, {
       rows: {
         consensus: ['Consensus', {}],
-        chromatogram: ['Chromatogram', {}]
+        // chromatogram: ['Chromatogram', {}]
       },
 
       // Remove lines later, rows are the new thing.
       lines: {
-        consensus: ['Consensus', {
-          height: 80,
-          baseLine: 15,
-          // textFont: LineStyles.dna.text.font,
-          // textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-          // selectionColour: LineStyles.dna.selection.fill,
-          // selectionTextColour: LineStyles.dna.selection.color
-        }],
-        dna: ['DNA_XY', {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.dna.text.font,
-          textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-          selectionColour: LineStyles.dna.selection.fill,
-          selectionTextColour: LineStyles.dna.selection.color
-        }],
-        chromatogram: ['Chromatogram', {
-          height: 80,
-          baseLine: 15
-        }],
-        chromatogram_dna: ['DNA_XY', {
-          height: 15,
-          baseLine: 15,
-          textFont: LineStyles.dna.text.font,
-          textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
-          selectionColour: LineStyles.dna.selection.fill,
-          selectionTextColour: LineStyles.dna.selection.color
-        }],
+        // consensus: ['Consensus', {
+        //   height: 80,
+        //   baseLine: 15,
+        // }],
+        // dna: ['DNA_XY', {
+        //   height: 15,
+        //   baseLine: 15,
+        //   textFont: LineStyles.dna.text.font,
+        //   textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+        //   selectionColour: LineStyles.dna.selection.fill,
+        //   selectionTextColour: LineStyles.dna.selection.color
+        // }],
+        // chromatogram: ['Chromatogram', {
+        //   height: 80,
+        //   baseLine: 15
+        // }],
+        // chromatogram_dna: ['DNA_XY', {
+        //   height: 15,
+        //   baseLine: 15,
+        //   textFont: LineStyles.dna.text.font,
+        //   textColour: _.partial(dnaStickyEndTextColour, false, LineStyles.dna.text.color),
+        //   selectionColour: LineStyles.dna.selection.fill,
+        //   selectionTextColour: LineStyles.dna.selection.color
+        // }],
       },
       // lines: defaultLines(sequence),
       editable: !sequence.get('readOnly'),

@@ -515,9 +515,15 @@ class Handlers {
   Handles scrolling events
   @method handleScrolling
   **/
+
+  // DURING BACKPORT CHANGE CORE CANVAS TO USE onScroll
   handleScrolling(event) {
     var $target = $(event.delegateTarget)
-    this.scrollTo($target.scrollLeft(), $target.scrollTop());
+    if (this.onScroll){
+      this.onScroll($target.scrollLeft(), $target.scrollTop());
+    } else {
+      this.scrollTo($target.scrollLeft(), $target.scrollTop());
+    }
   }
 
   /**

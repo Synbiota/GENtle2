@@ -18,7 +18,9 @@ export default Backbone.View.extend({
 
   events: {
     'click .chromatograph-toggle-dropdown': 'toggleDropdown',
-    'click .chromatograph-map-fragment': 'goToFragment'
+    'click .chromatograph-map-fragment': 'goToFragment',
+    'click .chromatograph-map-defect-mark': 'goToDefect',
+    'click canvas': 'goToBase'
     // 'click .linear-map-feature': 'goToFeature'
   },
 
@@ -102,6 +104,17 @@ export default Backbone.View.extend({
 
   },
 
+  goToBase: function(e) {
+    var sequenceCanvas = this.sequenceCanvas,
+        sequence = sequenceCanvas.sequence,
+        ls = sequenceCanvas.layoutSettings,
+        base = Math.floor(e.offsetX/this.$el.width() * sequence.getLength())
+
+    this.sequenceCanvas.scrollToBase(base)
+
+    e.preventDefault();
+  },
+
   goToFragment: function(event) {
     var fragmentId = $(event.currentTarget).data('fragment-id'),
         fragment = _.findWhere(this.fragments, {id: fragmentId});
@@ -109,6 +122,14 @@ export default Backbone.View.extend({
     this.$el.removeClass('open')
     this.sequenceCanvas.scrollToBase(fragment.from);
 
+    event.preventDefault();
+  },
+
+  goToDefect: function(event){
+    var base = $(event.currentTarget).data('base');
+
+    console.log(event, base)
+    this.sequenceCanvas.scrollToBase(base);
     event.preventDefault();
   },
 
@@ -183,6 +204,7 @@ export default Backbone.View.extend({
       return {};
     } else {
       return {
+        defectMarks: this.defectMarks,
         fragments: this.fragments,
         // features: this.features,
         positionMarks: this.positionMarks,
@@ -201,6 +223,7 @@ export default Backbone.View.extend({
     _this.processFragments();
     // _this.processFeatures();
     _this.processPositionMarks();
+    _this.processDefectMarks();
     // if(_this.displayEnzymes()) {
     //   _this.processEnzymes();
     // } else {
@@ -238,6 +261,37 @@ export default Backbone.View.extend({
 
       this.positionMarks.push(data);
     }
+
+  },
+
+  processDefectMarks: function(){
+    var maxBase = this.model.getLength(),
+        consensus = this.model.getConsensus(),
+        markThreshold = 20,
+        _this = this,
+        mark, prevMark;
+
+    this.defectMarks = [];
+
+    _.forEach(consensus, function(consensusPoint, i){
+
+      if (
+          (consensus[i] < 6) &&
+            (!_this.defectMarks.length ||
+              ((consensus[i - 1] > 5) && ((i - _this.defectMarks[_this.defectMarks.length - 1].base) > markThreshold)))
+          ){
+
+        mark = {
+          base: i,
+          offset: Math.floor(i / maxBase * _this.$el.width())
+        };
+
+        _this.defectMarks.push(mark);
+
+        prevMark = i;
+      }
+
+    });
 
   },
 
@@ -334,6 +388,31 @@ export default Backbone.View.extend({
   //   }
   // },
 
+  initializeCursor: function() {
+    var  sequenceCanvas = this.sequenceCanvas,
+         $cursor = this.$('.chromatograph-map-cursor'),
+         scrollingParentWidth = sequenceCanvas.$scrollingParent.width(),
+         scrollingChildWidth = sequenceCanvas.$scrollingChild.width(),
+         elemWidth = this.$el.width();
+
+
+    this.$cursor = $cursor;
+
+    $cursor.width(Math.floor(
+      scrollingParentWidth /
+      scrollingChildWidth *
+      elemWidth
+    ));
+
+    $cursor.draggable({
+       axis: 'x',
+       containment: 'parent',
+       drag: _.throttle(this.scrollSequenceCanvas, 50)
+     });
+
+    this.updateCursor();
+  },
+
   updateCursor: function() {
     var $cursor = this.$cursor || this.$('.chromatograph-map-cursor'),
         sequenceCanvas = this.sequenceCanvas,
@@ -349,14 +428,18 @@ export default Backbone.View.extend({
                         elemWidth)
     });
 
+    // Jquery substituation used instead of serialize instead of render for performance.
+    this.$('.cursor-start').html(Math.floor(lh.xOffset/ls.basePairDims.width));
+
+
   },
 
   scrollSequenceCanvas: function() {
     this.sequenceCanvas.scrollTo(Math.floor(
-      this.$scrollHelper.position().top /
-      this.$el.height() *
-      this.sequenceCanvas.$scrollingChild.height()
-    ), false);
+      this.$cursor.position().left /
+      this.$el.width() *
+      this.sequenceCanvas.$scrollingChild.width()
+    ), 0, false);
   },
 
   afterRender: function() {
@@ -386,11 +469,6 @@ export default Backbone.View.extend({
       //   this
       // );
 
-      // sequenceCanvas.on(
-      //   'scroll',
-      //   this.updateScrollHelperPosition
-      // );
-
       sequenceCanvas.on('scroll', this.updateCursor);
 
 
@@ -403,7 +481,7 @@ export default Backbone.View.extend({
     } else {
       this.positionFragments();
 
-      this.setupScrollHelper();
+      this.initializeCursor();
       // this.positionFeatures();
       // if(this.displayEnzymes()) this.positionEnzymes();
 
