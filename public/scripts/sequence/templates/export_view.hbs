@@ -7,6 +7,14 @@
       {{{select formats class="form-control input-sm" id="export-formats" name="export-formats"}}}
     </div>
   </div>
+  {{#if isDesktopSafari}}
+    <div class="alert alert-warning">
+      Your browser might open a new tab instead of downloading the sequence.
+      <br><br>
+      You can still save the file by clicking <code>File > Save As...</code> or pressing
+      <code>&#8984;-S</code>.
+    </div>
+  {{/if}}
   <button class="sequence-export-button btn btn-primary pull-right">
     Export file
   </button>
