@@ -40,7 +40,7 @@ RestrictionEnzymes.getRegExp = _.memoize2(function(iupacSequence) {
 
 RestrictionEnzymes.getComplementEnzyme = _.memoize2(function(enzyme) {
   return {
-    name: enzyme.name + '←',
+    name: enzyme.name + "\u2190",
     seq: reverseComplements(enzyme.seq),
     cut: enzyme.seq.length - enzyme.cut - enzyme.offset,
     offset: enzyme.offset
