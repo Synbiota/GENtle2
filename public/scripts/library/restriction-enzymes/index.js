@@ -8,6 +8,7 @@ var restrictionEnzymesByLength;
 var iupacToBases = SequenceTransforms.iupacToBases;
 var reverseComplements = SequenceTransforms.toReverseComplements;
 var isPalindromic = SequenceTransforms.isPalindromic;
+var lArr = String.fromCharCode(8592);
 
 
 var RestrictionEnzymes = {};
@@ -40,7 +41,7 @@ RestrictionEnzymes.getRegExp = _.memoize2(function(iupacSequence) {
 
 RestrictionEnzymes.getComplementEnzyme = _.memoize2(function(enzyme) {
   return {
-    name: enzyme.name + "\u2190",
+    name: enzyme.name + lArr,
     seq: reverseComplements(enzyme.seq),
     cut: enzyme.seq.length - enzyme.cut - enzyme.offset,
     offset: enzyme.offset
