@@ -8,6 +8,7 @@ import Gentle from 'gentle';
 import uploadMultipleSequences from '../lib/upload_multiple_sequences';
 import Modal from '../../../common/views/modal_view';
 import DiagnosticModalView from './designer_diagnostic_modal_view';
+import cleanSearchableText from '../lib/clean_searchable_text';
 
 var filterSequencesByStickyEnds = function(assembleSequence, stickyEndNames, inverse = false) {
   if(!_.isArray(stickyEndNames)) stickyEndNames = [stickyEndNames];
@@ -35,7 +36,8 @@ var DesignerView = Backbone.View.extend({
     'change #circularise-dna': 'updateCirculariseDna',
     'click .designer-available-sequences-header button': 'triggerFileInput',
     'change .file-upload-input': 'uploadNewSequences',
-    'click .assemble-sequence-btn': 'assembleSequence'
+    'click .assemble-sequence-btn': 'assembleSequence',
+    'keydown .designer-available-sequences-filter input': 'filterAvailableSequences'
   },
 
   initialize: function() {
@@ -85,6 +87,11 @@ var DesignerView = Backbone.View.extend({
     this.setView('.designer-designed-sequence-outlet', designedSequenceView);
 
     this.listenTo(designedSequenceView, 'afterRender', this.updateDisabled, this);
+
+    this.filterAvailableSequences = _.afterLastCall(
+      _.bind(this.filterAvailableSequences, this),
+      200
+    );
   },
 
   triggerFileInput: function(event) {
@@ -203,6 +210,11 @@ var DesignerView = Backbone.View.extend({
     this.getViews().each((view) => {
       view.remove();
     });
+  },
+
+  filterAvailableSequences: function(event) {
+    var query = cleanSearchableText($(event.currentTarget).val());
+    Gentle.trigger('designer:availableSequences:filter', {query: query});
   },
 
   assembleSequence: function() {

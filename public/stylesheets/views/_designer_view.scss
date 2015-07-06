@@ -69,6 +69,10 @@ $designer-draggable-stickyEnds-color: (
   }
 }
 
+.designer-draggable-hidden {
+  display: none;
+}
+
 .designer-draggable-trash {
   position: absolute;
   right: 2px;
@@ -476,4 +480,17 @@ $designer-draggable-stickyEnds-color: (
 .designer-diagnostic-success {
   border-color: $brand-success;
   color: $brand-success;
+}
+
+.designer-available-sequences-filter {
+  margin-top: -4px;
+
+  input {
+    width: 250px;
+    border-radius: 30px;
+  }
+
+  .form-control-feedback {
+    top: 0;
+  }
 }
