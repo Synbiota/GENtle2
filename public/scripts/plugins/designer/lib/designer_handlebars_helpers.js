@@ -11,6 +11,7 @@ Handlebars.registerHelper('designer-draggable', function(sequence) {
     name: sequence.get('shortName') || sequence.get('name'),
     partType: sequence.get('partType') || '__default',
     id: sequence.get('id'),
-    stickyEnds
+    stickyEnds,
+    description: sequence.get('desc')
   });
 });

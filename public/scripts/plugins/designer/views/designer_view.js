@@ -75,7 +75,7 @@ var DesignerView = Backbone.View.extend({
     this.setView(
       '.designer-available-sequences-outlet.outlet-3', 
       new AvailableSequencesView({
-        name: 'Other Parts',
+        name: 'Linker parts',
         getSequences: filterSequencesByStickyEnds(this.model, outlet3StickyEndNames, true)
       })
     );
@@ -122,7 +122,6 @@ var DesignerView = Backbone.View.extend({
   },
 
   updateDisabled: function() {
-    console.log('update disabled')
     var $button = this.$('.assemble-sequence-btn');
     if(this.model.sequences.length === 0) {
       $button.attr('disabled', 'disabled');

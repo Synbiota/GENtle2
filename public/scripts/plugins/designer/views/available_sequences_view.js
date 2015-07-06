@@ -3,6 +3,7 @@ import _ from 'underscore';
 import template from '../templates/available_sequences_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
 import xScrollingUi from '../lib/x_scrolling_ui';
+import tooltip from 'gentle-utils/tooltip';
 
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
@@ -160,6 +161,14 @@ var sequences = this.getSequences();
     (event) => {
       this.parentView().unhoveredOverSequence($(event.target).data('sequence_id'));
     });
+
+    this.$('.designer-draggable').hover(
+      (event) => {
+        var description = $(event.currentTarget).data('description');
+        if(description) tooltip.show(description);
+      },
+      () => tooltip.hide()
+    );
   },
 
   cleanUpDraggable: function() {
