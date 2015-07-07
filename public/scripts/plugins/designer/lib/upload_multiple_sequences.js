@@ -6,15 +6,16 @@ function uploadMultipleSequences(files) {
   var loadedSequences = [];
 
   var onLoad = function(result) {
+
     return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then(function( sequences) {
       if(sequences.length) {
         loadedSequences = loadedSequences.concat(sequences);
       } else {
-       alert('Could not parse the sequence.');
+       console.log('Could not parse the sequence.', result.name);
       }
     }, function (err) {
       console.log(err);
-      alert('Could not parse the sequence.');
+      // alert('Could not parse the sequence.');
     });
   };
 

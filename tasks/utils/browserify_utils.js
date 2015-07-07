@@ -18,7 +18,8 @@ var vendorLibs = [
   // 'jquery-ui',
   'jquery-ui-touch-punch',
   'q',
-  'underscore-deep-extend'
+  'underscore-deep-extend',
+  'filedrop'
 ];
 
 var additionalHbsfyRequires = glob

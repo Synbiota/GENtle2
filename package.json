@@ -21,13 +21,14 @@
     "cookie-session": "^1.0.2",
     "express": "^4.9.8",
     "express-session": "^1.9.0",
+    "filedrop": "^2.0.0",
     "jade": "^1.7.0",
     "morgan": "^1.4.0",
     "node-env-file": "^0.1.7",
     "object-assign": "^2.0.0",
     "request": "^2.45.0",
-    "underscore": "^1.6.0",
-    "serve-favicon": "^2.1.6"
+    "serve-favicon": "^2.1.6",
+    "underscore": "^1.6.0"
   },
   "devDependencies": {
     "aliasify": "^1.7.2",
