@@ -1,4 +1,10 @@
-<h5 class="designer-available-sequence-name">
+<h5>{{name}}</h5>
+
+{{#each sequences}}
+  {{{designer-draggable .}}}
+{{/each}}
+
+{{!-- <h5 class="designer-available-sequence-name">
   <i class="glyphicon glyphicon-info-sign incompatible-sequences" title="Sticky ends are not complementary with ends in assembled sequence."></i>
   <i class="glyphicon glyphicon-warning-sign lacks-sticky-end-sequences" title="One or both ends lack sticky ends."></i>
   {{name}}
@@ -36,4 +42,4 @@
     {{/each}}
   </div>
 {{/if}}
-{{/if}}
+{{/if}} --}}
