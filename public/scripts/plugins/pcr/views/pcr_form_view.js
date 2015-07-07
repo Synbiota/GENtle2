@@ -16,7 +16,7 @@ export default Backbone.View.extend({
   className: 'new-pcr-product-form-container',
 
   events: {
-    'change input': 'updateState',
+    'change input, textarea': 'updateState',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'confirmRdpEdits',
