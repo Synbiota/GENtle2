@@ -93,7 +93,8 @@ export default Backbone.View.extend({
     _.extend(this.state, {
       name: this.getFieldFor('name').val(),
       shortName: this.getFieldFor('shortName').val(),
-      partType: this.getFieldFor('partType').val()
+      partType: this.getFieldFor('partType').val(),
+      desc: this.getFieldFor('desc').val(),
     });
     if(!this.rdpOligoSequence) {
       _.extend(this.state, {
@@ -153,6 +154,7 @@ export default Backbone.View.extend({
       'name',
       'partType',
       'shortName',
+      'desc',
       'rdpEdits',
       'sourceSequenceName'
     );

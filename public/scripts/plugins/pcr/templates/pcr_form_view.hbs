@@ -25,6 +25,18 @@
   </div>
 
   <div class="form-group">
+    <div class="col-sm-6">
+      <label class="control-label" for="newProduct_shortName"><small>RDP Part description</small></label>
+      <br><br>
+      <small>(optional)</small>
+    </div>
+    <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
+      <textarea class="form-control input form-control" id="newProduct_desc" value="{{state.desc}}">
+      </textarea>
+    </div>
+  </div>
+
+  <div class="form-group">
     <label class="col-sm-6 control-label"><small>Source sequence</small></label>
     <div class="col-sm-6">
       <p class="form-control-static"><small>{{state.sourceSequenceName}}</small></p>
