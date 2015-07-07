@@ -1,4 +1,12 @@
 
+
+// NOTE:
+//   *  All sequences are on the forward strand, 5' to 3'
+//   *  TCAGTCAGTCAGTCAGGGTCTCA is shared amongst primers for producing sticky
+//      end on forward strand.
+//   *  AGAGACCTCAGTCAGTCAGTCAG is shared amongst primers for producing sticky
+//      end on reverse strand.
+// TODO: move to RDP PCR and oligo-based part plugin
 var stickyEnds = [{
   start: {
     sequence: 'TCAGTCAGTCAGTCAGGGTCTCAGATG',
@@ -17,16 +25,16 @@ var stickyEnds = [{
 },
 {
   start: {
-    sequence: 'GGTCTCACGGC',
+    sequence: 'TCAGTCAGTCAGTCAGGGTCTCACGGC',
     reverse: false,
-    offset: 7,
+    offset: 23,
     size: 4,
     name: "Z",
   },
   end: {
-    sequence: 'CTACACTCTGG',
+    sequence: 'GATGAGAGACCTCAGTCAGTCAGTCAG',
     reverse: true,
-    offset: 7,
+    offset: 23,
     size: 4,
     name: "X'",
   }
