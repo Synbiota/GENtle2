@@ -38,7 +38,8 @@ var DesignerView = Backbone.View.extend({
     'click .designer-available-sequences-header button': 'triggerFileInput',
     'change .file-upload-input': 'uploadNewSequences',
     'click .assemble-sequence-btn': 'assembleSequence',
-    'keydown .designer-available-sequences-filter input': 'filterAvailableSequences'
+    'keydown .designer-available-sequences-filter input': 'filterAvailableSequences',
+    'click .designer-available-sequences-filter-clear': 'clearFilter'
   },
 
   initialize: function() {
@@ -264,9 +265,21 @@ var DesignerView = Backbone.View.extend({
     });
   },
 
-  filterAvailableSequences: function(event) {
-    var query = cleanSearchableText($(event.currentTarget).val());
+  filterAvailableSequences: function(eventOrString) {
+    var query = cleanSearchableText(
+      _.isString(eventOrString) ?
+        eventOrString :
+        $(eventOrString.currentTarget).val()
+    );
+    this.$('.glyphicon-search').toggleClass('hide', query.length > 0);
+    this.$('.designer-available-sequences-filter-clear').toggleClass('hide', query.length === 0);
     Gentle.trigger('designer:availableSequences:filter', {query: query});
+  },
+
+  clearFilter: function(event) {
+    event.preventDefault();
+    this.$('.designer-available-sequences-filter input').val('');
+    this.filterAvailableSequences('');
   },
 
   assembleSequence: function() {
