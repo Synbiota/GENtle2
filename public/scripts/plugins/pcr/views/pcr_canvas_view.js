@@ -10,6 +10,7 @@ import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 var LineStyles = Styles.sequences.lines;
 var featuresColors = LineStyles.features.color;
 var defaultColor = LineStyles.complements.text.color;
+const StickyEndsStyles = Styles.rdp_parts.sticky_ends;
 var colors = {
   default: {
     text: defaultColor
@@ -36,16 +37,29 @@ export default Backbone.View.extend({
   makeSequenceColourGetter: function(reverseStrand) {
     var getSequenceColour = (base, pos, defaultColor) => {
       defaultColor = defaultColor || colors.default.text;
-      var color;
+      var color = defaultColor;
 
       if(this.model instanceof RdpOligoSequence) {
         var stickyEnds = this.model.getStickyEnds(false);
         var len = this.model.getLength(this.model.STICKY_END_FULL);
         var white = '#FFF';
-        color = defaultColor;
-        if((pos < stickyEnds.start.size && stickyEnds.start.reverse !== reverseStrand) ||
-          (pos >= (len - stickyEnds.end.size) && stickyEnds.end.reverse !== reverseStrand)) {
-          color = white;
+        var stickyEnd;
+
+        if(pos < stickyEnds.start.size) {
+          stickyEnd = stickyEnds.start;
+        } else if(pos >= (len - stickyEnds.end.size)) {
+          stickyEnd = stickyEnds.end;
+        }
+        if(stickyEnd) {
+          if(stickyEnd.reverse !== reverseStrand) {
+            color = white;
+          } else {
+            if(!~stickyEnd.name.indexOf('X')) {
+              color = StickyEndsStyles.X.color;
+            } else if (!~stickyEnd.name.indexOf('Z')) {
+              color = StickyEndsStyles.Z.color;
+            }
+          }
         }
       } else {
         var forwardPrimer = this.model.get('forwardPrimer');
