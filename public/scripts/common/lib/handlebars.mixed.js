@@ -156,9 +156,33 @@ Handlebars.registerHelper('displaySelectableSequence', function(sequenceModel) {
   return displaySelectableSequenceTemplate({sequence});
 });
 
-Handlebars.registerHelper('primer', function(primer) {
-  var display = require('../templates/primer_partial.hbs');
-  return display(primer);
+
+var renderShortSequence = function(attributes, displayShowOption=true) {
+  var display = require('../templates/short_sequence_partial.hbs');
+  attributes.display = {
+    GC: attributes.gcContent !== undefined,
+    meltingTemperature: attributes.meltingTemperature !== undefined,
+    showOption: displayShowOption,
+  };
+  attributes = _.defaults(attributes, {
+    dataAttribute: false,
+    topDivCssClasses: '',
+  });
+  return display(attributes);
+};
+
+
+Handlebars.registerHelper('primer', function(primerObject) {
+  var attributes = _.deepClone(primerObject);
+  attributes.dataAttribute = 'data-product_id';
+  attributes.topDivCssClasses = 'primer-product';
+  return renderShortSequence(attributes, true);
+});
+
+
+Handlebars.registerHelper('oligoSequence', function(oligoSequenceObject) {
+  var attributes = _.deepClone(oligoSequenceObject);
+  return renderShortSequence(attributes, false);
 });
 
 

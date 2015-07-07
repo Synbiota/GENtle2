@@ -21,7 +21,7 @@ export default Backbone.View.extend({
     // 'click .open-pcr-product': 'openPcrProduct',
     // 'click .export-sequence': 'exportSequence',
     'click .selectable-sequence': 'selectSequence',
-    'click .primer': 'scrollToPrimer'
+    'click .primer-product': 'scrollToPrimer'
   },
 
   initialize: function() {
