@@ -35,13 +35,14 @@ export default Backbone.View.extend({
       name: dataAndOptions.name,
       sequence: dataAndOptions.sequence
     });
+    delete dataAndOptions.sequence;
 
     transformSequenceForRdp(tempSequence);
 
     dataAndOptions.from = 0;
-    dataAndOptions.to = dataAndOptions.sequence.length - 1;
-    delete dataAndOptions.sequence;
-
+    // At this point, tempSequence should not have any sticky ends the STICK_END
+    // format should not matter.
+    dataAndOptions.to = tempSequence.getLength(tempSequence.STICKY_END_NONE) - 1;
     getPcrProductAndPrimers(tempSequence, dataAndOptions)
     .then((pcrProduct) => {
       // Copy over RDP specific attributes.
