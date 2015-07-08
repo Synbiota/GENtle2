@@ -145,10 +145,13 @@ class Feature extends Line {
     var baseWidth = layoutSettings.basePairDims.width;
     var row = sequenceCanvas.getAbsRowFromYPos(y);
 
-    var featuresRowClass = `features-${this.lineName}-row-${row}`;
+    var featuresRowClass = `${sequenceCanvas.id}-features-${this.lineName}-row-${row}`;
     if(document.getElementsByClassName(featuresRowClass).length) return;
 
     var features = _(this.featuresInRange(baseRange[0], baseRange[1])).sortBy(this.featureSortedBy);
+
+    if(features.length === 0) sequenceCanvas.addChildrenPlaceholder(featuresRowClass);
+
     y += (this.topMargin || 0) + sequenceCanvas.layoutHelpers.yOffset;
 
     _.each(features, (feature, i) => {

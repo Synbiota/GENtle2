@@ -19,9 +19,9 @@ var processReports = function(progressReports) {
 
 var calculateFeaturesLegacy = function(pcrProductModel) {
   var features = [];
-  let stickyEnds = pcrProductModel.getStickyEnds();
 
-  if(stickyEnds) {
+  if(pcrProductModel.getStickyEnds(false)) {
+    var stickyEnds = pcrProductModel.getStickyEnds(true);
     let sequenceNts = pcrProductModel.getSequence(pcrProductModel.STICKY_END_FULL);
     features = [{
       name: stickyEnds.start.name + ' end',
@@ -81,11 +81,12 @@ var calculateFeaturesLegacy = function(pcrProductModel) {
   return features;
 };
 
+
 var calculateFeatures = function(pcrProductModel) {
   var features = [];
-  let stickyEnds = pcrProductModel.getStickyEnds();
 
-  if(stickyEnds) {
+  if(pcrProductModel.getStickyEnds(false)) {
+    var stickyEnds = pcrProductModel.getStickyEnds(true);
     let sequenceNts = pcrProductModel.getSequence(pcrProductModel.STICKY_END_FULL);
     features = [{
       name: stickyEnds.start.name + ' end',

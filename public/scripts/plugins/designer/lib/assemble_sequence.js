@@ -3,6 +3,8 @@ import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import {getPcrProductsFromSequence} from '../../pcr/lib/utils';
 import _ from 'underscore';
 
+var INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
+var CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
 
 class AssembleSequenceModel {
   constructor (sequence) {
@@ -14,10 +16,12 @@ class AssembleSequenceModel {
     });
 
     this._setupSequenceForAssembling();
+    this.model.on('change:isCircular', this.diagnoseSequence());
   }
 
   _setupSequenceForAssembling () {
     this.sequences = this._parseAssembleSequences();
+    this.diagnoseSequence();
     // Dictionary of sequence ids and the positions they can be inserted into.
     this.insertabilityState = {};
     this.updateInsertabilityState();
@@ -29,17 +33,34 @@ class AssembleSequenceModel {
     return _.map(attributesOfSequences, (sequenceAttributes) => new SequenceModel(sequenceAttributes));
   }
 
+  addSequences(sequences) {
+    // sequences is expected to be an array of POJO
+    var existingSequences = this.model.get('meta.designer.sequences');
+    var addableSequences = _.reject(sequences, function(sequence) {
+      return _.some(existingSequences, function(existingSequence) {
+        return existingSequence.sequence === sequence.sequence;
+      });
+    });
+
+    this.model.set('meta.designer.sequences', existingSequences.concat(addableSequences));
+    this.model.save();
+    this.updateInsertabilityState();
+  }
+
   updateInsertabilityState () {
     // 
     // this.allSequences = Gentle.sequences.without(this.model);
-    this.allSequences = _.map(this.model.get('meta.designer.sequences'), (sequence) => new TemporarySequence(sequence));
+    this.allSequences = _.map(
+      _.sortBy(this.model.get('meta.designer.sequences'), sequence => sequence.shortName || sequence.name), 
+      (sequence) => new TemporarySequence(sequence)
+    );
     
     // Add any PCR product sequences within the model
     this.allSequences = _.reduce(this.allSequences, (memo, sequence) => {
       var pcrProducts = getPcrProductsFromSequence(sequence);
       return memo.concat(pcrProducts);
     }, this.allSequences);
-    [this.availableSequences, this.lackStickyEndSequences] = _.partition(this.allSequences, (seq) => seq.hasStickyEnds());
+    [this.availableSequences, this.lackStickyEndSequences] = _.partition(this.allSequences, (seq) => seq.hasBothStickyEnds());
 
     _.each(this.availableSequences, (availableSequence) => {
       var acceptableDropIndices = [];
@@ -63,8 +84,9 @@ class AssembleSequenceModel {
   }
 
   throttledSave () {
-    if(!this.get('sequence'))
+    if(!this.get('sequence')) {
       this.model.set('meta.designer.assembleSequences', JSON.stringify(this.sequences));
+    }
     return this.model.throttledSave();
   }
   
@@ -100,17 +122,22 @@ class AssembleSequenceModel {
 
   insertSequence (beforeIndex, sequence) {
     this.sequences.splice(beforeIndex, 0, sequence);
+    this.diagnoseSequence();
   }
 
   moveSequence (oldIndex, newIndex) {
+    if(oldIndex === newIndex) return;
+    if(oldIndex < newIndex) newIndex++;
     var sequence = this.sequences[oldIndex];
     this.sequences[oldIndex] = null;
     this.sequences.splice(newIndex, 0, sequence);
     this.sequences = _.compact(this.sequences);
+    this.diagnoseSequence();
   }
 
   removeSequenceAtIndex (index) {
     this.sequences.splice(index, 1);
+    this.diagnoseSequence();
   }
 
   incompatibleStickyEnds () {
@@ -128,36 +155,46 @@ class AssembleSequenceModel {
     this.set({
       sequence: finalSequence.getSequence(),
       features: finalSequence.getFeatures(),
-      stickyEnds: finalSequence.getStickyEnds(),
+      stickyEnds: finalSequence.getStickyEnds(false),
       meta: undefined
     });
 
     return this;
   }
 
-  processSequences () {
-    return _.map(this.sequences, function(sequence, i) {
-      var features = sequence.getFeatures();
-      var name = sequence.get('shortName');
-      var type;
+  diagnoseSequence() {
+    var output = [];
+    var sequences = this.sequences;
 
-      if(features.length === 1) {
-        if(features[0].ranges[0].from === 0 && features[0].ranges[0].to >= sequence.getLength() -1) {
-          if(!name) name = features[0].name;
-          type = features[0].type;
+    _.each(sequences, (sequence, i) => {
+      if(i > 0) {
+        var previousSequence = sequences[i-1];
+        if(!previousSequence.stickyEndConnects(sequence)) {
+          output.push({
+            type: INCOMPATIBLE_STICKY_ENDS,
+            index: i
+          });
         }
-      } 
-
-      if(!name) name = sequence.get('name');
-
-      return {
-        name: name,
-        type: type,
-        index: i
-      };
+      }
     });
+
+    if(this.get('isCircular')) {
+      let firstSequence = sequences[0];
+      let lastSequence = sequences[sequences.length-1];
+      if(sequences.length < 2 || !lastSequence.stickyEndConnects(firstSequence)) {
+        output.push({
+          type: CANNOT_CIRCULARIZE,
+          index: 0
+        });
+      }
+    }
+
+    this.errors = output;
   }
 }
+
+AssembleSequenceModel.INCOMPATIBLE_STICKY_ENDS = INCOMPATIBLE_STICKY_ENDS;
+AssembleSequenceModel.CANNOT_CIRCULARIZE = CANNOT_CIRCULARIZE;
 
 
 export default AssembleSequenceModel;

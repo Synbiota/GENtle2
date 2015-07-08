@@ -8,6 +8,11 @@ import {findUniversalPrimersHelper} from './universal_primers';
 import errors from './errors';
 
 
+var getLength = function(sequenceModel) {
+  return sequenceModel.getLength(sequenceModel.STICKY_END_FULL);
+};
+
+
 /**
  * @function _getPrimers
  * @param  {SequenceModel} sequenceModel
@@ -17,7 +22,7 @@ import errors from './errors';
  * @return {Promise}
  */
 var _getPrimers = function(sequenceModel, options, sequencingPrimers, deferredAllPrimers=Q.defer()) {
-  var sequenceLength = sequenceModel.getLength(sequenceModel.STICKY_END_FULL);
+  var sequenceLength = getLength(sequenceModel);
   var previousPrimer = sequencingPrimers[sequencingPrimers.length - 1];
   var basesSequenced = 0;
   var frm = 0;
@@ -184,7 +189,7 @@ var getAllPrimersAndProducts = function(sequenceModel, firstForwardPrimer=undefi
     .then(function(reversePrimers) {
       // Convert all forward and reverser primers into products containing the
       // primers.
-      let len = sequenceModel.getLength(sequenceModel.STICKY_END_FULL);
+      let len = getLength(sequenceModel);
       let makeProducts = calculateProductAndPrimer(len, options.maxSequencedSize);
       let forwardProductsAndPrimers = _.map(forwardPrimers, makeProducts);
       let reverseProductsAndPrimers = _.map(reversePrimers, makeProducts);
@@ -204,26 +209,39 @@ var getAllPrimersAndProductsHelper = function(sequenceModel, options={}) {
   options = defaultSequencingPrimerOptions(options);
   var {forwardSequencePrimer, reverseSequencePrimer} = findUniversalPrimersHelper(sequenceModel);
   return Q.promise(function(resolve, reject, notify) {
-    // We delay to allow the early calls to notify to get through.
+    // Because we can't rely on notifications getting through, and the `_.delay`
+    // is a still an unrealiable hack, we store notifications and append to
+    // an error if one occurs.
+    var notifications = {};
+    var rejectWithNotifications = function(error) {
+      if(!error.data) error.data = {};
+      if(error.data.notifications) throw new Error('Already have notifications on error.');
+      error.data.notifications = notifications;
+      reject(error);
+    };
+
     _.delay(function() {
+      var warning;
       if(!forwardSequencePrimer) {
-        notify({
+        warning = new errors.UniversalForwardPrimerNotFound({
           message: 'No forward universal primer found.',
-          level: 'warn',
-          error: errors.UNIVERSAL_FORWARD_PRIMER_NOT_FOUND,
+          data: {level: 'warn'},
         });
+        notify(warning);
+        notifications.universalForwardPrimerNotFound = warning;
       }
       if(!reverseSequencePrimer) {
-        notify({
+        warning = new errors.UniversalReversePrimerNotFound({
           message: 'No reverse universal primer found.',
-          level: 'warn',
-          error: errors.UNIVERSAL_REVERSE_PRIMER_NOT_FOUND,
+          data: {level: 'warn'},
         });
+        notify(warning);
+        notifications.universalReversePrimerNotFound = warning;
       }
 
       getAllPrimersAndProducts(sequenceModel, forwardSequencePrimer, reverseSequencePrimer, options)
       .progress(notify)
-      .catch(reject)
+      .catch(rejectWithNotifications)
       .then(function(sequencingProductsAndPrimers) {
         var firstForwardSequenceProduct = _.find(sequencingProductsAndPrimers, (product) => !product.range.reverse);
         var firstReverseSequenceProduct = _.find(sequencingProductsAndPrimers, (product) => product.range.reverse);
@@ -232,23 +250,21 @@ var getAllPrimersAndProductsHelper = function(sequenceModel, options={}) {
 
         // Check the primers will not result in any stretch of DNA being
         // left unsequenced.
-        if(firstForwardSequencePrimer && firstReverseSequencePrimer) {
-          var overlappingSequencedBases = firstReverseSequencePrimer.range.from - (firstForwardSequencePrimer.range.to + options.garbageSequenceDna);
-          if(overlappingSequencedBases >= 0) {
-            resolve(sequencingProductsAndPrimers);
-          } else {
-            reject({
-              message: 'Some forward and reverse primers found but they result in some DNA being left unsequenced.',
-              data: {overlappingSequencedBases, sequencingProductsAndPrimers},
-              error: errors.DNA_LEFT_UNSEQUENCED,
-            });
-          }
+        var pReverseFrom = (firstReverseSequencePrimer && firstReverseSequencePrimer.range.from) || 0;
+        var pForwardTo = (firstForwardSequencePrimer && firstForwardSequencePrimer.range.to) || getLength(sequenceModel);
+        var overlappingSequencedBases = pReverseFrom - pForwardTo - options.garbageSequenceDna;
+        if(overlappingSequencedBases >= 0) {
+          resolve(sequencingProductsAndPrimers);
         } else {
-          reject({
-            message: 'Forward and or reverse primers not found.  Some DNA being left unsequenced.',
-            data: {noForwardPrimers: !firstForwardSequencePrimer, noReversePrimers: !firstReverseSequencePrimer},
-            error: errors.DNA_LEFT_UNSEQUENCED,
-          });
+          rejectWithNotifications(new errors.DnaLeftUnsequenced({
+            message: 'Primers result in some DNA being left unsequenced.',
+            data: {
+              sequencingProductsAndPrimers,
+              noForwardPrimers: !firstForwardSequencePrimer,
+              noReversePrimers: !firstReverseSequencePrimer,
+              overlappingSequencedBases,
+            },
+          }));
         }
       })
       .done();

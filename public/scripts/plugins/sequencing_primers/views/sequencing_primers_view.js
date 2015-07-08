@@ -48,15 +48,16 @@ export default Backbone.View.extend({
     if(event) event.preventDefault();
     this.$('.start-sequencing-primers').hide();
     this.$('.new-sequencing-primers-progress').show();
+    var $status = this.$('.new-sequencing-primers-progress .status');
 
     getAllPrimersAndProductsHelper(this.model)
     .progress((progressOrStatus) => {
-      if(progressOrStatus.level) {
-        var $message = $('<p>').text(progressOrStatus.message);
-        if(progressOrStatus.level === 'warn') {
-          $message.addClass('text-warning');
+      if(progressOrStatus instanceof errors.UniversalPrimerNotFound) {
+        if(progressOrStatus instanceof errors.UniversalForwardPrimerNotFound) {
+          $status.find('.no-universal-forward-primer').show();
+        } else if(progressOrStatus instanceof errors.UniversalReversePrimerNotFound) {
+          $status.find('.no-universal-reverse-primer').show();
         }
-        this.$('.new-sequencing-primers-progress .status').append($message);
       } else {
         this.updateProgress(progressOrStatus);
       }
@@ -67,12 +68,36 @@ export default Backbone.View.extend({
     })
     .catch((error) => {
       // We have been passed a message.
-      if(error.error === errors.DNA_LEFT_UNSEQUENCED) {
+      if(error instanceof Error) {
         this.updateProgress(100).css('background-color', '#C00');
-        var $status = this.$('.new-sequencing-primers-progress .status');
-        $status.find('.no-universal-primers-found').show();
+
+        var missingForwardUP = error.data.notifications.universalForwardPrimerNotFound;
+        var missingReverseUP = error.data.notifications.universalReversePrimerNotFound;
+        var missingOneOrMoreUniversalPrimers = !!(missingForwardUP || missingReverseUP);
+        if(error instanceof errors.SequenceTooShort) {
+          $status.find('.sequence-too-short').show();
+        } else if(error instanceof errors.NoPrimer) {
+          // MAYBE we want to still display primers (would have to modify
+          // `getPrimersInOneDirection` and `getAllPrimersAndProducts`).
+          $status.find('.no-primer-possible').show();
+          if(missingOneOrMoreUniversalPrimers) {
+            $status.find('.no-primer-possible .no-universal-primer').show();
+          }
+        } else if(error instanceof errors.DnaLeftUnsequenced) {
+          // MAYBE we want to still display primers (they are available from
+          // `error.data.sequencingProductsAndPrimers`).
+          $status.find('.unsequenced-dna').show();
+          if(missingOneOrMoreUniversalPrimers) {
+            $status.find('.unsequenced-dna .no-universal-primer').show();
+          } else {
+            $status.find('.unsequenced-dna .universal-primers-present').show();
+          }
+        } else {
+          $status.find('.unknown-error-occured').show();
+        }
+      } else {
+        namedHandleError('startCalculation')(error);
       }
-      namedHandleError('startCalculation')(error);
     })
     .done();
   },

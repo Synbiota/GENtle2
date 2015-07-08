@@ -14,7 +14,7 @@
     </div>
     {{#if displayFooter}}
       <div class="modal-footer text-center">
-        <button class="btn btn-default modal-cancel">{{cancelLabel}}</button>
+        {{#if cancelLabel}}<button class="btn btn-default modal-cancel">{{cancelLabel}}</button>{{/if}}
         <button class="btn btn-primary modal-confirm">{{confirmLabel}}</button>
       </div>
     {{/if}}

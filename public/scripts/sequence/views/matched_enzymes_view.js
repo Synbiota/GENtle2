@@ -32,7 +32,8 @@ export default Backbone.View.extend({
   serialize: function() {
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
+    var sequenceBases = model.getSequence(model.STICKY_ENDS_FULL);
+    var enzymes = RestrictionEnzymes.getAllInSeq(sequenceBases, {
       length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
       hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
@@ -50,19 +51,17 @@ export default Backbone.View.extend({
     this.enzymesCount = enzymesCount;
 
     // Show button for BsaI && NotI
-    var nonCompliantSites = RestrictionEnzymes.getAllInSeq(model.get('sequence'), {customList: ['BsaI', "NotI"]});  
+    var nonCompliantSites = RestrictionEnzymes.getAllInSeq(sequenceBases, {customList: ['BsaI', "NotI"]});
     if(nonCompliantSites.length !== 0 && !_.isUndefined(nonCompliantSites)) {
       this.showLaunchButton=true;
     } else {
       this.showLaunchButton=false;
     }
 
-    
-   return {
+    return {
       enzymesCount,
       disableButton: !this.showLaunchButton
     };
-
   },
 
   afterRender: function() {

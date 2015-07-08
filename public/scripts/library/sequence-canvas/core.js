@@ -223,6 +223,7 @@ class SequenceCanvasCore {
     //line offsets
     var line_offset = _.values(this.lines)[0].height;
     var ls = this.layoutSettings;
+    var previouslh = _.deepClone(this.layoutHelpers);
     var lh = this.layoutHelpers;
 
     return Q.promise((resolve) => {
@@ -291,8 +292,9 @@ class SequenceCanvasCore {
 
       this.$scrollingParent.scrollTop(lh.yOffset);
 
-      this.trigger('change:layoutHelpers', lh);
-
+      if(JSON.stringify(previouslh) !== JSON.stringify(lh)) {
+        this.trigger('change:layoutHelpers', lh);
+      }
 
       // We resize `this.$scrollingChild` and fullfills the Promise
       this.resizeScrollHelpers().then(resolve).done();
@@ -431,10 +433,15 @@ class SequenceCanvasCore {
       .then(() => {
         this.clearCache();
         this.svg.clear();
-        this.$childrenContainer.empty();
+        this.$childrenContainer.empty()
+          .append($('<div class="children-placeholder"/>'));
       })
       .then(this.redraw)
       .done();
+  }
+
+  addChildrenPlaceholder(className) {
+    this.$childrenContainer.find('.children-placeholder').addClass(className);
   }
 
   /**

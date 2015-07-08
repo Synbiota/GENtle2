@@ -95,13 +95,15 @@ class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
         x;
 
     var row = sequenceCanvas.getAbsRowFromYPos(y);
-    var rowClass = `res-label-row-${row}`;
+    var rowClass = `${sequenceCanvas.id}-res-label-row-${row}`;
 
     if(document.getElementsByClassName(rowClass).length) return;
 
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
 
     var count = _.keys(enzymes).length;
+
+    if(count === 0) sequenceCanvas.addChildrenPlaceholder(rowClass);
 
     y += this.height - count * this.unitHeight - 5;
 

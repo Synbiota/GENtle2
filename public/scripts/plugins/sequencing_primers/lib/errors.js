@@ -1,8 +1,30 @@
+import {PrimerSearchError, NoPrimer, SequenceTooShort} from '../../pcr/lib/errors';
 
-var errors = Object.freeze({
-  'DNA_LEFT_UNSEQUENCED': 0,
-  'UNIVERSAL_FORWARD_PRIMER_NOT_FOUND': 1,
-  'UNIVERSAL_REVERSE_PRIMER_NOT_FOUND': 2,
-});
+
+class SequencingPrimerSearchError extends PrimerSearchError {}
+
+
+class DnaLeftUnsequenced extends SequencingPrimerSearchError {}
+
+
+class UniversalPrimerNotFound extends SequencingPrimerSearchError {}
+
+
+class UniversalForwardPrimerNotFound extends UniversalPrimerNotFound {}
+
+
+class UniversalReversePrimerNotFound extends UniversalPrimerNotFound {}
+
+
+var errors = {
+  PrimerSearchError,
+  SequencingPrimerSearchError,
+  NoPrimer,
+  SequenceTooShort,
+  DnaLeftUnsequenced,
+  UniversalPrimerNotFound,
+  UniversalForwardPrimerNotFound,
+  UniversalReversePrimerNotFound,
+};
 
 export default errors;

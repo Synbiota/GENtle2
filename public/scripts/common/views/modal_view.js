@@ -25,7 +25,13 @@ var Modal = Backbone.View.extend({
 
   show(options) {
     this.options = _.defaults(_.clone(options), defaultOptions);
-    this.setView('.modal-body', this.options.bodyView);
+    if(this.options.bodyHtml && !this.options.bodyView) {
+      this.options.bodyView = new Backbone.View({
+        manage: true,
+        template: this.options.bodyHtml,
+      });
+    }
+    if(this.options.bodyView) this.setView('.modal-body', this.options.bodyView);
     this.render();
     this.$el.modal('show').one('hide.bs.modal', this.cancel);
     return this;
@@ -60,6 +66,7 @@ var Modal = Backbone.View.extend({
     this.$('.modal-body').css({
       maxHeight: $(window).height() - 65 - headerHeight - footerHeight
     });
+    this.$('.modal-confirm').focus();
   }
 
 });

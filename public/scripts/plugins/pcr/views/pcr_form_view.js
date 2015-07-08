@@ -1,7 +1,7 @@
 import Gentle from 'gentle';
 import template from '../templates/pcr_form_view.hbs';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
-import StickyEnds from '../../../common/lib/sticky_ends';
+import allStickyEnds from '../../../common/lib/sticky_ends';
 import Modal from '../../../common/views/modal_view';
 import EditsView from './pcr_edits_view';
 import _ from 'underscore';
@@ -41,7 +41,7 @@ export default Backbone.View.extend({
   serialize: function() {
     return {
       state: this.state,
-      availableStickyEnds: _.map(StickyEnds(), function(end) {
+      availableStickyEnds: _.map(allStickyEnds(), function(end) {
         return {
           name: end.name,
           value: end.name
@@ -148,7 +148,7 @@ export default Backbone.View.extend({
       'sourceSequenceName'
     );
 
-    data.stickyEnds = _.find(StickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
+    data.stickyEnds = _.find(allStickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
 
     var frm = this.state.from;
     var to = this.state.to;

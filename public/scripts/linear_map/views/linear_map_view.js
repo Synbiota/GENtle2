@@ -7,6 +7,8 @@ import tooltip from 'gentle-utils/tooltip';
 import tooltipTemplate from 'gentle-sequence-canvas/lines/_feature_tooltip_template.html';
 import SVG from 'svg.js';
 
+
+
 function onFeatureMouseOver(sequenceCanvas, {name, from: frm, to, _id}) {
   SVG.select(`.svg-feature-${_id}`).addClass('active');
   sequenceCanvas.highlightBaseRange(frm, to);
@@ -29,9 +31,10 @@ function onFeatureClick(sequenceCanvas, {from: frm, to}) {
   sequenceCanvas.select(frm, to);
   sequenceCanvas.scrollToBase(frm);
   sequenceCanvas.scrollBaseToVisibility(to).then(function() {
-    sequenceCanvas.displayCaret(to+1)
-  })
+    sequenceCanvas.displayCaret(to+1);
+  });
 }
+
 
 export default Backbone.View.extend({
   manage: true,
@@ -58,8 +61,7 @@ export default Backbone.View.extend({
     this.listenTo(
       this.model, 
       'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
-      _.debounce(this.refresh, 500),
-      this
+      _.debounce(this.refresh, 500)
     );
   },
 
@@ -284,16 +286,8 @@ export default Backbone.View.extend({
       this.initialRender = false;
       this.sequenceCanvas = sequenceCanvas;
 
-      sequenceCanvas.on(
-        'scroll', 
-        this.updateScrollHelperPosition
-      );
-
-      sequenceCanvas.on(
-        'change:layoutHelpers',
-        this.refresh
-      );
-
+      sequenceCanvas.on('scroll', this.updateScrollHelperPosition);
+      sequenceCanvas.on('change:layoutHelpers', this.refresh);
     } else {
 
       this.setupScrollHelper();
@@ -312,6 +306,11 @@ export default Backbone.View.extend({
       //   _this.positionFeatures();
       // });
     }
+  },
+
+  cleanup: function() {
+    this.sequenceCanvas.off('scroll', this.updateScrollHelperPosition);
+    this.sequenceCanvas.off('change:layoutHelpers', this.refresh);
   }
 
 });

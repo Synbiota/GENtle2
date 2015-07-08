@@ -4,6 +4,7 @@ import Core from 'gentle-sequence-canvas/core';
 import EventHandlers from 'gentle-sequence-canvas/event_handlers';
 import Utilities from 'gentle-sequence-canvas/utilities';
 import Memoizable from 'gentle-utils/memoizable';
+import {dnaTextColour} from './sequence_calculations';
 
 import ContextMenu from './_sequence_canvas_context_menu';
 
@@ -12,22 +13,8 @@ var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, Core
 import Styles from '../../styles';
 const LineStyles = Styles.sequences.lines;
 
+
 var defaultLines = function(sequence) {
-
-  var dnaStickyEndTextColour = function(reverse, defaultColour, base, pos) {
-    var selectableRange = sequence.selectableRange(reverse);
-    var selectable = pos >= selectableRange[0] && pos <= selectableRange[1];
-
-    if(selectable) {
-      if(sequence.isBaseEditable(pos, true)) {
-        return defaultColour;
-      } else {
-        return LineStyles.RES.text.color;
-      }
-    } else {
-      return '#fff';
-    }
-  };
 
   return {
     // Blank line
@@ -85,7 +72,7 @@ var defaultLines = function(sequence) {
       height: 15,
       baseLine: 15,
       textFont: LineStyles.dna.text.font,
-      textColour: LineStyles.dna.text.color,
+      textColour: _.partial(dnaTextColour, sequence, false, LineStyles.dna.text.color),
       selectionColour: LineStyles.dna.selection.fill,
       selectionTextColour: LineStyles.dna.selection.color
     }],
@@ -95,7 +82,7 @@ var defaultLines = function(sequence) {
       height: 15,
       baseLine: 15,
       textFont: LineStyles.complements.text.font,
-      textColour: _.partial(dnaStickyEndTextColour, true, LineStyles.complements.text.color),
+      textColour: _.partial(dnaTextColour, sequence, true, LineStyles.complements.text.color),
       getSubSeq: _.partial(sequence.getTransformedSubSeq, 'complements', {}),
       visible: function() {
         return sequence.get('displaySettings.rows.complements');

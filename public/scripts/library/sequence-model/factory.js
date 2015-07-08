@@ -50,7 +50,35 @@ let instantiate = function(association, fieldValue, otherArgs) {
 
 
 function sequenceModelFactory(BackboneModel) {
-  let associations = {};
+  // `associations` has the following form:
+  //  [
+  //    {
+  //      klass: ASequenceModelClass,
+  //      classAssociations: [
+  //        {
+  //          associationName: String,
+  //          many: Boolean,
+  //          constructor: SomeChildClass
+  //        },
+  //        ...
+  //      ]
+  //    },
+  //    ...
+  //  ]
+  let associations = [];
+
+  var associationsForKlass = function(klass) {
+    return _.find(associations, (association) => association.klass === klass);
+  };
+
+  var allAssociationsForInstance = function(instance) {
+    var allAssociations = [];
+    _.each(associations, (association) => {
+      if(instance instanceof association.klass) allAssociations = allAssociations.concat(association.classAssociations);
+    });
+    return allAssociations;
+  };
+
   let preProcessors = [];
 
   /**
@@ -97,10 +125,11 @@ function sequenceModelFactory(BackboneModel) {
 
       // If a value in this.attributes has a key with the same value as an
       // associations `associationName` then run its `validate()` method.
-      _.each(associations, (association, associationName) => {
+      var allAssociations = allAssociationsForInstance(this);
+      _.each(allAssociations, ({associationName, many}) => {
         if(_.has(this.attributes, associationName)) {
           let value = this.attributes[associationName];
-          if(association.many) {
+          if(many) {
             _.each(value, function(subVal) {
               if(_.isFunction(subVal.validate)) subVal.validate();
             });
@@ -261,7 +290,8 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     transformAttributeValue(attribute, val) {
-      let association = associations[attribute];
+      var allAssociations = allAssociationsForInstance(this);
+      var association = _(allAssociations).findWhere({associationName: attribute});
       if(association) {
         // `doNotValidated` and `this._validated` only relevant to the
         // constructor and skipping validation of associated child models.
@@ -269,12 +299,24 @@ function sequenceModelFactory(BackboneModel) {
       }
       return val;
     }
-    getStickyEnds() {
-      var stickyEnds = super.get('stickyEnds');
-      return stickyEnds && _.defaults({}, stickyEnds, {
-        start: {size: 0, offset: 0},
-        end: {size: 0, offset: 0}
-      });
+
+    /**
+     * @method getStickyEnds
+     * @param  {Boolean} withDefaults=false
+     * @return {undefined or Object}
+     */
+    getStickyEnds(withDefaults=false) {
+      var stickyEnds = _.deepClone(super.get('stickyEnds'));
+      // If stickyEnds is an empty object, force it to be undefined so that
+      // `getStickyEnds(false)` can be used in conditionals for truthiness.
+      if(_.isEmpty(stickyEnds)) stickyEnds = undefined;
+      if(withDefaults) {
+         stickyEnds = _.defaults((stickyEnds || {}), {
+          start: {size: 0, offset: 0, reverse: false, name: ''},
+          end:   {size: 0, offset: 0, reverse: false, name: ''},
+        });
+      }
+      return stickyEnds;
     }
 
     getStickyEndFormat() {
@@ -282,7 +324,7 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     validateStickyEndFormat(value) {
-      if(value && !~stickyEndFormats.indexOf(value)) {
+      if(!value || !~stickyEndFormats.indexOf(value)) {
         throw `'${JSON.stringify(value, null, 2)}' is not an acceptable sticky end format`;
       }
     }
@@ -302,28 +344,20 @@ function sequenceModelFactory(BackboneModel) {
      * @return {String} Formatted sequence
      */
     getSequence(stickyEndFormat=undefined) {
-      var sequence        = super.get('sequence');
-      var stickyEnds      = this.getStickyEnds();
-      var startPostion, endPosition;
+      var sequence = super.get('sequence');
       stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
-
       this.validateStickyEndFormat(stickyEndFormat);
 
-      if (stickyEnds && stickyEndFormat){
-        switch (stickyEndFormat){
-          case STICKY_END_NONE:
-            startPostion = stickyEnds.start.size + stickyEnds.start.offset;
-            endPosition = sequence.length - stickyEnds.end.size - stickyEnds.end.offset;
-            break;
-          case STICKY_END_OVERHANG:
-            startPostion = stickyEnds.start.offset;
-            endPosition = sequence.length - stickyEnds.end.offset;
-            break;
-        }
-
-        if ((startPostion !== undefined) && (endPosition !== undefined)){
-          sequence = sequence.substring(startPostion, endPosition);
-        }
+      var startPostion = this.getOffset(stickyEndFormat);
+      var endStickyEnds = this.getStickyEnds(true).end;
+      var endPosition;
+      if(stickyEndFormat === STICKY_END_NONE) {
+        endPosition = sequence.length - endStickyEnds.size - endStickyEnds.offset;
+      } else if(stickyEndFormat === STICKY_END_OVERHANG) {
+        endPosition = sequence.length - endStickyEnds.offset;
+      }
+      if(endPosition !== undefined) {
+        sequence = sequence.substring(startPostion, endPosition);
       }
 
       return sequence;
@@ -337,22 +371,14 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Integer}
      */
     getOffset(stickyEndFormat=undefined) {
-      var stickyEnds = this.getStickyEnds();
       var offset = 0;
-
-      if(stickyEnds && stickyEnds.start) {
-        var startStickyEnd = stickyEnds.start;
-        stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
-        switch(stickyEndFormat) {
-          case STICKY_END_NONE:
-            offset = startStickyEnd.offset + startStickyEnd.size;
-            break;
-          case STICKY_END_OVERHANG:
-            offset = startStickyEnd.offset;
-            break;
-        }
+      stickyEndFormat = stickyEndFormat || this.getStickyEndFormat();
+      var startStickyEnd = this.getStickyEnds(true).start;
+      if(stickyEndFormat === STICKY_END_NONE) {
+        offset = startStickyEnd.offset + startStickyEnd.size;
+      } else if(stickyEndFormat === STICKY_END_OVERHANG) {
+        offset = startStickyEnd.offset;
       }
-
       return offset;
     }
 
@@ -416,104 +442,48 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-     * @method isBeyondStickyEnd
-     * @param  {Integer} pos
-     * @param  {Boolean} reverse=false If true, assesses reverse strand.
-     * @return {Boolean}
-     */
-    isBeyondStickyEnd(pos, reverse = false) {
-      return this.isBeyondStartStickyEnd(pos, reverse) || this.isBeyondEndStickyEnd(pos, reverse);
-    }
-
-    /**
-     * @method overhangBeyondStartStickyEndOnBothStrands
+     * @method minOverhangBeyondStartStickyEndOnBothStrands
      * @param  {Integer} pos
      * @return {Integer}
      */
-    overhangBeyondStartStickyEndOnBothStrands(pos) {
+    minOverhangBeyondStartStickyEndOnBothStrands(pos) {
       return Math.min(this.overhangBeyondStartStickyEnd(pos, true), this.overhangBeyondStartStickyEnd(pos, false));
     }
 
     /**
-     * @method overhangBeyondEndStickyEndOnBothStrands
+     * @method minOverhangBeyondEndStickyEndOnBothStrands
      * @param  {Integer} pos
      * @return {Integer}
      */
-    overhangBeyondEndStickyEndOnBothStrands(pos) {
+    minOverhangBeyondEndStickyEndOnBothStrands(pos) {
       return Math.min(this.overhangBeyondEndStickyEnd(pos, true), this.overhangBeyondEndStickyEnd(pos, false));
     }
 
     /**
-     * @method isBeyondStartStickyEnd
+     * @method overhangBeyondStartStickyEnd
+     * If the start sticky end was digested to make it exposed, this function
+     * returns the number of bases beyond the end, depending on the strand.
+     *
+     * e.g. There is a sticky end on the forward strand with offset 3, size 2:
+     *
+     * AAA|TT GG...
+     *     --
+     * TTT AA|CC...
+     *
+     * reverse: | false  | true  |
+     *     pos: | 0 |  5 | 0 | 5 |
+     *  result: | 3 | -2 | 5 | 0 |
+     *
      * @param  {Integer} pos
      * @param  {Boolean} reverse=false  If true, assesses reverse strand.
-     * @return {Boolean}
+     * @return {Integer}
      */
-    isBeyondStartStickyEnd(pos, reverse) {
-      if (reverse === undefined) {
-        reverse = false;
-      }
-      return this.overhangBeyondStartStickyEnd(pos, reverse) > 0;
-    }
-
-    /**
-     * @method isBeyondStartStickyEndOnBothStrands
-     * @param  {Integer} pos
-     * @return {Boolean}
-     */
-    isBeyondStartStickyEndOnBothStrands(pos) {
-      return this.overhangBeyondStartStickyEndOnBothStrands(pos) > 0;
-    }
-
-    /**
-     * @method isBeyondEndStickyEndOnBothStrands
-     * @param  {Integer} pos
-     * @return {Boolean}
-     */
-    isBeyondEndStickyEndOnBothStrands(pos) {
-      return this.overhangBeyondEndStickyEndOnBothStrands(pos) > 0;
-    }
-
-    /**
-     * @method isBeyondEndStickyEnd
-     * @param  {Integer} pos
-     * @param  {Boolean} reverse=false  If true, assesses reverse strand.
-     * @return {Boolean}
-     */
-    isBeyondEndStickyEnd(pos, reverse = false) {
-      return this.overhangBeyondEndStickyEnd(pos, reverse) > 0;
-    }
-
-     /**
-       * @method overhangBeyondStartStickyEnd
-       * @param  {Integer} pos
-       * @param  {Boolean} reverse=false  If true, assesses reverse strand.
-       * @return {Integer}
-       */
     overhangBeyondStartStickyEnd(pos, reverse = false) {
-      var stickyEnds = this.getStickyEnds();
-      var stickyEndFormat = this.getStickyEndFormat();
+      var startStickyEnd = this.getStickyEnds(true).start;
       var result = 0;
-
-      if(stickyEnds) {
-        var startStickyEnd = stickyEnds.start;
-        var offset = stickyEndFormat === STICKY_END_OVERHANG ? 0 : startStickyEnd.offset;
-
-        if(startStickyEnd) {
-          if(reverse) {
-            if(startStickyEnd.reverse) {
-              result = offset - pos;
-            } else {
-              result = (offset + startStickyEnd.size) - pos;
-            }
-          } else {
-            if(startStickyEnd.reverse) {
-              result = (offset + startStickyEnd.size) - pos;
-            } else {
-              result = offset - pos;
-            }
-          }
-        }
+      result = startStickyEnd.offset - pos;
+      if(reverse !== startStickyEnd.reverse) {
+        result += startStickyEnd.size;
       }
       return result;
     }
@@ -525,84 +495,13 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Integer}
      */
     overhangBeyondEndStickyEnd(pos, reverse = false) {
-      var stickyEnds = this.getStickyEnds();
-      var stickyEndFormat = this.getStickyEndFormat();
-      var seqLength = this.getLength();
-      var result = 0;
-
-      if(stickyEnds) {
-        var startStickyEnd = stickyEnds.start;
-        var endStickyEnd = stickyEnds.end;
-
-        if(endStickyEnd) {
-          var stickyEndTo = seqLength - 1 - endStickyEnd.offset;
-
-          switch (stickyEndFormat){
-            case STICKY_END_NONE:
-              stickyEndTo -= (startStickyEnd.offset + startStickyEnd.size);
-              break;
-            case STICKY_END_OVERHANG:
-              stickyEndTo -= startStickyEnd.offset;
-              break;
-          }
-
-
-          var stickyEndFrom = stickyEndTo - endStickyEnd.size + 1;
-
-          if(reverse) {
-            if(endStickyEnd.reverse) {
-              result = pos - stickyEndTo;
-            } else {
-              result = (pos + 1) - stickyEndFrom;
-            }
-          } else {
-            if(endStickyEnd.reverse) {
-              result = (pos + 1) - stickyEndFrom;
-            } else {
-              result = pos - stickyEndTo;
-            }
-          }
-        }
+      var endStickyEnd = this.getStickyEnds(true).end;
+      var seqLength = this.getLength(STICKY_END_FULL);
+      var result = pos - (seqLength - 1 - endStickyEnd.offset);
+      if(reverse !== endStickyEnd.reverse) {
+        result += endStickyEnd.size;
       }
       return result;
-    }
-
-    /**
-     * @method getStickyEndSequence
-     * @param  {Boolean} getStartStickyEnd
-     * @return {Object}
-     *        sequenceBases: {String}  sequence bases of stickyEnd (if on reverse
-     *                                 strand then complement is taken but not
-     *                                 reverse complement)
-     *        isOnReverseStrand:  {Boolean}  true if sequence is on reverse strand
-     */
-    getStickyEndSequence(getStartStickyEnd) {
-      var wholeSequence = super.get('sequence');
-      var stickyEnds = this.getStickyEnds() || {};
-      var isOnReverseStrand;
-      var sequenceBases = '';
-      var stickyEnd;
-
-      if(getStartStickyEnd) {
-        stickyEnd = stickyEnds.start;
-        if(stickyEnd) {
-          sequenceBases = wholeSequence.substr(stickyEnd.offset, stickyEnd.size);
-        }
-      } else {
-        stickyEnd = stickyEnds.end;
-        if (stickyEnd) {
-          var offset = wholeSequence.length - (stickyEnd.offset + stickyEnd.size);
-          sequenceBases = wholeSequence.substr(offset, stickyEnd.size);
-        }
-      }
-
-      if(stickyEnd) {
-        isOnReverseStrand = stickyEnd.reverse;
-        if(isOnReverseStrand) {
-          sequenceBases = SequenceTransforms.toComplements(sequenceBases);
-        }
-      }
-      return {sequenceBases, isOnReverseStrand};
     }
 
     /**
@@ -619,6 +518,36 @@ function sequenceModelFactory(BackboneModel) {
      */
     getEndStickyEndSequence() {
       return this.getStickyEndSequence(false);
+    }
+
+    /**
+     * @method getStickyEndSequence
+     * @param  {Boolean} getStartStickyEnd
+     * @return {Object}
+     *        sequenceBases: {String}  sequence bases of stickyEnd (if on reverse
+     *                                 strand then complement is taken but not
+     *                                 reverse complement)
+     *        isOnReverseStrand: {Boolean}  true if sequence is on reverse strand
+     */
+    getStickyEndSequence(getStartStickyEnd) {
+      var wholeSequence = super.get('sequence');
+      var stickyEnds = this.getStickyEnds(true);
+
+      var stickyEnd, offset;
+      if(getStartStickyEnd) {
+        stickyEnd = stickyEnds.start;
+        offset = stickyEnds.start.offset;
+      } else {
+        stickyEnd = stickyEnds.end;
+        offset = wholeSequence.length - (stickyEnds.end.offset + stickyEnds.end.size);
+      }
+      var sequenceBases = wholeSequence.substr(offset, stickyEnd.size);
+      var isOnReverseStrand = stickyEnd.reverse;
+      if(isOnReverseStrand) {
+        sequenceBases = SequenceTransforms.toComplements(sequenceBases);
+      }
+
+      return {sequenceBases, isOnReverseStrand};
     }
 
     /**
@@ -639,11 +568,11 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     /**
-     * @method hasStickyEnds
+     * @method hasBothStickyEnds
      * @return {Boolean}
      */
-    hasStickyEnds() {
-      var stickyEnds = this.getStickyEnds();
+    hasBothStickyEnds() {
+      var stickyEnds = this.getStickyEnds(false);
       return !!(stickyEnds && stickyEnds.start && stickyEnds.end);
     }
 
@@ -845,7 +774,6 @@ function sequenceModelFactory(BackboneModel) {
 
     insertBases(bases, beforeBase, options = {}){
       var seq = super.get('sequence'),
-          stickyEnds = this.getStickyEnds(),
           stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat(),
           adjustedBeforeBase,
           timestamp;
@@ -1252,7 +1180,7 @@ function sequenceModelFactory(BackboneModel) {
 
 
       var offset = previousStickyEndFormat === STICKY_END_OVERHANG ?
-        this.getStickyEnds().start.offset : 
+        this.getStickyEnds(true).start.offset :
         0;
 
       var data = triggerWithPosition && {
@@ -1269,6 +1197,8 @@ function sequenceModelFactory(BackboneModel) {
       this.clearFeatureCache();
       this.set('features.' + id, editedFeature);
       this.sortFeatures();
+      // DOCUMENT:  why do we call save followed by throttledSave and not just
+      // one call to throttledSave once eveything is completed?
       this.save();
       if (record === true) {
         this.recordFeatureHistoryEdit(editedFeature);
@@ -1394,32 +1324,28 @@ function sequenceModelFactory(BackboneModel) {
         });
     }
 
-
     /**
-     * Returns the positions of the first and last selectable ranges in
+     * @method selectableRange
+     * Returns the positions of the first and last selectable bases in
      * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}} 
-     * (i.e. account for sticky end format).
+     * (i.e. accounts for sticky end format).
      *
      * If `reverse` is set to `true`, the range will refer to the complement of the
-     *  sequence, *not the reverse complement* 
+     *  sequence, *not the reverse complement*, i.e. it will be 0-indexed
+     *  relative to the forward strand, not the reverse stand.
      *
-     * @method  selectableRange
-     * 
-     * @param  {Boolean} reverse whether to return the selectable range on the
-     *                           complement of the sequence
-     *                           
+     * @param {Boolean} reverse=false  If true will return the selectable range
+     *                                 for the reverse stand of the sequence.
      * @return {Array<Int>}      array of first and last base in the selectable range
      */
     selectableRange(reverse = false) {
       var stickyEndFormat = this.getStickyEndFormat();
-      var stickyEnds = this.getStickyEnds();
+      var stickyEnds = this.getStickyEnds(true);
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
+      if(stickyEndFormat === STICKY_END_OVERHANG) {
         var getOffset = function(type) {
-          return stickyEnds[type].reverse ? 
-          (reverse ? 0 : stickyEnds[type].size) : 
-          (reverse ? stickyEnds[type].size : 0);
+          return (stickyEnds[type].reverse === reverse) ? 0 : stickyEnds[type].size;
         };
 
         return [
@@ -1432,21 +1358,63 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     /**
+     * @method ensureBaseIsSelectable
+     * TODO: Refactor this function and combine with `ensurePositionIsSelectable`
+     * @param  {[type]}  base   [description]
+     * @param  {Boolean} strict [description]
+     * @return {[type]}         [description]
+     */
+    ensureBaseIsSelectable(base, strict = false) {
+      var selectableRange = this.selectableRange();
+      return Math.min(
+        Math.max(base, selectableRange[0]),
+        selectableRange[1] + (strict ? 0 : 1)
+      );
+    }
+
+    /**
+     * @method ensurePositionIsSelectable
+     * TODO: Refactor this function and combine with `ensureBaseIsSelectable`
+     * @param  {Integer}  position 0-indexed relative to forward strand
+     * @param  {Boolean} reverse=false If true will return if this base position
+     *                                 is selectable on the reverse stand of the
+     *                                 sequence.
+     * @return {Integer}
+     */
+    ensurePositionIsSelectable(position, reverse = false) {
+      var selectableRange = this.selectableRange(reverse);
+      return Math.max(Math.min(position, selectableRange[1]), selectableRange[0]);
+    }
+
+    /**
+     * @method isPositionSelectable
+     * @param  {Integer}  position 0-indexed relative to forward strand
+     * @param  {Boolean} reverse=false If true will return if this base position
+     *                                 is selectable on the reverse stand of the
+     *                                 sequence.
+     * @return {Boolean}
+     */
+    isPositionSelectable(position, reverse = false) {
+      return position === this.ensurePositionIsSelectable(position, reverse);
+    }
+
+    /**
      * Returns the positions of the first and last editable ranges in
      * the sequence returned by {{#crossLink "Sequence/getSequence"}}getSequence{{/crossLink}}
      *  (i.e. account for sticky end format).
      *
      * Typically excludes sticky ends and overhangs
-     * @method editableRange      
+     * @method editableRange
+     * @param  {Boolean} strict  TODO: fill in description
      * @return {Array<Int>} array of first and last base in the editable range
      */
     editableRange(strict = false) {
       var stickyEndFormat = this.getStickyEndFormat();
-      var stickyEnds = this.getStickyEnds();
+      var stickyEnds = this.getStickyEnds(true);
       var frm = 0;
       var length = this.getLength();
 
-      if(stickyEnds && stickyEndFormat === STICKY_END_OVERHANG) {
+      if(stickyEndFormat === STICKY_END_OVERHANG) {
         frm = stickyEnds.start.size;
         length = length - stickyEnds.end.size - stickyEnds.start.size;
       }
@@ -1460,7 +1428,7 @@ function sequenceModelFactory(BackboneModel) {
      *                                 following the stretch of editable sequence.
      * @return {Integer or Undefined}
      */
-    ensureBaseIsEditable (base, strict = false) {
+    ensureBaseIsEditable(base, strict = false) {
       var editableRange = this.editableRange(strict);
       if(editableRange.size === 0) {
         // NOTE:  This can only happen when strict is true and there is no
@@ -1510,7 +1478,8 @@ function sequenceModelFactory(BackboneModel) {
     toJSON() {
       let attributes = super.toJSON();
       // Move all associated fields into meta.associations
-      _.each(associations, function(value, associationName) {
+      var classAssociations = allAssociationsForInstance(this);
+      _.each(classAssociations, function({associationName}) {
         if(_.has(attributes, associationName)) {
           attributes.meta = attributes.meta || {};
           attributes.meta.associations = attributes.meta.associations || {};
@@ -1523,15 +1492,6 @@ function sequenceModelFactory(BackboneModel) {
       });
       return attributes;
     }
-
-    ensureBaseIsSelectable(base, strict = false) {
-      var selectableRange = this.selectableRange();
-      return Math.min(
-        Math.max(base, selectableRange[0]), 
-        selectableRange[1] + (strict ? 0 : 1)
-      );
-    }
-
   }
 
 
@@ -1547,16 +1507,25 @@ function sequenceModelFactory(BackboneModel) {
       throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
     }
     let associationName = rawAssociationName + (many ? 's' : '');
-    if(associations[associationName]) {
-      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered.`);
+    var klass = this;
+    var classAssociationsObject = associationsForKlass(klass);
+    if(!classAssociationsObject) {
+      classAssociationsObject = {klass, classAssociations: []};
+      associations.push(classAssociationsObject);
     }
-    associations[associationName] = {constructor, many, associationName};
+    if(_(classAssociationsObject.classAssociations).findWhere({associationName: associationName})) {
+      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered for "${klass.name}".`);
+    }
+    classAssociationsObject.classAssociations.push({associationName, many, constructor});
   };
 
 
+  /**
+   * @function _logRegisteredAssociations  Used for debugging
+   * @return {Object}  the registered associations.
+   */
   Sequence._logRegisteredAssociations = function() {
-    // Used for debugging
-    console.log(JSON.stringify(associations, null, 2));
+    console.log('registered associations: ', JSON.stringify(associations, null, 2));
     return associations;
   };
 

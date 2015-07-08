@@ -3,10 +3,9 @@ import Q from 'q';
 import _ from 'underscore';
 import $ from 'jquery';
 
-var URL = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
+var NCBI_URL = 'http://blast.ncbi.nlm.nih.gov/Blast.cgi';
 
 var iterationTimings = [3000, 5000, 15000, 30000];
-var estimationTimingRegexp = /We estimate that results will be ready in (\d+) seconds/;
 
 var isObject = _.isObject;
 var map = _.map;
@@ -63,17 +62,14 @@ var BlastRequest = class {
       this.database = database;
 
     this._loadingRIDPromise = this._loadingRIDPromise || Q.promise((resolve, reject) => {
-      // var selector = "//input[@type = 'hidden' and @name = 'RID'] | //comment()";
-      var selector = "//input[@type = 'hidden' and @name = 'RID']";
-
       if(this.RID) {
         this._loadingRIDPromise = false;
         this.RIDLoading = false;
         this.RIDLoaded = true;
-        resolve(this.RID)
+        resolve(this.RID);
       } else {
 
-        Proxy.yqlExtractHtmlPost(URL, {
+        Proxy.yqlExtractHtmlPost(NCBI_URL, {
           CMD: 'Put',
           QUERY: this.sequence.getSequence(),
           DATABASE: this.database,
@@ -86,7 +82,6 @@ var BlastRequest = class {
           this.RIDLoaded = true;
           resolve(RID);
         }).catch((error) => {
-          console.log('error', error)
           reject(error);
         }).finally(() => {
           this._loadingRIDPromise = false;
@@ -109,7 +104,7 @@ var BlastRequest = class {
 
       var selector = "//ul[@class = 'msg']/li[@class = 'error'] | //blastoutput//iteration_hits";
 
-      Proxy.yqlExtractHtml(URL, {
+      Proxy.yqlExtractHtml(NCBI_URL, {
         CMD: 'Get',
         RID: this.RID,
         FORMAT_TYPE: 'XML'
@@ -132,27 +127,11 @@ var BlastRequest = class {
   }
 
   _parseRIDResponse(data) {
-    var _this = this;
     return Q.promise((resolve, reject) => {
       var $results = $(data).find('results');
       var $input = $results.find('input[type="hidden"][name="RID"]').first();
 
       if($input.length) {
-        // var commentNode = _.find($results.find('#content>form').contents(), function(node) {
-        //   return node.nodeType == 8 && estimationTimingRegexp.test(node.textContent);
-        // });
-
-        // console.log('commentNode', !!commentNode, commentNode)
-
-        // if(commentNode) {
-        //   // try {
-        //     console.log('estimated', estimationTimingRegexp.exec(commentNode.textContent)[1])
-        //     console.log(_this)
-        //     _this.estimatedResultsTiming = Number(estimationTimingRegexp.exec(commentNode.textContent)[1]);
-        //     console.log('check', _this.estimatedResultsTiming)
-        //   // } catch(e) {}
-        // }
-
         resolve($input.attr('value'));
       } else {
         reject({type: 'NO_RID'});
@@ -256,8 +235,6 @@ var BlastRequest = class {
     var extractString = function(name) {
       output[formatName(name)] = blastHsp['hsp_'+name];
     };
-
-    console.log('hsp', blastHsp)
 
     each([
       'align-len', 'bit-score', 'evalue', 
