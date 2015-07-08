@@ -315,9 +315,16 @@ describe('finding Sequencing Primers', function() {
   var spacerBases = function(numberOfSpacerBases) {
     return _.times(numberOfSpacerBases, () => 'A').join('');
   };
+  var originalTimeout
 
   beforeEach(function(done) {
     done();
+    originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+  });
+
+  afterEach(function() {
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = originalTimeout;
   });
 
   it('find primers for sequence863', function(done) {
