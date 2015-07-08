@@ -471,7 +471,7 @@ function sequenceModelFactory(BackboneModel) {
     Returns the subsequence between the bases startBase and end Base
     @method getSubSeq
     @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0), inclusive.
+    @param {Integer} endBase end of the subsequence (indexed from 0), INCLUSIVE.
     @param {String} stickyEndFormat=undefined
     **/
     getSubSeq(startBase, endBase, stickyEndFormat=undefined) {
@@ -743,8 +743,7 @@ function sequenceModelFactory(BackboneModel) {
      */
     getAAs(startBase, length, stickyEndFormat=undefined) {
       var subSeq = this.getSubSeq(startBase, startBase + length - 1, stickyEndFormat);
-      var len = subSeq.length;
-      if(len < 0 || len % 3 !== 0) throw new Error('length must be a non negative multiple of 3');
+      if(length < 0 || subSeq.length % 3 !== 0) throw new Error('length must be non negative and result in a sub sequence length which is multiple of 3');
       var codons = subSeq.match(/.{3}/g) || [];
       return _.map(codons, function(codon) {
         return SequenceTransforms.codonToAAShort(codon).trim();

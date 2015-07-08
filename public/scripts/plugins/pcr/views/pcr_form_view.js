@@ -146,7 +146,7 @@ export default Backbone.View.extend({
   },
 
   getSequenceAttributes: function() {
-    return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName');
+    return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName', 'partType');
   },
 
   getData: function() {
