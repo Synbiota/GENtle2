@@ -1,81 +1,19 @@
-<h5>{{sequenceName}}</h5>
+{{#if empty}}
 
-{{#if readOnly}}
-
-  <div class="alert alert-warning no-margin media">
-    <h4 class="media-object pull-left">
-      <i class="glyphicon glyphicon-exclamation-sign"></i>
-    </h4>
-    <div class="media-content">
-      <strong>This sequence is read only.</strong>
-    </div>
+  <div class="designer-designed-sequence-empty-placeholder">
+    <div>
+      Drag parts in from the lists below
+    <div>
   </div>
 
 {{else}}
 
-
-  {{#if disabled}}
-
-    <div class="alert alert-warning no-margin media">
-      <h4 class="media-object pull-left">
-        <i class="glyphicon glyphicon-exclamation-sign"></i>
-      </h4>
-      <div class="media-content">
-        <strong>This sequence has overlapping annotations.</strong>
-        <br><br>
-        Try deleting some annotations or creating a new sequence to design.
-      </div>
-    </div>
-
-  {{else}}
-
-    {{#if empty}}
-
-      <div class="designer-designed-sequence-empty-placeholder">
-        Drag sequences from the right-hand list.
-      </div>
-      <br>
-      <button class="btn btn-primary assemble-sequence-btn disabled">Assemble sequence</button>
-
-    {{else}}
-
-      <div class="designer-designed-sequence-chunks">
-
-        {{#each sequences}}
-          <div class="designer-designed-sequence-chunk-droppable {{#if ../incompatibleStickyEnds}}{{#if @first}}incompatible-ends{{/if}}{{/if}}" data-before_index="{{index}}">
-            Drop sequence here
-          </div>
-          <div class="designer-designed-sequence-chunk-container" data-sequence_index="{{index}}">
-            <div class="designer-designed-sequence-chunk-position">
-              {{plus index 1}}
-            </div>
-            <div class="designer-designed-sequence-chunk-trash" data-sequence_index="{{index}}">
-              <i class="glyphicon glyphicon-trash"></i>
-            </div>
-            <div class="designer-designed-sequence-chunk designer-designed-sequence-chunk-{{type}}"  data-sequence_index="{{index}}">
-              <div class="designer-designed-sequence-chunk-title" title="{{name}}">
-                {{name}}
-                {{!-- <br>
-                <em>({{formatThousands length}}bp)</em> --}}
-              </div>
-            </div>
-          </div>
-      
-        {{/each}}
-        <div class="designer-designed-sequence-chunk-droppable {{#if incompatibleStickyEnds}}incompatible-ends{{/if}}" data-before_index="{{lastId}}">
-            Drop sequence here
-        </div>
-        <div class="clearfix"></div>
-      </div>
-      
-      <br>
-      <button class="btn btn-primary assemble-sequence-btn">Assemble sequence</button>
-      &nbsp;<label for="circularise-dna">Circularise</label>
-      <input id="circularise-dna" type="checkbox" {{#if circulariseDna}}checked="1"{{/if}}>
-
-    {{/if}}
-
-  {{/if}}
-  
+  <div class="designer-diagnostic"></div>
+  <div class="designer-designed-sequence-chunks">
+    {{#each sequences}}
+      {{{designer-draggable .}}}
+    {{/each}}
+  </div>
 
 {{/if}}
+

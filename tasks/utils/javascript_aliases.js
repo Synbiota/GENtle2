@@ -1,8 +1,10 @@
 var glob = require('glob');
+var _ = require('underscore');
 
 var aliases = glob
-  .sync('./public/scripts/library/*/*.js')
+  .sync('./public/scripts/library/**/*.{js,html,hbs}')
   .reduce(function(memo, path) {
+    if(/spec/.test(path)) return memo;
     var cleanPath = 'gentle-' + path
       .replace('./public/scripts/library/', '')
       .replace('.js', '');
@@ -12,5 +14,5 @@ var aliases = glob
 
     return memo;
   }, {});
-
+  
 module.exports = aliases;

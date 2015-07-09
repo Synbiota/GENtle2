@@ -1,48 +1,49 @@
 import Backbone from 'backbone';
 import template from '../templates/designed_sequence_view.hbs';
-import SynbioData from '../../../common/lib/synbio_data';
-import Gentle from 'gentle';
-import Sequence from '../../../sequence/models/sequence';
 import draggableCleanup from '../lib/draggable_cleanup';
+import xScrollingUi from '../lib/x_scrolling_ui';
+import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/assemble_sequence';
+import diagnosticErrorTemplate from '../templates/diagnostic_error_template.hbs';
+import diagnosticSuccessTemplate from '../templates/diagnostic_success_template.hbs';
+import $ from 'jquery';
+import _ from 'underscore';
 
 export default Backbone.View.extend({
   template: template,
   manage: true,
+  className: 'designer-designed-sequence',
 
   events: {
-    'click .assemble-sequence-btn': 'assembleSequence',
-    'change #circularise-dna': 'updateCirculariseDna',
+    'click .designer-draggable-trash': 'onTrashClick'
   },
 
-  assembleSequence: function(event) {
-    event.preventDefault();
-    if(this.model.incompatibleStickyEnds()) {
-      alert('You are making a circular sequence but the sticky ends of the start and end sequences are incompatible.  Please fix these first or make the sequence non-circular.');
-    } else {
-      this.model.assembleSequences().throttledSave();
-      this.parentView(1).remove();
-      this.parentView(2).changePrimaryView('edition');
-    }
+  initialize: function() {
+    this.listenTo(this.model.model, 'change:isCircular', () => {
+      this.emptyDiagnostic();
+      this.updateDiagnostic();
+    });
   },
 
-  updateCirculariseDna: function(event) {
-    event.preventDefault();
-    this.model.set('isCircular', event.target.checked).throttledSave();
-    this.render();
+  onTrashClick: function(event) {
+    event.stopPropagation();
+    var $element = $(event.currentTarget).parent();
+    this.removeSequence($element.index());
+    $element.remove();
+    this.emptyDiagnostic();
+    this.updateDiagnostic();
+    this.updateDraggableContainerWidth();
+    if(this.model.sequences.length === 0) this.render();
   },
 
   serialize: function() {
-    var output = {
-      sequenceName: this.model.get('name'),
-      circulariseDna: this.model.get('isCircular'),
-      incompatibleStickyEnds: this.model.incompatibleStickyEnds(),
-    };
+    var output = {};
+
     if(this.model.sequences.length) {
-      output.sequences = this.model.processSequences();
-      output.lastId = this.model.sequences.length;
+      output.sequences = this.model.sequences;
     } else {
       output.empty = true;
     }
+
     return output;
   },
 
@@ -52,27 +53,21 @@ export default Backbone.View.extend({
     this.model.throttledSave();
   },
 
-  insertFromAvailableSequence: function($draggable, beforeIndex = 0) {
-    $draggable.on('dragstop', () => {
-      var sequence = this.getSequenceFromAvailableSequenceDraggable($draggable);
-      this.model.insertSequence(beforeIndex, sequence);
-      this.renderAndSave();
-    });
+  insertFromAvailableSequence: function(sequenceId, beforeIndex = 0) {
+    var model = this.model;
+    var sequence = _.find(model.allSequences, (s) => s.get('id') === sequenceId);
+    model.insertSequence(beforeIndex, sequence);
+    model.throttledSave();
   },
 
-  moveSequence: function($draggable, newIndex) {
-    $draggable.on('dragstop', () => {
-      var oldIndex = this.getSequenceIndexFromDraggableChunk($draggable);
-      this.model.moveSequence(oldIndex, newIndex);
-      this.renderAndSave();
-    });
+  moveSequence: function(oldIndex, newIndex) {
+    this.model.moveSequence(oldIndex, newIndex);
+    this.model.throttledSave();
   },
 
-  removeSequence: function($draggable, index) {
-    $draggable.on('dragstop', () => {
-      this.model.removeSequenceAtIndex(index);
-      this.renderAndSave();
-    });
+  removeSequence: function(index) {
+    this.model.removeSequenceAtIndex(index);
+    this.model.throttledSave();
   },
 
   getSequenceIndexFromDraggableChunk: function($draggable) {
@@ -81,23 +76,11 @@ export default Backbone.View.extend({
   },
 
   getSequenceFromAvailableSequenceDraggable: function($draggable) {
-    var sequenceId, availableSequenceView, feature;
-    sequenceId = $draggable.closest('[data-sequence_id]').data('sequence_id');
+    var sequenceId = $draggable.data('sequence_id');
+    var sequence = _.find(this.model.allSequences, (s) => s.get('id') === sequenceId);
 
-    availableSequenceView = this.parentView()
-      .getAvailableSequenceViewFromSequenceId(sequenceId);
-
-    if($draggable.hasClass('designer-available-sequence-entireseq')) {
-      return availableSequenceView.model;
-    } else {
-      feature = _.findWhere(availableSequenceView.features, {
-        id: $draggable.data('feature_id')
-      });
-
-      return {
-        feature: feature,
-        subSeq: availableSequenceView.model.getSubSeq(feature.from, feature.to)
-      };
+    if(sequence) {
+      return sequence;
     }
   },
 
@@ -137,71 +120,58 @@ export default Backbone.View.extend({
   },
 
   beforeRender: function() {
-    this.cleanUpDraggable();
+    this.cleanup();
   },
 
-  remove: function() {
+  cleanup: function() {
     this.cleanUpDraggable();
-    Backbone.View.prototype.remove.apply(this, arguments);
   },
 
   afterRender: function() {
-    var _this = this;
-    this.$('.designer-designed-sequence-chunk').draggable({
-      zIndex: 2000,
-      revert: 'invalid',
-      helper: 'clone',
-      // refreshPositions: true,
-      cursorAt: {
-        top: 5,
-        left: 5
-      },
-    }).hover(
-    (event) => {
-      var sequence = this.getSequenceFromDraggableChunk($(event.target));
-      this.parentView().hoveredOverSequence(sequence.get('id'));
-    },
-    (event) => {
-      var sequence = this.getSequenceFromDraggableChunk($(event.target));
-      this.parentView().unhoveredOverSequence(sequence.get('id'));
-    });
-
-    this.$('div.designer-designed-sequence-chunk-trash').droppable({
-      activeClass: 'enabled',
-      hoverClass: 'active',
-      tolerance: 'pointer',
-      accept: function($draggable) {
-        var index = $draggable.data('sequence_index');
-        return index == $(this).data('sequence_index') && _this.model.canTrash(index);
-      },
-      drop: function(event, ui) {
-        var $draggable = ui.draggable;
-        var index = $draggable.data('sequence_index');
-        _this.removeSequence($draggable, index);
-      }
-    });
-
-    this.$('.designer-designed-sequence-chunk-droppable').droppable({
-      activeClass: 'active',
-      hoverClass: 'hover',
-      tolerance: 'pointer',
-      accept: function($draggable){
-        return _this.canDrop($draggable, $(this).data('before_index'));
-      },
-      drop: function(event, ui) {
-        var index = $(this).data('before_index');
-        if(ui.draggable.hasClass('designer-designed-sequence-chunk')) {
-          _this.moveSequence(ui.draggable, index);
-        } else {
-          _this.insertFromAvailableSequence(ui.draggable, index);
-        }
-      }
-    });
+    this.updateDiagnostic();
+    this.updateDraggableContainerWidth();
 
     this.$('.designer-designed-sequence-empty-placeholder').droppable({
-      activeClass: 'active',
+      hoverClass: 'active',
       tolerance: 'pointer',
-      drop: (event, ui) => this.insertFromAvailableSequence(ui.draggable)
+      drop: (event, ui) => {
+        this.insertFromAvailableSequence(ui.draggable.data('sequence_id'), 0);
+        this.render();
+      }
+    });
+
+    xScrollingUi('.designer-designed-sequence-chunks', 'sortable', {
+      placeholder: 'designer-designed-sequence-chunk-placeholder',
+      appendTo: 'body',
+      helper: 'clone',
+      scrollingElement: '.designer-designed-sequence',
+      revert: 100,
+      // refreshPosition: true,
+      tolerance: 'pointer',
+      start: (event, ui) => {
+        var item = ui.item;
+        ui.placeholder.outerWidth(item.outerWidth());
+        if(!item.data('available')) {
+          item.data('previous_index', item.index());
+        }
+        this.emptyDiagnostic();
+      },
+      update: (event, ui) => {
+        var item = ui.item;
+        var index = item.index();
+
+        if(item.data('available')) {
+          this.insertFromAvailableSequence(item.data('sequence_id'), index);
+        } else {
+          this.moveSequence(item.data('previous_index'), index);
+        }
+
+        ui.item.removeData('available');
+      },
+      stop: () => {
+        this.updateDiagnostic();
+        this.updateDraggableContainerWidth();
+      }
     });
   },
 
@@ -220,5 +190,88 @@ export default Backbone.View.extend({
     this.$el.find('.designer-designed-sequence-chunk-droppable').removeClass('highlighted');
     this.$el.find('.designer-designed-sequence-empty-placeholder').removeClass('highlighted');
   },
+
+  emptyDiagnostic() {
+    this.$('.designer-diagnostic').empty();
+  },
+
+  insertDiagnosticChildren: function(indices, html) {
+    var $diagnosticContainer = this.$('.designer-diagnostic');
+    var $draggableContainer = this.$('.designer-designed-sequence-chunks');
+    var $draggables = $draggableContainer.children();
+
+    if(!_.isArray(indices)) indices = [indices];
+    if(indices.length === 0) return;
+
+    _.each(indices, function(index) {
+      var last = index === $draggables.length;
+      var $draggable = $($draggables[last ? index-1 : index]);
+
+      var lastOffset = last ? $draggable.outerWidth(true) : 0;
+
+      var $element = $(html).css({
+        left: $draggable.offset().left + 
+          $draggableContainer.parent().scrollLeft() + 
+          lastOffset
+      }).tooltip({
+        container: 'body',
+        placement: 'top',
+        animation: false
+      });
+
+      $diagnosticContainer.append($element);
+    });
+  },
+
+  updateDiagnostic: function() {
+    var errors = this.model.errors;
+    var sequencesLength = this.model.sequences.length;
+
+    // Incompatible sticky ends
+    var errorIndices = _.pluck(
+      _.where(errors, {type: INCOMPATIBLE_STICKY_ENDS}),
+      'index'
+    );
+
+    this.insertDiagnosticChildren(errorIndices, diagnosticErrorTemplate({
+      description: 'Incompatible sticky ends'
+    }));
+
+    _.each(_.range(1, sequencesLength), (index) => {
+      if(!~errorIndices.indexOf(index)) {
+        this.insertDiagnosticChildren(index, diagnosticSuccessTemplate());
+      }
+    });
+
+    // First and last sequence cannot connect
+    var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
+    if(this.model.get('isCircular') && sequencesLength > 0) {
+      if(cannotCircularize) {
+        this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
+          description: 'Cannot circularize because start and end sticky ends are not compatible'
+        }));
+      } else {
+        this.insertDiagnosticChildren([0, sequencesLength], diagnosticSuccessTemplate());
+      }
+    }
+  },
+
+  updateDraggableContainerWidth: function() {
+    // This is necessary because the container of inline-block divs doesn't
+    // automatically scale to the full width of its children, which creates
+    // drag and drop issues
+    var $draggableContainer = this.$('.designer-designed-sequence-chunks');
+
+    var totalWidth = _.reduce($draggableContainer.children(), function(memo, element) {
+      return memo + $(element).outerWidth(true);
+    }, 0);
+
+    var maxWidth = $draggableContainer.parent().width();
+
+    var padding = parseInt($draggableContainer.css('paddingRight'), 10) + 
+      parseInt($draggableContainer.css('paddingLeft'), 10);
+
+    $draggableContainer.width(Math.max(totalWidth + padding + 200, maxWidth));
+  }
 
 });

@@ -1,6 +1,7 @@
 import _ from 'underscore';
-import tracedLog from '../../common/lib/traced_log';
 import Hotkeys from '../../common/lib/hotkeys';
+import Modal from '../../common/views/modal_view';
+
 
 var alertUneditableStickyEnd = () => alert('Unable to edit the sticky ends of a sequence');
 
@@ -34,9 +35,7 @@ class Handlers {
       this.$scrollingParent.on('blur', this.handleBlur);
     }
 
-    if(this.editable) {
-      this.$scrollingParent.on('keypress', this.handleKeypress);
-    }
+    this.$scrollingParent.on('keypress', this.handleKeypress);
 
     if(this.scrollable) {
       this.$scrollingParent.on('scroll', this.handleScrolling);
@@ -51,6 +50,18 @@ class Handlers {
   **/
   handleKeypress(event) {
     event.preventDefault();
+    if(!this.editable) {
+      Modal.show({
+        title: 'Read only sequence',
+        subTitle: '',
+        bodyHtml: '<p>This sequence is <b>read only</b> and can not be edited.</p>',
+        confirmLabel: 'Okay.',
+        cancelLabel: false, //"Okay, don't remind me.",
+      }).once('cancel', () => {
+        // TODO:  set the user as not being reminded again
+      });
+      return;
+    }
 
     if (!~_.values(Hotkeys).indexOf(event.which)) {
       var base = String.fromCharCode(event.which).toUpperCase(),
@@ -338,27 +349,24 @@ class Handlers {
   }
 
   handlePaste() {
-    var _this = this,
-      selection = _this.selection,
-      caretPosition = _this.caretPosition;
+    var selection = this.selection;
+    var caretPosition = this.caretPosition;
 
-    if(!this.editable) {
-
-      this.copyPasteHandler.paste().then(function(text) {
+    if(this.editable) {
+      this.copyPasteHandler.paste().then((text) => {
         if (caretPosition !== undefined && !selection) {
-          text = _this.cleanPastedText(text);
-          _this.hideCaret();
-          _this.sequence.insertBases(text, caretPosition);
-          _this.caretPosition = caretPosition + text.length;
-          _this.afterNextRedraw(() => {
-            _this.displayCaret();
+          text = this.cleanPastedText(text);
+          this.hideCaret();
+          this.sequence.insertBases(text, caretPosition);
+          this.caretPosition = caretPosition + text.length;
+          this.afterNextRedraw(() => {
+            this.displayCaret();
           });
-          _this.focus();
+          this.focus();
         }
-
       });
-
     }
+
   }
 
   handleUndo(event) {

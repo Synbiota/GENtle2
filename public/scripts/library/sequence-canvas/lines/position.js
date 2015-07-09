@@ -18,12 +18,13 @@ Options are:
 
 class Position extends Line {
   draw(y, [baseFrom, baseTo]) {
-    const ls          = this.sequenceCanvas.layoutSettings;
-    const artist      = this.sequenceCanvas.artist;
+    const ls = this.sequenceCanvas.layoutSettings;
+    const artist = this.sequenceCanvas.artist;
+    const basesPerStep = this.basesPerStep || ls.basesPerBlock;
 
     var x = ls.pageMargins.left;
 
-    for(let k = baseFrom; k <= baseTo; k += ls.basesPerBlock){
+    for(let k = baseFrom; k <= baseTo; k += basesPerStep){
       let text = isFunction(this.transform) ? this.transform(k+1) : k+1;
       let baseLine = isUndefined(this.baseLine) ? this.height : this.baseLine;
 
@@ -32,7 +33,8 @@ class Position extends Line {
         font: this.textFont
       });
 
-      x += ls.basesPerBlock*ls.basePairDims.width + ls.gutterWidth;
+      x += basesPerStep * ls.basePairDims.width + 
+        Math.floor(basesPerStep / ls.basesPerBlock) * ls.gutterWidth;
     }
   }
 }

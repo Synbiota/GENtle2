@@ -60,6 +60,15 @@ class Utilities {
     );
   }
 
+  /**
+  @method getRowFromYPos
+  @param posY {integer} (relative to sequence)
+  **/
+  getAbsRowFromYPos(posY) {
+    var yOffset = this.layoutHelpers.yOffset || 0;
+    return this.getRowFromYPos(posY + yOffset);
+  }
+
 
   /**
   @method getBaseRangeFromYPos

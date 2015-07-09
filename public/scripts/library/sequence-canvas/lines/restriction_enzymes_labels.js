@@ -1,6 +1,25 @@
 import RestrictionEnzymesSites from './restriction_enzymes_sites';
 import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import _ from 'underscore';
+import $ from 'jquery';
+import SVG from 'svg.js';
+
+function onMouseEnter(sequenceCanvas, selector, baseFrom, baseTo) {
+  $('.' + selector).addClass('active');
+  SVG.select('.' + selector).addClass('active');
+  sequenceCanvas.highlightBaseRange(baseFrom, baseTo);
+}
+
+function onMouseLeave(sequenceCanvas, selector) {
+  $('.' + selector).removeClass('active');
+  SVG.select('.' + selector).removeClass('active');
+  sequenceCanvas.highlightBaseRange();
+}
+
+function onMouseDown(sequenceCanvas, baseFrom, baseTo, event) {
+  event.stopPropagation();
+  sequenceCanvas.select(baseFrom, baseTo);
+}
 
 class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
   constructor(sequenceCanvas, options) {
@@ -57,11 +76,9 @@ class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
   }
 
   draw(y, baseRange) {
-    var sequenceCanvas = this.sequenceCanvas,
-        artist = sequenceCanvas.artist,
-        sequence = sequenceCanvas.sequence,
-        layoutHelpers = sequenceCanvas.layoutHelpers,
-        subSeqPadding = RestrictionEnzymes.maxLength(),
+    var sequenceCanvas = this.sequenceCanvas;
+    var {$childrenContainer, sequence, layoutHelpers} = sequenceCanvas;
+    var subSeqPadding = RestrictionEnzymes.maxLength(),
         displaySettings = sequence.get('displaySettings.rows.res') || {},
         enzymeOptions = {
           // length: displaySettings.lengths || [],
@@ -77,20 +94,23 @@ class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
         initY = y,
         x;
 
+    var row = sequenceCanvas.getAbsRowFromYPos(y);
+    var rowClass = `${sequenceCanvas.id}-res-label-row-${row}`;
+
+    if(document.getElementsByClassName(rowClass).length) return;
+
     enzymes = this.onlyVisibleEnzymes(enzymes, baseRange[0], subSeqPadding);
 
-    y += this.height - _.keys(enzymes).length * this.unitHeight;
+    var count = _.keys(enzymes).length;
 
-    artist.updateStyle({
-      fillStyle: this.textColour,
-      font: this.textFont,
-      lineHeight: this.baseLine === undefined ? this.height : this.baseLine,
-      height: this.unitHeight - (this.margin || 0),
-    });
+    if(count === 0) sequenceCanvas.addChildrenPlaceholder(rowClass);
 
-    artist.setLineDash([1.5,3]);
+    y += this.height - count * this.unitHeight - 5;
 
-    _.each(enzymes, function(enzymes_, position) {
+    var i = -1;
+
+    _.each(enzymes, (enzymes_, position) => {
+      i++;
       position -= baseRange[0] === 0 ? 0 : subSeqPadding;
 
       enzymes_ = _.filter(enzymes_, function(enzyme) {
@@ -102,17 +122,51 @@ class RestrictionEnzymesLabels extends RestrictionEnzymesSites {
 
       if(enzymes_.length === 0) return;
 
-
       x = _this.getBaseX(position, baseRange, true);
-      artist.text(_.pluck(enzymes_, 'name').join(', '), x - 1, y + _this.unitHeight);
-      artist.path(
-        x, y + _this.unitHeight + 3, 
-        x, initY + layoutHelpers.lineOffsets.dna - layoutHelpers.lineOffsets.restrictionEnzymesLabels
-      );
-      y += _this.unitHeight;
-    });
 
-    artist.setLineDash([]);
+      var top = y + _this.unitHeight + layoutHelpers.yOffset;
+      var lineHeight = initY + layoutHelpers.lineOffsets.dna - layoutHelpers.lineOffsets.restrictionEnzymesLabels - y - 2 * this.unitHeight;
+
+      var baseFrom = baseRange[0] + position;
+      var baseTo = baseFrom - 1 + _.max(_.map(enzymes_, (enzyme) => {
+        return enzyme.seq.length;
+      }));
+
+      var $line = $('<div/>')
+        .addClass('res-label-line')
+        .css({height: lineHeight});
+
+      var $label = $('<div/>')
+        .addClass('res-label')
+        .text(_.pluck(enzymes_, 'name').join(', '));
+
+      var resClass = `res-${baseFrom}`;
+      var $container = $('<div/>')
+        .addClass(`res-label-container ${rowClass} ${resClass}`) 
+        .css({top, left: x})
+        .append($label, $line);
+
+      $childrenContainer.append($container);
+
+      $label.on('mouseenter', _.partial(
+        onMouseEnter, 
+        sequenceCanvas, resClass, baseFrom, baseTo
+      ));
+
+      $label.on('mouseleave', _.partial(
+        onMouseLeave, 
+        sequenceCanvas, resClass
+      ));
+
+      $label.on('mousedown', _.partial(
+        onMouseDown, 
+        sequenceCanvas, baseFrom, baseTo
+      ));
+
+      y += _this.unitHeight;
+
+      return;
+    });
     
   }
 }

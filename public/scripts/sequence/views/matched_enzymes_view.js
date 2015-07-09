@@ -2,7 +2,9 @@ import Backbone from 'backbone';
 import template from '../templates/matched_enzymes_view.hbs';
 import _ from 'underscore';
 import Gentle from 'gentle';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import RestrictionEnzymeReplacerView from '../views/restriction_enzyme_replacer_view';
+import Modal from '../../common/views/modal_view';
 
 export default Backbone.View.extend({
   template: template,
@@ -11,12 +13,14 @@ export default Backbone.View.extend({
 
   events: {
     'click .next-enzyme': 'highlightNextEnzyme',
-    'click .open-settings': 'openSettings'
+    'click .open-settings': 'openSettings',
+    'click .launch-modal': 'launchModal'
   },
 
   initialize: function() {
     this.model = Gentle.currentSequence;
-    
+    this.subCodonPosY = 0;
+    this.subCodonPosX = 0;
     this.listenTo(
       this.model, 
       'change:sequence change:displaySettings.rows.res.*',
@@ -28,7 +32,8 @@ export default Backbone.View.extend({
   serialize: function() {
     var model = this.model;
     var displaySettings = model.get('displaySettings.rows.res') || {};
-    var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
+    var sequenceBases = model.getSequence(model.STICKY_ENDS_FULL);
+    var enzymes = RestrictionEnzymes.getAllInSeq(sequenceBases, {
       length: displaySettings.lengths || [],
       customList: displaySettings.custom || [],
       hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
@@ -42,14 +47,31 @@ export default Backbone.View.extend({
       return memo;
     }, {});
 
+    // store the count
+    this.enzymesCount = enzymesCount;
+
+    // Show button for BsaI && NotI
+    var nonCompliantSites = RestrictionEnzymes.getAllInSeq(sequenceBases, {customList: ['BsaI', "NotI"]});
+    if(nonCompliantSites.length !== 0 && !_.isUndefined(nonCompliantSites)) {
+      this.showLaunchButton=true;
+    } else {
+      this.showLaunchButton=false;
+    }
+
     return {
-      enzymesCount
+      enzymesCount,
+      disableButton: !this.showLaunchButton
     };
   },
 
   afterRender: function() {
     var displaySettings = this.model.get('displaySettings.rows.res') || {};
     this.$el.toggleClass('visible', displaySettings.display);
+
+    if(this.enzymesCount == 0){
+      $(".launch-modal").addClass('hidden');  
+      $(".next-enzyme").addClass('hidden');  
+    }
   },
 
   getSequenceCanvas: function() {
@@ -58,7 +80,6 @@ export default Backbone.View.extend({
 
   highlightNextEnzyme: function(event) {
     if(event) event.preventDefault();
-
     var step = 1;
     var sequenceCanvas = this.getSequenceCanvas();
     var positions = _.keys(this.enzymePositions);
@@ -72,14 +93,42 @@ export default Backbone.View.extend({
     var currentEnzymePosition = positions[this.currentEnzymeIndex] ^ 0;
     var length = this.enzymePositions[currentEnzymePosition];
 
-    sequenceCanvas.highlightBaseRange(
-      currentEnzymePosition, 
-      currentEnzymePosition + length
+    sequenceCanvas.select(
+      currentEnzymePosition, (currentEnzymePosition + length - 1)
     );
 
-    sequenceCanvas.afterNextRedraw(function() {
-      sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition);
+    sequenceCanvas.highlightBaseRange(
+      currentEnzymePosition, (currentEnzymePosition + length)      
+    );
+
+    sequenceCanvas.scrollBaseToVisibility(currentEnzymePosition); 
+ 
+
+  },
+
+  launchModal: function(event) {
+    if(event) event.preventDefault();
+
+    var replacerView = new RestrictionEnzymeReplacerView({
+      sequence: this.model,
+      nonCompliantMatches: RestrictionEnzymes.getAllInSeq(
+        this.model.getSequence(), {
+        customList: ['BsaI', 'NotI']
+      })
     });
+
+    Modal.show({
+      bodyView: replacerView,
+      title: 'Fix all BsaI/NotI sites',
+      subTitle: 'The following codon(s) will be substituted to make this sequence into an RDP part.',
+      confirmLabel: 'Replace'
+    }).on('confirm', () => {
+      replacerView.fixSequence();
+    }).on('hide', () => {
+      replacerView.cleanup();
+      replacerView = null;
+    });
+
   },
 
   openSettings: function(event) {

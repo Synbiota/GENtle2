@@ -2,7 +2,39 @@ import Backbone from 'backbone';
 import Gentle from 'gentle';
 import template from '../templates/linear_map_view.hbs';
 import _ from 'underscore';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
+import tooltip from 'gentle-utils/tooltip';
+import tooltipTemplate from 'gentle-sequence-canvas/lines/_feature_tooltip_template.html';
+import SVG from 'svg.js';
+
+
+
+function onFeatureMouseOver(sequenceCanvas, {name, from: frm, to, _id}) {
+  SVG.select(`.svg-feature-${_id}`).addClass('active');
+  sequenceCanvas.highlightBaseRange(frm, to);
+  tooltip.show(tooltipTemplate({
+    name,
+    from: _.formatThousands(frm + 1),
+    to: _.formatThousands(to + 1),
+    size: _.formatThousands(to - frm + 1)
+  }));
+}
+
+function onFeatureMouseOut(sequenceCanvas, {_id}) {
+   SVG.select(`.svg-feature-${_id}`).removeClass('active');
+   sequenceCanvas.highlightBaseRange();
+   tooltip.hide();
+}
+
+function onFeatureClick(sequenceCanvas, {from: frm, to}) {
+  sequenceCanvas.focus();
+  sequenceCanvas.select(frm, to);
+  sequenceCanvas.scrollToBase(frm);
+  sequenceCanvas.scrollBaseToVisibility(to).then(function() {
+    sequenceCanvas.displayCaret(to+1);
+  });
+}
+
 
 export default Backbone.View.extend({
   manage: true,
@@ -29,8 +61,7 @@ export default Backbone.View.extend({
     this.listenTo(
       this.model,
       'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
-      _.debounce(this.refresh, 500),
-      this
+      _.debounce(this.refresh, 500)
     );
   },
 
@@ -45,6 +76,7 @@ export default Backbone.View.extend({
         _this.features.push({
           name: feature.name,
           id: ++id,
+          _id: feature._id,
           from: range.from,
           to: range.to,
           type: feature._type.toLowerCase()
@@ -60,11 +92,10 @@ export default Backbone.View.extend({
   positionFeatures: function() {
     var maxBase = this.maxBaseForCalc || this.model.getLength(),
         viewHeight = this.$el.height(),
-        $featureElement, feature, featureWidth,
+        $featureElement, featureWidth,
         overlapStack = [], overlapIndex;
 
-    for(var i = 0; i < this.features.length; i++) {
-      feature = this.features[i];
+    _.each(this.features, (feature) => {
       featureWidth = Math.max(
         Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight),
         this.minFeatureWidth
@@ -75,6 +106,23 @@ export default Backbone.View.extend({
         width: featureWidth,
         top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset
       });
+
+      var sequenceCanvas = this.sequenceCanvas;
+
+      $featureElement.on('mouseover', _.partial(
+        onFeatureMouseOver,
+        sequenceCanvas, feature
+      ));
+
+      $featureElement.on('mouseout', _.partial(
+        onFeatureMouseOut,
+        sequenceCanvas, feature
+      ));
+
+      $featureElement.on('click', _.partial(
+        onFeatureClick,
+        sequenceCanvas, feature
+      ));
 
       overlapIndex =  overlapStack.length;
 
@@ -88,7 +136,7 @@ export default Backbone.View.extend({
       $featureElement.addClass('linear-map-feature-stacked-'+overlapIndex);
 
       overlapStack[overlapIndex] = [feature.from, feature.to];
-    }
+    });
   },
 
   goToFeature: function(event) {
@@ -238,16 +286,8 @@ export default Backbone.View.extend({
       this.initialRender = false;
       this.sequenceCanvas = sequenceCanvas;
 
-      sequenceCanvas.on(
-        'scroll',
-        this.updateScrollHelperPosition
-      );
-
-      sequenceCanvas.on(
-        'change:layoutHelpers',
-        this.refresh
-      );
-
+      sequenceCanvas.on('scroll', this.updateScrollHelperPosition);
+      sequenceCanvas.on('change:layoutHelpers', this.refresh);
     } else {
 
       this.setupScrollHelper();
@@ -266,6 +306,11 @@ export default Backbone.View.extend({
       //   _this.positionFeatures();
       // });
     }
+  },
+
+  cleanup: function() {
+    this.sequenceCanvas.off('scroll', this.updateScrollHelperPosition);
+    this.sequenceCanvas.off('change:layoutHelpers', this.refresh);
   }
 
 });

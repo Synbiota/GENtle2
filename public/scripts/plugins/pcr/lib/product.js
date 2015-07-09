@@ -1,27 +1,21 @@
-import {assertIsInstance} from '../../../common/lib/testing_utils';
-import Sequence from './sequence';
-import Primer from './primer';
+import Sequence from '../../../sequence/models/sequence';
 
 
-class Product extends Sequence {
-  setup () {
-    super.setup();
-    if(this.primer.constructor !== Primer) {
-      this.primer = new Primer(this.primer);
-    }
+class PcrProductSequence extends Sequence {
+  constructor(attrs, ...args) {
+    attrs.readOnly = true;
+    super(attrs, ...args);
+    this.set({_type: 'pcr_product'}, {silent: true});
   }
 
-  requiredFields () {
-    return [
-      // 'sequence',
-      'from', 'to', 'primer'];
-  }
-
-  validate () {
-    assertIsInstance(this.primer, Primer, 'primer');
-    super.validate();
+  get requiredFields() {
+    return super.requiredFields.concat([
+      'forwardPrimer',
+      'reversePrimer',
+      'stickyEnds'
+    ]);
   }
 }
 
 
-export default Product;
+export default PcrProductSequence;

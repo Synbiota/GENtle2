@@ -18,8 +18,9 @@ var plumber = require('gulp-plumber');
 var gzip = require('gulp-gzip');
 var rev = require('gulp-rev');
 var replace = require('gulp-replace');
+var Q = require('q');
 
-var isDev = process.env.NODE_ENV !== 'production';
+var isDev = global.isDev;
 
 var filepath = './public/stylesheets/app.scss';
 var filedir = path.dirname(filepath);
@@ -56,7 +57,7 @@ var autoprefixerOptionsDev = {
   cascade: false
 };
 
-var run = function(watch) {
+var run = function(watch, cb) {
   var target = filepath;
 
   if(watch) {
@@ -85,8 +86,6 @@ var run = function(watch) {
   }
 
   bundle = bundle
-    .on('end', function() { bundleLogger.end(target.replace('.scss', '.css')); })
-    .on('error', bundleLogger.error)
     // .pipe(remember('stylesheets')) 
     .pipe(rename({ extname: '.css' }))
     .pipe(gulp.dest(destPath));
@@ -103,7 +102,15 @@ var run = function(watch) {
       .pipe(gulp.dest(destPath + '../../')); 
   }
 
-  return bundle;
+  return bundle
+    .on('end', function() { 
+      bundleLogger.end(target.replace('.scss', '.css')); 
+      if(cb) cb();
+    })
+    .on('error', function(err) {
+      bundleLogger.error(err);
+      if(cb) cb(err);
+    });
 };
 
 var buildTheme = function(cb) {
@@ -115,9 +122,12 @@ var buildTheme = function(cb) {
     }))
     .pipe(source(themeJsonPath))
     .pipe(rename({extname: '.scss'}))
+    .on('error', function(err) {
+      if(cb) cb(err);
+    })
     .on('end', function() { 
       bundleLogger.end(themeJsonPath.replace('.json', '.scss'));
-      cb();
+      if(cb) cb();
     })
     .pipe(gulp.dest(themeScssDest));
 };
@@ -127,9 +137,17 @@ var runAndWatch = _.partial(buildTheme, _.partial(run, true));
 gulp.task('theme', buildTheme);
 
 gulp.task('css', function() { 
-  buildTheme(function() { 
-    run();
+  var def = Q.defer();
+
+  buildTheme(function(err) { 
+    if(!err) {
+      run(false, function() {
+        def.resolve();
+      });
+    }
   }); 
+
+  return def.promise;
 });
 
 gulp.task('css-only', function() { run(); });
@@ -141,7 +159,7 @@ gulp.task('css:watch', function() {
 
   gulp.watch('./public/{stylesheets,scripts}/**/*.scss', ['css-only'])
     .on('change', function (event) {
-      bundleLogger.rebuild(path.relative(filedir, event.path));
+      bundleLogger.rebuild(path.relative(filedir, event.path), filepath);
       if (event.type === 'deleted') {                  
         delete cached.caches.stylesheets[event.path];      
         remember.forget('stylesheets', event.path);        

@@ -1,15 +1,22 @@
 <div class="modal-dialog">
   <div class="modal-content">
     <div class="modal-header">
-      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      <button class="close modal-cancel" aria-label="Close">
         <span aria-hidden="true">&times;</span>
       </button>
-      <h4 class="modal-title">{{modalTitle}}</h4>
+      <h4 class="modal-title">{{title}}</h4>
+      {{#if subTitle}}
+        <div class="separator"></div>
+        <span class="text-muted">{{subTitle}}</span>
+      {{/if}}
     </div>
     <div class="modal-body">
     </div>
-{{!--     <div class="modal-footer">
-      {{modalFooter}}
-    </div> --}}
+    {{#if displayFooter}}
+      <div class="modal-footer text-center">
+        {{#if cancelLabel}}<button class="btn btn-default modal-cancel">{{cancelLabel}}</button>{{/if}}
+        <button class="btn btn-primary modal-confirm">{{confirmLabel}}</button>
+      </div>
+    {{/if}}
   </div>
 </div>

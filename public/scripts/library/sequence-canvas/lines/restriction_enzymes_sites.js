@@ -1,6 +1,7 @@
 import Line from './line';
 import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import {each} from 'underscore';
+import tracedLog from '../../../common/lib/traced_log';
 
 class RestrictionEnzymeSites extends Line {
 
@@ -45,18 +46,31 @@ class RestrictionEnzymeSites extends Line {
           baseRange[1] + subSeqPadding
         ),
         baseRangeLength = baseRange[1] - baseRange[0] + 1,
-        enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions),
         x, x2, initPosition, points, negativeOffset, basesLength,
         _this = this;
 
-    y -= 2; // Styling
 
-    artist.updateStyle({
-      strokeStyle: '#59955C',
-      lineWidth: 1
-    });
+    y -= 2; // Styling
+    y += layoutHelpers.yOffset;
+
+    var row = sequenceCanvas.getAbsRowFromYPos(y);
+    var rowClass = `${sequenceCanvas.id}-res-sites-row-${row}`;
+
+    if(document.getElementsByClassName(rowClass).length) return;
+
+    var enzymes = RestrictionEnzymes.getAllInSeq(expandedSubSeq, enzymeOptions);
+
+    if(enzymes.length === 0) sequenceCanvas.addChildrenPlaceholder(rowClass);
+
+    // artist.updateStyle({
+    //   strokeStyle: '#59955C',
+    //   lineWidth: 1
+    // });
+    // 
+    var i = -1;
 
     each(enzymes, function(enzymes_, position) {
+      i++;
       position = +position - (baseRange[0] === 0 ? 0 : subSeqPadding);
       initPosition = position;
 
@@ -74,27 +88,27 @@ class RestrictionEnzymeSites extends Line {
 
         // Line above DNA
         if(enzyme.cut > 0 && position <= baseRangeLength && position + enzyme.cut > 0) {
-          points = points.concat([
-            _this.getBaseX(position, baseRange, !negativeOffset), y + dnaY,
-            _this.getBaseX(initPosition + enzyme.cut, baseRange, negativeOffset), y + dnaY
-          ]);
+          points.push(
+            [_this.getBaseX(position, baseRange, !negativeOffset), y + dnaY],
+            [_this.getBaseX(initPosition + enzyme.cut, baseRange, negativeOffset), y + dnaY]
+          );
         }
 
         // First cut
         position = (negativeOffset ? initPosition : position) + enzyme.cut;
         if(position >= 0 && position < baseRangeLength) {
           x = _this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0);
-          points = points.concat(
-            x, y + dnaY,
-            x, y + complementsY
+          points.push(
+            [x, y + dnaY],
+            [x, y + complementsY]
           );
         }
 
         // Line below DNA
         if((negativeOffset && position > 0 && position + enzyme.offset <= baseRangeLength) || position <= baseRangeLength && position + enzyme.offset > 0) {
-          points = points.concat(
-            _this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0), y + complementsY,
-            _this.getBaseX(position + enzyme.offset, baseRange), y + complementsY
+          points.push(
+            [_this.getBaseX(position, baseRange, !negativeOffset && enzyme.cut === 0), y + complementsY],
+            [_this.getBaseX(position + enzyme.offset, baseRange), y + complementsY]
           );
         }
 
@@ -102,9 +116,9 @@ class RestrictionEnzymeSites extends Line {
         position += enzyme.offset;
         if(position >= 0 && position < baseRangeLength) {
           x = _this.getBaseX(position, baseRange);
-          points = points.concat(
-            x, y + complementsY,
-            x, y + complementsY + complementsHeight
+          points.push(
+            [x, y + complementsY],
+            [x, y + complementsY + complementsHeight]
           );
         }
 
@@ -113,16 +127,18 @@ class RestrictionEnzymeSites extends Line {
           x = _this.getBaseX(position, baseRange);
           x2 = _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange);
           if(x !== x2) {
-            points = points.concat(
-              _this.getBaseX(position, baseRange), 
-              y + complementsY + complementsHeight,
-              _this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
-              y + complementsY + complementsHeight
+            points.push(
+              [_this.getBaseX(position, baseRange), 
+                            y + complementsY + complementsHeight],
+              [_this.getBaseX(negativeOffset ? initPosition : initPosition + enzyme.seq.length, baseRange), 
+                            y + complementsY + complementsHeight]
             );
           }
         }
 
-        if(points.length) artist.path(...points);
+        var resClass = `res-${initPosition + baseRange[0]}`;
+        
+        sequenceCanvas.svg.polyline(points).addClass(`res-site ${rowClass} ${resClass}`);
 
       });
     });

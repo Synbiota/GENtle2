@@ -2,7 +2,7 @@ import {handleError} from '../../common/lib/handle_error';
 import Q from 'q';
 import Artist from '../../common/lib/graphics/artist';
 import _ from 'underscore';
-import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
+import RestrictionEnzymes from 'gentle-restriction-enzymes';
 import Styles from '../../styles.json';
 
 var LineStyles = Styles.sequences.lines;

@@ -15,6 +15,7 @@ import FT_cm5       from './cm5';
 import FT_cm5_text  from './cm5_text';
 import Q            from 'q';
 import saveAs       from 'filesaver.js';
+import _            from 'underscore';
 
 
 var Filetypes = function() {};
@@ -41,7 +42,6 @@ Guesses filetype and parse sequence from string (Class method)
 **/
 Filetypes.guessTypeAndParseFromText = function(text, name) {
   var sequences = [];
-
   return Q.promise(function(resolve, reject) {
     text = text.trim();
     for(var filetypeName in Filetypes.types) {
@@ -70,7 +70,6 @@ Guesses filetype and parse sequence from ArrayBuffer (Class method)
 **/
 Filetypes.guessTypeAndParseFromArrayBuffer = function(ab, name) {
   var sequences = [];
-
   return Q.promise(function(resolve, reject) {
     for(var filetypeName in Filetypes.types) {
       try {
@@ -99,7 +98,7 @@ Filetypes.exportToFile = function(format, sequence)  {
     throw new TypeError();
   }
   file = new FileType();
-  saveAs(file.getExportBlob(sequence).blob, sequence.name + '.' + file.getFileExtension());
+  saveAs(file.getExportBlob(sequence).blob, (sequence.shortName || sequence.name) + '.' + file.getFileExtension());
 };
 
 
@@ -117,6 +116,33 @@ Filetypes.exportToString = function(format, sequence)  {
 };
 
 
+var readFromFileReader = function(file) {
+  var reader  = new FileReader();
+
+  return Q.promise(function(resolve, reject) {
+    reader.onload = function(event) {
+      console.log('file success', file.name, event.target.result)
+      resolve({name: file.name, content: event.target.result});
+    };
+
+    reader.onerror = function() {
+      reject(file.name);
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+};
+
+var readFromReadData = function(file) {
+  return Q.promise(function(resolve, reject) {
+    file.readData(function(str) {
+      resolve({name: file.name, content: str})
+    }, function() {
+      reject(file.name);
+    });
+  });
+};
+
 /**
 Loads the file and returns the text content (Class method)
 @method loadFile
@@ -125,25 +151,11 @@ Loads the file and returns the text content (Class method)
 @returns {String} file content
 **/
 Filetypes.loadFile = function(file, read_binary) {
-  var reader  = new FileReader(),
-      promise;
-
-  // Promise resolving or rejecting based on response of FileReader uploading the file.
-  promise = Q.promise(function(resolve, reject) {
-    reader.onload = function(event) {
-      resolve({name: file.name, content: event.target.result});
-    };
-    reader.onerror = function(event) {
-      reject(file.name);
-    };
-  });
-
-  // Read in the image file as a data URL.
-  //if ( read_binary === true )
-  reader.readAsArrayBuffer(file);
-  //else reader.readAsText(file);
-
-  return promise;
+  if(_.isFunction(file.readData)) {
+    return readFromReadData(file);
+  } else {
+    return readFromFileReader(file);
+  }
 };
 
 export default Filetypes;

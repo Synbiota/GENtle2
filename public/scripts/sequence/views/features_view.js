@@ -1,9 +1,12 @@
+// TODO add dependency on underscore.mixin
+import _ from 'underscore';
+
 /**
 @module Sequence
 @submodule Views
 @class FeaturesView
 **/
-// define(function(require) {
+
   var template = require('../templates/features_view.hbs'),
     Gentle = require('gentle'),
     SynbioData = require('../../common/lib/synbio_data'),
@@ -53,12 +56,11 @@
     },
 
     startEditing: function(event) {
-      var feature = this.getFeatureFromElement(event.currentTarget),
-        ranges = feature.ranges;
+      var feature = this.getFeatureFromElement(event.currentTarget);
 
       event.preventDefault();
 
-      this.editedFeature = _.clone(feature);
+      this.editedFeature = _.deepClone(feature);
       this.creating = false;
       this.setupRanges();
       this.refresh();
@@ -171,7 +173,7 @@
         this.errors.name = true;
       }
 
-      if (_.isEmpty(this.errors)) {
+      if(_.isEmpty(this.errors)) {
         ranges = _.map(acceptedRanges, function(range) {
           delete range._canDelete;
           delete range._canAdd;
@@ -242,6 +244,6 @@
     },
 
   });
+
+
 export default FeaturesView;
-  // return FeaturesView;
-// });

@@ -6,10 +6,10 @@
 import Backbone from 'backbone';
 import template from '../templates/home_designer_view.hbs';
 import Sequence from '../../../sequence/models/sequence';
-import Filetypes from '../../../common/lib/filetypes/filetypes';
 import Gentle from 'gentle';
 import Q from 'q';
 import _ from 'underscore';
+import uploadMultipleSequences from '../lib/upload_multiple_sequences';
 
 export default Backbone.View.extend({
   manage: true,
@@ -45,31 +45,9 @@ export default Backbone.View.extend({
   openSequenceFromFile: function(event) {
     event.preventDefault();
     var $form     = $('.home-designer-form').first(),
-        input     = $form.find('input[name=file]')[0],
-        loadedSequences = [];
+        input     = $form.find('input[name=file]')[0];
 
-    var onLoad = function(result) {
-      return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
-        if ( sequences.length ) {
-          loadedSequences = loadedSequences.concat(sequences);
-        } else{
-         alert('Could not parse the sequence.');
-        }
-      }, function (err) {
-        console.log(err);
-        alert('Could not parse the sequence.');
-      });
-    };
-
-    var onError = function(filename) {
-      alert('Could not load file ' + filename);
-    };
-
-    var onLoadPromises = _.map(input.files, function(file) {
-      return Filetypes.loadFile(file,true).then(onLoad, onError);
-    });
-
-    Q.all(onLoadPromises).then(() => {
+    uploadMultipleSequences(input.files).then((loadedSequences) => {
       this.createNewSequence(event, loadedSequences);
     }).done();
 

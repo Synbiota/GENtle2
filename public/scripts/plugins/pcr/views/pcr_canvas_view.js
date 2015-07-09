@@ -2,9 +2,9 @@ import Backbone from 'backbone';
 import template from '../templates/pcr_canvas_view.hbs';
 import Gentle from 'gentle';
 import SequenceCanvas from 'gentle-sequence-canvas';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import _ from 'underscore';
 import Styles from '../../../styles.json';
+
 
 var LineStyles = Styles.sequences.lines;
 var featuresColors = LineStyles.features.color;
@@ -35,11 +35,13 @@ export default Backbone.View.extend({
   getSequenceColour: function(base, pos, defaultColor) {
     defaultColor = defaultColor || colors.default.text;
 
-    if(!this.product) return defaultColor;
+    let forwardPrimer = this.model.get('forwardPrimer');
+    let reversePrimer = this.model.get('reversePrimer');
 
-    if(pos > this.product.get('forwardPrimer').to && pos <= this.product.get('reversePrimer').to) {
+    if(!forwardPrimer || !reversePrimer) return defaultColor;
+    if(pos >= forwardPrimer.range.to && pos < reversePrimer.range.from) {
       return defaultColor;
-    } else if(pos >= this.product.get('forwardAnnealingRegion').from && pos <= this.product.get('reverseAnnealingRegion').from){
+    } else if(pos >= forwardPrimer.annealingRegion.range.from && pos < reversePrimer.annealingRegion.range.to){
       return colors.annealingRegion.fill;
     } else {
       return colors.stickyEnd.fill;
@@ -51,9 +53,7 @@ export default Backbone.View.extend({
     this.product = product;
   },
 
-  //TODO refactor this
   setSequence: function(sequence) {
-    sequence = TemporarySequence.ensureTemporary(sequence);
     sequence.setStickyEndFormat('full');
     this.model = sequence;
   },

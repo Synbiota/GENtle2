@@ -13,6 +13,16 @@ export default Backbone.View.extend({
     'click .sequencing-primers-product': 'showPrimer'
   },
 
+  beforeRender: function() {
+    if(!this._eventsInitialized) {
+      this.parentView().canvasView.on('feature:click', (event, {featureId}) => {
+        var $el = this.$(`[data-product_id="${featureId}"]`);
+        this.highlightPrimer($el, true);
+      });
+      this._eventsInitialized = true;
+    }
+  },
+
   serialize: function() {
     return {
       products: this.getProducts(),
@@ -33,7 +43,7 @@ export default Backbone.View.extend({
 
   missingUniversalPrimer: function(reverse = false) {
     return !_.some(this.getProducts(), function(product) {
-      return (reverse ? /U-rvs/ : /U-fwd/).test(product.primer.name);
+      return (reverse ? /Rvs Cap/ : /Fwd Anchor/).test(product.primer.name);
     });
   },
 
@@ -51,11 +61,12 @@ export default Backbone.View.extend({
     this.parentView().scrollToProduct($target.data('product_id'));
   },
 
-  highlightPrimer: function($el) {
+  highlightPrimer: function($el, scroll = false) {
     this.$('.sequencing-primers-product').removeClass('active');
     if($el) {
       this.highlightedProductId = $el.data('product_id');
       $el.addClass('active');
+      if(scroll) this.scrollProductToVisibility($el);
     } else {
       this.highlightedProductId = undefined;
     }
@@ -90,12 +101,25 @@ export default Backbone.View.extend({
     return this.$el.closest('.sequencing-primers-products-outer-container');
   },
 
+  scrollProductToVisibility: function($product) {
+    var distanceToVisibility = this.distanceToVisibility($product);
+    var $scrollingParent = this.getScrollingParent();
+
+    if(distanceToVisibility !== 0) {
+      $scrollingParent.animate({
+        scrollTop: $scrollingParent.scrollTop() + distanceToVisibility
+      }, 150);
+    }
+  },
+
   scrollToFirstProductInRange: function(baseRange) {
     var sortedProducts = this.sortProductsForScrolling();
 
     var product = _.find(sortedProducts, function(product_) {
-      return product_.primer.from <= baseRange[1] && product_.primer.to >= baseRange[0];
+      return product_.primer.range.from <= baseRange[1] && product_.primer.range.to > baseRange[0];
     });
+
+
 
     // TODO REmove that and required functions if we indeed remove that behaviour
     // (maybe move the logic in a module)

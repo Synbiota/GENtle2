@@ -3,7 +3,6 @@ import Gentle from 'gentle';
 import template from '../templates/sticky_ends_settings_view.hbs';
 import _ from 'underscore';
 
-var getDefaultStickyEnd = () => ({size: 0, offset: 0});
 
 export default Backbone.View.extend({
   manage: true,
@@ -19,7 +18,7 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    var stickyEnds = this.model.getStickyEnds();
+    var stickyEnds = this.model.getStickyEnds(false);
     if(stickyEnds) {
       this.setFormData('start', stickyEnds.start);
       this.setFormData('end', stickyEnds.end);
@@ -61,7 +60,7 @@ export default Backbone.View.extend({
       if(data_.enabled) {
         return _.pick(data_, 'name', 'reverse', 'offset', 'size');
       } else {
-        return getDefaultStickyEnd();
+        return {size: 0, offset: 0, reverse: false, name: ''};
       }
     };
 

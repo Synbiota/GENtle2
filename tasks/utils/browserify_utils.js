@@ -1,7 +1,8 @@
+var glob = require('glob');
+var path = require('path');
 var aliases = require('./javascript_aliases');
-var envify = require('envify/custom');
-var appEnv = require('./import_app_env');
-var isDev = process.env.NODE_ENV !== 'production';
+var isDev = global.isDev;
+process.env.BUGSNAG_APP_VERSION = require('../../package.json').version;
 
 var vendorLibs = [
   'jquery',
@@ -14,16 +15,23 @@ var vendorLibs = [
   'backbone.localstorage',
   'bugsnag-js',
   'filesaver.js',
-  'jquery-ui',
+  // 'jquery-ui',
   'jquery-ui-touch-punch',
   'q',
-  'underscore-deep-extend'
+  'underscore-deep-extend',
+  'filedrop'
 ];
 
+var additionalHbsfyRequires = glob
+  .sync('./public/scripts/**/*_handlebars_helpers.js')
+  .reduce(function(memo, file) {
+    return memo + ' require("'+path.resolve(file)+'");';
+  }, '');
+
 var appTransforms = [
-  [ 'jstify', {} ],
-  [ 'hbsfy', {compiler: 'require("handlebars.mixed");'} ],
-  [ 'babelify', {} ],
+  [ 'jstify', {minifierOpts: {collapseWhitespace: false}} ],
+  [ 'hbsfy', {compiler: 'require("handlebars.mixed");' + additionalHbsfyRequires} ],
+  [ 'babelify', {optional: ['runtime']} ],
   [ 'aliasify', {aliases: aliases} ]
 ];
 
@@ -31,7 +39,7 @@ var vendorTransforms = [];
 
 if(!isDev) {
   appTransforms.push(
-    [ envify(appEnv), {} ],
+    [ 'envify', {} ],
     [ 'uglifyify', { global: true } ]
   );
 
