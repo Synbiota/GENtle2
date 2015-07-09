@@ -75,7 +75,7 @@ export default Backbone.View.extend({
 
       var position = 0;
 
-      if (fragment.map) position = fragment.map.best().position;
+      if (fragment.map) position = fragment.map.position;
 
       _this.fragments.push({
         id: ++id,

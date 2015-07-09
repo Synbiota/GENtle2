@@ -1,6 +1,6 @@
 import _ from 'underscore';
 import SequenceCanvas from '../lib/sequence_canvas';
-import BiDirectional from 'gentle-sequence-canvas/bi_directional';
+// import BiDirectional from 'gentle-sequence-canvas/bi_directional';
 
 import classMixin from 'gentle-utils/class_mixin';
 import Core from 'gentle-sequence-canvas/core';

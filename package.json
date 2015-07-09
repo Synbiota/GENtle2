@@ -61,7 +61,7 @@
     "morgan": "^1.4.0",
     "node-env-file": "^0.1.7",
     "node-notifier": "^4.1.2",
-    "ntseq": "^1.0.9",
+    "ntseq": "git://github.com/laucliff/NtSeq.git",
     "object-assign": "^2.0.0",
     "opener": "^1.4.1",
     "pretty-hrtime": "^1.0.0",

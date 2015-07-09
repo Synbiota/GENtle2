@@ -1383,9 +1383,9 @@ export default function sequenceModelFactory(BackboneModel) {
       var startBase = 0,
           endBase = this.getLength() - 1;
 
-      var test = this.getConsensusSubSeq(startBase, endBase);
+      var sequence = this.getConsensusSubSeq(startBase, endBase);
 
-      return _.map(test, function(base){
+      return _.map(sequence, function(base){
         if (_.contains(['A', 'C', 'G', 'T'], base)){
           return 11
         } else if (_.contains(['N'], base)){
@@ -1399,16 +1399,99 @@ export default function sequenceModelFactory(BackboneModel) {
     }
 
     getConsensusSubSeq(startBase, endBase){
-      var comparator, seq;
+      var comparator, seq, map;
+
+      //identify break points
+      //where fragment starts
+      //where it ends
+      //
+      // assume sorted
+      //
+      // for each fragment
+      //
+      // first fragment
+      // if start in range get subseq (startBase, fragment.position)
+      // if end in range get fragment subseq (startBase, fragment.position+fragment.length)
+      //
+      // next fragment
+      // if not current fragment do first fragment logic
+      // if start > current fragmentEnd get slice of (current.fragmentEnd, fragment.start) then do first fragment logic
+      // if start < current fragmentEnd get get slice of fragment (current.fragmentEnd - fragment.start, fragment.end)
+      // if start > endBase get subseq (current.end, endBase)
+
+      var seq = [], _this = this;
+
+      // _.forEach(this.get('chromatogramFragments'), function(fragment){
+
+      //   var inRange = (x) => { return ((startBase < x) && (x < endBase)); }
+
+      //   var start = fragment.position,
+      //       end = fragment.position + fragment.length;
+
+      //   if (!cursor){
+
+      //     if (inRange(start)) {
+      //       // seq.push(_this.getSubSeq(startBase, start))
+      //       toAdd = _this.getSubSeq(startBase, start)
+      //     } else if (inRange(end)) {
+      //       // seq.push(_this.getSubSeq(startBase, end))
+      //       toAdd = _this.getSubSeq(startBase, end)
+      //     }
+
+
+      //   } else {
+      //     var cursorStart = cursor.start,
+      //         cursorEnd = cursor.position + cursor.length
+
+      //     // fragment is outside of subsequence range
+      //     if (start > endBase){
+
+      //       toAdd = cursor.getSequence().slice(0, endBase - cursorEnd)
+
+      //       toAdd.concat(_this.getSubSeq(cursorEnd, endBase))
+
+      //       return;
+      //     }
+      //     else if (start > cursorEnd) {
+      //       toAdd = cursor.getSequence()
+      //       toAdd.concat( slice(cursorEnd, start) )
+      //     }
+      //     else if (start < cursorStart) {
+      //       toAdd = cursor.getSubSeq(0, cursor.length - (lastFragmentEnd - start))
+
+      //       // toAdd = _this.getSubSeq()
+
+      //     }
+      //   }
+
+
+      //   lastFragment = fragment
+
+      //   seq.push(toAdd)
+
+      // })
+
+
 
       if (this.get('chromatogramFragments').length){
-        comparator = this.get('chromatogramFragments')[0].getSequence() || this.get('chromatogramFragments')[0].sequence
+        // return this.consensus.alignmentMask().sequence().substr(startBase, endBase - startBase + 1)
+        comparator = this.get('chromatogramFragments')[0].getSequence()
         comparator = new Nt.Seq().read(comparator)
+
+        // fragments = _.filter(this.get('chromatogramFragments'), function(fragment){
+        //   return (startBase < fragment.startBase) && (fragment.startBase < endBase) ||
+        //   (startBase < fragment.endBase) && (fragment.endBase < endBase)
+        // })
+
       } else {
         comparator = this.ntSeq
       }
 
-      seq = this.ntSeq.mapSequence(comparator).best().alignmentMask().sequence()
+      var match = this.ntSeq.mapSequence(comparator).best()
+      seq = match.alignmentMask().sequence()
+
+      var seq = this.getSequence().slice(0, match.position) + seq + this.getSequence().slice(match.position+seq.length);
+
 
       return seq.substr(startBase, endBase - startBase + 1);
     }
@@ -1416,12 +1499,18 @@ export default function sequenceModelFactory(BackboneModel) {
     addChromatogram(chromatogram){
       var sequence = new Sequence(chromatogram)
 
-      var seq1 = new Nt.Seq().read(this.getSequence());
+      // var seq1 = new Nt.Seq().read(this.getSequence());
+
+      var seq1 = this.consensus ? this.consensus.alignmentMask() : new Nt.Seq().read(this.getSequence());
+
       var seq2 = new Nt.Seq().read(chromatogram.sequence);
 
-      var map = new Nt.MatchMap(seq1, seq2);
+      var map = seq1.mapSequence(seq2).best();
 
-      sequence.map = map
+      sequence.map = map;
+
+      this.consensus = seq1.mapSequence(seq2).best();
+
 
       this.set('chromatogramFragments',
         this.get('chromatogramFragments').concat(sequence)

@@ -638,7 +638,7 @@ class SequenceCanvasCore {
       var xOffset = 0;
 
       if (row.sequence && row.sequence.map){
-        var position = row.sequence.map.best().position;
+        var position = row.sequence.map.position;
         var relativePosition = baseRange[0] - position;
 
         if (relativePosition < 0) {
