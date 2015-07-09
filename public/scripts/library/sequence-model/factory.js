@@ -13,6 +13,10 @@ import HistorySteps from '../../sequence/models/history_steps';
 const STICKY_END_FULL = 'full';
 const STICKY_END_OVERHANG = 'overhang';
 const STICKY_END_NONE = 'none';
+// Used to represent cases when there are no sticky ends on the model so the
+// format type does not matter.  NOTE: this is not a valid format to set on the
+// sequenceModel.  Only a valid format to request of functions.
+var STICKY_END_ANY;
 const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
 
 
@@ -152,6 +156,10 @@ function sequenceModelFactory(BackboneModel) {
 
     get STICKY_END_NONE() {
       return STICKY_END_NONE;
+    }
+
+    get STICKY_END_ANY() {
+      return STICKY_END_ANY;
     }
 
     /**
@@ -442,6 +450,19 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     /**
+     * @method  getSubSeqExclusive
+     * @param  {Integer} startBase  Inclusive
+     * @param  {Integer} size
+     * @param  {String} stickyEndFormat=undefined
+     * @return {String}
+     */
+    getSubSeqExclusive(startBase, size, stickyEndFormat=undefined) {
+      var len = this.getLength(stickyEndFormat);
+      startBase = Math.min(Math.max(0, startBase), len - 1);
+      return this.getSequence(stickyEndFormat).substr(startBase, size);
+    }
+
+    /**
      * @method minOverhangBeyondStartStickyEndOnBothStrands
      * @param  {Integer} pos
      * @return {Integer}
@@ -530,7 +551,7 @@ function sequenceModelFactory(BackboneModel) {
      *        isOnReverseStrand: {Boolean}  true if sequence is on reverse strand
      */
     getStickyEndSequence(getStartStickyEnd) {
-      var wholeSequence = super.get('sequence');
+      var wholeSequence = this.getSequence(this.STICKY_END_FULL);
       var stickyEnds = this.getStickyEnds(true);
 
       var stickyEnd, offset;
