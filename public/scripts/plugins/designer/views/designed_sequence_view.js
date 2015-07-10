@@ -2,7 +2,7 @@ import Backbone from 'backbone';
 import template from '../templates/designed_sequence_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
 import xScrollingUi from '../lib/x_scrolling_ui';
-import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/assemble_sequence';
+import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/wip_circuit';
 import diagnosticErrorTemplate from '../templates/diagnostic_error_template.hbs';
 import diagnosticSuccessTemplate from '../templates/diagnostic_success_template.hbs';
 import $ from 'jquery';
@@ -17,13 +17,6 @@ export default Backbone.View.extend({
     'click .designer-draggable-trash': 'onTrashClick'
   },
 
-  initialize: function() {
-    this.listenTo(this.model.model, 'change:isCircular', () => {
-      this.emptyDiagnostic();
-      this.updateDiagnostic();
-    });
-  },
-
   onTrashClick: function(event) {
     event.stopPropagation();
     var $element = $(event.currentTarget).parent();
@@ -32,19 +25,15 @@ export default Backbone.View.extend({
     this.emptyDiagnostic();
     this.updateDiagnostic();
     this.updateDraggableContainerWidth();
-    if(this.model.sequences.length === 0) this.render();
+    if(this.model.get('sequences').length === 0) this.render();
   },
 
   serialize: function() {
-    var output = {};
-
-    if(this.model.sequences.length) {
-      output.sequences = this.model.sequences;
-    } else {
-      output.empty = true;
+    var sequences = this.model.get('sequences');
+    return {
+      sequences,
+      empty: sequences.length === 0
     }
-
-    return output;
   },
 
   renderAndSave: function () {
@@ -55,7 +44,10 @@ export default Backbone.View.extend({
 
   insertFromAvailableSequence: function(sequenceId, beforeIndex = 0) {
     var model = this.model;
-    var sequence = _.find(model.allSequences, (s) => s.get('id') === sequenceId);
+    var sequence = _.find(
+      model.get('availableSequences'), 
+      s => s.get('id') === sequenceId
+    );
     model.insertSequence(beforeIndex, sequence);
     model.throttledSave();
   },
@@ -224,8 +216,8 @@ export default Backbone.View.extend({
   },
 
   updateDiagnostic: function() {
-    var errors = this.model.errors;
-    var sequencesLength = this.model.sequences.length;
+    var errors = this.model.get('errors');
+    var sequencesLength = this.model.get('sequences').length;
 
     // Incompatible sticky ends
     var errorIndices = _.pluck(

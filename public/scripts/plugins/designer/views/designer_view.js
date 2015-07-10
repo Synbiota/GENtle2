@@ -11,29 +11,12 @@ import DiagnosticModalView from './designer_diagnostic_modal_view';
 import cleanSearchableText from '../lib/clean_searchable_text';
 import Q from 'q';
 
-var filterSequencesByStickyEnds = function(assembleSequence, stickyEndNames, inverse = false) {
-  if(!_.isArray(stickyEndNames)) stickyEndNames = [stickyEndNames];
-  return function() {
-    return _.filter(assembleSequence.allSequences, function(sequence) {
-      var stickyEnds = sequence.getStickyEnds();
-      var sequenceStickyEndName = `${stickyEnds.start.name}-${stickyEnds.end.name}`.toLowerCase();
-      var hasMatchingStickyEnds = _.some(stickyEndNames, (stickyEndName) => {
-        return  sequenceStickyEndName === stickyEndName;
-      });
-      return stickyEnds && (inverse ? !hasMatchingStickyEnds : hasMatchingStickyEnds);
-    });
-  };
-
-};
-
 var DesignerView = Backbone.View.extend({
   template: template,
   manage: true,
   className: 'designer',
 
   events: {
-    // 'click .toggle-annotations': 'toggleAnnotations',
-    // 'click .toggle-uninsertable-sequences': 'toggleUninsertableSequences',
     'change #circularise-dna': 'updateCirculariseDna',
     'click .designer-available-sequences-header button': 'triggerFileInput',
     'change .file-upload-input': 'uploadNewSequences',
@@ -43,22 +26,22 @@ var DesignerView = Backbone.View.extend({
   },
 
   initialize: function() {
-    this.model = new AssembleSequence(Gentle.currentSequence);
-
-    // Default to `circular` true
-    if(this.model.sequences.length === 0) {
-      this.model.set({'isCircular': true}, {silent: true});
-    }
+    var model = this.model = Gentle.currentSequence;
 
     var outlet1StickyEndNames = [
       'x-z\'', 'da20-z\'', 'x-dt20'
     ];
 
+    var filterbyStickyEnds = _.bind(
+      model.filterAvailableSequencesByStickyEnds, 
+      model
+    );
+
     this.setView(
       '.designer-available-sequences-outlet.outlet-1', 
       new AvailableSequencesView({
         name: 'x-z\' Parts',
-        getSequences: filterSequencesByStickyEnds(this.model, outlet1StickyEndNames)
+        getSequences: filterbyStickyEnds(outlet1StickyEndNames)
       })
     );
 
@@ -70,7 +53,7 @@ var DesignerView = Backbone.View.extend({
       '.designer-available-sequences-outlet.outlet-2', 
       new AvailableSequencesView({
         name: 'z-x\' Parts',
-        getSequences: filterSequencesByStickyEnds(this.model, outlet2StickyEndNames)
+        getSequences: filterbyStickyEnds(outlet2StickyEndNames)
       })
     );
 
@@ -80,7 +63,7 @@ var DesignerView = Backbone.View.extend({
       '.designer-available-sequences-outlet.outlet-3', 
       new AvailableSequencesView({
         name: 'Linker parts',
-        getSequences: filterSequencesByStickyEnds(this.model, outlet3StickyEndNames, true)
+        getSequences: filterbyStickyEnds(outlet3StickyEndNames, true)
       })
     );
 
@@ -103,7 +86,7 @@ var DesignerView = Backbone.View.extend({
 
   uploadNewSequences: function(event) {
     uploadMultipleSequences(event.target.files).then((sequences) => {
-      this.model.addSequences(sequences);
+      this.model.addAvailableSequences(sequences);
       this.render();
     }).done();
   },
@@ -111,13 +94,7 @@ var DesignerView = Backbone.View.extend({
   serialize: function() {
     return {
       sequenceName: this.model.get('name'),
-      circulariseDna: this.model.get('isCircular'),
-      // insertableSequences: _.pluck(this.model.insertableSequences, 'id'),
-      // uninsertableSequences: this.model.incompatibleSequences.length + this.model.lackStickyEndSequences.length,
-      // incompatibleSequences: _.pluck(this.model.incompatibleSequences, 'id'),
-      // lackStickyEndSequences: _.pluck(this.model.lackStickyEndSequences, 'id'),
-      // showAnnotations: Gentle.currentUser.get('displaySettings.designerView.showAnnotations') || false,
-      // showUninsertableSequences: Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences') || false,
+      circulariseDna: this.model.get('isCircular')
     };
   },
 
@@ -133,7 +110,7 @@ var DesignerView = Backbone.View.extend({
 
   updateDisabled: function() {
     var $button = this.$('.assemble-sequence-btn');
-    if(this.model.sequences.length === 0) {
+    if(this.model.get('sequences').length === 0) {
       $button.attr('disabled', 'disabled');
     } else {
       $button.removeAttr('disabled');
@@ -210,29 +187,6 @@ var DesignerView = Backbone.View.extend({
   getAvailableSequenceViewFromSequenceId: function(sequenceId) {
     return this.getView(`.designer-available-sequence-outlet[data-sequence_id="${sequenceId}"]`);
   },
-
-  hoveredOverSequence: function(sequenceId) {
-    var indices = this.model.insertabilityState[sequenceId];
-    this.designedSequenceView.highlightDropSites(indices);
-  },
-
-  unhoveredOverSequence: function(sequenceId) {
-    this.designedSequenceView.unhighlightDropSites();
-  },
-
-  // toggleAnnotations: function(event) {
-  //   var showAnnotations = Gentle.currentUser.get('displaySettings.designerView.showAnnotations');
-  //   showAnnotations = _.isUndefined(showAnnotations) ? true : !showAnnotations;
-  //   Gentle.currentUser.set('displaySettings.designerView.showAnnotations', showAnnotations);
-  //   this.render();
-  // },
-
-  // toggleUninsertableSequences: function(event) {
-  //   var showUninsertableSequences = Gentle.currentUser.get('displaySettings.designerView.showUninsertableSequences');
-  //   showUninsertableSequences = _.isUndefined(showUninsertableSequences) ? true : !showUninsertableSequences;
-  //   Gentle.currentUser.set('displaySettings.designerView.showUninsertableSequences', showUninsertableSequences);
-  //   this.render();
-  // },
 
   isInsertable: function(sequence) {
     return this.model.isInsertable(sequence);
