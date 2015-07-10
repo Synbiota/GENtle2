@@ -4,9 +4,9 @@ import $ from 'jquery';
 import template from '../templates/available_sequences_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
 import xScrollingUi from '../lib/x_scrolling_ui';
-import tooltip from 'gentle-utils/tooltip';
 import Gentle from 'gentle';
 import cleanSearchableText from '../lib/clean_searchable_text';
+import hoverDescription from '../lib/hover_description';
 
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
@@ -47,6 +47,7 @@ var AvailableSequenceView = Backbone.View.extend({
       // refreshPositions: true,
       appendTo: 'body',
       revert: 'invalid',
+      revertDuration: 150,
       helper: 'clone',
       connectToSortable: '.designer-designed-sequence-chunks',
       scrollingElement: '.designer-designed-sequence',
@@ -59,13 +60,7 @@ var AvailableSequenceView = Backbone.View.extend({
       }
     });
 
-    this.$('.designer-draggable').hover(
-      (event) => {
-        var description = $(event.currentTarget).data('description');
-        if(description) tooltip.show(description);
-      },
-      () => tooltip.hide()
-    );
+    hoverDescription(this.$('.designer-draggable'));
   },
 
   cleanUpDraggable: function() {

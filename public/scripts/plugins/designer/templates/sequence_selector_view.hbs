@@ -1,0 +1,19 @@
+<div class="dropdown-container btn-group designer-sequence-selector">
+  <button type="button" class="btn btn-default dropdown-toggle designer-sequence-selector-start-{{selectedSequence.startStickyEnd}} designer-sequence-selector-end-{{selectedSequence.endStickyEnd}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+    <div class="pull-right">&#x25BE;</div>
+    <span class="designer-sequence-selector-button-label" data-default_label="Select {{label}}">
+      {{#if selectedSequence}}
+        {{selectedSequence.name}}
+      {{else}}
+        Select {{label}}
+      {{/if}}
+    </span>
+  </button>
+  <ul class="dropdown-menu">
+    {{#each sequences}}
+      <li class="{{#if isSelected}}selected{{/if}}">
+        <a href="#" data-sequence_id="{{id}}" class="designer-sequence-selector-start-{{startStickyEnd}} designer-sequence-selector-end-{{endStickyEnd}}" data-description="{{description}}">{{name}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</div>

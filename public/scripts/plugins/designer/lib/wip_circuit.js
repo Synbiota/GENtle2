@@ -9,13 +9,13 @@ var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
   return stickyEnds && stickyEnds.start && 
     stickyEnds.start.name.toLowerCase() === 'da20';
-}
+};
 
 var detectCap = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
   return stickyEnds && stickyEnds.end && 
     stickyEnds.end.name.toLowerCase() === 'dt20';
-}
+};
 
 export default class WipCircuit extends Sequence {
   constructor(attributes, ...other) {
@@ -26,6 +26,7 @@ export default class WipCircuit extends Sequence {
     attributes._type = wipCircuit;
     super(attributes, ...other);
     this._initAvailableAnchorsAndCaps();
+    this.diagnoseSequence();
   }
 
   defaults() {
@@ -36,7 +37,7 @@ export default class WipCircuit extends Sequence {
       sequences: [],
       isCircular: true,
       errors: []
-    })
+    });
   }
 
   get requiredFields() {
@@ -45,6 +46,12 @@ export default class WipCircuit extends Sequence {
 
   get optionalFields() {
     return super.optionalFields.concat(
+      'errors'
+    );
+  }
+
+  get nonEnumerableFields() {
+    return super.nonEnumerableFields.concat(
       'errors'
     );
   }
@@ -62,8 +69,8 @@ export default class WipCircuit extends Sequence {
         var index = availableSequences.indexOf(sequence);
         availableSequences.splice(index, 1);
         targetArray.push(sequence);
-      }
-    }
+      };
+    };
 
     _.each(
       _.filter(availableSequences, detectAnchor), 
@@ -111,6 +118,7 @@ export default class WipCircuit extends Sequence {
     );
 
     availableSequences.push(...newSequences);
+    this._initAvailableAnchorsAndCaps();
     this.throttledSave();
   }
 
@@ -141,18 +149,36 @@ export default class WipCircuit extends Sequence {
     });
 
     if(this.get('isCircular')) {
+      let length = sequences.length;
       let firstSequence = sequences[0];
-      let lastSequence = sequences[sequences.length-1];
-      if(sequences.length < 2 || !lastSequence.stickyEndConnects(firstSequence)) {
+      let lastSequence = sequences[length-1];
+      let anchor = this.get('anchor');
+      let cap = this.get('cap');
+
+      if(sequences.length > 0 && anchor && cap && !cap.stickyEndConnects(anchor)) {
         output.push({
           type: CANNOT_CIRCULARIZE,
           index: 0
         });
       }
+
+      if(anchor && firstSequence && !anchor.stickyEndConnects(firstSequence)) {
+        output.push({
+          type: INCOMPATIBLE_STICKY_ENDS,
+          index: 0
+        });
+      }
+
+      if(cap && lastSequence && !lastSequence.stickyEndConnects(cap)) {
+        output.push({
+          type: INCOMPATIBLE_STICKY_ENDS,
+          index: length
+        });
+      }
     }
 
     this.set('errors', output);
-    this.throttledSave()
+    this.throttledSave();
   }
 
 

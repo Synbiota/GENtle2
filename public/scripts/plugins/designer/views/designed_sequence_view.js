@@ -5,6 +5,7 @@ import xScrollingUi from '../lib/x_scrolling_ui';
 import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/wip_circuit';
 import diagnosticErrorTemplate from '../templates/diagnostic_error_template.hbs';
 import diagnosticSuccessTemplate from '../templates/diagnostic_success_template.hbs';
+import SequenceSelectorView from './sequence_selector_view';
 import $ from 'jquery';
 import _ from 'underscore';
 
@@ -15,6 +16,39 @@ export default Backbone.View.extend({
 
   events: {
     'click .designer-draggable-trash': 'onTrashClick'
+  },
+
+  initialize: function() {
+    this._setupSequenceSelector(
+      '.designer-anchor-dropdown',
+      'availableAnchors',
+      'anchor',
+      'Anchor'
+    );
+
+    this._setupSequenceSelector(
+      '.designer-cap-dropdown',
+      'availableCaps',
+      'cap',
+      'Cap'
+    );
+  },
+
+  _setupSequenceSelector(selector, availableAttr, selectedAttr, label) {
+    var model = this.model;
+
+    var selectorView = new SequenceSelectorView({
+      label,
+      getSequences: () => model.get(availableAttr),
+      getSelectedSequence: () => model.get(selectedAttr)
+    });
+
+    this.listenTo(selectorView, 'select', (sequence) => {
+      model.set(selectedAttr, sequence).throttledSave();
+      selectorView.render();
+    });
+
+    this.setView(selector, selectorView);
   },
 
   onTrashClick: function(event) {
@@ -29,11 +63,13 @@ export default Backbone.View.extend({
   },
 
   serialize: function() {
-    var sequences = this.model.get('sequences');
+    var model = this.model;
+    var sequences = model.get('sequences');
+
     return {
       sequences,
       empty: sequences.length === 0
-    }
+    };
   },
 
   renderAndSave: function () {
@@ -229,23 +265,25 @@ export default Backbone.View.extend({
       description: 'Incompatible sticky ends'
     }));
 
-    _.each(_.range(1, sequencesLength), (index) => {
-      if(!~errorIndices.indexOf(index)) {
-        this.insertDiagnosticChildren(index, diagnosticSuccessTemplate());
-      }
-    });
-
-    // First and last sequence cannot connect
-    var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
-    if(this.model.get('isCircular') && sequencesLength > 0) {
-      if(cannotCircularize) {
-        this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
-          description: 'Cannot circularize because start and end sticky ends are not compatible'
-        }));
-      } else {
-        this.insertDiagnosticChildren([0, sequencesLength], diagnosticSuccessTemplate());
-      }
+    if(sequencesLength > 0) {
+      _.each(_.range(0, sequencesLength + 1), (index) => {
+        if(!~errorIndices.indexOf(index)) {
+          this.insertDiagnosticChildren(index, diagnosticSuccessTemplate());
+        }
+      });
     }
+
+    // // First and last sequence cannot connect
+    // var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
+    // if(this.model.get('isCircular') && sequencesLength > 0) {
+    //   if(cannotCircularize) {
+    //     this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
+    //       description: 'Cannot circularize because start and end sticky ends are not compatible'
+    //     }));
+    //   } else {
+    //     this.insertDiagnosticChildren([0, sequencesLength], diagnosticSuccessTemplate());
+    //   }
+    // }
   },
 
   updateDraggableContainerWidth: function() {
@@ -258,12 +296,12 @@ export default Backbone.View.extend({
       return memo + $(element).outerWidth(true);
     }, 0);
 
-    var maxWidth = $draggableContainer.parent().width();
+    var maxWidth = $draggableContainer.parent().width() - 150;
 
     var padding = parseInt($draggableContainer.css('paddingRight'), 10) + 
       parseInt($draggableContainer.css('paddingLeft'), 10);
 
-    $draggableContainer.width(Math.max(totalWidth + padding + 200, maxWidth));
+    $draggableContainer.width(Math.max(totalWidth + padding + 250, maxWidth));
   }
 
 });

@@ -51,8 +51,8 @@ export default Backbone.View.extend({
 
   clickInputElement: function(event) {
     event.preventDefault();
-    this.$('.home-designer-form input[name=file]').click();
-    // this.createNewSequence(null, [])
+    // this.$('.home-designer-form input[name=file]').click();
+    this.createNewSequence(null, [])
   }
 
  

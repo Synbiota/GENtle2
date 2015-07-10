@@ -8,8 +8,8 @@ $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 $designer-draggable-stickyEnds-color: (
   x: $brand-warning,
   z: $brand-success,
-  'da20': $brand-info,
-  'dt20': $brand-info
+  // 'da20': $brand-info,
+  // 'dt20': $brand-info
 );
 
 .designer {
@@ -75,7 +75,7 @@ $designer-draggable-stickyEnds-color: (
 
 .designer-draggable-trash {
   position: absolute;
-  right: 2px;
+  left: 2px;
   top: 1px;
   height: 20px;
   width: 20px;
@@ -117,18 +117,24 @@ $designer-draggable-stickyEnds-color: (
   top: $designer-header-height;
   overflow-x: scroll;
   line-height: 15px;
+  white-space: nowrap;
+  user-select: none;
 
   .designer-designed-sequence-empty-placeholder {
-    padding: 20px 40px;
+    display: inline-block;
+    width: 100%;
+    margin: 20px -310px 0 0;
+    padding-right: 310px;
 
     & > div {
       border: 2px dashed #ddd;
       color: #999;
       text-align: center;
       font-size: 1.1em;
-      padding: 13px 30px;
+      padding: 19px 30px 0 30px;
       border-radius: 5px;
-      width: 250px;
+      width: 100%;
+      height: 60px;
     }
 
     &.active > div {
@@ -139,7 +145,9 @@ $designer-draggable-stickyEnds-color: (
 
   .designer-designed-sequence-chunks {
     white-space: nowrap;
-    padding: 20px 40px;
+    padding: 20px 0;
+    margin-right: -160px;
+    display: inline-block
   }
 
   // .designer-designed-sequence-chunk-droppable {
@@ -455,6 +463,8 @@ $designer-draggable-stickyEnds-color: (
 }
 
 .designer-available-sequences {
+  user-select: none;
+  
   .designer-draggable {
     margin-right: 20px;
     margin-bottom: 10px;
@@ -539,4 +549,65 @@ $designer-draggable-stickyEnds-color: (
   border: 5px dashed #aaa;
   border-radius: 15px;
   text-shadow: 0 0 5px #222;
+}
+
+.designer-sequence-selector-container {
+  margin: 0 15px;
+  display: inline-block;
+  vertical-align: top;
+  padding-top: 30px;
+  width: 120px;
+}
+
+.designer-sequence-selector {
+  z-index: 1;
+
+  .dropdown-toggle {
+    font-size: 13px;
+    padding: 10px 10px 9px 12px;
+    text-align: left;
+    padding-top: 10px;
+    padding-bottom: 9px;
+    width: 120px;
+  }
+
+  .dropdown-menu {
+    padding: 0;
+    border-radius: 0;
+    min-width: 120px;
+    max-width: 120px;
+    border-top: none;
+    border-bottom: 1px $designer-border-style;
+    border-left: 1px solid #ddd;
+
+    & > li {
+      border-top: 1px $designer-border-style;
+
+      &.selected {
+        background: #ddd;
+      }
+ 
+      & > a {
+        font-size: 13px;
+        padding: 10px 10px;
+        text-align: left;
+      }
+    }
+  }
+}
+
+@each $sticky-end, $color in $designer-draggable-stickyEnds-color {
+  .designer-sequence-selector-start-#{$sticky-end} {
+    border-left: 6px solid $color !important;
+    padding-left: 7px !important;
+  }
+
+  .designer-sequence-selector-end-#{$sticky-end} {
+    border-right: 6px solid $color !important;
+    padding-right: 5px !important;
+  }
+}
+
+.designer-designed-sequence-middle-container {
+  max-width: 100%;
 }
