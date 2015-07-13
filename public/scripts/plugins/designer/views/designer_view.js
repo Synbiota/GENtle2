@@ -1,6 +1,5 @@
 import Backbone from 'backbone';
 import _ from 'underscore';
-import AssembleSequence from '../lib/assemble_sequence';
 import template from '../templates/designer_view_template.hbs';
 import AvailableSequencesView from './available_sequences_view';
 import DesignedSequenceView from './designed_sequence_view';
@@ -10,6 +9,8 @@ import Modal from '../../../common/views/modal_view';
 import DiagnosticModalView from './designer_diagnostic_modal_view';
 import cleanSearchableText from '../lib/clean_searchable_text';
 import Q from 'q';
+import WipCircuit from '../lib/wip_circuit';
+import $ from 'jquery';
 
 var DesignerView = Backbone.View.extend({
   template: template,
@@ -18,7 +19,7 @@ var DesignerView = Backbone.View.extend({
 
   events: {
     'change #circularise-dna': 'updateCirculariseDna',
-    'click .designer-available-sequences-header button': 'triggerFileInput',
+    'click .designer-trigger-file-upload-input': 'triggerFileInput',
     'change .file-upload-input': 'uploadNewSequences',
     'click .assemble-sequence-btn': 'assembleSequence',
     'keydown .designer-available-sequences-filter input': 'filterAvailableSequences',
@@ -27,6 +28,12 @@ var DesignerView = Backbone.View.extend({
 
   initialize: function() {
     var model = this.model = Gentle.currentSequence;
+
+    if(!(model instanceof WipCircuit)) {
+      model.destroy();
+      Gentle.router.home();
+      return;
+    }
 
     var outlet1StickyEndNames = [
       'x-z\'', 'da20-z\'', 'x-dt20'
@@ -94,8 +101,13 @@ var DesignerView = Backbone.View.extend({
   serialize: function() {
     return {
       sequenceName: this.model.get('name'),
-      circulariseDna: this.model.get('isCircular')
+      circulariseDna: this.model.get('isCircular'),
+      emptyAvailableSequences: this.model.get('availableSequences').length === 0
     };
+  },
+
+  beforeRender: function() {
+    this.removeDropzone();
   },
 
   afterRender: function() {
@@ -118,7 +130,8 @@ var DesignerView = Backbone.View.extend({
   },
 
   setupDropzone: function() {
-    var $dropzone = this.$('.designer-available-sequences-container-filedropzone');
+    var $dropzone = this.$dropzone = 
+      this.$('.designer-available-sequences-container-filedropzone');
 
     $('body').append($dropzone);
 
@@ -157,7 +170,7 @@ var DesignerView = Backbone.View.extend({
           .then(_.flatten)
           .then(uploadMultipleSequences)
           .then((sequences) => {
-            this.model.addSequences(_.unique(sequences, function(sequence) {
+            this.model.addAvailableSequences(_.unique(sequences, function(sequence) {
               return sequence.sequence;
             }));
             this.render();
@@ -167,56 +180,15 @@ var DesignerView = Backbone.View.extend({
 
   },
 
-  insertSequenceViews: function() {
-    var _this = this,
-        designedSequenceView;
-
-    _.each(this.model.allSequences, function(sequence) {
-      var outletSelector = `.designer-available-sequence-outlet[data-sequence_id="${sequence.id}"]`;
-      var sequenceView = new AvailableSequenceView({model: sequence});
-      _this.setView(outletSelector, sequenceView);
-      sequenceView.render();
-    });
-
-    designedSequenceView = new DesignedSequenceView({model: this.model});
-    this.setView('.designer-designed-sequence-outlet', designedSequenceView);
-    this.designedSequenceView = designedSequenceView;
-    designedSequenceView.render();
-  }, 
-
-  getAvailableSequenceViewFromSequenceId: function(sequenceId) {
-    return this.getView(`.designer-available-sequence-outlet[data-sequence_id="${sequenceId}"]`);
-  },
-
-  isInsertable: function(sequence) {
-    return this.model.isInsertable(sequence);
-  },
-
-  getDescriptiveAnnotationContent: function(sequence) {
-    var features = sequence.get('features');
-    if(features.length == 1) {
-      var feature = features[0];
-      var range = feature.ranges[0];
-      if(range.from === 0 && range.to >= sequence.length()-1) {
-        return feature.name;
-      }
-    }
-  },
-
-  changeSecondaryView: function() {
-    // Currently NoOp
-  },
-
   cleanup: function() {
-    this.removeAllViews();
-    Gentle.sequences.off(null, null, this);
+    this.removeDropzone();
   },
 
-  removeAllViews: function() {
-    this.designedSequenceView = undefined;
-    this.getViews().each((view) => {
-      view.remove();
-    });
+  removeDropzone: function() {
+    if(this.$dropzone) {
+      this.$dropzone.remove();
+      delete this.$dropzone;
+    }
   },
 
   filterAvailableSequences: function(eventOrString) {
@@ -237,7 +209,7 @@ var DesignerView = Backbone.View.extend({
   },
 
   assembleSequence: function() {
-    var errors = this.model.errors;
+    var errors = this.model.get('errors');
     if(errors.length > 0) {
       Modal.show({
         title: 'Cannot assemble circuit',
@@ -248,8 +220,9 @@ var DesignerView = Backbone.View.extend({
         })
       });
     } else {
-      this.model.assembleSequences().throttledSave();
-      this.parentView(1).changePrimaryView('edition');
+      var attributes = this.model.assembleSequences();
+      this.model.destroy();
+      Gentle.addSequencesAndNavigate([attributes]);
     }
   }
 

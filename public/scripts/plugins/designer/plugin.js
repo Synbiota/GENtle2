@@ -3,6 +3,7 @@ import DesignerView from './views/designer_view';
 import HomeDesignerView from './views/home_designer_view';
 import SequencesCollection from '../../sequence/models/sequences';
 import WipCircuit from './lib/wip_circuit';
+import Circuit from './lib/circuit';
 
 
 Gentle.addPlugin('sequence-primary-view', {
@@ -21,3 +22,4 @@ Gentle.addPlugin('home', {
 });
 
 SequencesCollection.registerConstructor(WipCircuit, 'wip_circuit');
+SequencesCollection.registerConstructor(Circuit, 'circuit');

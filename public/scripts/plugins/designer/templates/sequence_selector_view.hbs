@@ -14,6 +14,10 @@
       <li class="{{#if isSelected}}selected{{/if}}">
         <a href="#" data-sequence_id="{{id}}" class="designer-sequence-selector-start-{{startStickyEnd}} designer-sequence-selector-end-{{endStickyEnd}}" data-description="{{description}}">{{name}}</a>
       </li>
+    {{else}}
+      <li class="designer-sequence-selector-empty">
+        Add {{label}}s to select them
+      </li>
     {{/each}}
   </ul>
 </div>

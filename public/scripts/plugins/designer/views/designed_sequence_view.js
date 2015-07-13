@@ -32,6 +32,11 @@ export default Backbone.View.extend({
       'cap',
       'Cap'
     );
+
+    this.listenTo(this.model, 'change:anchor change:cap', () => {
+      this.emptyDiagnostic();
+      this.updateDiagnostic();
+    });
   },
 
   _setupSequenceSelector(selector, availableAttr, selectedAttr, label) {
@@ -70,12 +75,6 @@ export default Backbone.View.extend({
       sequences,
       empty: sequences.length === 0
     };
-  },
-
-  renderAndSave: function () {
-    // Perhaps change this back to `this.render()`, as whole view flickers.
-    this.parentView().render();
-    this.model.throttledSave();
   },
 
   insertFromAvailableSequence: function(sequenceId, beforeIndex = 0) {
@@ -196,27 +195,11 @@ export default Backbone.View.extend({
 
         ui.item.removeData('available');
       },
-      stop: () => {
+      deactivate: () => {
         this.updateDiagnostic();
         this.updateDraggableContainerWidth();
       }
     });
-  },
-
-  highlightDropSites: function(indices) {
-    if(this.model.sequences.length === 0) {
-      this.$el.find('.designer-designed-sequence-empty-placeholder').addClass('highlighted');
-    } else {
-      _.each(indices, (index) => {
-        var selector = `.designer-designed-sequence-chunk-droppable[data-before_index="${index}"]`;
-        this.$el.find(selector).addClass('highlighted');
-      });
-    }
-  },
-
-  unhighlightDropSites: function() {
-    this.$el.find('.designer-designed-sequence-chunk-droppable').removeClass('highlighted');
-    this.$el.find('.designer-designed-sequence-empty-placeholder').removeClass('highlighted');
   },
 
   emptyDiagnostic() {
@@ -252,8 +235,10 @@ export default Backbone.View.extend({
   },
 
   updateDiagnostic: function() {
-    var errors = this.model.get('errors');
-    var sequencesLength = this.model.get('sequences').length;
+    var model = this.model;
+    var errors = model.get('errors');
+    var sequences = model.get('sequences');
+    var sequencesLength = model.get('sequences').length;
 
     // Incompatible sticky ends
     var errorIndices = _.pluck(
@@ -267,8 +252,20 @@ export default Backbone.View.extend({
 
     if(sequencesLength > 0) {
       _.each(_.range(0, sequencesLength + 1), (index) => {
-        if(!~errorIndices.indexOf(index)) {
-          this.insertDiagnosticChildren(index, diagnosticSuccessTemplate());
+        if(
+          !~errorIndices.indexOf(index) &&
+          (index > 0 || model.get('anchor')) &&
+          (index < sequencesLength || model.get('cap'))
+        ) {
+          let stickyEndName = (
+            index === sequencesLength ? 
+              sequences[index - 1].getStickyEnds().end.name : 
+              sequences[index].getStickyEnds().start.name
+          ).replace(/[^\w]/g, '').toLowerCase();
+
+          this.insertDiagnosticChildren(index, diagnosticSuccessTemplate({
+            stickyEndName
+          }));
         }
       });
     }
@@ -296,12 +293,13 @@ export default Backbone.View.extend({
       return memo + $(element).outerWidth(true);
     }, 0);
 
-    var maxWidth = $draggableContainer.parent().width() - 150;
+    // var maxWidth = $draggableContainer.parent().width() - 150;
 
     var padding = parseInt($draggableContainer.css('paddingRight'), 10) + 
       parseInt($draggableContainer.css('paddingLeft'), 10);
 
-    $draggableContainer.width(Math.max(totalWidth + padding + 250, maxWidth));
+    // $draggableContainer.width(Math.max(totalWidth + padding + 250, maxWidth));
+    $draggableContainer.width(totalWidth + padding + 250);
   }
 
 });

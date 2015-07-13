@@ -12,12 +12,8 @@ class Tooltip {
     $('body').append(this.$el);
   }
 
-  show(text, options = {}) {
+  show(text, {delay = 0, newClasses = ''} = {}) {
     var $el = this.$el;
-
-    var {delay, newClasses} = _.defaults(options, {
-      delay: 0
-    });
     
     $el.html(text)
       .removeClass(this.previousClasses)

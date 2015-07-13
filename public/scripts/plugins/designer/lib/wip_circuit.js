@@ -4,6 +4,8 @@ import _ from 'underscore';
 
 const INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
 const CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
+const MISSING_CAP = 'MISSING_CAP';
+const MISSING_ANCHOR = 'MISSING_ANCHOR';
 
 var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
@@ -27,6 +29,11 @@ export default class WipCircuit extends Sequence {
     super(attributes, ...other);
     this._initAvailableAnchorsAndCaps();
     this.diagnoseSequence();
+
+    this.on(
+      'change:sequences change:cap change:anchor', 
+      _.bind(this.diagnoseSequence, this)
+    );
   }
 
   defaults() {
@@ -132,6 +139,16 @@ export default class WipCircuit extends Sequence {
     this.diagnoseSequence();
   }
 
+  moveSequence(oldIndex, newIndex) {
+    if(oldIndex === newIndex) return;
+    if(oldIndex < newIndex) newIndex++;
+    var sequences = this.get('sequences');
+    var sequence = sequences[oldIndex];
+    sequences[oldIndex] = null;
+    sequences.splice(newIndex, 0, sequence);
+    this.set('sequences', _.compact(sequences));
+  }
+
   diagnoseSequence() {
     var output = [];
     var sequences = this.get('sequences');
@@ -169,11 +186,23 @@ export default class WipCircuit extends Sequence {
         });
       }
 
+      if(!anchor) {
+        output.push({
+          type: MISSING_ANCHOR
+        });
+      }
+
       if(cap && lastSequence && !lastSequence.stickyEndConnects(cap)) {
         output.push({
           type: INCOMPATIBLE_STICKY_ENDS,
           index: length
         });
+      }
+
+      if(!cap) {
+        output.push({
+          type: MISSING_CAP
+        })
       }
     }
 
@@ -181,7 +210,29 @@ export default class WipCircuit extends Sequence {
     this.throttledSave();
   }
 
+  assembleSequences() {
+    var sequences = [];
+    var anchor = this.get('anchor');
+    var cap = this.get('cap');
+    var isCircular = this.get('isCircular');
 
+    if(anchor) sequences.push(anchor);
+    sequences = sequences.concat(this.get('sequences'));
+    if(cap) sequences.push(cap);
+    
+    var finalSequence = Sequence.concatenateSequences(
+      sequences, 
+      isCircular
+    );
+
+    finalSequence.set({
+      _type: 'circuit',
+      name: this.get('name') + '-RDP',
+      isCircular
+    });
+
+    return finalSequence.toJSON();
+  }
 
 
 }
@@ -195,3 +246,5 @@ WipCircuit.registerAssociation(TemporarySequence, 'sequence', true);
 
 WipCircuit.CANNOT_CIRCULARIZE = CANNOT_CIRCULARIZE;
 WipCircuit.INCOMPATIBLE_STICKY_ENDS = INCOMPATIBLE_STICKY_ENDS;
+WipCircuit.MISSING_CAP = MISSING_CAP;
+WipCircuit.MISSING_ANCHOR = MISSING_ANCHOR;

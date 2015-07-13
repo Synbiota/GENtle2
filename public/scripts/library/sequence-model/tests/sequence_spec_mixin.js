@@ -944,7 +944,7 @@ export default function testAllSequenceModels(Sequence) {
 
     it('concatenates (and circularises) endStickySequence, stickySequence, startStickySequence', function() {
       var concatenatedSequence = Sequence.concatenateSequences([stickySequence, stickySequence], true, false);
-      expect(concatenatedSequence.getSequence()).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
+      expect(concatenatedSequence.getSequence(Sequence.STICKY_END_FULL)).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
       expect(_.isEmpty(concatenatedSequence.getStickyEnds(false)));
       var features = concatenatedSequence.getFeatures();
       expect(features.length).toEqual(2);
