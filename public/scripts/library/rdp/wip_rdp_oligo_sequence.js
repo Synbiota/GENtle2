@@ -24,7 +24,6 @@ class WipRdpOligoSequence extends Sequence {
       'shortName',
       'partType',
       'sourceSequenceName',
-      'stickyEnds',
     ]);
   }
 }
