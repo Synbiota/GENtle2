@@ -124,7 +124,7 @@ function sequenceModelFactory(BackboneModel) {
         getFeatures: `change:features ${defaultStickyEndsEvent}`,
         getStickyEnds: defaultStickyEndsEvent,
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
-        selectableRange: `change:sequence ${defaultStickyEndsEvent}`
+        selectableRange: `change:sequence ${defaultStickyEndsEvent}`,
       });
 
       // If a value in this.attributes has a key with the same value as an
@@ -325,6 +325,47 @@ function sequenceModelFactory(BackboneModel) {
         });
       }
       return stickyEnds;
+    }
+
+    /**
+     * @method setStickyEnds
+     * @param {object} stickyEnds
+     * @throws {Error} If sequenceModel already has stickyEnds
+     */
+    setStickyEnds(stickyEnds) {
+      var currentStickyEnds = this.getStickyEnds(false);
+      if(currentStickyEnds) {
+        throw new Error('Sequence already has stickyEnds, remove them first with removeStickyEnds');
+      } else {
+        var opts = {updateHistory: false, stickyEndFormat: STICKY_END_ANY};
+        this.insertBases(stickyEnds.start.sequence, 0, opts);
+        this.insertBases(stickyEnds.end.sequence, this.getLength(STICKY_END_ANY), opts);
+        super.set('stickyEnds', stickyEnds);
+      }
+    }
+
+    /**
+     * @method deleteStickyEnds
+     * @throws {Error} If no stickyEnds to delete.
+     */
+    deleteStickyEnds(options) {
+      options = _.defaults((options || {}), {silent: true});
+      var stickyEnds = this.getStickyEnds(false);
+      if(stickyEnds) {
+        var opts = {updateHistory: false, stickyEndFormat: STICKY_END_FULL};
+        // delete `end` before `start` because of various functions caching values.
+        if(stickyEnds.end) {
+          var offset = this.getOffset(STICKY_END_NONE);
+          var len = this.getLength(STICKY_END_NONE);
+          this.deleteBases(offset + len, stickyEnds.end.size + stickyEnds.end.offset, opts);
+        }
+        if(stickyEnds.start) {
+          this.deleteBases(0, stickyEnds.start.size + stickyEnds.start.offset, opts);
+        }
+        super.set({stickyEnds: undefined}, options);
+      } else {
+        throw new Error('Sequence already lacks stickyEnds.');
+      }
     }
 
     getStickyEndFormat() {
@@ -750,7 +791,7 @@ function sequenceModelFactory(BackboneModel) {
     **/
     validate(attrs) {
       var errors = [];
-      if (!attrs.name.replace(/\s/g, '').length) {
+      if (!(attrs.name && attrs.name.replace(/\s/g, '').length)) {
         errors.push('name');
       }
       return errors.length ? errors : undefined;
