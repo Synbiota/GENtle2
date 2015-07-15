@@ -150,7 +150,7 @@ export default Backbone.View.extend({
   },
 
   getSequenceAttributes: function() {
-    return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName', 'partType');
+    return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName', 'partType', 'features');
   },
 
   getStickyEnds: function() {
@@ -187,6 +187,7 @@ export default Backbone.View.extend({
     var frm = this.state.from;
     var to = this.state.to;
     data.sequence = this.model.getSubSeq(frm, to, this.model.STICKY_END_ANY);
+    data.features = this.model.getFeatures();
 
     return data;
   },

@@ -46,7 +46,7 @@ export default Backbone.View.extend({
         primaryView: primaryView
       },
       sourceSequenceName: loadedSequence.name,
-      // TODO: include features
+      features: loadedSequence.features,
     });
 
     Gentle.addSequencesAndNavigate([sequence]);
