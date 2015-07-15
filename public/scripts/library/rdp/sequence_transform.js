@@ -169,7 +169,7 @@ var methionineStartCodon = function(sequenceModel) {
  * @return {Array<RdpEdit>}
  */
 var noTerminalStopCodons = function(sequenceModel) {
-  var type = RdpEdit.types.NO_TERMINAL_STOP_CODON;
+  var type = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
   throwErrorIfPresent(warnIfNotMultipleOf3, sequenceModel, type);
   throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, type);
 

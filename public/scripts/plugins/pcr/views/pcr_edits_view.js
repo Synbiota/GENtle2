@@ -21,7 +21,7 @@ export default Backbone.View.extend({
     });
 
     var messages = {
-      NO_TERMINAL_STOP_CODON: {
+      TERMINAL_STOP_CODON_REMOVED: {
         titleBefore: 'Remove stop codon',
         titleAfter: 'Removed stop codon',
       },
