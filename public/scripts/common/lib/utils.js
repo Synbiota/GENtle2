@@ -17,6 +17,7 @@ export function getProductAndSequenceForSequenceID (products, sequenceID) {
   return sequence ? {product, sequence} : undefined;
 }
 
+
 export function fastAExportSequence ({product, sequence}) {
   Filetypes.exportToFile('fasta', (new Sequence({
     sequence: sequence.sequence,
@@ -24,15 +25,43 @@ export function fastAExportSequence ({product, sequence}) {
   })).toJSON());
 }
 
+
 export function fastAExportSequenceFromID (products, sequenceID){
   var result = getProductAndSequenceForSequenceID(products, sequenceID);
   if(result) fastAExportSequence(result);
 }
 
 
-
 export function naiveReverseString (string) {
   // Use this library for unicode strings with special chars
   // https://github.com/mathiasbynens/esrever
   return string.split("").reverse().join("");
+}
+
+
+export function makeOptions(context, options={}) {
+  var output = '';
+  options.hash = options.hash || {};
+
+  var addOption = function(name, value, selectedValue) {
+    var selected = ((value === selectedValue) ? ' selected="selected"' : '');
+    return `<option value="${value}" ${selected}>${name}</option>`;
+  };
+
+  var addOptions = function(_options, selectedValue) {
+    return _.map(_options, function(option) {
+      return addOption(option.name, option.value, selectedValue);
+    }).join('');
+  };
+
+  if(_.isArray(context)) {
+    output += addOptions(context, options.hash.selected);
+  } else {
+    _.forEach(context, function(_options, optgroupName) {
+      output += '<optgroup label="' + optgroupName +'">';
+      output += addOptions(_options, options.hash.selected);
+      output += '</optgroup>';
+    });
+  }
+  return output;
 }

@@ -332,7 +332,9 @@ function sequenceModelFactory(BackboneModel) {
      * @param {object} stickyEnds
      * @throws {Error} If sequenceModel already has stickyEnds
      */
-    setStickyEnds(stickyEnds) {
+    setStickyEnds(stickyEnds, options={}) {
+      // Must set silent to false to trigger clearing incorrect cache values.
+      options = _.defaults({silent: false}, options);
       var currentStickyEnds = this.getStickyEnds(false);
       if(currentStickyEnds) {
         throw new Error('Sequence already has stickyEnds, remove them first with removeStickyEnds');
@@ -340,7 +342,7 @@ function sequenceModelFactory(BackboneModel) {
         var opts = {updateHistory: false, stickyEndFormat: STICKY_END_ANY};
         this.insertBases(stickyEnds.start.sequence, 0, opts);
         this.insertBases(stickyEnds.end.sequence, this.getLength(STICKY_END_ANY), opts);
-        super.set('stickyEnds', stickyEnds);
+        super.set({stickyEnds}, options);
       }
     }
 
@@ -348,8 +350,9 @@ function sequenceModelFactory(BackboneModel) {
      * @method deleteStickyEnds
      * @throws {Error} If no stickyEnds to delete.
      */
-    deleteStickyEnds(options) {
-      options = _.defaults((options || {}), {silent: true});
+    deleteStickyEnds(options={}) {
+      // Must set silent to false to trigger clearing incorrect cache values.
+      options = _.defaults({silent: false}, options);
       var stickyEnds = this.getStickyEnds(false);
       if(stickyEnds) {
         var opts = {updateHistory: false, stickyEndFormat: STICKY_END_FULL};
@@ -471,7 +474,7 @@ function sequenceModelFactory(BackboneModel) {
     Returns the subsequence between the bases startBase and end Base
     @method getSubSeq
     @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0), inclusive.
+    @param {Integer} endBase end of the subsequence (indexed from 0), INCLUSIVE.
     @param {String} stickyEndFormat=undefined
     **/
     getSubSeq(startBase, endBase, stickyEndFormat=undefined) {
@@ -743,8 +746,7 @@ function sequenceModelFactory(BackboneModel) {
      */
     getAAs(startBase, length, stickyEndFormat=undefined) {
       var subSeq = this.getSubSeq(startBase, startBase + length - 1, stickyEndFormat);
-      var len = subSeq.length;
-      if(len < 0 || len % 3 !== 0) throw new Error('length must be a non negative multiple of 3');
+      if(length < 0 || subSeq.length % 3 !== 0) throw new Error('length must be non negative and result in a sub sequence length which is multiple of 3');
       var codons = subSeq.match(/.{3}/g) || [];
       return _.map(codons, function(codon) {
         return SequenceTransforms.codonToAAShort(codon).trim();

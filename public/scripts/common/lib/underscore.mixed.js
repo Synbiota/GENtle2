@@ -152,6 +152,27 @@ _.mixin({
     return _.reduce(obj, func, isArr ? [] : {});
   },
 
+  /**
+   * @method  deepFreeze  copied from
+   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
+   * @param  {Object} object
+   */
+  deepFreeze: function(object) {
+    var prop, propKey;
+    Object.freeze(object); // First freeze the object.
+    for (propKey in object) {
+      prop = object[propKey];
+      if(!object.hasOwnProperty(propKey) || (typeof prop !== 'object') || Object.isFrozen(prop)) {
+        // If the object is on the prototype, not an object, or is already frozen,
+        // skip it. Note that this might leave an unfrozen reference somewhere in the
+        // object if there is an already frozen object containing an unfrozen object.
+        continue;
+      }
+
+      _.deepFreeze(prop); // Recursively call deepFreeze.
+    }
+  },
+
   snakify: function(object) {
     return object.replace(/([A-Z\d]+)([A-Z][a-z])/g,'$1_$2')
                  .replace(/([a-z\d])([A-Z])/g,'$1_$2')
