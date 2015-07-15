@@ -108,9 +108,9 @@ describe('RdpPcrSequence model', function() {
         },
         "rdpEdits": [
           {
-            "type": "RDP_EDIT_METHIONINE_START_CODON",
+            "type": "METHIONINE_START_CODON",
             "contextBefore": {
-              "_type": "RDP_EDIT_METHIONINE_START_CODON",
+              "_type": "METHIONINE_START_CODON",
               "name": "Will modify TTG",
               "desc": "Will modify start codon to be ATG (Methionine)",
               "ranges": [
@@ -125,7 +125,7 @@ describe('RdpPcrSequence model', function() {
               "contextualTo": 12
             },
             "contextAfter": {
-              "_type": "RDP_EDIT_METHIONINE_START_CODON",
+              "_type": "METHIONINE_START_CODON",
               "name": "Modified TTG",
               "desc": "Modified start codon to be ATG (Methionine)",
               "ranges": [

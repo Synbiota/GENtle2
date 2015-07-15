@@ -332,7 +332,9 @@ function sequenceModelFactory(BackboneModel) {
      * @param {object} stickyEnds
      * @throws {Error} If sequenceModel already has stickyEnds
      */
-    setStickyEnds(stickyEnds) {
+    setStickyEnds(stickyEnds, options={}) {
+      // Must set silent to false to trigger clearing incorrect cache values.
+      options = _.defaults({silent: false}, options);
       var currentStickyEnds = this.getStickyEnds(false);
       if(currentStickyEnds) {
         throw new Error('Sequence already has stickyEnds, remove them first with removeStickyEnds');
@@ -340,7 +342,7 @@ function sequenceModelFactory(BackboneModel) {
         var opts = {updateHistory: false, stickyEndFormat: STICKY_END_ANY};
         this.insertBases(stickyEnds.start.sequence, 0, opts);
         this.insertBases(stickyEnds.end.sequence, this.getLength(STICKY_END_ANY), opts);
-        super.set('stickyEnds', stickyEnds);
+        super.set({stickyEnds}, options);
       }
     }
 
@@ -348,8 +350,9 @@ function sequenceModelFactory(BackboneModel) {
      * @method deleteStickyEnds
      * @throws {Error} If no stickyEnds to delete.
      */
-    deleteStickyEnds(options) {
-      options = _.defaults((options || {}), {silent: true});
+    deleteStickyEnds(options={}) {
+      // Must set silent to false to trigger clearing incorrect cache values.
+      options = _.defaults({silent: false}, options);
       var stickyEnds = this.getStickyEnds(false);
       if(stickyEnds) {
         var opts = {updateHistory: false, stickyEndFormat: STICKY_END_FULL};
