@@ -1,16 +1,8 @@
 // TODO add dependency for underscore mixin
+import _ from 'underscore';
 
 var RdpTypes = {};
 
-
-var CDS = 'CDS';
-var MODIFIER = 'MODIFIER';
-var OTHER = 'OTHER';
-var RBS = 'RBS';
-var TERMINATOR = 'TERMINATOR';
-var PROTEIN_LINKER = 'PROTEIN_LINKER';
-var PROMOTER = 'PROMOTER';
-var OPERATOR = 'OPERATOR';
 
 var XZ = "X-Z'";
 var ZX = "Z-X'";
@@ -18,15 +10,13 @@ var BOTH = [XZ, ZX];
 
 RdpTypes.pcrTypes = {
   CDS: {
-    name: CDS,
     stickyEnds: [XZ],
   },
-  MODIFIER: {
-    name: MODIFIER,
-    stickyEnds: BOTH,
-  },
+  // Temporarily commented out
+  // MODIFIER: {
+  //   stickyEnds: BOTH,
+  // },
   OTHER: {
-    name: OTHER,
     stickyEnds: BOTH,
   },
 };
@@ -35,35 +25,36 @@ _.deepFreeze(RdpTypes.pcrTypes);
 
 RdpTypes.oligoTypes = {
   RBS: {
-    name: RBS,
     stickyEnds: [ZX],
   },
   TERMINATOR: {
-    name: TERMINATOR,
     stickyEnds: [ZX],
   },
   MODIFIER: {
-    name: MODIFIER,
     stickyEnds: BOTH,
   },
   PROTEIN_LINKER: {
-    name: PROTEIN_LINKER,
     stickyEnds: [ZX],
   },
   PROMOTER: {
-    name: PROMOTER,
     stickyEnds: BOTH,
   },
   OPERATOR: {
-    name: OPERATOR,
     stickyEnds: BOTH,
   },
   OTHER: {
-    name: OTHER,
     stickyEnds: BOTH,
   },
 };
 _.deepFreeze(RdpTypes.oligoTypes);
+
+
+var types = _.keys(RdpTypes.pcrTypes).concat(_.keys(RdpTypes.oligoTypes));
+RdpTypes.types = _.reduce(types, (memo, val) => {
+  memo[val] = val;
+  return memo;
+}, {});
+_.deepFreeze(RdpTypes.types);
 
 
 RdpTypes.availablePartTypes = function(isPcrPart, isOligoPart) {

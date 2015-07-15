@@ -4,6 +4,7 @@ import data from '../../common/lib/synbio_data';
 import SequenceRange from '../sequence-model/range';
 import RdpSequenceFeature from './rdp_sequence_feature';
 import RdpEdit from './rdp_edit';
+import RdpTypes from './rdp_types';
 
 
 var CONTEXT_BASE_PAIRS = 9;
@@ -455,7 +456,7 @@ var transformSequenceForRdp = function(sequenceModel) {
 
   var transformationFunctions = [];
   var partType = sequenceModel.get('partType');
-  if(partType === 'CDS') {
+  if(partType === RdpTypes.types.CDS) {
     transformationFunctions = [
       methionineStartCodon,
       noTerminalStopCodons,
