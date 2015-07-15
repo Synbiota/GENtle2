@@ -26,22 +26,22 @@ export default Backbone.View.extend({
         titleAfter: 'Removed stop codon',
       },
       LAST_BASE_IS_C: {
-        titleBefore: 'Make final codon C-terminal',
-        titleAfter: 'Made final codon C-terminal',
+        titleBefore: 'Make last base a C',
+        titleAfter: 'Made last base a C',
         postCaption: '(Conservative amino acid change)'
       },
       LAST_BASE_IS_C_NO_AA_CHANGE: {
-        titleBefore: 'Make final codon C-terminal',
-        titleAfter: 'Made final codon C-terminal',
+        titleBefore: 'Make last base a C',
+        titleAfter: 'Made last base a C',
       },
       LAST_BASE_IS_G: {
-        titleBefore: 'Make final codon G-terminal',
-        titleAfter: 'Made final codon G-terminal',
+        titleBefore: 'Make last base a G',
+        titleAfter: 'Made last base a G',
         postCaption: '(Conservative amino acid change)'
       },
       LAST_BASE_IS_G_NO_AA_CHANGE: {
-        titleBefore: 'Make final codon G-terminal',
-        titleAfter: 'Made final codon G-terminal',
+        titleBefore: 'Make last base a G',
+        titleAfter: 'Made last base a G',
       },
       METHIONINE_START_CODON_CONVERTED: {
         titleBefore: 'Make first codon ATG (Met)',
