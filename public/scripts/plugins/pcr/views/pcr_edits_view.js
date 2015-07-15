@@ -20,47 +20,59 @@ export default Backbone.View.extend({
       isAfterTransform: false
     });
 
-    this.messages = {
-      RDP_EDIT_NO_TERMINAL_STOP_CODON: {
+    var messages = {
+      NO_TERMINAL_STOP_CODON: {
+        titleBefore: 'Remove stop codon',
         titleAfter: 'Removed stop codon',
-        titleBefore: 'Remove stop codon' 
       },
-      RDP_EDIT_TERMINAL_C_BASE: {
-        titleAfter: 'Made final codon C-terminal',
+      LAST_BASE_IS_C: {
         titleBefore: 'Make final codon C-terminal',
+        titleAfter: 'Made final codon C-terminal',
         postCaption: '(Conservative amino acid change)'
       },
-      RDP_EDIT_TERMINAL_C_BASE_NO_AA_CHANGE: {
-        titleAfter: 'Made final codon C-terminal',
+      LAST_BASE_IS_C_NO_AA_CHANGE: {
         titleBefore: 'Make final codon C-terminal',
+        titleAfter: 'Made final codon C-terminal',
       },
-      RDP_EDIT_METHIONINE_START_CODON: {
+      LAST_BASE_IS_G: {
+        titleBefore: 'Make final codon G-terminal',
+        titleAfter: 'Made final codon G-terminal',
+        postCaption: '(Conservative amino acid change)'
+      },
+      LAST_BASE_IS_G_NO_AA_CHANGE: {
+        titleBefore: 'Make final codon G-terminal',
+        titleAfter: 'Made final codon G-terminal',
+      },
+      METHIONINE_START_CODON_CONVERTED: {
+        titleBefore: 'Make first codon ATG (Met)',
         titleAfter: 'Made first codon ATG (Met)',
-        titleBefore: 'Make first codon ATG (Met)'
+      },
+      METHIONINE_START_CODON_ADDED: {
+        titleBefore: 'Add ATG (Met)',
+        titleAfter: 'Added ATG (Met)',
       }
     };
 
-    var findTransform = (editType) => {
-      var key = this.isAfterTransform ? 'After' : 'Before';
-      var transform = _.find(this.transforms, {type: editType});
-      if(transform) {
-        return _.extend({}, transform, {
-          title: this.messages[editType]['title' + key],
-          postCaption: this.messages[editType].postCaption
-        });
-      } else {
-        return;
-      }
+    var processTransforms = (memo, transform) => {
+      var key = 'title' + (this.isAfterTransform ? 'After' : 'Before');
+      var message = messages[transform.type];
+      // Provide a default if a specific message has not yet been provided
+      if(!message) message = {titleBefore: 'RDP edit', titleAfter: 'RDP edit'};
+      var simpleTransform = _.extend({}, transform, {
+        title: message[key],
+        postCaption: message.postCaption
+      });
+      memo.push(simpleTransform);
+      return memo;
     };
 
-    this.transforms = _.compact(_.map(_.keys(this.messages), findTransform));
+    this.transformObjects = _.reduce(this.transforms, processTransforms, []);
   },
 
   serialize() {
     return {
-      transforms: this.transforms,
-      editTypes: _.keys(this.messages),
-      any: this.transforms.length > 0,
+      transforms: this.transformObjects,
+      any: this.transformObjects.length > 0,
       post: this.post
     };
   },
@@ -72,7 +84,7 @@ export default Backbone.View.extend({
       /*
         contextAfter: RdpSequenceFeature
         _id: "1434569338080-1ac1d"
-        _type: "RDP_EDIT_METHIONINE_START_CODON"
+        _type: "METHIONINE_START_CODON"
         contextualFrom: 0
         contextualTo: 12
         desc: "Inserted ATG (Methionine) start codon"
@@ -84,7 +96,7 @@ export default Backbone.View.extend({
       var $element = $(element);
       var editType = $element.data('edit_type');
       var editStep = _.ucFirst($element.data('edit_step'));
-      var context = _.find(this.transforms, {type: editType})['context' + editStep];
+      var context = _.find(this.transformObjects, {type: editType})['context' + editStep];
 
       var sequence = new Sequence({
         sequence: context.sequence,
