@@ -9,6 +9,15 @@ import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import RdpEdit from 'gentle-rdp/rdp_edit';
+import RdpTypes from 'gentle-rdp/rdp_types';
+import {makeOptions} from '../../../common/lib/utils';
+
+
+var convertForSelect = function(values) {
+  return _.map(values, (value) => {
+    return {name: value, value: value};
+  });
+};
 
 
 export default Backbone.View.extend({
@@ -18,6 +27,7 @@ export default Backbone.View.extend({
 
   events: {
     'change input, textarea': 'updateState',
+    'change #newProduct_partType': 'updateStateAndRenderStickyEnds',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'calculateRdpEdits',
@@ -29,6 +39,7 @@ export default Backbone.View.extend({
       throw new Error('sequenceModel for RDP part creation can not yet have stickyEnds');
     }
     this.rdpOligoSequence = this.model instanceof WipRdpOligoSequence;
+    this.rdpPcrSequence = !this.rdpOligoSequence;
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
@@ -46,26 +57,22 @@ export default Backbone.View.extend({
   },
 
   serialize: function() {
-    var availablePartTypes = [{name: 'CDS', value: 'CDS'}];
-    if(this.rdpOligoSequence) {
-      availablePartTypes = [
-        {name: 'CDS',      value: 'CDS'},
-        {name: 'Promoter', value: 'PROMOTER'},
-        {name: 'RBS',      value: 'RBS'},
-        {name: 'Other',    value: 'OTHER'},
-      ];
-    }
     return {
       rdpOligoSequence: this.rdpOligoSequence,
       state: this.state,
-      availableStickyEnds: _.map(allStickyEnds(), function(end) {
-        return {
-          name: end.name,
-          value: end.name
-        };
-      }),
-      availablePartTypes
+      availablePartTypes: this.availablePartTypes(),
+      availableStickyEnds: this.availableStickyEnds(),
     };
+  },
+
+  availablePartTypes: function() {
+    var partTypes = RdpTypes.availablePartTypes(this.rdpPcrSequence, this.rdpOligoSequence);
+    return convertForSelect(partTypes);
+  },
+
+  availableStickyEnds: function() {
+    var stickyEnds = RdpTypes.availableStickyEnds(this.state.partType, this.rdpPcrSequence, this.rdpOligoSequence);
+    return convertForSelect(stickyEnds);
   },
 
   afterRender: function() {
@@ -86,6 +93,12 @@ export default Backbone.View.extend({
     }
   },
 
+  updateStateAndRenderStickyEnds: function() {
+    this.updateState();
+    var optionsHtml = makeOptions(this.availableStickyEnds());
+    this.$el.find('#newProduct_stickyEnds').html(optionsHtml);
+  },
+
   renderCanvasSequence: function() {
     var sequenceAttributes = this.getSequenceAttributes();
     // OPTIMIZE: creating a new TemporarySequence each time may not be very efficient for long sequences.
@@ -100,6 +113,8 @@ export default Backbone.View.extend({
       partType: this.getFieldFor('partType').val(),
       desc: this.getFieldFor('desc').val(),
     });
+    // `availableStickyEnds()` requires updated this.state.partType
+    this.state.availableStickyEnds = this.availableStickyEnds();
     if(!this.rdpOligoSequence) {
       _.extend(this.state, {
         from: this.getFieldFor('from').val() - 1,
@@ -198,8 +213,8 @@ export default Backbone.View.extend({
       alert('Some RDP part details are incorrect or missing.  Please correct them first.');
     } else {
       var wipRdpSequence = new this.model.constructor(this.getSequenceAttributes());
+      var rdpEdits = transformSequenceForRdp(wipRdpSequence);
       var stickyEnds = this.getStickyEnds();
-      var rdpEdits = transformSequenceForRdp(wipRdpSequence);//, stickyEnds);
 
       let rdpEditTypes = _.pluck(rdpEdits, 'type');
       if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
