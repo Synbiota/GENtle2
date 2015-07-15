@@ -77,9 +77,9 @@ var throwErrorIfPresent = function(func, sequenceModel, rdpEditType) {
  * @return {Array<RdpEdit>}  May return RdpEdits in normal or error state
  */
 var methionineStartCodon = function(sequenceModel) {
-  var type = RdpEdit.types.METHIONINE_START_CODON;
-  throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, type);
-  throwErrorIfPresent(warnIfShortSequence, sequenceModel, type);
+  var genericType = RdpEdit.types.METHIONINE_START_CODON;
+  throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, genericType);
+  throwErrorIfPresent(warnIfShortSequence, sequenceModel, genericType);
 
   var rdpEdit;
   var length = getLen(sequenceModel);
@@ -88,7 +88,7 @@ var methionineStartCodon = function(sequenceModel) {
 
   if(sequenceBases !== METHIONINE) {
     var quietlyAddedMethionine = false;
-    var name, desc, sequence, contextBefore, contextAfter, contextualTo;
+    var type, name, desc, sequence, contextBefore, contextAfter, contextualTo;
     var ranges = [];
     var size = 3;
     var contextualFrom = 0;
@@ -173,9 +173,8 @@ var noTerminalStopCodons = function(sequenceModel) {
   throwErrorIfPresent(warnIfNotMultipleOf3, sequenceModel, type);
   throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, type);
 
-  var rdpEdit;
+  var rdpEdit, frm;
   var length = getLen(sequenceModel);
-  var frm;
   var aAsToRemove = [];
 
   while(true) {

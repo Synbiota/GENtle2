@@ -17,9 +17,9 @@ class RdpEdit {
    * @param  {String} attributes.message=undefined
    * @param  {String} attributes.level=undefined
    */
-  constructor({type, contextBefore, contextAfter, message, level = NORMAL}) {
+  constructor({type, contextBefore, contextAfter, message, level = NORMAL}={}) {
     this.type = type;
-    if(!_.chain(RdpEdit.types).values().contains(this.type)) throw new TypeError('type is unknown: ' + type);
+    if(!_.contains(_.values(RdpEdit.types), this.type)) throw new TypeError('type is unknown: ' + type);
     if(contextBefore && !(contextBefore instanceof RdpSequenceFeature)) {
       contextBefore = new RdpSequenceFeature(contextBefore);
     }
