@@ -35,29 +35,39 @@ export default Backbone.View.extend({
   // correctly passed by the Backbone View's
   // `this.initialize.apply(this, arguments);` so just having `{showForm}`
   // will throw an exception.
-  initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
+  initialize: function() { //{showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
     if(this.model instanceof RdpPcrSequence || this.model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
     } else if(this.model instanceof WipPcrProductSequence || this.model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
     }
-    var args = {model: this.model};
-    this.formView = new FormView(_.extend(argumentsForFormView, args));
-    this.progressView = new ProgressView(args);
+    // var args = {model: this.model};
+    // this.formView = new FormView(_.extend(argumentsForFormView, args));
+    // this.progressView = new ProgressView(args);
+  },
+
+  makeFormView: function() {
+    if(!this.formView) this.formView = new FormView({model: this.model});
+    return this.formView;
+  },
+
+  makeProgressView: function() {
+    if(!this.progressView) this.progressView = new ProgressView({model: this.model});
+    return this.progressView;
   },
 
   beforeRender: function() {
     if(this.viewState === viewStates.form) {
-      this.setView('.pcr-view-container', this.formView);
+      this.setView('.pcr-view-container', this.makeFormView());
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.product) {
       this.setView('.pcr-view-container', new ProductView({model: this.model}));
       this.showCanvas(null, this.getBluntEndedSequence());
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.progress) {
-      this.setView('.pcr-view-container', this.formView);
-      this.setView('.pcr-view-container2', this.progressView);
+      this.setView('.pcr-view-container', this.makeFormView());
+      this.setView('.pcr-view-container2', this.makeProgressView());
     }
   },
 
@@ -145,8 +155,8 @@ export default Backbone.View.extend({
   },
   */
 
-  makePrimers: function(data) {
-    this.progressView.makePrimers(data);
+  makePrimers: function(wipRdpPcrSequence, dataAndOptions) {
+    this.makeProgressView().makePrimers(wipRdpPcrSequence, dataAndOptions);
     this.viewState = viewStates.progress;
     this.render();
   },

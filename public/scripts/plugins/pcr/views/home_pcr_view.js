@@ -21,6 +21,12 @@ export default Backbone.View.extend({
     'change .home-pcr-form input[name=file]': 'openSequenceFromFile'
   },
   
+  /**
+   * @methode createNewSequence
+   * @param  {any} event
+   * @param  {Object} loadedSequence
+   * @return {undefined}
+   */
   createNewSequence: function(event, loadedSequence) {
     event.preventDefault();
     var sequenceBases = loadedSequence.sequence;
@@ -40,7 +46,7 @@ export default Backbone.View.extend({
         primaryView: primaryView
       },
       sourceSequenceName: loadedSequence.name,
-      inProgress: true,
+      // TODO: include features
     });
 
     Gentle.addSequencesAndNavigate([sequence]);

@@ -4,7 +4,6 @@ import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
 import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
-import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 
 
 export default Backbone.View.extend({
@@ -28,33 +27,35 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
-  makePrimers: function(dataAndOptions) {
-    this.pcrPrimerDataAndOptions = dataAndOptions;
+  makePrimers: function(wipRdpPcrSequence, {rdpEdits, frm, to, stickyEnds, name}) {
+    if(wipRdpPcrSequence.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
 
-    var tempSequence = new this.model.constructor({
-      name: dataAndOptions.name,
-      sequence: dataAndOptions.sequence
-    });
-    delete dataAndOptions.sequence;
+    this.wipRdpPcrSequence = wipRdpPcrSequence;
+    this.dataAndOptions = {
+      rdpEdits: rdpEdits,
+      from: frm, // TODO remove this
+      frm: frm,
+      to: to,
+      stickyEnds: stickyEnds,
+      name: name,
+    };
 
-    transformSequenceForRdp(tempSequence);
-
-    dataAndOptions.from = 0;
-    // At this point, tempSequence should not have any sticky ends the STICK_END
-    // format should not matter.
-    dataAndOptions.to = tempSequence.getLength(tempSequence.STICKY_END_NONE) - 1;
-    getPcrProductAndPrimers(tempSequence, dataAndOptions)
+    // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
+    // and the tempSequence sequenceBases to calculate the primers and new
+    // sequenceBases.
+    getPcrProductAndPrimers(wipRdpPcrSequence, this.dataAndOptions)
     .then((pcrProduct) => {
-      // Copy over RDP specific attributes.
-      var rdpPcrAttributes = _.extend({}, pcrProduct.toJSON(), _.pick(dataAndOptions,
-          'partType', 'rdpEdits', 'sourceSequenceName'));
+      var rdpPcrAttributes = _.extend(
+        {},
+        pcrProduct.toJSON(),
+        // Copy over RDP specific attributes.
+        _.pick(wipRdpPcrSequence.toJSON(), 'partType', 'sourceSequenceName'),
+        {_type: 'rdp_pcr_product', rdpEdits}
+      );
 
       // ensures Gentle routes view to the RDP PCR product result view
       rdpPcrAttributes.displaySettings = rdpPcrAttributes.displaySettings || {};
       rdpPcrAttributes.displaySettings.primaryView = 'rdp_pcr';
-
-      rdpPcrAttributes.rdpEdits = rdpPcrAttributes.rdpEdits || [];
-      rdpPcrAttributes._type = 'rdp_pcr_product';
 
       var rdpPcrProduct = new RdpPcrSequence(rdpPcrAttributes);
 
@@ -82,7 +83,7 @@ export default Backbone.View.extend({
   },
 
   retryCreatingPcrPrimer: function() {
-    this.parentView().makePrimers(this.pcrPrimerDataAndOptions);
+    this.parentView().makePrimers(this.wipRdpPcrSequence, this.dataAndOptions);
   },
 
 });

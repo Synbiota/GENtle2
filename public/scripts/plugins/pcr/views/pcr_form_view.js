@@ -8,6 +8,7 @@ import _ from 'underscore';
 import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
+import RdpEdit from 'gentle-rdp/rdp_edit';
 
 
 export default Backbone.View.extend({
@@ -19,17 +20,20 @@ export default Backbone.View.extend({
     'change input, textarea': 'updateState',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
-    'submit .new-pcr-product-form': 'confirmRdpEdits',
+    'submit .new-pcr-product-form': 'calculateRdpEdits',
     'click .cancel-new-pcr-product-form': 'cancel',
   },
 
   initialize: function({selectionFrom, selectionTo}) {
+    if(this.model.getStickyEnds(false)) {
+      throw new Error('sequenceModel for RDP part creation can not yet have stickyEnds');
+    }
     this.rdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.state = _.defaults({
       from: selectionFrom || 0,
-      to: selectionTo || this.model.getLength(this.model.STICKY_END_FULL)-1,
+      to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
       name: this.model.get('name'),
-      sourceSequenceName: this.model.get('sourceSequenceName')
+      sourceSequenceName: this.model.get('sourceSequenceName'),
     }, this.model.get('meta.pcr.defaults') || {}, {
       targetMeltingTemperature: 68.5, 
       partType: 'CDS'
@@ -149,13 +153,16 @@ export default Backbone.View.extend({
     return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName', 'partType');
   },
 
+  getStickyEnds: function() {
+    return _.find(allStickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
+  },
+
   getData: function() {
     var data = _.pick(this.state,
       'name',
       'partType',
       'shortName',
       'desc',
-      'rdpEdits',
       'sourceSequenceName'
     );
     if(!this.rdpOligoSequence) {
@@ -166,7 +173,7 @@ export default Backbone.View.extend({
       ));
     }
 
-    data.stickyEnds = _.find(allStickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
+    data.stickyEnds = this.getStickyEnds();
 
     if(this.rdpOligoSequence) {
       var start = data.stickyEnds.start;
@@ -179,51 +186,51 @@ export default Backbone.View.extend({
 
     var frm = this.state.from;
     var to = this.state.to;
-    data.sequence = this.model.getSubSeq(frm, to);
+    data.sequence = this.model.getSubSeq(frm, to, this.model.STICKY_END_ANY);
 
     return data;
   },
 
-  confirmRdpEdits: function(event) {
+  calculateRdpEdits: function(event) {
     if(event) event.preventDefault();
     if(this.state.invalid.any) {
       alert('Some RDP part details are incorrect or missing.  Please correct them first.');
     } else {
-      var temporarySequence = new this.model.constructor(this.getSequenceAttributes());
-      this.state.temporarySequence = temporarySequence;
-      var transforms = transformSequenceForRdp(temporarySequence);
-      this.state.rdpEdits = transforms;
+      var wipRdpSequence = new this.model.constructor(this.getSequenceAttributes());
+      var stickyEnds = this.getStickyEnds();
+      var rdpEdits = transformSequenceForRdp(wipRdpSequence);//, stickyEnds);
 
-      let transformsTypes = _.pluck(transforms, 'type');
-      if(_.includes(transformsTypes, 'RDP_EDIT_MULTIPLE_OF_3')) {
+      let rdpEditTypes = _.pluck(rdpEdits, 'type');
+      if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
         alert('The target sequence length needs to be a multiple of 3');
-      } else if(transforms.length === 0) {
-        this.state.rdpEdits = [];
-        this.createNewRdpPart();
+      } else if(rdpEdits.length === 0) {
+        this.createNewRdpPart(wipRdpSequence, rdpEdits, stickyEnds);
       } else {
         Modal.show({
           title: 'Make source sequence RDP-compliant',
           subTitle: 'The following edit(s) must be made to the source sequence to convert it to an RDP-compliant part',
           confirmLabel: 'Make edits',
           bodyView: new EditsView({
-            transforms: transforms
+            transforms: rdpEdits
           })
         }).once('confirm', () => {
-          this.state.rdpEdits = transforms;
-          this.createNewRdpPart();
+          this.createNewRdpPart(wipRdpSequence, rdpEdits, stickyEnds);
         });
       }
     }
   },
 
-  createNewRdpPart: function() {
+  createNewRdpPart: function(wipRdpSequence, rdpEdits, stickyEnds) {
     this.state.calculating = true;
     var data = this.getData();
+    data.rdpEdits = rdpEdits;
     if(this.rdpOligoSequence) {
-      var rdpOligoSequence = this.state.temporarySequence;
-      var sequenceBases = rdpOligoSequence.getSequence(rdpOligoSequence.STICKY_END_FULL);
-      data.sequence = data.stickyEnds.start.sequence + sequenceBases + data.stickyEnds.end.sequence;
-      data.rdpEdits = this.state.rdpEdits;
+      var wipRdpOligoSequence = wipRdpSequence;
+      // stickyEnds not yet present on transformedSequence so we don't need to
+      // specify any stickyEnd format
+      data.sequence = wipRdpOligoSequence.getSequence(wipRdpOligoSequence.STICKY_END_ANY);
+      data.features = wipRdpOligoSequence.getFeatures(wipRdpOligoSequence.STICKY_END_ANY);
+      // data.sequence = data.stickyEnds.start.sequence + sequenceBases + data.stickyEnds.end.sequence;
 
       // ensures Gentle routes view to the RDP oligo product result view
       data.displaySettings = data.displaySettings || {};
@@ -234,7 +241,16 @@ export default Backbone.View.extend({
       this.model.destroy();
       Gentle.router.sequence(newRdpOligoSequence.get('id'));
     } else {
-      this.parentView().makePrimers(data);
+      var wipRdpPcrSequence = wipRdpSequence;
+      wipRdpPcrSequence.transformDataBeforePcr(rdpEdits);
+      var dataAndOptions = {
+        rdpEdits: rdpEdits,
+        frm: 0,
+        to: wipRdpPcrSequence.getLength(wipRdpPcrSequence.STICKY_END_ANY) - 1,
+        stickyEnds: stickyEnds,
+        name: wipRdpPcrSequence.get('name'),
+      };
+      this.parentView().makePrimers(wipRdpPcrSequence, dataAndOptions);
     }
   },
 
