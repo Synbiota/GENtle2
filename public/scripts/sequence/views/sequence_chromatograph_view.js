@@ -32,11 +32,6 @@ export default Backbone.View.extend({
 
     this.initSecondaryViews();
 
-    this.listenTo(this.model, 'change:chromatogramFragments', function(sequence, fragments){
-      console.log(arguments)
-      var fragment = fragments[fragments.length-1];
-      _this.sequenceCanvas.addChromatograph(fragment)
-    })
   },
 
   initSecondaryViews: function(trigger) {
@@ -79,7 +74,7 @@ export default Backbone.View.extend({
   handleResizeRight: function(trigger) {
     $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
       // 'right': this.secondaryView.$el.width(),
-      top: this.secondaryView.$el.height()
+      top: this.secondaryView.$el.outerHeight()
     });
     if(trigger !== false) {
       this.trigger('resize');
@@ -123,7 +118,7 @@ export default Backbone.View.extend({
 
   afterRender: function() {
     this.$('.sequence-canvas-outlet').css({
-      top: this.secondaryView.$el.height()
+      top: this.secondaryView.$el.outerHeight()
       // 'right': this.secondaryView.$el.width(),
     });
 

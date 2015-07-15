@@ -129,6 +129,12 @@ function sequenceModelFactory(BackboneModel) {
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`
       });
 
+      // if (this.get('chromatogramFragments').length && (typeof this.get('chromatogramFragments')[0] == "object")){
+      //   var workaround = _.map(this.get('chromatogramFragments'), function(fragment){
+      //     return new Sequence(fragment)
+      //   })
+      //   this.set('chromatogramFragments', workaround, {silent: true})
+      // }
       this.ntSeq = new Nt.Seq().read(this.getSequence());
 
       // If a value in this.attributes has a key with the same value as an
@@ -233,6 +239,7 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     validateFields(attributes) {
+
       var attributeNames = _.keys(attributes);
       var missingAttributes = _.without(this.requiredFields, ...attributeNames);
       var extraAttributes = _.without(attributeNames, ...this.allFields);
@@ -1592,48 +1599,75 @@ function sequenceModelFactory(BackboneModel) {
 
 
 
-      if (this.get('chromatogramFragments').length){
-        // return this.consensus.alignmentMask().sequence().substr(startBase, endBase - startBase + 1)
-        comparator = this.get('chromatogramFragments')[0].sequence || this.get('chromatogramFragments')[0].getSequence()
-        comparator = new Nt.Seq().read(comparator)
+      // if (this.get('chromatogramFragments').length){
+      //   // return this.consensus.alignmentMask().sequence().substr(startBase, endBase - startBase + 1)
+      //   comparator = this.get('chromatogramFragments')[0].sequence || this.get('chromatogramFragments')[0].getSequence()
+      //   comparator = new Nt.Seq().read(comparator)
 
-        // fragments = _.filter(this.get('chromatogramFragments'), function(fragment){
-        //   return (startBase < fragment.startBase) && (fragment.startBase < endBase) ||
-        //   (startBase < fragment.endBase) && (fragment.endBase < endBase)
-        // })
+      //   // fragments = _.filter(this.get('chromatogramFragments'), function(fragment){
+      //   //   return (startBase < fragment.startBase) && (fragment.startBase < endBase) ||
+      //   //   (startBase < fragment.endBase) && (fragment.endBase < endBase)
+      //   // })
 
-      } else {
-        comparator = this.ntSeq
-      }
+      // } else {
+      //   comparator = this.ntSeq
+      // }
 
-      var match = this.ntSeq.mapSequence(comparator).best()
-      seq = match.alignmentMask().sequence()
+      var seq = this.getSequence()
 
-      var seq = this.getSequence().slice(0, match.position) + seq + this.getSequence().slice(match.position+seq.length);
+      _.forEach(this.get('chromatogramFragments'), function(fragment){
+        // var map = fragment.get('map')
+        // console.log(map, fragment, typeof map.alignmentMask)
+        // if (typeof map.alignmentMask == "undefined") debugger
+        // var fragmentSeq = map.alignmentMask().sequence()
+
+        // var map = fragment.get('map')
+        // var mask = fragment.get('alignmentMask')
+
+        var mask = fragment.mask,
+            fragmentStart = fragment.position,
+            fragmentEnd   = fragment.position + fragment.sequence.length;
+        seq = seq.slice(0, fragmentStart) + mask + seq.slice(fragmentEnd);
+
+      })
+
+      // var match = this.ntSeq.mapSequence(comparator).best()
+      // seq = match.alignmentMask().sequence()
+
+      // var seq = this.getSequence().slice(0, match.position) + seq + this.getSequence().slice(match.position+seq.length);
 
 
       return seq.substr(startBase, endBase - startBase + 1);
     }
 
     addChromatogram(chromatogram){
-      var sequence = new Sequence(chromatogram)
-
+      // var sequence = new Sequence(chromatogram)
+      var sequence = chromatogram;
       // var seq1 = new Nt.Seq().read(this.getSequence());
 
-      var seq1 = this.consensus ? this.consensus.alignmentMask() : new Nt.Seq().read(this.getSequence());
-
+      // var seq1 = this.consensus ? this.consensus.alignmentMask() : new Nt.Seq().read(this.getSequence());
+      var seq1 = this.ntseq || new Nt.Seq().read(this.getSequence());
       var seq2 = new Nt.Seq().read(chromatogram.sequence);
 
       var map = seq1.mapSequence(seq2).best();
 
-      sequence.map = map;
+      // sequence.set('map', {
+      //   position: map.position
+      // });
+      // sequence.set('alignmentMask', map.alignmentMask().sequence())
 
-      this.consensus = seq1.mapSequence(seq2).best();
 
+      // this.consensus = seq1.mapSequence(seq2).best();
+
+      sequence.position = map.position;
+      sequence.mask = map.alignmentMask().sequence();
 
       this.set('chromatogramFragments',
         this.get('chromatogramFragments').concat(sequence)
-        )
+        ).throttledSave()
+
+      console.log(this.get('chromatogramFragments'))
+      window.a = this
     }
 
     clone() {
@@ -1655,6 +1689,7 @@ function sequenceModelFactory(BackboneModel) {
       _.each(this.nonEnumerableFields, function(fieldName) {
         delete attributes[fieldName];
       });
+
       return attributes;
     }
   }
@@ -1697,7 +1732,6 @@ function sequenceModelFactory(BackboneModel) {
   Sequence.registerPreProcessor = function(preProcessor) {
     preProcessors.push(preProcessor);
   };
-
 
   return Sequence;
 }

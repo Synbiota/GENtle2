@@ -111,7 +111,8 @@
       currentView = this.model.get('displaySettings.primaryView');
 
       if(!~_.pluck(primaryViews, 'name').indexOf(currentView)) {
-        currentView = 'edition';
+        // currentView = 'edition';
+        currentView = 'chromatograph';
       }
 
       this.primaryViews = primaryViews;

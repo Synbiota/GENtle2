@@ -397,6 +397,9 @@ class Handlers {
       mouse = this.normalizeMousePosition(event),
       previousCaret = this.caretPosition;
 
+    // temp disable
+    return;
+
     _this.hideCaret();
     _this.dragStartPos = [mouse.left, mouse.top + this.layoutHelpers.yOffset];
     if(event.shiftKey && previousCaret) {
@@ -437,6 +440,9 @@ class Handlers {
       sequence = this.sequence,
       mouse = _this.normalizeMousePosition(event);
 
+    //temp disable
+    return;
+
     mouse.top += layoutHelpers.yOffset;
 
     if (_this.dragStartPos &&
@@ -472,6 +478,10 @@ class Handlers {
   /**
    **/
   handleMouseup(event) {
+
+    // temp disable
+    return;
+
     if (!this.selection || !this.selecting) {
       this.handleClick(event);
     }
@@ -492,6 +502,9 @@ class Handlers {
       _this = this,
       shiftKey = event.shiftKey,
       base, baseRange;
+
+    // TEMP DISABLE
+    return
 
     baseRange = this.getBaseRangeFromYPos(mouse.top + this.layoutHelpers.yOffset);
     base = this.getBaseFromXYPos(mouse.left, mouse.top + this.layoutHelpers.yOffset);

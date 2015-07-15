@@ -9,6 +9,7 @@ export default class Row {
 
   constructor(sequenceCanvas, options = {}){
 
+
     this.sequenceCanvas = sequenceCanvas;
     _.extend(this, options)
     this.lines = this._initLines(options.lines)
@@ -35,9 +36,11 @@ export default class Row {
         artist = sequenceCanvas.artist,
         ls = sequenceCanvas.layoutSettings,
         baseWidth = ls.basePairDims.width,
-        lineOffset = 15;
+        lineOffset = 0, sequenceLength;
 
-    if (baseRange[0] < sequence.getLength()) {
+        sequenceLength = sequence.getLength ? sequence.getLength() : sequence.sequence.length;
+
+    if (baseRange[0] < sequenceLength) {
       // artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, ls.canvasDims.height - y)
       // artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, this.height)
 

@@ -73,15 +73,15 @@ export default Backbone.View.extend({
 
     _.forEach(this.model.get('chromatogramFragments'), function(fragment, i){
 
-      var position = 0;
-
-      if (fragment.map) position = fragment.map.position;
+      var position = fragment.position || 0,
+          length   = fragment.sequence.length || 0;
+      // if (fragment.map) position = fragment.map.position;
 
       _this.fragments.push({
         id: ++id,
         name: fragment.name || 'Fragment ' + id,
         from: position,
-        to: position + fragment.getLength()
+        to: position + length
       });
     });
   },

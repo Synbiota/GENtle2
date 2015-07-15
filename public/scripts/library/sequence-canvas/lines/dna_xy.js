@@ -136,6 +136,5 @@ export default class DNA_XY extends Line {
         if ((k + 1) % ls.basesPerBlock === 0) x += ls.gutterWidth;
       });
     }
-
   };
 }
