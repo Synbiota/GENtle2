@@ -8,6 +8,8 @@ const CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
 const MISSING_CAP = 'MISSING_CAP';
 const MISSING_ANCHOR = 'MISSING_ANCHOR';
 
+const MISSING_EITHER_STICKY_END = 'MISSING_EITHER_STICKY_END';
+
 var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
   return stickyEnds && stickyEnds.start && 
@@ -18,6 +20,11 @@ var detectCap = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
   return stickyEnds && stickyEnds.end && 
     stickyEnds.end.name.toLowerCase() === 'dt20';
+};
+
+var isValidPart = function(sequence) {
+  var stickyEnds = sequence.getStickyEnds();
+  return _.isObject(stickyEnds) && _.isObject(stickyEnds.start) && _.isObject(stickyEnds.end);
 };
 
 export default class WipCircuit extends Sequence {
@@ -148,11 +155,22 @@ export default class WipCircuit extends Sequence {
       }
     );
 
-    availableSequences.push(...newSequences);
+    var rejectedSequences = _.reject(newSequences, isValidPart);
+
+    availableSequences.push(..._.difference(newSequences, rejectedSequences));
+
     if(_.isUndefined(sequencesType)) {
       this._initAvailableAnchorsAndCaps();
     }
+
     this.throttledSave();
+
+    return _.map(rejectedSequences, function(sequence) {
+      return {
+        name: sequence.get('name'),
+        type: MISSING_EITHER_STICKY_END
+      };
+    });
   }
 
   insertSequence(beforeIndex, sequence) {
@@ -274,3 +292,4 @@ WipCircuit.CANNOT_CIRCULARIZE = CANNOT_CIRCULARIZE;
 WipCircuit.INCOMPATIBLE_STICKY_ENDS = INCOMPATIBLE_STICKY_ENDS;
 WipCircuit.MISSING_CAP = MISSING_CAP;
 WipCircuit.MISSING_ANCHOR = MISSING_ANCHOR;
+WipCircuit.MISSING_EITHER_STICKY_END = MISSING_EITHER_STICKY_END;

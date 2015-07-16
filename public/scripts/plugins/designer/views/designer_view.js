@@ -7,6 +7,7 @@ import Gentle from 'gentle';
 import uploadMultipleSequences from '../lib/upload_multiple_sequences';
 import Modal from '../../../common/views/modal_view';
 import DiagnosticModalView from './designer_diagnostic_modal_view';
+import CannotUploadModalView from './designer_cannot_upload_modal_view';
 import cleanSearchableText from '../lib/clean_searchable_text';
 import Q from 'q';
 import WipCircuit from '../lib/wip_circuit';
@@ -84,6 +85,10 @@ var DesignerView = Backbone.View.extend({
       _.bind(this.filterAvailableSequences, this),
       200
     );
+
+    _.bindAll(this,
+      'addAvailableSequences'
+    );
   },
 
   triggerFileInput: function(event) {
@@ -91,11 +96,27 @@ var DesignerView = Backbone.View.extend({
     this.$('.file-upload-input').click();
   },
 
+  addAvailableSequences: function(sequences) {
+    var errors = this.model.addAvailableSequences(
+      _.unique(sequences, sequence => sequence.sequence)
+    );
+
+    if(errors.length > 0) {
+       Modal.show({
+        title: 'Invalid sequences',
+        confirmLabel: 'OK',
+        cancelLabel: null,
+        bodyView: new CannotUploadModalView({errors})
+      });
+    }
+
+    this.render();
+  },
+
   uploadNewSequences: function(event) {
-    uploadMultipleSequences(event.target.files).then((sequences) => {
-      this.model.addAvailableSequences(sequences);
-      this.render();
-    }).done();
+    uploadMultipleSequences(event.target.files)
+      .then(this.addAvailableSequences)
+      .done();
   },
 
   serialize: function() {
@@ -169,12 +190,8 @@ var DesignerView = Backbone.View.extend({
         Q.all(_.map(zone.filedrop.eventFiles(event), listEntries))
           .then(_.flatten)
           .then(uploadMultipleSequences)
-          .then((sequences) => {
-            this.model.addAvailableSequences(_.unique(sequences, function(sequence) {
-              return sequence.sequence;
-            }));
-            this.render();
-          }).done();
+          .then(this.addAvailableSequences)
+          .done();
       });
 
 
