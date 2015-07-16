@@ -1,4 +1,6 @@
+import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 import Sequence from '../../../sequence/models/sequence';
+import PcrPrimer from './pcr_primer';
 
 
 class PcrProductSequence extends Sequence {
@@ -16,6 +18,14 @@ class PcrProductSequence extends Sequence {
     ]);
   }
 }
+
+
+var version1forwardPrimerPreProcessor = version1GenericPreProcessor('forwardPrimer');
+var version1reversePrimerPreProcessor = version1GenericPreProcessor('reversePrimer');
+PcrProductSequence.registerPreProcessor(version1forwardPrimerPreProcessor);
+PcrProductSequence.registerPreProcessor(version1reversePrimerPreProcessor);
+PcrProductSequence.registerAssociation(PcrPrimer, 'forwardPrimer', false);
+PcrProductSequence.registerAssociation(PcrPrimer, 'reversePrimer', false);
 
 
 export default PcrProductSequence;
