@@ -367,7 +367,7 @@ var ensureLastBaseIs = function(ensureBase) {
       })];
 
       // Get a sequence snippet before
-      var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
+      var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS + 3);
       var sequence = getSubSeq(sequenceModel, contextualFrom, CONTEXT_BASE_PAIRS);
       var contextualTo = frm + 3;
       var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
