@@ -1,5 +1,6 @@
 import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
+import preloadedAnchorsAndCaps from './anchors_and_caps.json';
 import _ from 'underscore';
 
 const INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
@@ -34,6 +35,14 @@ export default class WipCircuit extends Sequence {
       'change:sequences change:cap change:anchor', 
       _.bind(this.diagnoseSequence, this)
     );
+
+    if(
+      this.get('availableAnchors').length === 0 ||
+      this.get('availableCaps').length === 0
+    ) {
+      this.addAvailableSequences(preloadedAnchorsAndCaps.anchors, 'anchors');
+      this.addAvailableSequences(preloadedAnchorsAndCaps.caps, 'caps');
+    }
   }
 
   defaults() {
@@ -107,13 +116,28 @@ export default class WipCircuit extends Sequence {
     };
   }
 
-  addAvailableSequences(sequences) {
-    var availableSequences = this.get('availableSequences');
+  addAvailableSequences(sequences, sequencesType) {
+    var availableSequences, existingSequences;
 
-    var existingSequences = availableSequences.concat(
-      this.get('availableAnchors'),
-      this.get('availableCaps')
-    );
+    switch(sequencesType) {
+      case 'cap':
+      case 'caps':
+        availableSequences = existingSequences = this.get('availableCaps');
+        break;
+
+      case 'anchor':
+      case 'anchors':
+        availableSequences = existingSequences = this.get('availableAnchors');
+        break;
+
+      default:
+        availableSequences = this.get('availableSequences');
+        existingSequences = availableSequences.concat(
+          this.get('availableAnchors'),
+          this.get('availableCaps')
+        );
+        break;
+    }
 
     var newSequences = _.reject(
       _.map(sequences, sequence => new TemporarySequence(sequence)), 
@@ -125,7 +149,9 @@ export default class WipCircuit extends Sequence {
     );
 
     availableSequences.push(...newSequences);
-    this._initAvailableAnchorsAndCaps();
+    if(_.isUndefined(sequencesType)) {
+      this._initAvailableAnchorsAndCaps();
+    }
     this.throttledSave();
   }
 
