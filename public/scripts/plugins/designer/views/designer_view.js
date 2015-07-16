@@ -36,14 +36,16 @@ var DesignerView = Backbone.View.extend({
       return;
     }
 
+    var specialSequenceNames = ['x-z', 'x-z\'', 'z-x', 'z-x\''];
+
     var outlet1StickyEndNames = [
       'x-z\'', 'da20-z\'', 'x-dt20'
     ];
 
-    var filterbyStickyEnds = _.bind(
+    var filterbyStickyEnds = _.partial(_.bind(
       model.filterAvailableSequencesByStickyEnds, 
       model
-    );
+    ), _, specialSequenceNames);
 
     this.setView(
       '.designer-available-sequences-outlet.outlet-1', 
@@ -70,7 +72,7 @@ var DesignerView = Backbone.View.extend({
     this.setView(
       '.designer-available-sequences-outlet.outlet-3', 
       new AvailableSequencesView({
-        name: 'Linker parts',
+        name: 'Adapter and inverter parts',
         getSequences: filterbyStickyEnds(outlet3StickyEndNames, true)
       })
     );

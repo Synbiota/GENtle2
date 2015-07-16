@@ -107,11 +107,12 @@ export default class WipCircuit extends Sequence {
   }
 
 
-  filterAvailableSequencesByStickyEnds(stickyEndNames, inverse = false) {
+  filterAvailableSequencesByStickyEnds(stickyEndNames, excludeNames = [], inverse = false) {
     if(!_.isArray(stickyEndNames)) stickyEndNames = [stickyEndNames];
 
     return () => {
       return _.filter(this.get('availableSequences'), function(sequence) {
+        if(_.includes(excludeNames, sequence.get('name'))) return inverse;
         var stickyEnds = sequence.getStickyEnds();
         if(!stickyEnds) return false;
         var sequenceStickyEndName = `${stickyEnds.start.name}-${stickyEnds.end.name}`.toLowerCase();
