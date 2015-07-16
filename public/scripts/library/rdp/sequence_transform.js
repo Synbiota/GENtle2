@@ -8,6 +8,7 @@ import RdpTypes from './rdp_types';
 
 
 var CONTEXT_BASE_PAIRS = 9;
+var CODON_CONTEXT_BASE_PAIRS = (CONTEXT_BASE_PAIRS - 3) / 2;
 
 
 var getLen = function(sequenceModel) {
@@ -505,9 +506,18 @@ var warnIfEarlyStopCodons = function(sequenceModel) {
   return _.reduce(aAs, (memo, aa, index) => {
     if(aa === 'X') {
       var level = RdpEdit.levels.WARN;
-      var position = (index * 3) + 1;
-      var message = `Early stop codon at base ${position}-${position+2}.`;
-      var rdpEdit = new RdpEdit({type, message, level});
+      var position = index * 3;
+      var message = `Early stop codon at base ${position+1}-${position+3}.`;
+      var ranges = [new SequenceRange({
+        name: `Stop codon`,
+        from: position,
+        size: 3
+      })];
+      var contextualFrom = Math.max(0, position - CODON_CONTEXT_BASE_PAIRS);
+      var contextualTo = Math.min(getLen(sequenceModel), position + 3 + CODON_CONTEXT_BASE_PAIRS);
+      var sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo - contextualFrom);
+      var contextBefore = new RdpSequenceFeature({name, desc: message, ranges, _type: type, sequence, contextualFrom, contextualTo});
+      var rdpEdit = new RdpEdit({type, contextBefore, level});
       memo.push(rdpEdit);
     }
     return memo;
@@ -550,7 +560,7 @@ var getTransformationFunctions = function(sequenceModel) {
     lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
   }
 
-  transformationFunctions.concat([
+  transformationFunctions = transformationFunctions.concat([
     ensureLastBaseIs(lastBaseMustBe),
     warnIfEarlyStopCodons
   ]);
