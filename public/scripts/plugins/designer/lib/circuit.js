@@ -12,14 +12,15 @@ export default class Circuit extends Sequence {
   }
 
   defaults() {
-    return _.deepExtend({}, super.defaults(), {
-      displaySettings: {
-        rows: {
+    var defaults = super.defaults();
+    return _.extend(super.defaults(), {
+      displaySettings: _.extend({}, defaults.displaySettings, {
+        rows: _.extend({}, defaults.displaySettings.rows || {}, {
           res: {
             custom: []
           }
-        }
-      }
+        })
+      })
     });
   }
 }
