@@ -237,7 +237,7 @@ var noTerminalStopCodons = function(sequenceModel) {
 };
 
 
-var terminalCBaseAaMapConservativeChange = {
+var lastBaseIsCAaMapConservativeChange = {
   // Tryptophan -> Tyrosine
   "TGG": "TAC",
   // Glutamine -> Asparagine
@@ -253,7 +253,7 @@ var terminalCBaseAaMapConservativeChange = {
   "GAG": "GAC",
 };
 
-var terminalCBaseAaMap = _.extend(_.clone(terminalCBaseAaMapConservativeChange), {
+var lastBaseIsCAaMap = _.extend(_.clone(lastBaseIsCAaMapConservativeChange), {
   // Alanine
   "GCT": "GCC",
   "GCA": "GCC",
@@ -313,12 +313,97 @@ var terminalCBaseAaMap = _.extend(_.clone(terminalCBaseAaMapConservativeChange),
   "TAA": undefined,
 });
 
+
+var lastBaseIsGAaMapConservativeChange = {
+  // Asparagine -> Glutamine
+  "AAT": "CAG",
+  "AAC": "CAG",
+  // Aspartic acid -> Glutamic acid
+  "GAT": "GAG",
+  "GAC": "GAG",
+  // Phenylalanine -> Leucine
+  "TTT": "TTG",
+  "TTC": "TTG",
+  // Cysteine -> Serine
+  "TGT": "TCG",
+  "TGC": "TCG",
+  // Histidine -> Glutamine
+  "CAT": "CAG",
+  "CAC": "CAG",
+  // Tyrosine -> Tryptophan
+  "TAT": "TGG",
+  "TAC": "TGG",
+  // Isoleucine -> Leucine
+  "ATT": "CTG",
+  "ATC": "CTG",
+  "ATA": "CTG",
+};
+
+var lastBaseIsGAaMap = _.extend(_.clone(lastBaseIsGAaMapConservativeChange), {
+  // Alanine
+  "GCT": "GCG",
+  "GCC": "GCG",
+  "GCA": "GCG",
+  // Leucine
+  "TTA": "TTG",
+  "CTT": "CTG",
+  "CTC": "CTG",
+  "CTA": "CTG",
+  // Arginine
+  "CGT": "CGG",
+  "CGC": "CGG",
+  "CGA": "CGG",
+  "AGA": "AGG",
+  // Lysine
+  "AAA": "AAG",
+  // Methionine
+  "ATG": "ATG",
+  // Proline
+  "CCT": "CCG",
+  "CCC": "CCG",
+  "CCA": "CCG",
+  // Glutamine
+  "CAA": "CAG",
+  // Serine
+  "TCT": "TCG",
+  "TCC": "TCG",
+  "TCA": "TCG",
+  "AGT": "TCG",
+  "AGC": "TCG",
+  // Glutamic acid
+  "GAA": "GAG",
+  // Threonine
+  "ACT": "ACG",
+  "ACC": "ACG",
+  "ACA": "ACG",
+  // Glycine
+  "GGT": "GGG",
+  "GGC": "GGG",
+  "GGA": "GGG",
+  // Tryptophan
+  "TGG": "TGG",
+  // Valine
+  "GTT": "GTG",
+  "GTC": "GTG",
+  "GTA": "GTG",
+  // Stop codons (we could convert to a TAG stop codon?)
+  "TGA": "TAG",
+  "TAA": "TAG",
+});
+
+
 var baseMappingData = {
   'C': {
-    aaMap: terminalCBaseAaMap,
-    aaConversativeMap: terminalCBaseAaMapConservativeChange,
+    aaMap: lastBaseIsCAaMap,
+    aaConversativeMap: lastBaseIsCAaMapConservativeChange,
     type: RdpEdit.types.LAST_BASE_IS_C,
     type_no_change: RdpEdit.types.LAST_BASE_IS_C_NO_AA_CHANGE,
+  },
+  'G': {
+    aaMap: lastBaseIsGAaMap,
+    aaConversativeMap: lastBaseIsGAaMapConservativeChange,
+    type: RdpEdit.types.LAST_BASE_IS_G,
+    type_no_change: RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE,
   }
 };
 
