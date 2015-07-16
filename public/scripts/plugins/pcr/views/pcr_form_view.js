@@ -204,32 +204,36 @@ export default Backbone.View.extend({
   },
 
   calculateRdpEdits: function(event) {
-    if(event) event.preventDefault();
-    if(this.state.invalid.any) {
-      alert('Some RDP part details are incorrect or missing.  Please correct them first.');
-    } else {
-      var attributes = _.pick(this.getData(), 'name', 'sequence', 'features', 'sourceSequenceName', 'partType');
-      attributes.desiredStickyEnds = this.getStickyEnds();
-      var wipRdpSequence = new this.model.constructor(attributes);
-      var rdpEdits = transformSequenceForRdp(wipRdpSequence);
-
-      let rdpEditTypes = _.pluck(rdpEdits, 'type');
-      if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
-        alert('The target sequence length needs to be a multiple of 3');
-      } else if(rdpEdits.length === 0) {
-        this.createNewRdpPart(wipRdpSequence, rdpEdits);
+    event.preventDefault();
+    try {
+      if(this.state.invalid.any) {
+        alert('Some RDP part details are incorrect or missing.  Please correct them first.');
       } else {
-        Modal.show({
-          title: 'Make source sequence RDP-compliant',
-          subTitle: 'The following edit(s) must be made to the source sequence to convert it to an RDP-compliant part',
-          confirmLabel: 'Make edits',
-          bodyView: new EditsView({
-            transforms: rdpEdits
-          })
-        }).once('confirm', () => {
+        var attributes = _.pick(this.getData(), 'name', 'sequence', 'features', 'sourceSequenceName', 'partType');
+        attributes.desiredStickyEnds = this.getStickyEnds();
+        var wipRdpSequence = new this.model.constructor(attributes);
+        var rdpEdits = transformSequenceForRdp(wipRdpSequence);
+
+        let rdpEditTypes = _.pluck(rdpEdits, 'type');
+        if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
+          alert('The target sequence length needs to be a multiple of 3');
+        } else if(rdpEdits.length === 0) {
           this.createNewRdpPart(wipRdpSequence, rdpEdits);
-        });
+        } else {
+          Modal.show({
+            title: 'Make source sequence RDP-compliant',
+            subTitle: 'The following edit(s) must be made to the source sequence to convert it to an RDP-compliant part',
+            confirmLabel: 'Make edits',
+            bodyView: new EditsView({
+              transforms: rdpEdits
+            })
+          }).once('confirm', () => {
+            this.createNewRdpPart(wipRdpSequence, rdpEdits);
+          });
+        }
       }
+    } catch(error) {
+      this.handleError(error);
     }
   },
 
@@ -265,6 +269,11 @@ export default Backbone.View.extend({
       };
       this.parentView().makePrimers(wipRdpPcrSequence, dataAndOptions);
     }
+  },
+
+  handleError: function(error) {
+    this.$el.find('.new-pcr-form-error').show();
+    console.error(error);
   },
 
   cancel: function(event) {
