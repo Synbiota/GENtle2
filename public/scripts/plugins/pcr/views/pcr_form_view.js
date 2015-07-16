@@ -100,7 +100,7 @@ export default Backbone.View.extend({
   },
 
   renderCanvasSequence: function() {
-    var sequenceAttributes = this.getSequenceAttributes();
+    var sequenceAttributes = _.pick(this.getData(), 'name', 'sequence', 'features');
     // OPTIMIZE: creating a new TemporarySequence each time may not be very efficient for long sequences.
     var temporarySequence = new TemporarySequence(sequenceAttributes);
     this.parentView().showCanvas(false, temporarySequence);
@@ -127,12 +127,12 @@ export default Backbone.View.extend({
   },
 
   validateState: function() {
-    var isInteger = (val) => _.isNumber(val) && !_.isNaN(val) && val >= 0;
-    var validBp = (val) => isInteger(val) && val < this.model.getLength();
+    var isPositiveInteger = (val) => _.isNumber(val) && !_.isNaN(val) && val >= 0;
+    var validBp = (val) => isPositiveInteger(val) && val < this.model.getLength();
 
     this.state.invalid = {
       name: !this.state.name,
-      targetMeltingTemperature: !isInteger(this.state.targetMeltingTemperature),
+      targetMeltingTemperature: !isPositiveInteger(this.state.targetMeltingTemperature),
     };
     if(!this.rdpOligoSequence) {
       _.extend(this.state.invalid, {
@@ -164,10 +164,6 @@ export default Backbone.View.extend({
     return this.$('#newProduct_'+field);
   },
 
-  getSequenceAttributes: function() {
-    return _.pick(this.getData(), 'name', 'sequence', 'from', 'to', 'sourceSequenceName', 'partType', 'features');
-  },
-
   getStickyEnds: function() {
     return _.find(allStickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
   },
@@ -188,13 +184,13 @@ export default Backbone.View.extend({
       ));
     }
 
-    data.stickyEnds = this.getStickyEnds();
 
     if(this.rdpOligoSequence) {
-      var start = data.stickyEnds.start;
+      var stickyEnds = this.getStickyEnds();
+      var start = stickyEnds.start;
       start.sequence = start.sequence.substr(start.offset, start.size);
       start.offset = 0;
-      var end = data.stickyEnds.end;
+      var end = stickyEnds.end;
       end.sequence = end.sequence.substr(0, end.size);
       end.offset = 0;
     }
@@ -212,15 +208,16 @@ export default Backbone.View.extend({
     if(this.state.invalid.any) {
       alert('Some RDP part details are incorrect or missing.  Please correct them first.');
     } else {
-      var wipRdpSequence = new this.model.constructor(this.getSequenceAttributes());
+      var attributes = _.pick(this.getData(), 'name', 'sequence', 'features', 'sourceSequenceName', 'partType');
+      attributes.desiredStickyEnds = this.getStickyEnds();
+      var wipRdpSequence = new this.model.constructor(attributes);
       var rdpEdits = transformSequenceForRdp(wipRdpSequence);
-      var stickyEnds = this.getStickyEnds();
 
       let rdpEditTypes = _.pluck(rdpEdits, 'type');
       if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
         alert('The target sequence length needs to be a multiple of 3');
       } else if(rdpEdits.length === 0) {
-        this.createNewRdpPart(wipRdpSequence, rdpEdits, stickyEnds);
+        this.createNewRdpPart(wipRdpSequence, rdpEdits);
       } else {
         Modal.show({
           title: 'Make source sequence RDP-compliant',
@@ -230,13 +227,13 @@ export default Backbone.View.extend({
             transforms: rdpEdits
           })
         }).once('confirm', () => {
-          this.createNewRdpPart(wipRdpSequence, rdpEdits, stickyEnds);
+          this.createNewRdpPart(wipRdpSequence, rdpEdits);
         });
       }
     }
   },
 
-  createNewRdpPart: function(wipRdpSequence, rdpEdits, stickyEnds) {
+  createNewRdpPart: function(wipRdpSequence, rdpEdits) {
     this.state.calculating = true;
     var data = this.getData();
     data.rdpEdits = rdpEdits;
@@ -263,7 +260,7 @@ export default Backbone.View.extend({
         rdpEdits: rdpEdits,
         frm: 0,
         to: wipRdpPcrSequence.getLength(wipRdpPcrSequence.STICKY_END_ANY) - 1,
-        stickyEnds: stickyEnds,
+        stickyEnds: wipRdpPcrSequence.get('desiredStickyEnds'),
         name: wipRdpPcrSequence.get('name'),
       };
       this.parentView().makePrimers(wipRdpPcrSequence, dataAndOptions);

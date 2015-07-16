@@ -335,7 +335,7 @@ var baseMappingData = {
  */
 var ensureLastBaseIs = function(ensureBase) {
   var data = baseMappingData[ensureBase];
-  if(!data) throw new Error(`ensureLastBaseIs does not yet support "${ensureBase}".`);
+  if(!data) throw new Error(`ensureLastBaseIs does not yet support base of: "${ensureBase}".`);
 
   var transformationFunction = function(sequenceModel) {
     var type = data.type;
@@ -430,40 +430,63 @@ var warnIfEarlyStopCodons = function(sequenceModel) {
 };
 
 
+var checkForFatalErrors = function(sequenceModel) {
+  var fatalErrorFunctions = [
+    [warnIfNotMultipleOf3,    RdpEdit.types.NOT_MULTIPLE_OF_3],
+    [warnIfStickyEndsPresent, RdpEdit.types.STICKY_ENDS_PRESENT],
+    [warnIfShortSequence,     RdpEdit.types.SEQUENCE_TOO_SHORT]
+  ];
+
+  var fatalErrorRdpEdits = [];
+  _.each(fatalErrorFunctions, ([func, type]) => {
+    var rdpEdit = func(sequenceModel, type);
+    if(rdpEdit) {
+      rdpEdit.level = RdpEdit.levels.ERROR;
+      fatalErrorRdpEdits.push(rdpEdit);
+    }
+  });
+  return fatalErrorRdpEdits;
+};
+
+
+var getTransformationFunctions = function(sequenceModel) {
+  var partType = sequenceModel.get('partType');
+  var transformationFunctions = [];
+  if(partType === RdpTypes.types.CDS) {
+    transformationFunctions = [
+      methionineStartCodon,
+      noTerminalStopCodons
+    ];
+  }
+
+  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
+  var lastBaseMustBe;
+  if(desiredStickyEnds && desiredStickyEnds.end && desiredStickyEnds.end.sequence) {
+    lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
+  }
+
+  transformationFunctions.concat([
+    ensureLastBaseIs(lastBaseMustBe),
+    warnIfEarlyStopCodons
+  ]);
+
+  return transformationFunctions;
+};
+
+
 /**
  * @function  transformSequenceForRdp
  * @param  {SequenceModel}  sequenceModel
  * @return {Array<RdpEdit>}
  */
 var transformSequenceForRdp = function(sequenceModel) {
-  var rdpEdits = [];
-
-  var fatalErrorFunctions = [
-    [warnIfNotMultipleOf3,    RdpEdit.types.NOT_MULTIPLE_OF_3],
-    [warnIfStickyEndsPresent, RdpEdit.types.STICKY_ENDS_PRESENT],
-    [warnIfShortSequence,     RdpEdit.types.SEQUENCE_TOO_SHORT]
-  ];
-  _.each(fatalErrorFunctions, ([func, type]) => {
-    var rdpEdit = func(sequenceModel, type);
-    if(rdpEdit) {
-      rdpEdit.level = RdpEdit.levels.ERROR;
-      rdpEdits.push(rdpEdit);
-    }
-  });
+  var fatalErrorRdpEdits = checkForFatalErrors(sequenceModel);
   // If there are any warnings (which would result in errors being thrown by the
   // transform functions) then return these straight away.
-  if(rdpEdits.length) return rdpEdits;
+  if(fatalErrorRdpEdits.length) return fatalErrorRdpEdits;
 
-  var transformationFunctions = [];
-  var partType = sequenceModel.get('partType');
-  if(partType === RdpTypes.types.CDS) {
-    transformationFunctions = [
-      methionineStartCodon,
-      noTerminalStopCodons,
-      ensureLastBaseIs('C'),
-      warnIfEarlyStopCodons,
-    ];
-  }
+  var transformationFunctions = getTransformationFunctions(sequenceModel);
+  var rdpEdits = [];
   _.each(transformationFunctions, (transformation) => {
     var moreRdpEdits = transformation(sequenceModel);
     if(moreRdpEdits.length) rdpEdits = rdpEdits.concat(moreRdpEdits);

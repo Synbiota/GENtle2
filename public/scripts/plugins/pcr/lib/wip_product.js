@@ -15,6 +15,7 @@ class WipPcrProductSequence extends Sequence {
   get optionalFields() {
     var fields = super.optionalFields.concat([
       'sourceSequenceName',
+      'desiredStickyends',
     ]);
     return _.reject(fields, (field) => field === 'stickyEnds');
   }
@@ -35,9 +36,6 @@ class WipPcrProductSequence extends Sequence {
     // Irrespective of if the transformation involved converting the last base
     // into a C or G, we will exclude this base from the sequence so that it is
     // not used to make the PCR primers.
-    // var lastIsC = findWhere(RdpEdit.types.LAST_BASE_IS_C) || findWhere(RdpEdit.types.LAST_BASE_IS_C_NO_AA_CHANGE);
-    // var lastIsG = findWhere(RdpEdit.types.LAST_BASE_IS_G) || findWhere(RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE);
-    // if(lastIsC || lastIsG) sequence = sequence.substr(0, sequence.length - 1);
     sequence = sequence.substr(0, sequence.length - 1);
     this.set('sequence', sequence);
   }
