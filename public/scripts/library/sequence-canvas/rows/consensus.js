@@ -43,7 +43,7 @@ export default class Consensus extends Row {
         textFont: LineStyles.dna.text.font,
         textColour: "blue"
       }],
-      }
+      };
 
     super(sequenceCanvas, options);
 

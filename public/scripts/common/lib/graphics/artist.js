@@ -80,7 +80,7 @@ Includes Shape system for handling mouse events.
     var canvas = this.canvas,
         context = this.context;
 
-    context.clearRect(x || 0, width || 0, width || canvas.width, height || canvas.height);
+    context.clearRect(x || 0, y || 0, width || canvas.width, height || canvas.height);
     this.shapes = [];
   };
 

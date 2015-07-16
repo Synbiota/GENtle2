@@ -122,6 +122,8 @@ export default class Chromatogram extends Line {
      */
     function drawChromatogram(){
 
+      // toBase += 1;
+
       _.forEach(['A','C','G','T'], function(nucleotide, i){
 
         var points = [],

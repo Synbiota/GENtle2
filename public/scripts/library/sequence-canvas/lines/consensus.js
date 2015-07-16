@@ -69,7 +69,7 @@ export default class Consensus extends Line {
         );
     }
 
-    _.forEach(sequence.getConsensus().slice(baseRange[0], baseRange[1]), function(consensus, i){
+    _.forEach(sequence.getConsensus().slice(baseRange[0], baseRange[1] + 1), function(consensus, i){
 
       if (consensus > 10){
         drawGood(i);

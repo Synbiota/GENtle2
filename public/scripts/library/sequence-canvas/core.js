@@ -625,7 +625,7 @@ class SequenceCanvasCore {
     baseRange = [
       Math.floor((x + layoutHelpers.xOffset)/baseWidth),
       Math.floor((x + layoutHelpers.xOffset + width)/baseWidth)
-    ]
+    ];
 
     // this.drawRowSegment(null, x, y, baseRange);
 
@@ -638,17 +638,25 @@ class SequenceCanvasCore {
 
 
 
-    if (layoutHelpers.xOffset){
-      this.artist.clear(x, 0, (baseRange[1] - baseRange[0]) * baseWidth, layoutSettings.canvasDims.height)
-    } else if (layoutHelpers.yOffset) {
-      this.artist.clear(0, y, layoutSettings.canvasDims.width, y + layoutHelpers.yOffset)
-    }
 
     var rowOffset = Math.floor((y + layoutHelpers.yOffset)/rowHeight),
         numRows = Math.min(this.rows.length, Math.floor(height/rowHeight));
 
     visibleRows = this.rows.slice(rowOffset, rowOffset + numRows);
+
+    this.artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, height)
+
+
+    // if (layoutHelpers.xOffset){
+    //   this.artist.clear(x, 0, (baseRange[1] - baseRange[0]) * baseWidth, layoutSettings.canvasDims.height)
+    // } else if (layoutHelpers.yOffset) {
+    //   console.log(0, y, layoutSettings.canvasDims.width, layoutHelpers.yOffset)
+    //   this.artist.clear(0, y, layoutSettings.canvasDims.width, layoutHelpers.yOffset)
+    // }
+
     // draw the row segment
+
+    baseRange[1] -= 1;
 
     var adjustedRange = baseRange,
         drawOffset = 0;
@@ -667,7 +675,7 @@ class SequenceCanvasCore {
 
         adjustedRange = _.map(baseRange, function(base){
           return Math.max(base - position, 0);
-        })
+        });
 
       }
 

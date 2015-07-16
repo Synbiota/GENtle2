@@ -38,6 +38,7 @@ export default class DNA_XY extends Line {
   }
 
   draw(x, y, baseRange) {
+
     var sequenceCanvas  = this.sequenceCanvas,
         ls              = sequenceCanvas.layoutSettings,
         lh              = sequenceCanvas.layoutHelpers,
