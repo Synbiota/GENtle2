@@ -223,7 +223,7 @@ describe('RDP sequence with terminal C base validation and transformation', func
     });
 
     it('should transform suitable bases', function() {
-      const INITIAL = 'ATGCAG';
+      const INITIAL = 'ATGCCC';
       const LYSINE1 = 'AAA';
       const LYSINE2 = 'AAG';
       const ARGININE1 = 'AGA';
@@ -260,6 +260,25 @@ describe('RDP sequence with terminal C base validation and transformation', func
 
         expect(getSequence()).toEqual(INITIAL + ARGININE);
       });
+    });
+
+    it('should transform suitable bases with the correct context', function() {
+      const INITIAL = 'ATGCCCGGG';
+      const LYSINE1 = 'AAA';
+      const ARGININE = 'CGC';
+
+      setSequence(INITIAL + LYSINE1);
+      var rdpEdits = ensureLastBaseIs('C')(sequenceModel);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.contextBefore.sequence).toEqual((INITIAL + LYSINE1).slice(-9));
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(3);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(12);
+
+      expect(rdpEdit.contextAfter.sequence).toEqual((INITIAL + ARGININE).slice(-9));
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(3);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(12);
+
+      expect(getSequence()).toEqual(INITIAL + ARGININE);
     });
 
     it('should error if encounters a stop codon (which should not normally happen)', function() {

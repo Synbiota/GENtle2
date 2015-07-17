@@ -155,8 +155,8 @@ export default Backbone.View.extend({
   },
   */
 
-  makePrimers: function(wipRdpPcrSequence, dataAndOptions) {
-    this.makeProgressView().makePrimers(wipRdpPcrSequence, dataAndOptions);
+  makePrimers: function(wipRdpPcrSequence) {
+    this.makeProgressView().makePrimers(wipRdpPcrSequence);
     this.viewState = viewStates.progress;
     this.render();
   },

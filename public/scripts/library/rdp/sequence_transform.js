@@ -8,6 +8,7 @@ import RdpTypes from './rdp_types';
 
 
 var CONTEXT_BASE_PAIRS = 9;
+var CODON_CONTEXT_BASE_PAIRS = (CONTEXT_BASE_PAIRS - 3) / 2;
 
 
 var getLen = function(sequenceModel) {
@@ -237,7 +238,7 @@ var noTerminalStopCodons = function(sequenceModel) {
 };
 
 
-var terminalCBaseAaMapConservativeChange = {
+var lastBaseIsCAaMapConservativeChange = {
   // Tryptophan -> Tyrosine
   "TGG": "TAC",
   // Glutamine -> Asparagine
@@ -253,7 +254,7 @@ var terminalCBaseAaMapConservativeChange = {
   "GAG": "GAC",
 };
 
-var terminalCBaseAaMap = _.extend(_.clone(terminalCBaseAaMapConservativeChange), {
+var lastBaseIsCAaMap = _.extend(_.clone(lastBaseIsCAaMapConservativeChange), {
   // Alanine
   "GCT": "GCC",
   "GCA": "GCC",
@@ -313,12 +314,97 @@ var terminalCBaseAaMap = _.extend(_.clone(terminalCBaseAaMapConservativeChange),
   "TAA": undefined,
 });
 
+
+var lastBaseIsGAaMapConservativeChange = {
+  // Asparagine -> Glutamine
+  "AAT": "CAG",
+  "AAC": "CAG",
+  // Aspartic acid -> Glutamic acid
+  "GAT": "GAG",
+  "GAC": "GAG",
+  // Phenylalanine -> Leucine
+  "TTT": "TTG",
+  "TTC": "TTG",
+  // Cysteine -> Serine
+  "TGT": "TCG",
+  "TGC": "TCG",
+  // Histidine -> Glutamine
+  "CAT": "CAG",
+  "CAC": "CAG",
+  // Tyrosine -> Tryptophan
+  "TAT": "TGG",
+  "TAC": "TGG",
+  // Isoleucine -> Leucine
+  "ATT": "CTG",
+  "ATC": "CTG",
+  "ATA": "CTG",
+};
+
+var lastBaseIsGAaMap = _.extend(_.clone(lastBaseIsGAaMapConservativeChange), {
+  // Alanine
+  "GCT": "GCG",
+  "GCC": "GCG",
+  "GCA": "GCG",
+  // Leucine
+  "TTA": "TTG",
+  "CTT": "CTG",
+  "CTC": "CTG",
+  "CTA": "CTG",
+  // Arginine
+  "CGT": "CGG",
+  "CGC": "CGG",
+  "CGA": "CGG",
+  "AGA": "AGG",
+  // Lysine
+  "AAA": "AAG",
+  // Methionine
+  "ATG": "ATG",
+  // Proline
+  "CCT": "CCG",
+  "CCC": "CCG",
+  "CCA": "CCG",
+  // Glutamine
+  "CAA": "CAG",
+  // Serine
+  "TCT": "TCG",
+  "TCC": "TCG",
+  "TCA": "TCG",
+  "AGT": "TCG",
+  "AGC": "TCG",
+  // Glutamic acid
+  "GAA": "GAG",
+  // Threonine
+  "ACT": "ACG",
+  "ACC": "ACG",
+  "ACA": "ACG",
+  // Glycine
+  "GGT": "GGG",
+  "GGC": "GGG",
+  "GGA": "GGG",
+  // Tryptophan
+  "TGG": "TGG",
+  // Valine
+  "GTT": "GTG",
+  "GTC": "GTG",
+  "GTA": "GTG",
+  // Stop codons (we could convert to a TAG stop codon?)
+  "TGA": "TAG",
+  "TAA": "TAG",
+});
+
+
 var baseMappingData = {
   'C': {
-    aaMap: terminalCBaseAaMap,
-    aaConversativeMap: terminalCBaseAaMapConservativeChange,
+    aaMap: lastBaseIsCAaMap,
+    aaConversativeMap: lastBaseIsCAaMapConservativeChange,
     type: RdpEdit.types.LAST_BASE_IS_C,
     type_no_change: RdpEdit.types.LAST_BASE_IS_C_NO_AA_CHANGE,
+  },
+  'G': {
+    aaMap: lastBaseIsGAaMap,
+    aaConversativeMap: lastBaseIsGAaMapConservativeChange,
+    type: RdpEdit.types.LAST_BASE_IS_G,
+    type_no_change: RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE,
   }
 };
 
@@ -335,7 +421,7 @@ var baseMappingData = {
  */
 var ensureLastBaseIs = function(ensureBase) {
   var data = baseMappingData[ensureBase];
-  if(!data) throw new Error(`ensureLastBaseIs does not yet support "${ensureBase}".`);
+  if(!data) throw new Error(`ensureLastBaseIs does not yet support base of: "${ensureBase}".`);
 
   var transformationFunction = function(sequenceModel) {
     var type = data.type;
@@ -367,7 +453,7 @@ var ensureLastBaseIs = function(ensureBase) {
       })];
 
       // Get a sequence snippet before
-      var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
+      var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS + 3);
       var sequence = getSubSeq(sequenceModel, contextualFrom, CONTEXT_BASE_PAIRS);
       var contextualTo = frm + 3;
       var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
@@ -420,13 +506,66 @@ var warnIfEarlyStopCodons = function(sequenceModel) {
   return _.reduce(aAs, (memo, aa, index) => {
     if(aa === 'X') {
       var level = RdpEdit.levels.WARN;
-      var position = (index * 3) + 1;
-      var message = `Early stop codon at base ${position}-${position+2}.`;
-      var rdpEdit = new RdpEdit({type, message, level});
+      var position = index * 3;
+      var message = `Early stop codon at base ${position+1}-${position+3}.`;
+      var ranges = [new SequenceRange({
+        name: `Stop codon`,
+        from: position,
+        size: 3
+      })];
+      var contextualFrom = Math.max(0, position - CODON_CONTEXT_BASE_PAIRS);
+      var contextualTo = Math.min(getLen(sequenceModel), position + 3 + CODON_CONTEXT_BASE_PAIRS);
+      var sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo - contextualFrom);
+      var contextBefore = new RdpSequenceFeature({name, desc: message, ranges, _type: type, sequence, contextualFrom, contextualTo});
+      var rdpEdit = new RdpEdit({type, contextBefore, level});
       memo.push(rdpEdit);
     }
     return memo;
   }, []);
+};
+
+
+var checkForFatalErrors = function(sequenceModel) {
+  var fatalErrorFunctions = [
+    [warnIfNotMultipleOf3,    RdpEdit.types.NOT_MULTIPLE_OF_3],
+    [warnIfStickyEndsPresent, RdpEdit.types.STICKY_ENDS_PRESENT],
+    [warnIfShortSequence,     RdpEdit.types.SEQUENCE_TOO_SHORT]
+  ];
+
+  var fatalErrorRdpEdits = [];
+  _.each(fatalErrorFunctions, ([func, type]) => {
+    var rdpEdit = func(sequenceModel, type);
+    if(rdpEdit) {
+      rdpEdit.level = RdpEdit.levels.ERROR;
+      fatalErrorRdpEdits.push(rdpEdit);
+    }
+  });
+  return fatalErrorRdpEdits;
+};
+
+
+var getTransformationFunctions = function(sequenceModel) {
+  var partType = sequenceModel.get('partType');
+  var transformationFunctions = [];
+  if(partType === RdpTypes.types.CDS) {
+    transformationFunctions = [
+      methionineStartCodon,
+      noTerminalStopCodons
+    ];
+  }
+
+  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
+  var lastBaseMustBe;
+  if(desiredStickyEnds && desiredStickyEnds.end && desiredStickyEnds.end.sequence) {
+    lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
+  }
+
+  transformationFunctions = transformationFunctions.concat([
+    ensureLastBaseIs(lastBaseMustBe),
+    warnIfEarlyStopCodons
+  ]);
+
+  return transformationFunctions;
 };
 
 
@@ -436,34 +575,13 @@ var warnIfEarlyStopCodons = function(sequenceModel) {
  * @return {Array<RdpEdit>}
  */
 var transformSequenceForRdp = function(sequenceModel) {
-  var rdpEdits = [];
-
-  var fatalErrorFunctions = [
-    [warnIfNotMultipleOf3,    RdpEdit.types.NOT_MULTIPLE_OF_3],
-    [warnIfStickyEndsPresent, RdpEdit.types.STICKY_ENDS_PRESENT],
-    [warnIfShortSequence,     RdpEdit.types.SEQUENCE_TOO_SHORT]
-  ];
-  _.each(fatalErrorFunctions, ([func, type]) => {
-    var rdpEdit = func(sequenceModel, type);
-    if(rdpEdit) {
-      rdpEdit.level = RdpEdit.levels.ERROR;
-      rdpEdits.push(rdpEdit);
-    }
-  });
+  var fatalErrorRdpEdits = checkForFatalErrors(sequenceModel);
   // If there are any warnings (which would result in errors being thrown by the
   // transform functions) then return these straight away.
-  if(rdpEdits.length) return rdpEdits;
+  if(fatalErrorRdpEdits.length) return fatalErrorRdpEdits;
 
-  var transformationFunctions = [];
-  var partType = sequenceModel.get('partType');
-  if(partType === RdpTypes.types.CDS) {
-    transformationFunctions = [
-      methionineStartCodon,
-      noTerminalStopCodons,
-      ensureLastBaseIs('C'),
-      warnIfEarlyStopCodons,
-    ];
-  }
+  var transformationFunctions = getTransformationFunctions(sequenceModel);
+  var rdpEdits = [];
   _.each(transformationFunctions, (transformation) => {
     var moreRdpEdits = transformation(sequenceModel);
     if(moreRdpEdits.length) rdpEdits = rdpEdits.concat(moreRdpEdits);

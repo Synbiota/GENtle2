@@ -27,18 +27,11 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
-  makePrimers: function(wipRdpPcrSequence, {rdpEdits, frm, to, stickyEnds, name}) {
+  makePrimers: function(wipRdpPcrSequence) {
     if(wipRdpPcrSequence.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
 
     this.wipRdpPcrSequence = wipRdpPcrSequence;
-    this.dataAndOptions = {
-      rdpEdits: rdpEdits,
-      from: frm, // TODO remove this
-      frm: frm,
-      to: to,
-      stickyEnds: stickyEnds,
-      name: name,
-    };
+    this.dataAndOptions = wipRdpPcrSequence.getDataAndOptionsForPcr();
 
     // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
     // and the tempSequence sequenceBases to calculate the primers and new
@@ -49,8 +42,8 @@ export default Backbone.View.extend({
         {},
         pcrProduct.toJSON(),
         // Copy over RDP specific attributes.
-        _.pick(wipRdpPcrSequence.toJSON(), 'partType', 'sourceSequenceName'),
-        {_type: 'rdp_pcr_product', rdpEdits}
+        _.pick(wipRdpPcrSequence.toJSON(), 'partType', 'sourceSequenceName', 'rdpEdits'),
+        {_type: 'rdp_pcr_product'}
       );
 
       // ensures Gentle routes view to the RDP PCR product result view
@@ -83,7 +76,7 @@ export default Backbone.View.extend({
   },
 
   retryCreatingPcrPrimer: function() {
-    this.parentView().makePrimers(this.wipRdpPcrSequence, this.dataAndOptions);
+    this.parentView().makePrimers(this.wipRdpPcrSequence);
   },
 
 });
