@@ -1,3 +1,4 @@
+/* eslint-env jasmine */
 // TODO implement and test conversion from old to new feature and range
 // instances
 
@@ -944,9 +945,11 @@ export default function testAllSequenceModels(Sequence) {
 
     it('concatenates (and circularises) endStickySequence, stickySequence, startStickySequence', function() {
       var concatenatedSequence = Sequence.concatenateSequences([stickySequence, stickySequence], true, false);
-      expect(concatenatedSequence.getSequence(Sequence.STICKY_END_FULL)).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
+      concatenatedSequence.setStickyEndFormat('full');
+      expect(concatenatedSequence.getSequence()).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
       expect(_.isEmpty(concatenatedSequence.getStickyEnds(false)));
       var features = concatenatedSequence.getFeatures();
+
       expect(features.length).toEqual(2);
       expect(features[0].name).toEqual('stickySequenceAnnotation');
       expect(features[0].ranges[0].from).toEqual(12);
