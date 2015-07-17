@@ -3,10 +3,6 @@
   z-index: 2000;
   top: 0;
   pointer-events: none;
-  opacity: 1;
-  // transition: opacity .1s ease-in-out;
-
-  // margin: 10px 0 0 10px;
   font-size: 12px;
   line-height: 17px;
   padding: 3px 5px 2px 5px;
@@ -18,7 +14,7 @@
   word-wrap: break-word;
 
   &.gentle-tooltip-hidden {
-    opacity: 0;
+    display: none;
   }
 
   &.gentle-tooltip-top {

@@ -103,6 +103,7 @@ function sequenceModelFactory(BackboneModel) {
       attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
 
       super(attributes, options);
+
       this.disabledSave = options.disabledSave;
 
       this.validateFields(attributes);
@@ -201,9 +202,14 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Array}
      */
     get nonEnumerableFields() {
-      return [
-        'parentSequence',
-      ];
+      var associationNames = _.pluck(
+        allAssociationsForInstance(this), 
+        'associationName'
+      );
+
+      return associationNames.concat([
+        'parentSequence'
+      ]);
     }
 
     setNonEnumerableFields() {
@@ -284,7 +290,10 @@ function sequenceModelFactory(BackboneModel) {
           attribute[attr] = this.transformAttributeValue(attr, val);
         });
       }
+
       var ret = super.set(attribute, value, options);
+
+
       this.setNonEnumerableFields();
       return ret;
     }
@@ -727,7 +736,7 @@ function sequenceModelFactory(BackboneModel) {
     Validates that a sequence name is present
     @method validate
     **/
-    validate(attrs) {
+    validate(attrs = this.attributes) {
       var errors = [];
       if (!attrs.name.replace(/\s/g, '').length) {
         errors.push('name');
@@ -1476,15 +1485,20 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     toJSON() {
+
       let attributes = super.toJSON();
       // Move all associated fields into meta.associations
       var classAssociations = allAssociationsForInstance(this);
-      _.each(classAssociations, function({associationName}) {
-        if(_.has(attributes, associationName)) {
+      _.each(classAssociations, ({associationName}) => {
+        var associationAttributes = this.attributes[associationName];
+
+        if(associationAttributes) {
+          if(associationAttributes instanceof BackboneModel) {
+            associationAttributes = associationAttributes.toJSON();
+          }
           attributes.meta = attributes.meta || {};
           attributes.meta.associations = attributes.meta.associations || {};
-          attributes.meta.associations[associationName] = attributes[associationName];
-          delete attributes[associationName];
+          attributes.meta.associations[associationName] = associationAttributes
         }
       });
       _.each(this.nonEnumerableFields, function(fieldName) {
@@ -1533,6 +1547,18 @@ function sequenceModelFactory(BackboneModel) {
   Sequence.registerPreProcessor = function(preProcessor) {
     preProcessors.push(preProcessor);
   };
+
+  Sequence.fromJSON = function(attributes) {
+    var metaAssociations = _.isObject(attributes.meta) && attributes.meta.associations;
+
+    if(_.isObject(metaAssociations)) {
+      _.each(metaAssociations, function(obj, associationName) {
+        attributes[associationName] = obj;
+      })
+    }
+
+    return new this(attributes)
+  }
 
 
   return Sequence;

@@ -131,7 +131,7 @@ _.mixin({
   deepClone: function(obj, depthLeft=100, debuggingKeys=[]) {
     if (depthLeft <= 0) {
       console.warn(debuggingKeys);
-      throw "deepClone recursion limit exceeded";
+      throw new Error('deepClone recursion limit exceeded');
     }
     if (!_.isObject(obj) || _.isFunction(obj)) return obj;
     if (_.isDate(obj)) return new Date(obj.getTime());

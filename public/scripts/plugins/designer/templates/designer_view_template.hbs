@@ -1,35 +1,72 @@
+<input type="file" novalidate class="file-upload-input" multiple style="display: none;"/>
+
 <div class="designer-header">
   <div class="pull-right">
-    <div style="margin-right: 30px; float: left; margin-top: 6px;">
-      &nbsp;<input id="circularise-dna" type="checkbox" {{#if circulariseDna}}checked="1"{{/if}}>&nbsp;<label for="circularise-dna">Circularise</label>
-    </div>
     <button class="btn btn-primary assemble-sequence-btn">Assemble circuit</button>
   </div>
   <h4>{{sequenceName}}</h4>
 </div>
+
+
 <div class="designer-designed-sequence-outlet">
 </div>
+
+
 <div class="designer-available-sequences-container-filedropzone">
   <div class="designer-available-sequences-container-filedropzone-label">
     Drop files here to add them to the lists of available sequences
   </div>
 </div>
+
+
 <div class="designer-available-sequences-container">
-  <div class="designer-available-sequences-header">
-    <div class="pull-right form-group has-feedback designer-available-sequences-filter">
-      <input type="text" class="form-control input-sm" placeholder="Search available parts...">
-      <span class="glyphicon glyphicon-search form-control-feedback"></span>
-      <span class="glyphicon glyphicon-remove designer-available-sequences-filter-clear form-control-feedback hide"></span>
+
+  {{#unless emptyAvailableSequences}}
+
+    <div class="designer-available-sequences-header">
+      <h5 class="pull-left">
+        Available parts
+      </h5>
+      <div class="pull-left form-group has-feedback designer-available-sequences-filter">
+        <input type="text" class="form-control input-sm" placeholder="Search parts listed below">
+        <span class="glyphicon glyphicon-search form-control-feedback"></span>
+        <span class="glyphicon glyphicon-remove designer-available-sequences-filter-clear form-control-feedback hide"></span>
+      </div>
+      
     </div>
-    <h5 class="pull-left">
-      Available parts
-      <button class="btn btn-default btn-xs">Upload new part</button>
-    </h5>
-    <div class="pull-left" style="margin-left: 10px;"><small>or drag files from your desktop and drop them in this window</small></div>
-    <input type="file" novalidate class="file-upload-input" multiple style="display: none;"/>
-  </div>
-  <div class="designer-available-sequences-outlet outlet-1"></div>
-  <div class="designer-available-sequences-outlet outlet-2"></div>
-  <div class="designer-available-sequences-outlet outlet-3"></div>
+
+    <div class="designer-available-sequences-outlet outlet-1"></div>
+    <div class="designer-available-sequences-outlet outlet-2"></div>
+    <div class="designer-available-sequences-outlet outlet-3"></div>
+
+  {{else}}
+
+    <div class="designer-empty-available-sequences">
+      <div>
+        <div>
+          <h3>Drag and drop new parts</h3>
+          or <button class="fake-btn-link designer-trigger-file-upload-input">choose file</button>
+        </div>
+      </div>
+    </div>
+
+  {{/unless}}
 
 </div>
+
+{{#unless emptyAvailableSequences}}
+
+  <div class="designer-add-available-sequences designer-trigger-file-upload-input">
+    <h4>
+      <span class="designer-add-available-sequences-icon">+</span>
+      Add new parts
+    </h4>
+    Drag and drop
+    <br>
+    <small>
+      or 
+      <button class="fake-btn-link">choose file</button>
+    </small>
+  </div>
+
+{{/unless}}

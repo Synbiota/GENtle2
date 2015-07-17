@@ -5,7 +5,7 @@
 **/
 import Backbone from 'backbone';
 import template from '../templates/home_designer_view.hbs';
-import Sequence from '../../../sequence/models/sequence';
+import WipCircuit from '../lib/wip_circuit';
 import Gentle from 'gentle';
 import Q from 'q';
 import _ from 'underscore';
@@ -22,21 +22,17 @@ export default Backbone.View.extend({
   },
   
   createNewSequence: function(event, loadedSequences) {
-    event.preventDefault();
+    if(event) event.preventDefault();
+
     var $form     = this.$('form').first(),
         name      = $form.find('[name=name]').val() || 'Unnamed',
-        sequence  = new Sequence({
+        sequence  = new WipCircuit({
           name: name,
           sequence: '',
           displaySettings: {
             primaryView: 'designer'
           },
-          meta: {
-            designer: {
-              sequences: loadedSequences, 
-            },
-          }
-          
+          availableSequences: loadedSequences
         });
 
     Gentle.addSequencesAndNavigate([sequence]);
@@ -55,7 +51,8 @@ export default Backbone.View.extend({
 
   clickInputElement: function(event) {
     event.preventDefault();
-    this.$('.home-designer-form input[name=file]').click();
+    // this.$('.home-designer-form input[name=file]').click();
+    this.createNewSequence(null, [])
   }
 
  

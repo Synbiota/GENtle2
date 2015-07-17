@@ -70,3 +70,16 @@ table.table-no-border {
 .separator { @extend .separator-1 }
 
 
+.fake-btn-link {
+  border: none;
+  color: $link-color;
+  padding: 0;
+  background: none;
+  text-decoration: underline;
+
+  &:hover {
+    color: $link-hover-color;
+  }
+}
+
+

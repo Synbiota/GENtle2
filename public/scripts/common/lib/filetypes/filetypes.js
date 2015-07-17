@@ -121,7 +121,6 @@ var readFromFileReader = function(file) {
 
   return Q.promise(function(resolve, reject) {
     reader.onload = function(event) {
-      console.log('file success', file.name, event.target.result)
       resolve({name: file.name, content: event.target.result});
     };
 
