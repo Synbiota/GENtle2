@@ -6,8 +6,10 @@ import ProgressView from './pcr_progress_view';
 import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import PcrProductSequence from '../lib/product';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 import WipPcrProductSequence from '../lib/wip_product';
+import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
+import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
 
 var viewStates = {
@@ -23,7 +25,7 @@ export default Backbone.View.extend({
   className: 'pcr',
 
   events: {
-    'click .show-new-pcr-product-form': 'showFormFn',
+    // 'click .show-new-pcr-product-form': 'showFormFn',
   },
 
   // `{showForm: showForm}={}` as first argument is required because
@@ -33,34 +35,39 @@ export default Backbone.View.extend({
   // correctly passed by the Backbone View's
   // `this.initialize.apply(this, arguments);` so just having `{showForm}`
   // will throw an exception.
-  initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
+  initialize: function() { //{showForm: showForm}={}, argumentsForFormView={}) {
     this.model = Gentle.currentSequence;
-    if(this.model instanceof PcrProductSequence) {
+    if(this.model instanceof RdpPcrSequence || this.model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
-    } else {
+    } else if(this.model instanceof WipPcrProductSequence || this.model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
-      if(!(this.model instanceof WipPcrProductSequence)) {
-        // TODO: set the displaySettings.primaryView of the current `this.model`
-        // back to the Edit Sequence view?
-        this.model = new WipPcrProductSequence(this.model.toJSON());
-      }
     }
-    var args = {model: this.model};
-    this.formView = new FormView(_.extend(argumentsForFormView, args));
-    this.progressView = new ProgressView(args);
+    // var args = {model: this.model};
+    // this.formView = new FormView(_.extend(argumentsForFormView, args));
+    // this.progressView = new ProgressView(args);
+  },
+
+  makeFormView: function() {
+    if(!this.formView) this.formView = new FormView({model: this.model});
+    return this.formView;
+  },
+
+  makeProgressView: function() {
+    if(!this.progressView) this.progressView = new ProgressView({model: this.model});
+    return this.progressView;
   },
 
   beforeRender: function() {
     if(this.viewState === viewStates.form) {
-      this.setView('.pcr-view-container', this.formView);
+      this.setView('.pcr-view-container', this.makeFormView());
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.product) {
       this.setView('.pcr-view-container', new ProductView({model: this.model}));
       this.showCanvas(null, this.getBluntEndedSequence());
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.progress) {
-      this.setView('.pcr-view-container', this.formView);
-      this.setView('.pcr-view-container2', this.progressView);
+      this.setView('.pcr-view-container', this.makeFormView());
+      this.setView('.pcr-view-container2', this.makeProgressView());
     }
   },
 
@@ -69,88 +76,87 @@ export default Backbone.View.extend({
     var sequence = model.clone();
     sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
 
-    var forwardPrimer = sequence.get('forwardPrimer');
-    var reversePrimer = sequence.get('reversePrimer');
     var stickyEnds = sequence.getStickyEnds(true);
+    var features = [];
+    if(this.model instanceof RdpPcrSequence) {
+      var forwardPrimer = sequence.get('forwardPrimer');
+      var reversePrimer = sequence.get('reversePrimer');
 
-    var features = [
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [{
-        from: forwardPrimer.annealingRegion.range.from,
-        to: forwardPrimer.annealingRegion.range.to - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [{
-        from: reversePrimer.annealingRegion.range.from,
-        to: reversePrimer.annealingRegion.range.to -1,
-        reverseComplement: true,
-      }]
-    },
-    {
-      name: forwardPrimer.name,
-      _type: 'primer',
-      ranges: [{
-        from: forwardPrimer.range.from,
-        to: forwardPrimer.range.to - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: reversePrimer.name,
-      _type: 'primer',
-      ranges: [{
-        from: reversePrimer.range.from,
-        to: reversePrimer.range.to - 1,
-        reverseComplement: true,
-      }]
-    },
-    {
-      name: stickyEnds.start.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: 0,
-        to: stickyEnds.start.size + stickyEnds.start.offset - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: stickyEnds.end.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
-        to:  sequence.getLength() - 1,
-        reverseComplement: true,
-      }]
-    }];
+      features = [
+      {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: forwardPrimer.annealingRegion.range.from,
+          to: forwardPrimer.annealingRegion.range.to - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: reversePrimer.annealingRegion.range.from,
+          to: reversePrimer.annealingRegion.range.to -1,
+          reverseComplement: true,
+        }]
+      },
+      {
+        name: forwardPrimer.name,
+        _type: 'primer',
+        ranges: [{
+          from: forwardPrimer.range.from,
+          to: forwardPrimer.range.to - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: reversePrimer.name,
+        _type: 'primer',
+        ranges: [{
+          from: reversePrimer.range.from,
+          to: reversePrimer.range.to - 1,
+          reverseComplement: true,
+        }]
+      }];
+    }
+    features = features.concat([
+      {
+        name: stickyEnds.start.name + ' end',
+        _type: 'sticky_end',
+        ranges: [{
+          from: 0,
+          to: stickyEnds.start.size + stickyEnds.start.offset - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: stickyEnds.end.name + ' end',
+        _type: 'sticky_end',
+        ranges: [{
+          from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
+          to:  sequence.getLength() - 1,
+          reverseComplement: true,
+        }]
+      }
+    ]);
 
     _.each(features, (feature) => feature._id = _.uniqueId());
-
     sequence.set('features', features);
 
     return sequence;
   },
 
+  /*
   showFormFn: function(event) {
     if(event) event.preventDefault();
     this.viewState = viewStates.form;
     this.render();
   },
+  */
 
-  parentShowProduct: function(product) {
-    this.hideCanvas();
-    this.listView.showProduct(product);
-    this.viewState = viewStates.products;
-    this.render();
-  },
-
-  makePrimer: function(data) {
-    this.progressView.makePrimer(data);
+  makePrimers: function(wipRdpPcrSequence, dataAndOptions) {
+    this.makeProgressView().makePrimers(wipRdpPcrSequence, dataAndOptions);
     this.viewState = viewStates.progress;
     this.render();
   },
@@ -170,6 +176,7 @@ export default Backbone.View.extend({
       view.setSequence(temporarySequence);
     }
 
+    // Probably don't need this call to render.  Will be double rendering.
     view.render();
   },
 
