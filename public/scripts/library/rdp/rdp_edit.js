@@ -19,7 +19,10 @@ class RdpEdit {
    */
   constructor({type, contextBefore, contextAfter, message, level = NORMAL}={}) {
     this.type = type;
-    if(!_.contains(_.values(RdpEdit.types), this.type)) throw new TypeError('type is unknown: ' + type);
+    if(!_.contains(_.values(RdpEdit.types), this.type)) {
+      // throw new TypeError('type is unknown: ' + type);
+      this.type = RdpEdit.types.UNKNOWN;
+    }
     if(contextBefore && !(contextBefore instanceof RdpSequenceFeature)) {
       contextBefore = new RdpSequenceFeature(contextBefore);
     }
@@ -38,6 +41,7 @@ class RdpEdit {
 
 
 RdpEdit.types = {
+  UNKNOWN:                          'UNKNOWN',
   NOT_MULTIPLE_OF_3:                'NOT_MULTIPLE_OF_3',
   STICKY_ENDS_PRESENT:              'STICKY_ENDS_PRESENT',
   SEQUENCE_TOO_SHORT:               'SEQUENCE_TOO_SHORT',

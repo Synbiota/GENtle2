@@ -1545,7 +1545,7 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     clone() {
-      return new this.constructor(_.omit(this.attributes, 'id', 'history'));
+      return new this.constructor(_.omit(this.toJSON(), 'id', 'history'));
     }
 
     toJSON() {
