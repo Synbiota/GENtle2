@@ -252,10 +252,6 @@ describe('finding optimal primers', function() {
       }
     );
   });
-
-  it('teardown', function() {
-    restoreIDTMeltingTemperature();
-  });
 });
 
 
