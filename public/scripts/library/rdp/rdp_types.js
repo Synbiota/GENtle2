@@ -12,10 +12,9 @@ RdpTypes.pcrTypes = {
   CDS: {
     stickyEnds: [XZ],
   },
-  // Temporarily commented out
-  // MODIFIER: {
-  //   stickyEnds: BOTH,
-  // },
+  MODIFIER: {
+    stickyEnds: BOTH, // We should favour XZ
+  },
   OTHER: {
     stickyEnds: BOTH,
   },

@@ -27,7 +27,7 @@ export default Backbone.View.extend({
 
   events: {
     'change input, textarea': 'updateState',
-    'change #newProduct_partType': 'updateStateAndRenderStickyEnds',
+    'change #newProduct_partType': 'updateStateAndRenderStickyEndsOption',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'calculateRdpEdits',
@@ -47,7 +47,7 @@ export default Backbone.View.extend({
       sourceSequenceName: this.model.get('sourceSequenceName'),
     }, this.model.get('meta.pcr.defaults') || {}, {
       targetMeltingTemperature: 68.5, 
-      partType: 'CDS'
+      partType: RdpTypes.types.CDS
     });
     this.validateState();
   },
@@ -87,23 +87,42 @@ export default Backbone.View.extend({
   // },
 
   updateStateAndRenderSequence: function(event) {
+    event.preventDefault();
     this.updateState();
     if(!(this.state.invalid.from || this.state.invalid.to)) {
       this.renderCanvasSequence();
     }
   },
 
-  updateStateAndRenderStickyEnds: function() {
+  updateStateAndRenderStickyEndsOption: function() {
     this.updateState();
     var optionsHtml = makeOptions(this.availableStickyEnds());
     this.$el.find('#newProduct_stickyEnds').html(optionsHtml);
   },
 
   renderCanvasSequence: function() {
-    var sequenceAttributes = _.pick(this.getData(), 'name', 'sequence', 'features');
+    var temporarySequence = this.getTruncatedSequenceModelForCanvas();
+    this.parentView().showCanvas(false, temporarySequence);
+  },
+
+  // TODO: Would be nice to remove this function and just pass the `from` and
+  // `to` values to the canvas view to selectively render part of the sequence
+  // AND retain the correct template base pair numbering rather than always be
+  // from base 0 (displayed as 1).
+  getTruncatedSequenceModelForCanvas: function() {
+    var sequenceAttributes = _.pick(this.getData(), 'name', 'features', 'sequence');
     // OPTIMIZE: creating a new TemporarySequence each time may not be very efficient for long sequences.
     var temporarySequence = new TemporarySequence(sequenceAttributes);
-    this.parentView().showCanvas(false, temporarySequence);
+    var ANY = temporarySequence.STICKY_END_ANY;
+    var options = {stickyEndFormat: ANY};
+    var diff = (temporarySequence.getLength(ANY) - 1) - this.state.to;
+    if(diff > 0) {
+      temporarySequence.deleteBases(this.state.to, diff, options);
+    }
+    if(this.state.from > 0) {
+      temporarySequence.deleteBases(0, this.state.from, options);
+    }
+    return temporarySequence;
   },
 
   updateState: function() {
@@ -183,23 +202,9 @@ export default Backbone.View.extend({
         'targetMeltingTemperature'
       ));
     }
-
-
-    if(this.rdpOligoSequence) {
-      var stickyEnds = this.getStickyEnds();
-      var start = stickyEnds.start;
-      start.sequence = start.sequence.substr(start.offset, start.size);
-      start.offset = 0;
-      var end = stickyEnds.end;
-      end.sequence = end.sequence.substr(0, end.size);
-      end.offset = 0;
-    }
-
-    var frm = this.state.from;
-    var to = this.state.to;
-    data.sequence = this.model.getSubSeq(frm, to, this.model.STICKY_END_ANY);
+    data.sequence = this.model.getSequence(this.model.STICKY_END_ANY);
     data.features = this.model.getFeatures();
-
+    data.desiredStickyEnds = this.getStickyEnds();
     return data;
   },
 
@@ -209,16 +214,20 @@ export default Backbone.View.extend({
       if(this.state.invalid.any) {
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
       } else {
-        var attributes = _.pick(this.getData(), 'name', 'sequence', 'features', 'sourceSequenceName', 'partType');
-        attributes.desiredStickyEnds = this.getStickyEnds();
+        var data = this.getData();
+        var attributes = _.pick(data, 'name', 'sequence', 'features', 'sourceSequenceName', 'partType', 'desiredStickyEnds');
+        attributes.frm = data.from;
+        attributes.size = data.to - data.from + 1;
         var wipRdpSequence = new this.model.constructor(attributes);
-        var rdpEdits = transformSequenceForRdp(wipRdpSequence);
+        var desiredWipRdpSequence = wipRdpSequence.getDesiredSequenceModel();
+        var rdpEdits = transformSequenceForRdp(desiredWipRdpSequence);
+        desiredWipRdpSequence.set({rdpEdits});
 
         let rdpEditTypes = _.pluck(rdpEdits, 'type');
         if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
           alert('The target sequence length needs to be a multiple of 3');
         } else if(rdpEdits.length === 0) {
-          this.createNewRdpPart(wipRdpSequence, rdpEdits);
+          this.createNewRdpPart(desiredWipRdpSequence);
         } else {
           Modal.show({
             title: 'Make source sequence RDP-compliant',
@@ -228,7 +237,7 @@ export default Backbone.View.extend({
               transforms: rdpEdits
             })
           }).once('confirm', () => {
-            this.createNewRdpPart(wipRdpSequence, rdpEdits);
+            this.createNewRdpPart(desiredWipRdpSequence);
           });
         }
       }
@@ -237,12 +246,20 @@ export default Backbone.View.extend({
     }
   },
 
-  createNewRdpPart: function(wipRdpSequence, rdpEdits) {
+  createNewRdpPart: function(desiredWipRdpSequence) {
     this.state.calculating = true;
     var data = this.getData();
-    data.rdpEdits = rdpEdits;
     if(this.rdpOligoSequence) {
-      var wipRdpOligoSequence = wipRdpSequence;
+      var wipRdpOligoSequence = desiredWipRdpSequence;
+
+      // var stickyEnds = this.getStickyEnds();
+      // var start = stickyEnds.start;
+      // start.sequence = start.sequence.substr(start.offset, start.size);
+      // start.offset = 0;
+      // var end = stickyEnds.end;
+      // end.sequence = end.sequence.substr(0, end.size);
+      // end.offset = 0;
+
       // stickyEnds not yet present on transformedSequence so we don't need to
       // specify any stickyEnd format
       data.sequence = wipRdpOligoSequence.getSequence(wipRdpOligoSequence.STICKY_END_ANY);
@@ -258,16 +275,8 @@ export default Backbone.View.extend({
       this.model.destroy();
       Gentle.router.sequence(newRdpOligoSequence.get('id'));
     } else {
-      var wipRdpPcrSequence = wipRdpSequence;
-      wipRdpPcrSequence.transformDataBeforePcr(rdpEdits);
-      var dataAndOptions = {
-        rdpEdits: rdpEdits,
-        frm: 0,
-        to: wipRdpPcrSequence.getLength(wipRdpPcrSequence.STICKY_END_ANY) - 1,
-        stickyEnds: wipRdpPcrSequence.get('desiredStickyEnds'),
-        name: wipRdpPcrSequence.get('name'),
-      };
-      this.parentView().makePrimers(wipRdpPcrSequence, dataAndOptions);
+      var wipRdpPcrSequence = desiredWipRdpSequence;
+      this.parentView().makePrimers(wipRdpPcrSequence);
     }
   },
 
