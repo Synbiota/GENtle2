@@ -52,15 +52,15 @@ export default Backbone.View.extend({
 
     // Show button for BsaI && NotI
     var nonCompliantSites = RestrictionEnzymes.getAllInSeq(sequenceBases, {customList: ['BsaI', "NotI"]});
-    if(nonCompliantSites.length !== 0 && !_.isUndefined(nonCompliantSites)) {
-      this.showLaunchButton=true;
+    if(!_.isEmpty(nonCompliantSites) && !_.isUndefined(nonCompliantSites)) {
+      this.disableButton=false;
     } else {
-      this.showLaunchButton=false;
+      this.disableButton=true;
     }
 
     return {
       enzymesCount,
-      disableButton: !this.showLaunchButton
+      disableButton: this.disableButton
     };
   },
 
