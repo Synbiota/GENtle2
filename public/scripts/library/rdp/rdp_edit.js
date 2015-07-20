@@ -19,6 +19,7 @@ class RdpEdit {
    */
   constructor({type, contextBefore, contextAfter, message, level = NORMAL}={}) {
     this.type = type;
+    if(!this.type) throw new TypeError(`type cannot be: "${type}"`);
     if(!_.contains(_.values(RdpEdit.types), this.type)) {
       // throw new TypeError('type is unknown: ' + type);
     }
