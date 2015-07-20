@@ -1268,14 +1268,17 @@ function sequenceModelFactory(BackboneModel) {
       var oldFeature = _.indexBy(this.getFeatures(), '_id')[editedFeature._id],
         id = this.getFeatures().indexOf(oldFeature);
       this.clearFeatureCache();
-      this.set('features.' + id, editedFeature);
+
+      var features = this.get('features');
+      features.splice(id, 1, editedFeature);
+      this.set('features', features);
+
       this.sortFeatures();
-      // DOCUMENT:  why do we call save followed by throttledSave and not just
-      // one call to throttledSave once eveything is completed?
-      this.save();
+
       if (record === true) {
         this.recordFeatureHistoryEdit(editedFeature);
       }
+
       this.throttledSave();
     }
 
@@ -1301,13 +1304,17 @@ function sequenceModelFactory(BackboneModel) {
       if (id === 0) {
         newFeature._id = 0;
       } else {
-        sortedIdList = _.sortBy(_.pluck(super.get('features'),'_id'));
+        sortedIdList = _.sortBy(_.pluck(super.get('features'), '_id'));
         len = sortedIdList.length;
         newFeature._id = sortedIdList[len-1]+1;
       }
 
       this.clearFeatureCache();
-      this.set('features.' + id, newFeature);
+
+      var features = this.get('features');
+      features.push(newFeature);
+      this.set('features', features);
+
       this.sortFeatures();
       this.throttledSave();
     }
