@@ -3,7 +3,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 import svg from 'svg.js';
 
-import template from './template.html';
+import template from './template_chromatograph.html';
 
 import Artist from '../../common/lib/graphics/artist';
 import CopyPasteHandler from '../../common/lib/copy_paste_handler';
@@ -180,6 +180,7 @@ class SequenceCanvasCore {
 
     $container
       .addClass('sequence-canvas-wrapper')
+      // .addClass('sequence-chromatograph-wrapper')
       .css({userSelect: 'none'})
       .html(template({id: this.id}));
 
@@ -268,6 +269,7 @@ class SequenceCanvasCore {
     var ls = this.layoutSettings;
     var previouslh = _.deepClone(this.layoutHelpers);
     var lh = this.layoutHelpers;
+    var _this = this;
 
     return Q.promise((resolve) => {
 
@@ -311,7 +313,8 @@ class SequenceCanvasCore {
       lh.pageDims = {
         // width: ls.canvasDims.width,
         width: (this.sequence.getLength() * ls.basePairDims.width) + ls.pageMargins.left + ls.pageMargins.right,
-        height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
+        // height: ls.pageMargins.top + ls.pageMargins.bottom + lh.rows.total * lh.rows.height
+        height: ls.pageMargins.top + ls.pageMargins.bottom + _this.rows.length * 95
       };
 
 
@@ -693,6 +696,10 @@ class SequenceCanvasCore {
   resizeScrollHelpers() {
     var layoutHelpers = this.layoutHelpers;
     return Q.promise((resolve) => {
+
+      this.view.$el.find('.chromatograph-legend-child').height(layoutHelpers.pageDims.height);
+
+
       this.$scrollingChild.width(layoutHelpers.pageDims.width)
       this.$scrollingChild.height(layoutHelpers.pageDims.height);
       this.scrollTo();
@@ -783,6 +790,8 @@ class SequenceCanvasCore {
 
     this.$scrollingParent.scrollLeft(layoutHelpers.xOffset);
     // this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
+
+    this.view.$el.find('.chromatograph-canvas-legend').scrollTop(layoutHelpers.yOffset);
 
     this.afterNextRedraw(deferred.resolve);
 

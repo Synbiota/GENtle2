@@ -59,6 +59,10 @@ export default Backbone.View.extend({
 
   },
 
+  mapWidth: function(){
+    return this.$('.chromatograph-map-container').width();
+  },
+
   toggleDropdown: function(e){
     e.preventDefault();
     this.$el.toggleClass('open');
@@ -89,7 +93,7 @@ export default Backbone.View.extend({
   positionFragments: function() {
     var $el, _this = this;
 
-    var baseWidth = this.$el.width()/this.model.getLength();
+    var baseWidth = this.mapWidth()/this.model.getLength();
 
     _.forEach(this.fragments, function(fragment, i){
       $el = _this.$('[data-fragment-id="'+fragment.id+'"]');
@@ -108,7 +112,7 @@ export default Backbone.View.extend({
     var sequenceCanvas = this.sequenceCanvas,
         sequence = sequenceCanvas.sequence,
         ls = sequenceCanvas.layoutSettings,
-        base = Math.floor(e.offsetX/this.$el.width() * sequence.getLength())
+        base = Math.floor(e.offsetX/this.mapWidth() * sequence.getLength())
 
     this.sequenceCanvas.scrollToBase(base)
 
@@ -236,7 +240,7 @@ export default Backbone.View.extend({
 
   processPositionMarks: function() {
     var sequenceCanvas = this.sequenceCanvas,
-        length = this.$el.width(),
+        length = this.mapWidth(),
         // maxBase = sequenceCanvas.maxVisibleBase(),
         maxBase = this.model.getLength(),
         magnitudeOrder = Math.floor(Math.log10(maxBase)),
@@ -283,7 +287,7 @@ export default Backbone.View.extend({
 
         mark = {
           base: i,
-          offset: Math.floor(i / maxBase * _this.$el.width())
+          offset: Math.floor(i / maxBase * _this.mapWidth())
         };
 
         _this.defectMarks.push(mark);
@@ -335,7 +339,7 @@ export default Backbone.View.extend({
   //       scrollingParentHeight = sequenceCanvas.$scrollingParent.height(),
   //       scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
   //       elemHeight = this.$el.height(),
-  //       elemWidth = this.$el.width();
+  //       elemWidth = this.mapWidth();
 
 
   //   this.$scrollHelper = $scrollHelper;
@@ -368,7 +372,7 @@ export default Backbone.View.extend({
   //       $scrollHelper = this.$scrollHelper,
   //       scrollingChildHeight = sequenceCanvas.$scrollingChild.height(),
   //       elemHeight = this.$el.height(),
-  //       elemWidth = this.$el.width();
+  //       elemWidth = this.mapWidth();
 
   //   if($scrollHelper) {
   //     if (this.horizontal){
@@ -393,7 +397,7 @@ export default Backbone.View.extend({
          $cursor = this.$('.chromatograph-map-cursor'),
          scrollingParentWidth = sequenceCanvas.$scrollingParent.width(),
          scrollingChildWidth = sequenceCanvas.$scrollingChild.width(),
-         elemWidth = this.$el.width();
+         elemWidth = this.mapWidth();
 
 
     this.$cursor = $cursor;
@@ -418,7 +422,7 @@ export default Backbone.View.extend({
         sequenceCanvas = this.sequenceCanvas,
         ls = sequenceCanvas.layoutSettings,
         lh = sequenceCanvas.layoutHelpers,
-        elemWidth = this.$el.width(),
+        elemWidth = this.mapWidth(),
         scrollingChildWidth = sequenceCanvas.$scrollingChild.width();
 
 
@@ -437,7 +441,7 @@ export default Backbone.View.extend({
   scrollSequenceCanvas: function() {
     this.sequenceCanvas.scrollTo(Math.floor(
       this.$cursor.position().left /
-      this.$el.width() *
+      this.mapWidth() *
       this.sequenceCanvas.$scrollingChild.width()
     ), 0, false);
   },

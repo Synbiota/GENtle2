@@ -1,9 +1,10 @@
-import template from '../templates/sequence_edition_view.hbs';
+import template from '../templates/sequence_chromatograph_view.hbs';
 // import SequenceCanvas from '../lib/sequence_canvas';
 import ChromatographCanvas from '../lib/chromatograph_canvas';
 import Gentle from 'gentle';
 import ContextMenuView from '../../common/views/context_menu_view';
 import ChromatographMapView from '../../chromatograph_map/views/chromatograph_map_view';
+import ChromatographLegendView from './chromatograph_legend_view';
 import LinearMapView from '../../linear_map/views/linear_map_view';
 import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
 // import MatchedEnzymesView from './matched_enzymes_view';
@@ -72,10 +73,25 @@ export default Backbone.View.extend({
   },
 
   handleResizeRight: function(trigger) {
-    $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
-      // 'right': this.secondaryView.$el.width(),
-      top: this.secondaryView.$el.outerHeight()
+    // $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
+    //   // 'right': this.secondaryView.$el.width(),
+    //   // top: this.secondaryView.$el.outerHeight()
+    // });
+
+    if(trigger !== false) {
+      this.trigger('resize');
+      this.secondaryView.trigger('resize');
+    }
+  },
+
+  handleResizeTop: function(trigger) {
+
+    console.log(this.$el.outerHeight() - this.secondaryView.$el.outerHeight())
+
+    this.$('#sequence-canvas-main').css({
+      height: this.$el.outerHeight() - this.secondaryView.$el.outerHeight(),
     });
+
     if(trigger !== false) {
       this.trigger('resize');
       this.secondaryView.trigger('resize');
@@ -109,7 +125,8 @@ export default Backbone.View.extend({
     // `handleResizeRight` requires secondaryView to be rendered so that
     // it (`this.secondaryView.$el.width()`) is the correct value.
     secondaryViewPromise.then(() => {
-      this.handleResizeRight(false);
+      this.handleResizeTop(false);
+      // this.handleResizeRight(false);
       if(render !== false) {
        this.sequenceCanvas.refresh();
       }
@@ -117,9 +134,26 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
-    this.$('.sequence-canvas-outlet').css({
-      top: this.secondaryView.$el.outerHeight()
-      // 'right': this.secondaryView.$el.width(),
+
+
+    var legendView = new ChromatographLegendView({
+      model: this.model
+    });
+
+    this.setView('.chromatograph-canvas-legend', legendView);
+
+    legendView.render();
+
+    // this.$('.sequence-canvas-outlet').css({
+    //   top: this.secondaryView.$el.outerHeight()
+    //   // 'right': this.secondaryView.$el.width(),
+    // });
+
+    this.$('#sequence-canvas-main').css({
+      top: this.secondaryView.$el.outerHeight(),
+      position: 'absolute',
+      width: '100%',
+      height: this.$el.outerHeight() - this.secondaryView.$el.outerHeight(),
     });
 
     var sequence = this.model;

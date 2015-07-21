@@ -1,32 +1,42 @@
 
-<div class="chromatograph-map-cursor">
-  <div class="cursor-marker"></div>
-  <div class="cursor-start"></div>
-</div>
-<canvas id='chromatograph_map_canvas' class="chromatograph-map-canvas"></canvas>
+<div class="chromatograph-map-legend">
 
-<a href="#" class="chromatograph-toggle-dropdown">Toggle</a>
+  <div>Identity</div>
+  <div>Ref Seq</div>
+  <div>Fragments</div>
 
-<div class="chromatograph-map-defect-marks">
-  {{#each defectMarks}}
-    <a href="#" class="chromatograph-map-defect-mark" data-base="{{base}}" style="left: {{offset}}px;">
-    </a>
-  {{/each}}
 </div>
 
-<div class="chromatograph-map-position-marks">
-  {{#each positionMarks}}
-    <div class="chromatograph-map-position-mark" data-base="{{base}}" style="left: {{offset}}px;">
-      {{label}}
-    </div>
-  {{/each}}
-</div>
+<div class="chromatograph-map-container">
+  <div class="chromatograph-map-cursor">
+    <div class="cursor-marker"></div>
+    <div class="cursor-start"></div>
+  </div>
+  <canvas id='chromatograph_map_canvas' class="chromatograph-map-canvas"></canvas>
 
-<div class="chromatograph-map-fragment main-sequence"></div>
+  <a href="#" class="chromatograph-toggle-dropdown">Toggle</a>
 
-<div class="chromtagraph-map-fragments">
-  {{#each fragments}}
-    <div href="#" class="chromatograph-map-fragment sequence-fragment" data-fragment-id="{{id}}">
-    </div>
-  {{/each}}
+  <div class="chromatograph-map-defect-marks">
+    {{#each defectMarks}}
+      <a href="#" class="chromatograph-map-defect-mark" data-base="{{base}}" style="left: {{offset}}px;">
+      </a>
+    {{/each}}
+  </div>
+
+  <div class="chromatograph-map-position-marks">
+    {{#each positionMarks}}
+      <div class="chromatograph-map-position-mark" data-base="{{base}}" style="left: {{offset}}px;">
+        {{label}}
+      </div>
+    {{/each}}
+  </div>
+
+  <div class="chromatograph-map-fragment main-sequence"></div>
+
+  <div class="chromtagraph-map-fragments">
+    {{#each fragments}}
+      <div href="#" class="chromatograph-map-fragment sequence-fragment" data-fragment-id="{{id}}">
+      </div>
+    {{/each}}
+  </div>
 </div>
