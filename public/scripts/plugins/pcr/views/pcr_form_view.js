@@ -83,7 +83,7 @@ export default Backbone.View.extend({
   afterRender: function() {
     var $inputs = this.$('input, select');
     $inputs.attr('disabled', this.state.calculating ? 'disabled' : null);
-    this.renderCanvasSequence();
+    this.updateCanvas();
   },
 
   // showProducts: function(event) {
@@ -95,7 +95,7 @@ export default Backbone.View.extend({
     event.preventDefault();
     this.updateState();
     if(!(this.state.invalid.from || this.state.invalid.to)) {
-      this.renderCanvasSequence();
+      this.updateCanvas();
     }
   },
 
@@ -105,30 +105,10 @@ export default Backbone.View.extend({
     this.$el.find('#newProduct_stickyEnds').html(optionsHtml);
   },
 
-  renderCanvasSequence: function() {
-    var temporarySequence = this.getTruncatedSequenceModelForCanvas();
-    this.parentView().showCanvas(false, temporarySequence);
+  updateCanvas: function() {
+    this.parentView().updateCanvasHighlight(this.state.from, this.state.to);
   },
 
-  // TODO: Would be nice to remove this function and just pass the `from` and
-  // `to` values to the canvas view to selectively render part of the sequence
-  // AND retain the correct template base pair numbering rather than always be
-  // from base 0 (displayed as 1).
-  getTruncatedSequenceModelForCanvas: function() {
-    var sequenceAttributes = _.pick(this.getData(), 'name', 'features', 'sequence');
-    // OPTIMIZE: creating a new TemporarySequence each time may not be very efficient for long sequences.
-    var temporarySequence = new TemporarySequence(sequenceAttributes);
-    var ANY = temporarySequence.STICKY_END_ANY;
-    var options = {stickyEndFormat: ANY};
-    var diff = (temporarySequence.getLength(ANY) - 1) - this.state.to;
-    if(diff > 0) {
-      temporarySequence.deleteBases(this.state.to, diff, options);
-    }
-    if(this.state.from > 0) {
-      temporarySequence.deleteBases(0, this.state.from, options);
-    }
-    return temporarySequence;
-  },
 
   updateState: function() {
     _.extend(this.state, {

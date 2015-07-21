@@ -45,6 +45,9 @@ export default Backbone.View.extend({
     // var args = {model: this.model};
     // this.formView = new FormView(_.extend(argumentsForFormView, args));
     // this.progressView = new ProgressView(args);
+    // 
+    var canvasView = this.canvasView = new CanvasView();
+    this.setView('#pcr-canvas-container', canvasView);
   },
 
   makeFormView: function() {
@@ -60,6 +63,7 @@ export default Backbone.View.extend({
   beforeRender: function() {
     if(this.viewState === viewStates.form) {
       this.setView('.pcr-view-container', this.makeFormView());
+      this.showCanvas(null, this.model);
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.product) {
       this.setView('.pcr-view-container', new ProductView({model: this.model}));
@@ -163,9 +167,8 @@ export default Backbone.View.extend({
 
   //TODO refactor
   showCanvas: function(product, temporarySequence) {
-    var view = this.canvasView = new CanvasView();
-    this.setView('#pcr-canvas-container', view);
-
+    var view = this.canvasView;
+    
     if(product) {
       var id = product.get('id');
       view.setProduct(product);
@@ -175,13 +178,14 @@ export default Backbone.View.extend({
     } else if(temporarySequence) {
       view.setSequence(temporarySequence);
     }
-
-    // Probably don't need this call to render.  Will be double rendering.
-    view.render();
   },
 
   hideCanvas: function() {
     this.removeView('#pcr-canvas-container');
+  },
+
+  updateCanvasHighlight: function(frm, to) {
+    this.canvasView.updateHighlight(frm, to);
   }
 
   // deleteProduct: function(product) {

@@ -64,9 +64,16 @@ export default Backbone.View.extend({
       } else {
         var forwardPrimer = this.model.get('forwardPrimer');
         var reversePrimer = this.model.get('reversePrimer');
+        var black = 'black';
 
         if(!forwardPrimer || !reversePrimer) {
-          color = defaultColor;
+          if(pos < this.from || pos > this.to) {
+            color = '#ddd';
+          } else if(reverseStrand) {
+            color = defaultColor;
+          } else {
+            color = black;
+          }
         } else if(pos >= forwardPrimer.range.to && pos < reversePrimer.range.from) {
            color = defaultColor;
         } else if(pos >= forwardPrimer.annealingRegion.range.from && pos < reversePrimer.annealingRegion.range.to){
@@ -84,6 +91,15 @@ export default Backbone.View.extend({
   setProduct: function(product) {
     this.setSequence(product);
     this.product = product;
+  },
+
+  updateHighlight: function(frm = 0, to = this.model.getLength()) {
+    this.from = frm;
+    this.to = to;
+
+    if(this.sequenceCanvas) {
+      this.sequenceCanvas.refresh();
+    }
   },
 
   setSequence: function(sequence) {
