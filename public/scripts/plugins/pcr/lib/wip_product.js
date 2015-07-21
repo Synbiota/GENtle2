@@ -50,6 +50,14 @@ class WipPcrProductSequence extends Sequence {
     if(remaining > 0) newSequenceModel.deleteBases(topFrm, remaining, this.STICKY_END_ANY);
     if(attributes.frm > 0 ) newSequenceModel.deleteBases(0, attributes.frm, this.STICKY_END_ANY);
     return newSequenceModel;
+  get availablePartTypes() {
+    return _.keys(RdpTypes.pcrTypes);
+  }
+
+  get availableStickyEndNames() {
+    var partType = this.get('partType');
+    var partTypeInfo = RdpTypes.pcrTypes[partType] || {stickyEndNames: []};
+    return _.clone(partTypeInfo.stickyEndNames);
   }
 
   getDataAndOptionsForPcr() {
