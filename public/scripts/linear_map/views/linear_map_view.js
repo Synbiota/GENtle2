@@ -309,8 +309,10 @@ export default Backbone.View.extend({
   },
 
   cleanup: function() {
-    this.sequenceCanvas.off('scroll', this.updateScrollHelperPosition);
-    this.sequenceCanvas.off('change:layoutHelpers', this.refresh);
+    if(this.sequenceCanvas) {
+      this.sequenceCanvas.off('scroll', this.updateScrollHelperPosition);
+      this.sequenceCanvas.off('change:layoutHelpers', this.refresh);
+    }
   }
 
 });

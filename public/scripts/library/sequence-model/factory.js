@@ -13,6 +13,10 @@ import HistorySteps from '../../sequence/models/history_steps';
 const STICKY_END_FULL = 'full';
 const STICKY_END_OVERHANG = 'overhang';
 const STICKY_END_NONE = 'none';
+// Used to represent cases when there are no sticky ends on the model so the
+// format type does not matter.  NOTE: this is not a valid format to set on the
+// sequenceModel.  Only a valid format to request of functions.
+var STICKY_END_ANY;
 const stickyEndFormats = [STICKY_END_FULL, STICKY_END_OVERHANG, STICKY_END_NONE];
 
 
@@ -103,6 +107,7 @@ function sequenceModelFactory(BackboneModel) {
       attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
 
       super(attributes, options);
+
       this.disabledSave = options.disabledSave;
 
       this.validateFields(attributes);
@@ -120,7 +125,7 @@ function sequenceModelFactory(BackboneModel) {
         getFeatures: `change:features ${defaultStickyEndsEvent}`,
         getStickyEnds: defaultStickyEndsEvent,
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
-        selectableRange: `change:sequence ${defaultStickyEndsEvent}`
+        selectableRange: `change:sequence ${defaultStickyEndsEvent}`,
       });
 
       // If a value in this.attributes has a key with the same value as an
@@ -152,6 +157,10 @@ function sequenceModelFactory(BackboneModel) {
 
     get STICKY_END_NONE() {
       return STICKY_END_NONE;
+    }
+
+    get STICKY_END_ANY() {
+      return STICKY_END_ANY;
     }
 
     /**
@@ -201,9 +210,14 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Array}
      */
     get nonEnumerableFields() {
-      return [
-        'parentSequence',
-      ];
+      var associationNames = _.pluck(
+        allAssociationsForInstance(this), 
+        'associationName'
+      );
+
+      return associationNames.concat([
+        'parentSequence'
+      ]);
     }
 
     setNonEnumerableFields() {
@@ -284,7 +298,10 @@ function sequenceModelFactory(BackboneModel) {
           attribute[attr] = this.transformAttributeValue(attr, val);
         });
       }
+
       var ret = super.set(attribute, value, options);
+
+
       this.setNonEnumerableFields();
       return ret;
     }
@@ -317,6 +334,50 @@ function sequenceModelFactory(BackboneModel) {
         });
       }
       return stickyEnds;
+    }
+
+    /**
+     * @method setStickyEnds
+     * @param {object} stickyEnds
+     * @throws {Error} If sequenceModel already has stickyEnds
+     */
+    setStickyEnds(stickyEnds, options={}) {
+      // Must set silent to false to trigger clearing incorrect cache values.
+      options = _.defaults({silent: false}, options);
+      var currentStickyEnds = this.getStickyEnds(false);
+      if(currentStickyEnds) {
+        throw new Error('Sequence already has stickyEnds, remove them first with removeStickyEnds');
+      } else {
+        var opts = {updateHistory: false, stickyEndFormat: STICKY_END_ANY};
+        this.insertBases(stickyEnds.start.sequence, 0, opts);
+        this.insertBases(stickyEnds.end.sequence, this.getLength(STICKY_END_ANY), opts);
+        super.set({stickyEnds}, options);
+      }
+    }
+
+    /**
+     * @method deleteStickyEnds
+     * @throws {Error} If no stickyEnds to delete.
+     */
+    deleteStickyEnds(options={}) {
+      // Must set silent to false to trigger clearing incorrect cache values.
+      options = _.defaults({silent: false}, options);
+      var stickyEnds = this.getStickyEnds(false);
+      if(stickyEnds) {
+        var opts = {updateHistory: false, stickyEndFormat: STICKY_END_FULL};
+        // delete `end` before `start` because of various functions caching values.
+        if(stickyEnds.end) {
+          var offset = this.getOffset(STICKY_END_NONE);
+          var len = this.getLength(STICKY_END_NONE);
+          this.deleteBases(offset + len, stickyEnds.end.size + stickyEnds.end.offset, opts);
+        }
+        if(stickyEnds.start) {
+          this.deleteBases(0, stickyEnds.start.size + stickyEnds.start.offset, opts);
+        }
+        super.set({stickyEnds: undefined}, options);
+      } else {
+        throw new Error('Sequence already lacks stickyEnds.');
+      }
     }
 
     getStickyEndFormat() {
@@ -422,7 +483,7 @@ function sequenceModelFactory(BackboneModel) {
     Returns the subsequence between the bases startBase and end Base
     @method getSubSeq
     @param {Integer} startBase start of the subsequence (indexed from 0)
-    @param {Integer} endBase end of the subsequence (indexed from 0), inclusive.
+    @param {Integer} endBase end of the subsequence (indexed from 0), INCLUSIVE.
     @param {String} stickyEndFormat=undefined
     **/
     getSubSeq(startBase, endBase, stickyEndFormat=undefined) {
@@ -439,6 +500,19 @@ function sequenceModelFactory(BackboneModel) {
 
       // endBase = (endBase === undefined) ? startBase + 1 : endBase;
       // return this.get('sequence', options).substring(startBase, endBase);
+    }
+
+    /**
+     * @method  getSubSeqExclusive
+     * @param  {Integer} startBase  Inclusive
+     * @param  {Integer} size
+     * @param  {String} stickyEndFormat=undefined
+     * @return {String}
+     */
+    getSubSeqExclusive(startBase, size, stickyEndFormat=undefined) {
+      var len = this.getLength(stickyEndFormat);
+      startBase = Math.min(Math.max(0, startBase), len - 1);
+      return this.getSequence(stickyEndFormat).substr(startBase, size);
     }
 
     /**
@@ -530,7 +604,7 @@ function sequenceModelFactory(BackboneModel) {
      *        isOnReverseStrand: {Boolean}  true if sequence is on reverse strand
      */
     getStickyEndSequence(getStartStickyEnd) {
-      var wholeSequence = super.get('sequence');
+      var wholeSequence = this.getSequence(this.STICKY_END_FULL);
       var stickyEnds = this.getStickyEnds(true);
 
       var stickyEnd, offset;
@@ -681,8 +755,7 @@ function sequenceModelFactory(BackboneModel) {
      */
     getAAs(startBase, length, stickyEndFormat=undefined) {
       var subSeq = this.getSubSeq(startBase, startBase + length - 1, stickyEndFormat);
-      var len = subSeq.length;
-      if(len < 0 || len % 3 !== 0) throw new Error('length must be a non negative multiple of 3');
+      if(length < 0 || subSeq.length % 3 !== 0) throw new Error('length must be non negative and result in a sub sequence length which is multiple of 3');
       var codons = subSeq.match(/.{3}/g) || [];
       return _.map(codons, function(codon) {
         return SequenceTransforms.codonToAAShort(codon).trim();
@@ -727,9 +800,9 @@ function sequenceModelFactory(BackboneModel) {
     Validates that a sequence name is present
     @method validate
     **/
-    validate(attrs) {
+    validate(attrs = this.attributes) {
       var errors = [];
-      if (!attrs.name.replace(/\s/g, '').length) {
+      if (!(attrs.name && attrs.name.replace(/\s/g, '').length)) {
         errors.push('name');
       }
       return errors.length ? errors : undefined;
@@ -1472,19 +1545,24 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     clone() {
-      return new this.constructor(_.omit(this.attributes, 'id', 'history'));
+      return new this.constructor(_.omit(this.toJSON(), 'id', 'history'));
     }
 
     toJSON() {
+
       let attributes = super.toJSON();
       // Move all associated fields into meta.associations
       var classAssociations = allAssociationsForInstance(this);
-      _.each(classAssociations, function({associationName}) {
-        if(_.has(attributes, associationName)) {
+      _.each(classAssociations, ({associationName}) => {
+        var associationAttributes = this.attributes[associationName];
+
+        if(associationAttributes) {
+          if(associationAttributes instanceof BackboneModel) {
+            associationAttributes = associationAttributes.toJSON();
+          }
           attributes.meta = attributes.meta || {};
           attributes.meta.associations = attributes.meta.associations || {};
-          attributes.meta.associations[associationName] = attributes[associationName];
-          delete attributes[associationName];
+          attributes.meta.associations[associationName] = associationAttributes
         }
       });
       _.each(this.nonEnumerableFields, function(fieldName) {
@@ -1533,6 +1611,18 @@ function sequenceModelFactory(BackboneModel) {
   Sequence.registerPreProcessor = function(preProcessor) {
     preProcessors.push(preProcessor);
   };
+
+  Sequence.fromJSON = function(attributes) {
+    var metaAssociations = _.isObject(attributes.meta) && attributes.meta.associations;
+
+    if(_.isObject(metaAssociations)) {
+      _.each(metaAssociations, function(obj, associationName) {
+        attributes[associationName] = obj;
+      })
+    }
+
+    return new this(attributes)
+  }
 
 
   return Sequence;

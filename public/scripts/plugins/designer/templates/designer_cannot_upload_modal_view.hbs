@@ -1,0 +1,7 @@
+<p>The following sequences could not be added to the list of available sequences:</p>
+
+<ul>
+  {{#each errors}}
+    <li><strong>{{name}}</strong> (<em>{{lookup ../errorMessages type}}</em>)</li>
+  {{/each}}
+</ul>

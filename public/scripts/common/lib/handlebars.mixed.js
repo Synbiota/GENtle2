@@ -12,6 +12,8 @@ Hashes in arguments refer Handlebars' Hashes, e.g.:
 **/
 var Handlebars  = window.hb = require('hbsfy/runtime');
 var _           = require('underscore');
+import {makeOptions} from './utils';
+
 
 /**
 Displays select tag with options (and optional optgroups)
@@ -28,37 +30,9 @@ Displays select tag with options (and optional optgroups)
 
 **/
 Handlebars.registerHelper('select', function(context, options) {
-  var addOption, addOptions,
-      output = '';
-
-  addOption = function(name, value, selected) {
-    return  '<option value="' + value + '"'+
-            (value == selected ? ' selected="selected"' : '') +
-            '>' + name + '</option>';
-  };
-
-  addOptions = function(_options, selected) {
-    return _.map(_options, function(option) {
-      return addOption(option.name, option.value, selected);
-    }).join('');
-  };
-
-  output += '<select id="' + options.hash.id + '" name="' +
-            options.hash.name + '" class="' + options.hash.class + '">';
-
-  if(_.isArray(context)) {
-    output += addOptions(context, options.hash.selected);
-  } else {
-    _.forEach(context, function(_options, optgroupName) {
-      output += '<optgroup label="' + optgroupName +'">';
-      output += addOptions(_options, options.hash.selected);
-      output += '</optgroup>';
-    });
-  }
-
-  output += '</select>';
-
-  return output;
+  var output = `<select id="${options.hash.id}" name="${options.hash.name}" class="${options.hash.class}">`;
+  output += makeOptions(context, options);
+  return output +'</select>';
 });
 
 var formatThousands = function(context, offset) {
@@ -156,9 +130,33 @@ Handlebars.registerHelper('displaySelectableSequence', function(sequenceModel) {
   return displaySelectableSequenceTemplate({sequence});
 });
 
-Handlebars.registerHelper('primer', function(primer) {
-  var display = require('../templates/primer_partial.hbs');
-  return display(primer);
+
+var renderShortSequence = function(attributes, displayShowOption=true) {
+  var display = require('../templates/short_sequence_partial.hbs');
+  attributes.display = {
+    GC: attributes.gcContent !== undefined,
+    meltingTemperature: attributes.meltingTemperature !== undefined,
+    showOption: displayShowOption,
+  };
+  attributes = _.defaults(attributes, {
+    dataAttribute: false,
+    topDivCssClasses: '',
+  });
+  return display(attributes);
+};
+
+
+Handlebars.registerHelper('primer', function(primerObject) {
+  var attributes = _.deepClone(primerObject);
+  attributes.dataAttribute = 'data-product_id';
+  attributes.topDivCssClasses = 'primer-product';
+  return renderShortSequence(attributes, true);
+});
+
+
+Handlebars.registerHelper('oligoSequence', function(oligoSequenceObject) {
+  var attributes = _.deepClone(oligoSequenceObject);
+  return renderShortSequence(attributes, false);
 });
 
 

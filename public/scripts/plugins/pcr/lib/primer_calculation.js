@@ -446,7 +446,7 @@ var stubOutIDTMeltingTemperature = function(newFunction) {
 };
 
 var restoreIDTMeltingTemperature = function() {
-  IDTMeltingTemperature = _IDTMeltingTemperature;
+  IDTMeltingTemperature = oldIDTMeltingTemperature;
   oldIDTMeltingTemperature = undefined;
 };
 

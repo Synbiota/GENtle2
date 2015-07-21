@@ -28,7 +28,7 @@ var readManifest = function() {
   return JSON.parse(fs.readFileSync('./rev-manifest.json', 'utf8'));
 };
 
-gulp.task('publish', ['index'], function() {
+gulp.task('publish', ['deleteManifest', 'index'], function() {
   var manifest = readManifest();
 
   var ASSET_DIR = process.env.ASSET_DIR;
@@ -102,9 +102,16 @@ gulp.task('publish', ['index'], function() {
     return def.promise;
   });
 
-  return Q.allSettled(promises);
+  return Q.allSettled(promises).then(function() {
+    fs.unlinkSync('./public/index.html');
+  });
 });
 
+gulp.task('deleteManifest', function() {
+  if(fs.existsSync('./rev-manifest.json')) {
+    fs.unlinkSync('./rev-manifest.json');
+  }
+});
 
 gulp.task('index', ['build'], function() {
   var template = jade.compileFile(path.join(__dirname, '../views/index.jade'));

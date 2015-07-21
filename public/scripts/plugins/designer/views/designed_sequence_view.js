@@ -2,9 +2,10 @@ import Backbone from 'backbone';
 import template from '../templates/designed_sequence_view.hbs';
 import draggableCleanup from '../lib/draggable_cleanup';
 import xScrollingUi from '../lib/x_scrolling_ui';
-import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/assemble_sequence';
+import {INCOMPATIBLE_STICKY_ENDS, CANNOT_CIRCULARIZE} from '../lib/wip_circuit';
 import diagnosticErrorTemplate from '../templates/diagnostic_error_template.hbs';
 import diagnosticSuccessTemplate from '../templates/diagnostic_success_template.hbs';
+import SequenceSelectorView from './sequence_selector_view';
 import $ from 'jquery';
 import _ from 'underscore';
 
@@ -18,10 +19,41 @@ export default Backbone.View.extend({
   },
 
   initialize: function() {
-    this.listenTo(this.model.model, 'change:isCircular', () => {
+    this._setupSequenceSelector(
+      '.designer-anchor-dropdown',
+      'availableAnchors',
+      'anchor',
+      'Anchor'
+    );
+
+    this._setupSequenceSelector(
+      '.designer-cap-dropdown',
+      'availableCaps',
+      'cap',
+      'Cap'
+    );
+
+    this.listenTo(this.model, 'change:anchor change:cap', () => {
       this.emptyDiagnostic();
       this.updateDiagnostic();
     });
+  },
+
+  _setupSequenceSelector(selector, availableAttr, selectedAttr, label) {
+    var model = this.model;
+
+    var selectorView = new SequenceSelectorView({
+      label,
+      getSequences: () => model.get(availableAttr),
+      getSelectedSequence: () => model.get(selectedAttr)
+    });
+
+    this.listenTo(selectorView, 'select', (sequence) => {
+      model.set(selectedAttr, sequence).throttledSave();
+      selectorView.render();
+    });
+
+    this.setView(selector, selectorView);
   },
 
   onTrashClick: function(event) {
@@ -32,30 +64,25 @@ export default Backbone.View.extend({
     this.emptyDiagnostic();
     this.updateDiagnostic();
     this.updateDraggableContainerWidth();
-    if(this.model.sequences.length === 0) this.render();
+    if(this.model.get('sequences').length === 0) this.render();
   },
 
   serialize: function() {
-    var output = {};
+    var model = this.model;
+    var sequences = model.get('sequences');
 
-    if(this.model.sequences.length) {
-      output.sequences = this.model.sequences;
-    } else {
-      output.empty = true;
-    }
-
-    return output;
-  },
-
-  renderAndSave: function () {
-    // Perhaps change this back to `this.render()`, as whole view flickers.
-    this.parentView().render();
-    this.model.throttledSave();
+    return {
+      sequences,
+      empty: sequences.length === 0
+    };
   },
 
   insertFromAvailableSequence: function(sequenceId, beforeIndex = 0) {
     var model = this.model;
-    var sequence = _.find(model.allSequences, (s) => s.get('id') === sequenceId);
+    var sequence = _.find(
+      model.get('availableSequences'), 
+      s => s.get('id') === sequenceId
+    );
     model.insertSequence(beforeIndex, sequence);
     model.throttledSave();
   },
@@ -168,27 +195,11 @@ export default Backbone.View.extend({
 
         ui.item.removeData('available');
       },
-      stop: () => {
+      deactivate: () => {
         this.updateDiagnostic();
         this.updateDraggableContainerWidth();
       }
     });
-  },
-
-  highlightDropSites: function(indices) {
-    if(this.model.sequences.length === 0) {
-      this.$el.find('.designer-designed-sequence-empty-placeholder').addClass('highlighted');
-    } else {
-      _.each(indices, (index) => {
-        var selector = `.designer-designed-sequence-chunk-droppable[data-before_index="${index}"]`;
-        this.$el.find(selector).addClass('highlighted');
-      });
-    }
-  },
-
-  unhighlightDropSites: function() {
-    this.$el.find('.designer-designed-sequence-chunk-droppable').removeClass('highlighted');
-    this.$el.find('.designer-designed-sequence-empty-placeholder').removeClass('highlighted');
   },
 
   emptyDiagnostic() {
@@ -224,8 +235,10 @@ export default Backbone.View.extend({
   },
 
   updateDiagnostic: function() {
-    var errors = this.model.errors;
-    var sequencesLength = this.model.sequences.length;
+    var model = this.model;
+    var errors = model.get('errors');
+    var sequences = model.get('sequences');
+    var sequencesLength = model.get('sequences').length;
 
     // Incompatible sticky ends
     var errorIndices = _.pluck(
@@ -237,23 +250,37 @@ export default Backbone.View.extend({
       description: 'Incompatible sticky ends'
     }));
 
-    _.each(_.range(1, sequencesLength), (index) => {
-      if(!~errorIndices.indexOf(index)) {
-        this.insertDiagnosticChildren(index, diagnosticSuccessTemplate());
-      }
-    });
+    if(sequencesLength > 0) {
+      _.each(_.range(0, sequencesLength + 1), (index) => {
+        if(
+          !~errorIndices.indexOf(index) &&
+          (index > 0 || model.get('anchor')) &&
+          (index < sequencesLength || model.get('cap'))
+        ) {
+          let stickyEndName = (
+            index === sequencesLength ? 
+              sequences[index - 1].getStickyEnds().end.name : 
+              sequences[index].getStickyEnds().start.name
+          ).replace(/[^\w]/g, '').toLowerCase();
 
-    // First and last sequence cannot connect
-    var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
-    if(this.model.get('isCircular') && sequencesLength > 0) {
-      if(cannotCircularize) {
-        this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
-          description: 'Cannot circularize because start and end sticky ends are not compatible'
-        }));
-      } else {
-        this.insertDiagnosticChildren([0, sequencesLength], diagnosticSuccessTemplate());
-      }
+          this.insertDiagnosticChildren(index, diagnosticSuccessTemplate({
+            stickyEndName
+          }));
+        }
+      });
     }
+
+    // // First and last sequence cannot connect
+    // var cannotCircularize = _.some(errors, {type: CANNOT_CIRCULARIZE});
+    // if(this.model.get('isCircular') && sequencesLength > 0) {
+    //   if(cannotCircularize) {
+    //     this.insertDiagnosticChildren([0, sequencesLength], diagnosticErrorTemplate({
+    //       description: 'Cannot circularize because start and end sticky ends are not compatible'
+    //     }));
+    //   } else {
+    //     this.insertDiagnosticChildren([0, sequencesLength], diagnosticSuccessTemplate());
+    //   }
+    // }
   },
 
   updateDraggableContainerWidth: function() {
@@ -266,12 +293,13 @@ export default Backbone.View.extend({
       return memo + $(element).outerWidth(true);
     }, 0);
 
-    var maxWidth = $draggableContainer.parent().width();
+    // var maxWidth = $draggableContainer.parent().width() - 150;
 
     var padding = parseInt($draggableContainer.css('paddingRight'), 10) + 
       parseInt($draggableContainer.css('paddingLeft'), 10);
 
-    $draggableContainer.width(Math.max(totalWidth + padding + 200, maxWidth));
+    // $draggableContainer.width(Math.max(totalWidth + padding + 250, maxWidth));
+    $draggableContainer.width(totalWidth + padding + 250);
   }
 
 });

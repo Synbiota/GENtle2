@@ -121,8 +121,10 @@ export default Backbone.View.extend({
   },
 
   cleanup: function() {
-    this.sequenceCanvas.destroy();
-    this.sequenceCanvas = null;
+    if(this.sequenceCanvas) {
+      this.sequenceCanvas.destroy();
+      this.sequenceCanvas = null;
+    }
   }
 
 });

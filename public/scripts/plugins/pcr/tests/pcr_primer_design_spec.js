@@ -1,3 +1,4 @@
+/* eslint-env jasmine */
 // runs the calls to registerAssociation
 import plugin from '../plugin';
 
@@ -14,8 +15,7 @@ import {stubCurrentUser} from '../../../common/tests/stubs';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 
 
-stubCurrentUser();
-stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+
 
 
 var startOffsetSequence = 'AGAGCAAGA';
@@ -78,14 +78,22 @@ var expectedPcrProductSequence = forward + interveningSequence + reverse;
 let reverseComplement = SequenceTransforms.toReverseComplements(reverse);
 var reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
 
-
-
 beforeEach(function() {
   sequenceModel = new SequenceModel({sequence});
 });
 
 
 describe('calculating PCR primers', function() {
+
+  beforeAll(function() {
+    stubCurrentUser();
+    stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+  });
+
+  afterAll(function() {
+    restoreIDTMeltingTemperature();
+  });
+
   it('errors on from being < to', function(done) {
     let options = {
       from: 10,
@@ -232,10 +240,6 @@ describe('calculating PCR primers', function() {
     .done();
     
   });
-  
-  it('tearsdown', function() {
-    restoreIDTMeltingTemperature();
-  }); 
 });
 
 

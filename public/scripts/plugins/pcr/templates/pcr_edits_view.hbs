@@ -1,9 +1,22 @@
+{{#if warnings.length }}
+  <p><strong>Warnings ({{ warnings.length }})</strong></p>
+{{#each warnings}}
+  <p><strong>{{title}}</strong></p>
+  <div class="edit-canvas-outlets-container">
+    <div class="edit-canvas-outlet rdp-warnings" data-warning_id="{{warningId}}"></div>
+    <br>
+  </div>
+{{/each}}
+
+  <hr>
+{{/if}}
+
 {{#each transforms}}
   <p><strong>{{title}}</strong></p>
   <div class="edit-canvas-outlets-container">
-    <div class="edit-canvas-outlet" data-edit_type="{{type}}" data-edit_step="before"></div>
+    <div class="edit-canvas-outlet rdp-transforms" data-edit_type="{{type}}" data-edit_step="before"></div>
     <div class="edit-canvas-arrow"></div>
-    <div class="edit-canvas-outlet pull-right" data-edit_type="{{type}}" data-edit_step="after"></div>
+    <div class="edit-canvas-outlet rdp-transforms pull-right" data-edit_type="{{type}}" data-edit_step="after"></div>
     <div class="clearfix"></div>
     {{#if postCaption}}
       <div class="text-right">
@@ -13,3 +26,7 @@
     <br>
   </div>
 {{/each}}
+
+{{#unless transforms.length }}
+  <p><small>No edits were required.</small></p>
+{{/unless}}

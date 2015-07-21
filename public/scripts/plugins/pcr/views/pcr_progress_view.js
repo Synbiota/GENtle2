@@ -3,8 +3,7 @@ import template from '../templates/pcr_progress_view.hbs';
 import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
-import RdpSequence from '../../../library/rdp/rdp_sequence';
-import {transformSequenceForRdp} from 'gentle-rdp/sequence_transform';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 
 
 export default Backbone.View.extend({
@@ -28,38 +27,35 @@ export default Backbone.View.extend({
     this.$('.new-pcr-progress .fallback-progress .progress-bar').css('width', progress*100+'%');
   },
 
-  makePrimer: function(dataAndOptions) {
-    this.pcrPrimerDataAndOptions = dataAndOptions;
+  makePrimers: function(wipRdpPcrSequence) {
+    if(wipRdpPcrSequence.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
 
-    var tempSequence = new this.model.constructor({
-      name: dataAndOptions.name,
-      sequence: dataAndOptions.sequence
-    });
+    this.wipRdpPcrSequence = wipRdpPcrSequence;
+    this.dataAndOptions = wipRdpPcrSequence.getDataAndOptionsForPcr();
 
-    transformSequenceForRdp(tempSequence);
-
-    dataAndOptions.from = 0;
-    dataAndOptions.to = dataAndOptions.sequence.length - 1;
-    delete dataAndOptions.sequence;
-
-    getPcrProductAndPrimers(tempSequence, dataAndOptions)
+    // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
+    // and the tempSequence sequenceBases to calculate the primers and new
+    // sequenceBases.
+    getPcrProductAndPrimers(wipRdpPcrSequence, this.dataAndOptions)
     .then((pcrProduct) => {
-      // Copy over RDP specific attributes.
-      var rdpAttributes = _.extend({}, pcrProduct.toJSON(), _.pick(dataAndOptions,
-          'partType', 'rdpEdits', 'sourceSequenceName'));
+      var rdpPcrAttributes = _.extend(
+        {},
+        pcrProduct.toJSON(),
+        // Copy over RDP specific attributes.
+        _.pick(wipRdpPcrSequence.toJSON(), 'partType', 'sourceSequenceName', 'rdpEdits'),
+        {_type: 'rdp_pcr_product'}
+      );
 
-      rdpAttributes.displaySettings = rdpAttributes.displaySettings || {};
-      rdpAttributes.displaySettings.primaryView = 'pcr';
-      rdpAttributes.rdpEdits = rdpAttributes.rdpEdits || [];
-      rdpAttributes._type = 'rdp_pcr_product';
+      // ensures Gentle routes view to the RDP PCR product result view
+      rdpPcrAttributes.displaySettings = rdpPcrAttributes.displaySettings || {};
+      rdpPcrAttributes.displaySettings.primaryView = 'rdp_pcr';
 
-      var rdpProduct = new RdpSequence(rdpAttributes);
+      var rdpPcrProduct = new RdpPcrSequence(rdpPcrAttributes);
 
       this.updateProgressBar(1);
-      Gentle.sequences.add(rdpProduct);
+      Gentle.sequences.add(rdpPcrProduct);
       this.model.destroy();
-      this.model = rdpProduct;
-      Gentle.router.sequence(rdpProduct.get('id'));
+      Gentle.router.sequence(rdpPcrProduct.get('id'));
     })
     .progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));
@@ -80,7 +76,7 @@ export default Backbone.View.extend({
   },
 
   retryCreatingPcrPrimer: function() {
-    this.parentView().makePrimer(this.pcrPrimerDataAndOptions);
+    this.parentView().makePrimers(this.wipRdpPcrSequence);
   },
 
 });

@@ -1,0 +1,39 @@
+<div class="panel panel-default short-sequence {{topDivCssClasses}}" {{#if dataAttribute}}{{dataAttribute}}="{{id}}"{{/if}}>
+  <table class="table table-condensed table-no-border">
+    <thead>
+      <th>{{name}}</th>
+      <th><small>Size</small></th>
+      {{#if display.GC}}
+      <th><small>GC</small></th>
+      {{/if}}
+      {{#if display.meltingTemperature}}
+      <th><small>Tm</small></th>
+      {{/if}}
+      {{#if display.showOption}}
+      <th class="text-right"><small><span class="show-sequence">
+        Show
+        <i class="glyphicon glyphicon-arrow-right"></i>
+      </span></small></th>
+      {{/if}}
+    </thead>
+    <tbody>
+      <tr>
+        <td></td>
+        <td><small>{{sequenceLength sequence}}bp</small></td>
+        {{#if display.GC}}
+        <td><small>{{round gcContent 1 true}}%</small></td>
+        {{/if}}
+        {{#if display.meltingTemperature}}
+        <td><small>{{round meltingTemperature 1}}&deg;C</small></td>
+        {{/if}}
+        <td></td>
+      </tr>
+      <tr>
+        <td colspan="5" class="sequence">
+          <div class="separator"></div>
+          {{{displaySelectableSequence sequence}}}
+        </td>
+      <tr>
+    </tbody>
+  </table>
+</div>
