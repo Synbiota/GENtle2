@@ -7,40 +7,6 @@
 //   *  AGAGACCTCAGTCAGTCAGTCAG is shared amongst primers for producing sticky
 //      end on reverse strand.
 // TODO: move to RDP PCR and oligo-based part plugin
-// var stickyEnds = [{
-//   start: {
-//     sequence: 'TCAGTCAGTCAGTCAGGGTCTCAGATG',
-//     reverse: false,
-//     offset: 23,
-//     size: 4,
-//     name: "X",
-//   },
-//   end: {
-//     sequence: 'CGGCAGAGACCTCAGTCAGTCAGTCAG',
-//     reverse: true,
-//     offset: 23,
-//     size: 4,
-//     name: "Z'",
-//   }
-// },
-// {
-//   start: {
-//     sequence: 'TCAGTCAGTCAGTCAGGGTCTCACGGC',
-//     reverse: false,
-//     offset: 23,
-//     size: 4,
-//     name: "Z",
-//   },
-//   end: {
-//     sequence: 'GATGAGAGACCTCAGTCAGTCAGTCAG',
-//     reverse: true,
-//     offset: 23,
-//     size: 4,
-//     name: "X'",
-//   }
-// }
-// ];
-
 var stickyEnds = [{
   start: {
     sequence: 'TCAGTCAGTCAGTCAGGGTCTCAGATG',
@@ -55,6 +21,22 @@ var stickyEnds = [{
     offset: 23,
     size: 4,
     name: "Z'",
+  }
+},
+{
+  start: {
+    sequence: 'TCAGTCAGTCAGTCAGGGTCTCACGGC',
+    reverse: false,
+    offset: 23,
+    size: 4,
+    name: "Z",
+  },
+  end: {
+    sequence: 'GATGAGAGACCTCAGTCAGTCAGTCAG',
+    reverse: true,
+    offset: 23,
+    size: 4,
+    name: "X'",
   }
 }
 ];

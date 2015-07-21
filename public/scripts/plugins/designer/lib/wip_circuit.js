@@ -12,14 +12,12 @@ const MISSING_EITHER_STICKY_END = 'MISSING_EITHER_STICKY_END';
 
 var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
-  return stickyEnds && stickyEnds.start && 
-    stickyEnds.start.name.toLowerCase() === 'da20';
+  return stickyEnds && stickyEnds.start && /^da(20|18)$/i.test(stickyEnds.start.name);
 };
 
 var detectCap = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
-  return stickyEnds && stickyEnds.end && 
-    stickyEnds.end.name.toLowerCase() === 'dt20';
+  return stickyEnds && stickyEnds.end && /^dt(20|18)$/i.test(stickyEnds.end.name);
 };
 
 var isValidPart = function(sequence) {

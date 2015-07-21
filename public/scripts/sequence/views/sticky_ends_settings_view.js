@@ -65,12 +65,12 @@ export default Backbone.View.extend({
     };
 
     if(startData.enabled || endData.enabled) {
-      this.model.set('stickyEnds', {
+      this.model.setStickyEnds({
         start: extract(startData),
         end: extract(endData)
       });
     } else {
-      this.model.set('stickyEnds', undefined);
+      this.model.deleteStickyEnds();
     }
 
     this.model.throttledSave();

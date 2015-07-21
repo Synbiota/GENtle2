@@ -2,6 +2,8 @@ import _ from 'underscore';
 import RdpSequenceFeature from './rdp_sequence_feature';
 
 
+var NORMAL = 'NORMAL';
+
 /**
  * @class RdpEdit
  */
@@ -10,13 +12,17 @@ class RdpEdit {
    * @constructor
    * @param  {Object} attributes  Object containing the following keys:
    * @param  {String} attributes.type
-   * @param  {Object or RdpSequenceFeature} attributes.contextBefore=undefined
-   * @param  {Object or RdpSequenceFeature} attributes.contextAfter=undefined
-   * @param  {String} attributes.error=undefined
+   * @param  {undefined or Object or RdpSequenceFeature} attributes.contextBefore=undefined
+   * @param  {undefined or Object or RdpSequenceFeature} attributes.contextAfter=undefined
+   * @param  {String} attributes.message=undefined
+   * @param  {String} attributes.level=undefined
    */
-  constructor({type, contextBefore, contextAfter, error}) {
+  constructor({type, contextBefore, contextAfter, message, level = NORMAL}={}) {
     this.type = type;
-    if(!_.chain(RdpEdit.types).values().contains(this.type)) throw new TypeError('type is unknown: ' + type);
+    if(!this.type) throw new TypeError(`type cannot be: "${type}"`);
+    if(!_.contains(_.values(RdpEdit.types), this.type)) {
+      // throw new TypeError('type is unknown: ' + type);
+    }
     if(contextBefore && !(contextBefore instanceof RdpSequenceFeature)) {
       contextBefore = new RdpSequenceFeature(contextBefore);
     }
@@ -25,20 +31,35 @@ class RdpEdit {
     }
     this.contextBefore = contextBefore;
     this.contextAfter = contextAfter;
-    this.error = error;
-    if((!this.error) && (!(this.contextBefore || this.contextAfter))) {
-      throw new TypeError('Must provide "error" or at least one of "contextBefore" or "contextAfter"');
+    this.message = message;
+    this.level = level;
+    if((!this.message) && (!(this.contextBefore || this.contextAfter))) {
+      throw new TypeError('Must provide "message" or at least one of "contextBefore" or "contextAfter"');
     }
   }
 }
 
 
 RdpEdit.types = {
-  MULTIPLE_OF_3: 'RDP_EDIT_MULTIPLE_OF_3',
-  METHIONINE_START_CODON: 'RDP_EDIT_METHIONINE_START_CODON',
-  NO_TERMINAL_STOP_CODON: 'RDP_EDIT_NO_TERMINAL_STOP_CODON',
-  TERMINAL_C_BASE: 'RDP_EDIT_TERMINAL_C_BASE',
-  TERMINAL_C_BASE_NO_AA_CHANGE: 'RDP_EDIT_TERMINAL_C_BASE_NO_AA_CHANGE',
+  NOT_MULTIPLE_OF_3:                'NOT_MULTIPLE_OF_3',
+  STICKY_ENDS_PRESENT:              'STICKY_ENDS_PRESENT',
+  SEQUENCE_TOO_SHORT:               'SEQUENCE_TOO_SHORT',
+  METHIONINE_START_CODON:           'METHIONINE_START_CODON',
+  METHIONINE_START_CODON_CONVERTED: 'METHIONINE_START_CODON_CONVERTED',
+  METHIONINE_START_CODON_ADDED:     'METHIONINE_START_CODON_ADDED',
+  TERMINAL_STOP_CODON_REMOVED:      'TERMINAL_STOP_CODON_REMOVED',
+  LAST_BASE_IS_C:                   'LAST_BASE_IS_C',
+  LAST_BASE_IS_C_NO_AA_CHANGE:      'LAST_BASE_IS_C_NO_AA_CHANGE',
+  LAST_BASE_IS_G:                   'LAST_BASE_IS_G',
+  LAST_BASE_IS_G_NO_AA_CHANGE:      'LAST_BASE_IS_G_NO_AA_CHANGE',
+  EARLY_STOP_CODON:                 'EARLY_STOP_CODON',
+};
+
+
+RdpEdit.levels = {
+  NORMAL,
+  WARN:   'WARN',
+  ERROR:  'ERROR',
 };
 
 

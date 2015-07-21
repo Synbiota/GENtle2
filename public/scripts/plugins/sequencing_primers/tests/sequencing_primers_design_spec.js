@@ -1,3 +1,4 @@
+/* eslint-env jasmine */
 import _ from 'underscore';
 import Q from 'q';
 
@@ -10,9 +11,7 @@ import {defaultSequencingPrimerOptions} from '../../pcr/lib/primer_defaults';
 import {stubCurrentUser} from '../../../common/tests/stubs';
 import errors from '../lib/errors';
 
-
-stubCurrentUser();
-
+import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../../pcr/lib/primer_calculation';
 
 var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProducts) {
   expect(calculatedPrimersAndProducts.length).toEqual(expectedPrimersAndProducts.length);
@@ -309,7 +308,16 @@ var expectedShortSequencePrimers = [
 
 
 describe('finding Sequencing Primers', function() {
-  PrimerCalculation.stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+  beforeAll(function() {
+    stubCurrentUser();
+    stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+  });
+
+
+  afterAll(function() {
+    restoreIDTMeltingTemperature();
+    done();
+  });
 
   var garbageLength = defaultSequencingPrimerOptions().garbageSequenceDna;
   var spacerBases = function(numberOfSpacerBases) {
@@ -585,8 +593,4 @@ describe('finding Sequencing Primers', function() {
     });
   });
 
-  it('finally: teardown', function(done) {
-    PrimerCalculation.restoreIDTMeltingTemperature();
-    done();
-  });
 });

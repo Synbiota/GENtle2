@@ -1,3 +1,4 @@
+/* eslint-env jasmine */
 // TODO implement and test conversion from old to new feature and range
 // instances
 
@@ -106,15 +107,17 @@ export default function testAllSequenceModels(Sequence) {
     stickyEnds: stickyEnds
   };
 
+  var startStickyEndSequence = 'CCTA';
   var startStickySequenceAttributes = {
     name: 'startStickySequence',
-    sequence: 'CCTACCCCCCCCCCC',
+    sequence: startStickyEndSequence + 'CCCCCCCCCCC',
     id: 2,
     from: 0,
     to: 14,
     stickyEnds: {
-      // Leave a AT sticky end
+      // Leave a  3'-AT-5'  sticky end
       start: {
+        sequence: startStickyEndSequence,
         reverse: true,
         offset: 2,
         size: 2,
@@ -140,15 +143,17 @@ export default function testAllSequenceModels(Sequence) {
     ]
   };
 
+  var endStickyEndSequence = 'TACC';
   var endStickySequenceAttributes = {
     name: 'endStickySequence',
-    sequence: 'CCCCCCCCCCCGGTACC',
+    sequence: 'CCCCCCCCCCCGG' + endStickyEndSequence,
     id: 1,
     from: 0,
     to: 16,
     stickyEnds: {
       // Leave a TA sticky end
       end: {
+        sequence: endStickyEndSequence,
         reverse: false,
         offset: 2,
         size: 2,
@@ -172,21 +177,25 @@ export default function testAllSequenceModels(Sequence) {
     }]
   };
 
+  startStickyEndSequence = 'GGGTA';
+  endStickyEndSequence = 'TAGG';
   var stickySequenceAttributes = {
     name: 'stickySequence',
-    sequence: 'GGGTACCGGGGGGGGGTAGG',
+    sequence: startStickyEndSequence + 'CCGGGGGGGGG' + endStickyEndSequence,
     id: 3,
     from: 0,
     to: 19,
     stickyEnds: {
-      // Leave a AT sticky end
+      // Leave a 3'-AT-5' sticky end on the reverse strand
       start: {
+        sequence: startStickyEndSequence,
         reverse: true,
         offset: 3,
         size: 2,
       },
-      // Leave a TA sticky end
+      // Leave a 5'-TA-3' sticky end
       end: {
+        sequence: endStickyEndSequence,
         reverse: false,
         offset: 2,
         size: 2,
@@ -868,6 +877,38 @@ export default function testAllSequenceModels(Sequence) {
           expect(startStickySequence.overhangBeyondEndStickyEnd(14, true)).toEqual(0);
         });
       });
+
+      describe('deleteStickyEnds', function() {
+        it('should remove start stickyEnds', function() {
+          var seqBefore = startStickySequence.getSequence(startStickySequence.STICKY_END_FULL);
+          expect(seqBefore).toEqual('CCTACCCCCCCCCCC');
+
+          startStickySequence.deleteStickyEnds();
+          var seq = startStickySequence.getSequence(startStickySequence.STICKY_END_FULL);
+          expect(seq).toEqual('CCCCCCCCCCC');
+          expect(startStickySequence.getStickyEnds(false)).toEqual(undefined);
+        });
+
+        it('should remove end stickyEnds', function() {
+          var seqBefore = endStickySequence.getSequence(endStickySequence.STICKY_END_FULL);
+          expect(seqBefore).toEqual('CCCCCCCCCCCGGTACC');
+
+          endStickySequence.deleteStickyEnds();
+          var seq = endStickySequence.getSequence(endStickySequence.STICKY_END_FULL);
+          expect(seq).toEqual('CCCCCCCCCCCGG');
+          expect(endStickySequence.getStickyEnds(false)).toEqual(undefined);
+        });
+
+        it('should remove both stickyEnds', function() {
+          var seqBefore = stickySequence.getSequence(endStickySequence.STICKY_END_FULL);
+          expect(seqBefore).toEqual('GGGTACCGGGGGGGGGTAGG');
+
+          stickySequence.deleteStickyEnds();
+          var seq = stickySequence.getSequence(stickySequence.STICKY_END_FULL);
+          expect(seq).toEqual('CCGGGGGGGGG');
+          expect(stickySequence.getStickyEnds(false)).toEqual(undefined);
+        });
+      });
     });
 
     it('stickyEndConnects', function() {
@@ -944,9 +985,11 @@ export default function testAllSequenceModels(Sequence) {
 
     it('concatenates (and circularises) endStickySequence, stickySequence, startStickySequence', function() {
       var concatenatedSequence = Sequence.concatenateSequences([stickySequence, stickySequence], true, false);
-      expect(concatenatedSequence.getSequence(Sequence.STICKY_END_FULL)).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
+      concatenatedSequence.setStickyEndFormat('full');
+      expect(concatenatedSequence.getSequence()).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
       expect(_.isEmpty(concatenatedSequence.getStickyEnds(false)));
       var features = concatenatedSequence.getFeatures();
+
       expect(features.length).toEqual(2);
       expect(features[0].name).toEqual('stickySequenceAnnotation');
       expect(features[0].ranges[0].from).toEqual(12);
