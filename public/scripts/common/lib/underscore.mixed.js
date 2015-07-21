@@ -24,8 +24,9 @@ _.mixin({
   @method _.ucFirst
   @param {string} text to transform
   **/
-  ucFirst: function(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  ucFirst: function(string, force = false) {
+    var rest = string.slice(1);
+    return string.charAt(0).toUpperCase() + (force ? rest.toLowerCase() : rest);
   },
 
   /**

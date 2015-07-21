@@ -11,11 +11,16 @@ import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import RdpEdit from 'gentle-rdp/rdp_edit';
 import RdpTypes from 'gentle-rdp/rdp_types';
 import {makeOptions} from '../../../common/lib/utils';
+import Backbone from 'backbone';
 
+const rdpLabels = ['CDS', 'RBS'].concat(_.pluck(allStickyEnds(), 'name'));
 
 var convertForSelect = function(values) {
   return _.map(values, (value) => {
-    return {name: value, value: value};
+    return {
+      name: _.includes(rdpLabels, value) ? value : _.ucFirst(value, true), 
+      value
+    };
   });
 };
 
@@ -31,7 +36,7 @@ export default Backbone.View.extend({
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'calculateRdpEdits',
-    'click .cancel-new-pcr-product-form': 'cancel',
+    'click .cancel-new-pcr-product-form': 'cancel'
   },
 
   initialize: function({selectionFrom, selectionTo}) {
