@@ -1,6 +1,7 @@
 import Sequence from '../../../sequence/models/sequence';
-// import RdpEdit from '../../../library/rdp/rdp_edit';
+import RdpEdit from '../../../library/rdp/rdp_edit';
 import RdpTypes from '../../../library/rdp/rdp_types';
+import {transformSequenceForRdp} from 'gentle-rdp/rdp_sequence_transform';
 
 
 class WipPcrProductSequence extends Sequence {
@@ -22,6 +23,7 @@ class WipPcrProductSequence extends Sequence {
       'frm', // inclusive
       'size',
       'originalSequence',
+      // We need rdpEdits to instantiate the non-WIP RDP SequenceModel
       // TODO: add an association for rdpEdits ?
       'rdpEdits',
       'partType',
@@ -39,17 +41,6 @@ class WipPcrProductSequence extends Sequence {
     return partType === RdpTypes.types.TERMINATOR;
   }
 
-  getDesiredSequenceModel() {
-    var attributes = this.toJSON();
-    attributes.originalSequence = this.getSequence(this.STICKY_END_ANY);
-    var newSequenceModel = new this.constructor(attributes);
-
-    // Delete the bases
-    var topFrm = attributes.frm + attributes.size;
-    var remaining = attributes.originalSequence.length - topFrm;
-    if(remaining > 0) newSequenceModel.deleteBases(topFrm, remaining, this.STICKY_END_ANY);
-    if(attributes.frm > 0 ) newSequenceModel.deleteBases(0, attributes.frm, this.STICKY_END_ANY);
-    return newSequenceModel;
   get availablePartTypes() {
     return _.keys(RdpTypes.pcrTypes);
   }
@@ -58,6 +49,37 @@ class WipPcrProductSequence extends Sequence {
     var partType = this.get('partType');
     var partTypeInfo = RdpTypes.pcrTypes[partType] || {stickyEndNames: []};
     return _.clone(partTypeInfo.stickyEndNames);
+  }
+
+  /**
+   * @method  transformSequenceForRdp
+   * @return {array<RdpEdit>}
+   */
+  transformSequenceForRdp() {
+    this.validate();
+
+    var rdpEdits = transformSequenceForRdp(this);
+    this.set({rdpEdits});
+    return rdpEdits;
+  }
+
+  validate() {
+    var desiredStickyEnds = this.get('desiredStickyEnds');
+    if(!(desiredStickyEnds && desiredStickyEnds.start && desiredStickyEnds.end)) {
+      throw new TypeError('Must provide "desiredStickyEnds"');
+    }
+    var partType = this.get('partType');
+    if(!_.contains(this.availablePartTypes, partType)) {
+      throw new TypeError(`Invalid partType: "${partType}"`);
+    }
+    if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {
+      throw new TypeError(`Invalid desiredStickyEnd: "${desiredStickyEnds.name}"`);
+    }
+  }
+
+  errors() {
+    var rdpEdits = this.get('rdpEdits');
+    return _.filter(rdpEdits, (rdpEdit) => rdpEdit.level === RdpEdit.levels.ERROR);
   }
 
   getDataAndOptionsForPcr() {
@@ -108,6 +130,29 @@ class WipPcrProductSequence extends Sequence {
     };
     return dataAndOptionsForPcr;
   }
+}
+
+
+WipPcrProductSequence.getRdpCompliantSequenceModel = function(attributes) {
+  var desiredWipRdpSequence = WipPcrProductSequence.getDesiredSequenceModel(attributes);
+  desiredWipRdpSequence.transformSequenceForRdp();
+  return desiredWipRdpSequence;
+}
+
+
+WipPcrProductSequence.getDesiredSequenceModel = function(attributes) {
+  if(attributes.stickyEnds) {
+    throw new TypeError('attributes for getDesiredSequenceModel must not contain stickyEnds');
+  }
+  attributes.originalSequence = attributes.sequence;
+  var newSequenceModel = new WipPcrProductSequence(attributes);
+
+  // Delete the bases
+  var topFrm = attributes.frm + attributes.size;
+  var remaining = attributes.originalSequence.length - topFrm;
+  if(remaining > 0) newSequenceModel.deleteBases(topFrm, remaining, WipPcrProductSequence.STICKY_END_ANY);
+  if(attributes.frm > 0 ) newSequenceModel.deleteBases(0, attributes.frm, WipPcrProductSequence.STICKY_END_ANY);
+  return newSequenceModel;
 }
 
 

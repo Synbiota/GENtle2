@@ -1,6 +1,5 @@
 import _ from 'underscore';
 import RdpEdit from './rdp_edit';
-import RdpTypes from './rdp_types';
 import {
   methionineStartCodon,
   noTerminalStopCodons,
@@ -11,20 +10,12 @@ import {
 
 
 var calculateTransformationFunctionInstances = function(sequenceModel) {
-  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
-  if(!desiredStickyEnds) {
-    throw new TypeError('Must provide "desiredStickyEnds"');
-  }
   var transforms = [];
   var partType = sequenceModel.get('partType');
+  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
 
-  if(partType === RdpTypes.types.CDS) {
-    transforms = [
-      methionineStartCodon,
-      noTerminalStopCodons
-    ];
-  } else if(partType === RdpTypes.types.MODIFIER) {
-    if(desiredStickyEnds.name === 'X') {
+  if(sequenceModel.isProteinCoding) {
+    if(desiredStickyEnds.start.name === 'X') {
       transforms = [
         methionineStartCodon
       ];
@@ -32,10 +23,7 @@ var calculateTransformationFunctionInstances = function(sequenceModel) {
     transforms.push(noTerminalStopCodons);
   }
 
-  var lastBaseMustBe;
-  if(desiredStickyEnds.end && desiredStickyEnds.end.sequence) {
-    lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
-  }
+  var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
   transforms.push(ensureLastBaseIs(lastBaseMustBe));
 
   if(sequenceModel.isProteinCoding) {
@@ -68,7 +56,8 @@ var checkForFatalErrors = function(sequenceModel, transformationFunctionInstance
 
 
 /**
- * @function  transformSequenceForRdp
+ * @function  transformSequenceForRdp  Should not be called directly.  Instead
+ *            use the sequenceModel's transformSequenceForRdp
  * @param  {SequenceModel}  sequenceModel
  * @return {Array<RdpEdit>}
  */

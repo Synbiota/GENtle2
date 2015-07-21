@@ -604,8 +604,4 @@ export default {
   noTerminalStopCodons,
   ensureLastBaseIs,
   warnIfEarlyStopCodons,
-  // Exposed for testing
-  warnIfStickyEndsPresent,
-  warnIfNotMultipleOf3,
-  warnIfShortSequence,
 };
