@@ -5,6 +5,7 @@ import SequenceRange from '../sequence-model/range';
 import RdpSequenceFeature from './rdp_sequence_feature';
 import RdpEdit from './rdp_edit';
 import RdpTypes from './rdp_types';
+import WipRdpOligoSequence from './wip_rdp_oligo_sequence';
 
 
 var CONTEXT_BASE_PAIRS = 9;
@@ -30,7 +31,12 @@ var warnIfNotMultipleOf3 = function(sequenceModel, rdpEditType) {
   var rdpEdit;
   if(!isMultipleOf3(sequenceModel)) {
     var message = `Requires sequence to be a mutliple of 3 but is "${getLen(sequenceModel)}" long.`;
-    rdpEdit = new RdpEdit({type: rdpEditType, level: RdpEdit.levels.WARN, message});
+    rdpEdit = new RdpEdit({
+      type: RdpEdit.types.NOT_MULTIPLE_OF_3,
+      subType: rdpEditType,
+      level: RdpEdit.levels.WARN,
+      message
+    });
   }
   return rdpEdit;
 };
@@ -40,7 +46,12 @@ var warnIfStickyEndsPresent = function(sequenceModel, rdpEditType) {
   var rdpEdit;
   if(sequenceModel.getStickyEnds(false)) {
     var message = `Sequence can not have stickyEnds.`;
-    rdpEdit = new RdpEdit({type: rdpEditType, level: RdpEdit.levels.WARN, message});
+    rdpEdit = new RdpEdit({
+      type: RdpEdit.types.STICKY_ENDS_PRESENT,
+      subType: rdpEditType,
+      level: RdpEdit.levels.WARN,
+      message
+    });
   }
   return rdpEdit;
 };
@@ -59,30 +70,84 @@ var warnIfShortSequence = function(sequenceModel, rdpEditType) {
   var rdpEdit;
   var length = getLen(sequenceModel);
   if(length < 3) {
-    var message = `Requires sequence to be at least 3 base pairs long but is "{len(sequenceModel)}" long.`;
-    rdpEdit = new RdpEdit({type: rdpEditType, level: RdpEdit.levels.WARN, message});
+    var message = `Requires sequence to be at least 3 base pairs long but is "${length}" long.`;
+    rdpEdit = new RdpEdit({
+      type: RdpEdit.types.SEQUENCE_TOO_SHORT,
+      subType: rdpEditType,
+      level: RdpEdit.levels.WARN,
+      message
+    });
   }
   return rdpEdit;
 };
 
 
-var throwErrorIfPresent = function(func, sequenceModel, rdpEditType) {
-  var rdpEdit = func(sequenceModel, rdpEditType);
+var throwErrorIfPresent = function(requirementFunction, sequenceModel, rdpEditType) {
+  var rdpEdit = requirementFunction(sequenceModel, rdpEditType);
   if(rdpEdit && rdpEdit.message) throw new Error(rdpEdit.message);
 };
 
 
-/**
- * @function  methionineStartCodon
- * @param  {SequenceModel}  sequenceModel
- * @throws {Error} If sequenceModel has stickyEnds or is too short
- * @return {Array<RdpEdit>}  May return RdpEdits in normal or error state
- */
-var methionineStartCodon = function(sequenceModel) {
-  var genericType = RdpEdit.types.METHIONINE_START_CODON;
-  throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, genericType);
-  throwErrorIfPresent(warnIfShortSequence, sequenceModel, genericType);
+class TransformationFunction {
+  /**
+   * constructor
+   * @param  {function} transformFunction A function that accepts a sequenceModel
+   *                                      and returns array<RdpEdit>
+   * @param  {array<function>} requirements
+   * @param  {string} rdpEditType
+   */
+  constructor(transformFunction, requirements, rdpEditType) {
+    if(!_.isFunction(transformFunction)) throw new Error('transformFunction must be a function');
+    if(!_.isArray(requirements)) throw new Error('Requirements must be an array of functions');
+    if(!_.isString(rdpEditType)) throw new Error('rdpEditType must be a String');
+    this.transformFunction = transformFunction;
+    this.requirements = requirements;
+    this.rdpEditType = rdpEditType;
+  }
 
+  /**
+   * @method process  Check if the requirements are met.
+   * @param  {SequenceModel}  sequenceModel
+   * @return {array<RdpEdit>}
+   */
+  check(sequenceModel) {
+    var rdpEdits = [];
+    _.each(this.requirements, (requirementFunction) => {
+      var rdpEdit = requirementFunction(sequenceModel, this.rdpEditType);
+      if(rdpEdit) rdpEdits.push(rdpEdit);
+    });
+    return rdpEdits;
+  }
+
+  /**
+   * @method process
+   * @param  {SequenceModel}  sequenceModel
+   * @throws {Error} If sequenceModel has condition that violates a requirement.
+   * @return {array<RdpEdit>}
+   */
+  process(sequenceModel) {
+    // Do a runtime check to ensure the requirements have actually been met.
+    _.each(this.requirements, (requirementFunction) => {
+      throwErrorIfPresent(requirementFunction, sequenceModel, this.rdpEditType);
+    });
+    return this.transformFunction(sequenceModel);
+  }
+}
+
+var requirements, rdpEditType;
+
+
+requirements = [
+  warnIfStickyEndsPresent,
+  warnIfShortSequence,
+];
+rdpEditType = RdpEdit.types.METHIONINE_START_CODON;
+/**
+ * @function  methionineStartCodonFn
+ * @param  {SequenceModel}  sequenceModel
+ * @return {array<RdpEdit>}  May return RdpEdits in normal or error state
+ */
+var methionineStartCodonFn = function(sequenceModel) {
   var rdpEdit;
   var length = getLen(sequenceModel);
   let sequenceBases = getSubSeq(sequenceModel, 0, 3);
@@ -162,19 +227,21 @@ var methionineStartCodon = function(sequenceModel) {
   }
   return rdpEdit ? [rdpEdit] : [];
 };
+var methionineStartCodon = new TransformationFunction(methionineStartCodonFn, requirements, rdpEditType);
 
 
+
+requirements = [
+  warnIfNotMultipleOf3,
+  warnIfStickyEndsPresent,
+];
+rdpEditType = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
 /**
- * @method noTerminalStopCodons
+ * @method noTerminalStopCodonsFn
  * @param  {SequenceModel}  sequenceModel
- * @throws {Error} If sequenceModel has stickyEnds or sequence is not a multiple of 3
- * @return {Array<RdpEdit>}
+ * @return {array<RdpEdit>}
  */
-var noTerminalStopCodons = function(sequenceModel) {
-  var type = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
-  throwErrorIfPresent(warnIfNotMultipleOf3, sequenceModel, type);
-  throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, type);
-
+var noTerminalStopCodonsFn = function(sequenceModel) {
   var rdpEdit, frm;
   var length = getLen(sequenceModel);
   var aAsToRemove = [];
@@ -197,6 +264,7 @@ var noTerminalStopCodons = function(sequenceModel) {
   }
 
   if(aAsToRemove.length) {
+    var type = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
     var name = 'Will remove stop codons';
     var desc = `Will remove ${aAsToRemove.length} stop codon(s)`;
     var ranges = _.map(aAsToRemove, (frmBase) => {
@@ -236,6 +304,8 @@ var noTerminalStopCodons = function(sequenceModel) {
 
   return rdpEdit ? [rdpEdit] : [];
 };
+var noTerminalStopCodons = new TransformationFunction(noTerminalStopCodonsFn, requirements, rdpEditType);
+
 
 
 var lastBaseIsCAaMapConservativeChange = {
@@ -409,26 +479,24 @@ var baseMappingData = {
 };
 
 
+var ensureLastBaseIsRequirements = [
+  warnIfNotMultipleOf3,
+  warnIfShortSequence,
+  warnIfStickyEndsPresent,
+];
 /**
- * @method ensureLastBaseIs returns a function.
+ * @method ensureLastBaseIs returns an instance of TransformationFunction
  * @param {String} ensureBase  The base to ensure is present on the forward
  *                             strand as the last base.
- * @return {function} transformationFunction
- *                    @param  {SequenceModel}  sequenceModel
- *                    @throws {Error} If sequenceModel has stickyEnds or
- *                                    sequence is not a multiple of 3
- *                    @return {Array<RdpEdit>}
+ * @return {TransformationFunction} transformFunction
  */
 var ensureLastBaseIs = function(ensureBase) {
   var data = baseMappingData[ensureBase];
-  if(!data) throw new Error(`ensureLastBaseIs does not yet support base of: "${ensureBase}".`);
+  if(!data) throw new TypeError(`ensureLastBaseIs does not yet support base of: "${ensureBase}"`);
 
-  var transformationFunction = function(sequenceModel) {
+  var ensureLastBaseIsRdpEditType = data.type;
+  var transformFunction = function(sequenceModel) {
     var type = data.type;
-    throwErrorIfPresent(warnIfNotMultipleOf3, sequenceModel, type);
-    throwErrorIfPresent(warnIfShortSequence, sequenceModel, type);
-    throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, type);
-
     var length = getLen(sequenceModel);
     var rdpEdit;
 
@@ -488,19 +556,23 @@ var ensureLastBaseIs = function(ensureBase) {
     return rdpEdit ? [rdpEdit] : [];
   };
 
-  return transformationFunction;
+  return new TransformationFunction(transformFunction, ensureLastBaseIsRequirements, ensureLastBaseIsRdpEditType);
 };
 
 
+
+requirements = [
+  warnIfNotMultipleOf3,
+  warnIfStickyEndsPresent
+];
+rdpEditType = RdpEdit.types.EARLY_STOP_CODON;
 /**
- * @function  warnIfEarlyStopCodons
+ * @function  warnIfEarlyStopCodonsFn
  * @param  {SequenceModel} sequenceModel
- * @return {Array<RdpEdit>}
+ * @return {array<RdpEdit>}
  */
-var warnIfEarlyStopCodons = function(sequenceModel) {
+var warnIfEarlyStopCodonsFn = function(sequenceModel) {
   var type = RdpEdit.types.EARLY_STOP_CODON;
-  throwErrorIfPresent(warnIfNotMultipleOf3, sequenceModel, type);
-  throwErrorIfPresent(warnIfStickyEndsPresent, sequenceModel, type);
 
   var aAs = sequenceModel.getAAs(0, getLen(sequenceModel), sequenceModel.STICKY_END_ANY);
   return _.reduce(aAs, (memo, aa, index) => {
@@ -523,77 +595,17 @@ var warnIfEarlyStopCodons = function(sequenceModel) {
     return memo;
   }, []);
 };
+var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, requirements, rdpEditType);
 
-
-var checkForFatalErrors = function(sequenceModel) {
-  var fatalErrorFunctions = [
-    [warnIfNotMultipleOf3,    RdpEdit.types.NOT_MULTIPLE_OF_3],
-    [warnIfStickyEndsPresent, RdpEdit.types.STICKY_ENDS_PRESENT],
-    [warnIfShortSequence,     RdpEdit.types.SEQUENCE_TOO_SHORT]
-  ];
-
-  var fatalErrorRdpEdits = [];
-  _.each(fatalErrorFunctions, ([func, type]) => {
-    var rdpEdit = func(sequenceModel, type);
-    if(rdpEdit) {
-      rdpEdit.level = RdpEdit.levels.ERROR;
-      fatalErrorRdpEdits.push(rdpEdit);
-    }
-  });
-  return fatalErrorRdpEdits;
-};
-
-
-var getTransformationFunctions = function(sequenceModel) {
-  var partType = sequenceModel.get('partType');
-  var transformationFunctions = [];
-  if(partType === RdpTypes.types.CDS) {
-    transformationFunctions = [
-      methionineStartCodon,
-      noTerminalStopCodons
-    ];
-  }
-
-  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
-  var lastBaseMustBe;
-  if(desiredStickyEnds && desiredStickyEnds.end && desiredStickyEnds.end.sequence) {
-    lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
-  }
-
-  transformationFunctions = transformationFunctions.concat([
-    ensureLastBaseIs(lastBaseMustBe),
-    warnIfEarlyStopCodons
-  ]);
-
-  return transformationFunctions;
-};
-
-
-/**
- * @function  transformSequenceForRdp
- * @param  {SequenceModel}  sequenceModel
- * @return {Array<RdpEdit>}
- */
-var transformSequenceForRdp = function(sequenceModel) {
-  var fatalErrorRdpEdits = checkForFatalErrors(sequenceModel);
-  // If there are any warnings (which would result in errors being thrown by the
-  // transform functions) then return these straight away.
-  if(fatalErrorRdpEdits.length) return fatalErrorRdpEdits;
-
-  var transformationFunctions = getTransformationFunctions(sequenceModel);
-  var rdpEdits = [];
-  _.each(transformationFunctions, (transformation) => {
-    var moreRdpEdits = transformation(sequenceModel);
-    if(moreRdpEdits.length) rdpEdits = rdpEdits.concat(moreRdpEdits);
-  });
-
-  return rdpEdits;
-};
 
 
 export default {
   methionineStartCodon,
   noTerminalStopCodons,
   ensureLastBaseIs,
-  transformSequenceForRdp,
+  warnIfEarlyStopCodons,
+  // Exposed for testing
+  warnIfStickyEndsPresent,
+  warnIfNotMultipleOf3,
+  warnIfShortSequence,
 };
