@@ -2,6 +2,7 @@ import Sequence from '../../../sequence/models/sequence';
 import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import preloadedAnchorsAndCaps from './anchors_and_caps.json';
 import _ from 'underscore';
+import Gentle from 'gentle';
 
 const INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
 const CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
@@ -9,6 +10,8 @@ const MISSING_CAP = 'MISSING_CAP';
 const MISSING_ANCHOR = 'MISSING_ANCHOR';
 
 const MISSING_EITHER_STICKY_END = 'MISSING_EITHER_STICKY_END';
+
+const currentUserKey = 'designer.availableSequences';
 
 var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
@@ -40,6 +43,16 @@ export default class WipCircuit extends Sequence {
       'change:sequences change:cap change:anchor', 
       _.bind(this.diagnoseSequence, this)
     );
+
+    if(this.get('availableSequences').length === 0) {
+      if(Gentle.currentUser.loaded) {
+        this.loadAvailableSequencesFromCurrentUser();
+      } else {
+        this.listenToOnce(Gentle.currentUser, 'loaded', () => {
+          this.loadAvailableSequencesFromCurrentUser();
+        });
+      }
+    }
 
     if(
       this.get('availableAnchors').length === 0 ||
@@ -122,7 +135,7 @@ export default class WipCircuit extends Sequence {
     };
   }
 
-  addAvailableSequences(sequences, sequencesType) {
+  addAvailableSequences(sequences, sequencesType, saveToCurrentUser = true) {
     var availableSequences, existingSequences;
 
     switch(sequencesType) {
@@ -158,11 +171,15 @@ export default class WipCircuit extends Sequence {
 
     availableSequences.push(..._.difference(newSequences, rejectedSequences));
 
-    if(_.isUndefined(sequencesType)) {
+    if(!sequencesType) {
       this._initAvailableAnchorsAndCaps();
     }
 
     this.throttledSave();
+
+    if(saveToCurrentUser) {
+      this.saveAvailableSequencesToCurrentUser();
+    }
 
     return _.map(rejectedSequences, function(sequence) {
       return {
@@ -170,6 +187,11 @@ export default class WipCircuit extends Sequence {
         type: MISSING_EITHER_STICKY_END
       };
     });
+  }
+
+  clearAvailableSequences() {
+    this.set('availableSequences', []);
+    this.saveAvailableSequencesToCurrentUser();
   }
 
   insertSequence(beforeIndex, sequence) {
@@ -277,6 +299,19 @@ export default class WipCircuit extends Sequence {
     return finalSequence.toJSON();
   }
 
+  loadAvailableSequencesFromCurrentUser() {
+    var sequences = Gentle.currentUser.get(currentUserKey) || [];
+    if(_.isArray(sequences) && sequences.length) {
+      this.addAvailableSequences(sequences, null, false);
+    }
+  }
+
+  saveAvailableSequencesToCurrentUser() {
+    var sequences = _.map(this.get('availableSequences'), function(sequence) {
+      return sequence.toJSON();
+    });
+    Gentle.currentUser.set(currentUserKey, sequences);
+  }
 
 }
 

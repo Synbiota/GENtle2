@@ -29,6 +29,13 @@ export default Backbone.DeepModel.extend({
   }),
 
   initialize: function() {
+    this.loaded = false;
+
+    this.listenToOnce(this, 'sync', function() {
+      this.loaded = true;
+      this.trigger('loaded');
+    }, this);
+
     this.throttledSave = _.throttle(() => this.save(), 200);
     this.on('change', this.throttledSave);
   },

@@ -24,7 +24,8 @@ var DesignerView = Backbone.View.extend({
     'change .file-upload-input': 'uploadNewSequences',
     'click .assemble-sequence-btn': 'assembleSequence',
     'keydown .designer-available-sequences-filter input': 'filterAvailableSequences',
-    'click .designer-available-sequences-filter-clear': 'clearFilter'
+    'click .designer-available-sequences-filter-clear': 'clearFilter',
+    'click .designer-available-sequences-clear-all': 'clearAvailableSequences'
   },
 
   initialize: function() {
@@ -228,6 +229,12 @@ var DesignerView = Backbone.View.extend({
     event.preventDefault();
     this.$('.designer-available-sequences-filter input').val('');
     this.filterAvailableSequences('');
+  },
+
+  clearAvailableSequences: function() {
+    this.model.clearAvailableSequences();
+    this.model.throttledSave();
+    this.render();
   },
 
   assembleSequence: function() {
