@@ -6,29 +6,10 @@ import {
   methionineStartCodon,
   noTerminalStopCodons,
   ensureLastBaseIs,
-  transformSequenceForRdp,
 } from '../sequence_transform';
 
 
 var initialSequenceContent = 'GTGTAG';
-var stickyEnds = function() {
-  return {
-    start: {
-      sequence: 'CC' + 'ATG',
-      reverse: false,
-      offset: 2,
-      size: 3,
-      name: "X",
-    },
-    end: {
-      sequence: 'CAGA' + 'TGA',
-      reverse: true,
-      offset: 3,
-      size: 4,
-      name: "Z'",
-    }
-  };
-};
 
 var sequenceAttributes = {
   name: 'Test sequence',
@@ -42,7 +23,6 @@ var sequenceAttributes = {
     desc: 'test feature description',
     type: 'gene'
   }],
-  // desiredStickyEnds: stickyEnds(),
   partType: 'CDS',
 };
 
@@ -62,15 +42,8 @@ beforeEach(function() {
 });
 
 
-var setSequence = function(bases, desiredStickyEnds=undefined, stickyEnds=undefined) {
-  if(stickyEnds) {
-    bases = stickyEnds.start.sequence + bases + stickyEnds.end.sequence;
-  }
-  sequenceModel.set({
-    sequence: bases,
-    desiredStickyEnds,
-    stickyEnds,
-  });
+var setBases = function(bases) {
+  sequenceModel.set({sequence: bases});
 };
 
 var getSequence = function() {
@@ -82,9 +55,9 @@ describe('RDP sequence Methionine Start Codon validation and transformation', fu
   describe('without stickyEnds', function() {
     describe('correct start codon', function() {
       it('should pass with ATG', function() {
-        setSequence('ATGTAG');
+        setBases('ATGTAG');
 
-        var rdpEdits = methionineStartCodon(sequenceModel);
+        var rdpEdits = methionineStartCodon.process(sequenceModel);
         expect(rdpEdits.length).toEqual(0);
 
         expect(getSequence()).toEqual('ATGTAG');
@@ -94,7 +67,7 @@ describe('RDP sequence Methionine Start Codon validation and transformation', fu
     describe('incorrect start codon', function() {
       it('should be corrected when GTG', function() {
         expect(getSequence()).toEqual('GTGTAG');
-        var rdpEdits = methionineStartCodon(sequenceModel);
+        var rdpEdits = methionineStartCodon.process(sequenceModel);
         var rdpEdit = rdpEdits[0];
         expect(rdpEdit.type).toEqual(RdpEdit.types.METHIONINE_START_CODON_CONVERTED);
         expect(rdpEdit.error).toBeUndefined();
@@ -121,8 +94,8 @@ describe('RDP sequence Methionine Start Codon validation and transformation', fu
       });
 
       it('should be corrected when TTG', function() {
-        setSequence('TTGTAG');
-        var rdpEdits = methionineStartCodon(sequenceModel);
+        setBases('TTGTAG');
+        var rdpEdits = methionineStartCodon.process(sequenceModel);
         var rdpEdit = rdpEdits[0];
         expect(rdpEdit.type).toEqual(RdpEdit.types.METHIONINE_START_CODON_CONVERTED);
         expect(rdpEdit.error).toBeUndefined();
@@ -133,15 +106,15 @@ describe('RDP sequence Methionine Start Codon validation and transformation', fu
         it('should add quietly', function() {
           // Would need to change quietlyAddMethionine to `true`
           // 
-          // setSequence('CCCTAG');
-          // var rdpEdits = methionineStartCodon(sequenceModel);
+          // setBases('CCCTAG');
+          // var rdpEdits = methionineStartCodon.process(sequenceModel);
           // expect(rdpEdits.length).toEqual(0);
           // expect(getSequence()).toEqual('ATGCCCTAG');
         });
 
         it('should error when not quiet', function() {
-          setSequence('CCCTAG');
-          var rdpEdits = methionineStartCodon(sequenceModel);
+          setBases('CCCTAG');
+          var rdpEdits = methionineStartCodon.process(sequenceModel);
           var rdpEdit = rdpEdits[0];
           expect(rdpEdit.type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
           expect(rdpEdit.error).toBeUndefined();
@@ -174,8 +147,8 @@ describe('RDP sequence Methionine Start Codon validation and transformation', fu
 describe('RDP sequence with stop codon validation and transformation', function() {
   describe('without stickyEnds', function() {
     it('should pass if no stop codons', function() {
-      setSequence('AAG');
-      var rdpEdits = noTerminalStopCodons(sequenceModel);
+      setBases('AAG');
+      var rdpEdits = noTerminalStopCodons.process(sequenceModel);
       expect(rdpEdits.length).toEqual(0);
 
       expect(getSequence()).toEqual('AAG');
@@ -186,9 +159,9 @@ describe('RDP sequence with stop codon validation and transformation', function(
       var stop2 = 'TAG';
       var stop3 = 'TAA';
       var bases = 'GTG'+stop1+'CCC' + stop1+stop2+stop3;
-      setSequence(bases);
+      setBases(bases);
 
-      var rdpEdits = noTerminalStopCodons(sequenceModel);
+      var rdpEdits = noTerminalStopCodons.process(sequenceModel);
       var rdpEdit = rdpEdits[0];
       expect(rdpEdit.type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
       expect(rdpEdit.error).toBeUndefined();
@@ -219,8 +192,8 @@ describe('RDP sequence with stop codon validation and transformation', function(
 describe('RDP sequence with terminal C base validation and transformation', function() {
   describe('without stickyEnds', function() {
     it('should do nothing if terminal base is C', function() {
-      setSequence('AAC');
-      var rdpEdits = ensureLastBaseIs('C')(sequenceModel);
+      setBases('AAC');
+      var rdpEdits = ensureLastBaseIs('C').process(sequenceModel);
       expect(rdpEdits.length).toEqual(0);
 
       expect(getSequence()).toEqual('AAC');
@@ -235,8 +208,8 @@ describe('RDP sequence with terminal C base validation and transformation', func
       const ARGININE = 'CGC';
 
       _.each([LYSINE1, LYSINE2, ARGININE1, ARGININE2], function(codon) {
-        setSequence(INITIAL + codon);
-        var rdpEdits = ensureLastBaseIs('C')(sequenceModel);
+        setBases(INITIAL + codon);
+        var rdpEdits = ensureLastBaseIs('C').process(sequenceModel);
         var rdpEdit = rdpEdits[0];
         expect(rdpEdit.error).toBeUndefined();
         var type = ((codon === LYSINE1 || codon === LYSINE2) ?
@@ -271,8 +244,8 @@ describe('RDP sequence with terminal C base validation and transformation', func
       const LYSINE1 = 'AAA';
       const ARGININE = 'CGC';
 
-      setSequence(INITIAL + LYSINE1);
-      var rdpEdits = ensureLastBaseIs('C')(sequenceModel);
+      setBases(INITIAL + LYSINE1);
+      var rdpEdits = ensureLastBaseIs('C').process(sequenceModel);
       var rdpEdit = rdpEdits[0];
       expect(rdpEdit.contextBefore.sequence).toEqual((INITIAL + LYSINE1).slice(-9));
       expect(rdpEdit.contextBefore.contextualFrom).toEqual(3);
@@ -289,79 +262,14 @@ describe('RDP sequence with terminal C base validation and transformation', func
       const INITIAL = 'TGAAGA';
       const STOP_AMBER = 'TAG';
 
-      setSequence(INITIAL + STOP_AMBER);
-      var rdpEdits = ensureLastBaseIs('C')(sequenceModel);
+      setBases(INITIAL + STOP_AMBER);
+      var rdpEdits = ensureLastBaseIs('C').process(sequenceModel);
       var rdpEdit = rdpEdits[0];
       expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_BASE_IS_C);
       expect(rdpEdit.message).toEqual('The last base of sequence must be "C" but there is no replacement for the codon: "TAG".');
       expect(rdpEdit.level).toEqual(RdpEdit.levels.ERROR);
 
       expect(getSequence()).toEqual(INITIAL + STOP_AMBER);
-    });
-  });
-});
-
-
-describe('all RDP sequence validation and transformation', function() {
-  describe('without stickyEnds', function() {
-
-    it('should do nothing if no transformations to make', function() {
-      setSequence('ATGAAC', stickyEnds());
-      var rdpEdits = transformSequenceForRdp(sequenceModel);
-      expect(rdpEdits.length).toEqual(0);
-
-      expect(getSequence()).toEqual('ATGAAC');
-    });
-
-    it('should error if length is not a multiple of 3 and sequence is too short', function() {
-      setSequence('AC');
-      var rdpEdits = transformSequenceForRdp(sequenceModel);
-      expect(rdpEdits.length).toEqual(2);
-      expect(rdpEdits[0].type).toEqual(RdpEdit.types.NOT_MULTIPLE_OF_3);
-      expect(rdpEdits[0].level).toEqual(RdpEdit.levels.ERROR);
-      expect(rdpEdits[1].type).toEqual(RdpEdit.types.SEQUENCE_TOO_SHORT);
-      expect(rdpEdits[1].level).toEqual(RdpEdit.levels.ERROR);
-
-      expect(getSequence()).toEqual('AC');
-    });
-
-    it('should error if stickyEnds are present', function() {
-      var stickyEndz = stickyEnds();
-      setSequence('AC', undefined, stickyEndz);
-      var rdpEdits = transformSequenceForRdp(sequenceModel);
-      expect(rdpEdits.length).toEqual(1);
-      expect(rdpEdits[0].type).toEqual(RdpEdit.types.STICKY_ENDS_PRESENT);
-      expect(rdpEdits[0].level).toEqual(RdpEdit.levels.ERROR);
-
-      expect(getSequence()).toEqual(stickyEndz.start.sequence + 'AC' + stickyEndz.end.sequence);
-    });
-
-    it('should transform all', function() {
-      const LYSINE1 = 'AAA';
-      const ARGININE = 'CGC';
-      setSequence('GTGTAG' + LYSINE1, stickyEnds());
-      var rdpEdits = transformSequenceForRdp(sequenceModel);
-      expect(rdpEdits.length).toEqual(3);
-      expect(rdpEdits[0].type).toEqual(RdpEdit.types.METHIONINE_START_CODON_CONVERTED);
-      expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
-      expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_BASE_IS_C);
-      expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
-      expect(rdpEdits[2].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
-      expect(rdpEdits[2].level).toEqual(RdpEdit.levels.WARN);
-
-      expect(getSequence()).toEqual('ATGTAG' + ARGININE);
-    });
-
-    it('should transform all 2', function() {
-      setSequence('ACCTGTTTTAAAAAT', stickyEnds());
-      var rdpEdits = transformSequenceForRdp(sequenceModel);
-      expect(rdpEdits.length).toEqual(2);
-      expect(rdpEdits[0].type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
-      expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
-      expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_BASE_IS_C_NO_AA_CHANGE);
-      expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
-
-      expect(getSequence()).toEqual('ATGACCTGTTTTAAAAAC');
     });
   });
 });

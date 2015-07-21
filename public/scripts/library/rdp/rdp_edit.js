@@ -12,17 +12,19 @@ class RdpEdit {
    * @constructor
    * @param  {Object} attributes  Object containing the following keys:
    * @param  {String} attributes.type
+   * @param  {String} attributes.subType
    * @param  {undefined or Object or RdpSequenceFeature} attributes.contextBefore=undefined
    * @param  {undefined or Object or RdpSequenceFeature} attributes.contextAfter=undefined
    * @param  {String} attributes.message=undefined
    * @param  {String} attributes.level=undefined
    */
-  constructor({type, contextBefore, contextAfter, message, level = NORMAL}={}) {
+  constructor({type, subType, contextBefore, contextAfter, message, level = NORMAL}={}) {
     this.type = type;
     if(!this.type) throw new TypeError(`type cannot be: "${type}"`);
     if(!_.contains(_.values(RdpEdit.types), this.type)) {
       // throw new TypeError('type is unknown: ' + type);
     }
+    this.subType = subType;
     if(contextBefore && !(contextBefore instanceof RdpSequenceFeature)) {
       contextBefore = new RdpSequenceFeature(contextBefore);
     }

@@ -56,6 +56,15 @@ RdpTypes.types = _.reduce(types, (memo, val) => {
 _.deepFreeze(RdpTypes.types);
 
 
+RdpTypes.meta = {
+  proteinCoding: [
+    RdpTypes.types.CDS,
+    RdpTypes.types.MODIFIER,
+    RdpTypes.types.PROTEIN_LINKER,
+  ]
+};
+
+
 RdpTypes.availablePartTypes = function(isPcrPart, isOligoPart) {
   var partTypes = {};
   if(isPcrPart) {

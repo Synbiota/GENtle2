@@ -1,5 +1,6 @@
 import Sequence from '../../../sequence/models/sequence';
-import RdpEdit from '../../../library/rdp/rdp_edit';
+// import RdpEdit from '../../../library/rdp/rdp_edit';
+import RdpTypes from '../../../library/rdp/rdp_types';
 
 
 class WipPcrProductSequence extends Sequence {
@@ -23,8 +24,19 @@ class WipPcrProductSequence extends Sequence {
       'originalSequence',
       // TODO: add an association for rdpEdits ?
       'rdpEdits',
+      'partType',
     ]);
     return _.reject(fields, (field) => field === 'stickyEnds');
+  }
+
+  get isProteinCoding() {
+    var partType = this.get('partType');
+    return _.contains(RdpTypes.meta.proteinCoding, partType);
+  }
+
+  get isTerminator() {
+    var partType = this.get('partType');
+    return partType === RdpTypes.types.TERMINATOR;
   }
 
   getDesiredSequenceModel() {
