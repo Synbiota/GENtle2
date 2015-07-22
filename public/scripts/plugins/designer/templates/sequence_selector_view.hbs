@@ -2,6 +2,7 @@
   <button type="button" class="btn btn-default dropdown-toggle designer-sequence-selector-start-{{selectedSequence.startStickyEnd}} designer-sequence-selector-end-{{selectedSequence.endStickyEnd}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
     <div class="pull-right">&#x25BE;</div>
     <span class="designer-sequence-selector-button-label" data-default_label="Select {{label}}">
+      
       {{#if selectedSequence}}
         {{selectedSequence.name}}
       {{else}}
@@ -16,6 +17,7 @@
       </li>
     {{else}}
       <li class="designer-sequence-selector-empty">
+        
         Add {{label}}s to select them
       </li>
     {{/each}}
