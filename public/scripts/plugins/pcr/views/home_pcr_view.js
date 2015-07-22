@@ -9,6 +9,7 @@ import Filetypes from '../../../common/lib/filetypes/filetypes';
 import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import Gentle from 'gentle';
+import RdpTypes from 'gentle-rdp/rdp_types';
 
 
 export default Backbone.View.extend({
@@ -30,13 +31,15 @@ export default Backbone.View.extend({
   createNewSequence: function(event, loadedSequence) {
     event.preventDefault();
     var sequenceBases = loadedSequence.sequence;
-    var Klass, primaryView;
+    var Klass, primaryView, partType;
     if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 100) {
       Klass = WipRdpOligoSequence;
       primaryView = 'rdp_oligo';
+      partType = RdpTypes.types.MODIFIER;
     } else {
       Klass = WipRdpPcrSequence;
       primaryView = 'rdp_pcr';
+      partType = RdpTypes.types.CDS;
     }
     var name = loadedSequence.name + '-RDP';
     var sequence = new Klass({
@@ -47,6 +50,7 @@ export default Backbone.View.extend({
       },
       sourceSequenceName: loadedSequence.name,
       features: loadedSequence.features,
+      partType,
     });
 
     Gentle.addSequencesAndNavigate([sequence]);
