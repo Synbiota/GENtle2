@@ -57,7 +57,10 @@ var SettingsView = SidebarView.extend({
       title: 'Sequence history',
       icon: 'time',
       view: HistoryView,
-      maxHeighted: true
+      maxHeighted: true,
+      visible: function() {
+        return _this.parentView().primaryView.name != 'chromatograph'
+      }
     }, {
       name: 'features',
       title: 'Annotations',

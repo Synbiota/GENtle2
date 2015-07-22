@@ -5,6 +5,7 @@ import Gentle from 'gentle';
 import ContextMenuView from '../../common/views/context_menu_view';
 import ChromatographMapView from '../../chromatograph_map/views/chromatograph_map_view';
 import ChromatographLegendView from './chromatograph_legend_view';
+import ChromatographSettingsView from './chromatograph_settings_view';
 import LinearMapView from '../../linear_map/views/linear_map_view';
 import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
 // import MatchedEnzymesView from './matched_enzymes_view';
@@ -33,6 +34,19 @@ export default Backbone.View.extend({
 
     this.initSecondaryViews();
 
+
+    this.listenTo(this.model, 'change:chromatogramFragments', function(model, chromatogramFragments){
+      if (chromatogramFragments.length){
+        this.$el.find('.chromatograph-import-wrapper').hide();
+      } else {
+        this.$el.find('.chromatograph-import-wrapper').show();
+      }
+    })
+
+    var _this = this;
+    $(window).on('resize', function(){
+      _this.handleResizeTop()
+    });
   },
 
   initSecondaryViews: function(trigger) {
@@ -72,21 +86,19 @@ export default Backbone.View.extend({
     this.changeSecondaryView(currentView, false);
   },
 
-  handleResizeRight: function(trigger) {
-    // $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
-    //   // 'right': this.secondaryView.$el.width(),
-    //   // top: this.secondaryView.$el.outerHeight()
-    // });
+  // handleResizeRight: function(trigger) {
+  //   // $('#sequence-canvas-primary-view-outlet, .sequence-canvas-outlet').css({
+  //   //   // 'right': this.secondaryView.$el.width(),
+  //   //   // top: this.secondaryView.$el.outerHeight()
+  //   // });
 
-    if(trigger !== false) {
-      this.trigger('resize');
-      this.secondaryView.trigger('resize');
-    }
-  },
+  //   if(trigger !== false) {
+  //     this.trigger('resize');
+  //     this.secondaryView.trigger('resize');
+  //   }
+  // },
 
   handleResizeTop: function(trigger) {
-
-    console.log(this.$el.outerHeight() - this.secondaryView.$el.outerHeight())
 
     this.$('#sequence-canvas-main').css({
       height: this.$el.outerHeight() - this.secondaryView.$el.outerHeight(),
@@ -134,6 +146,20 @@ export default Backbone.View.extend({
   },
 
   afterRender: function() {
+
+    if (this.model.get('chromatogramFragments').length){
+      this.$el.find('.chromatograph-import-wrapper').hide();
+    } else {
+      this.$el.find('.chromatograph-import-wrapper').show();
+    }
+
+    var promptView = new ChromatographSettingsView({
+      model: this.model
+    });
+
+    this.setView('.chromatograph-import-prompt', promptView);
+
+    promptView.render();
 
 
     var legendView = new ChromatographLegendView({
