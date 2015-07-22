@@ -1,6 +1,6 @@
 test:
   override:
-    - ./node_modules/karma/bin/karma start --single-run --reporters dots
+    - npm test
 
 deployment:
   nightly:

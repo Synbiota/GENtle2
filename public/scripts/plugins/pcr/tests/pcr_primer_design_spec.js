@@ -124,7 +124,7 @@ describe('calculating PCR primers', function() {
       done();
     })
     .catch(function(e) {
-      expect(e.toString()).toEqual('e: `sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer');
+      expect(/`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(e.toString())).toEqual(true);
       done();
     })
     .done();
