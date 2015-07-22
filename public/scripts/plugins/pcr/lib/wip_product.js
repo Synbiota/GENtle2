@@ -1,94 +1,25 @@
-import Sequence from '../../../sequence/models/sequence';
-import RdpEdit from '../../../library/rdp/rdp_edit';
-import RdpTypes from '../../../library/rdp/rdp_types';
-import {transformSequenceForRdp} from 'gentle-rdp/rdp_sequence_transform';
+import SequencesCollection from '../../../sequence/models/sequences';
+import WipRdpAbstractSequence from 'gentle-rdp/wip_rdp_abstract_sequence';
+// import RdpEdit from 'gentle-rdp/rdp_edit';
+import RdpTypes from 'gentle-rdp/rdp_types';
 
 
-class WipPcrProductSequence extends Sequence {
+var wip_rdp_pcr_product = 'wip_rdp_pcr_product';
+
+
+class WipRdpPcrSequence extends WipRdpAbstractSequence {
   constructor(attributes, ...other) {
-    var wip_pcr_product = 'wip_pcr_product';
-    if(attributes._type && attributes._type !== wip_pcr_product) {
-      throw new TypeError(`WipPcrProductSequence expected _type of "${wip_pcr_product}" but was "${attributes._type}"`);
-    }
-    attributes._type = wip_pcr_product;
+    attributes.Klass = WipRdpPcrSequence;
+    attributes.types = RdpTypes.pcrTypes;
     super(attributes, ...other);
-  }
-
-  get optionalFields() {
-    var fields = super.optionalFields.concat([
-      'sourceSequenceName',
-      'desiredStickyEnds',
-      // Define the portion of the template sequence that should be used in
-      // the final PCR product
-      'frm', // inclusive
-      'size',
-      'originalSequence',
-      // We need rdpEdits to instantiate the non-WIP RDP SequenceModel
-      // TODO: add an association for rdpEdits ?
-      'rdpEdits',
-      'partType',
-    ]);
-    return _.reject(fields, (field) => field === 'stickyEnds');
-  }
-
-  get isProteinCoding() {
-    var partType = this.get('partType');
-    return _.contains(RdpTypes.meta.proteinCoding, partType);
-  }
-
-  get isTerminator() {
-    var partType = this.get('partType');
-    return partType === RdpTypes.types.TERMINATOR;
-  }
-
-  get availablePartTypes() {
-    return _.keys(RdpTypes.pcrTypes);
-  }
-
-  get availableStickyEndNames() {
-    var partType = this.get('partType');
-    var partTypeInfo = RdpTypes.pcrTypes[partType] || {stickyEndNames: []};
-    return _.clone(partTypeInfo.stickyEndNames);
-  }
-
-  /**
-   * @method  transformSequenceForRdp
-   * @return {array<RdpEdit>}
-   */
-  transformSequenceForRdp() {
-    this.validate();
-
-    var rdpEdits = transformSequenceForRdp(this);
-    this.set({rdpEdits});
-    return rdpEdits;
-  }
-
-  validate() {
-    var desiredStickyEnds = this.get('desiredStickyEnds');
-    if(!(desiredStickyEnds && desiredStickyEnds.start && desiredStickyEnds.end)) {
-      throw new TypeError('Must provide "desiredStickyEnds"');
-    }
-    var partType = this.get('partType');
-    if(!_.contains(this.availablePartTypes, partType)) {
-      throw new TypeError(`Invalid partType: "${partType}"`);
-    }
-    if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {
-      throw new TypeError(`Invalid desiredStickyEnd: "${desiredStickyEnds.name}"`);
-    }
-  }
-
-  errors() {
-    var rdpEdits = this.get('rdpEdits');
-    return _.filter(rdpEdits, (rdpEdit) => rdpEdit.level === RdpEdit.levels.ERROR);
+    this.set({_type: wip_rdp_pcr_product}, {silent: true});
   }
 
   getDataAndOptionsForPcr() {
-    // var findWhere = (type) => _.findWhere(rdpEdits, {type});
-
     // stickyEnds not yet present on transformedSequence so we don't need to
     // specify any stickyEnd format
 
-    // OPTIMISE:  use the `originalSequence` value to calculate which bases of
+    // OPTIMISE:  use the `originalSequenceBases` value to calculate which bases of
     // the template can still contribute to the PCR primers.
     // e.g. the `TG` of `TTG` converted to `ATG` can be used as part of the
     // annealing region of the forward primer
@@ -104,8 +35,7 @@ class WipPcrProductSequence extends Sequence {
       // sequence used to make the forward PCR primer.
       frm = 3;
 
-      // // OPTIMISE:  see above.
-      // var methionineAdded = findWhere(RdpEdit.types.METHIONINE_START_CODON_ADDED);
+      // TODO: OPTIMISE:  see above.
       startBasesDifferentToTemplate = 0;
     }
 
@@ -121,7 +51,7 @@ class WipPcrProductSequence extends Sequence {
     var endBasesDifferentToTemplate = 2;
 
     var dataAndOptionsForPcr = {
-      from: frm,  // TODO remove this
+      from: frm,  // TODO remove the `from` and replace with `frm`
       startBasesDifferentToTemplate,
       to,
       endBasesDifferentToTemplate,
@@ -133,27 +63,9 @@ class WipPcrProductSequence extends Sequence {
 }
 
 
-WipPcrProductSequence.getRdpCompliantSequenceModel = function(attributes) {
-  var desiredWipRdpSequence = WipPcrProductSequence.getDesiredSequenceModel(attributes);
-  desiredWipRdpSequence.transformSequenceForRdp();
-  return desiredWipRdpSequence;
-}
+SequencesCollection.registerConstructor(WipRdpPcrSequence, wip_rdp_pcr_product);
+// LEGACY
+var old_wip_pcr_product = 'wip_pcr_product';
+SequencesCollection.registerConstructor(WipRdpPcrSequence, old_wip_pcr_product);
 
-
-WipPcrProductSequence.getDesiredSequenceModel = function(attributes) {
-  if(attributes.stickyEnds) {
-    throw new TypeError('attributes for getDesiredSequenceModel must not contain stickyEnds');
-  }
-  attributes.originalSequence = attributes.sequence;
-  var newSequenceModel = new WipPcrProductSequence(attributes);
-
-  // Delete the bases
-  var topFrm = attributes.frm + attributes.size;
-  var remaining = attributes.originalSequence.length - topFrm;
-  if(remaining > 0) newSequenceModel.deleteBases(topFrm, remaining, WipPcrProductSequence.STICKY_END_ANY);
-  if(attributes.frm > 0 ) newSequenceModel.deleteBases(0, attributes.frm, WipPcrProductSequence.STICKY_END_ANY);
-  return newSequenceModel;
-}
-
-
-export default WipPcrProductSequence;
+export default WipRdpPcrSequence;
