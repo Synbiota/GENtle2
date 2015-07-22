@@ -228,12 +228,7 @@ gulp.task('test', ['test:watch'], function() {
 });
 
 gulp.task('test:headless', ['test:build'], function() {
-  var files = [
-    './public/scripts/vendor.js', 
-    './public/scripts/all_specs.min.js'
-  ];
-
-  return gulp.src(files)
+  return gulp.src(specFiles)
     .pipe(jasmineBrowser.specRunner({console: true}))
     .pipe(jasmineBrowser.headless());
 });
