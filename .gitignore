@@ -27,3 +27,5 @@ log
 disc*.html
 public/index.html
 .env
+
+public/scripts/all_specs.min.js

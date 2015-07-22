@@ -299,7 +299,7 @@ describe('getting sequence to search for primer', function() {
   it('errors if frm is too large (and the forward sequence is requested)', function() {
     constructPrimerModel(36, false);
     expect(errors.length).toEqual(1);
-    expect(errors[0].toString()).toEqual("e: `sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
+    expect(errors[0].toString()).toEqual("SequenceTooShort: `sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
   });
 
   it('returns the reverse sequence, defaulting to end', function() {
@@ -324,6 +324,6 @@ describe('getting sequence to search for primer', function() {
   it('errors when sequence is too small and the reverse strand is requested', function() {
     constructPrimerModel(0, true, 41);
     expect(errors.length).toEqual(1);
-    expect(errors[0].toString()).toEqual("e: sequence is too short to leave enough sequence length to find the primer");
+    expect(errors[0].toString()).toEqual("SequenceTooShort: sequence is too short to leave enough sequence length to find the primer");
   });
 });
