@@ -44,9 +44,13 @@ export default Backbone.View.extend({
     })
 
     var _this = this;
+
+    // Fix this later, this is a zombie bind.
     $(window).on('resize', function(){
       _this.handleResizeTop()
     });
+
+
   },
 
   initSecondaryViews: function(trigger) {
