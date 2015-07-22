@@ -178,15 +178,11 @@ export default Backbone.View.extend({
       'partType',
       'shortName',
       'desc',
-      'sourceSequenceName'
+      'sourceSequenceName',
+      'from',
+      'to',
+      'targetMeltingTemperature'
     );
-    if(!this.hasRdpOligoSequence) {
-      _.extend(data, _.pick(this.state,
-        'from',
-        'to',
-        'targetMeltingTemperature'
-      ));
-    }
     data.sequence = this.model.getSequence(this.model.STICKY_END_ANY);
     data.features = this.model.getFeatures();
     data.desiredStickyEnds = this.getStickyEnds();
@@ -239,26 +235,12 @@ export default Backbone.View.extend({
     var data = this.getData();
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
-
-      // var stickyEnds = this.getStickyEnds();
-      // var start = stickyEnds.start;
-      // start.sequence = start.sequence.substr(start.offset, start.size);
-      // start.offset = 0;
-      // var end = stickyEnds.end;
-      // end.sequence = end.sequence.substr(0, end.size);
-      // end.offset = 0;
-
-      // stickyEnds not yet present on transformedSequence so we don't need to
-      // specify any stickyEnd format
-      data.sequence = wipRdpOligoSequence.getSequence(wipRdpOligoSequence.STICKY_END_ANY);
-      data.features = wipRdpOligoSequence.getFeatures(wipRdpOligoSequence.STICKY_END_ANY);
-      // data.sequence = data.stickyEnds.start.sequence + sequenceBases + data.stickyEnds.end.sequence;
+      data.stickyEnds = this.getStickyEnds();
+      var newRdpOligoSequence = wipRdpOligoSequence.getRdpOligoSequence(data);
 
       // ensures Gentle routes view to the RDP oligo product result view
-      data.displaySettings = data.displaySettings || {};
-      data.displaySettings.primaryView = 'rdp_oligo';
+      newRdpOligoSequence.set('displaySettings.primaryView', 'rdp_oligo');
 
-      var newRdpOligoSequence = new RdpOligoSequence(data);
       Gentle.sequences.add(newRdpOligoSequence);
       this.model.destroy();
       Gentle.router.sequence(newRdpOligoSequence.get('id'));

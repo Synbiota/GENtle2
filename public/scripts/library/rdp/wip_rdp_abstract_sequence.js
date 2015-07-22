@@ -88,7 +88,10 @@ class WipRdpAbstractSequence extends Sequence {
 
   getDesiredSequenceModel(attributes) {
     if(attributes.stickyEnds) {
-      throw new TypeError('attributes for getDesiredSequenceModel must not contain stickyEnds');
+      throw new TypeError('attributes for getDesiredSequenceModel must not contain "stickyEnds"');
+    }
+    if(attributes.frm === undefined || attributes.size === undefined) {
+      throw new TypeError('attributes for getDesiredSequenceModel must specify "frm" and "size"');
     }
     attributes.originalSequenceBases = attributes.sequence;
     var newSequenceModel = new this.Klass(attributes);

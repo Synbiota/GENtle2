@@ -152,14 +152,14 @@ describe('calculateTransformationFunctionInstances', function() {
 
 
   describe('for RDP oligo', function() {
-    it("RBS Z-X'", function() {
+    xit("RBS Z-X'", function() {
       setOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.RBS);
       var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
       expect(transforms.length).toEqual(1);
       expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.FIRST_CODON_IS_STOP);
     });
 
-    it("Terminator Z-X'", function() {
+    xit("Terminator Z-X'", function() {
       setOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.TERMINATOR);
       var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
       expect(transforms.length).toEqual(1);
