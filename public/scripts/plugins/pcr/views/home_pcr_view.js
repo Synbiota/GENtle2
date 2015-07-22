@@ -6,7 +6,7 @@
 import Backbone from 'backbone';
 import template from '../templates/home_pcr_view.hbs';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
-import WipPcrProductSequence from '../lib/wip_product';
+import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import Gentle from 'gentle';
 
@@ -35,7 +35,7 @@ export default Backbone.View.extend({
       Klass = WipRdpOligoSequence;
       primaryView = 'rdp_oligo';
     } else {
-      Klass = WipPcrProductSequence;
+      Klass = WipRdpPcrSequence;
       primaryView = 'rdp_pcr';
     }
     var name = loadedSequence.name + '-RDP';

@@ -7,7 +7,7 @@ import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
-import WipPcrProductSequence from '../lib/wip_product';
+import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
@@ -39,7 +39,7 @@ export default Backbone.View.extend({
     this.model = Gentle.currentSequence;
     if(this.model instanceof RdpPcrSequence || this.model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
-    } else if(this.model instanceof WipPcrProductSequence || this.model instanceof WipRdpOligoSequence) {
+    } else if(this.model instanceof WipRdpPcrSequence || this.model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
     }
     // var args = {model: this.model};

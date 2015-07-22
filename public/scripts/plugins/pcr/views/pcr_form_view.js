@@ -1,6 +1,5 @@
 import Gentle from 'gentle';
 import template from '../templates/pcr_form_view.hbs';
-import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import allStickyEnds from '../../../common/lib/sticky_ends';
 import Modal from '../../../common/views/modal_view';
 import EditsView from './pcr_edits_view';

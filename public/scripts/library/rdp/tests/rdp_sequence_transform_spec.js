@@ -1,5 +1,5 @@
 import {stubCurrentUser} from '../../../common/tests/stubs';
-import WipPcrProductSequence from '../../../plugins/pcr/lib/wip_product';
+import WipRdpPcrSequence from '../../../plugins/pcr/lib/wip_rdp_pcr_sequence';
 import RdpEdit from '../rdp_edit';
 import RdpTypes from '../rdp_types';
 
@@ -70,7 +70,8 @@ stubCurrentUser();
 var sequenceModel;
 
 beforeEach(function() {
-  sequenceModel = new WipPcrProductSequence(sequenceAttributes);
+  sequenceModel = new WipRdpPcrSequence(sequenceAttributes);
+  // oligoSequenceModel = new WipOligoProductSequence(sequenceAttributes);
 
   ([
     sequenceModel
