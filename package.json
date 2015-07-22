@@ -94,7 +94,7 @@
   "scripts": {
     "start": "nf start webdev,doc",
     "build": "./node_modules/.bin/gulp build",
-    "test": "./node_modules/.bin/gulp js:vendor test:headless",
+    "test": "./node_modules/.bin/gulp js:vendor && ./node_modules/.bin/gulp test:headless",
     "test-debug": "./node_modules/karma/bin/karma start --single-run=false",
     "watch": "./node_modules/.bin/gulp"
   }
