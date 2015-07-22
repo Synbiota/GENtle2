@@ -10,39 +10,39 @@ var BOTH = [XZ, ZX];
 
 RdpTypes.pcrTypes = {
   CDS: {
-    stickyEnds: [XZ],
+    stickyEndNames: [XZ],
   },
   MODIFIER: {
-    stickyEnds: BOTH, // We should favour XZ
+    stickyEndNames: BOTH, // We should favour XZ
   },
   OTHER: {
-    stickyEnds: BOTH,
+    stickyEndNames: BOTH,
   },
 };
 _.deepFreeze(RdpTypes.pcrTypes);
 
 
 RdpTypes.oligoTypes = {
-  RBS: {
-    stickyEnds: [ZX],
-  },
-  TERMINATOR: {
-    stickyEnds: [ZX],
-  },
+  // RBS: {
+  //   stickyEndNames: [ZX],
+  // },
+  // TERMINATOR: {
+  //   stickyEndNames: [ZX],
+  // },
   MODIFIER: {
-    stickyEnds: BOTH,
+    stickyEndNames: BOTH,
   },
   PROTEIN_LINKER: {
-    stickyEnds: [ZX],
+    stickyEndNames: [ZX],
   },
   PROMOTER: {
-    stickyEnds: BOTH,
+    stickyEndNames: BOTH,
   },
   OPERATOR: {
-    stickyEnds: BOTH,
+    stickyEndNames: BOTH,
   },
   OTHER: {
-    stickyEnds: BOTH,
+    stickyEndNames: BOTH,
   },
 };
 _.deepFreeze(RdpTypes.oligoTypes);
@@ -62,28 +62,6 @@ RdpTypes.meta = {
     RdpTypes.types.MODIFIER,
     RdpTypes.types.PROTEIN_LINKER,
   ]
-};
-
-
-RdpTypes.availablePartTypes = function(isPcrPart, isOligoPart) {
-  var partTypes = {};
-  if(isPcrPart) {
-    partTypes = RdpTypes.pcrTypes;
-  } else if(isOligoPart) {
-    partTypes = RdpTypes.oligoTypes;
-  }
-  return _.keys(partTypes);
-};
-
-
-RdpTypes.availableStickyEnds = function(partType, isPcrPart, isOligoPart) {
-  var stickyEnds = [];
-  if(isPcrPart) {
-    stickyEnds = RdpTypes.pcrTypes[partType].stickyEnds;
-  } else if(isOligoPart) {
-    stickyEnds = RdpTypes.oligoTypes[partType].stickyEnds;
-  }
-  return _.clone(stickyEnds);
 };
 
 

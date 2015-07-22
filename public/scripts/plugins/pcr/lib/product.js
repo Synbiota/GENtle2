@@ -1,13 +1,16 @@
 import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
-import Sequence from '../../../sequence/models/sequence';
+import SequenceModel from '../../../sequence/models/sequence';
+import SequencesCollection from '../../../sequence/models/sequences';
 import PcrPrimer from './pcr_primer';
 
 
-class PcrProductSequence extends Sequence {
+var pcr_product = 'pcr_product';
+
+class PcrProductSequence extends SequenceModel {
   constructor(attrs, ...args) {
     attrs.readOnly = true;
     super(attrs, ...args);
-    this.set({_type: 'pcr_product'}, {silent: true});
+    this.set({_type: pcr_product}, {silent: true});
   }
 
   get requiredFields() {
@@ -35,5 +38,6 @@ PcrProductSequence.registerPreProcessor(version1reversePrimerPreProcessor);
 PcrProductSequence.registerAssociation(PcrPrimer, 'forwardPrimer', false);
 PcrProductSequence.registerAssociation(PcrPrimer, 'reversePrimer', false);
 
+SequencesCollection.registerConstructor(PcrProductSequence, pcr_product);
 
 export default PcrProductSequence;

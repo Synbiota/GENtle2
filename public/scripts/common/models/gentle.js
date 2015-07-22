@@ -62,5 +62,9 @@ export default _.extend(Gentle, Backbone.Events, {
 
   featureEnabled(feature) {
     return this.featureFlag(feature)();
+  },
+
+  featuresEnabledState() {
+    return _.clone(featureFlagFunctions);
   }
 });

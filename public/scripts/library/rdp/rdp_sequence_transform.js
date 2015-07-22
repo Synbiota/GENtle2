@@ -1,45 +1,31 @@
 import _ from 'underscore';
 import RdpEdit from './rdp_edit';
-import RdpTypes from './rdp_types';
 import {
   methionineStartCodon,
   noTerminalStopCodons,
   ensureLastBaseIs,
+  firstCodonIsStop,
   warnIfEarlyStopCodons,
 } from './sequence_transform';
 
 
 
 var calculateTransformationFunctionInstances = function(sequenceModel) {
-  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
-  if(!desiredStickyEnds) {
-    throw new TypeError('Must provide "desiredStickyEnds"');
-  }
   var transforms = [];
-  var partType = sequenceModel.get('partType');
-
-  if(partType === RdpTypes.types.CDS) {
-    transforms = [
-      methionineStartCodon,
-      noTerminalStopCodons
-    ];
-  } else if(partType === RdpTypes.types.MODIFIER) {
-    if(desiredStickyEnds.name === 'X') {
-      transforms = [
-        methionineStartCodon
-      ];
-    }
-    transforms.push(noTerminalStopCodons);
-  }
-
-  var lastBaseMustBe;
-  if(desiredStickyEnds.end && desiredStickyEnds.end.sequence) {
-    lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
-  }
-  transforms.push(ensureLastBaseIs(lastBaseMustBe));
+  var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
 
   if(sequenceModel.isProteinCoding) {
+    if(desiredStickyEnds.start.name === 'X') {
+      transforms.push(methionineStartCodon);
+    }
+    transforms.push(noTerminalStopCodons);
+
+    var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
+    transforms.push(ensureLastBaseIs(lastBaseMustBe));
+
     transforms.push(warnIfEarlyStopCodons);
+  } else if(sequenceModel.isRBS || sequenceModel.isTerminator) {
+    transforms.push(firstCodonIsStop);
   }
 
   return transforms;
@@ -68,7 +54,8 @@ var checkForFatalErrors = function(sequenceModel, transformationFunctionInstance
 
 
 /**
- * @function  transformSequenceForRdp
+ * @function  transformSequenceForRdp  Should not be called directly.  Instead
+ *            use the sequenceModel's transformSequenceForRdp
  * @param  {SequenceModel}  sequenceModel
  * @return {Array<RdpEdit>}
  */
