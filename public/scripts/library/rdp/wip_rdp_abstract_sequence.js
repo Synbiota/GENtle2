@@ -18,10 +18,21 @@ class WipRdpAbstractSequence extends Sequence {
     super(attributes, ...other);
     this.Klass = Klass;
     this.types = types;
+
+    // Set a default for the partType
+    if(!this.validPartType(this.get('partType'))) {
+      var defaultPartType = this.availablePartTypes[0];
+      if(!defaultPartType) throw new Error('No default partType set');
+      this.set({'partType': defaultPartType}, {silent: true});
+    }
   }
 
   get availablePartTypes() {
     return _.keys(this.types);
+  }
+
+  validPartType(partType) {
+    return _.contains(this.types, partType);
   }
 
   get availableStickyEndNames() {

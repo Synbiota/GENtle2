@@ -15,8 +15,10 @@ const rdpLabels = ['CDS', 'RBS'].concat(_.pluck(allStickyEnds(), 'name'));
 
 var convertForSelect = function(values) {
   return _.map(values, (value) => {
+    var humanisedName = _.includes(rdpLabels, value) ? value : _.ucFirst(value, true);
+    humanisedName = humanisedName.replace('_', ' ');
     return {
-      name: _.includes(rdpLabels, value) ? value : _.ucFirst(value, true), 
+      name: humanisedName,
       value
     };
   });
@@ -43,7 +45,7 @@ export default Backbone.View.extend({
     }
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
-    var partType = RdpTypes.types.CDS;
+    var partType = this.model.get('partType');
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
@@ -53,8 +55,6 @@ export default Backbone.View.extend({
       targetMeltingTemperature: 68.5, 
       partType,
     });
-    // `availableStickyEndNameOptions()` requires updated this.state.partType
-    this.model.set({partType});
     this.validateState();
   },
 
