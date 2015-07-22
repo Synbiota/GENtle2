@@ -4,6 +4,7 @@ import {
   methionineStartCodon,
   noTerminalStopCodons,
   ensureLastBaseIs,
+  firstCodonIsStop,
   warnIfEarlyStopCodons,
 } from './sequence_transform';
 
@@ -11,23 +12,20 @@ import {
 
 var calculateTransformationFunctionInstances = function(sequenceModel) {
   var transforms = [];
-  var partType = sequenceModel.get('partType');
   var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
 
   if(sequenceModel.isProteinCoding) {
     if(desiredStickyEnds.start.name === 'X') {
-      transforms = [
-        methionineStartCodon
-      ];
+      transforms.push(methionineStartCodon);
     }
     transforms.push(noTerminalStopCodons);
-  }
 
-  var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
-  transforms.push(ensureLastBaseIs(lastBaseMustBe));
+    var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
+    transforms.push(ensureLastBaseIs(lastBaseMustBe));
 
-  if(sequenceModel.isProteinCoding) {
     transforms.push(warnIfEarlyStopCodons);
+  } else if(sequenceModel.isRBS || sequenceModel.isTerminator) {
+    transforms.push(firstCodonIsStop);
   }
 
   return transforms;

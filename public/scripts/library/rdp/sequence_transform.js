@@ -4,8 +4,6 @@ import data from '../../common/lib/synbio_data';
 import SequenceRange from '../sequence-model/range';
 import RdpSequenceFeature from './rdp_sequence_feature';
 import RdpEdit from './rdp_edit';
-import RdpTypes from './rdp_types';
-import WipRdpOligoSequence from './wip_rdp_oligo_sequence';
 
 
 var CONTEXT_BASE_PAIRS = 9;
@@ -560,6 +558,11 @@ var ensureLastBaseIs = function(ensureBase) {
 };
 
 
+var firstCodonIsStop = function() {
+  // STUB.  TODO: implement
+  return [];
+};
+
 
 requirements = [
   warnIfNotMultipleOf3,
@@ -603,5 +606,6 @@ export default {
   methionineStartCodon,
   noTerminalStopCodons,
   ensureLastBaseIs,
+  firstCodonIsStop,
   warnIfEarlyStopCodons,
 };

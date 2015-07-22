@@ -54,9 +54,19 @@ class WipRdpAbstractSequence extends Sequence {
     return _.contains(RdpTypes.meta.proteinCoding, partType);
   }
 
+  get isRBS() {
+    var partType = this.get('partType');
+    return partType === RdpTypes.types.RBS;
+  }
+
   get isTerminator() {
     var partType = this.get('partType');
     return partType === RdpTypes.types.TERMINATOR;
+  }
+
+  get isOtherPartType() {
+    var partType = this.get('partType');
+    return partType === RdpTypes.types.OTHER;
   }
 
   getRdpCompliantSequenceModel(attributes) {
