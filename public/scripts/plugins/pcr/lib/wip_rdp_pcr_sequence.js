@@ -29,26 +29,40 @@ class WipRdpPcrSequence extends WipRdpAbstractSequence {
     var frm = 0;
     var startBasesDifferentToTemplate = 0;
     if(this.get('desiredStickyEnds').start.name === "X") {
-      // Irrespective of if a Methionine start codon was already present, added,
-      // or converted from a similar start codon, we need to discount the
-      // first 3 bases so that the ATG then comes from the start stickyEnd
-      // sequence used to make the forward PCR primer.
-      frm = 3;
+      if(this.isProteinCoding) {
+        // Irrespective of if a Methionine start codon was already present, added,
+        // or converted from a similar start codon, we need to discount the
+        // first 3 bases so that the ATG then comes from the start stickyEnd
+        // sequence used to make the forward PCR primer.
+        frm = 3;
+      } else {
+        // TODO: add a test for this
+        frm = 0;
+      }
 
       // TODO: OPTIMISE:  see above.
       startBasesDifferentToTemplate = 0;
     }
 
-    // Irrespective of if the transformation involved converting the last base
-    // into a C or G, we will exclude the last 3 bases from the sequence so
-    // that they are not used to make the PCR primers.
-    var to = this.getLength(this.STICKY_END_ANY) - 2; // the C of TTC or
-    // G of CCG should not be included as this will come from the stickyEnd
-    // NOTE:  `-2` because `to` for `getPcrProductAndPrimers` is inclusive.
+    var to;
+    var endBasesDifferentToTemplate;
+    if(this.isProteinCoding) {
+      // Irrespective of if the transformation involved converting the last base
+      // into a C or G, we will exclude the last 3 bases from the sequence so
+      // that they are not used to make the PCR primers.
+      to = this.getLength(this.STICKY_END_ANY) - 2; // the C of TTC or
+      // G of CCG should not be included as this will come from the stickyEnd
+      // NOTE:  `-2` because `to` for `getPcrProductAndPrimers` is inclusive.
 
-    // We assume the TT of TTC is different from the original sequence.
-    // TODO: OPTIMISE:  see above.
-    var endBasesDifferentToTemplate = 2;
+      // We assume the TT of TTC is different from the original sequence.
+      // TODO: OPTIMISE:  see above.
+      endBasesDifferentToTemplate = 2;
+    } else {
+      // TODO: add a test for these
+      // NOTE:  `-1` because `to` for `getPcrProductAndPrimers` is inclusive.
+      to = this.getLength(this.STICKY_END_ANY) - 1;
+      endBasesDifferentToTemplate = 0;
+    }
 
     var dataAndOptionsForPcr = {
       from: frm,  // TODO remove the `from` and replace with `frm`
