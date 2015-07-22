@@ -43,6 +43,7 @@ export default Backbone.View.extend({
     }
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
+    var partType = RdpTypes.types.CDS;
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
@@ -50,8 +51,10 @@ export default Backbone.View.extend({
       sourceSequenceName: this.model.get('sourceSequenceName'),
     }, this.model.get('meta.pcr.defaults') || {}, {
       targetMeltingTemperature: 68.5, 
-      partType: RdpTypes.types.CDS
+      partType,
     });
+    // `availableStickyEndNameOptions()` requires updated this.state.partType
+    this.model.set({partType});
     this.validateState();
   },
 
@@ -69,13 +72,11 @@ export default Backbone.View.extend({
   },
 
   availablePartTypes: function() {
-    var partTypes = this.model.availablePartTypes();
-    return convertForSelect(partTypes);
+    return convertForSelect(this.model.availablePartTypes);
   },
 
   availableStickyEndNameOptions: function() {
-    var stickyEndNames = this.model.availableStickyEndNames();
-    return convertForSelect(stickyEndNames);
+    return convertForSelect(this.model.availableStickyEndNames);
   },
 
   afterRender: function() {

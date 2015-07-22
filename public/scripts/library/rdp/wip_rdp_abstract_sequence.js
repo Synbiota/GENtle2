@@ -9,11 +9,15 @@ class WipRdpAbstractSequence extends Sequence {
   constructor(attributes, ...other) {
     if(!attributes.Klass) throw new TypeError('Must provide Klass attribute');
     if(!attributes.types) throw new TypeError('Must provide types attribute');
-    this.Klass = attributes.Klass;
-    this.types = _.clone(attributes.types);
-    attributes.readOnly = true;
+    var Klass = attributes.Klass;
+    var types = _.clone(attributes.types);
     delete attributes.Klass;
+    delete attributes.types;
+
+    attributes.readOnly = true;
     super(attributes, ...other);
+    this.Klass = Klass;
+    this.types = types;
   }
 
   get availablePartTypes() {
@@ -55,37 +59,6 @@ class WipRdpAbstractSequence extends Sequence {
     return partType === RdpTypes.types.TERMINATOR;
   }
 
-  /**
-   * @method  transformSequenceForRdp
-   * @return {array<RdpEdit>}
-   */
-  transformSequenceForRdp() {
-    this.validate();
-
-    var rdpEdits = transformSequenceForRdp(this);
-    this.set({rdpEdits});
-    return rdpEdits;
-  }
-
-  validate() {
-    var desiredStickyEnds = this.get('desiredStickyEnds');
-    if(!(desiredStickyEnds && desiredStickyEnds.start && desiredStickyEnds.end)) {
-      throw new TypeError('Must provide "desiredStickyEnds"');
-    }
-    var partType = this.get('partType');
-    if(!_.contains(this.availablePartTypes, partType)) {
-      throw new TypeError(`Invalid partType: "${partType}"`);
-    }
-    if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {
-      throw new TypeError(`Invalid desiredStickyEnd: "${desiredStickyEnds.name}"`);
-    }
-  }
-
-  errors() {
-    var rdpEdits = this.get('rdpEdits');
-    return _.filter(rdpEdits, (rdpEdit) => rdpEdit.level === RdpEdit.levels.ERROR);
-  }
-
   getRdpCompliantSequenceModel(attributes) {
     var desiredWipRdpSequence = this.getDesiredSequenceModel(attributes);
     desiredWipRdpSequence.transformSequenceForRdp();
@@ -107,6 +80,37 @@ class WipRdpAbstractSequence extends Sequence {
     return newSequenceModel;
   }
 
+  /**
+   * @method  transformSequenceForRdp
+   * @throw  {TypeError} If the sequence is invalid
+   * @return {array<RdpEdit>}
+   */
+  transformSequenceForRdp() {
+    this.validationBeforeTransform();
+
+    var rdpEdits = transformSequenceForRdp(this);
+    this.set({rdpEdits});
+    return rdpEdits;
+  }
+
+  validationBeforeTransform() {
+    var desiredStickyEnds = this.get('desiredStickyEnds');
+    if(!(desiredStickyEnds && desiredStickyEnds.start && desiredStickyEnds.end)) {
+      throw new TypeError('Must provide "desiredStickyEnds"');
+    }
+    var partType = this.get('partType');
+    if(!_.contains(this.availablePartTypes, partType)) {
+      throw new TypeError(`Invalid partType: "${partType}"`);
+    }
+    if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {
+      throw new TypeError(`Invalid desiredStickyEnd: "${desiredStickyEnds.name}"`);
+    }
+  }
+
+  errors() {
+    var rdpEdits = this.get('rdpEdits');
+    return _.filter(rdpEdits, (rdpEdit) => rdpEdit.level === RdpEdit.levels.ERROR);
+  }
 }
 
 
