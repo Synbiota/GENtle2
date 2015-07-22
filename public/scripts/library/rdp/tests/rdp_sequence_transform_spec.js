@@ -3,6 +3,10 @@ import WipRdpPcrSequence from '../../../plugins/pcr/lib/wip_rdp_pcr_sequence';
 import WipRdpOligoSequence from '../wip_rdp_oligo_sequence';
 import RdpEdit from '../rdp_edit';
 import RdpTypes from '../rdp_types';
+import {
+  stickyEndsXZ,
+  stickyEndsZX,
+} from './fixtures';
 
 import {
   calculateTransformationFunctionInstances,
@@ -10,45 +14,6 @@ import {
 
 
 var initialSequenceContent = 'GTGTAG';
-var stickyEndsXZ = function() {
-  return {
-    start: {
-      sequence: 'C' + 'GATG',
-      reverse: false,
-      offset: 1,
-      size: 4,
-      name: "X",
-    },
-    end: {
-      sequence: 'CGGC' + 'TA',
-      reverse: true,
-      offset: 2,
-      size: 4,
-      name: "Z'",
-    },
-    name: "X-Z'",
-  };
-};
-
-var stickyEndsZX = function() {
-  return {
-    start: {
-      sequence: 'TA' + 'CGGC',
-      reverse: false,
-      offset: 2,
-      size: 4,
-      name: "Z",
-    },
-    end: {
-      sequence: 'GATG' + 'C',
-      reverse: true,
-      offset: 1,
-      size: 4,
-      name: "X'",
-    },
-    name: "Z-X'",
-  };
-};
 
 var sequenceAttributes = {
   name: 'Test sequence',
@@ -86,6 +51,12 @@ var setOligoSequence = function(bases, desiredStickyEnds=undefined, partType='CD
 var getSequence = function() {
   return sequenceModel.getSequence(sequenceModel.STICKY_END_FULL);
 };
+
+var getOligoSequence = function() {
+  return oligoSequenceModel.getSequence(oligoSequenceModel.STICKY_END_FULL);
+};
+
+
 var sequenceModel, oligoSequenceModel;
 
 
@@ -363,6 +334,21 @@ describe('RDP sequence transforms', function() {
 
         expect(getSequence()).toEqual('ATGACCTGTTTTAAAAAC');
       });
+
+      it('should transform oligo', function() {
+        setOligoSequence('GTGTAGAAATAG', stickyEndsZX(), RdpTypes.types.PROTEIN_LINKER);
+        var rdpEdits = oligoSequenceModel.transformSequenceForRdp();
+        expect(rdpEdits.length).toEqual(3);
+        expect(rdpEdits[0].type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
+        expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE);
+        expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
+        expect(rdpEdits[2].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+        expect(rdpEdits[2].level).toEqual(RdpEdit.levels.WARN);
+
+        expect(getOligoSequence()).toEqual('GTGTAGAAG');
+      });
+
     });
   });
 });

@@ -1,5 +1,6 @@
 import SequencesCollection from '../../sequence/models/sequences';
 import RdpTypes from './rdp_types';
+import RdpEdit from './rdp_edit';
 import WipRdpAbstractSequence from './wip_rdp_abstract_sequence';
 import RdpOligoSequence from './rdp_oligo_sequence';
 
@@ -22,9 +23,18 @@ class WipRdpOligoSequence extends WipRdpAbstractSequence {
     // stickyEnds not yet present on transformedSequence so we don't need to
     // specify any stickyEnd format
     attributes.stickyEnds = this.convertStickyEnds(attributes.stickyEnds);
+    var mainSequence = this.getSequence(this.STICKY_END_ANY);
+
+    if(this.isProteinCoding) {
+      if(attributes.stickyEnds.start.name === 'X') {
+        mainSequence = mainSequence.slice(3);
+      }
+      mainSequence = mainSequence.substr(0, mainSequence.length - 1);
+    }
+
     attributes.sequence = (
       attributes.stickyEnds.start.sequence +
-      this.getSequence(this.STICKY_END_ANY) +
+      mainSequence +
       attributes.stickyEnds.end.sequence
     );
 
