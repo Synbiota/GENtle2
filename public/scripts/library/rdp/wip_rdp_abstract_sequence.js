@@ -19,11 +19,10 @@ class WipRdpAbstractSequence extends Sequence {
     this.Klass = Klass;
     this.types = types;
 
-    // Set a default for the partType
-    if(!this.validPartType(this.get('partType'))) {
-      var defaultPartType = this.availablePartTypes[0];
-      if(!defaultPartType) throw new Error('No default partType set');
-      this.set({'partType': defaultPartType}, {silent: true});
+    // Check partType is valid
+    var partType = this.get('partType');
+    if(!this.validPartType(partType)) {
+      throw new Error(`partType "${partType}" is invalid for this sequenceModel`);
     }
   }
 
@@ -32,7 +31,7 @@ class WipRdpAbstractSequence extends Sequence {
   }
 
   validPartType(partType) {
-    return _.contains(this.types, partType);
+    return _.contains(this.availablePartTypes, partType);
   }
 
   get availableStickyEndNames() {
