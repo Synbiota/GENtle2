@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import RdpEdit from './rdp_edit';
 import {
-  methionineStartCodon,
+  firstCodonIsMethionine,
   noTerminalStopCodons,
   ensureLastBaseIs,
   firstCodonIsStop,
@@ -16,7 +16,7 @@ var calculateTransformationFunctionInstances = function(sequenceModel) {
 
   if(sequenceModel.isProteinCoding) {
     if(desiredStickyEnds.start.name === 'X') {
-      transforms.push(methionineStartCodon);
+      transforms.push(firstCodonIsMethionine);
     }
     transforms.push(noTerminalStopCodons);
 
