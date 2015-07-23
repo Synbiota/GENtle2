@@ -23,12 +23,12 @@ _.deepFreeze(RdpTypes.pcrTypes);
 
 
 RdpTypes.oligoTypes = {
-  // RBS: {
-  //   stickyEndNames: [ZX],
-  // },
-  // TERMINATOR: {
-  //   stickyEndNames: [ZX],
-  // },
+  RBS: {
+    stickyEndNames: [ZX],
+  },
+  TERMINATOR: {
+    stickyEndNames: [ZX],
+  },
   MODIFIER: {
     stickyEndNames: BOTH,
   },
