@@ -18,14 +18,14 @@
 
   <div class="chromatograph-map-defect-marks">
     {{#each defectMarks}}
-      <a href="#" class="chromatograph-map-defect-mark" data-base="{{base}}" style="left: {{offset}}px;">
+      <a href="#" class="chromatograph-map-defect-mark" data-base="{{base}}" style="left: {{offsetPercent}}%;">
       </a>
     {{/each}}
   </div>
 
-  <div class="chromatograph-map-position-marks">
+  <div class="chromatograph-map-position-marks" style="width: 100%">
     {{#each positionMarks}}
-      <div class="chromatograph-map-position-mark" data-base="{{base}}" style="left: {{offset}}px;">
+      <div class="chromatograph-map-position-mark" data-base="{{base}}" style="left: {{offsetPercent}}%;">
         {{label}}
       </div>
     {{/each}}
@@ -35,7 +35,7 @@
 
   <div class="chromtagraph-map-fragments">
     {{#each fragments}}
-      <div href="#" class="chromatograph-map-fragment sequence-fragment" data-fragment-id="{{id}}">
+      <div href="#" class="chromatograph-map-fragment sequence-fragment" data-fragment-id="{{id}}" style="left: {{offsetPercent}}%; width: {{widthPercent}}%;">
       </div>
     {{/each}}
   </div>

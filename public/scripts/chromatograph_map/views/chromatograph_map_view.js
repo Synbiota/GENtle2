@@ -29,31 +29,19 @@ export default Backbone.View.extend({
     this.minFeatureWidth = 4;
     this.topFeatureOffset = 0;
 
-    this.tempDims = {
-      baseWidth: 10,
-      fragmentWidth: 10,
-      fragmentHeight: 10,
-      fragmentMargin: 10,
-      yOffset: 50,
-      consensusGoodHeight: 40,
-      consensusMediumHeight: 30,
-      consensusBadHeight: 20
-    }
-
 
     // _.bindAll(this, 'scrollSequenceCanvas');
 
     _.bindAll(this,
       'scrollSequenceCanvas',
       // 'updateScrollHelperPosition',
-      'updateCursor',
-      'refresh'
+      'updateCursor'
     );
 
     this.listenTo(
       this.model,
       'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments',
-      _.debounce(this.refresh, 500),
+      _.debounce(this.render, 500),
       this
     );
 
@@ -78,34 +66,19 @@ export default Backbone.View.extend({
     _.forEach(this.model.get('chromatogramFragments'), function(fragment, i){
 
       var position = fragment.position || 0,
-          length   = fragment.sequence.length || 0;
+          length   = fragment.sequence.length || 0,
+          sequenceLength = _this.model.getLength();
       // if (fragment.map) position = fragment.map.position;
 
       _this.fragments.push({
         id: ++id,
         name: fragment.name || 'Fragment ' + id,
         from: position,
-        to: position + length
+        to: position + length,
+        offsetPercent: position/sequenceLength * 100,
+        widthPercent: length/sequenceLength * 100
       });
     });
-  },
-
-  positionFragments: function() {
-    var $el, _this = this;
-
-    var baseWidth = this.mapWidth()/this.model.getLength();
-
-    _.forEach(this.fragments, function(fragment, i){
-      $el = _this.$('[data-fragment-id="'+fragment.id+'"]');
-
-      $el.css({
-        left: fragment.from * baseWidth,
-        width: (fragment.to - fragment.from) * baseWidth,
-        // top: i * featureHeight
-      });
-
-    });
-
   },
 
   goToBase: function(e) {
@@ -160,40 +133,6 @@ export default Backbone.View.extend({
     });
   },
 
-  positionFeatures: function() {
-    var maxBase = this.maxBaseForCalc || this.model.getLength(),
-        viewHeight = this.$el.height(),
-        $featureElement, feature, featureWidth,
-        overlapStack = [], overlapIndex;
-
-    for(var i = 0; i < this.features.length; i++) {
-      feature = this.features[i];
-      featureWidth = Math.max(
-        Math.floor((feature.to - feature.from + 1) / maxBase * viewHeight),
-        this.minFeatureWidth
-      );
-      $featureElement = this.$('[data-feature_id="'+feature.id+'"]');
-
-      $featureElement.css({
-        width: featureWidth,
-        top: Math.floor(feature.from / maxBase * viewHeight) + this.topFeatureOffset,
-      });
-
-      overlapIndex =  overlapStack.length;
-
-      for(var j = overlapStack.length - 1; j >= 0; j--) {
-        if(overlapStack[j] === undefined || overlapStack[j][1] <= feature.from) {
-          overlapStack[j] = undefined;
-          overlapIndex = j;
-        }
-      }
-
-      $featureElement.addClass('linear-map-feature-stacked-'+overlapIndex);
-
-      overlapStack[overlapIndex] = [feature.from, feature.to];
-    }
-  },
-
   goToFeature: function(event) {
     var featureId = $(event.currentTarget).data('feature_id'),
         feature = _.findWhere(this.features, {id: featureId});
@@ -204,39 +143,31 @@ export default Backbone.View.extend({
   },
 
   serialize: function() {
-    if(this.initialRender) {
-      return {};
-    } else {
-      return {
-        defectMarks: this.defectMarks,
-        fragments: this.fragments,
-        // features: this.features,
-        positionMarks: this.positionMarks,
-        // enzymes: this.enzymes
-      };
-    }
+
+    this.processFragments();
+    this.processPositionMarks();
+    this.processDefectMarks();
+
+    return {
+      defectMarks: this.defectMarks,
+      fragments: this.fragments,
+      positionMarks: this.positionMarks,
+    };
   },
 
-  // displayEnzymes: function() {
-  //   return this.model.get('displaySettings.rows.res.display');
+  // refresh: function(render) {
+  //   var _this = this;
+
+  //   _this.processFragments();
+  //   _this.processPositionMarks();
+  //   _this.processDefectMarks();
+
+  //   // if(render) {
+  //     console.log('awegaweg', render)
+  //     _this.render();
+  //   // }
+
   // },
-
-  refresh: function(render) {
-    var _this = this;
-
-    _this.processFragments();
-    // _this.processFeatures();
-    _this.processPositionMarks();
-    _this.processDefectMarks();
-    // if(_this.displayEnzymes()) {
-    //   _this.processEnzymes();
-    // } else {
-    //   _this.enzymes = [];
-    // }
-
-    if(render !== false) _this.render();
-
-  },
 
   processPositionMarks: function() {
     var sequenceCanvas = this.sequenceCanvas,
@@ -260,7 +191,7 @@ export default Backbone.View.extend({
       var data = {
             base: i,
             label: _.formatThousands(i+1),
-            offset: Math.floor(i / maxBase * length)
+            offsetPercent: i / maxBase * 100
           };
 
       this.positionMarks.push(data);
@@ -287,7 +218,7 @@ export default Backbone.View.extend({
 
         mark = {
           base: i,
-          offset: Math.floor(i / maxBase * _this.mapWidth())
+          offsetPercent: i / maxBase * 100
         };
 
         _this.defectMarks.push(mark);
@@ -298,40 +229,6 @@ export default Backbone.View.extend({
     });
 
   },
-
-  // processEnzymes: function() {
-  //   var model = this.model;
-  //   var displaySettings = model.get('displaySettings.rows.res') || {};
-  //   var enzymes = RestrictionEnzymes.getAllInSeq(model.getSequence(), {
-  //     // length: displaySettings.lengths || [],
-  //     customList: displaySettings.custom || [],
-  //     // hideNonPalindromicStickyEndSites: displaySettings.hideNonPalindromicStickyEndSites || false
-  //     hideNonPalindromicStickyEndSites: false
-  //   });
-
-  //   this.enzymes = _.compact(_.map(enzymes, function(enzymeArray, position) {
-  //     position = position^0;
-
-  //     enzymeArray = _.filter(enzymeArray, function(enzyme) {
-  //       return model.isRangeEditable(position, position + enzyme.seq.length);
-  //     });
-
-  //     if(enzymeArray.length === 0) return;
-  //     var label = enzymeArray[0].name;
-  //     if(enzymeArray.length > 1) label += ' +' + (enzymeArray.length - 1);
-  //     return {position, label};
-  //   }));
-  // },
-
-  // positionEnzymes: function() {
-  //   var maxBase = this.sequenceCanvas.maxVisibleBase();
-
-  //   _.each(this.$('.linear-map-enzyme'), (element) => {
-  //     var $element = this.$(element);
-  //     var relativePosition = $element.data('position')/ maxBase * 100 ;
-  //     $element.css('top', relativePosition + '%');
-  //   });
-  // },
 
   // setupScrollHelper: function() {
   //   var sequenceCanvas = this.sequenceCanvas,
@@ -402,11 +299,9 @@ export default Backbone.View.extend({
 
     this.$cursor = $cursor;
 
-    $cursor.width(Math.floor(
-      scrollingParentWidth /
-      scrollingChildWidth *
-      elemWidth
-    ));
+    $cursor.width(
+      (scrollingParentWidth /
+      scrollingChildWidth * 100) + '%')
 
     $cursor.draggable({
        axis: 'x',
@@ -427,9 +322,7 @@ export default Backbone.View.extend({
 
 
     $cursor.css({
-      left: Math.floor( sequenceCanvas.layoutHelpers.xOffset /
-                        scrollingChildWidth *
-                        elemWidth)
+      left: (sequenceCanvas.layoutHelpers.xOffset / scrollingChildWidth * 100) + '%'
     });
 
     // Jquery substituation used instead of serialize instead of render for performance.
@@ -459,6 +352,12 @@ export default Backbone.View.extend({
       var sequenceCanvas = this.parentView().sequenceCanvas;
       this.sequenceCanvas = sequenceCanvas;
 
+      // this.listenTo(sequenceCanvas, 'scroll', this.updateCursor);
+
+      // this.listenTo(sequenceCanvas, 'change:layoutHelpers resize', function(){
+      //   this.refresh(null)
+      // })
+
       // this.listenTo(
       //   sequenceCanvas,
       //   'scroll',
@@ -466,27 +365,23 @@ export default Backbone.View.extend({
       //   this
       // );
 
-      // this.listenTo(
-      //   sequenceCanvas,
-      //   'change:layoutHelpers',
-      //   this.refresh,
-      //   this
-      // );
-
-      sequenceCanvas.on('scroll', this.updateCursor);
-
-
       var _this = this;
+
       sequenceCanvas.on(
-        'change:layoutHelpers',
-        this.refresh(null, _this)
+        'change:layoutHelpers resize',
+        function(){
+          _this.render()
+        }
       );
 
-    } else {
-      this.positionFragments();
+      sequenceCanvas.on('scroll', this.updateCursor)
 
+
+    } else {
       this.initializeCursor();
-      // this.positionFeatures();
+
+
+
       // if(this.displayEnzymes()) this.positionEnzymes();
 
       // When SequenceCanvas' layoutHelpers are calculated, we fetch the

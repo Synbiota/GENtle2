@@ -45,16 +45,17 @@ export default class ChromatographMapCanvas {
     this.refresh();
 
     this.model.on('change', _.debounce(this.render, 500));
+
     this.view.parentView().on('resize', _.debounce(this.refresh, 200));
     this.$canvas.on('click', this.handleClick);
 
   }
 
   render() {
+
     this.clear();
 
     this.drawConsensus();
-
   }
 
   refresh() {
@@ -99,7 +100,6 @@ export default class ChromatographMapCanvas {
 
     // var baseWidth = Math.max(1, Math.round(this.canvasDims.width/this.model.getLength()));
     var baseWidth = this.canvasDims.width/this.model.getLength();
-
 
     function drawRect(start, end, type){
 
@@ -146,6 +146,7 @@ export default class ChromatographMapCanvas {
       }
 
     });
+
 
   }
 
