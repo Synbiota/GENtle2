@@ -116,28 +116,27 @@ export default class ChromatographMapCanvas {
         );
     }
 
-    function getType(consensus){
+    function getType(base){
       var type;
 
-      if (consensus > 10){
-        type = 'good';
-      } else if (consensus > 5) {
-        type = 'medium';
+      if (_.contains(['A', 'C', 'G', 'T'], base)){
+        return 'good'
+      } else if (_.contains(['N'], base)){
+        return 'medium'
       } else {
-        type = 'bad';
+        return 'bad'
       }
 
-      return type;
     }
 
 
 
-    _.forEach(fullConsensus, function(consensus, i){
+    _.forEach(fullConsensus, function(base, i){
 
-      if (head.type != getType(consensus) || (i == fullConsensus.length - 1)){
+      if (head.type != getType(base) || (i == fullConsensus.length - 1)){
         drawRect(head.position, i, head.type);
         head = {
-          type: getType(consensus),
+          type: getType(base),
           position: i
         };
       }

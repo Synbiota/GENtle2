@@ -135,6 +135,7 @@ function sequenceModelFactory(BackboneModel) {
       //   })
       //   this.set('chromatogramFragments', workaround, {silent: true})
       // }
+
       this.ntSeq = new Nt.Seq().read(this.getSequence());
 
       // If a value in this.attributes has a key with the same value as an
@@ -1505,169 +1506,59 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     getConsensus(){
-
-      var startBase = 0,
-          endBase = this.getLength() - 1;
-
-      var sequence = this.getConsensusSubSeq(startBase, endBase);
-
-      return _.map(sequence, function(base){
-        if (_.contains(['A', 'C', 'G', 'T'], base)){
-          return 11
-        } else if (_.contains(['N'], base)){
-          return 6
-        } else {
-          return 0
-        }
-      })
-
-      // return this.get('chromatogramQuality')
+      return super.get('consensus') || this.getSequence();
     }
 
     getConsensusSubSeq(startBase, endBase){
-      var comparator, seq, map;
+      return this.getConsensus().slice(startBase, endBase+1);
+    }
 
-      //identify break points
-      //where fragment starts
-      //where it ends
-      //
-      // assume sorted
-      //
-      // for each fragment
-      //
-      // first fragment
-      // if start in range get subseq (startBase, fragment.position)
-      // if end in range get fragment subseq (startBase, fragment.position+fragment.length)
-      //
-      // next fragment
-      // if not current fragment do first fragment logic
-      // if start > current fragmentEnd get slice of (current.fragmentEnd, fragment.start) then do first fragment logic
-      // if start < current fragmentEnd get get slice of fragment (current.fragmentEnd - fragment.start, fragment.end)
-      // if start > endBase get subseq (current.end, endBase)
+    updateConsensus(fragment){
+      var consensus = this.getConsensus(),
+          fragmentStart = fragment.position,
+          fragmentEnd   = fragment.position + fragment.sequence.length
 
-      var seq = [], _this = this;
+      var updatedFragment = _.map(
+                              consensus.slice(fragmentStart, fragmentEnd),
+                              function(point, i){
 
-      // _.forEach(this.get('chromatogramFragments'), function(fragment){
+                                if ( point != fragment.mask[i] ){
+                                  return '-';
+                                } else {
+                                  return point;
+                                }
 
-      //   var inRange = (x) => { return ((startBase < x) && (x < endBase)); }
-
-      //   var start = fragment.position,
-      //       end = fragment.position + fragment.length;
-
-      //   if (!cursor){
-
-      //     if (inRange(start)) {
-      //       // seq.push(_this.getSubSeq(startBase, start))
-      //       toAdd = _this.getSubSeq(startBase, start)
-      //     } else if (inRange(end)) {
-      //       // seq.push(_this.getSubSeq(startBase, end))
-      //       toAdd = _this.getSubSeq(startBase, end)
-      //     }
+                              }).join('')
 
 
-      //   } else {
-      //     var cursorStart = cursor.start,
-      //         cursorEnd = cursor.position + cursor.length
+      this.set('consensus', consensus.slice(0, fragmentStart) + updatedFragment + consensus.slice(fragmentEnd));
 
-      //     // fragment is outside of subsequence range
-      //     if (start > endBase){
-
-      //       toAdd = cursor.getSequence().slice(0, endBase - cursorEnd)
-
-      //       toAdd.concat(_this.getSubSeq(cursorEnd, endBase))
-
-      //       return;
-      //     }
-      //     else if (start > cursorEnd) {
-      //       toAdd = cursor.getSequence()
-      //       toAdd.concat( slice(cursorEnd, start) )
-      //     }
-      //     else if (start < cursorStart) {
-      //       toAdd = cursor.getSubSeq(0, cursor.length - (lastFragmentEnd - start))
-
-      //       // toAdd = _this.getSubSeq()
-
-      //     }
-      //   }
-
-
-      //   lastFragment = fragment
-
-      //   seq.push(toAdd)
-
-      // })
-
-
-
-      // if (this.get('chromatogramFragments').length){
-      //   // return this.consensus.alignmentMask().sequence().substr(startBase, endBase - startBase + 1)
-      //   comparator = this.get('chromatogramFragments')[0].sequence || this.get('chromatogramFragments')[0].getSequence()
-      //   comparator = new Nt.Seq().read(comparator)
-
-      //   // fragments = _.filter(this.get('chromatogramFragments'), function(fragment){
-      //   //   return (startBase < fragment.startBase) && (fragment.startBase < endBase) ||
-      //   //   (startBase < fragment.endBase) && (fragment.endBase < endBase)
-      //   // })
-
-      // } else {
-      //   comparator = this.ntSeq
-      // }
-
-      var seq = this.getSequence()
-
-      _.forEach(this.get('chromatogramFragments'), function(fragment){
-        // var map = fragment.get('map')
-        // console.log(map, fragment, typeof map.alignmentMask)
-        // if (typeof map.alignmentMask == "undefined") debugger
-        // var fragmentSeq = map.alignmentMask().sequence()
-
-        // var map = fragment.get('map')
-        // var mask = fragment.get('alignmentMask')
-
-        var mask = fragment.mask,
-            fragmentStart = fragment.position,
-            fragmentEnd   = fragment.position + fragment.sequence.length;
-        seq = seq.slice(0, fragmentStart) + mask + seq.slice(fragmentEnd);
-
-      })
-
-      // var match = this.ntSeq.mapSequence(comparator).best()
-      // seq = match.alignmentMask().sequence()
-
-      // var seq = this.getSequence().slice(0, match.position) + seq + this.getSequence().slice(match.position+seq.length);
-
-
-      return seq.substr(startBase, endBase - startBase + 1);
     }
 
     addChromatogram(chromatogram){
-      // var sequence = new Sequence(chromatogram)
-      var sequence = chromatogram;
-      // var seq1 = new Nt.Seq().read(this.getSequence());
 
-      // var seq1 = this.consensus ? this.consensus.alignmentMask() : new Nt.Seq().read(this.getSequence());
+      // var fragment = new Sequence(chromatogram)
+      var fragment = chromatogram;
+
       var seq1 = this.ntseq || new Nt.Seq().read(this.getSequence());
       var seq2 = new Nt.Seq().read(chromatogram.sequence);
 
       var map = seq1.mapSequence(seq2).best();
 
-      // sequence.set('map', {
+      // fragment.set('map', {
       //   position: map.position
       // });
-      // sequence.set('alignmentMask', map.alignmentMask().sequence())
+      // fragment.set('alignmentMask', map.alignmentMask().sequence())
 
+      fragment.position = map.position;
+      fragment.mask = map.alignmentMask().sequence();
 
-      // this.consensus = seq1.mapSequence(seq2).best();
-
-      sequence.position = map.position;
-      sequence.mask = map.alignmentMask().sequence();
+      this.updateConsensus(fragment);
 
       this.set('chromatogramFragments',
-        this.get('chromatogramFragments').concat(sequence)
-        ).throttledSave()
+        this.get('chromatogramFragments').concat(fragment)
+        ).throttledSave();
 
-      console.log(this.get('chromatogramFragments'))
-      window.a = this
     }
 
     clone() {

@@ -9,10 +9,26 @@ export default class Consensus extends Line {
     this.dims = _.defaults(options, {
       baseWidth: 10,
       yOffset: 95,
-      consensusGoodHeight: 40,
-      consensusMediumHeight: 30,
-      consensusBadHeight: 20
     })
+
+    this.consensusSettings = {
+      'good': {
+        height: 40,
+        color: '#31A450',
+      },
+
+      'medium': {
+        height: 30,
+        color: '#F2EC00',
+      },
+
+      'bad': {
+        height: 20,
+        color: '#EF000F',
+      }
+    }
+
+
   }
 
   draw(x, y, baseRange) {
@@ -24,60 +40,56 @@ export default class Consensus extends Line {
         selection       = sequenceCanvas.selection,
         k, subSequence, character;
 
+    var _this = this,
+        baseWidth = ls.basePairDims.width || this.dims.baseWidth,
+        yOffset = this.height || this.dims.yOffset;
 
-    // var baseWidth = Math.max(1, Math.round(this.canvasDims.widthsequence.getLength()));
-    // var baseWidth = this.canvasDims.widthsequence.getLength();
-    var baseWidth = ls.basePairDims.width || this.dims.baseWidth,
-        yOffset = this.height || this.dims.yOffset,
-        consensusGoodHeight = this.dims.consensusGoodHeight,
-        consensusMediumHeight = this.dims.consensusMediumHeight,
-        consensusBadHeight = this.dims.consensusBadHeight;
+        // consensus = sequence.getConsensus().slice(baseRange[0], baseRange[1] + 1),
+        // head = {
+        //   type: getType(consensus[0]),
+        //   position: 0
+        // };
 
-    function drawGood(index){
+
+    // function drawRect(start, end, type){
+    //   var setting = _this.consensusSettings[type]
+
+    //   // if (end && (end == consensus.length - 1)) debugger
+
+    //   artist.rect(
+    //       x + (start * baseWidth),
+    //       y + yOffset - setting.height,
+    //       (end - start) * baseWidth,
+    //       setting.height,
+    //       {
+    //         fillStyle: setting.color
+    //       }
+    //     );
+    // }
+
+    function drawRect(start, type){
+      var setting = _this.consensusSettings[type]
+
       artist.rect(
-          x + (index * baseWidth),
-          y + yOffset - consensusGoodHeight,
+          x + (start * baseWidth),
+          y + yOffset - setting.height,
           baseWidth,
-          consensusGoodHeight,
+          setting.height,
           {
-            fillStyle: '#31A450'
+            fillStyle: setting.color
           }
         );
     }
 
-    function drawMedium(index){
-      artist.rect(
-          x + (index * baseWidth),
-          y + yOffset - consensusMediumHeight,
-          baseWidth,
-          consensusMediumHeight,
-          {
-            fillStyle: '#F2EC00'
-          }
-        );
-    }
+    _.forEach(sequence.getConsensus().slice(baseRange[0], baseRange[1] + 1), function(base, i){
 
-    function drawBad(index){
-      artist.rect(
-          x + (index * baseWidth),
-          y + yOffset - consensusBadHeight,
-          baseWidth,
-          consensusBadHeight,
-          {
-            fillStyle: '#EF000F'
-          }
-        );
-    }
-
-    _.forEach(sequence.getConsensus().slice(baseRange[0], baseRange[1] + 1), function(consensus, i){
-
-      if (consensus > 10){
-        drawGood(i);
-      } else if (consensus > 5) {
-        drawMedium(i);
-      } else {
-        drawBad(i);
-      }
+        if (_.contains(['A', 'C', 'G', 'T'], base)){
+          drawRect(i, 'good')
+        } else if (_.contains(['N'], base)){
+          drawRect(i, 'medium')
+        } else {
+          drawRect(i, 'bad')
+        }
 
     });
 
