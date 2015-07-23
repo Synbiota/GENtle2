@@ -141,11 +141,11 @@ requirements = [
 ];
 rdpEditType = RdpEdit.types.METHIONINE_START_CODON;
 /**
- * @function  methionineStartCodonFn
+ * @function  firstCodonIsMethionineFn
  * @param  {SequenceModel}  sequenceModel
  * @return {array<RdpEdit>}  May return RdpEdits in normal or error state
  */
-var methionineStartCodonFn = function(sequenceModel) {
+var firstCodonIsMethionineFn = function(sequenceModel) {
   var rdpEdit;
   var length = getLen(sequenceModel);
   let sequenceBases = getSubSeq(sequenceModel, 0, 3);
@@ -225,7 +225,7 @@ var methionineStartCodonFn = function(sequenceModel) {
   }
   return rdpEdit ? [rdpEdit] : [];
 };
-var methionineStartCodon = new TransformationFunction(methionineStartCodonFn, requirements, rdpEditType);
+var firstCodonIsMethionine = new TransformationFunction(firstCodonIsMethionineFn, requirements, rdpEditType);
 
 
 
@@ -603,7 +603,7 @@ var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, 
 
 
 export default {
-  methionineStartCodon,
+  firstCodonIsMethionine,
   noTerminalStopCodons,
   ensureLastBaseIs,
   firstCodonIsStop,
