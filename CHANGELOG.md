@@ -2,6 +2,7 @@
 
 ## develop
 
+* James  2015-07-23  Render known RDP edits in better format.
 * James  2015-07-23  Lower minimium primer annealing region length for PCR primers from 20 to 12.
 * James  2015-07-23  Prefix and suffix short name with RDP sticky end names.
 * James  2015-07-23  Sentence case for RDP part type on product view.

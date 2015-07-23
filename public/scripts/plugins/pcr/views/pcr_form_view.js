@@ -8,6 +8,7 @@ import RdpEdit             from 'gentle-rdp/rdp_edit';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
 import template from '../templates/pcr_form_view.hbs';
+import rdpErrorsTemplate from '../templates/rdp_errors.hbs';
 import EditsView from './pcr_edits_view';
 import {humaniseRdpType} from '../lib/utils';
 
@@ -202,12 +203,7 @@ export default Backbone.View.extend({
         var errors = desiredWipRdpSequence.errors();
 
         if(errors.length) {
-          alert(`"${errors.length}" with transforming sequence for RDP compliance.`);
-          console.log(errors);
-        }
-        let rdpEditTypes = _.pluck(rdpEdits, 'type');
-        if(_.includes(rdpEditTypes, RdpEdit.types.NOT_MULTIPLE_OF_3)) {
-          alert('The target sequence length needs to be a multiple of 3');
+          this.renderKnownRdpErrors(errors);
         } else if(rdpEdits.length === 0) {
           this.createNewRdpPart(desiredWipRdpSequence);
         } else {
@@ -224,7 +220,7 @@ export default Backbone.View.extend({
         }
       }
     } catch(error) {
-      this.handleError(error);
+      this.handleUnexpectedError(error);
     }
   },
 
@@ -249,7 +245,19 @@ export default Backbone.View.extend({
     }
   },
 
-  handleError: function(error) {
+  renderKnownRdpErrors: function(errors) {
+    var bodyHtml = rdpErrorsTemplate({errors});
+    Modal.show({
+      title: `${errors.length} errors with transforming sequence for RDP compliance.`,
+      subTitle: '',
+      bodyHtml,
+      confirmLabel: 'Okay.',
+      cancelLabel: false,
+    }).once('confirm', () => {
+    });
+  },
+
+  handleUnexpectedError: function(error) {
     this.$el.find('.new-pcr-form-error').show();
     console.error(error);
   },
