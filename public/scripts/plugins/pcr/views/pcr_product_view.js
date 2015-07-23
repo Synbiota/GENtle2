@@ -8,6 +8,8 @@ import {gcContent} from '../../../sequence/lib/sequence_calculations';
 import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 
+import {humaniseRdpType} from '../lib/utils';
+
 
 export default Backbone.View.extend({
   manage: true,
@@ -37,6 +39,7 @@ export default Backbone.View.extend({
     attributes.isRdpOligoSequence = this.model instanceof RdpOligoSequence;
 
     attributes.stickyEnds.name = attributes.stickyEnds.start.name + '-' + attributes.stickyEnds.end.name;
+    attributes.partType = humaniseRdpType(attributes.partType);
     attributes.productLength = this.model.getLength(this.model.STICKY_END_OVERHANG);
 
     // Provide attributes not present in serialisation (due to them being

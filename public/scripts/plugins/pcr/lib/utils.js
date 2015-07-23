@@ -1,5 +1,6 @@
-import allStickyEnds from '../../../common/lib/sticky_ends';
 import _ from 'underscore';
+import allStickyEnds from '../../../common/lib/sticky_ends';
+import RdpTypes from 'gentle-rdp/rdp_types';
 
 
 var transformStickyEndData = function(stickyEndAttributes) {
@@ -45,8 +46,17 @@ var savePcrProductsToSequence = function(sequenceModel, products = []) {
 };
 
 
+var humaniseRdpType = function(partType) {
+  const rdpLabels = [RdpTypes.types.CDS, RdpTypes.types.RBS].concat(_.pluck(allStickyEnds(), 'name'));
+  var humanisedName = _.includes(rdpLabels, partType) ? partType : _.ucFirst(partType, true);
+  return humanisedName.replace('_', ' ');
+};
+
+
 export default {
   getPcrProductsFromSequence,
   savePcrProductsToSequence,
-  transformStickyEndData, // exposed for testing.
+  humaniseRdpType,
+  // exposed for testing.
+  transformStickyEndData,
 };

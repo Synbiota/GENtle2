@@ -10,15 +10,13 @@ import RdpEdit from 'gentle-rdp/rdp_edit';
 import RdpTypes from 'gentle-rdp/rdp_types';
 import {makeOptions} from '../../../common/lib/utils';
 import Backbone from 'backbone';
+import {humaniseRdpType} from '../lib/utils';
 
-const rdpLabels = ['CDS', 'RBS'].concat(_.pluck(allStickyEnds(), 'name'));
 
 var convertForSelect = function(values) {
   return _.map(values, (value) => {
-    var humanisedName = _.includes(rdpLabels, value) ? value : _.ucFirst(value, true);
-    humanisedName = humanisedName.replace('_', ' ');
     return {
-      name: humanisedName,
+      name: humaniseRdpType(value),
       value
     };
   });
