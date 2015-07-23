@@ -15,6 +15,9 @@ RdpTypes.pcrTypes = {
   MODIFIER: {
     stickyEndNames: BOTH, // We should favour XZ
   },
+  PROMOTER: {
+    stickyEndNames: BOTH,
+  },
   OTHER: {
     stickyEndNames: BOTH,
   },
