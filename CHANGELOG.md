@@ -2,6 +2,7 @@
 
 ## develop
 
+* James  2015-07-23  Lower minimium primer annealing region length for PCR primers from 20 to 12.
 * James  2015-07-23  Prefix and suffix short name with RDP sticky end names.
 * James  2015-07-23  Sentence case for RDP part type on product view.
 * James  2015-07-23  Add Promoter part type to PCR part types.
