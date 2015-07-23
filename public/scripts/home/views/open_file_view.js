@@ -53,6 +53,7 @@ import Gentle from 'gentle';
 
     clickInputElement: function(event) {
       event.preventDefault();
+      console.log("clickInputElement")
       this.$('.home-open-file-form input[name=file]').click();
     }
 
