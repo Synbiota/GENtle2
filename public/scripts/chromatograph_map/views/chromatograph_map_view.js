@@ -277,12 +277,12 @@ export default Backbone.View.extend({
 
     this.defectMarks = [];
 
-    _.forEach(consensus, function(consensusPoint, i){
+    _.forEach(consensus, function(base, i){
 
       if (
-          (consensus[i] < 6) &&
+          (consensus[i] == '-') &&
             (!_this.defectMarks.length ||
-              ((consensus[i - 1] > 5) && ((i - _this.defectMarks[_this.defectMarks.length - 1].base) > markThreshold)))
+              ((consensus[i - 1] != '-') && ((i - _this.defectMarks[_this.defectMarks.length - 1].base) > markThreshold)))
           ){
 
         mark = {

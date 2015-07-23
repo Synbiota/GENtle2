@@ -141,6 +141,10 @@ export default class ChromatographMapCanvas {
         };
       }
 
+      if (i == (fullConsensus.length - 1)){
+        drawRect(head.position, fullConsensus.length, head.type)
+      }
+
     });
 
   }
