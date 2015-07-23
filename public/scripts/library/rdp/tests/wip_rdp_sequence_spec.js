@@ -20,9 +20,9 @@ describe('WIP RDP sequence model', function() {
     expect(function() {
       new WipRdpPcrSequence({
         sequence: 'AT',
-        partType: RdpTypes.types.PROMOTER,
+        partType: RdpTypes.types.PROTEIN_LINKER,
       });
-    }).toThrowError(Error, 'partType "PROMOTER" is invalid for this sequenceModel');
+    }).toThrowError(Error, 'partType "PROTEIN_LINKER" is invalid for this sequenceModel');
   });
 
   it('should not report as proteinCoding when Promoter', function() {

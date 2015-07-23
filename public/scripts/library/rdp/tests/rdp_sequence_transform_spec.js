@@ -244,10 +244,10 @@ describe('RDP sequence transforms', function() {
         });
 
         it('should throw an error if an invalid partType is provided', function() {
-          setSequence('ATGAAC', stickyEndsXZ(), RdpTypes.types.PROMOTER);
+          setSequence('ATGAAC', stickyEndsXZ(), RdpTypes.types.PROTEIN_LINKER);
           expect(function() {
             sequenceModel.transformSequenceForRdp();
-          }).toThrowError(TypeError, 'Invalid partType: "PROMOTER"');
+          }).toThrowError(TypeError, 'Invalid partType: "PROTEIN_LINKER"');
         });
       });
 
