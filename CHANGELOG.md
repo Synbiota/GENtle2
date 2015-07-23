@@ -2,6 +2,7 @@
 
 ## develop
 
+* James  2015-07-23  Prefix and suffix short name with RDP sticky end names.
 * James  2015-07-23  Sentence case for RDP part type on product view.
 * James  2015-07-23  Add Promoter part type to PCR part types.
 * James  2015-07-23  Enable RDP oligo part creation for Terminator and RBS.

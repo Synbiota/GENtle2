@@ -231,9 +231,10 @@ export default Backbone.View.extend({
   createNewRdpPart: function(desiredWipRdpSequence) {
     this.state.calculating = true;
     var data = this.getData();
+    data.shortName = data.desiredStickyEnds.start.name +'-'+ data.shortName +'-'+ data.desiredStickyEnds.end.name;
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
-      data.stickyEnds = this.getStickyEnds();
+      data.stickyEnds = data.desiredStickyEnds;
       var newRdpOligoSequence = wipRdpOligoSequence.getRdpOligoSequence(data);
 
       // ensures Gentle routes view to the RDP oligo product result view
