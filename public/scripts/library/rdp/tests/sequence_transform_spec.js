@@ -7,6 +7,7 @@ import {
   firstCodonIsMethionine,
   noTerminalStopCodons,
   ensureLastBaseIs,
+  firstCodonIsStop,
 } from '../sequence_transform';
 
 
@@ -42,7 +43,7 @@ var getSequence = function() {
 };
 
 
-describe('sequence transforms', function(){
+describe('sequence transforms', function() {
   beforeEach(function() {
     sequenceModel = new SequenceModel(sequenceAttributes);
 
@@ -104,41 +105,90 @@ describe('sequence transforms', function(){
         expect(getSequence()).toEqual('ATGTAG');
       });
 
-      describe('add Methione when no transform available', function() {
-        it('should add quietly', function() {
-          // Would need to change quietlyAddMethionine to `true`
-          //
-          // setBases('CCCTAG');
-          // var rdpEdits = firstCodonIsMethionine.process(sequenceModel);
-          // expect(rdpEdits.length).toEqual(0);
-          // expect(getSequence()).toEqual('ATGCCCTAG');
-        });
+      it('should add Methione when no transform available', function() {
+        setBases('CCCTAG');
+        var rdpEdits = firstCodonIsMethionine.process(sequenceModel);
+        var rdpEdit = rdpEdits[0];
+        expect(rdpEdit.type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
+        expect(rdpEdit.error).toBeUndefined();
 
-        it('should error when not quiet', function() {
-          setBases('CCCTAG');
-          var rdpEdits = firstCodonIsMethionine.process(sequenceModel);
-          var rdpEdit = rdpEdits[0];
-          expect(rdpEdit.type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
-          expect(rdpEdit.error).toBeUndefined();
+        expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
+        expect(rdpEdit.contextBefore.name).toEqual('Will insert ATG');
+        expect(rdpEdit.contextBefore.ranges.length).toEqual(0);
+        expect(rdpEdit.contextBefore.sequence).toEqual('CCCTAG');
+        expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextBefore.contextualTo).toEqual(6);
 
-          expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
-          expect(rdpEdit.contextBefore.name).toEqual('Will insert ATG');
-          expect(rdpEdit.contextBefore.ranges.length).toEqual(0);
-          expect(rdpEdit.contextBefore.sequence).toEqual('CCCTAG');
-          expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
-          expect(rdpEdit.contextBefore.contextualTo).toEqual(6);
+        expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
+        expect(rdpEdit.contextAfter.name).toEqual('Inserted ATG');
+        expect(rdpEdit.contextAfter.ranges[0].from).toEqual(0);
+        expect(rdpEdit.contextAfter.ranges[0].to).toEqual(3);
+        expect(rdpEdit.contextAfter.ranges[0].reverse).toEqual(false);
+        expect(rdpEdit.contextAfter.sequence).toEqual('ATGCCCTAG');
+        expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextAfter.contextualTo).toEqual(9);
 
-          expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
-          expect(rdpEdit.contextAfter.name).toEqual('Inserted ATG');
-          expect(rdpEdit.contextAfter.ranges[0].from).toEqual(0);
-          expect(rdpEdit.contextAfter.ranges[0].to).toEqual(3);
-          expect(rdpEdit.contextAfter.ranges[0].reverse).toEqual(false);
-          expect(rdpEdit.contextAfter.sequence).toEqual('ATGCCCTAG');
-          expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
-          expect(rdpEdit.contextAfter.contextualTo).toEqual(9);
+        expect(getSequence()).toEqual('ATGCCCTAG');
+      });
+    });
+  });
 
-          expect(getSequence()).toEqual('ATGCCCTAG');
-        });
+  describe('RDP sequence Stop codon as first Codon validation and transformation', function() {
+    describe('correct stop codon at beginning', function() {
+      it('should pass with TGA', function() {
+        setBases('TGACCC');
+
+        var rdpEdits = firstCodonIsStop.process(sequenceModel);
+        expect(rdpEdits.length).toEqual(0);
+
+        expect(getSequence()).toEqual('TGACCC');
+      });
+
+      it('should pass with TAG', function() {
+        setBases('TAGCCC');
+
+        var rdpEdits = firstCodonIsStop.process(sequenceModel);
+        expect(rdpEdits.length).toEqual(0);
+
+        expect(getSequence()).toEqual('TAGCCC');
+      });
+
+      it('should pass with TAA', function() {
+        setBases('TAACCC');
+
+        var rdpEdits = firstCodonIsStop.process(sequenceModel);
+        expect(rdpEdits.length).toEqual(0);
+
+        expect(getSequence()).toEqual('TAACCC');
+      });
+    });
+
+
+    describe('incorrect stop codon at beginning', function() {
+      it('should add stop when no transform available', function() {
+        setBases('CCCTAG');
+        var rdpEdits = firstCodonIsStop.process(sequenceModel);
+        var rdpEdit = rdpEdits[0];
+        expect(rdpEdit.type).toEqual(RdpEdit.types.FIRST_CODON_IS_STOP_ADDED);
+        expect(rdpEdit.error).toBeUndefined();
+
+        expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.FIRST_CODON_IS_STOP_ADDED);
+        expect(rdpEdit.contextBefore.name).toEqual('Will insert TAG');
+        expect(rdpEdit.contextBefore.ranges.length).toEqual(0);
+        expect(rdpEdit.contextBefore.sequence).toEqual('CCCTAG');
+        expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextBefore.contextualTo).toEqual(6);
+
+        expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.FIRST_CODON_IS_STOP_ADDED);
+        expect(rdpEdit.contextAfter.name).toEqual('Inserted TAG');
+        expect(rdpEdit.contextAfter.ranges[0].from).toEqual(0);
+        expect(rdpEdit.contextAfter.ranges[0].to).toEqual(3);
+        expect(rdpEdit.contextAfter.ranges[0].reverse).toEqual(false);
+        expect(rdpEdit.contextAfter.sequence).toEqual('TAGCCCTAG');
+        expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextAfter.contextualTo).toEqual(9);
+
+        expect(getSequence()).toEqual('TAGCCCTAG');
       });
     });
   });

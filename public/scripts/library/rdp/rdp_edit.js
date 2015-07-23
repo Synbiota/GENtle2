@@ -58,6 +58,7 @@ RdpEdit.types = {
   LAST_BASE_IS_G:                   'LAST_BASE_IS_G',
   LAST_BASE_IS_G_NO_AA_CHANGE:      'LAST_BASE_IS_G_NO_AA_CHANGE',
   FIRST_CODON_IS_STOP:              'FIRST_CODON_IS_STOP',
+  FIRST_CODON_IS_STOP_ADDED:        'FIRST_CODON_IS_STOP_ADDED',
 
   // RDP warnings
   EARLY_STOP_CODON:                 'EARLY_STOP_CODON',
