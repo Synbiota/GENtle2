@@ -1,15 +1,14 @@
-import Gentle from 'gentle';
-import template from '../templates/pcr_form_view.hbs';
-import allStickyEnds from '../../../common/lib/sticky_ends';
-import Modal from '../../../common/views/modal_view';
-import EditsView from './pcr_edits_view';
 import _ from 'underscore';
-import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
-import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
-import RdpEdit from 'gentle-rdp/rdp_edit';
-import RdpTypes from 'gentle-rdp/rdp_types';
-import {makeOptions} from '../../../common/lib/utils';
 import Backbone from 'backbone';
+import Gentle from 'gentle';
+import allStickyEnds from '../../../common/lib/sticky_ends';
+import {makeOptions} from '../../../common/lib/utils';
+import Modal         from '../../../common/views/modal_view';
+import RdpEdit             from 'gentle-rdp/rdp_edit';
+import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
+
+import template from '../templates/pcr_form_view.hbs';
+import EditsView from './pcr_edits_view';
 import {humaniseRdpType} from '../lib/utils';
 
 

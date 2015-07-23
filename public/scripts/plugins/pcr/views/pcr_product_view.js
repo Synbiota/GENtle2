@@ -1,13 +1,11 @@
-import template from '../templates/pcr_product_view.hbs';
-// import {fastAExportSequenceFromID} from '../../../common/lib/utils';
-import Gentle from 'gentle';
-import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 import _ from 'underscore';
-import EditsView from './pcr_edits_view';
+import onClickSelectableSequence from '../../../common/lib/onclick_selectable_sequence';
 import {gcContent} from '../../../sequence/lib/sequence_calculations';
-import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
+import RdpPcrSequence   from 'gentle-rdp/rdp_pcr_sequence';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 
+import EditsView from './pcr_edits_view';
+import template from '../templates/pcr_product_view.hbs';
 import {humaniseRdpType} from '../lib/utils';
 
 
@@ -38,7 +36,6 @@ export default Backbone.View.extend({
     attributes.isRdpPcrSequence = this.model instanceof RdpPcrSequence;
     attributes.isRdpOligoSequence = this.model instanceof RdpOligoSequence;
 
-    attributes.stickyEnds.name = attributes.stickyEnds.start.name + '-' + attributes.stickyEnds.end.name;
     attributes.partType = humaniseRdpType(attributes.partType);
     attributes.productLength = this.model.getLength(this.model.STICKY_END_OVERHANG);
 
