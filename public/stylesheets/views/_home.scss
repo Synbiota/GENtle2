@@ -8,6 +8,11 @@
     min-height: 250px;
   }
 
+  small,p {
+    color: #333;
+    font-size: inherit;
+  }
+
   .tabs-left {
     border-color: red;
     border-right: 0;
@@ -39,5 +44,11 @@
 
   .show-on-fullscreen {
     display: none;
+  }
+
+  .home-new-sequence-container {
+    border-right: 1px solid #DDD;
+    margin-right: 8px;
+    width: 100%;
   }
 }
