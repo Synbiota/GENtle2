@@ -291,17 +291,10 @@ export default Backbone.View.extend({
 
   initializeCursor: function() {
     var  sequenceCanvas = this.sequenceCanvas,
-         $cursor = this.$('.chromatograph-map-cursor'),
-         scrollingParentWidth = sequenceCanvas.$scrollingParent.width(),
-         scrollingChildWidth = sequenceCanvas.$scrollingChild.width(),
-         elemWidth = this.mapWidth();
+         $cursor = this.$('.chromatograph-map-cursor');
 
 
     this.$cursor = $cursor;
-
-    $cursor.width(
-      (scrollingParentWidth /
-      scrollingChildWidth * 100) + '%')
 
     $cursor.draggable({
        axis: 'x',
@@ -318,10 +311,11 @@ export default Backbone.View.extend({
         ls = sequenceCanvas.layoutSettings,
         lh = sequenceCanvas.layoutHelpers,
         elemWidth = this.mapWidth(),
+        scrollingParentWidth = sequenceCanvas.$scrollingParent.width(),
         scrollingChildWidth = sequenceCanvas.$scrollingChild.width();
 
-
     $cursor.css({
+      width: (scrollingParentWidth / scrollingChildWidth * 100) + '%',
       left: (sequenceCanvas.layoutHelpers.xOffset / scrollingChildWidth * 100) + '%'
     });
 
@@ -370,7 +364,7 @@ export default Backbone.View.extend({
       sequenceCanvas.on(
         'change:layoutHelpers resize',
         function(){
-          _this.render()
+          _this.initializeCursor()
         }
       );
 
