@@ -1,7 +1,7 @@
 import Backbone from 'backbone';
 import Gentle from 'gentle';
 import template from '../templates/chromatograph_settings_view.hbs';
-import Filetypes from '../../common/lib/filetypes/filetypes.js';
+import Filetypes from '../../../common/lib/filetypes/filetypes.js';
 import _ from 'underscore';
 
 export default Backbone.View.extend({

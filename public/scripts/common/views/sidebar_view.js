@@ -26,6 +26,7 @@
       var _this = this;
       if(!_.isArray(options)) options = [options];
       _.each(options, function(options_) {
+        options_.sidebarView = _this;
         options_.maxHeighted = !!options_.maxHeighted;
         options_.hoverable = !!options_.hoverable;
         if(options_.viewClass === undefined) {
@@ -77,7 +78,7 @@
       }
 
       if((wasActive && !this.$el.hasClass('active')) ||
-        !wasActive && this.$el.hasClass('active')) 
+        !wasActive && this.$el.hasClass('active'))
           this.trigger('resize');
     },
 
@@ -89,7 +90,7 @@
 
     //     if(this.closingTabName == tab.name) {
     //       this.closingTabName = this.closingTabTimeout = clearTimeout(this.closingTabTimeout);
-    //     } 
+    //     }
 
     //     if(!$link.hasClass('hovered')) {
     //       this.$('.hovered').removeClass('hovered');

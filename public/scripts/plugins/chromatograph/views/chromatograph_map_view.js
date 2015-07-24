@@ -1,8 +1,8 @@
 import Backbone from 'backbone';
 import Gentle from 'gentle';
-import {handleError} from '../../common/lib/handle_error';
 import Q from 'q';
-import Artist from '../../common/lib/graphics/artist';
+import {handleError} from '../../../common/lib/handle_error';
+import Artist from '../../../common/lib/graphics/artist';
 import template from '../templates/chromatograph_map_view.hbs';
 import _ from 'underscore';
 // import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';

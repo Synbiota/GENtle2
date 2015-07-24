@@ -14,8 +14,6 @@ import ToolsView            from './tools_view';
 import EditView             from './edit_view';
 import Gentle               from 'gentle';
 import StickyEndsView       from './sticky_ends_settings_view';
-import ChromatographSettingsView
-                            from './chromatograph_settings_view';
 
 var SettingsView = SidebarView.extend({
 
@@ -83,14 +81,6 @@ var SettingsView = SidebarView.extend({
       icon: 'align-left',
       view: StickyEndsView,
       visible: Gentle.featureFlag('stickyEnds')
-    },{
-      name: 'addChromtograph',
-      title: 'Add Chromatograph',
-      icon: 'align-left',
-      view: ChromatographSettingsView,
-      visible: function() {
-        return _this.parentView().primaryView.name == 'chromatograph'
-      }
     }
     ]);
 

@@ -19,10 +19,11 @@ import designer from './plugins/designer/plugin';
 import blast from './plugins/blast/plugin';
 import pcr from './plugins/pcr/plugin';
 import sequencing_primers from './plugins/sequencing_primers/plugin';
+import chromatograph from './plugins/chromatograph/plugin';
 
 import tooltip from 'gentle-utils/tooltip';
 
-var plugins = [ncbi, designer, blast, pcr, sequencing_primers];
+var plugins = [ncbi, designer, blast, pcr, sequencing_primers, chromatograph];
 
 Gentle.config = config;
 Gentle.sequences = new Sequences();
@@ -31,7 +32,7 @@ var currentUser = Gentle.currentUser = new CurrentUser({id: 'current-user'});
 Gentle.sequences.fetch();
 Gentle.currentUser.fetch();
 
-Gentle.enableFeatures('pcr', 'blast', 'sequencingPrimers');
+Gentle.enableFeatures('pcr', 'blast', 'sequencingPrimers', 'chromatograph');
 
 Gentle.router = new Router();
 window.gentle = Gentle;

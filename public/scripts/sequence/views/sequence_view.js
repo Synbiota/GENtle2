@@ -8,7 +8,7 @@
       Gentle                    = require('gentle'),
       SequenceSettingsView      = require('./settings_view'),
       SequenceEditionView       = require('./sequence_edition_view'),
-      SequenceChromatographView = require('./sequence_chromatograph_view'),
+      // SequenceChromatographView = require('./sequence_chromatograph_view'),
       SequenceAnalysisView      = require('./sequence_analysis_view'),
       StatusbarView             = require('../../common/views/statusbar_view'),
       StatusbarPrimaryViewView  = require('./statusbar_primary_view_view'),
@@ -102,10 +102,6 @@
         name: 'edition',
         title: 'Edit sequence',
         view: SequenceEditionView
-      }, {
-        name: 'chromatograph',
-        title: 'Chromatograph',
-        view: SequenceChromatographView
       });
 
       currentView = this.model.get('displaySettings.primaryView');

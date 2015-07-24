@@ -1,16 +1,17 @@
+import Gentle from 'gentle';
+import Backbone from 'backbone';
+import Q from 'q';
+import ContextMenuView from '../../../common/views/context_menu_view';
+
 import template from '../templates/sequence_chromatograph_view.hbs';
 // import SequenceCanvas from '../lib/sequence_canvas';
 import ChromatographCanvas from '../lib/chromatograph_canvas';
-import Gentle from 'gentle';
-import ContextMenuView from '../../common/views/context_menu_view';
-import ChromatographMapView from '../../chromatograph_map/views/chromatograph_map_view';
+import ChromatographMapView from '../views/chromatograph_map_view';
 import ChromatographLegendView from './chromatograph_legend_view';
 import ChromatographSettingsView from './chromatograph_settings_view';
-import LinearMapView from '../../linear_map/views/linear_map_view';
-import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
+// import LinearMapView from '../../linear_map/views/linear_map_view';
+// import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
 // import MatchedEnzymesView from './matched_enzymes_view';
-import Backbone from 'backbone';
-import Q from 'q';
 
 /**
 @module Sequence

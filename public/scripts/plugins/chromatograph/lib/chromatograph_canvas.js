@@ -1,5 +1,6 @@
 import _ from 'underscore';
-import SequenceCanvas from '../lib/sequence_canvas';
+import SequenceCanvas from '../../../sequence/lib/sequence_canvas';
+import ContextMenu from '../../../sequence/lib/_sequence_canvas_context_menu';
 // import BiDirectional from 'gentle-sequence-canvas/bi_directional';
 
 import classMixin from 'gentle-utils/class_mixin';
@@ -8,13 +9,12 @@ import EventHandlers from 'gentle-sequence-canvas/event_handlers';
 import Utilities from 'gentle-sequence-canvas/utilities';
 import Memoizable from 'gentle-utils/memoizable';
 
-import ContextMenu from './_sequence_canvas_context_menu';
 
 var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, Core, Memoizable);
 // var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, BiDirectional, Core, Memoizable);
 // var SequenceCanvasMixin = classMixin(EventHandlers, Utilities, BiDirectional, Memoizable);
 
-import Styles from '../../styles';
+import Styles from '../../../styles';
 const LineStyles = Styles.sequences.lines;
 
 // export default class ChromatographCanvas extends SequenceCanvas {}
