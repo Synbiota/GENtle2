@@ -523,13 +523,16 @@ class SequenceCanvasCore {
         drawEnd = canvasDims;
       }
 
-      // console.log('moveOffset', moveOffset, 'drawStart', drawStart, 'drawEnd', drawEnd)
-
       // Quantify area into blocks and draw
       _this.forEachBlockInRange(drawStart, drawEnd, _this.drawBlock)
 
       _this.displayDeferred.resolve();
       _this.displayDeferred = Q.defer();
+
+
+      lh.previousXOffset = 0;
+      lh.previousYOffset = 0;
+
       resolve();
 
 
