@@ -116,14 +116,14 @@ var NCBIView = Backbone.View.extend({
     this.$el.addClass("fullscreen"); 
     $("#home-left-col").css("display","none");
     $(".home-open-file").css("display","none");
-    $("#home-right-col").removeClass("col-md-6").addClass("col-md-12");
+    $("#home-right-col").removeClass("col-md-6").addClass("col-md-10");
   },
 
   disableFullscreen: function() {
     this.$el.removeClass("fullscreen");
     $("#home-left-col").css("display","inline");
     $(".home-open-file").css("display", "inline");
-    $("#home-right-col").removeClass("col-md-12").addClass("col-md-6");
+    $("#home-right-col").removeClass("col-md-10").addClass("col-md-6");
 
   }
 
