@@ -17,4 +17,30 @@
       z-index: 1;
     }
   }
+
+  .back-link {
+    display: none;
+  }
+
+  .fullscreen {
+    .hide-on-fullscreen {
+      display: none;
+    }
+
+    .show-on-fullscreen {
+      display: inline;
+
+      a {
+        cursor: pointer;
+      }
+    }
+  }
+
+  .hide-on-fullscreen {
+    display: inline;
+  }
+
+  .show-on-fullscreen {
+    display: none;
+  }
 }

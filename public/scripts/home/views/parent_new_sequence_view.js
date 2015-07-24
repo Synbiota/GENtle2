@@ -21,9 +21,9 @@
     className: 'parent-home-new-sequence',
 
     events: {
-      'submit .home-new-sequence-form': 'createNewSequenceFromText',
-      'click .home-open-file-form a.btn': 'this.clickInputElement',
-      'change .home-open-file-form input[name=file]': 'this.openSequenceFromFile'    
+      //'submit .home-new-sequence-form': 'createNewSequenceFromText',
+      //'click .home-open-file-form a.btn': 'this.clickInputElement',
+      //'change .home-open-file-form input[name=file]': 'this.openSequenceFromFile'    
     },
 
     createNewSequenceFromText: function(event) {
@@ -54,6 +54,9 @@
       this.setView('.home-ncbi',this.ncbiView);
       //view.render();
     },
+
+
+
 
 
   });

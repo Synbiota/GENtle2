@@ -11,7 +11,8 @@ var NCBIView = Backbone.View.extend({
 
   events: {
     'submit form': 'triggerSearch',
-    'change form input[type="radio"]': 'changeDb'
+    'change form input[type="radio"]': 'changeDb',
+    'click .ncbi-backlink': 'disableFullscreen'
   },
 
   initialize: function() {
@@ -24,6 +25,7 @@ var NCBIView = Backbone.View.extend({
   },
 
   triggerSearch: function(event) {
+    this.enableFullscreen();
     var $form = this.$('form');
     var searchTerm = $form.find('input[name="search"]').val();
 
@@ -105,6 +107,24 @@ var NCBIView = Backbone.View.extend({
   afterRender: function() {
     this.setView('.ncbi-search-results-outlet', this.resultsView);
     this.$('form input[type="radio"][value="'+this.dbName+'"]').click();
+  },
+
+  enableFullscreen: function() {
+    console.log("enableFullscreen");    
+    //this.$(".ncbi-container").toggleClass("ncbi-fullscreen");
+    //this.setView('.home-fullscreen', this);
+    this.$el.addClass("fullscreen"); 
+    $("#home-left-col").css("display","none");
+    $(".home-open-file").css("display","none");
+    $("#home-right-col").removeClass("col-md-6").addClass("col-md-12");
+  },
+
+  disableFullscreen: function() {
+    this.$el.removeClass("fullscreen");
+    $("#home-left-col").css("display","inline");
+    $(".home-open-file").css("display", "inline");
+    $("#home-right-col").removeClass("col-md-12").addClass("col-md-6");
+
   }
 
 });
