@@ -13,12 +13,15 @@
       <div>
         <form>
           <div class="row">
-            <div class="col-xs-7">
-              <form>
-              <input type="text" name="search" placeholder="Sequence name or Accession number" class="form-control" required="required" value="{{searchTerm}}"/>
-            </div>
-             <div class="col-xs-3">
-              <input type="submit" value="Search NCBI" class="btn btn-primary pull-right"/>
+            <div class="col-md-12">
+              <form>  
+                <p>
+                  <input type="text" name="search" placeholder="Sequence name or Accession number" class="form-control" required="required" value="{{searchTerm}}"/>
+                </p>
+                <p>
+                  <input type="submit" value="Search NCBI" class="btn btn-primary pull-right"/>
+                </p>
+              </form>
             </div>
             <br/><br>
           </div>
@@ -37,7 +40,6 @@
               </label>
             </div>
           </div> --}}
-        </form>
         <div class="row loading-from-id" style="display: none;">
           <div class="loader col-xs-7">
             <p class="text-muted">
