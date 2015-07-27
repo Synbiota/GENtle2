@@ -1058,7 +1058,7 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     moveFeatures(base, offset, options={}) {
-      var features = super.get('features'),
+      var features = _.deepClone(super.get('features')),
           featurePreviousState,
           storePreviousState,
           firstBase, lastBase,
@@ -1118,7 +1118,7 @@ function sequenceModelFactory(BackboneModel) {
           }
         }
         this.clearFeatureCache();
-        if(trigger) this.trigger('change change:features');
+        if(trigger) this.set('features', features);
 
       }
 
