@@ -54,4 +54,22 @@
     margin-right: 8px;
     width: 100%;
   }
+
+  .drag-drop-box {
+    color: #999;
+    /*width: 100%;*/
+    display: block;
+    height: 95px;
+    border-bottom: 10px;
+    border: 5px dashed #DDD;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-sizing: border-box;
+
+    span {
+      margin-left: 10px;
+      margin-top: 20px;
+      position: relative;
+    }
+  }
 }
