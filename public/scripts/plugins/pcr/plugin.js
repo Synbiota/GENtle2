@@ -1,12 +1,11 @@
 import Gentle from 'gentle';
 import PCRView from './views/pcr_view';
 import PcrProductSequence from './lib/product';
-import WipPcrProductSequence from './lib/wip_product';
+import WipRdpPcrSequence from './lib/wip_rdp_pcr_sequence';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import HomePcrView from './views/home_pcr_view';
 import SequenceModel from '../../sequence/models/sequence';
-import SequencesCollection from '../../sequence/models/sequences';
 import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
 
 
@@ -18,7 +17,7 @@ Gentle.addPlugin('sequence-primary-view', {
     return Gentle.featureEnabled('rdp_pcr') && sequence instanceof PcrProductSequence;
   },
   maximize: (sequence) => {
-    return sequence instanceof WipPcrProductSequence;
+    return sequence instanceof WipRdpPcrSequence;
   }
 });
 
@@ -67,5 +66,3 @@ var version1PcrProductPreProcessor = version1GenericPreProcessor('pcrProducts');
 
 SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 SequenceModel.registerAssociation(PcrProductSequence, 'pcrProduct', true);
-SequencesCollection.registerConstructor(PcrProductSequence, 'pcr_product');
-SequencesCollection.registerConstructor(WipPcrProductSequence, 'wip_pcr_product');

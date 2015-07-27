@@ -31,12 +31,12 @@ export default Backbone.View.extend({
     if(wipRdpPcrSequence.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
 
     this.wipRdpPcrSequence = wipRdpPcrSequence;
-    this.dataAndOptions = wipRdpPcrSequence.getDataAndOptionsForPcr();
+    var dataAndOptions = wipRdpPcrSequence.getDataAndOptionsForPcr();
 
     // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
     // and the tempSequence sequenceBases to calculate the primers and new
     // sequenceBases.
-    getPcrProductAndPrimers(wipRdpPcrSequence, this.dataAndOptions)
+    getPcrProductAndPrimers(wipRdpPcrSequence, dataAndOptions)
     .then((pcrProduct) => {
       var rdpPcrAttributes = _.extend(
         {},

@@ -314,7 +314,7 @@ describe('finding Sequencing Primers', function() {
   });
 
 
-  afterAll(function() {
+  afterAll(function(done) {
     restoreIDTMeltingTemperature();
     done();
   });

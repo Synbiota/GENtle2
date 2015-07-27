@@ -4,8 +4,6 @@ import data from '../../common/lib/synbio_data';
 import SequenceRange from '../sequence-model/range';
 import RdpSequenceFeature from './rdp_sequence_feature';
 import RdpEdit from './rdp_edit';
-import RdpTypes from './rdp_types';
-import WipRdpOligoSequence from './wip_rdp_oligo_sequence';
 
 
 var CONTEXT_BASE_PAIRS = 9;
@@ -137,78 +135,74 @@ class TransformationFunction {
 var requirements, rdpEditType;
 
 
-requirements = [
-  warnIfStickyEndsPresent,
-  warnIfShortSequence,
-];
-rdpEditType = RdpEdit.types.METHIONINE_START_CODON;
 /**
- * @function  methionineStartCodonFn
- * @param  {SequenceModel}  sequenceModel
- * @return {array<RdpEdit>}  May return RdpEdits in normal or error state
+ * @function  makeFirstCodonIsAaFn
+ * @param  {String}  aA  amino acid short code
+ * @param  {Object} types  Has keys: CONVERTED, ADDED
+ * @param  {array<String>} convertableFromCodons  list of codons
+ * @return {function}  takes `SequenceModel` and returns `array<RdpEdit>`
  */
-var methionineStartCodonFn = function(sequenceModel) {
-  var rdpEdit;
-  var length = getLen(sequenceModel);
-  let sequenceBases = getSubSeq(sequenceModel, 0, 3);
-  const METHIONINE = _.find(data.aa, (aa) => aa.short === 'M').codons[0];
+var makeFirstCodonIsAaFn = function(aA, types={}, convertableFromCodons=[]) {
+  aA = aA.toUpperCase();
+  convertableFromCodons = _.map(convertableFromCodons, (s) => s.toUpperCase());
 
-  if(sequenceBases !== METHIONINE) {
-    var quietlyAddedMethionine = false;
-    var type, name, desc, sequence, contextBefore, contextAfter, contextualTo;
-    var ranges = [];
-    var size = 3;
-    var contextualFrom = 0;
+  var firstCodonIsAaFn = function(sequenceModel) {
+    var rdpEdit;
+    var length = getLen(sequenceModel);
+    var sequenceBases = getSubSeq(sequenceModel, 0, 3);
+    var aminoAcidData = _.find(data.aa, (aa) => aa.short === aA);
+    const DESIRED_CODONS = aminoAcidData.codons;
 
-    let options = {stickyEndFormat: sequenceModel.STICKY_END_ANY};
-    if(sequenceBases === 'GTG' || sequenceBases === 'TTG') {
-      type = RdpEdit.types.METHIONINE_START_CODON_CONVERTED;
-      name = 'Will modify ' + sequenceBases;
-      desc = 'Will modify start codon to be ATG (Methionine)';
-      ranges = [new SequenceRange({
-        name: name,
-        from: 0,
-        size: size,
-      })];
+    if(!_.contains(DESIRED_CODONS, sequenceBases)) {
+      var DESIRED_CODON = DESIRED_CODONS[0];
+      var type, name, desc, sequence, contextBefore, contextAfter, contextualTo;
+      var ranges = [];
+      var size = 3;
+      var contextualFrom = 0;
+      var options = {stickyEndFormat: sequenceModel.STICKY_END_ANY};
 
-      // Get a sequence snippet before
-      contextualTo = Math.min(length, size + CONTEXT_BASE_PAIRS);
-      sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
-      contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
+      if(_.contains(convertableFromCodons, sequenceBases)) {
 
-      sequenceModel.changeBases(0, METHIONINE, options);
+        type = types.CONVERTED;
+        name = 'Will modify ' + sequenceBases;
+        desc = `Will modify start codon to be ${DESIRED_CODON} (${aminoAcidData.extended})`;
+        ranges = [new SequenceRange({
+          name: name,
+          from: 0,
+          size: size,
+        })];
 
-      name = 'Modified ' + sequenceBases;
-      desc = 'Modified start codon to be ATG (Methionine)';
-      ranges = [new SequenceRange({
-        name: name,
-        from: 0,
-        size: size,
-      })];
+        // Get a sequence snippet before
+        contextualTo = Math.min(length, size + CONTEXT_BASE_PAIRS);
+        sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
+        contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
-      // Get a sequence snippet after
-      sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
-      contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
-    } else {
-      type = RdpEdit.types.METHIONINE_START_CODON_ADDED;
-      var quietlyAddMethionine = false;
-      if(!quietlyAddMethionine) {
-        name = 'Will insert ATG';
-        desc = 'Will insert ATG (Methionine) start codon';
+        sequenceModel.changeBases(0, DESIRED_CODON, options);
 
+        name = 'Modified ' + sequenceBases;
+        desc = `Modified start codon to be ${DESIRED_CODON} (${aminoAcidData.extended})`;
+        ranges = [new SequenceRange({
+          name: name,
+          from: 0,
+          size: size,
+        })];
+
+        // Get a sequence snippet after
+        sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
+        contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
+      } else {
+        type = types.ADDED;
+        name = `Will insert ${DESIRED_CODON}`;
+        desc = `Will insert ${DESIRED_CODON} (${aminoAcidData.extended}) start codon`;
         // Get a sequence snippet before
         contextualTo = Math.min(length, CONTEXT_BASE_PAIRS);
         sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
         contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
-        name = 'Inserted ATG';
-        desc = 'Inserted ATG (Methionine) start codon';
-      }
-      sequenceModel.insertBases(METHIONINE, 0, options);
-      if(quietlyAddMethionine) {
-        quietlyAddedMethionine = true;
-      }
-      if(!quietlyAddMethionine) {
+        sequenceModel.insertBases(DESIRED_CODON, 0, options);
+
+        name = `Inserted ${DESIRED_CODON}`;
+        desc = `Inserted ${DESIRED_CODON} (${aminoAcidData.extended}) start codon`;
         ranges = [new SequenceRange({
           name: name,
           from: 0,
@@ -220,14 +214,34 @@ var methionineStartCodonFn = function(sequenceModel) {
         sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
         contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
       }
-    }
-    if(!quietlyAddedMethionine) {
+
       rdpEdit = new RdpEdit({type, contextBefore, contextAfter});
     }
-  }
-  return rdpEdit ? [rdpEdit] : [];
+    return rdpEdit ? [rdpEdit] : [];
+  };
+
+  return firstCodonIsAaFn;
 };
-var methionineStartCodon = new TransformationFunction(methionineStartCodonFn, requirements, rdpEditType);
+
+
+
+requirements = [
+  warnIfStickyEndsPresent,
+  warnIfShortSequence,
+];
+rdpEditType = RdpEdit.types.METHIONINE_START_CODON;
+var convertableFromCodons = ['GTG', 'TTG'];
+var types = {
+  CONVERTED: RdpEdit.types.METHIONINE_START_CODON_CONVERTED,
+  ADDED: RdpEdit.types.METHIONINE_START_CODON_ADDED,
+};
+/**
+ * @function  firstCodonIsMethionineFn
+ * @param  {SequenceModel}  sequenceModel
+ * @return {array<RdpEdit>}  May return RdpEdits in normal or error state
+ */
+var firstCodonIsMethionineFn = makeFirstCodonIsAaFn('M', types, convertableFromCodons);
+var firstCodonIsMethionine = new TransformationFunction(firstCodonIsMethionineFn, requirements, rdpEditType);
 
 
 
@@ -561,6 +575,24 @@ var ensureLastBaseIs = function(ensureBase) {
 
 
 
+
+requirements = [
+  warnIfStickyEndsPresent,
+  warnIfShortSequence,
+];
+rdpEditType = RdpEdit.types.FIRST_CODON_IS_STOP;
+types = {
+  ADDED: RdpEdit.types.FIRST_CODON_IS_STOP_ADDED,
+};
+/**
+ * @function  firstCodonIsStopFn
+ * @param  {SequenceModel}  sequenceModel
+ * @return {array<RdpEdit>}  May return RdpEdits in normal or error state
+ */
+var firstCodonIsStopFn = makeFirstCodonIsAaFn('X', types, []);
+var firstCodonIsStop = new TransformationFunction(firstCodonIsStopFn, requirements, rdpEditType);
+
+
 requirements = [
   warnIfNotMultipleOf3,
   warnIfStickyEndsPresent
@@ -600,12 +632,9 @@ var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, 
 
 
 export default {
-  methionineStartCodon,
+  firstCodonIsMethionine,
   noTerminalStopCodons,
   ensureLastBaseIs,
+  firstCodonIsStop,
   warnIfEarlyStopCodons,
-  // Exposed for testing
-  warnIfStickyEndsPresent,
-  warnIfNotMultipleOf3,
-  warnIfShortSequence,
 };

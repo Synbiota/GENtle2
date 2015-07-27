@@ -159,7 +159,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 60.5,
         optimal: false,
       },
-      defaultPCRPrimerOptions()
+      defaultPCRPrimerOptions({minPrimerLength: 20})
     );
   });
 
@@ -172,7 +172,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 59.8,
         optimal: false,
       },
-      defaultPCRPrimerOptions()
+      defaultPCRPrimerOptions({minPrimerLength: 20})
     );
   });
 
@@ -185,7 +185,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 60,
         optimal: false,
       },
-      defaultPCRPrimerOptions()
+      defaultPCRPrimerOptions({minPrimerLength: 20})
     );
   });
 
@@ -198,7 +198,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 63,
         optimal: false,
       },
-      defaultPCRPrimerOptions()
+      defaultPCRPrimerOptions({minPrimerLength: 20})
     );
   });
 
@@ -211,7 +211,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 60.2,
         optimal: false,
       },
-      defaultPCRPrimerOptions()
+      defaultPCRPrimerOptions({minPrimerLength: 20})
     );
   });
 
@@ -299,7 +299,7 @@ describe('getting sequence to search for primer', function() {
   it('errors if frm is too large (and the forward sequence is requested)', function() {
     constructPrimerModel(36, false);
     expect(errors.length).toEqual(1);
-    expect(errors[0].toString()).toEqual("e: `sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer");
+    expect(/`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(errors[0].toString())).toEqual(true);
   });
 
   it('returns the reverse sequence, defaulting to end', function() {
@@ -324,6 +324,6 @@ describe('getting sequence to search for primer', function() {
   it('errors when sequence is too small and the reverse strand is requested', function() {
     constructPrimerModel(0, true, 41);
     expect(errors.length).toEqual(1);
-    expect(errors[0].toString()).toEqual("e: sequence is too short to leave enough sequence length to find the primer");
+    expect(/sequence is too short to leave enough sequence length to find the primer$/.test(errors[0].toString())).toEqual(true);
   });
 });

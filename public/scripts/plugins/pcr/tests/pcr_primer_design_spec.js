@@ -78,13 +78,8 @@ var expectedPcrProductSequence = forward + interveningSequence + reverse;
 let reverseComplement = SequenceTransforms.toReverseComplements(reverse);
 var reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseComplements(reverseAnnealingRegionSequence);
 
-beforeEach(function() {
-  sequenceModel = new SequenceModel({sequence});
-});
-
 
 describe('calculating PCR primers', function() {
-
   beforeAll(function() {
     stubCurrentUser();
     stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
@@ -92,6 +87,10 @@ describe('calculating PCR primers', function() {
 
   afterAll(function() {
     restoreIDTMeltingTemperature();
+  });
+
+  beforeEach(function() {
+    sequenceModel = new SequenceModel({sequence});
   });
 
   it('errors on from being < to', function(done) {
@@ -124,7 +123,7 @@ describe('calculating PCR primers', function() {
       done();
     })
     .catch(function(e) {
-      expect(e.toString()).toEqual('e: `sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer');
+      expect(/`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(e.toString())).toEqual(true);
       done();
     })
     .done();
@@ -247,33 +246,36 @@ describe('calculating PCR product from primers', function() {
   var pcrProduct;
   var forwardPrimer;
   var reversePrimer;
+
+  beforeAll(function() {
+    var forwardAnnealingRegion = new Primer({
+      parentSequence: sequenceModel,
+      range: {
+        from: 9,
+        size: 19,
+      },
+      meltingTemperature: 64.1,
+      gcContent: 0.5789473684210527,
+    });
+
+    var reverseAnnealingRegion = new Primer({
+      parentSequence: sequenceModel,
+      range: {
+        from: 133,
+        size: 17,
+        reverse: true,
+      },
+      meltingTemperature: 63.5,
+      gcContent: 0.5882352941176471,
+    });
+
+    pcrProduct = calculatePcrProductFromPrimers(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion);
+    forwardPrimer = pcrProduct.get('forwardPrimer');
+    reversePrimer = pcrProduct.get('reversePrimer');
+  });
+
   beforeEach(function() {
-    if(!pcrProduct) {
-      let forwardAnnealingRegion = new Primer({
-        parentSequence: sequenceModel,
-        range: {
-          from: 9,
-          size: 19,
-        },
-        meltingTemperature: 64.1,
-        gcContent: 0.5789473684210527,
-      });
-
-      let reverseAnnealingRegion = new Primer({
-        parentSequence: sequenceModel,
-        range: {
-          from: 133,
-          size: 17,
-          reverse: true,
-        },
-        meltingTemperature: 63.5,
-        gcContent: 0.5882352941176471,
-      });
-
-      pcrProduct = calculatePcrProductFromPrimers(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion);
-      forwardPrimer = pcrProduct.get('forwardPrimer');
-      reversePrimer = pcrProduct.get('reversePrimer');
-    }
+    sequenceModel = new SequenceModel({sequence});
   });
 
   it('correct attributes', function() {
