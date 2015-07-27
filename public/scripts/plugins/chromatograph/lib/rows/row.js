@@ -1,7 +1,7 @@
 import _ from 'underscore';
-import Lines from '../lines';
+import Lines from '../../../../library/sequence-canvas/lines';
 
-import Styles from '../../../styles.json';
+import Styles from '../../../../styles.json';
 
 var LineStyles = Styles.sequences.lines;
 

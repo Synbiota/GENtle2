@@ -1,5 +1,5 @@
 import Row from './row';
-import Styles from '../../../styles.json';
+import Styles from '../../../../styles.json';
 
 const LineStyles = Styles.sequences.lines;
 

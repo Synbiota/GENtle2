@@ -1,4 +1,4 @@
-import Styles from '../../../styles';
+import Styles from '../../../../styles';
 import Row from './row';
 
 const LineStyles = Styles.sequences.lines;

@@ -3,6 +3,9 @@ import _ from 'underscore';
 
 /**
 Line class for displaying bases on SequenceCanvas.
+
+DNA_XY allows a string of dna to be written at any [x,y] coordinate.
+
 Options are:
 
 - `this.height`: line height.
