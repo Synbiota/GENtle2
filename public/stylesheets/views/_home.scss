@@ -1,4 +1,12 @@
 .home {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: scroll;
+  padding-bottom: 20px;
+
   .tab-content {
     border: 1px solid #ddd;
     margin-left: -30px;
@@ -9,11 +17,14 @@
   }
 
   h3 { 
-    font-size: 22px;
+    font-size: 21px;
   }
   small,p {
     color: #333;
     font-size: inherit;
+  }
+  hr {
+    border-color: #ddd;
   }
 
   .tabs-left {
@@ -49,27 +60,54 @@
     display: none;
   }
 
-  .home-new-sequence-container {
-    border-right: 1px solid #DDD;
-    margin-right: 8px;
-    width: 100%;
-  }
-
   .drag-drop-box {
     color: #999;
     /*width: 100%;*/
     display: block;
     height: 95px;
     border-bottom: 10px;
-    border: 5px dashed #DDD;
+    border: 3px dashed #DDD;
     border-radius: 10px;
     margin-bottom: 25px;
     box-sizing: border-box;
+    padding: 10px 5px;
 
     span {
       margin-left: 10px;
       margin-top: 20px;
       position: relative;
+    }
+  }
+}
+
+.parent-home-new-sequence {
+  padding-top: 20px;
+  margin-left: -15px;
+
+  h3 {
+    margin-top: 0;
+  }
+}
+
+#home-right-col {
+  &:before {
+    content: "";
+    display: block;
+    border-left: 1px solid #ddd;
+    height: 100%;
+    position: absolute;
+    left: -17.5px;
+  }
+
+  &.home-fullscreen {
+    &:before {
+      display: none;
+    }
+  }
+
+  @media(max-width: 991px) {
+    &:before {
+      display: none;
     }
   }
 }
