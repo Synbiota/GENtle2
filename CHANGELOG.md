@@ -2,6 +2,7 @@
 
 ## develop
 
+* Dave/Alex  2015-07-27 New 'New sequence' home layout
 * Alex  2015-07-24  Added tooltip on home button in navbar
 * Alex  2015-07-24  Dual canvas view when designing RDP oligo parts
 * James  2015-07-23  Render known RDP edits in better format.

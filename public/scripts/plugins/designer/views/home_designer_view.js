@@ -9,7 +9,7 @@ import WipCircuit from '../lib/wip_circuit';
 import Gentle from 'gentle';
 import Q from 'q';
 import _ from 'underscore';
-import uploadMultipleSequences from '../lib/upload_multiple_sequences';
+import uploadMultipleSequences from '../../../common/lib/upload_multiple_sequences';
 
 export default Backbone.View.extend({
   manage: true,

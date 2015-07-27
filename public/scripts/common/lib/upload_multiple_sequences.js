@@ -1,4 +1,4 @@
-import Filetypes from '../../../common/lib/filetypes/filetypes';
+import Filetypes from './filetypes/filetypes';
 import _ from 'underscore';
 import Q from 'q';
 
