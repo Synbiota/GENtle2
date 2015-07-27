@@ -31,13 +31,16 @@
       ];
 
       tabsFromPlugins = _.pluck(_.where(Gentle.plugins, {type: 'home'}), 'data');
-
+      //tabsFromPlugins = _.without("NCBI");
       this.tabs = [];
       _.each(_.union(defaultTabs, tabsFromPlugins), _.bind(this.addTab, this));
     },
 
     addTab: function(tab) {
-      this.tabs.push(tab);
+     
+      if (tab.name != "ncbi") {
+        this.tabs.push(tab);
+      }  
     },
 
     afterRender: function() {
