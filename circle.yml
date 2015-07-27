@@ -11,3 +11,8 @@ deployment:
     branch: master
     commands:
       - "STACK_ID=$AWS_BETA_STACK_ID APP_ID=$AWS_BETA_APP_ID ASSET_DIR=beta BUGSNAG_RELEASE_STAGE=beta gulp publish"
+
+  feature:
+    branch: /feature\/.*/
+    commands:
+      - "ASSET_DIR=$CIRCLE_BRANCH BUGSNAG_RELEASE_STAGE=$CIRCLE_BRANCH gulp publish"
