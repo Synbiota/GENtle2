@@ -220,7 +220,7 @@ export default Backbone.View.extend({
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
       } else {
         var data = this.getData();
-        var attributes = _.pick(data, 'name', 'sequence', 'features', 'sourceSequenceName', 'partType', 'desiredStickyEnds');
+        var attributes = _.pick(data, 'name', 'sequence', 'features', 'sourceSequenceName', 'partType', 'desiredStickyEnds', 'shortName');
         attributes.frm = data.from;
         attributes.size = data.to - data.from + 1;
         var wipRdpSequence = new this.model.constructor(attributes);

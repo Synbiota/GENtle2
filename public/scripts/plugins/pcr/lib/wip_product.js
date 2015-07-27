@@ -85,6 +85,7 @@ class WipPcrProductSequence extends Sequence {
       endBasesDifferentToTemplate,
       stickyEnds: this.get('desiredStickyEnds'),
       name: this.get('name'),
+      shortName: this.get('shortName'),
     };
     return dataAndOptionsForPcr;
   }
