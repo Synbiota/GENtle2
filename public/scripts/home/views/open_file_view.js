@@ -8,6 +8,7 @@ import Backbone from 'backbone';
 import template from '../templates/open_file_view.hbs';
 import Filetypes from '../../common/lib/filetypes/filetypes';
 import Gentle from 'gentle';
+import dropzone from '../../common/lib/dropzone';
 
 
   var OpenFileView = Backbone.View.extend({
@@ -53,9 +54,26 @@ import Gentle from 'gentle';
 
     clickInputElement: function(event) {
       event.preventDefault();
-      console.log("clickInputElement")
       this.$('.home-open-file-form input[name=file]').click();
+    },
+
+    afterRender: function() {
+      this.setupDropzone();
+    },
+
+    setupDropzone: function() {
+      var $dropzone = 
+        this.$('.fullscreen-filedropzone');
+
+      dropzone.init.call(this, $dropzone, function(sequences) {
+        Gentle.addSequencesAndNavigate(sequences);
+      });
+    },
+
+    cleanup: function() {
+      dropzone.remove.call(this);
     }
+
 
   });
 export default OpenFileView;
