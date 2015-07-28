@@ -137,7 +137,6 @@ var defaultLines = function(sequence) {
 
 export default class SequenceCanvas extends SequenceCanvasMixin {
   constructor(options = {}) {
-
     var sequence = options.sequence;
     _.defaults(options, {
       lines: defaultLines(sequence),

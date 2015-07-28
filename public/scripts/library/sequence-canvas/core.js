@@ -33,7 +33,7 @@ class SequenceCanvasCore {
   _init(options = {}) {
 
     // Context binding (context is lost in Promises' `.then` and `.done`)
-    _.bindAll(this, 
+    _.bindAll(this,
       'calculateLayoutSettings',
       'updateCanvasDims',
       'redrawSelection',
@@ -157,7 +157,7 @@ class SequenceCanvasCore {
   /**
    * Converts `$container` into a jQuery object if necessary and insert relevant
    * scrolling helper elements in it.
-   * @param  {Element, Node or $ object} $container DOM element in which to 
+   * @param  {Element, Node or $ object} $container DOM element in which to
    *                        insert the necessary elements
    * @return {$ object} container as instance of $
    */
@@ -171,7 +171,7 @@ class SequenceCanvasCore {
       .html(template({id: this.id}));
 
     return $container;
-  } 
+  }
 
   _initLines(lines) {
     assertIsObject(lines, 'options.lines');
@@ -324,7 +324,7 @@ class SequenceCanvasCore {
         0;
 
       if (moveOffset !== 0) {
-        artist.scroll(-moveOffset);
+        artist.scroll(0, -moveOffset);
 
         drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
         drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
@@ -381,7 +381,7 @@ class SequenceCanvasCore {
       highlight = this.highlight,
       initPosY = posY;
 
-    this.artist.clear(posY, rowsHeight);
+    this.artist.clear(0, posY, 0, rowsHeight);
 
 
     if(highlight !== undefined && highlight[0] <= baseRange[1] && highlight[1] >= baseRange[0]) {
@@ -508,7 +508,7 @@ class SequenceCanvasCore {
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
     var distance = 0;
     var buffer = this.$scrollingParent.height()/2;
- 
+
      if (distanceToVisibleCanvas !== 0) {
       distance = this.layoutHelpers.yOffset + distanceToVisibleCanvas;
       distance += (distanceToVisibleCanvas > 0) ? buffer : -buffer;
@@ -611,7 +611,7 @@ class SequenceCanvasCore {
       } else {
         info = toString(start) + " to " + toString(end) + " (" + toString(size+1) +  " bp)";
       }
-      
+
     } else {
       info = toString(this.caretPosition + 1);
     }
@@ -707,9 +707,9 @@ class SequenceCanvasCore {
     this.redraw();
   }
 
-  /** 
+  /**
    * @method selectRange
-   * @param {Range} range 
+   * @param {Range} range
    * @return {Undefined}
    */
   selectRange(range) {
@@ -757,11 +757,11 @@ class SequenceCanvasCore {
     this.$scrollingParent.focus();
   }
 
-  setCursorStyle(style) { 
+  setCursorStyle(style) {
     this.$scrollingParent.css({
       cursor: style
     });
-  } 
+  }
 
   destroy() {
     this.sequence.off(null, this.refresh);

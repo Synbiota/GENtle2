@@ -8,7 +8,6 @@
       Gentle                    = require('gentle'),
       SequenceSettingsView      = require('./settings_view'),
       SequenceEditionView       = require('./sequence_edition_view'),
-      // SequenceChromatographView = require('./sequence_chromatograph_view'),
       SequenceAnalysisView      = require('./sequence_analysis_view'),
       StatusbarView             = require('../../common/views/statusbar_view'),
       StatusbarPrimaryViewView  = require('./statusbar_primary_view_view'),
@@ -107,8 +106,7 @@
       currentView = this.model.get('displaySettings.primaryView');
 
       if(!~_.pluck(primaryViews, 'name').indexOf(currentView)) {
-        // currentView = 'edition';
-        currentView = 'chromatograph';
+        currentView = 'edition';
       }
 
       this.primaryViews = primaryViews;

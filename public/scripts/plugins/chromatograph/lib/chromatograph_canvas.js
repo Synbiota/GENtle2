@@ -4,11 +4,12 @@ import ContextMenu from '../../../sequence/lib/_sequence_canvas_context_menu';
 import classMixin from 'gentle-utils/class_mixin';
 import Core from './core';
 import EventHandlers from 'gentle-sequence-canvas/event_handlers';
+import ChromatogramEventHandlers from './event_handlers';
 import Utilities from './utilities';
 import Memoizable from 'gentle-utils/memoizable';
 
 
-var SequenceCanvasMixin = classMixin(ContextMenu, EventHandlers, Utilities, Core, Memoizable);
+var SequenceCanvasMixin = classMixin(ContextMenu, ChromatogramEventHandlers, EventHandlers, Utilities, Core, Memoizable);
 
 import Styles from '../../../styles';
 const LineStyles = Styles.sequences.lines;

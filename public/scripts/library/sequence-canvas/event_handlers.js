@@ -472,7 +472,6 @@ class Handlers {
   /**
    **/
   handleMouseup(event) {
-
     if (!this.selection || !this.selecting) {
       this.handleClick(event);
     }
@@ -524,15 +523,8 @@ class Handlers {
   Handles scrolling events
   @method handleScrolling
   **/
-
-  // DURING BACKPORT CHANGE CORE CANVAS TO USE onScroll
   handleScrolling(event) {
-    var $target = $(event.delegateTarget)
-    if (this.onScroll){
-      this.onScroll($target.scrollLeft(), $target.scrollTop());
-    } else {
-      this.scrollTo($target.scrollLeft(), $target.scrollTop());
-    }
+    this.scrollTo($(event.delegateTarget).scrollTop());
   }
 
   /**
