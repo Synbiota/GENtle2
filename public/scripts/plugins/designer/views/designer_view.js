@@ -40,7 +40,8 @@ var DesignerView = Backbone.View.extend({
 
     var specialSequenceNames = [
       'x-z', 'x-z\'', 'z-x', 'z-x\'', 
-      'x-adp-z\'', 'x-Inv-z', 'z-adp-x\'', 'z-Inv-x'
+      'x-adp-z\'', 'x-Inv-z', 'z-adp-x\'', 'z-Inv-x',
+      'anc-Ori-x\'', 'z-ChlR-cap'
     ];
 
     var outlet1StickyEndNames = [

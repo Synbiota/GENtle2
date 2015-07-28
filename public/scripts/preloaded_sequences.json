@@ -1,0 +1,225 @@
+[{
+    "_type": "dna",
+    "desc": "",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 1282,
+            "reverseComplement": false
+        }],
+        "desc": "",
+        "name": "dAn-ori-x'",
+        "_type": "misc"
+    }],
+    "isCircular": false,
+    "readOnly": true,
+    "name": "anc-Ori-x'",
+    "version": 0,
+    "sequence": "TTTTTTTTTTTTTTTTTTAGGTGACGTCGGACTCTTGAGACCCAGAAATCATCCTTAGCGAAAGCTAAGGATTTTTTTTATCTGAAATTCTGCCTCGTGATACGCCTATTTTTACTGCATGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGACCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGCTCGAGGCTTGGATTCTCACCAATAAAAAACGCCCGGCGGCAACCGAGCGTTCTGAACAAATCCAGATGGAGTTCTCGAGTGCCACTTGACGTCTAAGAAACCAGACGTCTAAGAAACCAGAATTCTCATGACATTAACATGCAGAACGCGAAGTAATCTTTTCGGTTTTAAAGAAAAAGGGCAGGGTGGTGACACCTTGCCCGTTTTTTTGCCGGAGGTCTCAAGAG",
+    "stickyEnds": {
+        "start": {
+            "name": "Anc",
+            "offset": 0,
+            "size": 19,
+            "reverse": true
+        },
+        "end": {
+            "name": "x'",
+            "offset": 0,
+            "size": 4,
+            "reverse": true
+        }
+    }
+}, {
+    "_type": "dna",
+    "desc": "Blue Chromoprotein (amilCP) is a protein from the coral Acropora millepora, that after expression, appears blue. amilCP exhibits a peak absorbance at 588 nm.",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 781,
+            "reverseComplement": false
+        }],
+        "desc": "This is the Genomikon Part that encodes for Blue chromoprotein",
+        "name": "X--Blue_Chromoprotein_(amiCP)--Z'",
+        "_type": "genomikon_part"
+    }],
+    "isCircular": false,
+    "name": "x-Blue-z'",
+    "version": 0,
+    "readOnly": true,
+    "sequence": "AGAGGCAACGTCTTTCGTCTTCAATAACAATTTACGGCTAGCGACTGCCTAGGTACTATGTTGGTACCAGATTCGCCAGTCGAAATAGGAGGTATCAATGAGTGTGATCGCTAAACAAATGACCTACAAGGTTTATATGTCAGGCACGGTCAATGGACACTACTTTGAGGTCGAAGGCGATGGAAAAGGTAAGCCCTACGAGGGGGAGCAGACGGTAAAGCTCACTGTCACCAAGGGCGGACCTCTGCCATTTGCTTGGGATATTTTATCACCACAGTGTCAGTACGGAAGCATACCATTCACCAAGTACCCTGAAGACATCCCTGACTATGTAAAGCAGTCATTCCCGGAGGGCTATACATGGGAGAGGATCATGAACTTTGAAGATGGTGCAGTGTGTACTGTCAGCAATGATTCCAGCATCCAAGGCAACTGTTTCATCTACCATGTCAAGTTCTCTGGTTTGAACTTTCCTCCCAATGGACCTGTCATGCAGAAGAAGACACAGGGCTGGGAACCCAACACTGAGCGTCTCTTTGCACGAGATGGAATGCTGCTAGGAAACAACTTTATGGCTCTGAAGTTAGAAGGAGGCGGTCACTATTTGTGTGAATTTAAAACTACTTACAAGGCAAAGAAGCCTGTGAAGATGCCAGGGTATCACTATGTTGACCGCAAACTGGATGTAACCAATCACAACAAGGATTACACTTCGGTTGAGCAGTGTGAAATTTCCATTGCACGCAAACCTGTGGTCGCCTGATGAACTAGTATGCATGAGA",
+    "stickyEnds": {
+        "start": {
+            "name": "x",
+            "offset": 0,
+            "size": 4,
+            "reverse": false
+        },
+        "end": {
+            "name": "z'",
+            "offset": 0,
+            "size": 4,
+            "reverse": true
+        }
+    }
+}, {
+    "_type": "dna",
+    "desc": "Acropora millepora green fluorescent protein. \n\nhttp://www.plosone.org/article/info%3Adoi%2F10.1371%2Fjournal.pone.0002680",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 808,
+            "reverseComplement": false
+        }],
+        "desc": "This is the Genomikon Part for GFP",
+        "name": "X--Green_Fluorescent_Protein--Z'",
+        "_type": "genomikon_part"
+    }],
+    "isCircular": false,
+    "name": "x-Green-z'",
+    "version": 0,
+    "readOnly": true,
+    "sequence": "AGAGGCAACGTCTTTCGTCTTCAATAACAACTGACAGCTAGCCTGACCCTAGGTATAATGTTGGTACCTACTAGAGAAAGAGGAGAAATACTAGATGTCTTATTCAAAGCATGGCATCGTACAAGAAATGAAGACGAAATACCATATGGAAGGCAGTGTCAATGGCCATGAATTTACGATCGAAGGTGTAGGAACTGGGCACCCTTACGAAGGGAAACAGATGTCCGAATTAGTGATCATCAAGCCTGCGGGAAAACCCCTTCCATTCTCCTTTGACATACTGTCATCAGTCTTTCAATATGGAAACCGTTGCTTCACAAAGTACCCGGCAGACATGCCTGACTATTTCAAGCAAGCATTCCCAGATGGAATGTCATATGAAAGGTCATTTCTATTTGAGGATGGAGCAGTTGCTACAGCCAGCTGGAACATTCGTCTCGAAGGAAATTGCTTCATCCACAAATCCATCTTTCATGGCGTAAACTTTCCCGCTGATGGACCCGTAATGAAAAAGAAGACAATTGACTGGGATAAGTCCTTCGAAAAAATGACTGTGTCTAAAGAGGTGCTAAGAGGTGACGTGACTATGTTTCTTATGCTCGAAGGAGGTGGTTCTCACAGATGCCAATTTCACTCCACTTACAAAACAGAGAAGCCGGTCACACTGCCCCCGAATCATGTCGTAGAACATCAAATTGTGAGGACCGACCTTGGCCAAAGTGCAAAAGGCTTTACAGTCAAGCTGGAAGCACATGCCGCGGCTCATGTTAACCCTTTGAAGGTTAAATGATGAACTAGTATGCATGAGA",
+    "stickyEnds": {
+        "start": {
+            "name": "x",
+            "offset": 0,
+            "size": 4,
+            "reverse": false
+        },
+        "end": {
+            "name": "z'",
+            "offset": 0,
+            "size": 4,
+            "reverse": true
+        }
+    }
+}, {
+    "_type": "dna",
+    "desc": "x-Linker-z' \n\nA short piece of DNA that has the sole purpose of turning a z' end into an x' end. ",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 57,
+            "reverseComplement": false
+        }],
+        "desc": "This is the X--Z' linker",
+        "name": "X--Genomikon_Linker--Z'",
+        "_type": "misc"
+    }],
+    "isCircular": false,
+    "name": "x-Linker-z'",
+    "version": 0,
+    "readOnly": true,
+    "sequence": "AGAGCCTGTCCTTCACCCTTAGGTGCACCGGACAGGAAGTGGGAATCCACGTGGGAGA",
+    "stickyEnds": {
+        "start": {
+            "name": "X",
+            "offset": 0,
+            "size": 4,
+            "reverse": false
+        },
+        "end": {
+            "name": "Z'",
+            "offset": 0,
+            "size": 4,
+            "reverse": true
+        }
+    }
+}, {
+    "_type": "dna",
+    "desc": "Gene for monomeric red fluorescent protein (RFP). \n\nFurther information: Engineered mutant of red fluorescent protein from Discosoma striata (coral).\n\nMonomeric RFP: Red Fluorescent Protein. Excitation peak: 584 nm Emission peak: 607 nm",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 790,
+            "reverseComplement": false
+        }],
+        "desc": "This is red fluorescent protein",
+        "name": "X--Red_Fluorescent_Protein --Z'",
+        "_type": "genomikon_part"
+    }],
+    "isCircular": false,
+    "name": "x-Red-z'",
+    "version": 0,
+    "readOnly": true,
+    "sequence": "AGAGGCAACGTCTTTCGTCTTCAATAACAACTGACAGCTAGCCTGACCCTAGGTATAATGTTGGTACCTACTAGAGAAAGAGGAGAAATACTAGATGGCTTCCTCCGAAGACGTTATCAAAGAGTTCATGCGTTTCAAAGTTCGTATGGAAGGTTCCGTTAACGGTCACGAGTTCGAAATCGAAGGTGAAGGTGAAGGTCGTCCGTACGAAGGCACCCAGACCGCTAAACTGAAAGTTACCAAAGGTGGTCCGCTGCCGTTCGCTTGGGACATCCTGTCCCCGCAGTTCCAGTACGGTTCCAAAGCTTACGTTAAACACCCGGCTGACATCCCGGACTACCTGAAACTGTCCTTCCCGGAAGGTTTCAAATGGGAACGTGTTATGAACTTCGAAGACGGTGGTGTTGTTACCGTTACCCAGGACTCCTCCCTGCAAGACGGTGAGTTCATCTACAAAGTTAAACTGCGTGGCACCAACTTCCCGTCCGACGGTCCGGTTATGCAGAAAAAAACCATGGGTTGGGAAGCTTCCACCGAACGTATGTACCCGGAAGACGGTGCTCTGAAAGGTGAAATCAAAATGCGTCTGAAACTGAAAGACGGTGGTCACTACGACGCTGAAGTTAAAACCACCTACATGGCTAAAAAACCGGTTCAGCTGCCGGGTGCTTACAAAACCGACATCAAACTGGACATCACCTCCCACAACGAAGACTACACCATCGTTGAACAGTACGAACGTGCTGAAGGTCGTCACTCCACCGGTGCTTGATGAACTAGTATGCATGAGA",
+    "stickyEnds": {
+        "start": {
+            "name": "x",
+            "offset": 0,
+            "size": 4,
+            "reverse": false
+        },
+        "end": {
+            "name": "z'",
+            "offset": 0,
+            "size": 4,
+            "reverse": true
+        }
+    }
+}, {
+    "_type": "dna",
+    "desc": "This Cap DNA sequence has several important parts: (i) it begins with a Z end; (ii) has the gene for chloramphenicol acetyltransferase, the selective marker commonly used in genetic engineering. Chloramphenicol acetyltransferase (or CAT) is a bacterial enzyme (EC 2.3.1.28) that detoxifies the antibiotic chloramphenicol and is responsible for chloramphenicol resistance in bacteria. This enzyme covalently attaches an acetyl group from acetyl-CoA to chloramphenicol, which prevents chloramphenicol from binding to ribosomes. A histidine residue, located in the C-terminal section of the enzyme, plays a central role in its catalytic mechanism; (iii) A cap sequence that is complementary to the anchor sequence. This is important because the Anchor and Cap sequences drive circularization of the plasmid through their interactions. \n\n[Wikipedia: http://en.wikipedia.org/wiki/Chloramphenicol_acetyltransferase]",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 824,
+            "reverseComplement": false
+        }],
+        "desc": "This is the Genomikon Part that causes the bacteria to be resistant to chloramphenicol.",
+        "name": "Z--Chloramphenicol_acetyltransferase--CAP",
+        "_type": "genomikon_part"
+    }],
+    "isCircular": false,
+    "name": "z-ChlR-cap",
+    "version": 0,
+    "readOnly": true,
+    "sequence": "GAGACTCGAGTTGATCGGGCACGTAAGAGGTTCCAACTTTCACCATAATGAAATAAGATCACTACCGGGCGTATTTTTTGAGTTATCGAGATTTTCAGGAGCTAAGGAAGCTAAAATGGAGAAAAAAATCACTGGATATACCACCGTTGATATATCCCAATGGCATCGTAAAGAACATTTTGAGGCATTTCAGTCAGTTGCTCAATGTACCTATAACCAGACCGTTCAGCTGGATATTACGGCCTTTTTAAAGACCGTAAAGAAAAATAAGCACAAGTTTTATCCGGCCTTTATTCACATTCTTGCCCGCCTGATGAATGCTCATCCGGAATTTCGTATGGCAATGAAAGACGGTGAGCTGGTGATATGGGATAGTGTTCACCCTTGTTACACCGTTTTCCATGAGCAAACTGAAACGTTTTCATCGCTCTGGAGTGAATACCACGACGATTTCCGGCAGTTTCTACACATATATTCGCAAGATGTGGCGTGTTACGGTGAAAACCTGGCCTATTTCCCTAAAGGGTTTATTGAGAATATGTTTTTCGTCTCAGCCAATCCCTGGGTGAGTTTCACCAGTTTTGATTTAAACGTGGCCAATATGGACAACTTCTTCGCCCCCGTTTTCACCATGGGCAAATATTATACGCAAGGCGACAAGGTGCTGATGCCGCTGGCGATTCAGGTTCATCATGCCGTTTGTGATGGCTTCCATGTCGGCAGAATGCTTAATGAATTACAACAGTACTGCGATGAGTGGCAGGGCGGGGCGTAATTTGATATCGAGCTCAGAGGGTGACGTCGGATTTTTTTTTTTTTTTTTTA",
+    "stickyEnds": {
+        "start": {
+            "name": "z",
+            "offset": 0,
+            "size": 4,
+            "reverse": false
+        },
+        "end": {
+            "name": "cap",
+            "offset": 0,
+            "size": 19,
+            "reverse": false
+        }
+    }
+}, {
+    "_type": "dna",
+    "desc": "z-Linker-x' \n\nA short piece of DNA that has the sole purpose of turning a Z' end into an X' end. ",
+    "features": [{
+        "ranges": [{
+            "from": 0,
+            "to": 57,
+            "reverseComplement": false
+        }],
+        "desc": "This is the Z--X' linker",
+        "name": "Z--Genomikon_Linker--X'",
+        "_type": "misc"
+    }],
+    "isCircular": false,
+    "name": "z-Linker-x'",
+    "version": 0,
+    "readOnly": true,
+    "sequence": "GAGACCTGTCCTTCACCCTTAGGTGCACCGGACAGGAAGTGGGAATCCACGTGGAGAG",
+    "stickyEnds": {
+        "start": {
+            "name": "z",
+            "offset": 0,
+            "size": 4,
+            "reverse": false
+        },
+        "end": {
+            "name": "x'",
+            "offset": 0,
+            "size": 4,
+            "reverse": true
+        }
+    }
+}]

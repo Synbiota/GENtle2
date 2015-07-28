@@ -31,7 +31,7 @@ var currentUser = Gentle.currentUser = new CurrentUser({id: 'current-user'});
 Gentle.sequences.fetch();
 Gentle.currentUser.fetch();
 
-Gentle.enableFeatures('rdp_pcr', 'blast', 'sequencingPrimers');
+Gentle.enableFeatures('blast', 'sequencingPrimers');
 
 Gentle.router = new Router();
 window.gentle = Gentle;
@@ -49,6 +49,24 @@ window.testBugsnag = function() {
 };
 
 window.testProcess = process.env;
+
+// Custom build - adding preloaded sequences
+
+import preloadedSequences from './preloaded_sequences';
+import { STICKY_END_FULL } from './sequence/models/sequence';
+
+var addableSequences = _.filter(preloadedSequences, function(sequence) {
+  return !Gentle.sequences.some(existingSequence => {
+    return existingSequence.getSequence(STICKY_END_FULL) === sequence.sequence;
+  });
+});
+
+if(addableSequences.length) {
+  Gentle.addSequences(addableSequences);
+}
+
+// end custom build
+
 
 $(function() {
   Gentle.layout = new Layout();

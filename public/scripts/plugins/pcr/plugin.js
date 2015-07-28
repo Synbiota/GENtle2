@@ -58,7 +58,8 @@ Gentle.addPlugin('sequence-primary-view', {
 Gentle.addPlugin('home', {
   name: 'rdp',
   title: 'New RDP part',
-  view: HomePcrView
+  view: HomePcrView,
+  visible: () => Gentle.featureEnabled('rdp_pcr')
 });
 
 

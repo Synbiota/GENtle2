@@ -3,6 +3,7 @@ import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import preloadedAnchorsAndCaps from './anchors_and_caps.json';
 import _ from 'underscore';
 import Gentle from 'gentle';
+import preloadedSequences from '../../../preloaded_sequences.json';
 
 const INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
 const CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
@@ -15,12 +16,12 @@ const currentUserKey = 'designer.availableSequences';
 
 var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
-  return stickyEnds && stickyEnds.start && /^da(20|18)$/i.test(stickyEnds.start.name);
+  return stickyEnds && stickyEnds.start && /^(da(20|18)|anc)$/i.test(stickyEnds.start.name);
 };
 
 var detectCap = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
-  return stickyEnds && stickyEnds.end && /^dt(20|18)$/i.test(stickyEnds.end.name);
+  return stickyEnds && stickyEnds.end && /^(dt(20|18)|cap)$/i.test(stickyEnds.end.name);
 };
 
 var isValidPart = function(sequence) {
@@ -301,7 +302,10 @@ export default class WipCircuit extends Sequence {
 
   loadAvailableSequencesFromCurrentUser() {
     var sequences = Gentle.currentUser.get(currentUserKey) || [];
-    if(_.isArray(sequences) && sequences.length) {
+
+    if(!_.isArray(sequences) || sequences.length === 0) {
+      this.addAvailableSequences(preloadedSequences);
+    } else if(_.isArray(sequences) && sequences.length) {
       this.addAvailableSequences(sequences, null, false);
     }
   }
