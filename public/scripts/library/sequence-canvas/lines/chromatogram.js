@@ -8,7 +8,7 @@ export default class Chromatogram extends Line {
   constructor(sequenceCanvas, options = {}) {
     super(sequenceCanvas, options);
     // this.sequenceCanvas = sequenceCanvas;
-    _.extend(this, options);
+    // _.extend(this, options);
   }
 
   draw(x, y, [fromBase, toBase]) {

@@ -10,8 +10,16 @@ export default function smartMemoizeAndClear(obj, methodName, eventName, listenT
     });
   } else {
     if(isFunction(obj[methodName])) {
+
       obj[methodName] = memoize(obj[methodName]);
-      let callback = () => obj[methodName].clearCache();
+
+      // let callback = () => obj[methodName].clearCache();
+      var callback = function(){
+        if (!obj[methodName].clearCache){
+          debugger
+        }
+        obj[methodName].clearCache();
+      }
 
       if(typeof obj.listenTo !== 'undefined') {
         obj.listenTo(listenTarget, eventName, callback);

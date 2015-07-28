@@ -15,7 +15,7 @@ export default class Memoizable {
     this._memoized.push(methodName);
     this._callbacks = this._callbacks.concat(
       smartMemoizeAndClear(this, methodName, eventName, target)
-    ); 
+    );
     if(!~this._targets.indexOf(target)) this._targets.push(target);
   }
 

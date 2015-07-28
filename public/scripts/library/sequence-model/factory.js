@@ -130,13 +130,6 @@ function sequenceModelFactory(BackboneModel) {
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`,
       });
 
-      // if (this.get('chromatogramFragments').length && (typeof this.get('chromatogramFragments')[0] == "object")){
-      //   var workaround = _.map(this.get('chromatogramFragments'), function(fragment){
-      //     return new Sequence(fragment)
-      //   })
-      //   this.set('chromatogramFragments', workaround, {silent: true})
-      // }
-
       this.ntSeq = new Nt.Seq().read(this.getSequence());
 
       // If a value in this.attributes has a key with the same value as an
@@ -156,6 +149,7 @@ function sequenceModelFactory(BackboneModel) {
       });
 
       this.setNonEnumerableFields();
+
     }
 
     get STICKY_END_FULL() {
@@ -311,7 +305,6 @@ function sequenceModelFactory(BackboneModel) {
           attribute[attr] = this.transformAttributeValue(attr, val);
         });
       }
-
       var ret = super.set(attribute, value, options);
 
 
@@ -1588,7 +1581,6 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     addChromatogram(chromatogram){
-
       // var fragment = new Sequence(chromatogram)
       var fragment = chromatogram;
 

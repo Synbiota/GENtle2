@@ -22,11 +22,6 @@ Options are:
 
 export default class DNA_XY extends Line {
 
-  constructor(sequenceCanvas, options = {}) {
-    super(sequenceCanvas, options);
-    _.extend(this, options);
-  }
-
   setTextColour(base, pos) {
     var artist = this.sequenceCanvas.artist;
     if(_.isFunction(this.textColour)) {

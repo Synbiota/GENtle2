@@ -22,10 +22,14 @@ export default class Row {
   }
 
   _initLines(lines) {
-    return _.mapObject(lines, (value) => {
-      var lineOptions = value[1] || {};
-      lineOptions.sequence = this.sequence;
-      return new Lines[value[0]](this.sequenceCanvas, value[1] || {});
+
+    var _sequence = this.sequence;
+
+    return _.mapObject(lines, ([lineConstructorName, lineOptions], lineName) => {
+      return new Lines[lineConstructorName](this.sequenceCanvas, _.extend(lineOptions || {}, {
+        lineName: lineName,
+        sequence: _sequence
+      }));
     });
   }
 
@@ -45,7 +49,7 @@ export default class Row {
       // artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, this.height)
 
       _.each(lines, function(line) {
-        if (line.visible === undefined || line.visible()) {
+        if (line.visible()) {
           if(line.floating) {
             line.draw(x, y, baseRange);
           } else {

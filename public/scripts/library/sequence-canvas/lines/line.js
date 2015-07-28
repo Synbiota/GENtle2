@@ -2,7 +2,7 @@ import {extend, defaults} from 'underscore';
 import Memoizable from 'gentle-utils/memoizable';
 
 /**
-Base Line class from which to extend. 
+Base Line class from which to extend.
 
 @class Lines.Line
 @module Sequence
