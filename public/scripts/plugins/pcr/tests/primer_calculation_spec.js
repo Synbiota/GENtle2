@@ -59,6 +59,9 @@ var optimalPrimer4_TestFactory = function(done, sequenceBases, expectations, opt
   .then(function(primer) {
     checkResult(primer, expectations);
   })
+  .catch(function(e) {
+    expect(e.toString()).toBeUndefined();
+  })
   .finally(done).done();
 };
 

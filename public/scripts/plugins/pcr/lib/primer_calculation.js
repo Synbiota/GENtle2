@@ -289,7 +289,11 @@ class PotentialPrimer {
           this.deferred.resolve(resultingPrimer);
         }
       }
-    }).catch(namedHandleError('primer_calculation, checkWithIDT'));
+    })
+    .catch((error) => {
+      this.deferred.reject(new errors.IdtError({message: error.toString()}));
+      namedHandleError('primer_calculation, checkWithIDT')(error);
+    });
   }
 
   storePrimer(TmFromIDT=undefined, ourTm=undefined) {
@@ -329,6 +333,10 @@ class PotentialPrimer {
         .then((IdtTemp) => {
           this.notifyProgress();
           return IdtTemp;
+        })
+        .catch((error) => {
+          this.deferred.reject(new errors.IdtError({message: error.toString()}));
+          namedHandleError('primer_calculation, nearestBestPrimer')(error);
         });
     });
 
