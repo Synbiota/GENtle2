@@ -33,7 +33,7 @@ var defaultPCRPrimerOptions = function(options={}) {
     findFrom3PrimeEnd: false,
     allowShift: false,
     maxPolyN: 3,
-    minPrimerLength: 20,
+    minPrimerLength: 12,
     maxPrimerLength: maxPrimerLength,
     maxSearchSpace: maxPrimerLength,
     targetGcContent: 0.5,

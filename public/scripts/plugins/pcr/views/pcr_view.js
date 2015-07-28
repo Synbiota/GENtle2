@@ -6,8 +6,10 @@ import ProgressView from './pcr_progress_view';
 import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
-import PcrProductSequence from '../lib/product';
-import WipPcrProductSequence from '../lib/wip_product';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
+import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
+import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
+import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
 
 var viewStates = {
@@ -23,7 +25,7 @@ export default Backbone.View.extend({
   className: 'pcr',
 
   events: {
-    'click .show-new-pcr-product-form': 'showFormFn',
+    // 'click .show-new-pcr-product-form': 'showFormFn',
   },
 
   // `{showForm: showForm}={}` as first argument is required because
@@ -33,148 +35,177 @@ export default Backbone.View.extend({
   // correctly passed by the Backbone View's
   // `this.initialize.apply(this, arguments);` so just having `{showForm}`
   // will throw an exception.
-  initialize: function({showForm: showForm}={}, argumentsForFormView={}) {
-    this.model = Gentle.currentSequence;
-    if(this.model instanceof PcrProductSequence) {
+  initialize: function() { //{showForm: showForm}={}, argumentsForFormView={}) {
+    var model = this.model = Gentle.currentSequence;
+    if(model instanceof RdpPcrSequence || model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
-    } else {
+    } else if(model instanceof WipRdpPcrSequence || model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
-      if(!(this.model instanceof WipPcrProductSequence)) {
-        // TODO: set the displaySettings.primaryView of the current `this.model`
-        // back to the Edit Sequence view?
-        this.model = new WipPcrProductSequence(this.model.toJSON());
-      }
     }
-    var args = {model: this.model};
-    this.formView = new FormView(_.extend(argumentsForFormView, args));
-    this.progressView = new ProgressView(args);
+    // var args = {model: model};
+    // this.formView = new FormView(_.extend(argumentsForFormView, args));
+    // this.progressView = new ProgressView(args);
+    // 
+    var canvasView = this.canvasView = new CanvasView();
+    this.setView('#pcr-canvas-container', canvasView);
+
+    if(model instanceof RdpOligoSequence) {
+      let secondaryCanvasView = this.secondaryCanvasView = new CanvasView();
+      this.setView('#pcr-canvas-container-2', secondaryCanvasView);
+    }
+  },
+
+  makeFormView: function() {
+    if(!this.formView) this.formView = new FormView({model: this.model});
+    return this.formView;
+  },
+
+  makeProgressView: function() {
+    if(!this.progressView) this.progressView = new ProgressView({model: this.model});
+    return this.progressView;
+  },
+
+  serialize: function() {
+    return {
+      hasTwoCanvasViews: !!this.secondaryCanvasView
+    };
   },
 
   beforeRender: function() {
     if(this.viewState === viewStates.form) {
-      this.setView('.pcr-view-container', this.formView);
+      this.setView('.pcr-view-container', this.makeFormView());
+      this.showCanvas(null, this.model);
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.product) {
       this.setView('.pcr-view-container', new ProductView({model: this.model}));
-      this.showCanvas(null, this.getBluntEndedSequence());
+      let primarySequence = this.getBluntEndedSequence();
+      let secondarySequence = this.secondaryCanvasView && this.getBluntEndedSequence(true);
+      this.showCanvas(null, primarySequence, secondarySequence);
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.progress) {
-      this.setView('.pcr-view-container', this.formView);
-      this.setView('.pcr-view-container2', this.progressView);
+      this.setView('.pcr-view-container', this.makeFormView());
+      this.setView('.pcr-view-container2', this.makeProgressView());
     }
   },
 
-  getBluntEndedSequence() {
+  getBluntEndedSequence(rdpOligoReverseStrand = false) {
     var model = this.model;
     var sequence = model.clone();
     sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
 
-    var forwardPrimer = sequence.get('forwardPrimer');
-    var reversePrimer = sequence.get('reversePrimer');
     var stickyEnds = sequence.getStickyEnds(true);
+    var features = [];
+    if(this.model instanceof RdpPcrSequence) {
+      var forwardPrimer = sequence.get('forwardPrimer');
+      var reversePrimer = sequence.get('reversePrimer');
 
-    var features = [
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [{
-        from: forwardPrimer.annealingRegion.range.from,
-        to: forwardPrimer.annealingRegion.range.to - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: 'Annealing region',
-      _type: 'annealing_region',
-      ranges: [{
-        from: reversePrimer.annealingRegion.range.from,
-        to: reversePrimer.annealingRegion.range.to -1,
-        reverseComplement: true,
-      }]
-    },
-    {
-      name: forwardPrimer.name,
-      _type: 'primer',
-      ranges: [{
-        from: forwardPrimer.range.from,
-        to: forwardPrimer.range.to - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: reversePrimer.name,
-      _type: 'primer',
-      ranges: [{
-        from: reversePrimer.range.from,
-        to: reversePrimer.range.to - 1,
-        reverseComplement: true,
-      }]
-    },
-    {
-      name: stickyEnds.start.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: 0,
-        to: stickyEnds.start.size + stickyEnds.start.offset - 1,
-        reverseComplement: false,
-      }]
-    },
-    {
-      name: stickyEnds.end.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
-        to:  sequence.getLength() - 1,
-        reverseComplement: true,
-      }]
-    }];
+      features = [
+      {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: forwardPrimer.annealingRegion.range.from,
+          to: forwardPrimer.annealingRegion.range.to - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: 'Annealing region',
+        _type: 'annealing_region',
+        ranges: [{
+          from: reversePrimer.annealingRegion.range.from,
+          to: reversePrimer.annealingRegion.range.to -1,
+          reverseComplement: true,
+        }]
+      },
+      {
+        name: forwardPrimer.name,
+        _type: 'primer',
+        ranges: [{
+          from: forwardPrimer.range.from,
+          to: forwardPrimer.range.to - 1,
+          reverseComplement: false,
+        }]
+      },
+      {
+        name: reversePrimer.name,
+        _type: 'primer',
+        ranges: [{
+          from: reversePrimer.range.from,
+          to: reversePrimer.range.to - 1,
+          reverseComplement: true,
+        }]
+      }];
+    }
+
+    if(!(model instanceof RdpOligoSequence) || !rdpOligoReverseStrand) {
+      features.push({
+        name: stickyEnds.start.name + ' end',
+        _type: 'sticky_end',
+        ranges: [{
+          from: 0,
+          to: stickyEnds.start.size + stickyEnds.start.offset - 1,
+          reverseComplement: false,
+        }]
+      })
+    }
+
+    if(!(model instanceof RdpOligoSequence) || rdpOligoReverseStrand) {
+      features.push({
+        name: stickyEnds.end.name + ' end',
+        _type: 'sticky_end',
+        ranges: [{
+          from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
+          to: sequence.getLength() - 1,
+          reverseComplement: true,
+        }]
+      });
+    }
 
     _.each(features, (feature) => feature._id = _.uniqueId());
-
     sequence.set('features', features);
 
     return sequence;
   },
 
+  /*
   showFormFn: function(event) {
     if(event) event.preventDefault();
     this.viewState = viewStates.form;
     this.render();
   },
+  */
 
-  parentShowProduct: function(product) {
-    this.hideCanvas();
-    this.listView.showProduct(product);
-    this.viewState = viewStates.products;
-    this.render();
-  },
-
-  makePrimer: function(data) {
-    this.progressView.makePrimer(data);
+  makePrimers: function(wipRdpPcrSequence) {
+    this.makeProgressView().makePrimers(wipRdpPcrSequence);
     this.viewState = viewStates.progress;
     this.render();
   },
 
   //TODO refactor
-  showCanvas: function(product, temporarySequence) {
-    var view = this.canvasView = new CanvasView();
-    this.setView('#pcr-canvas-container', view);
-
+  showCanvas: function(product, temporarySequence, temporarySequence2 = undefined) {
+    var {canvasView, secondaryCanvasView} = this;
+    
     if(product) {
       var id = product.get('id');
-      view.setProduct(product);
+      canvasView.setProduct(product);
       this.showingProductId = id;
       this.listView.$('.panel').removeClass('panel-info');
       this.listView.$('[data-product_id="'+id+'"]').addClass('panel-info');
     } else if(temporarySequence) {
-      view.setSequence(temporarySequence);
+      canvasView.setSequence(temporarySequence);
+      if(secondaryCanvasView) {
+        secondaryCanvasView.setSequence(temporarySequence2, true);
+      }
     }
-
-    view.render();
   },
 
   hideCanvas: function() {
     this.removeView('#pcr-canvas-container');
+  },
+
+  updateCanvasHighlight: function(frm, to) {
+    this.canvasView.updateHighlight(frm, to);
   }
 
   // deleteProduct: function(product) {

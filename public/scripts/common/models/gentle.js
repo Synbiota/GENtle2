@@ -58,5 +58,13 @@ export default _.extend(Gentle, Backbone.Events, {
 
   enableFeatures() {
     _.each(_.toArray(arguments), Gentle.enableFeature);
+  },
+
+  featureEnabled(feature) {
+    return this.featureFlag(feature)();
+  },
+
+  featuresEnabledState() {
+    return _.clone(featureFlagFunctions);
   }
 });

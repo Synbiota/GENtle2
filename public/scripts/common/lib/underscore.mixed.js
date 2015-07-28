@@ -24,8 +24,9 @@ _.mixin({
   @method _.ucFirst
   @param {string} text to transform
   **/
-  ucFirst: function(string) {
-    return string.charAt(0).toUpperCase() + string.slice(1);
+  ucFirst: function(string, force = false) {
+    var rest = string.slice(1);
+    return string.charAt(0).toUpperCase() + (force ? rest.toLowerCase() : rest);
   },
 
   /**
@@ -131,7 +132,7 @@ _.mixin({
   deepClone: function(obj, depthLeft=100, debuggingKeys=[]) {
     if (depthLeft <= 0) {
       console.warn(debuggingKeys);
-      throw "deepClone recursion limit exceeded";
+      throw new Error('deepClone recursion limit exceeded');
     }
     if (!_.isObject(obj) || _.isFunction(obj)) return obj;
     if (_.isDate(obj)) return new Date(obj.getTime());
@@ -150,6 +151,27 @@ _.mixin({
       return memo;
     };
     return _.reduce(obj, func, isArr ? [] : {});
+  },
+
+  /**
+   * @method  deepFreeze  copied from
+   * https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze
+   * @param  {Object} object
+   */
+  deepFreeze: function(object) {
+    var prop, propKey;
+    Object.freeze(object); // First freeze the object.
+    for (propKey in object) {
+      prop = object[propKey];
+      if(!object.hasOwnProperty(propKey) || (typeof prop !== 'object') || Object.isFrozen(prop)) {
+        // If the object is on the prototype, not an object, or is already frozen,
+        // skip it. Note that this might leave an unfrozen reference somewhere in the
+        // object if there is an already frozen object containing an unfrozen object.
+        continue;
+      }
+
+      _.deepFreeze(prop); // Recursively call deepFreeze.
+    }
   },
 
   snakify: function(object) {

@@ -32,7 +32,7 @@ var currentUser = Gentle.currentUser = new CurrentUser({id: 'current-user'});
 Gentle.sequences.fetch();
 Gentle.currentUser.fetch();
 
-Gentle.enableFeatures('pcr', 'blast', 'sequencingPrimers', 'chromatograph');
+Gentle.enableFeatures('rdp_pcr', 'blast', 'sequencingPrimers', 'chromatograph');
 
 Gentle.router = new Router();
 window.gentle = Gentle;

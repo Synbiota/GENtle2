@@ -12,11 +12,17 @@ class Tooltip {
     $('body').append(this.$el);
   }
 
-  show(text, newClasses = '') {
-    this.$el.html(text)
-      .removeClass('gentle-tooltip-hidden')
+  show(text, {delay = 0, newClasses = ''} = {}) {
+    var $el = this.$el;
+    
+    $el.html(text)
       .removeClass(this.previousClasses)
       .addClass(newClasses);
+
+    this.timeout = setTimeout(() => {
+      $el.removeClass('gentle-tooltip-hidden');
+      delete this.timeout;
+    }, delay);
 
     $('body').on('mousemove', this.move);
 
@@ -25,6 +31,12 @@ class Tooltip {
 
   hide() {
     this.$el.addClass('gentle-tooltip-hidden');
+
+    if(this.timeout) {
+      clearTimeout(this.timeout);
+      delete this.timeout;
+    }
+
     $('body').off('mousemove', this.move);
   }
 

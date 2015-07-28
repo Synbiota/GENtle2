@@ -1,4 +1,4 @@
-.pcr, #pcr-list-outer-container, #pcr-canvas-container {
+.pcr, #pcr-list-outer-container, .pcr-canvas-container {
   @extend %primary-view-panel;
 
   label {
@@ -11,9 +11,18 @@
   border-right: 1px solid #ddd;
 }
 
-#pcr-canvas-container {
+.pcr-canvas-container {
   left: 50%;
   overflow: hidden;
+
+  &.half {
+    height: 50%;
+  }
+
+  &.bottom {
+    top: 50%;
+    border-top: 1px solid #ddd;
+  }
 }
 
 .pcr-product {

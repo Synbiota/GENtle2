@@ -1,4 +1,12 @@
-<h3>Create RDP part</h3>
+<h3>
+{{!-- Note: Conditional title removed as requested. --}}
+{{!-- {{#if rdpOligoSequence }}
+  Create RDP oligo-based part
+{{else}} --}}
+  Create RDP part
+{{!-- {{/if}} --}}
+</h3>
+
 <br>
 <form class="form-horizontal new-pcr-product-form" style="line-height: 9px;">
 
@@ -17,12 +25,24 @@
   </div>
 
   <div class="form-group">
+    <div class="col-sm-6">
+      <label class="control-label" for="newProduct_shortName"><small>RDP Part description</small></label>
+      <br><br>
+      <small>(optional)</small>
+    </div>
+    <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
+      <textarea class="form-control input form-control" id="newProduct_desc" value="{{state.desc}}"></textarea>
+    </div>
+  </div>
+
+  <div class="form-group">
     <label class="col-sm-6 control-label"><small>Source sequence</small></label>
     <div class="col-sm-6">
       <p class="form-control-static"><small>{{state.sourceSequenceName}}</small></p>
     </div>
   </div>
 
+  {{#unless rdpOligoSequence }}
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_from"><small>Base pair range for target sequence</small></label>
     <div class="col-sm-6">
@@ -36,18 +56,19 @@
       </div>
     </div>
   </div>
+  {{/unless}}
 
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_partType"><small>RDP Part type</small></label>
     <div class="col-sm-6">
-      {{{select availablePartTypes id="newProduct_partType" class="col-sm-6 form-control input-sm"}}}
+      {{{select availablePartTypes id="newProduct_partType" class="col-sm-6 form-control input-sm" selected=state.partType}}}
     </div>
   </div>
 
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>RDP orientation</small></label>
     <div class="col-sm-6">
-      {{{select availableStickyEnds id="newProduct_stickyEnds" class="col-sm-6 form-control input-sm"}}}
+      {{{select availableStickyEndNameOptions id="newProduct_stickyEnds" class="col-sm-6 form-control input-sm"}}}
     </div>
   </div>
 
@@ -59,6 +80,7 @@
   </div> --}}
   {{#unless state.calculating}}
     <br>
+    {{#unless rdpOligoSequence }}
     <strong>Optimized RDP PCR primer parameters</strong>
     <div class="separator"></div>
     <div class="form-group" style="line-height: 10px;">
@@ -85,10 +107,18 @@
     </div>
 
     <br>
-
+    {{/unless}}
     <button class="btn btn-primary">Create new RDP part</button>
     <button class="cancel-new-pcr-product-form btn btn-default">Cancel</button>
     <br><br>
   {{/unless}}
 
 </form>
+
+<div class="new-pcr-form-error text-danger" style="display: none;">
+  Sorry, there was an error creating your RDP part.  Please try again.  If this
+  problem persists, please contact
+  <a href="support@synbiota.com">support@synbiota.com</a>
+  <br>
+  <br>
+</div>

@@ -1,16 +1,26 @@
 <br>
-<h3>RDP PCR primers</h3>
+<h3>
+{{#if isRdpPcrSequence}}
+  RDP PCR primers
+{{else}}
+  RDP oligo-based part
+{{/if}}
+</h3>
 <br>
 
 <table class="table table-no-border table-condensed">
   <tbody>
     <tr>
-      <td>Short name</td>
+      <td class="col-sm-3">Short name</td>
       <td>{{shortName}}</td>
     </tr>
     <tr>
       <td>Source sequence</td>
       <td>{{sourceSequenceName}}</td>
+    </tr>
+    <tr>
+      <td>Part description</td>
+      <td>{{desc}}</td>
     </tr>
     <tr>
       <td>RDP Part type</td>
@@ -23,6 +33,7 @@
   </tbody>
 </table>
 
+{{#if isRdpPcrSequence}}
 {{{primer meta.associations.forwardPrimer}}}
 {{{primer meta.associations.reversePrimer}}}
 
@@ -40,7 +51,7 @@
       <td colspan="2"></td>
     </tr>
     <tr>
-      <td>Foward annealing region</td>
+      <td>Forward annealing region</td>
       <td class="text-right">{{formatThousands meta.associations.forwardPrimer.annealingRegion.range.size}}bp</td>
       <td class="text-right">{{round meta.associations.forwardPrimer.annealingRegion.gcContent 1 true}}%</td>
       <td class="text-right">{{round meta.associations.forwardPrimer.annealingRegion.meltingTemperature 1}}&deg;C</td>
@@ -53,6 +64,17 @@
     </tr>
   </tbody>
 </table>
+{{/if}}
+
+
+{{#if isRdpOligoSequence}}
+<h5>Sense strand</h5>
+{{{oligoSequence senseStrand}}}
+<h5>Antisense strand</h5>
+{{{oligoSequence antisenseStrand}}}
+<br>
+{{/if}}
+
 
 <h4>Sequence edit history</h4>
 
