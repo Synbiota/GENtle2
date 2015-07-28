@@ -56,7 +56,6 @@ export default Backbone.View.extend({
       attributes.senseStrand = {sequence: this.model.getSenseStrand()};
       attributes.antisenseStrand = {sequence: this.model.getAntisenseStrand()};
     }
-
     return attributes;
   },
 
