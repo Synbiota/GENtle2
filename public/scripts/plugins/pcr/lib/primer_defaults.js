@@ -41,7 +41,7 @@ var defaultPCRPrimerOptions = function(options={}) {
     maxPrimerLength: maxPrimerLength,
     maxSearchSpace: maxPrimerLength,
     targetGcContent: 0.5,
-    targetGcContentTolerance: 0.1,
+    targetGcContentTolerance: 0.5,
     targetMeltingTemperature: 68.0,
     meltingTemperatureTolerance: 1.0,
     useIDT: true,
