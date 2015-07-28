@@ -19,13 +19,15 @@ var testForNoFailures = function() {
 };
 
 describe('pcr primer class', function() {
-  beforeEach(function() {
-    if(!oldAssertion) {
-      var newAssertion = function(test, message, value=undefined) {
-        testResults.push({test, message, value});
-      };
-      oldAssertion = stubAssertion(newAssertion);
-    }
+  beforeAll(function() {
+    var newAssertion = function(test, message, value=undefined) {
+      testResults.push({test, message, value});
+    };
+    oldAssertion = stubAssertion(newAssertion);
+  });
+
+  afterAll(function() {
+    stubAssertion(oldAssertion);
   });
 
   it('can instantiate', function() {
@@ -74,9 +76,5 @@ describe('pcr primer class', function() {
     // TODO make that test work on circleci
     // expect(failures[0].message.match("`parentSequence` should be a instance of SequenceModel")).toBeTruthy();
     testResults = [];
-  });
-
-  it('teardown', function() {
-    stubAssertion(oldAssertion);
   });
 });
