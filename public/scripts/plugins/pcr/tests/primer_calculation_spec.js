@@ -162,7 +162,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 60.5,
         optimal: false,
       },
-      defaultPCRPrimerOptions({minPrimerLength: 20})
+      defaultPCRPrimerOptions({minPrimerLength: 20, maxPrimerLength: 30, targetMeltingTemperature: 60})
     );
   });
 
@@ -175,7 +175,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 59.8,
         optimal: false,
       },
-      defaultPCRPrimerOptions({minPrimerLength: 20})
+      defaultPCRPrimerOptions({minPrimerLength: 20, maxPrimerLength: 30, targetMeltingTemperature: 60})
     );
   });
 
@@ -188,7 +188,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 60,
         optimal: false,
       },
-      defaultPCRPrimerOptions({minPrimerLength: 20})
+      defaultPCRPrimerOptions({minPrimerLength: 20, maxPrimerLength: 30, targetMeltingTemperature: 60})
     );
   });
 
@@ -201,7 +201,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 63,
         optimal: false,
       },
-      defaultPCRPrimerOptions({minPrimerLength: 20})
+      defaultPCRPrimerOptions({minPrimerLength: 20, targetMeltingTemperature: 60})
     );
   });
 
@@ -214,7 +214,7 @@ describe('finding optimal primers', function() {
         maximumMeltingTemperature: 60.2,
         optimal: false,
       },
-      defaultPCRPrimerOptions({minPrimerLength: 20})
+      defaultPCRPrimerOptions({minPrimerLength: 20, targetMeltingTemperature: 60})
     );
   });
 
