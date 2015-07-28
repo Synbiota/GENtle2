@@ -70,6 +70,11 @@ class WipRdpAbstractSequence extends Sequence {
     return _.contains(RdpTypes.meta.proteinCoding, partType);
   }
 
+  get isCdsWithStop() {
+    var partType = this.get('partType');
+    return partType === RdpTypes.types.CDS_WITH_STOP;
+  }
+
   get isRBS() {
     var partType = this.get('partType');
     return partType === RdpTypes.types.RBS;

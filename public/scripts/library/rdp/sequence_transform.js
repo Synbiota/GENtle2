@@ -607,8 +607,15 @@ var warnIfEarlyStopCodonsFn = function(sequenceModel) {
   var type = RdpEdit.types.EARLY_STOP_CODON;
 
   var aAs = sequenceModel.getAAs(0, getLen(sequenceModel), sequenceModel.STICKY_END_ANY);
-  return _.reduce(aAs, (memo, aa, index) => {
+  var startOfCurrentRunOfStops;
+  var rdpWarningsOfEarlyStopCodons = _.reduce(aAs, (memo, aa, index) => {
     if(aa === 'X') {
+      // This allows us to discount adjacent stop codons at the end.  Useful for
+      // not warning about stop codons present in CDS_WITH_STOP RDP parts.
+      if(startOfCurrentRunOfStops === undefined) {
+        startOfCurrentRunOfStops = index;
+      }
+
       var level = RdpEdit.levels.WARN;
       var position = index * 3;
       var message = `Early stop codon at base ${position+1}-${position+3}.`;
@@ -623,9 +630,20 @@ var warnIfEarlyStopCodonsFn = function(sequenceModel) {
       var contextBefore = new RdpSequenceFeature({name, desc: message, ranges, _type: type, sequence, contextualFrom, contextualTo});
       var rdpEdit = new RdpEdit({type, contextBefore, level});
       memo.push(rdpEdit);
+    } else {
+      startOfCurrentRunOfStops = undefined;
     }
     return memo;
   }, []);
+
+  if(startOfCurrentRunOfStops) {
+    var stopsToRemove = aAs.length - startOfCurrentRunOfStops;
+    for (var i = 0; i < stopsToRemove; ++i) {
+      rdpWarningsOfEarlyStopCodons.pop();
+    }
+  }
+
+  return rdpWarningsOfEarlyStopCodons;
 };
 var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, requirements, rdpEditType);
 

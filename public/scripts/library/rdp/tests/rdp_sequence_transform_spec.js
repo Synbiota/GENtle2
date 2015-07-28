@@ -83,7 +83,7 @@ describe('RDP sequence transforms', function() {
 
   describe('calculateTransformationFunctionInstances', function() {
     describe('for RDP PCR', function() {
-      it("CDS X-Z'", function() {
+      it("Fusion Protein CDS X-Z'", function() {
         setSequence('AAT', stickyEndsXZ(), RdpTypes.types.CDS);
         var transforms = calculateTransformationFunctionInstances(sequenceModel);
         expect(transforms.length).toEqual(4);
@@ -91,6 +91,14 @@ describe('RDP sequence transforms', function() {
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_C);
         expect(transforms[3].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+      });
+
+      it("CDS with STOP X-Z'", function() {
+        setSequence('AATTGA', stickyEndsXZ(), RdpTypes.types.CDS_WITH_STOP);
+        var transforms = calculateTransformationFunctionInstances(sequenceModel);
+        expect(transforms.length).toEqual(2);
+        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
+        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Modifier X-Z'", function() {
@@ -334,6 +342,18 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
 
         expect(getSequence()).toEqual('ATGACCTGTTTTAAAAAC');
+      });
+
+      it('should transform CDS_WITH_STOP with multiple stops', function() {
+        setSequence('CCCTGACCCTGATGA', stickyEndsXZ(), RdpTypes.types.CDS_WITH_STOP);
+        var rdpEdits = sequenceModel.transformSequenceForRdp();
+        expect(rdpEdits.length).toEqual(2);
+        expect(rdpEdits[0].type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
+        expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
+        expect(rdpEdits[1].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+        expect(rdpEdits[1].level).toEqual(RdpEdit.levels.WARN);
+
+        expect(getSequence()).toEqual('ATGCCCTGACCCTGATGA');
       });
 
       it('should transform oligo', function() {

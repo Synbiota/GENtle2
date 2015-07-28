@@ -18,10 +18,13 @@ var calculateTransformationFunctionInstances = function(sequenceModel) {
     if(desiredStickyEnds.start.name === 'X') {
       transforms.push(firstCodonIsMethionine);
     }
-    transforms.push(noTerminalStopCodons);
 
-    var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
-    transforms.push(ensureLastBaseIs(lastBaseMustBe));
+    if(!sequenceModel.isCdsWithStop) {
+      transforms.push(noTerminalStopCodons);
+
+      var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
+      transforms.push(ensureLastBaseIs(lastBaseMustBe));
+    }
 
     transforms.push(warnIfEarlyStopCodons);
   } else if(sequenceModel.isRBS || sequenceModel.isTerminator) {
