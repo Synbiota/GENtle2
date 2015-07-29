@@ -46,22 +46,30 @@ var savePcrProductsToSequence = function(sequenceModel, products = []) {
 };
 
 
+var stickyEndNames = {};
+_.chain(allStickyEnds()).pluck('name').each((val) => stickyEndNames[val] = val);
+var rdpTypes = {};
+rdpTypes[RdpTypes.types.CDS] =           'Fusion protein CDS';
+rdpTypes[RdpTypes.types.CDS_WITH_STOP] = 'CDS with stop';
+rdpTypes[RdpTypes.types.RBS] =           RdpTypes.types.RBS;
+const rdpLabels = _.extend({}, rdpTypes, stickyEndNames);
+
 /**
- * @function humaniseRdpType
- * @param  {String} rdpType  An RDP Sticky End or part type
+ * @function humaniseRdpLabel
+ * @param  {String} partTypeOrStickyEnd  An RDP sticky end or part type name
  * @return {String}
  */
-var humaniseRdpType = function(rdpType) {
-  const rdpLabels = [RdpTypes.types.CDS, RdpTypes.types.RBS].concat(_.pluck(allStickyEnds(), 'name'));
-  var humanisedName = _.includes(rdpLabels, rdpType) ? rdpType : _.ucFirst(rdpType, true);
-  return humanisedName.replace('_', ' ');
+var humaniseRdpLabel = function(partTypeOrStickyEnd) {
+  var humanisedName = _.has(rdpLabels, partTypeOrStickyEnd) ? rdpLabels[partTypeOrStickyEnd] : _.ucFirst(partTypeOrStickyEnd, true);
+  return humanisedName.replace(/_/g, ' ');
 };
+
 
 
 export default {
   getPcrProductsFromSequence,
   savePcrProductsToSequence,
-  humaniseRdpType,
+  humaniseRdpLabel,
   // exposed for testing.
   transformStickyEndData,
 };
