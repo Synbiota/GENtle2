@@ -3,7 +3,7 @@
 @submodule Views
 @class ParentNewSequenceView
 **/
-// define(function(require) {
+
   var Backbone    = require('backbone'),
       Handlebars  = require('handlebars'),
       template    = require('../templates/parent_new_sequence_view.hbs'),
@@ -14,7 +14,7 @@
       NCBIView = require('../../plugins/ncbi/views/ncbi_view'),
       ParentNewSequenceView;
 
-  console.log(OpenFileView);
+
   ParentNewSequenceView = Backbone.View.extend({
     manage: true,
     template: template,
@@ -33,8 +33,10 @@
           text      = this.convertSmartQuotes($form.find('[name=sequence]').val()),
           name      = $form.find('[name=name]').val() || 'Unnamed';
 
-      Filetypes.guessTypeAndParseFromText(text, name).then(Gentle.addSequencesAndNavigate)
-        .catch((e) => console.log(e));
+      Filetypes.guessTypeAndParseFromText(text, name)
+      .then(Gentle.addSequencesAndNavigate)
+      .catch((e) => console.error(e))
+      .done();
     },
 
     
@@ -44,15 +46,12 @@
     },
 
     initialize: function() {
-      console.log("render")
       this.openFileView = new OpenFileView();
       this.newSequenceView = new NewSequenceView();
       this.ncbiView = new NCBIView();
-      console.log(this.openFileView);
       this.setView('.home-open-file', this.openFileView);
       this.setView('.home-new-sequence', this.newSequenceView);
       this.setView('.home-ncbi',this.ncbiView);
-      //view.render();
     },
 
 
@@ -60,6 +59,5 @@
 
 
   });
+
 export default ParentNewSequenceView;
-  // return NewSequenceView;
-// });
