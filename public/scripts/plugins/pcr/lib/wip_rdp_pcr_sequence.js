@@ -1,7 +1,10 @@
+import _ from 'underscore';
 import SequencesCollection from '../../../sequence/models/sequences';
 import WipRdpAbstractSequence from 'gentle-rdp/wip_rdp_abstract_sequence';
 // import RdpEdit from 'gentle-rdp/rdp_edit';
 import RdpTypes from 'gentle-rdp/rdp_types';
+import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
+import {getPcrProductAndPrimers} from './pcr_primer_design';
 
 
 var wip_rdp_pcr_product = 'wip_rdp_pcr_product';
@@ -13,6 +16,27 @@ class WipRdpPcrSequence extends WipRdpAbstractSequence {
     options.types = RdpTypes.pcrTypes;
     super(attributes, options);
     this.set({_type: wip_rdp_pcr_product}, {silent: true});
+  }
+
+  getRdpPcrSequenceModel() {
+    // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
+    // and the tempSequence sequenceBases to calculate the primers and new
+    // sequenceBases.
+    var dataAndOptions = this.getDataAndOptionsForPcr();
+    return getPcrProductAndPrimers(this, dataAndOptions)
+    .then((pcrProduct) => {
+      var rdpPcrAttributes = _.extend(
+        {displaySettings: {}},
+        pcrProduct.toJSON(),
+        // Copy over RDP specific attributes.
+        _.pick(this.toJSON(), 'partType', 'sourceSequenceName', 'rdpEdits'),
+        {_type: 'rdp_pcr_product'}
+      );
+
+      var rdpPcrSequenceModel = new RdpPcrSequence(rdpPcrAttributes);
+
+      return rdpPcrSequenceModel;
+    });
   }
 
   getDataAndOptionsForPcr() {

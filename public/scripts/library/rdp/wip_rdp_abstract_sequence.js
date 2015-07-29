@@ -90,7 +90,7 @@ class WipRdpAbstractSequence extends Sequence {
     return partType === RdpTypes.types.OTHER;
   }
 
-  getRdpCompliantSequenceModel(attributes) {
+  getWipRdpCompliantSequenceModel(attributes) {
     var desiredWipRdpSequence = this.getDesiredSequenceModel(attributes);
     desiredWipRdpSequence.transformSequenceForRdp();
     return desiredWipRdpSequence;
