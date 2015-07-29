@@ -32,7 +32,7 @@ export default Backbone.View.extend({
     event.preventDefault();
     var sequenceBases = loadedSequence.sequence;
     var Klass, primaryView, partType;
-    if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 100) {
+    if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 80) {
       Klass = WipRdpOligoSequence;
       primaryView = 'rdp_oligo';
       partType = RdpTypes.types.MODIFIER;
