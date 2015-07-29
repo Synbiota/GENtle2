@@ -8,7 +8,9 @@ import template from '../templates/sequence_chromatograph_view.hbs';
 import ChromatographCanvas from '../lib/chromatograph_canvas';
 import ChromatographMapView from '../views/chromatograph_map_view';
 import ChromatographLegendView from './chromatograph_legend_view';
-import ChromatographSettingsView from './chromatograph_settings_view';
+import ChromatographImportPromptView from './chromatograph_import_prompt_view';
+
+// import ChromatographSettingsView from './chromatograph_settings_view';
 // import LinearMapView from '../../linear_map/views/linear_map_view';
 // import PlasmidMapView from '../../plasmid_map/views/plasmid_map_view';
 // import MatchedEnzymesView from './matched_enzymes_view';
@@ -158,7 +160,7 @@ export default Backbone.View.extend({
       this.$el.find('.chromatograph-import-wrapper').show();
     }
 
-    var promptView = new ChromatographSettingsView({
+    var promptView = new ChromatographImportPromptView({
       model: this.model
     });
 

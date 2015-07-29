@@ -1,9 +1,8 @@
 import Backbone from 'backbone';
 import Gentle from 'gentle';
-import template from '../templates/chromatograph_settings_view.hbs';
+import template from '../templates/chromatograph_import_prompt_view.hbs';
 import Filetypes from '../../../common/lib/filetypes/filetypes.js';
 import _ from 'underscore';
-import dropzone from '../../../common/lib/dropzone';
 
 export default Backbone.View.extend({
   manage: true,
@@ -12,6 +11,10 @@ export default Backbone.View.extend({
   events: {
     'click .btn': 'clickInputElement',
     'change input[name=file]': 'openSequenceFromFile'
+  },
+
+  initialize: function(){
+    this.$el.css({'text-align': 'center'})
   },
 
   openSequenceFromFile: function(event) {
@@ -46,27 +49,6 @@ export default Backbone.View.extend({
     event.preventDefault();
     this.$('input[name=file]').click();
   },
-
-  afterRender: function(){
-    this.setupDropzone();
-  },
-
-  setupDropzone: function() {
-    var $dropzone =
-      this.$('.fullscreen-filedropzone');
-
-    dropzone.init.call(this, $dropzone, function(sequences) {
-      _.forEach(sequences, function(sequence){
-        Gentle.currentSequence.addChromatogram(sequence)
-      })
-    });
-
-    window.a = dropzone
-  },
-
-  cleanup: function() {
-    dropzone.remove.call(this);
-  }
 
 
 })
