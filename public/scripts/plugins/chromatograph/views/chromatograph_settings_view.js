@@ -61,7 +61,6 @@ export default Backbone.View.extend({
       })
     });
 
-    window.a = dropzone
   },
 
   cleanup: function() {
