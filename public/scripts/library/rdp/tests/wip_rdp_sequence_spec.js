@@ -89,6 +89,10 @@ describe('RDP sequence transformation', function() {
     it('should work with fusion protein CDS part type', function(done) {
       testGettingRdpPcrSequence(RdpTypes.types.CDS, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'GGCTA', done);
     });
+
+    it('should work with CDS_WITH_STOP part type', function(done) {
+      testGettingRdpPcrSequence(RdpTypes.types.CDS_WITH_STOP, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA'+'CGGCTA', done);
+    });
   });
 
   it('should transform oligo protein coding sequence', function() {

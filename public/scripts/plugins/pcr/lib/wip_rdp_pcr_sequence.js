@@ -70,7 +70,7 @@ class WipRdpPcrSequence extends WipRdpAbstractSequence {
 
     var to;
     var endBasesDifferentToTemplate;
-    if(this.isProteinCoding) {
+    if(this.isProteinCoding && !this.isCdsWithStop) {
       // Irrespective of if the transformation involved converting the last base
       // into a C or G, we will exclude the last 3 bases from the sequence so
       // that they are not used to make the PCR primers.
