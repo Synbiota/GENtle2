@@ -1548,6 +1548,8 @@ function sequenceModelFactory(BackboneModel) {
       return new this.constructor(_.omit(this.toJSON(), 'id', 'history'));
     }
 
+    sync() {}
+
     toJSON() {
 
       let attributes = super.toJSON();
