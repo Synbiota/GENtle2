@@ -8,10 +8,10 @@ var wip_rdp_pcr_product = 'wip_rdp_pcr_product';
 
 
 class WipRdpPcrSequence extends WipRdpAbstractSequence {
-  constructor(attributes, ...other) {
-    attributes.Klass = WipRdpPcrSequence;
-    attributes.types = RdpTypes.pcrTypes;
-    super(attributes, ...other);
+  constructor(attributes, options={}) {
+    options.Klass = WipRdpPcrSequence;
+    options.types = RdpTypes.pcrTypes;
+    super(attributes, options);
     this.set({_type: wip_rdp_pcr_product}, {silent: true});
   }
 

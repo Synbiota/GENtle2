@@ -6,16 +6,16 @@ import RdpEdit from './rdp_edit';
 
 
 class WipRdpAbstractSequence extends Sequence {
-  constructor(attributes, ...other) {
-    if(!attributes.Klass) throw new TypeError('Must provide Klass attribute');
-    if(!attributes.types) throw new TypeError('Must provide types attribute');
-    var Klass = attributes.Klass;
-    var types = _.clone(attributes.types);
-    delete attributes.Klass;
-    delete attributes.types;
+  constructor(attributes, options={}) {
+    if(!options.Klass) throw new TypeError('Must provide Klass attribute');
+    if(!options.types) throw new TypeError('Must provide types attribute');
+    var Klass = options.Klass;
+    var types = _.clone(options.types);
+    delete options.Klass;
+    delete options.types;
 
     attributes.readOnly = true;
-    super(attributes, ...other);
+    super(attributes, options);
     this.Klass = Klass;
     this.types = types;
 
