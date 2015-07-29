@@ -10,17 +10,40 @@ import Backbone from 'backbone';
 
 var constructors = {};
 
+var constructorFactory = function(Constructor) {
+  return class extends Constructor {
+    sync(method, model, options) {
+      return Backbone.getSyncMethod(model, options).apply(this, [method, model, options]);
+    }
+    static get name() {
+      return `${Constructor.name}WithSync`;
+    }
+  };
+};
+
 var SequencesCollection = Backbone.Collection.extend({
   model: function(attrs, options) {
-    var Constructor = Sequence;
+    var BaseConstructor = Sequence;
     if(attrs._type && constructors[attrs._type]) {
-      Constructor = constructors[attrs._type];
+      BaseConstructor = constructors[attrs._type];
     }
+
+    var Constructor = constructorFactory(BaseConstructor);
+
     if(_.isFunction(Constructor.fromJSON)) {
       return Constructor.fromJSON(attrs);
     } else {
       return new Constructor(attrs, options);
     }
+  },
+
+  add: function(models, options) {
+    if(_.isArray(models)) {
+      models = _.map(models, (model) => this.model(model.toJSON(), options));
+    } else {
+      return this.add([models], options);
+    }
+    return Backbone.Collection.prototype.add.call(this, models, options);
   },
 
   localStorage: new Backbone.LocalStorage('Gentle-Sequences', {
