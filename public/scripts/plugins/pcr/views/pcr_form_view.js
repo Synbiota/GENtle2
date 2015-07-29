@@ -198,7 +198,7 @@ export default Backbone.View.extend({
         attributes.frm = data.from;
         attributes.size = data.to - data.from + 1;
         // TODO refactor to keep same sequenceModel?
-        var desiredWipRdpSequence = this.model.getRdpCompliantSequenceModel(attributes);
+        var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel(attributes);
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
         var errors = desiredWipRdpSequence.errors();
 
