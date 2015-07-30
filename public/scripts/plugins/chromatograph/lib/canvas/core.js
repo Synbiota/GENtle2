@@ -716,11 +716,11 @@ class SequenceCanvasCore {
 
   scrollTo(xOffset, yOffset) {
     this.$scrollingParent.scrollLeft(xOffset);
-    // this.$scrollingParent.scrollTop(yOffset);
+    this.$scrollingParent.scrollTop(yOffset);
   }
 
   onScroll(xOffset, yOffset, triggerEvent) {
-    console.log(xOffset, yOffset, triggerEvent)
+
     var deferred = Q.defer(),
       layoutHelpers = this.layoutHelpers,
       _this = this;
@@ -728,27 +728,15 @@ class SequenceCanvasCore {
     layoutHelpers.previousXOffset = layoutHelpers.xOffset || 0;
     layoutHelpers.previousYOffset = layoutHelpers.yOffset || 0;
 
-    if (xOffset !== undefined) {
-      layoutHelpers.xOffset = xOffset;
-    }
+    layoutHelpers.xOffset = xOffset || 0;
+    layoutHelpers.yOffset = yOffset || 0;
 
-    if (yOffset !== undefined) {
-      layoutHelpers.yOffset = yOffset;
+    _.afterLastCall(function(){
+      _this.sequence.set('displaySettings.yOffset', yOffset, {silent: true});
+      _this.sequence.set('displaySettings.xOffset', xOffset, {silent: true});
+      _this.sequence.throttledSave();
+    }, 300);
 
-      this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
-
-
-      _.afterLastCall(function(){
-        _this.sequence.set('displaySettings.yOffset',
-          layoutHelpers.yOffset = yOffset, {
-            silent: true
-          }
-        ).throttledSave();
-      }, 300)
-    }
-
-    this.$scrollingParent.scrollLeft(layoutHelpers.xOffset);
-    // this.$scrollingParent.scrollTop(layoutHelpers.yOffset);
 
     this.view.$el.find('.chromatograph-canvas-legend').scrollTop(layoutHelpers.yOffset);
 
@@ -759,6 +747,7 @@ class SequenceCanvasCore {
     if (triggerEvent !== false) {
       this.trigger('scroll', {xOffset, yOffset});
     }
+
 
     return deferred.promise;
   }
