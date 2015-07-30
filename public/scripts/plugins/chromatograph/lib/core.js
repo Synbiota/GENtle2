@@ -38,7 +38,7 @@ class SequenceCanvasCore {
       'calculateLayoutSettings',
       'updateCanvasDims',
       'redrawSelection',
-      'display',
+      // 'display',
       'display2d',
       'addLines',
       'refresh',
@@ -66,6 +66,7 @@ class SequenceCanvasCore {
         @type jQuery object
     **/
     var $container = this.$container = this._initContainer(options.container);
+    var $legend = this.$legend = options.legend;
 
     /**
         Invisible DIV used to handle scrolling.
@@ -358,54 +359,54 @@ class SequenceCanvasCore {
       Displays the sequence in the initiated canvas.
       @method display
   **/
-  display() {
-    var artist = this.artist,
-      ls = this.layoutSettings,
-      lh = this.layoutHelpers,
-      yOffset = lh.yOffset,
-      _this = this,
-      canvasHeight = ls.canvasDims.height,
-      drawStart, drawEnd, moveOffset;
+  // display() {
+  //   var artist = this.artist,
+  //     ls = this.layoutSettings,
+  //     lh = this.layoutHelpers,
+  //     yOffset = lh.yOffset,
+  //     _this = this,
+  //     canvasHeight = ls.canvasDims.height,
+  //     drawStart, drawEnd, moveOffset;
 
-    return Q.promise(function(resolve, reject) {
+  //   return Q.promise(function(resolve, reject) {
 
-      // Check if we have a previousYOffset reference, in which case
-      // we will only redraw the missing part
-      moveOffset = lh.previousYOffset !== undefined ?
-        -lh.previousYOffset + yOffset :
-        0;
+  //     // Check if we have a previousYOffset reference, in which case
+  //     // we will only redraw the missing part
+  //     moveOffset = lh.previousYOffset !== undefined ?
+  //       -lh.previousYOffset + yOffset :
+  //       0;
 
-      if (moveOffset !== 0) {
-        artist.scroll(-moveOffset);
+  //     if (moveOffset !== 0) {
+  //       artist.scroll(-moveOffset);
 
-        drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
-        drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
+  //       drawStart = moveOffset > 0 ? canvasHeight - moveOffset : 0;
+  //       drawEnd = moveOffset > 0 ? canvasHeight : -moveOffset;
 
-        // let rowStart = _this.getRowFromYPos(drawStart);
-        // let rowEnd = _this.getRowFromYPos(drawEnd);
-        // for(let i = rowStart; i <= rowEnd; i++) {
-        //   let rowGroup = svg.get(`svg-row-${i}`);
-        //   if(rowGroup) rowGroup.remove();
-        // }
+  //       // let rowStart = _this.getRowFromYPos(drawStart);
+  //       // let rowEnd = _this.getRowFromYPos(drawEnd);
+  //       // for(let i = rowStart; i <= rowEnd; i++) {
+  //       //   let rowGroup = svg.get(`svg-row-${i}`);
+  //       //   if(rowGroup) rowGroup.remove();
+  //       // }
 
-        lh.previousYOffset = undefined;
+  //       lh.previousYOffset = undefined;
 
-      } else {
+  //     } else {
 
-        artist.clear();
-        drawStart = 0;
-        drawEnd = canvasHeight;
+  //       artist.clear();
+  //       drawStart = 0;
+  //       drawEnd = canvasHeight;
 
-      }
+  //     }
 
-      _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
+  //     _this.forEachRowInPosYRange(drawStart, drawEnd, _this.drawRow);
 
-      _this.displayDeferred.resolve();
-      _this.displayDeferred = Q.defer();
-      resolve();
+  //     _this.displayDeferred.resolve();
+  //     _this.displayDeferred = Q.defer();
+  //     resolve();
 
-    }).catch(namedHandleError('sequence_canvas, display'));
-  }
+  //   }).catch(namedHandleError('sequence_canvas, display'));
+  // }
 
   drawHighlight(posY, baseRange) {
     var layoutHelpers = this.layoutHelpers;
@@ -457,33 +458,6 @@ class SequenceCanvasCore {
       });
     }
   }
-
-  // drawRowSegment(type, x, y, baseRange){
-  //   var
-  //       // lines = this.getLines(type),
-  //       artist = this.artist,
-  //       ls = this.layoutSettings,
-  //       baseWidth = ls.basePairDims.width,
-  //       lines = this.lines,
-  //       lineOffset = 0;
-
-
-  //   this.rows['Consensus0'].draw(x, y, baseRange)
-
-  //   // if (baseRange[0] < this.sequence.getLength()) {
-  //   //   artist.clear(x, y, (baseRange[1] - baseRange[0]) * baseWidth, ls.canvasDims.height - y)
-  //   //   _.each(lines, function(line) {
-  //   //     if (line.visible === undefined || line.visible()) {
-  //   //       if(line.floating) {
-  //   //         line.draw(x, y, baseRange);
-  //   //       } else {
-  //   //         line.draw(x, y + lineOffset, baseRange);
-  //   //         lineOffset += line.height;
-  //   //       }
-  //   //     }
-  //   //   });
-  //   // }
-  // }
 
   display2d() {
     var artist = this.artist,
@@ -576,32 +550,7 @@ class SequenceCanvasCore {
     var x = drawStart[0]
     var y = drawStart[1]
 
-    // console.log('fbrange', 'start/end', start, end, 'drawStart/End', drawStart, drawEnd, 'width', width)
-
     callback.call(this, x, y, width, height)
-
-
-    // for (var i = 0; i < numRows; i++){
-    //   console.log(i, numRows, rowOffset, y + i * rowHeight,  this.rows[rowOffset + i], drawStart[1])
-    //   callback.call(this, rowOffset + i, x, y + i * rowHeight, width)
-    // }
-
-    // for (var y = drawStart[1]; y < drawEnd[1]; y += blockDims[1]){
-    //   // Determine which row
-
-    //   // render the row
-    //   callback.call(this,x, y, width)
-
-    // }
-
-
-    // firstRowStartY  = this.getRowStartY(Math.max(startY + layoutHelpers.yOffset, pageMargins.top)) - layoutHelpers.yOffset,
-    // lastRowY = Math.min(endY, layoutSettings.canvasDims.height);
-
-    // for(var y = firstRowStartY;
-    //     y < lastRowY;
-    //     y += this.layoutHelpers.rows.height)
-    //   callback.call(this, y);
 
   }
 
@@ -699,11 +648,12 @@ class SequenceCanvasCore {
   @return {Promise}
   **/
   resizeScrollHelpers() {
-    var layoutHelpers = this.layoutHelpers;
+    var layoutHelpers = this.layoutHelpers,
+        layoutSettings = this.layoutSettings;
     return Q.promise((resolve) => {
 
-      this.view.$el.find('.chromatograph-legend-child').height(layoutHelpers.pageDims.height);
-
+      this.$legend.find('.chromatograph-legend-child').height(
+        layoutSettings.pageMargins.top + layoutHelpers.pageDims.height + layoutSettings.pageMargins.top);
 
       this.$scrollingChild.width(layoutHelpers.pageDims.width)
       this.$scrollingChild.height(layoutHelpers.pageDims.height);
@@ -818,8 +768,6 @@ class SequenceCanvasCore {
 
     var distanceToVisibleCanvas = this.distanceToVisibleCanvas(base);
 
-    console.log(distanceToVisibleCanvas, this.layoutHelpers.xOffset, this.layoutHelpers.xOffset + distanceToVisibleCanvas)
-
     if (distanceToVisibleCanvas !== 0) {
       return this.scrollTo(this.layoutHelpers.xOffset + distanceToVisibleCanvas);
     } else {
@@ -878,7 +826,7 @@ class SequenceCanvasCore {
       this.highlight = [fromBase, toBase];
     }
 
-    this.display();
+    this.display2d();
   }
 
   /**

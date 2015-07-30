@@ -152,13 +152,7 @@ export default Backbone.View.extend({
     });
   },
 
-  afterRender: function() {
-
-    if (this.model.get('chromatogramFragments').length){
-      this.$el.find('.chromatograph-import-wrapper').hide();
-    } else {
-      this.$el.find('.chromatograph-import-wrapper').show();
-    }
+  beforeRender: function(){
 
     var promptView = new ChromatographImportPromptView({
       model: this.model
@@ -176,6 +170,15 @@ export default Backbone.View.extend({
     this.setView('.chromatograph-canvas-legend', legendView);
 
     legendView.render();
+  },
+
+  afterRender: function() {
+
+    if (this.model.get('chromatogramFragments').length){
+      this.$el.find('.chromatograph-import-wrapper').hide();
+    } else {
+      this.$el.find('.chromatograph-import-wrapper').show();
+    }
 
     // this.$('.sequence-canvas-outlet').css({
     //   top: this.secondaryView.$el.outerHeight()
@@ -194,6 +197,7 @@ export default Backbone.View.extend({
     var sequenceCanvas = this.sequenceCanvas = new ChromatographCanvas({
       sequence: sequence,
       container: this.$('.sequence-canvas-outlet').first(),
+      legend: this.$('#sequence-canvas-chromatograph-legend').first(),
       yOffset: sequence.get('displaySettings.yOffset'),
       // non library options
       contextMenu: this.contextMenuView,
