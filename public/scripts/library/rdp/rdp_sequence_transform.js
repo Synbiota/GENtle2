@@ -5,6 +5,7 @@ import {
   noTerminalStopCodons,
   ensureLastBaseIs,
   firstCodonIsStop,
+  lastCodonIsStop,
   warnIfEarlyStopCodons,
 } from './sequence_transform';
 
@@ -19,7 +20,9 @@ var calculateTransformationFunctionInstances = function(sequenceModel) {
       transforms.push(firstCodonIsMethionine);
     }
 
-    if(!sequenceModel.isCdsWithStop) {
+    if(sequenceModel.isCdsWithStop) {
+      transforms.push(lastCodonIsStop);
+    } else {
       transforms.push(noTerminalStopCodons);
 
       var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);

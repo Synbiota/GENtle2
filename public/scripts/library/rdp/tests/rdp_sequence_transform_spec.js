@@ -96,9 +96,10 @@ describe('RDP sequence transforms', function() {
       it("CDS with STOP X-Z'", function() {
         setSequence('AATTGA', stickyEndsXZ(), RdpTypes.types.CDS_WITH_STOP);
         var transforms = calculateTransformationFunctionInstances(sequenceModel);
-        expect(transforms.length).toEqual(2);
+        expect(transforms.length).toEqual(3);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
-        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_CODON_IS_STOP);
+        expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Modifier X-Z'", function() {
@@ -354,6 +355,23 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.WARN);
 
         expect(getSequence()).toEqual('ATGCCCTGACCCTGATGA');
+      });
+
+      it('should transform CDS_WITH_STOP with no STOP codon as last codon', function() {
+        setSequence('CCCTGACCC', stickyEndsXZ(), RdpTypes.types.CDS_WITH_STOP);
+        var rdpEdits = sequenceModel.transformSequenceForRdp();
+        expect(rdpEdits.length).toEqual(3);
+        expect(rdpEdits[0].type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);
+        expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
+        expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_CODON_IS_STOP_ADDED);
+        expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
+        var rdpEdit = rdpEdits[2];
+        expect(rdpEdit.type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+        expect(rdpEdit.level).toEqual(RdpEdit.levels.WARN);
+        expect(rdpEdit.contextBefore.ranges[0].from).toEqual(6);
+        expect(rdpEdit.contextBefore.ranges[0].size).toEqual(3);
+
+        expect(getSequence()).toEqual('ATGCCCTGACCCTAG');
       });
 
       it('should transform oligo', function() {
