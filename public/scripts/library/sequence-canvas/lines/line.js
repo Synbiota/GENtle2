@@ -1,5 +1,5 @@
 import {extend, defaults} from 'underscore';
-import Memoizable from 'gentle-utils/memoizable';
+import Memoizable from 'gentledna-utils/dist/memoizable';
 
 /**
 Base Line class from which to extend. 

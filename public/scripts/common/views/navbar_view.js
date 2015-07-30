@@ -7,7 +7,7 @@
   var template    = require('../templates/navbar_view.hbs'),
       Gentle      = require('gentle'),
       Backbone    = require('backbone'),
-      tooltip     = require('gentle-utils/tooltip'),
+      tooltip     = require('gentledna-utils/dist/tooltip'),
       NavbarView;
 
   NavbarView = Backbone.View.extend({

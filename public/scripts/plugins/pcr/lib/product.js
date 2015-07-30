@@ -1,4 +1,4 @@
-import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
+import {version1GenericPreProcessor} from 'gentledna-utils/dist/preprocessor';
 import SequenceModel from '../../../sequence/models/sequence';
 import SequencesCollection from '../../../sequence/models/sequences';
 import PcrPrimer from './pcr_primer';

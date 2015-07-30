@@ -28,7 +28,8 @@
     "object-assign": "^2.0.0",
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "gentledna-utils": "^0.0.1"
   },
   "devDependencies": {
     "aliasify": "^1.7.2",

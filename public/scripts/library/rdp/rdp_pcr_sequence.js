@@ -1,4 +1,4 @@
-import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
+import {version1GenericPreProcessor} from 'gentledna-utils/dist/preprocessor';
 import PcrProductSequence from '../../plugins/pcr/lib/product';
 import RdpEdit from './rdp_edit';
 import SequencesCollection from '../../sequence/models/sequences';

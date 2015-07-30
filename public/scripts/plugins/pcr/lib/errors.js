@@ -1,4 +1,4 @@
-import {BaseError} from 'gentle-utils/errors';
+import {BaseError} from 'gentledna-utils/dist/errors';
 
 
 class PrimerSearchError extends BaseError {}

@@ -2,8 +2,8 @@ import _ from 'underscore';
 import '../../common/lib/polyfills';  // required for String.prototype.endsWith
 
 import classMethodsMixin from './sequence_class_methods_mixin';
-import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
-import deprecated from 'gentle-utils/deprecated_method';
+import smartMemoizeAndClear from 'gentledna-utils/dist/smart_memoize_and_clear';
+import deprecated from 'gentledna-utils/dist/deprecated_method';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
 import SequenceRange from './range';

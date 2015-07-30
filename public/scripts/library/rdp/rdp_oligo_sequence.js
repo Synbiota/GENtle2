@@ -1,7 +1,7 @@
 import _ from 'underscore';
 import Sequence from '../../sequence/models/sequence';
 import SequencesCollection from '../../sequence/models/sequences';
-import {version1GenericPreProcessor} from 'gentle-utils/preprocessor';
+import {version1GenericPreProcessor} from 'gentledna-utils/dist/preprocessor';
 import RdpEdit from './rdp_edit';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
