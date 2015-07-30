@@ -4,8 +4,8 @@ import Q from 'q';
 import ContextMenuView from '../../../common/views/context_menu_view';
 
 import template from '../templates/sequence_chromatograph_view.hbs';
-// import SequenceCanvas from '../lib/sequence_canvas';
-import ChromatographCanvas from '../lib/chromatograph_canvas';
+
+import ChromatographCanvas from '../lib/canvas/chromatograph_canvas';
 import ChromatographMapView from '../views/chromatograph_map_view';
 import ChromatographLegendView from './chromatograph_legend_view';
 import ChromatographImportPromptView from './chromatograph_import_prompt_view';

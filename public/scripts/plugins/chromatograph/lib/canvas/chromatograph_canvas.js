@@ -1,5 +1,5 @@
 import _ from 'underscore';
-import ContextMenu from '../../../sequence/lib/_sequence_canvas_context_menu';
+import ContextMenu from '../../../../sequence/lib/_sequence_canvas_context_menu';
 
 import classMixin from 'gentle-utils/class_mixin';
 import Core from './core';
@@ -11,7 +11,7 @@ import Memoizable from 'gentle-utils/memoizable';
 
 var SequenceCanvasMixin = classMixin(ContextMenu, ChromatogramEventHandlers, EventHandlers, Utilities, Core, Memoizable);
 
-import Styles from '../../../styles';
+import Styles from '../../../../styles';
 const LineStyles = Styles.sequences.lines;
 
 export default class ChromatographCanvas extends SequenceCanvasMixin {

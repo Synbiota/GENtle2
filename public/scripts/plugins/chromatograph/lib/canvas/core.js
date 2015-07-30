@@ -5,16 +5,16 @@ import svg from 'svg.js';
 
 import template from './template.html';
 
-import Artist from '../../../common/lib/graphics/artist';
+import Artist from '../../../../common/lib/graphics/artist';
 // import CopyPasteHandler from '../../common/lib/copy_paste_handler';
 
-import Rows from './rows';
+import Rows from '../rows';
 // import Lines from './lines';
 // import Caret from './caret';
 
-import {namedHandleError} from '../../../common/lib/handle_error';
-import {assertIsDefinedAndNotNull, assertIsObject} from '../../../common/lib/testing_utils';
-import tracedLog from '../../../common/lib/traced_log';
+import {namedHandleError} from '../../../../common/lib/handle_error';
+import {assertIsDefinedAndNotNull, assertIsObject} from '../../../../common/lib/testing_utils';
+import tracedLog from '../../../../common/lib/traced_log';
 import defineMethod from 'gentle-utils/define_method';
 
 /**
@@ -720,9 +720,10 @@ class SequenceCanvasCore {
   }
 
   onScroll(xOffset, yOffset, triggerEvent) {
-
+    console.log(xOffset, yOffset, triggerEvent)
     var deferred = Q.defer(),
-      layoutHelpers = this.layoutHelpers;
+      layoutHelpers = this.layoutHelpers,
+      _this = this;
 
     layoutHelpers.previousXOffset = layoutHelpers.xOffset || 0;
     layoutHelpers.previousYOffset = layoutHelpers.yOffset || 0;
@@ -735,12 +736,15 @@ class SequenceCanvasCore {
       layoutHelpers.yOffset = yOffset;
 
       this.layoutHelpers.BasePosition = this.getBaseFromXYPos(0, yOffset + this.layoutHelpers.rows.height);
-      this.sequence.set('displaySettings.yOffset',
-        layoutHelpers.yOffset = yOffset, {
-          silent: true
-        }
-      );
-      this.sequence.throttledSave();
+
+
+      _.afterLastCall(function(){
+        _this.sequence.set('displaySettings.yOffset',
+          layoutHelpers.yOffset = yOffset, {
+            silent: true
+          }
+        ).throttledSave();
+      }, 300)
     }
 
     this.$scrollingParent.scrollLeft(layoutHelpers.xOffset);
