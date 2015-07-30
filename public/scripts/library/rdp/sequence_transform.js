@@ -279,7 +279,7 @@ requirements = [
   warnIfNotMultipleOf3,
   warnIfStickyEndsPresent,
 ];
-rdpEditType = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
+rdpEditType = RdpEdit.types.LAST_STOP_CODONS_REMOVED;
 /**
  * @method noTerminalStopCodonsFn
  * @param  {SequenceModel}  sequenceModel
@@ -308,7 +308,7 @@ var noTerminalStopCodonsFn = function(sequenceModel) {
   }
 
   if(aAsToRemove.length) {
-    var type = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
+    var type = RdpEdit.types.LAST_STOP_CODONS_REMOVED;
     var name = 'Will remove stop codons';
     var desc = `Will remove ${aAsToRemove.length} stop codon(s)`;
     var ranges = _.map(aAsToRemove, (frmBase) => {

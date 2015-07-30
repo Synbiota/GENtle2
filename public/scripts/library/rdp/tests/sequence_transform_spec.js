@@ -194,7 +194,7 @@ describe('sequence transforms', function() {
   });
 
 
-  describe('RDP sequence with stop codon validation and transformation', function() {
+  describe('RDP sequence removing last stop codon validation and transformation', function() {
     it('should pass if no stop codons', function() {
       setBases('AAG');
       var rdpEdits = noTerminalStopCodons.process(sequenceModel);
@@ -212,10 +212,10 @@ describe('sequence transforms', function() {
 
       var rdpEdits = noTerminalStopCodons.process(sequenceModel);
       var rdpEdit = rdpEdits[0];
-      expect(rdpEdit.type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+      expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.error).toBeUndefined();
 
-      expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+      expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.contextBefore.name).toEqual('Will remove stop codons');
       expect(rdpEdit.contextBefore.ranges[0].from).toEqual(15);
       expect(rdpEdit.contextBefore.ranges[0].to).toEqual(18);
@@ -225,7 +225,7 @@ describe('sequence transforms', function() {
       expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
       expect(rdpEdit.contextBefore.contextualTo).toEqual(18);
 
-      expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+      expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.contextAfter.name).toEqual('Removed stop codons');
       expect(rdpEdit.contextAfter.ranges.length).toEqual(0);
       expect(rdpEdit.contextAfter.sequence).toEqual('GTGTGACCC');

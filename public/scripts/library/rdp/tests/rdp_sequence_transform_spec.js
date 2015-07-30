@@ -88,7 +88,7 @@ describe('RDP sequence transforms', function() {
         var transforms = calculateTransformationFunctionInstances(sequenceModel);
         expect(transforms.length).toEqual(4);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
-        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_C);
         expect(transforms[3].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -107,7 +107,7 @@ describe('RDP sequence transforms', function() {
         var transforms = calculateTransformationFunctionInstances(sequenceModel);
         expect(transforms.length).toEqual(4);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
-        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_C);
         expect(transforms[3].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -116,7 +116,7 @@ describe('RDP sequence transforms', function() {
         setSequence('AAT', stickyEndsZX(), RdpTypes.types.MODIFIER);
         var transforms = calculateTransformationFunctionInstances(sequenceModel);
         expect(transforms.length).toEqual(3);
-        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_G);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -157,7 +157,7 @@ describe('RDP sequence transforms', function() {
         var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
         expect(transforms.length).toEqual(4);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
-        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_C);
         expect(transforms[3].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -166,7 +166,7 @@ describe('RDP sequence transforms', function() {
         setOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.MODIFIER);
         var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
         expect(transforms.length).toEqual(3);
-        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_G);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -175,7 +175,7 @@ describe('RDP sequence transforms', function() {
         setOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.PROTEIN_LINKER);
         var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
         expect(transforms.length).toEqual(3);
-        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_G);
         expect(transforms[2].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -378,7 +378,7 @@ describe('RDP sequence transforms', function() {
         setOligoSequence('GTGTAGAAATAG', stickyEndsZX(), RdpTypes.types.PROTEIN_LINKER);
         var rdpEdits = oligoSequenceModel.transformSequenceForRdp();
         expect(rdpEdits.length).toEqual(3);
-        expect(rdpEdits[0].type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+        expect(rdpEdits[0].type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
         expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE);
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
