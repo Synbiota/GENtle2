@@ -8,6 +8,7 @@ import {
   lastStopCodonsRemoved,
   ensureLastBaseIs,
   firstCodonIsStop,
+  lastCodonIsStop,
 } from '../sequence_transform';
 
 
@@ -377,6 +378,57 @@ describe('sequence transforms', function() {
       expect(rdpEdit.level).toEqual(RdpEdit.levels.ERROR);
 
       expect(getSequence()).toEqual(INITIAL + STOP_OPAL);
+    });
+  });
+
+
+  describe('RDP sequence with last codon being STOP', function() {
+    it('should do nothing if last codon is STOP', function() {
+      _.each(['TGA', 'TAG', 'TAA'], function(codon) {
+        setBases(codon);
+        var rdpEdits = lastCodonIsStop.process(sequenceModel);
+        expect(rdpEdits.length).toEqual(0);
+
+        expect(getSequence()).toEqual(codon);
+      });
+    });
+
+    it('should add a stop codon on end if not present', function() {
+      setBases('ATG');
+      var rdpEdits = lastCodonIsStop.process(sequenceModel);
+      expect(rdpEdits.length).toEqual(1);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_CODON_IS_STOP_ADDED);
+      expect(rdpEdit.level).toEqual(RdpEdit.levels.NORMAL);
+
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(3);
+      expect(rdpEdit.contextBefore.sequence).toEqual('ATG');
+      expect(rdpEdit.contextBefore.name).toEqual('Will insert TAG');
+
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(6);
+      expect(rdpEdit.contextAfter.sequence).toEqual('ATGTAG');
+      expect(rdpEdit.contextAfter.name).toEqual('Inserted TAG');
+
+      expect(getSequence()).toEqual('ATGTAG');
+    });
+
+    it('should have the correct context', function() {
+      setBases('ATGTTTGGGCCC');
+      var rdpEdits = lastCodonIsStop.process(sequenceModel);
+      expect(rdpEdits.length).toEqual(1);
+      var rdpEdit = rdpEdits[0];
+
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(12);
+      expect(rdpEdit.contextBefore.sequence).toEqual('GGGCCC');
+
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(15);
+      expect(rdpEdit.contextAfter.sequence).toEqual('GGGCCCTAG');
+
+      expect(getSequence()).toEqual('ATGTTTGGGCCCTAG');
     });
   });
 });
