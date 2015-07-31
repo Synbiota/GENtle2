@@ -281,11 +281,11 @@ requirements = [
 ];
 rdpEditType = RdpEdit.types.LAST_STOP_CODONS_REMOVED;
 /**
- * @method noTerminalStopCodonsFn
+ * @method lastStopCodonsRemovedFn
  * @param  {SequenceModel}  sequenceModel
  * @return {array<RdpEdit>}
  */
-var noTerminalStopCodonsFn = function(sequenceModel) {
+var lastStopCodonsRemovedFn = function(sequenceModel) {
   var rdpEdit, frm;
   var length = getLen(sequenceModel);
   var aAsToRemove = [];
@@ -348,7 +348,7 @@ var noTerminalStopCodonsFn = function(sequenceModel) {
 
   return rdpEdit ? [rdpEdit] : [];
 };
-var noTerminalStopCodons = new TransformationFunction(noTerminalStopCodonsFn, requirements, rdpEditType);
+var lastStopCodonsRemoved = new TransformationFunction(lastStopCodonsRemovedFn, requirements, rdpEditType);
 
 
 
@@ -700,7 +700,7 @@ var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, 
 
 export default {
   firstCodonIsMethionine,
-  noTerminalStopCodons,
+  lastStopCodonsRemoved,
   ensureLastBaseIs,
   firstCodonIsStop,
   lastCodonIsStop,

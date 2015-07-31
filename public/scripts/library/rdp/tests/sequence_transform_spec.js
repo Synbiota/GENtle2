@@ -5,7 +5,7 @@ import RdpEdit from '../rdp_edit';
 
 import {
   firstCodonIsMethionine,
-  noTerminalStopCodons,
+  lastStopCodonsRemoved,
   ensureLastBaseIs,
   firstCodonIsStop,
 } from '../sequence_transform';
@@ -194,23 +194,23 @@ describe('sequence transforms', function() {
   });
 
 
-  describe('RDP sequence removing last stop codon validation and transformation', function() {
+  describe('RDP sequence removing last stop codon(s)', function() {
     it('should pass if no stop codons', function() {
       setBases('AAG');
-      var rdpEdits = noTerminalStopCodons.process(sequenceModel);
+      var rdpEdits = lastStopCodonsRemoved.process(sequenceModel);
       expect(rdpEdits.length).toEqual(0);
 
       expect(getSequence()).toEqual('AAG');
     });
 
-    it('should remove only the terminal stop codons', function() {
+    it('should remove only the last stop codons', function() {
       var stop1 = 'TGA';
       var stop2 = 'TAG';
       var stop3 = 'TAA';
       var bases = 'GTG'+stop1+'CCC' + stop1+stop2+stop3;
       setBases(bases);
 
-      var rdpEdits = noTerminalStopCodons.process(sequenceModel);
+      var rdpEdits = lastStopCodonsRemoved.process(sequenceModel);
       var rdpEdit = rdpEdits[0];
       expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.error).toBeUndefined();

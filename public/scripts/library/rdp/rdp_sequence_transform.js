@@ -2,7 +2,7 @@ import _ from 'underscore';
 import RdpEdit from './rdp_edit';
 import {
   firstCodonIsMethionine,
-  noTerminalStopCodons,
+  lastStopCodonsRemoved,
   ensureLastBaseIs,
   firstCodonIsStop,
   lastCodonIsStop,
@@ -23,7 +23,7 @@ var calculateTransformationFunctionInstances = function(sequenceModel) {
     if(sequenceModel.isCdsWithStop) {
       transforms.push(lastCodonIsStop);
     } else {
-      transforms.push(noTerminalStopCodons);
+      transforms.push(lastStopCodonsRemoved);
 
       var lastBaseMustBe = desiredStickyEnds.end.sequence.substr(0, 1);
       transforms.push(ensureLastBaseIs(lastBaseMustBe));
