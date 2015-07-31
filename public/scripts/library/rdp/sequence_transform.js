@@ -501,9 +501,16 @@ var lastBaseIsGAaMap = _.extend(_.clone(lastBaseIsGAaMapConservativeChange), {
   "GTT": "GTG",
   "GTC": "GTG",
   "GTA": "GTG",
-  // Stop codons (we could convert to a TAG stop codon?)
-  "TGA": "TAG",
-  "TAA": "TAG",
+  // Stop codons (we never need to convert to a TAG stop codon, if the sequence
+  //              is CDS_WITH_STOP, the frame doesn't matter so the G doesn't
+  //              need to be part of the last two codons being X', and there are
+  //              not other protein coding sequence partTypes which contain a
+  //              stop as the last codon)
+  // "TGA": "TAG",
+  // "TAA": "TAG",
+  "TGA": undefined,
+  "TAA": undefined,
+  "TAG": undefined,
 });
 
 

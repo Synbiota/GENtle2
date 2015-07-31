@@ -319,4 +319,83 @@ describe('sequence transforms', function() {
       expect(getSequence()).toEqual(INITIAL + STOP_AMBER);
     });
   });
+
+
+  describe('RDP sequence with last base being G', function() {
+    it('should do nothing if last base is G', function() {
+      setBases('AAG');
+      var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+      expect(rdpEdits.length).toEqual(0);
+
+      expect(getSequence()).toEqual('AAG');
+    });
+
+    const PHENYLALANINE = 'TTT';
+    const LEUCINE1 = 'TTA';
+    const LEUCINE2 = 'TTG';
+    it('should transform codon to suitable amino acid', function() {
+      const INITIAL = 'ATG';
+      _.each([PHENYLALANINE, LEUCINE1], function(codon) {
+        setBases(INITIAL + codon);
+        var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+        var rdpEdit = rdpEdits[0];
+        expect(rdpEdit.error).toBeUndefined();
+        var type = ((codon === PHENYLALANINE) ?
+          RdpEdit.types.LAST_BASE_IS_G :
+          RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE);
+        expect(rdpEdit.type).toEqual(type);
+
+        expect(rdpEdit.contextBefore._type).toEqual(type);
+        expect(rdpEdit.contextBefore.name).toEqual('Last base should be "G"');
+        expect(rdpEdit.contextBefore.ranges[0].from).toEqual(5);
+        expect(rdpEdit.contextBefore.ranges[0].to).toEqual(6);
+        expect(rdpEdit.contextBefore.ranges[0].reverse).toEqual(false);
+        expect(rdpEdit.contextBefore.sequence).toEqual(INITIAL + codon);
+        expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextBefore.contextualTo).toEqual(6);
+
+        expect(rdpEdit.contextAfter._type).toEqual(type);
+        expect(rdpEdit.contextAfter.name).toEqual('Last base changed to "G".');
+        expect(rdpEdit.contextAfter.ranges[0].from).toEqual(5);
+        expect(rdpEdit.contextAfter.ranges[0].to).toEqual(6);
+        expect(rdpEdit.contextAfter.ranges[0].reverse).toEqual(false);
+        expect(rdpEdit.contextAfter.sequence).toEqual(INITIAL + LEUCINE2);
+        expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextAfter.contextualTo).toEqual(6);
+
+        expect(getSequence()).toEqual(INITIAL + LEUCINE2);
+      });
+    });
+
+    it('should transform suitable bases with the correct context', function() {
+      const INITIAL = 'ATGCCCTTTAAA';
+
+      setBases(INITIAL + LEUCINE1);
+      var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.contextBefore.sequence).toEqual((INITIAL + LEUCINE1).slice(-9));
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(15);
+
+      expect(rdpEdit.contextAfter.sequence).toEqual((INITIAL + LEUCINE2).slice(-9));
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(15);
+
+      expect(getSequence()).toEqual(INITIAL + LEUCINE2);
+    });
+
+    it('should error if encounters a stop codon (which should not normally happen)', function() {
+      const INITIAL = 'TGAAGA';
+      const STOP_OPAL = 'TGA';
+
+      setBases(INITIAL + STOP_OPAL);
+      var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_BASE_IS_G);
+      expect(rdpEdit.message).toEqual('The last base of sequence must be "G" but there is no replacement for the codon: "TGA".');
+      expect(rdpEdit.level).toEqual(RdpEdit.levels.ERROR);
+
+      expect(getSequence()).toEqual(INITIAL + STOP_OPAL);
+    });
+  });
 });
