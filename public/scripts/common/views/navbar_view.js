@@ -143,7 +143,7 @@
         $tabsElements.each(function(i, element) {
           var $element = $(element);
           if($element.find('span.name').width() > $element.width()) {
-            $element.tooltip({
+            $element.gentleTooltip({
               placement: 'bottom',
               container: 'body'
             });
