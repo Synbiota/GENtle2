@@ -134,35 +134,16 @@ describe('sequence transforms', function() {
   });
 
   describe('RDP sequence Stop codon as first Codon validation and transformation', function() {
-    describe('correct stop codon at beginning', function() {
-      it('should pass with TGA', function() {
-        setBases('TGACCC');
+    it('should pass with correct stop codon at beginning', function() {
+      _.each(['TAG', 'TGA', 'TAA'], function(stopCodon) {
+        setBases(stopCodon + 'CCC');
 
         var rdpEdits = firstCodonIsStop.process(sequenceModel);
         expect(rdpEdits.length).toEqual(0);
 
-        expect(getSequence()).toEqual('TGACCC');
-      });
-
-      it('should pass with TAG', function() {
-        setBases('TAGCCC');
-
-        var rdpEdits = firstCodonIsStop.process(sequenceModel);
-        expect(rdpEdits.length).toEqual(0);
-
-        expect(getSequence()).toEqual('TAGCCC');
-      });
-
-      it('should pass with TAA', function() {
-        setBases('TAACCC');
-
-        var rdpEdits = firstCodonIsStop.process(sequenceModel);
-        expect(rdpEdits.length).toEqual(0);
-
-        expect(getSequence()).toEqual('TAACCC');
+        expect(getSequence()).toEqual(stopCodon + 'CCC');
       });
     });
-
 
     describe('incorrect stop codon at beginning', function() {
       it('should add stop when no transform available', function() {
@@ -237,8 +218,8 @@ describe('sequence transforms', function() {
   });
 
 
-  describe('RDP sequence with terminal C base validation and transformation', function() {
-    it('should do nothing if terminal base is C', function() {
+  describe('RDP sequence with last base being C', function() {
+    it('should do nothing if last base is C', function() {
       setBases('AAC');
       var rdpEdits = ensureLastBaseIs('C').process(sequenceModel);
       expect(rdpEdits.length).toEqual(0);
