@@ -9,6 +9,7 @@ import {
   ensureLastBaseIs,
   firstCodonIsStop,
   lastCodonIsStop,
+  warnIfEarlyStopCodons,
 } from '../sequence_transform';
 
 
@@ -429,6 +430,33 @@ describe('sequence transforms', function() {
       expect(rdpEdit.contextAfter.sequence).toEqual('GGGCCCTAG');
 
       expect(getSequence()).toEqual('ATGTTTGGGCCCTAG');
+    });
+  });
+
+
+  describe('RDP warning when sequence contains STOP codons before end', function() {
+    it('should do nothing if last codon is STOP', function() {
+      setBases('AAATGACCCTAGCACTAATAA');
+      var rdpEdits = warnIfEarlyStopCodons.process(sequenceModel);
+      expect(rdpEdits.length).toEqual(2);
+
+      expect(rdpEdits[0].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+      expect(rdpEdits[0].contextBefore.contextualFrom).toEqual(0);
+      expect(rdpEdits[0].contextBefore.contextualTo).toEqual(9);
+      expect(rdpEdits[0].contextBefore.name).toEqual('Stop codon');
+      expect(rdpEdits[0].contextBefore.ranges[0].from).toEqual(3);
+      expect(rdpEdits[0].contextBefore.ranges[0].size).toEqual(3);
+      expect(rdpEdits[0].contextAfter).toBeUndefined();
+
+      expect(rdpEdits[1].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+      expect(rdpEdits[1].contextBefore.contextualFrom).toEqual(6);
+      expect(rdpEdits[1].contextBefore.contextualTo).toEqual(15);
+      expect(rdpEdits[1].contextBefore.name).toEqual('Stop codon');
+      expect(rdpEdits[1].contextBefore.ranges[0].from).toEqual(9);
+      expect(rdpEdits[1].contextBefore.ranges[0].size).toEqual(3);
+      expect(rdpEdits[1].contextAfter).toBeUndefined();
+
+      expect(getSequence()).toEqual('AAATGACCCTAGCACTAATAA');
     });
   });
 });

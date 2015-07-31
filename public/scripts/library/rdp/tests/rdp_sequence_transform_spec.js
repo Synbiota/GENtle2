@@ -365,11 +365,8 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[0].level).toEqual(RdpEdit.levels.NORMAL);
         expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_CODON_IS_STOP_ADDED);
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
-        var rdpEdit = rdpEdits[2];
-        expect(rdpEdit.type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
-        expect(rdpEdit.level).toEqual(RdpEdit.levels.WARN);
-        expect(rdpEdit.contextBefore.ranges[0].from).toEqual(6);
-        expect(rdpEdit.contextBefore.ranges[0].size).toEqual(3);
+        expect(rdpEdits[2].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+        expect(rdpEdits[2].level).toEqual(RdpEdit.levels.WARN);
 
         expect(getSequence()).toEqual('ATGCCCTGACCCTAG');
       });
