@@ -1,4 +1,4 @@
-import tooltip from 'gentledna-utils/dist/tooltip';
+import tooltip from 'tooltip';
 import $ from 'jquery';
 
 export default function hoverDescription($element) {

@@ -7,7 +7,7 @@
   var template    = require('../templates/navbar_view.hbs'),
       Gentle      = require('gentle'),
       Backbone    = require('backbone'),
-      tooltip     = require('gentledna-utils/dist/tooltip'),
+      tooltip     = require('tooltip'),
       NavbarView;
 
   NavbarView = Backbone.View.extend({
@@ -157,7 +157,7 @@
     },
 
     showMenuButtonTooltip: function() {
-      tooltip.show('New sequence, part, or circuit');
+      tooltip.show('New sequence, part, or circuit', {view: this});
     },
 
     hideMenuButtonTooltip: function() {

@@ -3,7 +3,7 @@ import Gentle from 'gentle';
 import template from '../templates/linear_map_view.hbs';
 import _ from 'underscore';
 import RestrictionEnzymes from 'gentle-restriction-enzymes';
-import tooltip from 'gentledna-utils/dist/tooltip';
+import tooltip from 'tooltip';
 import tooltipTemplate from 'gentle-sequence-canvas/lines/_feature_tooltip_template.html';
 import SVG from 'svg.js';
 

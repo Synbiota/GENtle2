@@ -12,7 +12,8 @@
     "underscore.mixed": "./public/scripts/common/lib/underscore.mixed.js",
     "gentle": "./public/scripts/common/models/gentle.js",
     "bootstrap": "./public/vendor/bootstrap/js/bootstrap.js",
-    "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js"
+    "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js",
+    "tooltip": "./public/scripts/common/lib/tooltip.js"
   },
   "dependencies": {
     "body-parser": "^1.9.0",
