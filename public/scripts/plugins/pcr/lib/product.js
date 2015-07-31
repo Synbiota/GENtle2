@@ -13,6 +13,17 @@ class PcrProductSequence extends SequenceModel {
     this.set({_type: pcr_product}, {silent: true});
   }
 
+  defaults() {
+    var defaults = super.defaults();
+    return _.extend(super.defaults(), {
+      displaySettings: _.extend({}, defaults.displaySettings, {
+        rows: _.extend({}, defaults.displaySettings.rows || {}, {
+          aaOffset: 1,
+        })
+      })
+    });
+  }
+
   get requiredFields() {
     return super.requiredFields.concat([
       'forwardPrimer',
