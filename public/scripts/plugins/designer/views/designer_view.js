@@ -4,7 +4,7 @@ import template from '../templates/designer_view_template.hbs';
 import AvailableSequencesView from './available_sequences_view';
 import DesignedSequenceView from './designed_sequence_view';
 import Gentle from 'gentle';
-import uploadMultipleSequences from '../lib/upload_multiple_sequences';
+import uploadMultipleSequences from '../../../common/lib/upload_multiple_sequences';
 import Modal from '../../../common/views/modal_view';
 import DiagnosticModalView from './designer_diagnostic_modal_view';
 import CannotUploadModalView from './designer_cannot_upload_modal_view';
@@ -12,6 +12,7 @@ import cleanSearchableText from '../lib/clean_searchable_text';
 import Q from 'q';
 import WipCircuit from '../lib/wip_circuit';
 import $ from 'jquery';
+import dropzone from '../../../common/lib/dropzone';
 
 var DesignerView = Backbone.View.extend({
   template: template,
@@ -157,54 +158,14 @@ var DesignerView = Backbone.View.extend({
   },
 
   setupDropzone: function() {
-    var $dropzone = this.$dropzone = 
-      this.$('.designer-available-sequences-container-filedropzone');
+    var $dropzone = 
+      this.$('.fullscreen-filedropzone');
 
-    $('body').append($dropzone);
-
-    var zone = $dropzone
-      .filedrop({
-        multiple: true,
-        fullDocDragDetect: true
-      })
-      .filedrop()
-      .event('dragEnter', function() {
-        $dropzone.addClass('dropzone-visible');
-      })
-      .event('dragLeave', function() {
-        $dropzone.removeClass('dropzone-visible');
-      })
-      .event('upload', (event) => {
-        $dropzone.removeClass('dropzone-visible');
-
-        var listEntries = function(file) {
-          return Q.promise(function(resolve, reject) {
-            if(
-              (file.nativeEntry && file.nativeEntry.isDirectory)
-            ) {
-              file.listEntries(function(entries) {
-                resolve(_.reject(entries, function(entry) {
-                  return _.isNull(entry.nativeFile);
-                }));
-              }, reject);
-            } else {
-              resolve(file);
-            }
-          });
-        };
-
-        Q.all(_.map(zone.filedrop.eventFiles(event), listEntries))
-          .then(_.flatten)
-          .then(uploadMultipleSequences)
-          .then(this.addAvailableSequences)
-          .done();
-      });
-
-
+    dropzone.init.call(this, $dropzone, this.addAvailableSequences);
   },
 
   cleanup: function() {
-    this.removeDropzone();
+    dropzone.remove.call(this);
   },
 
   removeDropzone: function() {

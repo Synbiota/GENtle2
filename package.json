@@ -12,7 +12,8 @@
     "underscore.mixed": "./public/scripts/common/lib/underscore.mixed.js",
     "gentle": "./public/scripts/common/models/gentle.js",
     "bootstrap": "./public/vendor/bootstrap/js/bootstrap.js",
-    "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js"
+    "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js",
+    "tooltip": "./public/scripts/common/lib/tooltip.js"
   },
   "dependencies": {
     "body-parser": "^1.9.0",
@@ -28,7 +29,8 @@
     "object-assign": "^2.0.0",
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "gentledna-utils": "^0.1.0"
   },
   "devDependencies": {
     "aliasify": "^1.7.2",
@@ -56,6 +58,7 @@
     "gulp-cached": "^1.0.2",
     "gulp-css-globbing": "^0.1.7",
     "gulp-gzip": "^1.0.0",
+    "gulp-jasmine-browser": "^0.1.4",
     "gulp-minify-css": "^1.0.0",
     "gulp-plumber": "^0.6.6",
     "gulp-remember": "^0.3.0",
@@ -65,6 +68,7 @@
     "gulp-sass": "^1.3.3",
     "gulp-sourcemaps": "^1.5.1",
     "gulp-util": "^3.0.4",
+    "gulp-watch": "^4.3.3",
     "handlebars": "~2.0.0",
     "hbsfy": "^2.2.1",
     "jquery": "~2.1.3",
@@ -72,13 +76,10 @@
     "jquery-ui-touch-punch": "~0.2.3",
     "json-sass": "^1.3.3",
     "jstify": "^0.9.0",
-    "karma": "^0.12.31",
-    "karma-browserify": "^4.0.0",
-    "karma-jasmine": "^0.3.5",
-    "karma-phantomjs-launcher": "^0.1.4",
     "mime": "^1.3.4",
     "node-notifier": "^4.1.2",
     "opener": "^1.4.1",
+    "phantomjs": "^1.9.17",
     "pretty-error": "^1.1.1",
     "pretty-hrtime": "^1.0.0",
     "q": "~1.1.2",
@@ -95,7 +96,7 @@
   "scripts": {
     "start": "nf start webdev,doc",
     "build": "./node_modules/.bin/gulp build",
-    "test": "./node_modules/karma/bin/karma start --single-run",
+    "test": "./node_modules/.bin/gulp js:vendor && ./node_modules/.bin/gulp test:headless",
     "test-debug": "./node_modules/karma/bin/karma start --single-run=false",
     "watch": "./node_modules/.bin/gulp"
   }

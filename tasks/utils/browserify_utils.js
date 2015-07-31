@@ -31,7 +31,9 @@ var additionalHbsfyRequires = glob
 var appTransforms = [
   [ 'jstify', {minifierOpts: {collapseWhitespace: false}} ],
   [ 'hbsfy', {compiler: 'require("handlebars.mixed");' + additionalHbsfyRequires} ],
-  [ 'babelify', {optional: ['runtime']} ],
+  [ 'babelify', {
+    optional: [ 'runtime', 'es7.objectRestSpread' ]
+  } ],
   [ 'aliasify', {aliases: aliases} ]
 ];
 

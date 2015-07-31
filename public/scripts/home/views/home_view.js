@@ -8,6 +8,7 @@
       Backbone        = require('backbone'),
       Gentle          = require('gentle'),
       NewSequenceView = require('./new_sequence_view'),
+      ParentNewSequenceView = require('./parent_new_sequence_view'),
       OpenFileView    = require('./open_file_view'),
       _               = require('underscore'),
       HomeView;
@@ -24,22 +25,22 @@
       defaultTabs = [{
         name: 'new-sequence',
         title: 'New sequence',
-        view: NewSequenceView,
+        view: ParentNewSequenceView,
         active: true
-      }, {
-        name: 'open-file',
-        title: 'Open from disk',
-        view: OpenFileView
-      }];
+      }, 
+      ];
 
       tabsFromPlugins = _.pluck(_.where(Gentle.plugins, {type: 'home'}), 'data');
-
+      //tabsFromPlugins = _.without("NCBI");
       this.tabs = [];
       _.each(_.union(defaultTabs, tabsFromPlugins), _.bind(this.addTab, this));
     },
 
     addTab: function(tab) {
-      this.tabs.push(tab);
+     
+      if (tab.name != "ncbi") {
+        this.tabs.push(tab);
+      }  
     },
 
     afterRender: function() {

@@ -7,6 +7,7 @@
   var template    = require('../templates/navbar_view.hbs'),
       Gentle      = require('gentle'),
       Backbone    = require('backbone'),
+      tooltip     = require('tooltip'),
       NavbarView;
 
   NavbarView = Backbone.View.extend({
@@ -16,6 +17,8 @@
       'click #menu-button': 'navigateToHome',
       'click .sequence-tab': 'navigateToSequence',
       'click #sequence-tabs .close-sequence': 'closeSequence',
+      'mouseenter #menu-button': 'showMenuButtonTooltip',
+      'mouseleave #menu-button': 'hideMenuButtonTooltip'
     },
     leftMargin: 90,    // Hardcoding is ugly but to get CSS value
     minTabWidth: 100,   // would need rendering first
@@ -140,7 +143,7 @@
         $tabsElements.each(function(i, element) {
           var $element = $(element);
           if($element.find('span.name').width() > $element.width()) {
-            $element.tooltip({
+            $element.gentleTooltip({
               placement: 'bottom',
               container: 'body'
             });
@@ -151,6 +154,14 @@
 
       }
 
+    },
+
+    showMenuButtonTooltip: function() {
+      tooltip.show('New sequence, part, or circuit', {view: this});
+    },
+
+    hideMenuButtonTooltip: function() {
+      tooltip.hide();
     }
   });
 export default NavbarView;

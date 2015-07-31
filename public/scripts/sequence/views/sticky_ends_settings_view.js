@@ -68,9 +68,13 @@ export default Backbone.View.extend({
       this.model.setStickyEnds({
         start: extract(startData),
         end: extract(endData)
+      }, {
+        insertBases: false
       });
     } else {
-      this.model.deleteStickyEnds();
+      this.model.deleteStickyEnds({
+        deleteBases: false
+      });
     }
 
     this.model.throttledSave();

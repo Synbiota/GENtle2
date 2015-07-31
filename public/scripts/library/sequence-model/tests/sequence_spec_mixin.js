@@ -859,7 +859,7 @@ export default function testAllSequenceModels(Sequence) {
         });
       });
 
-      it('overhangBeyondEndStickyEnd', function() {
+      describe('overhangBeyondEndStickyEnd', function() {
         it('with end stickyEnds', function() {
           expect(endStickySequence.getStickyEnds(false).end.reverse).toEqual(false);
           expect(endStickySequence.getLength()).toEqual(17);
@@ -867,7 +867,7 @@ export default function testAllSequenceModels(Sequence) {
           expect(endStickySequence.overhangBeyondEndStickyEnd(14)).toEqual(0);
           expect(endStickySequence.overhangBeyondEndStickyEnd(15)).toEqual(1);
           expect(endStickySequence.overhangBeyondEndStickyEnd(12, true)).toEqual(0);
-          expect(endStickySequence.overhangBeyondEndStickyEnd(13, true)).toEqual(0);
+          expect(endStickySequence.overhangBeyondEndStickyEnd(13, true)).toEqual(1);
         });
 
         it('without end stickyEnds', function() {

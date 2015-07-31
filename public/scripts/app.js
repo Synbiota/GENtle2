@@ -20,7 +20,7 @@ import blast from './plugins/blast/plugin';
 import pcr from './plugins/pcr/plugin';
 import sequencing_primers from './plugins/sequencing_primers/plugin';
 
-import tooltip from 'gentle-utils/tooltip';
+import tooltip from 'tooltip';
 
 var plugins = [ncbi, designer, blast, pcr, sequencing_primers];
 

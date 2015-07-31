@@ -4,7 +4,7 @@ import Q from 'q';
 
 
 var idtMeltingTemperatureStub = function(potentialPrimer) {
-  return Q.promise(function(resolve) {
+  return Q.promise(function(resolve, reject) {
     var Tm = Tms[potentialPrimer];
     if(Tm) {
       resolve(Tm);
@@ -22,7 +22,9 @@ var idtMeltingTemperatureStub = function(potentialPrimer) {
           resolve(Tm);
         });
       } else {
-        throw `Unknown IDT Tm for ${potentialPrimer}.  Look up on https://www.idtdna.com/calc/analyzer with Mg++ Conc of 2mM, and add to \`Tms\` dict.`;
+        var error = `Unknown IDT Tm for ${potentialPrimer}.  Look up on https://www.idtdna.com/calc/analyzer with Mg++ Conc of 2mM, and add to \`Tms\` dict.`;
+        console.error(error);
+        reject(error);
       }
     }
   });

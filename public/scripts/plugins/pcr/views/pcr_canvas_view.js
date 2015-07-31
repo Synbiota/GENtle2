@@ -102,14 +102,18 @@ export default Backbone.View.extend({
     }
   },
 
-  setSequence: function(sequence) {
+  setSequence: function(sequence, onlyDisplayReverseStrand = false) {
     sequence.setStickyEndFormat('full');
     this.model = sequence;
+    this.onlyDisplayReverseStrand = onlyDisplayReverseStrand;
   },
 
   afterRender: function() {
     var sequence = this.model;
     if(!sequence) return;
+
+    var isRdpOligo = sequence instanceof RdpOligoSequence;
+    var onlyDisplayReverseStrand = this.onlyDisplayReverseStrand
 
     var lines = {
       topSeparator: ['Blank', { height: 5 }],
@@ -126,14 +130,16 @@ export default Backbone.View.extend({
         textFont: '15px Monospace',
         textColour: this.makeSequenceColourGetter(false),
         selectionColour: 'red',
-        selectionTextColour: 'white'
+        selectionTextColour: 'white',
+        visible: () => !isRdpOligo || !onlyDisplayReverseStrand
       }],
       complements: ['DNA', {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.complements.text.font,
         textColour: this.makeSequenceColourGetter(true),
-        getSubSeq: this.model.getComplements
+        getSubSeq: this.model.getComplements,
+        visible: () => !isRdpOligo || onlyDisplayReverseStrand
       }],
       features: ['Feature', {
         unitHeight: 15,

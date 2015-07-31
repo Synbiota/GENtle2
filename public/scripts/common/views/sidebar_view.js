@@ -184,14 +184,11 @@
     },
 
     initTooltips: function() {
-      this.$('.sidebar-tab-link').tooltip({
-        container: 'body',
-        animation: false
-      });
+      this.$('.sidebar-tab-link').gentleTooltip({view: this});
     },
 
     destroyTooltips: function() {
-      this.$('.sidebar-tab-link').tooltip('destroy');
+      this.$('.sidebar-tab-link').gentleTooltip('destroy');
     }
   });
 export default SidebarView;

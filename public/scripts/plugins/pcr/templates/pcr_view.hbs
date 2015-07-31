@@ -6,4 +6,9 @@
     </div>
   </div>
 </div>
-<div id="pcr-canvas-container"></div>
+{{#if hasTwoCanvasViews}}
+  <div id="pcr-canvas-container" class="pcr-canvas-container half"></div>
+  <div id="pcr-canvas-container-2" class="pcr-canvas-container half bottom"></div>
+{{else}}
+  <div id="pcr-canvas-container" class="pcr-canvas-container"></div>
+{{/if}}

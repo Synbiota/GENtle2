@@ -7,7 +7,7 @@ import ProductView from './pcr_product_view';
 import CanvasView from './pcr_canvas_view';
 import Gentle from 'gentle';
 import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
-import WipPcrProductSequence from '../lib/wip_product';
+import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
 import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
@@ -36,18 +36,23 @@ export default Backbone.View.extend({
   // `this.initialize.apply(this, arguments);` so just having `{showForm}`
   // will throw an exception.
   initialize: function() { //{showForm: showForm}={}, argumentsForFormView={}) {
-    this.model = Gentle.currentSequence;
-    if(this.model instanceof RdpPcrSequence || this.model instanceof RdpOligoSequence) {
+    var model = this.model = Gentle.currentSequence;
+    if(model instanceof RdpPcrSequence || model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
-    } else if(this.model instanceof WipPcrProductSequence || this.model instanceof WipRdpOligoSequence) {
+    } else if(model instanceof WipRdpPcrSequence || model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
     }
-    // var args = {model: this.model};
+    // var args = {model: model};
     // this.formView = new FormView(_.extend(argumentsForFormView, args));
     // this.progressView = new ProgressView(args);
     // 
     var canvasView = this.canvasView = new CanvasView();
     this.setView('#pcr-canvas-container', canvasView);
+
+    if(model instanceof RdpOligoSequence) {
+      let secondaryCanvasView = this.secondaryCanvasView = new CanvasView();
+      this.setView('#pcr-canvas-container-2', secondaryCanvasView);
+    }
   },
 
   makeFormView: function() {
@@ -60,6 +65,12 @@ export default Backbone.View.extend({
     return this.progressView;
   },
 
+  serialize: function() {
+    return {
+      hasTwoCanvasViews: !!this.secondaryCanvasView
+    };
+  },
+
   beforeRender: function() {
     if(this.viewState === viewStates.form) {
       this.setView('.pcr-view-container', this.makeFormView());
@@ -67,7 +78,9 @@ export default Backbone.View.extend({
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.product) {
       this.setView('.pcr-view-container', new ProductView({model: this.model}));
-      this.showCanvas(null, this.getBluntEndedSequence());
+      let primarySequence = this.getBluntEndedSequence();
+      let secondarySequence = this.secondaryCanvasView && this.getBluntEndedSequence(true);
+      this.showCanvas(null, primarySequence, secondarySequence);
       this.removeView('.pcr-view-container2');
     } else if(this.viewState === viewStates.progress) {
       this.setView('.pcr-view-container', this.makeFormView());
@@ -75,7 +88,7 @@ export default Backbone.View.extend({
     }
   },
 
-  getBluntEndedSequence() {
+  getBluntEndedSequence(rdpOligoReverseStrand = false) {
     var model = this.model;
     var sequence = model.clone();
     sequence.setStickyEndFormat(sequence.STICKY_END_FULL);
@@ -124,8 +137,9 @@ export default Backbone.View.extend({
         }]
       }];
     }
-    features = features.concat([
-      {
+
+    if(!(model instanceof RdpOligoSequence) || !rdpOligoReverseStrand) {
+      features.push({
         name: stickyEnds.start.name + ' end',
         _type: 'sticky_end',
         ranges: [{
@@ -133,17 +147,20 @@ export default Backbone.View.extend({
           to: stickyEnds.start.size + stickyEnds.start.offset - 1,
           reverseComplement: false,
         }]
-      },
-      {
+      })
+    }
+
+    if(!(model instanceof RdpOligoSequence) || rdpOligoReverseStrand) {
+      features.push({
         name: stickyEnds.end.name + ' end',
         _type: 'sticky_end',
         ranges: [{
           from: sequence.getLength() - stickyEnds.start.size - stickyEnds.start.offset,
-          to:  sequence.getLength() - 1,
+          to: sequence.getLength() - 1,
           reverseComplement: true,
         }]
-      }
-    ]);
+      });
+    }
 
     _.each(features, (feature) => feature._id = _.uniqueId());
     sequence.set('features', features);
@@ -166,17 +183,20 @@ export default Backbone.View.extend({
   },
 
   //TODO refactor
-  showCanvas: function(product, temporarySequence) {
-    var view = this.canvasView;
+  showCanvas: function(product, temporarySequence, temporarySequence2 = undefined) {
+    var {canvasView, secondaryCanvasView} = this;
     
     if(product) {
       var id = product.get('id');
-      view.setProduct(product);
+      canvasView.setProduct(product);
       this.showingProductId = id;
       this.listView.$('.panel').removeClass('panel-info');
       this.listView.$('[data-product_id="'+id+'"]').addClass('panel-info');
     } else if(temporarySequence) {
-      view.setSequence(temporarySequence);
+      canvasView.setSequence(temporarySequence);
+      if(secondaryCanvasView) {
+        secondaryCanvasView.setSequence(temporarySequence2, true);
+      }
     }
   },
 

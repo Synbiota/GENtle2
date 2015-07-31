@@ -27,19 +27,23 @@ var defaultSequencingPrimerOptions = function(options={}) {
 
 
 var defaultPCRPrimerOptions = function(options={}) {
-  var maxPrimerLength = 30;
+  // Max primer length set to 91 as TAT[AT]x44 is melting temp is 67.2 (i.e.
+  // just within target Tm of 68.0 +/- 1.0)
+  var maxPrimerLength = options.maxPrimerLength || 91;
   _.defaults(options, {
     returnNearestIfNotBest: true,
     findFrom3PrimeEnd: false,
     allowShift: false,
-    maxPolyN: 3,
-    minPrimerLength: 20,
+    maxPolyN: maxPrimerLength,
+    // minPrimerLength set to 12 due to [GC]x6 having a Tm of 66.8, and the
+    // longer sequence having a Tm of 71
+    minPrimerLength: 12,
     maxPrimerLength: maxPrimerLength,
     maxSearchSpace: maxPrimerLength,
     targetGcContent: 0.5,
-    targetGcContentTolerance: 0.1,
-    targetMeltingTemperature: 60,
-    meltingTemperatureTolerance: 1.5,
+    targetGcContentTolerance: 0.5,
+    targetMeltingTemperature: 68.0,
+    meltingTemperatureTolerance: 1.0,
     useIDT: true,
     IDTmeltingTemperatureProximity: 0.5,
   });

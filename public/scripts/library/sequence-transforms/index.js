@@ -4,7 +4,7 @@
 @submodule SequenceCanvas
 @static
 **/
-import SynbioData from 'gentle-utils/synbio_data';
+import SynbioData from 'gentledna-utils/dist/synbio_data';
 import _ from 'underscore';
 
 var iupacToBasesMap, toComplementsMap,

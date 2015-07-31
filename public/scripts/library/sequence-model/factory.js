@@ -2,8 +2,8 @@ import _ from 'underscore';
 import '../../common/lib/polyfills';  // required for String.prototype.endsWith
 
 import classMethodsMixin from './sequence_class_methods_mixin';
-import smartMemoizeAndClear from 'gentle-utils/smart_memoize_and_clear';
-import deprecated from 'gentle-utils/deprecated_method';
+import smartMemoizeAndClear from 'gentledna-utils/dist/smart_memoize_and_clear';
+import deprecated from 'gentledna-utils/dist/deprecated_method';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
 import SequenceRange from './range';
@@ -343,14 +343,19 @@ function sequenceModelFactory(BackboneModel) {
      */
     setStickyEnds(stickyEnds, options={}) {
       // Must set silent to false to trigger clearing incorrect cache values.
-      options = _.defaults({silent: false}, options);
+      _.defaults(options, {
+        silent: false,
+        insertBases: true
+      });
       var currentStickyEnds = this.getStickyEnds(false);
-      if(currentStickyEnds) {
+      if(currentStickyEnds && options.insertBases) {
         throw new Error('Sequence already has stickyEnds, remove them first with removeStickyEnds');
       } else {
         var opts = {updateHistory: false, stickyEndFormat: STICKY_END_ANY};
-        this.insertBases(stickyEnds.start.sequence, 0, opts);
-        this.insertBases(stickyEnds.end.sequence, this.getLength(STICKY_END_ANY), opts);
+        if(options.insertBases) {
+          this.insertBases(stickyEnds.start.sequence, 0, opts);
+          this.insertBases(stickyEnds.end.sequence, this.getLength(STICKY_END_ANY), opts);
+        }
         super.set({stickyEnds}, options);
       }
     }
@@ -361,22 +366,25 @@ function sequenceModelFactory(BackboneModel) {
      */
     deleteStickyEnds(options={}) {
       // Must set silent to false to trigger clearing incorrect cache values.
-      options = _.defaults({silent: false}, options);
+      _.defaults(options, {
+        silent: false,
+        deleteBases: true
+      });
       var stickyEnds = this.getStickyEnds(false);
       if(stickyEnds) {
         var opts = {updateHistory: false, stickyEndFormat: STICKY_END_FULL};
         // delete `end` before `start` because of various functions caching values.
-        if(stickyEnds.end) {
+        if(options.deleteBases && stickyEnds.end) {
           var offset = this.getOffset(STICKY_END_NONE);
           var len = this.getLength(STICKY_END_NONE);
           this.deleteBases(offset + len, stickyEnds.end.size + stickyEnds.end.offset, opts);
         }
-        if(stickyEnds.start) {
+        if(options.deleteBases && stickyEnds.start) {
           this.deleteBases(0, stickyEnds.start.size + stickyEnds.start.offset, opts);
         }
         super.set({stickyEnds: undefined}, options);
       } else {
-        throw new Error('Sequence already lacks stickyEnds.');
+        throw new Error('Sequence lacks stickyEnds.');
       }
     }
 
