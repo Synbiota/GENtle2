@@ -2,6 +2,8 @@
 
 ## develop
 
+## 0.5.0
+
 * James  2015-07-29  Direct RDP part creation through PCR route when sequence >= 80 rather than >= 100
 * Dave/Alex  2015-07-27 New 'New sequence' home layout
 * Alex  2015-07-24  Added tooltip on home button in navbar
