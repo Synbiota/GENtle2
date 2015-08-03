@@ -43,8 +43,8 @@ var frm = 9;
 var to = 149;
 
 var opts = {
-  from: frm,
-  to: to,
+  frm,
+  to,
   name: "vioA",
   stickyEnds: {
     start: {
@@ -96,9 +96,9 @@ describe('calculating PCR primers', function() {
     wipRdpPcrSequence = new WipRdpPcrSequence({sequence, partType: RdpTypes.types.CDS});
   });
 
-  it('errors on from being < to', function(done) {
+  it('errors on frm being < to', function(done) {
     var options = {
-      from: 10,
+      frm: 10,
       to: 9,
     };
     getPcrProductAndPrimers(wipRdpPcrSequence, options)
@@ -108,15 +108,15 @@ describe('calculating PCR primers', function() {
       done();
     })
     .catch(function(e) {
-      expect(e.toString()).toEqual('`from` must be <= `to`');
+      expect(e.toString()).toEqual('`frm` must be <= `to`');
       done();
     })
     .done();
   });
 
-  it('errors on `to - from` being too small', function(done) {
+  it('errors on `to - frm` being too small', function(done) {
     var options = {
-      from: 10,
+      frm: 10,
       to: 18, // remember `to` is inclusive
     };
     getPcrProductAndPrimers(wipRdpPcrSequence, options)
@@ -126,7 +126,7 @@ describe('calculating PCR primers', function() {
       done();
     })
     .catch(function(e) {
-      expect(/`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(e.toString())).toEqual(true);
+      expect(/`sequenceOptions.frm` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(e.toString())).toEqual(true);
       done();
     })
     .done();

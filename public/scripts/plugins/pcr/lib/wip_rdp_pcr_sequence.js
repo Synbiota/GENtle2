@@ -89,7 +89,7 @@ class WipRdpPcrSequence extends WipRdpAbstractSequence {
     }
 
     var dataAndOptionsForPcr = {
-      from: frm,  // TODO remove the `from` and replace with `frm`
+      frm,
       startBasesDifferentToTemplate,
       to,
       endBasesDifferentToTemplate,

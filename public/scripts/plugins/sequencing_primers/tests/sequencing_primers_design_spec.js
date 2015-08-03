@@ -56,7 +56,7 @@ var getAllPrimersAndProducts_TestFactory = function(sequenceModel, expectedPrime
   })
   .catch(function(e) {
     console.error(e);
-    expect('Ensure tests fail on error').toEqual(false);
+    expect(e.toString()).toEqual(false);
   });
 };
 
