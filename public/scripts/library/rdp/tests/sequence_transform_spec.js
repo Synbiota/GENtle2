@@ -204,8 +204,8 @@ describe('sequence transforms', function() {
       expect(rdpEdit.contextBefore.ranges[0].to).toEqual(18);
       expect(rdpEdit.contextBefore.ranges[0].reverse).toEqual(false);
       expect(rdpEdit.contextBefore.ranges[2].from).toEqual(9);
-      expect(rdpEdit.contextBefore.sequence).toEqual('GTGTGACCCTGATAGTAA');
-      expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+      expect(rdpEdit.contextBefore.sequence).toEqual('TGATAGTAA'); //'GTGTGACCCTGATAGTAA');
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(9);
       expect(rdpEdit.contextBefore.contextualTo).toEqual(18);
 
       expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);

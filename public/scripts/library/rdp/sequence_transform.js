@@ -234,12 +234,13 @@ var makeNthCodonIsAaFn = function(codonPosition, aA, types={}, convertableFromCo
         })];
         // Get a sequence snippet after
         var vals = getContext(sequenceModel, codonPositionInBases, 3);
-        // Note use updated ES6 parser otherwise Destructuring Assignment errors
+        // TODO: updated ES6 parser otherwise Destructuring Assignment errors
         // with `Duplicate declaration "contextualFrom"`
-        contextualFrom = vals.contextualFrom;
-        contextualTo = vals.contextualTo;
-        sequence = vals.sequence;
-        contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
+        contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type,
+          sequence: vals.sequence,
+          contextualFrom: vals.contextualFrom,
+          contextualTo: vals.contextualTo,
+        });
       }
 
       rdpEdit = new RdpEdit({type, contextBefore, contextAfter});
@@ -320,11 +321,13 @@ var lastStopCodonsRemovedFn = function(sequenceModel) {
     });
 
     // Get a sequence snippet before transform
-    var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
-    var numberOfBasesToRemove = 3 * aAsToRemove.length;
-    var numberOfBasesInContextBefore = Math.min(length - contextualFrom, CONTEXT_BASE_PAIRS + numberOfBasesToRemove);
-    var sequence = getSubSeq(sequenceModel, contextualFrom, numberOfBasesInContextBefore);
-    var contextualTo = frm + numberOfBasesToRemove;
+    var {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, frm, 3 * aAsToRemove.length);
+
+    // var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
+    // var numberOfBasesToRemove = 3 * aAsToRemove.length;
+    // var numberOfBasesInContextBefore = Math.min(length - contextualFrom, CONTEXT_BASE_PAIRS + numberOfBasesToRemove);
+    // var sequence = getSubSeq(sequenceModel, contextualFrom, numberOfBasesInContextBefore);
+    // var contextualTo = frm + numberOfBasesToRemove;
     var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
     // Transform sequence
@@ -338,10 +341,12 @@ var lastStopCodonsRemovedFn = function(sequenceModel) {
     ranges = [];
 
     // Get a sequence snippet after
-    var numberOfBasesInContextAfter = Math.min(length - contextualFrom, CONTEXT_BASE_PAIRS);
-    sequence = getSubSeq(sequenceModel, contextualFrom, numberOfBasesInContextAfter);
-    contextualTo = frm;
-    var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
+    var vals = getContext(sequenceModel, frm, 0);
+    var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type,
+      sequence: vals.sequence,
+      contextualFrom: vals.contextualFrom,
+      contextualTo: vals.contextualTo,
+    });
 
     rdpEdit = new RdpEdit({type, contextBefore, contextAfter});
   }
@@ -572,9 +577,7 @@ var ensureLastBaseIs = function(ensureBase) {
       })];
 
       // Get a sequence snippet before
-      var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS + 3);
-      var sequence = getSubSeq(sequenceModel, contextualFrom, CONTEXT_BASE_PAIRS);
-      var contextualTo = frm + 3;
+      var {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, frm, 3);
       var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
       var rangeName;
@@ -599,7 +602,7 @@ var ensureLastBaseIs = function(ensureBase) {
         size: 1
       })];
 
-      sequence = getSubSeq(sequenceModel, contextualFrom, CONTEXT_BASE_PAIRS);
+      sequence = getContext(sequenceModel, frm, 3).sequence;
       var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
       rdpEdit = new RdpEdit({type, contextBefore, contextAfter, message, level});
@@ -680,9 +683,7 @@ var warnIfEarlyStopCodonsFn = function(sequenceModel) {
         from: position,
         size: 3
       })];
-      var contextualFrom = Math.max(0, position - CODON_CONTEXT_BASE_PAIRS);
-      var contextualTo = Math.min(getLen(sequenceModel), position + 3 + CODON_CONTEXT_BASE_PAIRS);
-      var sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo - contextualFrom);
+      var {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, position, 3);
       var contextBefore = new RdpSequenceFeature({name, desc: message, ranges, _type: type, sequence, contextualFrom, contextualTo});
       var rdpEdit = new RdpEdit({type, contextBefore, level});
       memo.push(rdpEdit);
