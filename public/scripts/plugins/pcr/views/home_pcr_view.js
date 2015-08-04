@@ -70,7 +70,7 @@ export default Backbone.View.extend({
    */
   createNewSequence: function(loadedSequence) {
     if(loadedSequence.stickyEnds) {
-      alert('Can not use a sequence which has stickyEnds.');
+      alert('The source sequence cannot already be an RDP part.');
       return;
     }
 

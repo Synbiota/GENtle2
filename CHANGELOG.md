@@ -2,6 +2,7 @@
 
 ## develop
 
+* James  2015-08-04  Update error text on someone using a source sequence that is an RDP part, for creating a new RDP part from.
 * James  2015-08-04  (dev) Fix issue #231 (invalid sequence attributes stored in localStorage should not prevent GENtle from loading).
 
 ## 0.5.0
