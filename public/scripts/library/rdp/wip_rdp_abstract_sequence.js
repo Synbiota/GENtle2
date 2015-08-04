@@ -18,12 +18,16 @@ class WipRdpAbstractSequence extends Sequence {
     super(attributes, options);
     this.Klass = Klass;
     this.types = types;
+  }
 
+  validateFields(attributes) {
+    var errors = super.validateFields(attributes);
     // Check partType is valid
-    var partType = this.get('partType');
+    var partType = attributes.partType;
     if(!this.validPartType(partType)) {
-      throw new Error(`partType "${partType}" is invalid for this sequenceModel`);
+      errors.push(`partType "${partType}" is invalid for this sequenceModel`);
     }
+    return errors;
   }
 
   get availablePartTypes() {

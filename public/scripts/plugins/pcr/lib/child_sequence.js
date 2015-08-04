@@ -33,8 +33,10 @@ class ChildSequence {
     // Run any setup required
     this.setup(options);
 
+    _.defaults(options, {allowValidation: true});
+
     // Data validation, unless we're skipping it.
-    if(!options.doNotValidated) this.validate();
+    if(options.allowValidation) this.validate();
   }
 
   setup() {
@@ -81,6 +83,11 @@ class ChildSequence {
     return subSubsequence;
   }
 
+  /**
+   * @method  validate  Note: not to be confused with Backbone `validate` method
+   * @throws {Error} If fields are missing or wrong type
+   * @return {undefined}
+   */
   validate() {
     _.each(this.requiredFields, (field) => {
       assertion(_.has(this, field), `Field \`${field}\` is absent`);

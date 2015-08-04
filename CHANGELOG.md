@@ -2,6 +2,8 @@
 
 ## develop
 
+* James  2015-08-04  (dev) Fix issue #231 (invalid sequence attributes stored in localStorage should not prevent GENtle from loading).
+
 ## 0.5.0
 
 * James  2015-07-29  Direct RDP part creation through PCR route when sequence >= 80 rather than >= 100

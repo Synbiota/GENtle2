@@ -27,7 +27,7 @@ let instantiateSingle = function(constructor, otherArgs, fieldValue) {
       instance.parentSequence = otherArgs.parentSequence;
     }
     let opts = {};
-    if(_.has(otherArgs, 'doNotValidated')) opts.doNotValidated = otherArgs.doNotValidated;
+    if(_.has(otherArgs, 'allowValidation')) opts.allowValidation = otherArgs.allowValidation;
     // Instantiate a new instance of the given constructor with instance
     instance = new constructor(instance, opts);
   }
@@ -110,7 +110,7 @@ function sequenceModelFactory(BackboneModel) {
 
       this.disabledSave = options.disabledSave;
 
-      this.validateFields(attributes);
+      this.validate(attributes, {validateLoudly: options.validateLoudly});
 
       this.sortFeatures();
 
@@ -145,6 +145,17 @@ function sequenceModelFactory(BackboneModel) {
       });
 
       this.setNonEnumerableFields();
+    }
+
+    defaults() {
+      return {
+        id: _.uniqueId(),
+        version: 0,
+        readOnly: false,
+        isCircular: false,
+        history: new HistorySteps(),
+        stickyEndFormat: STICKY_END_OVERHANG
+      };
     }
 
     get STICKY_END_FULL() {
@@ -234,30 +245,56 @@ function sequenceModelFactory(BackboneModel) {
       });
     }
 
+    /**
+     * @method validate  DO NOT SUBCLASS
+     * @param  {Object} attrs
+     * @param  {Object} options
+     * @throws {TypeError} If `options.validateLoudly` is true and one or more
+     *                     fields are missing or of the wrong type.
+     * @return {Array or undefined}
+     */
+    validate(attrs = this.attributes, options={}) {
+      var errors = this.validateFields(attrs);
+      if(errors.length) {
+        console.error(errors);
+        // throw or record the first error
+        if(options.validateLoudly) {
+          throw new TypeError(errors[0]);
+        } else {
+          // `validationError` is used internally by backbone Collections to
+          // reject invalid models.
+          this.validationError = errors[0];
+        }
+      } else {
+        this._validated = true;
+      }
+      return errors.length ? errors : undefined;
+    }
+
+    /**
+     * @method  validateFields  Subclass this and call super.  Always returns
+     *          an array of strings.  Should not be called directly.  Call
+     *          through `validate`.
+     * @param  {Object} attributes
+     * @return {Array}
+     */
     validateFields(attributes) {
+      var errors = [];
+      if(attributes.name && !attributes.name.replace(/\s/g, '').length) {
+        errors.push('name can not be blank');
+      }
+
       var attributeNames = _.keys(attributes);
       var missingAttributes = _.without(this.requiredFields, ...attributeNames);
       var extraAttributes = _.without(attributeNames, ...this.allFields);
-
       if(missingAttributes.length) {
-        throw `${this.constructor.name} is missing the following attributes: ${missingAttributes.join(', ')}`;
+        errors.push(`${this.constructor.name} is missing the following attributes: ${missingAttributes.join(', ')}`);
       }
 
       if(extraAttributes.length) {
         // console.warn(`Assigned the following disallowed attributes to ${this.constructor.name}: ${extraAttributes.join(', ')}`);
       }
-      this._validated = true;
-    }
-
-    defaults() {
-      return {
-        id: _.uniqueId(),
-        version: 0,
-        readOnly: false,
-        isCircular: false,
-        history: new HistorySteps(),
-        stickyEndFormat: STICKY_END_OVERHANG
-      };
+      return errors;
     }
 
     superGet(attribute) {
@@ -310,9 +347,9 @@ function sequenceModelFactory(BackboneModel) {
       var allAssociations = allAssociationsForInstance(this);
       var association = _(allAssociations).findWhere({associationName: attribute});
       if(association) {
-        // `doNotValidated` and `this._validated` only relevant to the
+        // `allowValidation` and `this._validated` only relevant to the
         // constructor and skipping validation of associated child models.
-        val = instantiate(association, val, {parentSequence: this, doNotValidated: !this._validated});
+        val = instantiate(association, val, {parentSequence: this, allowValidation: !!this._validated});
       }
       return val;
     }
@@ -802,18 +839,6 @@ function sequenceModelFactory(BackboneModel) {
           return range.to <= endBase && range.from >= startBase;
         }
       });
-    }
-
-    /**
-    Validates that a sequence name is present
-    @method validate
-    **/
-    validate(attrs = this.attributes) {
-      var errors = [];
-      if (!(attrs.name && attrs.name.replace(/\s/g, '').length)) {
-        errors.push('name');
-      }
-      return errors.length ? errors : undefined;
     }
 
 

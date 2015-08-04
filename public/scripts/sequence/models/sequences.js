@@ -12,15 +12,18 @@ var constructors = {};
 
 var SequencesCollection = Backbone.Collection.extend({
   model: function(attrs, options) {
+    _.defaults(options, {validate: true});
     var Constructor = Sequence;
     if(attrs._type && constructors[attrs._type]) {
       Constructor = constructors[attrs._type];
     }
+    var model;
     if(_.isFunction(Constructor.fromJSON)) {
-      return Constructor.fromJSON(attrs);
+      model = Constructor.fromJSON(attrs, options);
     } else {
-      return new Constructor(attrs, options);
+      model = new Constructor(attrs, options);
     }
+    return model;
   },
 
   localStorage: new Backbone.LocalStorage('Gentle-Sequences', {

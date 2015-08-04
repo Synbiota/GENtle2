@@ -33,11 +33,12 @@ class PcrProductSequence extends SequenceModel {
   }
 
   validateFields(attributes) {
-    super.validateFields(attributes);
+    var errors = super.validateFields(attributes);
     // Remove once stickyEnds are a class in their own right and their
     // constructor would raise this error instead / return an empty stickyEnds
     // instance
-    if(!attributes.stickyEnds) throw new TypeError(`stickyEnds provided as attribute but were: ${attributes.stickyEnds}`);
+    if(!attributes.stickyEnds) errors.push(`stickyEnds provided as attribute but were: ${attributes.stickyEnds}`);
+    return errors;
   }
 }
 
