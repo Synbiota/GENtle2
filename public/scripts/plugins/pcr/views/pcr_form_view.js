@@ -71,15 +71,12 @@ export default Backbone.View.extend({
 
   availablePartTypes: function() {
     var baseTypes = convertForSelect(this.model.availablePartTypes);
-    console.log("available part types")
-    console.log(baseTypes);
     var blank = {name: "",
                  value: "",
                  disabled: true,
                  isSelected: true};
     
     baseTypes.unshift(blank)
-    console.log(baseTypes)
     return baseTypes;
   },
 
