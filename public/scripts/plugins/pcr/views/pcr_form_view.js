@@ -74,7 +74,7 @@ export default Backbone.View.extend({
     console.log("available part types")
     console.log(baseTypes);
     var blank = {name: "",
-                 value: "--",
+                 value: "",
                  disabled: true,
                  isSelected: true};
     
