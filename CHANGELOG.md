@@ -2,6 +2,7 @@
 
 ## develop
 
+* Dave/James  2015-08-14  Added validation requiring selection of part type when creating RDP part.
 * James  2015-08-10  Change CDS part type to 'Fusion Protein CDS' and add 'CDS with stop' part type.
 
 ## 0.6.2
