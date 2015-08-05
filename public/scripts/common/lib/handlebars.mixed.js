@@ -57,8 +57,14 @@ Handlebars.registerHelper('select', function(context, options) {
     return _.map(_options, _.partial(addOption, selected)).join('');
   };
 
+  var requiredString = "";
+  console.log(options.hash);
+  if(options.hash.required) {
+    requiredString = " required ";
+  }
+
   output += '<select id="' + options.hash.id + '" name="' +
-            options.hash.name + '" class="' + options.hash.class + '">';
+            options.hash.name + '" class="' + options.hash.class + '"' + requiredString + '>';
 
   if(_.isArray(context)) {
     output += addOptions(options.hash.selected, context);
