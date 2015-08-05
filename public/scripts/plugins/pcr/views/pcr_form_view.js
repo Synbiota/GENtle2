@@ -70,7 +70,17 @@ export default Backbone.View.extend({
   },
 
   availablePartTypes: function() {
-    return convertForSelect(this.model.availablePartTypes);
+    var baseTypes = convertForSelect(this.model.availablePartTypes);
+    console.log("available part types")
+    console.log(baseTypes);
+    var blank = {name: "",
+                 value: "--",
+                 disabled: true,
+                 isSelected: true};
+    
+    baseTypes.unshift(blank)
+    console.log(baseTypes)
+    return baseTypes;
   },
 
   availableStickyEndNameOptions: function() {
