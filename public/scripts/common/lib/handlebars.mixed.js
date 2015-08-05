@@ -35,8 +35,6 @@ Handlebars.registerHelper('select', function(context, options) {
       output = '';
 
   addOption = function(selected, _options) {
-    console.log("*** option")
-    console.log(_options)
     var {value, name, disabled, className, isSelected} = _options;
     if(_.isNull(value)) value = 'null-' + _.uniqueId();
     
@@ -58,7 +56,6 @@ Handlebars.registerHelper('select', function(context, options) {
   };
 
   var requiredString = "";
-  console.log(options.hash);
   if(options.hash.required) {
     requiredString = " required ";
   }
