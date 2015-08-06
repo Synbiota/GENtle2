@@ -43,14 +43,15 @@ export function makeOptions(context, options={}) {
   var output = '';
   options.hash = options.hash || {};
 
-  var addOption = function(name, value, selectedValue) {
+  var addOption = function(name, value, selectedValue, disabled) {
     var selected = ((value === selectedValue) ? ' selected="selected"' : '');
-    return `<option value="${value}" ${selected}>${name}</option>`;
+    var disabled = ((disabled == true) ? ' disabled="disabled"' : '')
+    return `<option value="${value}" ${selected} ${disabled}>${name}</option>`;
   };
 
   var addOptions = function(_options, selectedValue) {
     return _.map(_options, function(option) {
-      return addOption(option.name, option.value, selectedValue);
+      return addOption(option.name, option.value, selectedValue, option.disabled);
     }).join('');
   };
 
