@@ -24,7 +24,6 @@ class WipRdpAbstractSequence extends Sequence {
     delete options.types;
   }
 
-
   get availablePartTypes() {
     return _.keys(this.types);
   }
