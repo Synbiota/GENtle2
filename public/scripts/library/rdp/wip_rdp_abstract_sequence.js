@@ -7,15 +7,17 @@ import RdpEdit from './rdp_edit';
 
 class WipRdpAbstractSequence extends Sequence {
   constructor(attributes, options={}) {
+    attributes.readOnly = true;
+    super(attributes, options);
+  }
+
+  preValidationSetup(attributes, options) {
     if(!options.Klass) throw new TypeError('Must provide Klass attribute');
     if(!options.types) throw new TypeError('Must provide types attribute');
     var Klass = options.Klass;
     var types = _.clone(options.types);
     delete options.Klass;
     delete options.types;
-
-    attributes.readOnly = true;
-    super(attributes, options);
     this.Klass = Klass;
     this.types = types;
   }

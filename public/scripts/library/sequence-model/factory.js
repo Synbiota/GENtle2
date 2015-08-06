@@ -176,6 +176,7 @@ function sequenceModelFactory(BackboneModel) {
       this.disabledSave = options.disabledSave;
       this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
 
+      this.preValidationSetup(attributes, options);
       this.validate(attributes, {validateLoudly: options.validateLoudly});
       // TODO allow associations to be validated quietly (issue #235)
       this.validateAssociations();
@@ -205,6 +206,9 @@ function sequenceModelFactory(BackboneModel) {
         history: new HistorySteps(),
         stickyEndFormat: STICKY_END_OVERHANG
       };
+    }
+
+    preValidationSetup(attributes, options) {
     }
 
     validateAssociations() {
