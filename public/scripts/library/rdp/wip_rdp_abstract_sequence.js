@@ -12,8 +12,8 @@ class WipRdpAbstractSequence extends Sequence {
   }
 
   preValidationSetup(attributes, options) {
-    if(!options.Klass) throw new TypeError('Must provide Klass attribute');
-    if(!options.types) throw new TypeError('Must provide types attribute');
+    if(!options.Klass) throw new TypeError('Must provide options with "Klass" key');
+    if(!options.types) throw new TypeError('Must provide options with "types" key');
     var Klass = options.Klass;
     var types = _.clone(options.types);
     delete options.Klass;
