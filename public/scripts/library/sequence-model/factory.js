@@ -173,17 +173,16 @@ function sequenceModelFactory(BackboneModel) {
       attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
 
       super(attributes, options);
-
       this.disabledSave = options.disabledSave;
+      this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
 
       this.validate(attributes, {validateLoudly: options.validateLoudly});
+      // TODO allow associations to be validated quietly (issue #235)
+      this.validateAssociations();
 
       this.sortFeatures();
 
-      this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
-
       var defaultStickyEndsEvent = 'change:stickyEnds change:stickyEndFormat';
-
       smartMemoizeAndClear(this, {
         maxOverlappingFeatures: `change:sequence change:features ${defaultStickyEndsEvent}`,
         nbFeaturesInRange: `change:sequence change:features ${defaultStickyEndsEvent}`,
@@ -194,6 +193,21 @@ function sequenceModelFactory(BackboneModel) {
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`,
       });
 
+      this.setNonEnumerableFields();
+    }
+
+    defaults() {
+      return {
+        id: _.uniqueId(),
+        version: 0,
+        readOnly: false,
+        isCircular: false,
+        history: new HistorySteps(),
+        stickyEndFormat: STICKY_END_OVERHANG
+      };
+    }
+
+    validateAssociations() {
       // If a value in this.attributes has a key with the same value as an
       // associations `associationName` then run its `validate()` method.
       var allAssociations = allAssociationsForInstance(this);
@@ -209,19 +223,6 @@ function sequenceModelFactory(BackboneModel) {
           }
         }
       });
-
-      this.setNonEnumerableFields();
-    }
-
-    defaults() {
-      return {
-        id: _.uniqueId(),
-        version: 0,
-        readOnly: false,
-        isCircular: false,
-        history: new HistorySteps(),
-        stickyEndFormat: STICKY_END_OVERHANG
-      };
     }
 
     /**
