@@ -31,10 +31,6 @@ Displays select tag with options (and optional optgroups)
 **/
 
 Handlebars.registerHelper('select', function(context, options) {
-  console.log("context")
-  console.log(context);
-  console.log("options")
-  console.log(options);
   
   var required = "";
   if(options.hash.required) {
