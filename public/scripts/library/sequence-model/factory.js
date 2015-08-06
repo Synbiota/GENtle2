@@ -110,7 +110,10 @@ function sequenceModelFactory(BackboneModel) {
 
       this.disabledSave = options.disabledSave;
 
+      this.preValidationSetup(attributes, options);
       this.validate(attributes, {validateLoudly: options.validateLoudly});
+      // TODO allow associations to be validated quietly (issue #235)
+      this.validateAssociations();
 
       this.sortFeatures();
 
@@ -128,6 +131,24 @@ function sequenceModelFactory(BackboneModel) {
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`,
       });
 
+      this.setNonEnumerableFields();
+    }
+
+    defaults() {
+      return {
+        id: _.uniqueId(),
+        version: 0,
+        readOnly: false,
+        isCircular: false,
+        history: new HistorySteps(),
+        stickyEndFormat: STICKY_END_OVERHANG
+      };
+    }
+
+    preValidationSetup(attributes, options) {
+    }
+
+    validateAssociations() {
       // If a value in this.attributes has a key with the same value as an
       // associations `associationName` then run its `validate()` method.
       var allAssociations = allAssociationsForInstance(this);
