@@ -71,10 +71,10 @@ export default Backbone.View.extend({
 
   availablePartTypes: function() {
     var baseTypes = convertForSelect(this.model.availablePartTypes);
-    var blank = {name: "Select RDP Part Type",
+    var blank = {name: "",
                  value: "",
-                 disabled: true,
-                 isSelected: true};
+                 disabled: true};
+                // isSelected: true};
     
     baseTypes.unshift(blank)
     return baseTypes;

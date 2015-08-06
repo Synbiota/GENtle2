@@ -31,51 +31,15 @@ Displays select tag with options (and optional optgroups)
 **/
 
 Handlebars.registerHelper('select', function(context, options) {
-  var addOption, addOptions,
-      output = '';
-
-  addOption = function(selected, _options) {
-    var {value, name, disabled, className, isSelected} = _options;
-    if(_.isNull(value)) value = 'null-' + _.uniqueId();
-    
-    if(_.isNull(isSelected)) {
-      isSelected = value == selected;
-    }
-
-
-    return  '<option' + 
-            (value ? ` value="${value}"` : '') +
-            (isSelected ? ' selected="selected"' : '') +
-            (disabled ? ' disabled="disabled"' : '') +
-            (className ? ` class="${className}"` : '') +
-            '>' + name + '</option>';
-  };
-
-  addOptions = function(selected, _options) {
-    return _.map(_options, _.partial(addOption, selected)).join('');
-  };
-
-  var requiredString = "";
+  var required = "";
   if(options.hash.required) {
-    requiredString = " required ";
+    required = " required ";
   }
 
-  output += '<select id="' + options.hash.id + '" name="' +
-            options.hash.name + '" class="' + options.hash.class + '"' + requiredString + '>';
+  var output = `<select id="${options.hash.id}" name="${options.hash.name}" class="${options.hash.class}" ${required}>`;		
+  output += makeOptions(context, options);	
+  return output +'</select>';
 
-  if(_.isArray(context)) {
-    output += addOptions(options.hash.selected, context);
-  } else {
-    _.forEach(context, function(_options, optgroupName) {
-      output += '<optgroup label="' + optgroupName +'">';
-      output += addOptions(options.hash.selected, _options);
-      output += '</optgroup>';
-    });
-  }
-
-  output += '</select>';
-
-  return output;
 });
 
 var formatThousands = function(context, offset) {
