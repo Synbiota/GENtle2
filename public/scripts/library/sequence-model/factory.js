@@ -91,6 +91,72 @@ function sequenceModelFactory(BackboneModel) {
    * @constructor
    */
   class Sequence extends BackboneModel {
+    static registerAssociation(constructor, rawAssociationName, many=false) {
+      if(rawAssociationName.endsWith('s')) {
+        throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
+      }
+      let associationName = rawAssociationName + (many ? 's' : '');
+      var klass = this;
+      var classAssociationsObject = associationsForKlass(klass);
+      if(!classAssociationsObject) {
+        classAssociationsObject = {klass, classAssociations: []};
+        associations.push(classAssociationsObject);
+      }
+      if(_(classAssociationsObject.classAssociations).findWhere({associationName: associationName})) {
+        throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered for "${klass.name}".`);
+      }
+      classAssociationsObject.classAssociations.push({associationName, many, constructor});
+    }
+
+    /**
+     * @function _logRegisteredAssociations  Used for debugging
+     * @return {Object}  the registered associations.
+     */
+    static _logRegisteredAssociations() {
+      console.log('registered associations: ', JSON.stringify(associations, null, 2));
+      return associations;
+    }
+
+    static registerPreProcessor(preProcessor) {
+      preProcessors.push(preProcessor);
+    }
+
+    static fromJSON(attributes) {
+      var metaAssociations = _.isObject(attributes.meta) && attributes.meta.associations;
+
+      if(_.isObject(metaAssociations)) {
+        _.each(metaAssociations, function(obj, associationName) {
+          attributes[associationName] = obj;
+        });
+      }
+
+      return new this(attributes);
+    }
+
+    static get STICKY_END_FULL() {
+      return STICKY_END_FULL;
+    }
+    static get STICKY_END_OVERHANG() {
+      return STICKY_END_OVERHANG;
+    }
+    static get STICKY_END_NONE() {
+      return STICKY_END_NONE;
+    }
+    static get STICKY_END_ANY() {
+      return STICKY_END_ANY;
+    }
+    get STICKY_END_FULL() {
+      return STICKY_END_FULL;
+    }
+    get STICKY_END_OVERHANG() {
+      return STICKY_END_OVERHANG;
+    }
+    get STICKY_END_NONE() {
+      return STICKY_END_NONE;
+    }
+    get STICKY_END_ANY() {
+      return STICKY_END_ANY;
+    }
 
     /**
      * @constructor
@@ -107,17 +173,17 @@ function sequenceModelFactory(BackboneModel) {
       attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
 
       super(attributes, options);
-
       this.disabledSave = options.disabledSave;
+      this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
 
+      this.preValidationSetup(attributes, options);
       this.validate(attributes, {validateLoudly: options.validateLoudly});
+      // TODO allow associations to be validated quietly (issue #235)
+      this.validateAssociations();
 
       this.sortFeatures();
 
-      this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
-
       var defaultStickyEndsEvent = 'change:stickyEnds change:stickyEndFormat';
-
       smartMemoizeAndClear(this, {
         maxOverlappingFeatures: `change:sequence change:features ${defaultStickyEndsEvent}`,
         nbFeaturesInRange: `change:sequence change:features ${defaultStickyEndsEvent}`,
@@ -126,22 +192,6 @@ function sequenceModelFactory(BackboneModel) {
         getStickyEnds: defaultStickyEndsEvent,
         editableRange: `change:sequence ${defaultStickyEndsEvent}`,
         selectableRange: `change:sequence ${defaultStickyEndsEvent}`,
-      });
-
-      // If a value in this.attributes has a key with the same value as an
-      // associations `associationName` then run its `validate()` method.
-      var allAssociations = allAssociationsForInstance(this);
-      _.each(allAssociations, ({associationName, many}) => {
-        if(_.has(this.attributes, associationName)) {
-          let value = this.attributes[associationName];
-          if(many) {
-            _.each(value, function(subVal) {
-              if(_.isFunction(subVal.validate)) subVal.validate();
-            });
-          } else {
-            if(_.isFunction(value.validate)) value.validate();
-          }
-        }
       });
 
       this.setNonEnumerableFields();
@@ -158,20 +208,25 @@ function sequenceModelFactory(BackboneModel) {
       };
     }
 
-    get STICKY_END_FULL() {
-      return STICKY_END_FULL;
+    preValidationSetup(attributes, options) {
     }
 
-    get STICKY_END_OVERHANG() {
-      return STICKY_END_OVERHANG;
-    }
-
-    get STICKY_END_NONE() {
-      return STICKY_END_NONE;
-    }
-
-    get STICKY_END_ANY() {
-      return STICKY_END_ANY;
+    validateAssociations() {
+      // If a value in this.attributes has a key with the same value as an
+      // associations `associationName` then run its `validate()` method.
+      var allAssociations = allAssociationsForInstance(this);
+      _.each(allAssociations, ({associationName, many}) => {
+        if(_.has(this.attributes, associationName)) {
+          let value = this.attributes[associationName];
+          if(many) {
+            _.each(value, function(subVal) {
+              if(_.isFunction(subVal.validate)) subVal.validate();
+            });
+          } else {
+            if(_.isFunction(value.validate)) value.validate();
+          }
+        }
+      });
     }
 
     /**
@@ -1582,7 +1637,6 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     toJSON() {
-
       let attributes = super.toJSON();
       // Move all associated fields into meta.associations
       var classAssociations = allAssociationsForInstance(this);
@@ -1595,7 +1649,7 @@ function sequenceModelFactory(BackboneModel) {
           }
           attributes.meta = attributes.meta || {};
           attributes.meta.associations = attributes.meta.associations || {};
-          attributes.meta.associations[associationName] = associationAttributes
+          attributes.meta.associations[associationName] = associationAttributes;
         }
       });
       _.each(this.nonEnumerableFields, function(fieldName) {
@@ -1607,56 +1661,6 @@ function sequenceModelFactory(BackboneModel) {
 
 
   Sequence = classMethodsMixin(Sequence);
-
-  Sequence.STICKY_END_FULL = STICKY_END_FULL;
-  Sequence.STICKY_END_OVERHANG = STICKY_END_OVERHANG;
-  Sequence.STICKY_END_NONE = STICKY_END_NONE;
-
-
-  Sequence.registerAssociation = function(constructor, rawAssociationName, many=false) {
-    if(rawAssociationName.endsWith('s')) {
-      throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
-    }
-    let associationName = rawAssociationName + (many ? 's' : '');
-    var klass = this;
-    var classAssociationsObject = associationsForKlass(klass);
-    if(!classAssociationsObject) {
-      classAssociationsObject = {klass, classAssociations: []};
-      associations.push(classAssociationsObject);
-    }
-    if(_(classAssociationsObject.classAssociations).findWhere({associationName: associationName})) {
-      throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered for "${klass.name}".`);
-    }
-    classAssociationsObject.classAssociations.push({associationName, many, constructor});
-  };
-
-
-  /**
-   * @function _logRegisteredAssociations  Used for debugging
-   * @return {Object}  the registered associations.
-   */
-  Sequence._logRegisteredAssociations = function() {
-    console.log('registered associations: ', JSON.stringify(associations, null, 2));
-    return associations;
-  };
-
-
-  Sequence.registerPreProcessor = function(preProcessor) {
-    preProcessors.push(preProcessor);
-  };
-
-  Sequence.fromJSON = function(attributes) {
-    var metaAssociations = _.isObject(attributes.meta) && attributes.meta.associations;
-
-    if(_.isObject(metaAssociations)) {
-      _.each(metaAssociations, function(obj, associationName) {
-        attributes[associationName] = obj;
-      })
-    }
-
-    return new this(attributes)
-  }
-
 
   return Sequence;
 }
