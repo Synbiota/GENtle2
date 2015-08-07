@@ -2,9 +2,10 @@
 
 ## develop
 
-* Dave   2015-08-05  Added validation requiring selection of part type when creating RDP part 
+
 * James  2015-08-06  Add v3 RDP universal primers (in previous commit: 8f4464ba621d72b7748da623bbe43de11e8f7e20 )
 * James  2015-08-06  (dev) Fix issue #234  (Instantiating a valid WipRdpAbstractSequence model logs an error).
+* Dave   2014-08-05  Added validation requiring selection of part type when creating RDP part 
 * James  2015-08-04  Update error text on someone using a source sequence that is an RDP part, for creating a new RDP part from.
 * James  2015-08-04  (dev) Fix issue #231 (invalid sequence attributes stored in localStorage should not prevent GENtle from loading).
 
