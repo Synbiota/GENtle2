@@ -24,15 +24,6 @@ class WipRdpAbstractSequence extends Sequence {
     delete options.types;
   }
 
-  validateFields(attributes) {
-    var errors = super.validateFields(attributes);
-    // Check partType is valid
-    var partType = attributes.partType;
-    if(!this.validPartType(partType)) {
-      errors.push(`partType "${partType}" is invalid for this sequenceModel`);
-    }
-    return errors;
-  }
 
   get availablePartTypes() {
     return _.keys(this.types);
