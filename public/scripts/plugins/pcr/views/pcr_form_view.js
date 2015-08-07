@@ -44,11 +44,20 @@ export default Backbone.View.extend({
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
     var partType = this.model.get('partType');
+
+    
+    // if description has not been set/modified, set it to name
+    var desc = this.model.get("desc")
+    if(!desc) {
+      desc = this.model.get('name')
+    }
+
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
       name: this.model.get('name'),
       sourceSequenceName: this.model.get('sourceSequenceName'),
+      desc: desc,
     }, this.model.get('meta.pcr.defaults') || {}, {
       targetMeltingTemperature: 68.5, 
       partType,

@@ -52,6 +52,7 @@ class WipRdpAbstractSequence extends Sequence {
       // We need rdpEdits to instantiate the non-WIP RDP SequenceModel
       'rdpEdits',
       'partType',
+      'desc',
     ]);
     return _.reject(fields, (field) => field === 'stickyEnds');
   }
