@@ -75,15 +75,13 @@ export default Backbone.View.extend({
     }
 
     var sequenceBases = loadedSequence.sequence;
-    var Klass, primaryView, partType;
+    var Klass, primaryView;
     if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 80) {
       Klass = WipRdpOligoSequence;
       primaryView = 'rdp_oligo';
-      partType = RdpTypes.types.MODIFIER;
     } else {
       Klass = WipRdpPcrSequence;
       primaryView = 'rdp_pcr';
-      partType = RdpTypes.types.CDS;
     }
     var name = loadedSequence.name + '-RDP';
     var sequence = new Klass({
@@ -94,7 +92,6 @@ export default Backbone.View.extend({
       },
       sourceSequenceName: loadedSequence.name,
       features: loadedSequence.features,
-      partType,
     });
 
     Gentle.addSequencesAndNavigate([sequence]);
