@@ -8,6 +8,7 @@ import _ from 'underscore';
 // import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
 import ChromatographMapCanvas from './chromatograph_map_canvas';
 
+import tooltip from 'gentle-utils/tooltip';
 
 export default Backbone.View.extend({
   manage: true,
@@ -17,10 +18,12 @@ export default Backbone.View.extend({
   initialRender: true,
 
   events: {
-    'click .chromatograph-toggle-dropdown': 'toggleDropdown',
-    'click .chromatograph-map-fragment': 'goToFragment',
-    'click .chromatograph-map-defect-mark': 'goToDefect',
-    'click canvas': 'goToBase'
+    'click .chromatograph-toggle-dropdown'  : 'toggleDropdown',
+    'click .chromatograph-map-fragment'     : 'goToFragment',
+    'mouseenter .chromatograph-map-fragment': 'showFragmentTooltip',
+    'mouseleave .chromatograph-map-fragment': 'hideFragmentTooltip',
+    'click .chromatograph-map-defect-mark'  : 'goToDefect',
+    'click canvas'                          : 'goToBase'
     // 'click .linear-map-feature': 'goToFeature'
   },
 
@@ -391,5 +394,16 @@ export default Backbone.View.extend({
       // });
     }
   },
+
+  showFragmentTooltip: function(event){
+    var fragmentId = $(event.currentTarget).data('fragment-id'),
+        fragment = _.findWhere(this.fragments, {id: fragmentId});
+
+    tooltip.show(fragment.name);
+  },
+
+  hideFragmentTooltip: function(){
+    tooltip.hide();
+  }
 
 });

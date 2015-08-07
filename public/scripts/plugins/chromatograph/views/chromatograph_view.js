@@ -48,10 +48,12 @@ export default Backbone.View.extend({
 
     var _this = this;
 
-    // Fix this later, this is a zombie bind.
-    $(window).on('resize', function(){
-      _this.handleResizeTop()
+    // // Fix this later, this is a zombie bind.
+    $(window).on('resize.chromatographCanvas', function(){
+      _this.handleResizeTop();
     });
+
+    // $(window).on('resize', function(){this.handleResizeTop)
 
 
   },
@@ -106,7 +108,6 @@ export default Backbone.View.extend({
   // },
 
   handleResizeTop: function(trigger) {
-
     this.$('#sequence-canvas-main').css({
       height: this.$el.outerHeight() - this.secondaryView.$el.outerHeight(),
     });
@@ -206,5 +207,9 @@ export default Backbone.View.extend({
 
     sequenceCanvas.refresh();
   },
+
+  cleanup: function() {
+    $(window).off('chromatographCanvas')
+  }
 
 });
