@@ -1,3 +1,33 @@
+<h2>{{shortName}} ({{partType}})</h2>
+<br />
+
+<table class="table table-no-border">
+  <tbody>
+    <tr>
+      <td>
+        <strong>
+          Source sequence
+        </strong>
+      </td>
+      <td>
+        {{name}}
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <strong>
+          Part description
+        </strong>
+      </td>
+      <td>
+        {{desc}}
+      </td>
+    </tr>
+  </tbody>
+
+</table>
+
 <br>
 <h3>
 {{#if isRdpPcrSequence}}
@@ -8,30 +38,6 @@
 </h3>
 <br>
 
-<table class="table table-no-border table-condensed">
-  <tbody>
-    <tr>
-      <td class="col-sm-3">Short name</td>
-      <td>{{shortName}}</td>
-    </tr>
-    <tr>
-      <td>Source sequence</td>
-      <td>{{sourceSequenceName}}</td>
-    </tr>
-    <tr>
-      <td>Part description</td>
-      <td>{{desc}}</td>
-    </tr>
-    <tr>
-      <td>RDP Part type</td>
-      <td>{{partType}}</td>
-    </tr>
-    <tr>
-      <td>RDP orientation</td>
-      <td>{{stickyEnds.name}}</td>
-    </tr>
-  </tbody>
-</table>
 
 {{#if isRdpPcrSequence}}
 {{{primer meta.associations.forwardPrimer}}}
@@ -75,6 +81,68 @@
 <br>
 {{/if}}
 
+<br />
+
+
+
+<h5>Optimized parameters</h5>
+<table class="table table-no-border table-condensed">
+  <tbody>
+    <tr>
+      <td>
+        <small>Theoretical melting temperature (T tm)</small>
+      </td>
+
+      <td>
+        <small>68.5&deg;C</small>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <small>Oligo concentration</small>
+      </td>
+
+      <td>
+        <small>0.25&mu;m</small>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <small>Na<sup>+</sup> concentration</small>
+      </td>
+
+      <td>
+        <small>50mM</small>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <small>Mg<sup>++</sup> concentration</small>
+      </td>
+
+      <td>
+        <small>2mM</small>
+      </td>
+    </tr>
+
+    <tr>
+      <td>
+        <small>dNTPs concentration</small>
+      </td>
+
+      <td>
+        <small>0.2mM</small>
+      </td>
+    </tr>
+
+
+
+  </tbody>
+
+</table>
 
 <h4>Sequence edit history</h4>
 
