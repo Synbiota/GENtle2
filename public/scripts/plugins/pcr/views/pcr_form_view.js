@@ -208,6 +208,7 @@ export default Backbone.View.extend({
     try {
       if(this.state.invalid.any) {
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
+        console.log(this.state.invalid)
       } else {
         var data = this.getData();
         var attributes = _.pick(data, 'name', 'sequence', 'features', 'sourceSequenceName', 'partType', 'desiredStickyEnds');

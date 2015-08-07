@@ -12,6 +12,7 @@
 
 
   <div class="form-group">
+    <input type="hidden" id="newProduct_name" value="{{state.name}}" />
     <label class="col-sm-6 control-label" for="newProduct_shortName"><small>RDP Part name</small></label>
     <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
       <input type="text" class="form-control input-sm form-control" id="newProduct_shortName" maxlength="255" required="required" value="{{state.shortName}}">
