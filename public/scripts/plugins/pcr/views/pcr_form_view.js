@@ -70,7 +70,14 @@ export default Backbone.View.extend({
   },
 
   availablePartTypes: function() {
-    return convertForSelect(this.model.availablePartTypes);
+    var baseTypes = convertForSelect(this.model.availablePartTypes);
+    var blank = {name: "Select RDP Part Type",
+                 value: "",
+                 disabled: true,
+                 isSelected: true};
+    
+    baseTypes.unshift(blank)
+    return baseTypes;
   },
 
   availableStickyEndNameOptions: function() {

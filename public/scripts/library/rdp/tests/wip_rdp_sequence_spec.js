@@ -16,7 +16,7 @@ describe('WIP RDP sequence model', function() {
     expect(sequenceModel.isProteinCoding).toEqual(true);
   });
 
-  it('should error if partType is invalid', function() {
+  it('should not error if partType is invalid', function() {
     var oldFunc = console.error;
     console.error = () => {};
     try {
@@ -24,7 +24,7 @@ describe('WIP RDP sequence model', function() {
         sequence: 'AT',
         partType: RdpTypes.types.PROTEIN_LINKER,
       });
-      expect(model.validationError).toEqual('partType "PROTEIN_LINKER" is invalid for this sequenceModel');
+      expect(model.validationError).toEqual(null);
     } finally {
       console.error = oldFunc;
     }
