@@ -10,15 +10,9 @@
 <br>
 <form class="form-horizontal new-pcr-product-form" style="line-height: 9px;">
 
-  <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_name"><small>RDP Part name</small></label>
-    <div class="col-sm-6 {{#if state.invalid.name}}has-error{{/if}}">
-      <input type="text" class="form-control input-sm form-control" id="newProduct_name" maxlength="255" required="required" value="{{state.name}}">
-    </div>
-  </div>
 
   <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_shortName"><small>RDP Part short name</small></label>
+    <label class="col-sm-6 control-label" for="newProduct_shortName"><small>RDP Part name</small></label>
     <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
       <input type="text" class="form-control input-sm form-control" id="newProduct_shortName" maxlength="255" required="required" value="{{state.shortName}}">
     </div>
