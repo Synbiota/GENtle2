@@ -92,17 +92,17 @@ class WipRdpAbstractSequence extends Sequence {
   }
 
   getWipRdpCompliantSequenceModel(attributes) {
-    var desiredWipRdpSequence = this.getDesiredSequenceModel(attributes);
+    var desiredWipRdpSequence = this._getDesiredSequenceModel(attributes);
     desiredWipRdpSequence.transformSequenceForRdp();
     return desiredWipRdpSequence;
   }
 
-  getDesiredSequenceModel(attributes) {
+  _getDesiredSequenceModel(attributes) {
     if(attributes.stickyEnds) {
-      throw new TypeError('attributes for getDesiredSequenceModel must not contain "stickyEnds"');
+      throw new TypeError('attributes for _getDesiredSequenceModel must not contain "stickyEnds"');
     }
     if(attributes.frm === undefined || attributes.size === undefined) {
-      throw new TypeError('attributes for getDesiredSequenceModel must specify "frm" and "size"');
+      throw new TypeError('attributes for _getDesiredSequenceModel must specify "frm" and "size"');
     }
     attributes.originalSequenceBases = attributes.sequence;
     var newSequenceModel = new this.Klass(attributes);
@@ -134,7 +134,7 @@ class WipRdpAbstractSequence extends Sequence {
       throw new TypeError('Must provide "desiredStickyEnds"');
     }
     var partType = this.get('partType');
-    if(!_.contains(this.availablePartTypes, partType)) {
+    if(!this.validPartType(partType)) {
       throw new TypeError(`Invalid partType: "${partType}"`);
     }
     if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {
