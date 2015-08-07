@@ -210,10 +210,11 @@ export default Backbone.View.extend({
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
         console.log(this.state.invalid)
       } else {
-        var data = this.getData();
-        var attributes = _.pick(data, 'name', 'sequence', 'features', 'sourceSequenceName', 'partType', 'desiredStickyEnds');
-        attributes.frm = data.from;
-        attributes.size = data.to - data.from + 1;
+        var attributes = this.getData();
+        attributes.frm = attributes.from;
+        attributes.size = attributes.to - attributes.from + 1;
+        delete attributes.from;
+        delete attributes.to;
         // TODO refactor to keep same sequenceModel?
         var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel(attributes);
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
@@ -243,10 +244,10 @@ export default Backbone.View.extend({
 
   createNewRdpPart: function(desiredWipRdpSequence) {
     this.state.calculating = true;
-    var data = this.getData();
-    data.shortName = data.desiredStickyEnds.start.name +'-'+ data.shortName +'-'+ data.desiredStickyEnds.end.name;
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
+      var data = this.getData();
+      data.shortName = data.desiredStickyEnds.start.name +'-'+ data.shortName +'-'+ data.desiredStickyEnds.end.name;
       data.stickyEnds = data.desiredStickyEnds;
       var newRdpOligoSequence = wipRdpOligoSequence.getRdpOligoSequence(data);
 

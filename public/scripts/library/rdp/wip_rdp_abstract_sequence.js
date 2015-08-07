@@ -40,7 +40,7 @@ class WipRdpAbstractSequence extends Sequence {
 
   get optionalFields() {
     var fields = super.optionalFields.concat([
-      // obtains 'shortName' from Sequence Factory
+      // obtains 'name', 'shortName' and 'desc' from Sequence Factory
       'sourceSequenceName',
       'desiredStickyEnds',
       // Define the portion of the template sequence that should be used in
@@ -52,7 +52,6 @@ class WipRdpAbstractSequence extends Sequence {
       // We need rdpEdits to instantiate the non-WIP RDP SequenceModel
       'rdpEdits',
       'partType',
-      'desc',
     ]);
     return _.reject(fields, (field) => field === 'stickyEnds');
   }
