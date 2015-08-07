@@ -1,5 +1,5 @@
 // Runs the calls to registerAssociation and registerPreProcessor
-import plugin from '../../../plugins/pcr/plugin';
+import '../../../plugins/pcr/plugin';
 
 import RdpPcrSequence from '../rdp_pcr_sequence';
 import {stubCurrentUser} from '../../../common/tests/stubs';
