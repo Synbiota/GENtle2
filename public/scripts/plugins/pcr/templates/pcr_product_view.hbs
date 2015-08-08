@@ -49,6 +49,7 @@
     <th class="text-right">Size</th>
     <th class="text-right">GC</th>
     <th class="text-right">TTm</th>
+    <th class="text-right">Tm</th>
   </thead>
   <tbody>
     <tr>
@@ -60,13 +61,15 @@
       <td>Forward annealing region</td>
       <td class="text-right">{{formatThousands meta.associations.forwardPrimer.annealingRegion.range.size}}bp</td>
       <td class="text-right">{{round meta.associations.forwardPrimer.annealingRegion.gcContent 1 true}}%</td>
-      <td class="text-right">{{round meta.associations.forwardPrimer.annealingRegion.meltingTemperature 1}}&deg;C</td>
+      <td class="text-right">{{round meta.associations.forwardPrimer.annealingRegion.theoreticalMeltingTemperature 1}}&deg;C</td>
+      <td class="text-right">{{round meta.associations.forwardPrimer.annealingRegion.practicalMeltingTemperature 1}}&deg;C</td>
     </tr>
     <tr>
       <td>Reverse annealing region</td>
       <td class="text-right">{{formatThousands meta.associations.reversePrimer.annealingRegion.range.size}}bp</td>
       <td class="text-right">{{round meta.associations.reversePrimer.annealingRegion.gcContent 1 true}}%</td>
-      <td class="text-right">{{round meta.associations.reversePrimer.annealingRegion.meltingTemperature 1}}&deg;C</td>
+      <td class="text-right">{{round meta.associations.reversePrimer.annealingRegion.theoreticalMeltingTemperature 1}}&deg;C</td>
+      <td class="text-right">{{round meta.associations.reversePrimer.annealingRegion.practicalMeltingTemperature 1}}&deg;C</td>
     </tr>
   </tbody>
 </table>
