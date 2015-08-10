@@ -5,9 +5,11 @@ import RdpEdit from '../rdp_edit';
 
 import {
   firstCodonIsMethionine,
-  noTerminalStopCodons,
+  lastStopCodonsRemoved,
   ensureLastBaseIs,
   firstCodonIsStop,
+  lastCodonIsStop,
+  warnIfEarlyStopCodons,
 } from '../sequence_transform';
 
 
@@ -134,35 +136,16 @@ describe('sequence transforms', function() {
   });
 
   describe('RDP sequence Stop codon as first Codon validation and transformation', function() {
-    describe('correct stop codon at beginning', function() {
-      it('should pass with TGA', function() {
-        setBases('TGACCC');
+    it('should pass with correct stop codon at beginning', function() {
+      _.each(['TAG', 'TGA', 'TAA'], function(stopCodon) {
+        setBases(stopCodon + 'CCC');
 
         var rdpEdits = firstCodonIsStop.process(sequenceModel);
         expect(rdpEdits.length).toEqual(0);
 
-        expect(getSequence()).toEqual('TGACCC');
-      });
-
-      it('should pass with TAG', function() {
-        setBases('TAGCCC');
-
-        var rdpEdits = firstCodonIsStop.process(sequenceModel);
-        expect(rdpEdits.length).toEqual(0);
-
-        expect(getSequence()).toEqual('TAGCCC');
-      });
-
-      it('should pass with TAA', function() {
-        setBases('TAACCC');
-
-        var rdpEdits = firstCodonIsStop.process(sequenceModel);
-        expect(rdpEdits.length).toEqual(0);
-
-        expect(getSequence()).toEqual('TAACCC');
+        expect(getSequence()).toEqual(stopCodon + 'CCC');
       });
     });
-
 
     describe('incorrect stop codon at beginning', function() {
       it('should add stop when no transform available', function() {
@@ -194,38 +177,38 @@ describe('sequence transforms', function() {
   });
 
 
-  describe('RDP sequence with stop codon validation and transformation', function() {
+  describe('RDP sequence removing last stop codon(s)', function() {
     it('should pass if no stop codons', function() {
       setBases('AAG');
-      var rdpEdits = noTerminalStopCodons.process(sequenceModel);
+      var rdpEdits = lastStopCodonsRemoved.process(sequenceModel);
       expect(rdpEdits.length).toEqual(0);
 
       expect(getSequence()).toEqual('AAG');
     });
 
-    it('should remove only the terminal stop codons', function() {
+    it('should remove only the last stop codons', function() {
       var stop1 = 'TGA';
       var stop2 = 'TAG';
       var stop3 = 'TAA';
       var bases = 'GTG'+stop1+'CCC' + stop1+stop2+stop3;
       setBases(bases);
 
-      var rdpEdits = noTerminalStopCodons.process(sequenceModel);
+      var rdpEdits = lastStopCodonsRemoved.process(sequenceModel);
       var rdpEdit = rdpEdits[0];
-      expect(rdpEdit.type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+      expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.error).toBeUndefined();
 
-      expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+      expect(rdpEdit.contextBefore._type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.contextBefore.name).toEqual('Will remove stop codons');
       expect(rdpEdit.contextBefore.ranges[0].from).toEqual(15);
       expect(rdpEdit.contextBefore.ranges[0].to).toEqual(18);
       expect(rdpEdit.contextBefore.ranges[0].reverse).toEqual(false);
       expect(rdpEdit.contextBefore.ranges[2].from).toEqual(9);
-      expect(rdpEdit.contextBefore.sequence).toEqual('GTGTGACCCTGATAGTAA');
-      expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+      expect(rdpEdit.contextBefore.sequence).toEqual('TGATAGTAA'); //'GTGTGACCCTGATAGTAA');
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(9);
       expect(rdpEdit.contextBefore.contextualTo).toEqual(18);
 
-      expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.TERMINAL_STOP_CODON_REMOVED);
+      expect(rdpEdit.contextAfter._type).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
       expect(rdpEdit.contextAfter.name).toEqual('Removed stop codons');
       expect(rdpEdit.contextAfter.ranges.length).toEqual(0);
       expect(rdpEdit.contextAfter.sequence).toEqual('GTGTGACCC');
@@ -237,8 +220,8 @@ describe('sequence transforms', function() {
   });
 
 
-  describe('RDP sequence with terminal C base validation and transformation', function() {
-    it('should do nothing if terminal base is C', function() {
+  describe('RDP sequence with last base being C', function() {
+    it('should do nothing if last base is C', function() {
       setBases('AAC');
       var rdpEdits = ensureLastBaseIs('C').process(sequenceModel);
       expect(rdpEdits.length).toEqual(0);
@@ -317,6 +300,163 @@ describe('sequence transforms', function() {
       expect(rdpEdit.level).toEqual(RdpEdit.levels.ERROR);
 
       expect(getSequence()).toEqual(INITIAL + STOP_AMBER);
+    });
+  });
+
+
+  describe('RDP sequence with last base being G', function() {
+    it('should do nothing if last base is G', function() {
+      setBases('AAG');
+      var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+      expect(rdpEdits.length).toEqual(0);
+
+      expect(getSequence()).toEqual('AAG');
+    });
+
+    const PHENYLALANINE = 'TTT';
+    const LEUCINE1 = 'TTA';
+    const LEUCINE2 = 'TTG';
+    it('should transform codon to suitable amino acid', function() {
+      const INITIAL = 'ATG';
+      _.each([PHENYLALANINE, LEUCINE1], function(codon) {
+        setBases(INITIAL + codon);
+        var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+        var rdpEdit = rdpEdits[0];
+        expect(rdpEdit.error).toBeUndefined();
+        var type = ((codon === PHENYLALANINE) ?
+          RdpEdit.types.LAST_BASE_IS_G :
+          RdpEdit.types.LAST_BASE_IS_G_NO_AA_CHANGE);
+        expect(rdpEdit.type).toEqual(type);
+
+        expect(rdpEdit.contextBefore._type).toEqual(type);
+        expect(rdpEdit.contextBefore.name).toEqual('Last base should be "G"');
+        expect(rdpEdit.contextBefore.ranges[0].from).toEqual(5);
+        expect(rdpEdit.contextBefore.ranges[0].to).toEqual(6);
+        expect(rdpEdit.contextBefore.ranges[0].reverse).toEqual(false);
+        expect(rdpEdit.contextBefore.sequence).toEqual(INITIAL + codon);
+        expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextBefore.contextualTo).toEqual(6);
+
+        expect(rdpEdit.contextAfter._type).toEqual(type);
+        expect(rdpEdit.contextAfter.name).toEqual('Last base changed to "G".');
+        expect(rdpEdit.contextAfter.ranges[0].from).toEqual(5);
+        expect(rdpEdit.contextAfter.ranges[0].to).toEqual(6);
+        expect(rdpEdit.contextAfter.ranges[0].reverse).toEqual(false);
+        expect(rdpEdit.contextAfter.sequence).toEqual(INITIAL + LEUCINE2);
+        expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
+        expect(rdpEdit.contextAfter.contextualTo).toEqual(6);
+
+        expect(getSequence()).toEqual(INITIAL + LEUCINE2);
+      });
+    });
+
+    it('should transform suitable bases with the correct context', function() {
+      const INITIAL = 'ATGCCCTTTAAA';
+
+      setBases(INITIAL + LEUCINE1);
+      var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.contextBefore.sequence).toEqual((INITIAL + LEUCINE1).slice(-9));
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(15);
+
+      expect(rdpEdit.contextAfter.sequence).toEqual((INITIAL + LEUCINE2).slice(-9));
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(15);
+
+      expect(getSequence()).toEqual(INITIAL + LEUCINE2);
+    });
+
+    it('should error if encounters a stop codon (which should not normally happen)', function() {
+      const INITIAL = 'TGAAGA';
+      const STOP_OPAL = 'TGA';
+
+      setBases(INITIAL + STOP_OPAL);
+      var rdpEdits = ensureLastBaseIs('G').process(sequenceModel);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_BASE_IS_G);
+      expect(rdpEdit.message).toEqual('The last base of sequence must be "G" but there is no replacement for the codon: "TGA".');
+      expect(rdpEdit.level).toEqual(RdpEdit.levels.ERROR);
+
+      expect(getSequence()).toEqual(INITIAL + STOP_OPAL);
+    });
+  });
+
+
+  describe('RDP sequence with last codon being STOP', function() {
+    it('should do nothing if last codon is STOP', function() {
+      _.each(['TGA', 'TAG', 'TAA'], function(codon) {
+        setBases(codon);
+        var rdpEdits = lastCodonIsStop.process(sequenceModel);
+        expect(rdpEdits.length).toEqual(0);
+
+        expect(getSequence()).toEqual(codon);
+      });
+    });
+
+    it('should add a stop codon on end if not present', function() {
+      setBases('ATG');
+      var rdpEdits = lastCodonIsStop.process(sequenceModel);
+      expect(rdpEdits.length).toEqual(1);
+      var rdpEdit = rdpEdits[0];
+      expect(rdpEdit.type).toEqual(RdpEdit.types.LAST_CODON_IS_STOP_ADDED);
+      expect(rdpEdit.level).toEqual(RdpEdit.levels.NORMAL);
+
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(0);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(3);
+      expect(rdpEdit.contextBefore.sequence).toEqual('ATG');
+      expect(rdpEdit.contextBefore.name).toEqual('Will insert TAG');
+
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(0);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(6);
+      expect(rdpEdit.contextAfter.sequence).toEqual('ATGTAG');
+      expect(rdpEdit.contextAfter.name).toEqual('Inserted TAG');
+
+      expect(getSequence()).toEqual('ATGTAG');
+    });
+
+    it('should have the correct context', function() {
+      setBases('ATGTTTGGGCCC');
+      var rdpEdits = lastCodonIsStop.process(sequenceModel);
+      expect(rdpEdits.length).toEqual(1);
+      var rdpEdit = rdpEdits[0];
+
+      expect(rdpEdit.contextBefore.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextBefore.contextualTo).toEqual(12);
+      expect(rdpEdit.contextBefore.sequence).toEqual('GGGCCC');
+
+      expect(rdpEdit.contextAfter.contextualFrom).toEqual(6);
+      expect(rdpEdit.contextAfter.contextualTo).toEqual(15);
+      expect(rdpEdit.contextAfter.sequence).toEqual('GGGCCCTAG');
+
+      expect(getSequence()).toEqual('ATGTTTGGGCCCTAG');
+    });
+  });
+
+
+  describe('RDP warning when sequence contains STOP codons before end', function() {
+    it('should do nothing if last codon is STOP', function() {
+      setBases('AAATGACCCTAGCACTAATAA');
+      var rdpEdits = warnIfEarlyStopCodons.process(sequenceModel);
+      expect(rdpEdits.length).toEqual(2);
+
+      expect(rdpEdits[0].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+      expect(rdpEdits[0].contextBefore.contextualFrom).toEqual(0);
+      expect(rdpEdits[0].contextBefore.contextualTo).toEqual(9);
+      expect(rdpEdits[0].contextBefore.name).toEqual('Stop codon');
+      expect(rdpEdits[0].contextBefore.ranges[0].from).toEqual(3);
+      expect(rdpEdits[0].contextBefore.ranges[0].size).toEqual(3);
+      expect(rdpEdits[0].contextAfter).toBeUndefined();
+
+      expect(rdpEdits[1].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
+      expect(rdpEdits[1].contextBefore.contextualFrom).toEqual(6);
+      expect(rdpEdits[1].contextBefore.contextualTo).toEqual(15);
+      expect(rdpEdits[1].contextBefore.name).toEqual('Stop codon');
+      expect(rdpEdits[1].contextBefore.ranges[0].from).toEqual(9);
+      expect(rdpEdits[1].contextBefore.ranges[0].size).toEqual(3);
+      expect(rdpEdits[1].contextAfter).toBeUndefined();
+
+      expect(getSequence()).toEqual('AAATGACCCTAGCACTAATAA');
     });
   });
 });

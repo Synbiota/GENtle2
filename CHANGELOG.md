@@ -2,6 +2,8 @@
 
 ## develop
 
+* James  2015-08-10  Change CDS part type to 'Fusion Protein CDS' and add 'CDS with stop' part type.
+
 ## 0.6.2
 
 * James  2015-08-06  Add v3 RDP universal primers (in previous commit: 8f4464ba621d72b7748da623bbe43de11e8f7e20 )
