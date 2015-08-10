@@ -72,7 +72,8 @@ describe('RDP sequence transforms', function() {
     oligoSequenceModel = new WipRdpOligoSequence(sequenceAttributes);
 
     ([
-      sequenceModel
+      sequenceModel,
+      oligoSequenceModel,
     ]).forEach(function(_sequenceModel) {
       spyOn(_sequenceModel, 'save');
       spyOn(_sequenceModel, 'throttledSave');

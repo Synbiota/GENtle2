@@ -26,13 +26,13 @@ var concatenateSequences = function(sequenceModels, circularise=false, truncateF
     var appendSequenceBases = sequenceModel.getSequence();
 
     // Add sticky ends
-    if(isFirst) {
+    if(isFirst && !circularise) {
       if(stickyEnds.start) {
         // Add sticky end at start
         attributes.stickyEnds.start = stickyEnds.start;
       }
     }
-    if(isLast) {
+    if(isLast && !circularise) {
       if(stickyEnds.end) {
         // Add sticky end at end
         attributes.stickyEnds.end = stickyEnds.end;

@@ -7,16 +7,22 @@ import SequenceRange from '../../../library/sequence-model/range';
 var forwardUniversalPrimers = function() {
   return [
   {
-    sequence: 'TGCCACCTGACGTCTAAGAA',
-    name: "Sybiota universal forward primer version 1.0",
-    meltingTemperature: 63,
-    gcContent: 0.5,
+    sequence: 'CAGAACGCTCGGTCTTGCACACC',
+    name: "Sybiota universal forward primer version 3.0",
+    meltingTemperature: 68.9,
+    gcContent: 0.609,
   },
   {
     sequence: 'CGCAGCGAGTCAGTGAG',
     name: "Sybiota universal forward primer version 2.0",
     meltingTemperature: 61.8,
     gcContent: 0.647,
+  },
+  {
+    sequence: 'TGCCACCTGACGTCTAAGAA',
+    name: "Sybiota universal forward primer version 1.0",
+    meltingTemperature: 63,
+    gcContent: 0.5,
   },
   ];
 };
@@ -25,12 +31,13 @@ var forwardUniversalPrimers = function() {
 var reverseUniversalPrimers = function() {
   return [
   {
-    sequence: 'GCTCACTCAAAGGCGGTAAT',  // Forward strand sequence
+    sequence: 'CAAGGTGTCACCACCCTGCCC',  // Forward strand sequence
     // The reverse strand which is the sequence ulitmately used as a
-    // the DNA primer: ATTACCGCCTTTGAGTGAGC
-    name: "Sybiota universal reverse primer version 1.0",
-    meltingTemperature: 62.4,
-    gcContent: 0.5,
+    // the DNA primer: GGGCAGGGTGGTGACACCTTG
+    name: "Sybiota universal reverse primer version 3.0",
+    reverse: true,
+    meltingTemperature: 68.9,
+    gcContent: 0.667,
   },
   {
     sequence: 'GATCACTACCGGGCGTATT',  // Forward strand sequence
@@ -40,6 +47,14 @@ var reverseUniversalPrimers = function() {
     reverse: true,
     meltingTemperature: 61,
     gcContent: 0.526,
+  },
+  {
+    sequence: 'GCTCACTCAAAGGCGGTAAT',  // Forward strand sequence
+    // The reverse strand which is the sequence ulitmately used as a
+    // the DNA primer: ATTACCGCCTTTGAGTGAGC
+    name: "Sybiota universal reverse primer version 1.0",
+    meltingTemperature: 62.4,
+    gcContent: 0.5,
   },
   ];
 };

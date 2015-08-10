@@ -289,7 +289,11 @@ class PotentialPrimer {
           this.deferred.resolve(resultingPrimer);
         }
       }
-    }).catch(namedHandleError('primer_calculation, checkWithIDT'));
+    })
+    .catch((error) => {
+      this.deferred.reject(new errors.IdtError({message: error.toString()}));
+      namedHandleError('primer_calculation, checkWithIDT')(error);
+    });
   }
 
   storePrimer(TmFromIDT=undefined, ourTm=undefined) {
@@ -318,7 +322,8 @@ class PotentialPrimer {
     var sortedPrimerAttributesWithOurTms = _.sortBy(primerAttributesWithOurTms, ({score}) => score);
     sortedPrimerAttributesWithOurTms.reverse();
 
-    var maxIdtQueries = 30;
+    // A rough measure of approximately how many queries it might be reasonable to make.
+    var maxIdtQueries = this.maxPrimerLength - this.minPrimerLength + 1;
     var bestPrimerAttributesWithOurTm = sortedPrimerAttributesWithOurTms.slice(0, maxIdtQueries);
     if(sortedPrimerAttributesWithOurTms.length > maxIdtQueries) console.warn(`We were about to send ${sortedPrimerAttributesWithOurTms.length} queries to IDT but will only send ${bestPrimerAttributesWithOurTm.length}`);
 
@@ -329,6 +334,10 @@ class PotentialPrimer {
         .then((IdtTemp) => {
           this.notifyProgress();
           return IdtTemp;
+        })
+        .catch((error) => {
+          this.deferred.reject(new errors.IdtError({message: error.toString()}));
+          namedHandleError('primer_calculation, nearestBestPrimer')(error);
         });
     });
 

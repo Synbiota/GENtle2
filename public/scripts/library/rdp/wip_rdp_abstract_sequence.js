@@ -6,24 +6,30 @@ import RdpEdit from './rdp_edit';
 
 
 class WipRdpAbstractSequence extends Sequence {
-  constructor(attributes, ...other) {
-    if(!attributes.Klass) throw new TypeError('Must provide Klass attribute');
-    if(!attributes.types) throw new TypeError('Must provide types attribute');
-    var Klass = attributes.Klass;
-    var types = _.clone(attributes.types);
-    delete attributes.Klass;
-    delete attributes.types;
-
+  constructor(attributes, options={}) {
     attributes.readOnly = true;
-    super(attributes, ...other);
+    super(attributes, options);
+  }
+
+  preValidationSetup(attributes, options) {
+    if(!options.Klass) throw new TypeError('Must provide options with "Klass" key');
+    if(!options.types) throw new TypeError('Must provide options with "types" key');
+    var Klass = options.Klass;
+    var types = _.clone(options.types);
+    delete options.Klass;
+    delete options.types;
     this.Klass = Klass;
     this.types = types;
+  }
 
+  validateFields(attributes) {
+    var errors = super.validateFields(attributes);
     // Check partType is valid
-    var partType = this.get('partType');
+    var partType = attributes.partType;
     if(!this.validPartType(partType)) {
-      throw new Error(`partType "${partType}" is invalid for this sequenceModel`);
+      errors.push(`partType "${partType}" is invalid for this sequenceModel`);
     }
+    return errors;
   }
 
   get availablePartTypes() {

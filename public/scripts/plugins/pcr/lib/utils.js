@@ -46,9 +46,14 @@ var savePcrProductsToSequence = function(sequenceModel, products = []) {
 };
 
 
-var humaniseRdpType = function(partType) {
+/**
+ * @function humaniseRdpType
+ * @param  {String} rdpType  An RDP Sticky End or part type
+ * @return {String}
+ */
+var humaniseRdpType = function(rdpType) {
   const rdpLabels = [RdpTypes.types.CDS, RdpTypes.types.RBS].concat(_.pluck(allStickyEnds(), 'name'));
-  var humanisedName = _.includes(rdpLabels, partType) ? partType : _.ucFirst(partType, true);
+  var humanisedName = _.includes(rdpLabels, rdpType) ? rdpType : _.ucFirst(rdpType, true);
   return humanisedName.replace('_', ' ');
 };
 

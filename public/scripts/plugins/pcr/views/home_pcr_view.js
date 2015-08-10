@@ -3,6 +3,7 @@
 @submodule Views
 @class HomeDesignerView
 **/
+import _ from 'underscore';
 import Backbone from 'backbone';
 import template from '../templates/home_pcr_view.hbs';
 import Filetypes from '../../../common/lib/filetypes/filetypes';
@@ -17,22 +18,65 @@ export default Backbone.View.extend({
   template: template,
   className: 'home-pcr',
 
+  initialize: function() {
+    this.onSequenceLoad = _.bind(this.onSequenceLoad, this);
+  },
+
   events: {
     'submit .home-pcr-form': 'clickInputElement',
     'change .home-pcr-form input[name=file]': 'openSequenceFromFile'
   },
-  
+
+  clickInputElement: function(event) {
+    event.preventDefault();
+    this.$('.home-pcr-form input[name=file]').click();
+  },
+
+  openSequenceFromFile: function(event) {
+    event.preventDefault();
+    var $form     = this.$('.home-pcr-form').first(),
+        input     = $form.find('input[name=file]')[0];
+
+    var onError = function(filename) {
+      alert('Could not load file ' + filename);
+    };
+
+    Filetypes.loadFile(input.files[0], true)
+    .then(this.onSequenceLoad)
+    .catch(onError)
+    .done();
+  },
+
+  onSequenceLoad: function(result) {
+    return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name)
+    .then((sequences) => {
+      if ( sequences.length === 1 ) {
+        this.createNewSequence(sequences[0]);
+      } else{
+       alert('Could not parse the sequence.');
+      }
+    })
+    .catch(function(err) {
+      console.log(err);
+      alert('Could not parse the sequence.');
+    })
+    .done();
+  },
+
   /**
    * @methode createNewSequence
-   * @param  {any} event
    * @param  {Object} loadedSequence
    * @return {undefined}
    */
-  createNewSequence: function(event, loadedSequence) {
-    event.preventDefault();
+  createNewSequence: function(loadedSequence) {
+    if(loadedSequence.stickyEnds) {
+      alert('The source sequence cannot already be an RDP part.');
+      return;
+    }
+
     var sequenceBases = loadedSequence.sequence;
     var Klass, primaryView, partType;
-    if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 100) {
+    if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 80) {
       Klass = WipRdpOligoSequence;
       primaryView = 'rdp_oligo';
       partType = RdpTypes.types.MODIFIER;
@@ -56,36 +100,4 @@ export default Backbone.View.extend({
     Gentle.addSequencesAndNavigate([sequence]);
   },
 
-  openSequenceFromFile: function(event) {
-    event.preventDefault();
-    var $form     = this.$('.home-pcr-form').first(),
-        input     = $form.find('input[name=file]')[0];
-
-    var onLoad = (result) => {
-      return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then((sequences) => {
-        if ( sequences.length === 1 ) {
-          this.createNewSequence(event, sequences[0]);
-        } else{
-         alert('Could not parse the sequence.');
-        }
-      }, function (err) {
-        console.log(err);
-        alert('Could not parse the sequence.');
-      }).done();
-    };
-
-    var onError = function(filename) {
-      alert('Could not load file ' + filename);
-    };
-
-    Filetypes.loadFile(input.files[0], true).then(onLoad, onError).done();
-
-  },
-
-  clickInputElement: function(event) {
-    event.preventDefault();
-    this.$('.home-pcr-form input[name=file]').click();
-  }
-
- 
 });

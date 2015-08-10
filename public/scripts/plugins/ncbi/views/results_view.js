@@ -30,8 +30,8 @@
     },
 
     afterRender: function() {
-      this.$('.has-tooltip').tooltip({
-        container: 'body'
+      this.$('.has-tooltip').gentleTooltip({
+        view: this
       });
     },
 

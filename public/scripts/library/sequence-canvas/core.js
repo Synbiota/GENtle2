@@ -14,7 +14,7 @@ import Caret from './caret';
 import {namedHandleError} from '../../common/lib/handle_error';
 import {assertIsDefinedAndNotNull, assertIsObject} from '../../common/lib/testing_utils';
 import tracedLog from '../../common/lib/traced_log';
-import defineMethod from 'gentle-utils/define_method';
+import defineMethod from 'gentledna-utils/dist/define_method';
 
 /**
 Handles displaying a sequence in a canvas.

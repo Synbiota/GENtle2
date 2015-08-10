@@ -75,8 +75,8 @@ export default Backbone.View.extend({
       this.parentView().showCanvas(showingProduct);
     }
 
-    this.$('.has-tooltip').tooltip({
-      container: 'body'
+    this.$('.has-tooltip').gentleTooltip({
+      view: this
     });
   },
 

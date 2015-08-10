@@ -2,7 +2,7 @@
   "name": "GENtle",
   "description": "GENtle - The Browser Based, Open Source, DNA Assembly App",
   "homepage": "http://gentledna.org/",
-  "version": "0.4.0",
+  "version": "0.6.2",
   "engines": {
     "node": "^0.12"
   },
@@ -12,7 +12,8 @@
     "underscore.mixed": "./public/scripts/common/lib/underscore.mixed.js",
     "gentle": "./public/scripts/common/models/gentle.js",
     "bootstrap": "./public/vendor/bootstrap/js/bootstrap.js",
-    "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js"
+    "handlebars.mixed": "./public/scripts/common/lib/handlebars.mixed.js",
+    "tooltip": "./public/scripts/common/lib/tooltip.js"
   },
   "dependencies": {
     "body-parser": "^1.9.0",
@@ -28,7 +29,8 @@
     "object-assign": "^2.0.0",
     "request": "^2.45.0",
     "serve-favicon": "^2.1.6",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "gentledna-utils": "^0.1.0"
   },
   "devDependencies": {
     "aliasify": "^1.7.2",
