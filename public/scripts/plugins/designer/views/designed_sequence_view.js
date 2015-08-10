@@ -93,6 +93,9 @@ export default Backbone.View.extend({
   },
 
   removeSequence: function(index) {
+    console.log("removeSequence");
+    console.log(this.model);
+    console.log(index);
     this.model.removeSequenceAtIndex(index);
     this.model.throttledSave();
   },

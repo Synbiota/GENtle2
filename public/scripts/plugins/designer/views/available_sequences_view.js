@@ -13,6 +13,10 @@ var AvailableSequenceView = Backbone.View.extend({
   manage: true,
   className: 'designer-available-sequences',
 
+  events: {
+    'click .designer-draggable-trash': 'onTrashClick'
+  },
+
   initialize: function(){
     this.listenTo(Gentle, 'designer:availableSequences:filter', this.filterAvailableSequences, this);
   },
@@ -88,7 +92,31 @@ var AvailableSequenceView = Backbone.View.extend({
         $el.addClass('designer-draggable-hidden');
       } 
     });
+  },
+
+  onTrashClick: function(event) {
+    event.stopPropagation();
+    console.log("available onTrashClick");
+    console.log(event);
+
+    var $element = $(event.currentTarget).parent();
+    var pModel = this.parentView().model;
+    var availSequences = pModel.get('availableSequences');
+    console.log(availSequences);
+    console.log(pModel);
+    //console.log(this.parentView());
+    //console.log(this.parentView().model);
+    //console.log(this.parentView().model.get('availableSequences'));
+    console.log("sequences");
+
+
+    pModel.removeAvailableSequenceAtIndex($element.index());
+    pModel.throttledSave();
+    $element.remove();
+    console.log(availSequences);
+    this.render();
   }
+
 
 });
 
