@@ -198,7 +198,6 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
     shortName: shortName,
     desc: opts.desc,
   });
-  debugger;
   pcrProduct.set('features', calculateFeatures(pcrProduct));
   // pcrProduct.set('meta.pcr.options', opts);
   return pcrProduct;
