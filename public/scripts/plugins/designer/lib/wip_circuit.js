@@ -206,7 +206,7 @@ export default class WipCircuit extends Sequence {
       return seq.get('id') == id;
     });
 
-    this.set("availableSequences", remainder);
+    this.set('availableSequences', remainder);
     this.saveAvailableSequencesToCurrentUser();
   }
 

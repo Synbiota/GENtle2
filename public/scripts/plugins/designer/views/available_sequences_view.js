@@ -100,7 +100,7 @@ var AvailableSequenceView = Backbone.View.extend({
     var $element = $(event.currentTarget).parent();
     var pModel = this.parentView().model;
     var availSequences = pModel.get('availableSequences');
-    var sequenceId = $element.data("sequence_id");
+    var sequenceId = $element.data('sequence_id');
 
 
     pModel.removeAvailableSequenceBySequenceId(sequenceId);
