@@ -52,7 +52,8 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
 
     var frm = 0;
     var startBasesDifferentToTemplate = 0;
-    if(this.get('desiredStickyEnds').start.name === "X") {
+    var desiredStickyEnds = this.get('desiredStickyEnds');
+    if(desiredStickyEnds.start.name === "X") {
       if(this.isProteinCoding) {
         // Irrespective of if a Methionine start codon was already present, added,
         // or converted from a similar start codon, we need to discount the
@@ -60,7 +61,6 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
         // sequence used to make the forward PCR primer.
         frm = 3;
       } else {
-        // TODO: add a test for this
         frm = 0;
       }
 
@@ -93,7 +93,7 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
       startBasesDifferentToTemplate,
       to,
       endBasesDifferentToTemplate,
-      stickyEnds: this.get('desiredStickyEnds'),
+      stickyEnds: desiredStickyEnds,
       name: this.get('name'),
     };
     return dataAndOptionsForPcr;

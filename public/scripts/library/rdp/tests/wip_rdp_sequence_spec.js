@@ -72,7 +72,7 @@ describe('WIP RDP sequence transformation of', function() {
     });
 
     var testGettingRdpPcrSequence = function(partType, expectedSequence, done) {
-      var sequence = 'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA';
+      var sequence = 'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA';
       attributes = {
         sequence,
       };
@@ -108,6 +108,10 @@ describe('WIP RDP sequence transformation of', function() {
     it('should work with CDS_WITH_STOP part type', function(done) {
       testGettingRdpPcrSequence(RdpTypes.types.CDS_WITH_STOP, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA'+'CGGCTA', done);
     });
+
+    it('should work with non protein coding PROMOTER part type', function(done) {
+      testGettingRdpPcrSequence(RdpTypes.types.PROMOTER, 'CGATG'+'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA'+'CGGCTA', done);
+    });
   });
 
   describe('oligo RDP part', function() {
@@ -124,10 +128,7 @@ describe('WIP RDP sequence transformation of', function() {
         sourceSequenceName: 'parent',
       });
       var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
-      var data = compliantSequenceModel.toJSON();
-      data.stickyEnds = stickyEndsZX();
-      data.shortName = 'thing';
-      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
+      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence();
       expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('CGGCGTGTAGAAGATG');
     });
 
@@ -144,10 +145,7 @@ describe('WIP RDP sequence transformation of', function() {
         sourceSequenceName: 'parent',
       });
       var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
-      var data = compliantSequenceModel.toJSON();
-      data.stickyEnds = stickyEndsZX();
-      data.shortName = 'thing';
-      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
+      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence();
 
       expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('GATGTAGCGCGGC');
     });
@@ -165,10 +163,7 @@ describe('WIP RDP sequence transformation of', function() {
         sourceSequenceName: 'parent',
       });
       var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
-      var data = compliantSequenceModel.toJSON();
-      data.stickyEnds = stickyEndsZX();
-      data.shortName = 'thing';
-      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
+      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence();
       expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('GATGGTGTAGCGGC');
     });
   });
