@@ -1,21 +1,12 @@
 {
     "anchors": [{
-        "_type": "dna",
-        "desc": "",
-        "features": [{
-            "ranges": [{
-                "from": 0,
-                "to": 1282,
-                "reverseComplement": false
-            }],
-            "desc": "",
-            "name": "dAn-ori-x'",
-            "_type": "misc"
-        }],
-        "isCircular": false,
-        "name": "anc-Ori-x'",
         "version": 0,
+        "readOnly": true,
+        "isCircular": false,
+        "name": "Anc-Origin-X'",
         "sequence": "TTTTTTTTTTTTTTTTTTAGGTGACGTCGGACTCTTGAGACCCAGAAATCATCCTTAGCGAAAGCTAAGGATTTTTTTTATCTGAAATTCTGCCTCGTGATACGCCTATTTTTACTGCATGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGACCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGCTCGAGGCTTGGATTCTCACCAATAAAAAACGCCCGGCGGCAACCGAGCGTTCTGAACAAATCCAGATGGAGTTCTCGAGTGCCACTTGACGTCTAAGAAACCAGACGTCTAAGAAACCAGAATTCTCATGACATTAACATGCAGAACGCGAAGTAATCTTTTCGGTTTTAAAGAAAAAGGGCAGGGTGGTGACACCTTGCCCGTTTTTTTGCCGGAGGTCTCAAGAG",
+        "_type": "dna",
+        "desc": "The Anchor is a specialized RDP part which is attached to magnetic beads. It has a region complementary to the Cap which will allow the plasmid to self-circularize once the final assembly is released from the beads. The Anchor also contains the origin of replication for the plasmid, which is required for proper functioning. This part ends with an X' RDP end.",
         "stickyEnds": {
             "start": {
                 "name": "Anc",
@@ -29,25 +20,26 @@
                 "size": 4,
                 "reverse": true
             }
-        }
-    }],
-    "caps": [{
-        "_type": "dna",
-        "desc": "This Cap DNA sequence has several important parts: (i) it begins with a Z end; (ii) has the gene for chloramphenicol acetyltransferase, the selective marker commonly used in genetic engineering. Chloramphenicol acetyltransferase (or CAT) is a bacterial enzyme (EC 2.3.1.28) that detoxifies the antibiotic chloramphenicol and is responsible for chloramphenicol resistance in bacteria. This enzyme covalently attaches an acetyl group from acetyl-CoA to chloramphenicol, which prevents chloramphenicol from binding to ribosomes. A histidine residue, located in the C-terminal section of the enzyme, plays a central role in its catalytic mechanism; (iii) A cap sequence that is complementary to the anchor sequence. This is important because the Anchor and Cap sequences drive circularization of the plasmid through their interactions. \n\n[Wikipedia: http://en.wikipedia.org/wiki/Chloramphenicol_acetyltransferase]",
+        },
         "features": [{
             "ranges": [{
                 "from": 0,
-                "to": 824,
+                "to": 1282,
                 "reverseComplement": false
             }],
-            "desc": "This is the Genomikon Part that causes the bacteria to be resistant to chloramphenicol.",
-            "name": "Z--Chloramphenicol_acetyltransferase--CAP",
-            "_type": "genomikon_part"
-        }],
-        "isCircular": false,
-        "name": "z-ChlR-cap",
+            "desc": "",
+            "_type": "misc",
+            "name": "dAn-ori-x'"
+        }]
+    }],
+    "caps": [{
         "version": 0,
+        "readOnly": true,
+        "isCircular": false,
+        "name": "Z-ChlrR-Cap",
         "sequence": "GAGACTCGAGTTGATCGGGCACGTAAGAGGTTCCAACTTTCACCATAATGAAATAAGATCACTACCGGGCGTATTTTTTGAGTTATCGAGATTTTCAGGAGCTAAGGAAGCTAAAATGGAGAAAAAAATCACTGGATATACCACCGTTGATATATCCCAATGGCATCGTAAAGAACATTTTGAGGCATTTCAGTCAGTTGCTCAATGTACCTATAACCAGACCGTTCAGCTGGATATTACGGCCTTTTTAAAGACCGTAAAGAAAAATAAGCACAAGTTTTATCCGGCCTTTATTCACATTCTTGCCCGCCTGATGAATGCTCATCCGGAATTTCGTATGGCAATGAAAGACGGTGAGCTGGTGATATGGGATAGTGTTCACCCTTGTTACACCGTTTTCCATGAGCAAACTGAAACGTTTTCATCGCTCTGGAGTGAATACCACGACGATTTCCGGCAGTTTCTACACATATATTCGCAAGATGTGGCGTGTTACGGTGAAAACCTGGCCTATTTCCCTAAAGGGTTTATTGAGAATATGTTTTTCGTCTCAGCCAATCCCTGGGTGAGTTTCACCAGTTTTGATTTAAACGTGGCCAATATGGACAACTTCTTCGCCCCCGTTTTCACCATGGGCAAATATTATACGCAAGGCGACAAGGTGCTGATGCCGCTGGCGATTCAGGTTCATCATGCCGTTTGTGATGGCTTCCATGTCGGCAGAATGCTTAATGAATTACAACAGTACTGCGATGAGTGGCAGGGCGGGGCGTAATTTGATATCGAGCTCAGAGGGTGACGTCGGATTTTTTTTTTTTTTTTTTA",
+        "_type": "dna",
+        "desc": "The Cap is a specialized RDP part which is always used to end the assembly. It has a region complementary to the Anchor which will allow the plasmid to self-circularize when the final assembly is released from the beads. The Cap also contains a chloramphenicol-resistance marker which allows only the bacterial colonies that have successfully taken up the plasmid to survive on a chloramphenicol plate. The part preceding the Cap must end with a Z' end.",
         "stickyEnds": {
             "start": {
                 "name": "z",
@@ -61,6 +53,16 @@
                 "size": 19,
                 "reverse": false
             }
-        }
-    }]    
+        },
+        "features": [{
+            "ranges": [{
+                "from": 0,
+                "to": 824,
+                "reverseComplement": false
+            }],
+            "desc": "This is the Genomikon Part that causes the bacteria to be resistant to chloramphenicol.",
+            "_type": "genomikon_part",
+            "name": "Z--Chloramphenicol_acetyltransferase--CAP"
+        }]
+    }]
 }
