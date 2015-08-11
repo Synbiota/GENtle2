@@ -71,8 +71,8 @@ describe('WIP RDP sequence transformation of', function() {
       done();
     });
 
-    var testGettingRdpPcrSequence = function(partType, expectedSequence, done) {
-      var sequence = 'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA';
+    var testGettingRdpPcrSequence = function(partType, expectedSequence, done, stickyEnds=stickyEndsXZ()) {
+      var sequence = 'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCT'+'TGATGA';
       attributes = {
         sequence,
       };
@@ -81,7 +81,7 @@ describe('WIP RDP sequence transformation of', function() {
       // `getWipRdpCompliantSequenceModel` yields the desired result
       sequenceModel.set({
         partType,
-        desiredStickyEnds: stickyEndsXZ(),
+        desiredStickyEnds: stickyEnds,
         sourceSequenceName: 'The one before',
         frm: 0,
         size: sequence.length,
@@ -102,15 +102,23 @@ describe('WIP RDP sequence transformation of', function() {
     };
 
     it('should work with fusion protein CDS part type', function(done) {
-      testGettingRdpPcrSequence(RdpTypes.types.CDS, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'GGCTA', done);
+      testGettingRdpPcrSequence(RdpTypes.types.CDS, 'GGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACC'+'CGGCTA', done);
     });
 
     it('should work with CDS_WITH_STOP part type', function(done) {
-      testGettingRdpPcrSequence(RdpTypes.types.CDS_WITH_STOP, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA'+'CGGCTA', done);
+      testGettingRdpPcrSequence(RdpTypes.types.CDS_WITH_STOP, 'GGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCT'+'TGATGA'+'CGGCTA', done);
     });
 
     it('should work with non protein coding PROMOTER part type', function(done) {
-      testGettingRdpPcrSequence(RdpTypes.types.PROMOTER, 'CGATG'+'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA'+'CGGCTA', done);
+      testGettingRdpPcrSequence(RdpTypes.types.PROMOTER, 'GGATG'+'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCT'+'TGATGA'+'CGGCTA', done);
+    });
+
+    it("should work with protein coding MODIFIER part type with Z-X' stickyEnds", function(done) {
+      testGettingRdpPcrSequence(RdpTypes.types.MODIFIER, 'GCGGC'+'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACC'+'GATGTA', done, stickyEndsZX());
+    });
+
+    it("should work with non protein coding PROMOTER part type with Z-X' stickyEnds", function(done) {
+      testGettingRdpPcrSequence(RdpTypes.types.PROMOTER, 'GCGGC'+'GTGCCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCTTGATGA'+'GATGTA', done, stickyEndsZX());
     });
   });
 
