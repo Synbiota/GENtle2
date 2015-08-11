@@ -65,7 +65,7 @@ $designer-draggable-stickyEnds-color: (
   }
 
   .designer-draggable-trash {
-    display: block;
+    display: none;
   }
 }
 
@@ -480,6 +480,16 @@ $designer-draggable-stickyEnds-color: (
     height: 40px;
     .designer-draggable-wrapper {
       height: 36px;
+    }
+
+    .designer-draggable-trash{
+      float: right;
+    }
+  }
+
+  .designer-draggable:hover {
+    .designer-draggable-trash {
+      display: block;
     }
   }
 }   
