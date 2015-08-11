@@ -1,4 +1,4 @@
-import {stubCurrentUser} from '../../../common/tests/stubs';
+import {stubCurrentUser, stubSequenceModelSaves, restoreSequenceModelSaves} from '../../../common/tests/stubs';
 import WipRdpReadyPcrSequence from '../wip_rdp_ready_pcr_sequence';
 import WipRdpReadyOligoSequence from '../wip_rdp_ready_oligo_sequence';
 import RdpEdit from '../rdp_edit';
@@ -47,8 +47,6 @@ var makeSequence = function(Klass, bases, desiredStickyEnds=stickyEndsXZ(), part
   attributes.partType = partType;
   attributes.size = attributes.sequence.length;
   var sequenceModel = new Klass(attributes);
-  spyOn(sequenceModel, 'save');
-  spyOn(sequenceModel, 'throttledSave');
   rdpEdits = sequenceModel.get('rdpEdits');
   return sequenceModel;
 };
@@ -75,7 +73,14 @@ var getOligoSequence = function() {
 
 describe('RDP sequence transforms', function() {
   beforeAll(function() {
+    stubSequenceModelSaves(WipRdpReadyPcrSequence);
+    stubSequenceModelSaves(WipRdpReadyOligoSequence);
     stubCurrentUser();
+  });
+
+  afterAll(function() {
+    restoreSequenceModelSaves(WipRdpReadyPcrSequence);
+    restoreSequenceModelSaves(WipRdpReadyOligoSequence);
   });
 
   describe('calculateTransformationFunctionInstances', function() {
@@ -224,6 +229,16 @@ describe('RDP sequence transforms', function() {
 
   describe('all RDP sequence validation and transformation', function() {
     describe('invalid sequence', function() {
+      var oldConsoleErrorFunction;
+      beforeAll(function() {
+        oldConsoleErrorFunction = console.error;
+        console.error = () => {};
+      });
+
+      afterAll(function() {
+        console.error = oldConsoleErrorFunction;
+      });
+
       it('should throw an error if no desiredStickyEnds are present', function() {
         expect(function() {
           var attributes = sequenceAttributes();
@@ -317,7 +332,7 @@ describe('RDP sequence transforms', function() {
         expect(getPcrSequence()).toEqual('ATGAAC');
       });
 
-      it('should transform all', function() {
+      it('should transform Fusion protein CDS with conversion of start codon', function() {
         const LYSINE1 = 'AAA';
         const ARGININE = 'CGC';
         makePcrSequence('GTGTAG' + LYSINE1);
@@ -333,8 +348,8 @@ describe('RDP sequence transforms', function() {
         expect(getPcrSequence()).toEqual('ATGTAG' + ARGININE);
       });
 
-      it('should transform all 2', function() {
-        makePcrSequence('ACCTGTTTTAAAAAT', stickyEndsXZ(), RdpTypes.types.CDS);
+      it('should transform Fusion protein CDS with addition of start codon', function() {
+        makePcrSequence('ACCTGTTTTAAAAAT');
 
         expect(rdpEdits.length).toEqual(2);
         expect(rdpEdits[0].type).toEqual(RdpEdit.types.METHIONINE_START_CODON_ADDED);

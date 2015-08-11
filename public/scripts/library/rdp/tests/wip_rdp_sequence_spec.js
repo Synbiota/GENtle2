@@ -1,5 +1,8 @@
+import {stubSequenceModelSaves, restoreSequenceModelSaves} from '../../../common/tests/stubs';
 import WipRdpPcrSequence from '../../../plugins/pcr/lib/wip_rdp_pcr_sequence';
 import WipRdpOligoSequence from '../wip_rdp_oligo_sequence';
+import WipRdpReadyPcrSequence from '../wip_rdp_ready_pcr_sequence';
+import WipRdpReadyOligoSequence from '../wip_rdp_ready_oligo_sequence';
 import RdpTypes from '../rdp_types';
 import {
   stickyEndsXZ,
@@ -44,7 +47,16 @@ describe('WIP RDP sequence model', function() {
 
 
 describe('WIP RDP sequence transformation of', function() {
-  // TODO NEXT:  Refactor WipRdp class functions to use same model attributes, etc.
+  beforeAll(function() {
+    stubSequenceModelSaves(WipRdpReadyPcrSequence);
+    stubSequenceModelSaves(WipRdpReadyOligoSequence);
+  });
+
+  afterAll(function() {
+    restoreSequenceModelSaves(WipRdpReadyPcrSequence);
+    restoreSequenceModelSaves(WipRdpReadyOligoSequence);
+  });
+
   describe('PCR CDS RDP part', function() {
     beforeAll(function() {
       stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
