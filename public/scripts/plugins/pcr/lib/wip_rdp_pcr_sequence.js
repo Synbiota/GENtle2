@@ -19,6 +19,8 @@ class WipRdpPcrSequence extends WipRdpAbstractSequence {
   }
 
   getRdpPcrSequenceModel() {
+    if(this.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
+
     // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
     // and the tempSequence sequenceBases to calculate the primers and new
     // sequenceBases.
