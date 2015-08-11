@@ -195,13 +195,8 @@ export default class WipCircuit extends Sequence {
   }
 
   removeAvailableSequenceAtIndex(index) {
-    console.log("removeAvailableSequenceAtIndex");
-    console.log(this.get('availableSequences'));
-    console.log(index);
     this.get('availableSequences').splice(index, 1);
      
-    //this.set('availableSequences', nowAvailable);
-    console.log(this.get('availableSequences'));
     this.saveAvailableSequencesToCurrentUser();
     
   }
