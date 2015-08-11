@@ -19,9 +19,9 @@ class WipRdpOligoSequence extends WipRdpAbstractSequence {
   getRdpOligoSequence(attributes) {
     // stickyEnds not yet present on transformedSequence so we don't need to
     // specify any stickyEnd format
-    attributes.stickyEnds = this.convertStickyEnds(attributes.stickyEnds);
     var mainSequence = this.getSequence(this.STICKY_END_ANY);
 
+    attributes.stickyEnds = this.convertStickyEnds(attributes.desiredStickyEnds);
     if(this.isProteinCoding) {
       if(attributes.stickyEnds.start.name === 'X') {
         mainSequence = mainSequence.slice(3);
