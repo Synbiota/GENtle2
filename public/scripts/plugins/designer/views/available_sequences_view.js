@@ -96,27 +96,16 @@ var AvailableSequenceView = Backbone.View.extend({
 
   onTrashClick: function(event) {
     event.stopPropagation();
-    console.log("available onTrashClick");
-    console.log(event);
 
     var $element = $(event.currentTarget).parent();
     var pModel = this.parentView().model;
     var availSequences = pModel.get('availableSequences');
     var sequenceId = $element.data("sequence_id");
-    console.log(sequenceId);
-    console.log(availSequences);
-    console.log(pModel);
-    
-    //console.log(this.parentView());
-    //console.log(this.parentView().model);
-    //console.log(this.parentView().model.get('availableSequences'));
-    console.log("sequences");
 
 
     pModel.removeAvailableSequenceBySequenceId(sequenceId);
     pModel.throttledSave();
     $element.remove();
-    console.log(availSequences);
     this.render();
   }
 

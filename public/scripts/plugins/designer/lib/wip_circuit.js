@@ -207,22 +207,12 @@ export default class WipCircuit extends Sequence {
   }
 
   removeAvailableSequenceBySequenceId(id) {
-    //console.log("remove by id");
-    //console.log("looking for: ", id);
-    console.log("before");
-    console.log(this.get("availableSequences"));
     var remainder = _.reject(this.get('availableSequences'), function(seq) {
-      //console.log(seq.get('id'));
       return seq.get('id') == id;
     });
 
-    //this.get('availableSequences').indexOf(rejected);
     this.set("availableSequences", remainder);
-    console.log("after");
-    console.log(this.get("availableSequences"))
-    //console.log("found:");
-    //console.log(output);
-    //console.log("end");
+    this.saveAvailableSequencesToCurrentUser();
   }
 
   insertSequence(beforeIndex, sequence) {
