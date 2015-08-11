@@ -10,7 +10,7 @@ var wip_rdp_oligo_sequence = 'wip_rdp_oligo_sequence';
 
 class WipRdpOligoSequence extends WipRdpAbstractSequence {
   constructor(attrs, options={}) {
-    options.Klass = WipRdpOligoSequence;
+    options.NextClass = WipRdpOligoSequence;
     options.types = RdpTypes.oligoTypes;
     super(attrs, options);
     this.set({_type: wip_rdp_oligo_sequence}, {silent: true});

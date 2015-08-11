@@ -16,11 +16,11 @@ class WipRdpAbstractSequence extends Sequence {
   }
 
   preValidationSetup(attributes, options) {
-    if(!options.Klass) throw new TypeError('Must provide options with "Klass" key');
+    if(!options.NextClass) throw new TypeError('Must provide options with "NextClass" key');
     if(!options.types) throw new TypeError('Must provide options with "types" key');
-    this.Klass = options.Klass;
+    this.NextClass = options.NextClass;
     this.types = _.clone(options.types);
-    delete options.Klass;
+    delete options.NextClass;
     delete options.types;
   }
 
@@ -96,7 +96,7 @@ class WipRdpAbstractSequence extends Sequence {
       throw new TypeError('attributes for _getDesiredSequenceModel must specify "frm" and "size"');
     }
     attributes.originalSequenceBases = attributes.sequence;
-    var newSequenceModel = new this.Klass(attributes);
+    var newSequenceModel = new this.NextClass(attributes);
 
     // Delete the bases
     var topFrm = attributes.frm + attributes.size;
