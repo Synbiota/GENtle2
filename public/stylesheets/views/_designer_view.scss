@@ -476,10 +476,22 @@ $designer-draggable-stickyEnds-color: (
   .designer-draggable {
     margin-right: 20px;
     margin-bottom: 10px;
-    width: 200px;
+    padding-right: 10px;
+    width: 210px;
     height: 40px;
     .designer-draggable-wrapper {
       height: 36px;
+    }
+
+    .designer-draggable-trash{
+      left: 175px;
+      top: 3px;
+    }
+  }
+
+  .designer-draggable:hover {
+    .designer-draggable-trash {
+      display: block;
     }
   }
 }   
