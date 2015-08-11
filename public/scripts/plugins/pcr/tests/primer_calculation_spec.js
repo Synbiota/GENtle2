@@ -51,7 +51,7 @@ var checkResult = function(primer, expectations={}) {
 var optimalPrimer4_TestFactory = function(done, sequenceBases, expectations, options={}, sequenceOptions={}) {
   let sequenceModel = new SequenceModel({sequence: sequenceBases});
   sequenceOptions = _.defaults(sequenceOptions, {
-    from: 0,
+    frm: 0,
     maxSearchSpace: 500,
     findOnReverseStrand: false,
   });
@@ -67,20 +67,19 @@ var optimalPrimer4_TestFactory = function(done, sequenceBases, expectations, opt
 
 
 describe('finding optimal primers', function() {
-  var setup;
-  beforeEach(function(done) {
-    if(!setup) {
-      setup = true;
-      bothEndsSequence = 'ATTGATTACGTACAGCACGTATGG' + 'AAAAAA' + 'GTGTATCTATTCCTTTTATTGGAGAGGGAG';
-      sequence1 = 'AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGT';
-      sequence1Reversed = SequenceTransforms.toReverseComplements(sequence1);
-      sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
-      sequence2Reversed = SequenceTransforms.toReverseComplements(sequence2);
-      polyASequence = 'GAAAGAAGAAGAAGAAGAAGAAGAAGAAAAAAA';
-      onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAAAAAAAAA' + 'GATCACTACCGGGCGTATT';
+  beforeAll(function() {
+    bothEndsSequence = 'ATTGATTACGTACAGCACGTATGG' + 'AAAAAA' + 'GTGTATCTATTCCTTTTATTGGAGAGGGAG';
+    sequence1 = 'AAAAAAATGATTTTTTTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTATTGGGGTCCTAAAAATAATAATGGCATACAGGGTGGTGATTTTGGTTACCCTATATCAGAAAAACAAATAGATACGTCTATTATAACTTCTACTCATCCTCGTTTAATTCCACATGATTTAACAATTCCTCAAAATTTAGAAACTATTTTTACTACAACTCAAGTATTAACAAATAATACAGATTTACAACAAAGTCAAACTGTTTCTTTTGCTAAAAAAACAACGACAACAACTTCAACTTCAACTACAAATGGTTGGACAGAAGGTGGGAAAATTTCAGATACATTAGAAGAAAAAGTAAGTGTATCTATTCCTTTTATTGGAGAGGGAGGAGGAAAAAACAGTACAACTATAGAAGCTAATTTTGCACATAACTCTAGT';
+    sequence1Reversed = SequenceTransforms.toReverseComplements(sequence1);
+    sequence2 = 'ATAGAAGCTAATTTTGCACATAACTCTAGTACTACTACTTTTCAACAGGCTTCAACTGATATAGAGTGGAATATTTCACAACCAGTATTGGTTCCCCCACGTAAACAAGTTGTAGCAACATTAGTTATTATGGGAGGTAATTTTACTATTCCTATGGATTTGATGACTACTATAGATTCTACAGAACATTATAGTGGTTATCCAATATTAACATGGATATCGAGCCCCGATAATAGTTATAATGGTCCATTTATGAGTTGGTATTTTGCAAATTGGCCCAATTTACCATCGGGGTTTGGTCCTTTAAATTCAGATAATACGGTCACTTATACAGGTTCTGTTGTAAGTCAAGTATCAGCTGGTGTATATGCCACTGTACGATTTGATCAATATGATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGC';
+    sequence2Reversed = SequenceTransforms.toReverseComplements(sequence2);
+    polyASequence = 'GAAAGAAGAAGAAGAAGAAGAAGAAGAAAAAAA';
+    onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAAAAAAAAA' + 'GATCACTACCGGGCGTATT';
 
-      stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
-    }
+    stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+  });
+
+  beforeEach(function(done) {
     done();
   });
 
@@ -232,7 +231,7 @@ describe('finding optimal primers', function() {
         optimal: true,
       },
       {
-        "from":9,  // should be ignored.
+        "frm":9,  // should be ignored.
         "to":149,  // should be ignored.
         "name":"vioA",
         "targetMeltingTemperature":65,
@@ -279,7 +278,7 @@ describe('getting sequence to search for primer', function() {
       },
       sequenceModel: sequenceModel,
       sequenceOptions: {
-        from: correctedFrom,
+        frm: correctedFrom,
         maxSearchSpace: maxSearchSpace,
         findOnReverseStrand: reverseStrand,
       },
@@ -306,7 +305,7 @@ describe('getting sequence to search for primer', function() {
   it('errors if frm is too large (and the forward sequence is requested)', function() {
     constructPrimerModel(36, false);
     expect(errors.length).toEqual(1);
-    expect(/`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(errors[0].toString())).toEqual(true);
+    expect(/`sequenceOptions.frm` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(errors[0].toString())).toEqual(true);
   });
 
   it('returns the reverse sequence, defaulting to end', function() {

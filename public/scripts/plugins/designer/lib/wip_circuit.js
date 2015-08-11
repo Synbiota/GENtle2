@@ -305,7 +305,7 @@ export default class WipCircuit extends Sequence {
     
     var finalSequence = Sequence.concatenateSequences(
       sequences, 
-      isCircular
+      false
     );
 
     finalSequence.set({

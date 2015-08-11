@@ -954,6 +954,22 @@ export default function testAllSequenceModels(Sequence) {
       expect(features[3].ranges[0].to).toEqual(27);
     });
 
+    it('concatenates stickyEndSequence, stickyEndSequence', function() {
+      var concatenatedSequence = Sequence.concatenateSequences([stickySequence, stickySequence], false, false);
+
+      var sequenceNs = concatenatedSequence.getSequence(concatenatedSequence.STICKY_END_FULL);
+      var expectedSequenceNs = 'GGGTA' + 'CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA' + 'GG';
+      expect(sequenceNs).toEqual(expectedSequenceNs);
+
+      var concatenatedStickyEnds = concatenatedSequence.getStickyEnds();
+      expect(concatenatedStickyEnds.start.offset).toEqual(3);
+      expect(concatenatedStickyEnds.start.size).toEqual(2);
+      expect(concatenatedStickyEnds.start.reverse).toEqual(true);
+      expect(concatenatedStickyEnds.end.offset).toEqual(2);
+      expect(concatenatedStickyEnds.end.size).toEqual(2);
+      expect(concatenatedStickyEnds.end.reverse).toEqual(false);
+    });
+
     it('concatenates (and truncates features) endStickySequence, stickySequence, startStickySequence', function() {
       var concatenatedSequence = Sequence.concatenateSequences([endStickySequence, stickySequence, startStickySequence], false, true);
       concatenatedSequence.setStickyEndFormat('full');
@@ -983,11 +999,12 @@ export default function testAllSequenceModels(Sequence) {
       expect(features[6].ranges[0].to).toEqual(27);
     });
 
-    it('concatenates (and circularises) endStickySequence, stickySequence, startStickySequence', function() {
+    it('concatenates (and circularises) stickyEndSequence, stickyEndSequence', function() {
       var concatenatedSequence = Sequence.concatenateSequences([stickySequence, stickySequence], true, false);
       concatenatedSequence.setStickyEndFormat('full');
       expect(concatenatedSequence.getSequence()).toEqual('CCGGGGGGGGGTA' + 'CCGGGGGGGGGTA');
-      expect(_.isEmpty(concatenatedSequence.getStickyEnds(false)));
+      
+      expect(_.isEmpty(concatenatedSequence.getStickyEnds(false))).toEqual(true);
       var features = concatenatedSequence.getFeatures();
 
       expect(features.length).toEqual(2);

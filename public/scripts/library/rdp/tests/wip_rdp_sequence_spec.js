@@ -5,6 +5,8 @@ import {
   stickyEndsXZ,
   stickyEndsZX,
 } from './fixtures';
+import idtMeltingTemperatureStub from '../../../plugins/pcr/tests/idt_stub';
+import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../../../plugins/pcr/lib/primer_calculation';
 
 
 describe('WIP RDP sequence model', function() {
@@ -16,7 +18,7 @@ describe('WIP RDP sequence model', function() {
     expect(sequenceModel.isProteinCoding).toEqual(true);
   });
 
-  it('should error if partType is invalid', function() {
+  it('should not error if partType is invalid', function() {
     var oldFunc = console.error;
     console.error = () => {};
     try {
@@ -24,7 +26,7 @@ describe('WIP RDP sequence model', function() {
         sequence: 'AT',
         partType: RdpTypes.types.PROTEIN_LINKER,
       });
-      expect(model.validationError).toEqual('partType "PROTEIN_LINKER" is invalid for this sequenceModel');
+      expect(model.validationError).toEqual(null);
     } finally {
       console.error = oldFunc;
     }
@@ -43,6 +45,56 @@ describe('WIP RDP sequence model', function() {
 
 describe('RDP sequence transformation', function() {
   // TODO NEXT:  Refactor WipRdp class functions to use same model attributes, etc.
+  describe('transform PCR CDS RDP part', function() {
+    beforeAll(function() {
+      stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+    });
+
+    afterAll(function() {
+      restoreIDTMeltingTemperature();
+    });
+
+    var attributes, sequenceModel;
+    beforeEach(function(done) {
+      attributes = {
+        sequence: 'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA',
+        partType: RdpTypes.types.CDS,
+      };
+      sequenceModel = new WipRdpPcrSequence(attributes);
+      _.extend(attributes, {
+        desiredStickyEnds: stickyEndsXZ(),
+        sourceSequenceName: 'The one before',
+        frm: 0,
+        size: 45,
+      });
+      done();
+    });
+
+    var testGettingRdpPcrSequence = function(partType, expectedSequence, done) {
+      attributes.partType = partType;
+      var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel(attributes);
+
+      compliantSequenceModel.getRdpPcrSequenceModel()
+      .then(function(rdpPcrSequenceModel) {
+        var bases = rdpPcrSequenceModel.getSequence(rdpPcrSequenceModel.STICKY_END_FULL);
+        expect(bases).toEqual(expectedSequence);
+      })
+      .catch(function(error) {
+        // We should never get here.
+        expect(error.toString()).toBeUndefined();
+      })
+      .done(done);
+    };
+
+    it('should work with fusion protein CDS part type', function(done) {
+      testGettingRdpPcrSequence(RdpTypes.types.CDS, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'GGCTA', done);
+    });
+
+    it('should work with CDS_WITH_STOP part type', function(done) {
+      testGettingRdpPcrSequence(RdpTypes.types.CDS_WITH_STOP, 'CGATG'+'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA'+'CGGCTA', done);
+    });
+  });
+
   it('should transform oligo protein coding sequence', function() {
     var attributes = {
       sequence: 'GTGTAGAAATAG',
@@ -52,7 +104,7 @@ describe('RDP sequence transformation', function() {
     var sequenceModel = new WipRdpOligoSequence(attributes);
     attributes.frm = 0;
     attributes.size = 12;
-    var compliantSequenceModel = sequenceModel.getRdpCompliantSequenceModel(attributes);
+    var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel(attributes);
     var data = compliantSequenceModel.toJSON();
     data.stickyEnds = stickyEndsZX();
     data.shortName = 'thing';
@@ -69,7 +121,7 @@ describe('RDP sequence transformation', function() {
     var sequenceModel = new WipRdpOligoSequence(attributes);
     attributes.frm = 0;
     attributes.size = 12;
-    var compliantSequenceModel = sequenceModel.getRdpCompliantSequenceModel(attributes);
+    var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel(attributes);
     var data = compliantSequenceModel.toJSON();
     data.stickyEnds = stickyEndsZX();
     data.shortName = 'thing';

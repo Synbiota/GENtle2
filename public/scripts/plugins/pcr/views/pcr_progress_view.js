@@ -1,9 +1,7 @@
-import _ from 'underscore';
+import Backbone from 'backbone';
 import template from '../templates/pcr_progress_view.hbs';
-import {getPcrProductAndPrimers} from '../lib/pcr_primer_design';
 import {handleError} from '../../../common/lib/handle_error';
 import Gentle from 'gentle';
-import RdpPcrSequence from 'gentle-rdp/rdp_pcr_sequence';
 
 
 export default Backbone.View.extend({
@@ -31,31 +29,15 @@ export default Backbone.View.extend({
     if(wipRdpPcrSequence.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
 
     this.wipRdpPcrSequence = wipRdpPcrSequence;
-    var dataAndOptions = wipRdpPcrSequence.getDataAndOptionsForPcr();
-
-    // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
-    // and the tempSequence sequenceBases to calculate the primers and new
-    // sequenceBases.
-    getPcrProductAndPrimers(wipRdpPcrSequence, dataAndOptions)
-    .then((pcrProduct) => {
-      var rdpPcrAttributes = _.extend(
-        {},
-        pcrProduct.toJSON(),
-        // Copy over RDP specific attributes.
-        _.pick(wipRdpPcrSequence.toJSON(), 'partType', 'sourceSequenceName', 'rdpEdits'),
-        {_type: 'rdp_pcr_product'}
-      );
-
+    this.wipRdpPcrSequence.getRdpPcrSequenceModel()
+    .then((rdpPcrSequenceModel) => {
       // ensures Gentle routes view to the RDP PCR product result view
-      rdpPcrAttributes.displaySettings = rdpPcrAttributes.displaySettings || {};
-      rdpPcrAttributes.displaySettings.primaryView = 'rdp_pcr';
-
-      var rdpPcrProduct = new RdpPcrSequence(rdpPcrAttributes);
+      rdpPcrSequenceModel.set({'displaySettings.primaryView': 'rdp_pcr'});
 
       this.updateProgressBar(1);
-      Gentle.sequences.add(rdpPcrProduct);
+      Gentle.sequences.add(rdpPcrSequenceModel);
       this.model.destroy();
-      Gentle.router.sequence(rdpPcrProduct.get('id'));
+      Gentle.router.sequence(rdpPcrSequenceModel.get('id'));
     })
     .progress(({lastProgress, lastFallbackProgress}) => {
       this.updateProgressBar(this.calcTotal(lastProgress));

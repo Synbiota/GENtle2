@@ -20,6 +20,22 @@ var getSubSeq = function(sequenceModel, frm, size) {
 };
 
 
+var getContext = function(sequenceModel, frm, size, context=CONTEXT_BASE_PAIRS) {
+  var flankingContextBasePairs = (context - size) / 2;
+  var maxContextualFrom = Math.ceil(frm - flankingContextBasePairs);
+  var contextualFrom = Math.max(0, maxContextualFrom);
+  var diffContextualFrom = (maxContextualFrom < contextualFrom) ? (contextualFrom - maxContextualFrom) : 0;
+
+  var maxContextualTo = Math.ceil(frm + size + flankingContextBasePairs + diffContextualFrom);
+  var contextualTo = Math.min(getLen(sequenceModel), maxContextualTo);
+  var diffContextualTo = (maxContextualTo > contextualTo) ? (maxContextualTo - contextualTo) : 0;
+  contextualFrom = Math.max(0, contextualFrom - diffContextualTo);
+
+  var sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
+  return {contextualFrom, contextualTo, sequence};
+};
+
+
 var isMultipleOf3 = function(sequenceModel) {
   return getLen(sequenceModel) % 3 === 0;
 };
@@ -136,83 +152,95 @@ var requirements, rdpEditType;
 
 
 /**
- * @function  makeFirstCodonIsAaFn
- * @param  {String}  aA  amino acid short code
+ * @function  makeNthCodonIsAaFn
+ * @param  {Integer}  codonPosition  The position of the codon, 0 indexed when
+ *                                   positive, can be negative.
+ *                                   If codon at position is incorrect and
+ *                                   codonPosition is positive, codon will be
+ *                                   inserted before this position.  If
+ *                                   codonPosition is negative, codon will be
+ *                                   inserted after this position.
+ * @param  {String}  aA  Amino acid short code
  * @param  {Object} types  Has keys: CONVERTED, ADDED
  * @param  {array<String>} convertableFromCodons  list of codons
  * @return {function}  takes `SequenceModel` and returns `array<RdpEdit>`
  */
-var makeFirstCodonIsAaFn = function(aA, types={}, convertableFromCodons=[]) {
+var makeNthCodonIsAaFn = function(codonPosition, aA, types={}, convertableFromCodons=[]) {
   aA = aA.toUpperCase();
   convertableFromCodons = _.map(convertableFromCodons, (s) => s.toUpperCase());
 
-  var firstCodonIsAaFn = function(sequenceModel) {
+  var codonPositionDescription = `codon ${codonPosition+1}`;
+  if(codonPosition === 0) {
+    codonPositionDescription = 'first codon';
+  } else if(codonPosition === -1) {
+    codonPositionDescription = 'last codon';
+  }
+
+  var nthCodonIsAaFn = function(sequenceModel) {
     var rdpEdit;
     var length = getLen(sequenceModel);
-    var sequenceBases = getSubSeq(sequenceModel, 0, 3);
+    var codonPositionInBases = ((codonPosition >= 0) ? 0 : length) + (codonPosition * 3);
+    var codonInsertPositionInBases = (codonPosition >= 0) ? codonPositionInBases : (codonPositionInBases + 3);
+    var sequenceBases = getSubSeq(sequenceModel, codonPositionInBases, 3);
     var aminoAcidData = _.find(data.aa, (aa) => aa.short === aA);
     const DESIRED_CODONS = aminoAcidData.codons;
 
     if(!_.contains(DESIRED_CODONS, sequenceBases)) {
       var DESIRED_CODON = DESIRED_CODONS[0];
-      var type, name, desc, sequence, contextBefore, contextAfter, contextualTo;
+      var type, name, desc, contextBefore, contextAfter;
       var ranges = [];
-      var size = 3;
-      var contextualFrom = 0;
       var options = {stickyEndFormat: sequenceModel.STICKY_END_ANY};
 
       if(_.contains(convertableFromCodons, sequenceBases)) {
-
         type = types.CONVERTED;
         name = 'Will modify ' + sequenceBases;
-        desc = `Will modify start codon to be ${DESIRED_CODON} (${aminoAcidData.extended})`;
+        desc = `Will modify ${codonPositionDescription} to be ${DESIRED_CODON} (${aminoAcidData.extended})`;
         ranges = [new SequenceRange({
           name: name,
-          from: 0,
-          size: size,
+          from: codonPositionInBases,
+          size: 3,
         })];
-
         // Get a sequence snippet before
-        contextualTo = Math.min(length, size + CONTEXT_BASE_PAIRS);
-        sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
+        let {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, codonPositionInBases, 3);
         contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
-        sequenceModel.changeBases(0, DESIRED_CODON, options);
+        sequenceModel.changeBases(codonPositionInBases, DESIRED_CODON, options);
 
         name = 'Modified ' + sequenceBases;
-        desc = `Modified start codon to be ${DESIRED_CODON} (${aminoAcidData.extended})`;
+        desc = `Modified ${codonPositionDescription} to be ${DESIRED_CODON} (${aminoAcidData.extended})`;
         ranges = [new SequenceRange({
           name: name,
-          from: 0,
-          size: size,
+          from: codonPositionInBases,
+          size: 3,
         })];
-
         // Get a sequence snippet after
         sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
         contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
       } else {
         type = types.ADDED;
         name = `Will insert ${DESIRED_CODON}`;
-        desc = `Will insert ${DESIRED_CODON} (${aminoAcidData.extended}) start codon`;
-        // Get a sequence snippet before
-        contextualTo = Math.min(length, CONTEXT_BASE_PAIRS);
-        sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
+        desc = `Will insert ${DESIRED_CODON} (${aminoAcidData.extended}) as ${codonPositionDescription}`;
+        let {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, codonPositionInBases, 0, CONTEXT_BASE_PAIRS - 3);
         contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
-        sequenceModel.insertBases(DESIRED_CODON, 0, options);
+        sequenceModel.insertBases(DESIRED_CODON, codonInsertPositionInBases, options);
 
         name = `Inserted ${DESIRED_CODON}`;
-        desc = `Inserted ${DESIRED_CODON} (${aminoAcidData.extended}) start codon`;
+        desc = `Inserted ${DESIRED_CODON} (${aminoAcidData.extended}) as ${codonPositionDescription}`;
         ranges = [new SequenceRange({
           name: name,
-          from: 0,
-          size: size,
+          from: codonPositionInBases,
+          size: 3,
         })];
         // Get a sequence snippet after
-        length = getLen(sequenceModel);
-        contextualTo = Math.min(length, size + CONTEXT_BASE_PAIRS);
-        sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo);
-        contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
+        var vals = getContext(sequenceModel, codonPositionInBases, 3);
+        // TODO: updated ES6 parser otherwise Destructuring Assignment errors
+        // with `Duplicate declaration "contextualFrom"`
+        contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type,
+          sequence: vals.sequence,
+          contextualFrom: vals.contextualFrom,
+          contextualTo: vals.contextualTo,
+        });
       }
 
       rdpEdit = new RdpEdit({type, contextBefore, contextAfter});
@@ -220,9 +248,12 @@ var makeFirstCodonIsAaFn = function(aA, types={}, convertableFromCodons=[]) {
     return rdpEdit ? [rdpEdit] : [];
   };
 
-  return firstCodonIsAaFn;
+  return nthCodonIsAaFn;
 };
 
+
+var makeFirstCodonIsAaFn = _.partial(makeNthCodonIsAaFn, 0);
+var makeLastCodonIsAaFn = _.partial(makeNthCodonIsAaFn, -1);
 
 
 requirements = [
@@ -249,13 +280,13 @@ requirements = [
   warnIfNotMultipleOf3,
   warnIfStickyEndsPresent,
 ];
-rdpEditType = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
+rdpEditType = RdpEdit.types.LAST_STOP_CODONS_REMOVED;
 /**
- * @method noTerminalStopCodonsFn
+ * @method lastStopCodonsRemovedFn
  * @param  {SequenceModel}  sequenceModel
  * @return {array<RdpEdit>}
  */
-var noTerminalStopCodonsFn = function(sequenceModel) {
+var lastStopCodonsRemovedFn = function(sequenceModel) {
   var rdpEdit, frm;
   var length = getLen(sequenceModel);
   var aAsToRemove = [];
@@ -278,7 +309,7 @@ var noTerminalStopCodonsFn = function(sequenceModel) {
   }
 
   if(aAsToRemove.length) {
-    var type = RdpEdit.types.TERMINAL_STOP_CODON_REMOVED;
+    var type = RdpEdit.types.LAST_STOP_CODONS_REMOVED;
     var name = 'Will remove stop codons';
     var desc = `Will remove ${aAsToRemove.length} stop codon(s)`;
     var ranges = _.map(aAsToRemove, (frmBase) => {
@@ -290,11 +321,13 @@ var noTerminalStopCodonsFn = function(sequenceModel) {
     });
 
     // Get a sequence snippet before transform
-    var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
-    var numberOfBasesToRemove = 3 * aAsToRemove.length;
-    var numberOfBasesInContextBefore = Math.min(length - contextualFrom, CONTEXT_BASE_PAIRS + numberOfBasesToRemove);
-    var sequence = getSubSeq(sequenceModel, contextualFrom, numberOfBasesInContextBefore);
-    var contextualTo = frm + numberOfBasesToRemove;
+    var {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, frm, 3 * aAsToRemove.length);
+
+    // var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS);
+    // var numberOfBasesToRemove = 3 * aAsToRemove.length;
+    // var numberOfBasesInContextBefore = Math.min(length - contextualFrom, CONTEXT_BASE_PAIRS + numberOfBasesToRemove);
+    // var sequence = getSubSeq(sequenceModel, contextualFrom, numberOfBasesInContextBefore);
+    // var contextualTo = frm + numberOfBasesToRemove;
     var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
     // Transform sequence
@@ -308,17 +341,19 @@ var noTerminalStopCodonsFn = function(sequenceModel) {
     ranges = [];
 
     // Get a sequence snippet after
-    var numberOfBasesInContextAfter = Math.min(length - contextualFrom, CONTEXT_BASE_PAIRS);
-    sequence = getSubSeq(sequenceModel, contextualFrom, numberOfBasesInContextAfter);
-    contextualTo = frm;
-    var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
+    var vals = getContext(sequenceModel, frm, 0);
+    var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type,
+      sequence: vals.sequence,
+      contextualFrom: vals.contextualFrom,
+      contextualTo: vals.contextualTo,
+    });
 
     rdpEdit = new RdpEdit({type, contextBefore, contextAfter});
   }
 
   return rdpEdit ? [rdpEdit] : [];
 };
-var noTerminalStopCodons = new TransformationFunction(noTerminalStopCodonsFn, requirements, rdpEditType);
+var lastStopCodonsRemoved = new TransformationFunction(lastStopCodonsRemovedFn, requirements, rdpEditType);
 
 
 
@@ -471,9 +506,16 @@ var lastBaseIsGAaMap = _.extend(_.clone(lastBaseIsGAaMapConservativeChange), {
   "GTT": "GTG",
   "GTC": "GTG",
   "GTA": "GTG",
-  // Stop codons (we could convert to a TAG stop codon?)
-  "TGA": "TAG",
-  "TAA": "TAG",
+  // Stop codons (we never need to convert to a TAG stop codon, if the sequence
+  //              is CDS_WITH_STOP, the frame doesn't matter so the G doesn't
+  //              need to be part of the last two codons being X', and there are
+  //              not other protein coding sequence partTypes which contain a
+  //              stop as the last codon)
+  // "TGA": "TAG",
+  // "TAA": "TAG",
+  "TGA": undefined,
+  "TAA": undefined,
+  "TAG": undefined,
 });
 
 
@@ -535,9 +577,7 @@ var ensureLastBaseIs = function(ensureBase) {
       })];
 
       // Get a sequence snippet before
-      var contextualFrom = Math.max(0, frm - CONTEXT_BASE_PAIRS + 3);
-      var sequence = getSubSeq(sequenceModel, contextualFrom, CONTEXT_BASE_PAIRS);
-      var contextualTo = frm + 3;
+      var {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, frm, 3);
       var contextBefore = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
       var rangeName;
@@ -562,7 +602,7 @@ var ensureLastBaseIs = function(ensureBase) {
         size: 1
       })];
 
-      sequence = getSubSeq(sequenceModel, contextualFrom, CONTEXT_BASE_PAIRS);
+      sequence = getContext(sequenceModel, frm, 3).sequence;
       var contextAfter = new RdpSequenceFeature({name, desc, ranges, _type: type, sequence, contextualFrom, contextualTo});
 
       rdpEdit = new RdpEdit({type, contextBefore, contextAfter, message, level});
@@ -572,7 +612,6 @@ var ensureLastBaseIs = function(ensureBase) {
 
   return new TransformationFunction(transformFunction, ensureLastBaseIsRequirements, ensureLastBaseIsRdpEditType);
 };
-
 
 
 
@@ -593,6 +632,25 @@ var firstCodonIsStopFn = makeFirstCodonIsAaFn('X', types, []);
 var firstCodonIsStop = new TransformationFunction(firstCodonIsStopFn, requirements, rdpEditType);
 
 
+
+requirements = [
+  warnIfStickyEndsPresent,
+  warnIfShortSequence,
+];
+rdpEditType = RdpEdit.types.LAST_CODON_IS_STOP;
+types = {
+  ADDED: RdpEdit.types.LAST_CODON_IS_STOP_ADDED,
+};
+/**
+ * @function  lastCodonIsStopFn
+ * @param  {SequenceModel}  sequenceModel
+ * @return {array<RdpEdit>}  May return RdpEdits in normal or error state
+ */
+var lastCodonIsStopFn = makeLastCodonIsAaFn('X', types, []);
+var lastCodonIsStop = new TransformationFunction(lastCodonIsStopFn, requirements, rdpEditType);
+
+
+
 requirements = [
   warnIfNotMultipleOf3,
   warnIfStickyEndsPresent
@@ -607,25 +665,42 @@ var warnIfEarlyStopCodonsFn = function(sequenceModel) {
   var type = RdpEdit.types.EARLY_STOP_CODON;
 
   var aAs = sequenceModel.getAAs(0, getLen(sequenceModel), sequenceModel.STICKY_END_ANY);
-  return _.reduce(aAs, (memo, aa, index) => {
+  var startOfCurrentRunOfStops;
+  var rdpWarningsOfEarlyStopCodons = _.reduce(aAs, (memo, aa, index) => {
     if(aa === 'X') {
+      // This allows us to discount adjacent stop codons at the end.  Useful for
+      // not warning about stop codons present in CDS_WITH_STOP RDP parts.
+      if(startOfCurrentRunOfStops === undefined) {
+        startOfCurrentRunOfStops = index;
+      }
+
       var level = RdpEdit.levels.WARN;
       var position = index * 3;
+      var name = `Stop codon`;
       var message = `Early stop codon at base ${position+1}-${position+3}.`;
       var ranges = [new SequenceRange({
-        name: `Stop codon`,
+        name: name,
         from: position,
         size: 3
       })];
-      var contextualFrom = Math.max(0, position - CODON_CONTEXT_BASE_PAIRS);
-      var contextualTo = Math.min(getLen(sequenceModel), position + 3 + CODON_CONTEXT_BASE_PAIRS);
-      var sequence = getSubSeq(sequenceModel, contextualFrom, contextualTo - contextualFrom);
+      var {contextualFrom, contextualTo, sequence} = getContext(sequenceModel, position, 3);
       var contextBefore = new RdpSequenceFeature({name, desc: message, ranges, _type: type, sequence, contextualFrom, contextualTo});
       var rdpEdit = new RdpEdit({type, contextBefore, level});
       memo.push(rdpEdit);
+    } else {
+      startOfCurrentRunOfStops = undefined;
     }
     return memo;
   }, []);
+
+  if(startOfCurrentRunOfStops) {
+    var stopsToRemove = aAs.length - startOfCurrentRunOfStops;
+    for (var i = 0; i < stopsToRemove; ++i) {
+      rdpWarningsOfEarlyStopCodons.pop();
+    }
+  }
+
+  return rdpWarningsOfEarlyStopCodons;
 };
 var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, requirements, rdpEditType);
 
@@ -633,8 +708,9 @@ var warnIfEarlyStopCodons = new TransformationFunction(warnIfEarlyStopCodonsFn, 
 
 export default {
   firstCodonIsMethionine,
-  noTerminalStopCodons,
+  lastStopCodonsRemoved,
   ensureLastBaseIs,
   firstCodonIsStop,
+  lastCodonIsStop,
   warnIfEarlyStopCodons,
 };

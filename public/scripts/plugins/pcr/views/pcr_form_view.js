@@ -10,13 +10,13 @@ import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import template from '../templates/pcr_form_view.hbs';
 import rdpErrorsTemplate from '../templates/rdp_errors.hbs';
 import EditsView from './pcr_edits_view';
-import {humaniseRdpType} from '../lib/utils';
+import {humaniseRdpLabel} from '../lib/utils';
 
 
 var convertForSelect = function(values) {
   return _.map(values, (value) => {
     return {
-      name: humaniseRdpType(value),
+      name: humaniseRdpLabel(value),
       value
     };
   });
@@ -198,7 +198,7 @@ export default Backbone.View.extend({
         attributes.frm = data.from;
         attributes.size = data.to - data.from + 1;
         // TODO refactor to keep same sequenceModel?
-        var desiredWipRdpSequence = this.model.getRdpCompliantSequenceModel(attributes);
+        var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel(attributes);
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
         var errors = desiredWipRdpSequence.errors();
 

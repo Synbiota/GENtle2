@@ -6,7 +6,7 @@ import RdpOligoSequence from 'gentle-rdp/rdp_oligo_sequence';
 
 import EditsView from './pcr_edits_view';
 import template from '../templates/pcr_product_view.hbs';
-import {humaniseRdpType} from '../lib/utils';
+import {humaniseRdpLabel} from '../lib/utils';
 
 
 export default Backbone.View.extend({
@@ -36,7 +36,7 @@ export default Backbone.View.extend({
     attributes.isRdpPcrSequence = this.model instanceof RdpPcrSequence;
     attributes.isRdpOligoSequence = this.model instanceof RdpOligoSequence;
 
-    attributes.partType = humaniseRdpType(attributes.partType);
+    attributes.partType = humaniseRdpLabel(attributes.partType);
     attributes.productLength = this.model.getLength(this.model.STICKY_END_OVERHANG);
 
     // Provide attributes not present in serialisation (due to them being
