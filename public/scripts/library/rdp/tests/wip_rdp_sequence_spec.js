@@ -1,3 +1,4 @@
+import Q from 'q';
 import {stubSequenceModelSaves, restoreSequenceModelSaves} from '../../../common/tests/stubs';
 import WipRdpPcrSequence from '../../../plugins/pcr/lib/wip_rdp_pcr_sequence';
 import WipRdpOligoSequence from '../wip_rdp_oligo_sequence';
@@ -98,7 +99,8 @@ describe('WIP RDP sequence transformation of', function() {
         // We should never get here.
         expect(error.toString()).toBeUndefined();
       })
-      .done(done);
+      .finally(done)
+      .done();
     };
 
     it('should work with fusion protein CDS part type', function(done) {
