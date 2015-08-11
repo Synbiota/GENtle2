@@ -1,12 +1,32 @@
 import _ from 'underscore';
 import Sequence from '../../sequence/models/sequence';
-import {transformSequenceForRdp} from './rdp_sequence_transform';
 import RdpTypes from './rdp_types';
-import RdpEdit from './rdp_edit';
 
 
+/**
+ * @class WipRdpAbstractSequence used to hold state whilst preparing to generate
+ * a valid RDP sequence model.
+ * WipRdpAbstractSequence (this class)
+ *     * can have invalid state.
+ *     * `getWipRdpCompliantSequenceModel` should be idempotent.
+ *     * can be used to persist current progress of generating a new Rdp Sequence.
+ * WipRdpReadyAbstractSequence
+ *     * must have valid state for the transformSequenceForRdp function.
+ *     * should be generated from WipRdpAbstractSequence class.
+ *     * should not be persisted (currently just to save a small amount of
+ *       complexity in having to instantiate RdpEdits).
+ * RdpXxxSequence
+ *     * is a valid RDP sequence model.
+ *     * should be persisted like normal.
+ */
 class WipRdpAbstractSequence extends Sequence {
   constructor(attributes, options={}) {
+    if(attributes.stickyEnds) {
+      // The transformSequenceForRdp will raise an error so we either raise one
+      // here or later.
+      throw new TypeError('attributes for WipRdpSequence and subclasses must not contain "stickyEnds"');
+    }
+
     attributes.readOnly = true;
     // We haven't registered `rdpEdits` as an association and we should never
     // have any stored that we instantiate the WipRdp__Sequences from so set it
@@ -24,6 +44,19 @@ class WipRdpAbstractSequence extends Sequence {
     delete options.types;
   }
 
+  get optionalFields() {
+    var fields = super.optionalFields.concat([
+      // obtains 'name', 'shortName' and 'desc' from Sequence Factory
+      'sourceSequenceName',
+      'desiredStickyEnds',
+      // Define the portion of the template sequence that should be used in
+      // the final product
+      'frm', // inclusive
+      'size',
+      'partType',
+    ]);
+    return _.reject(fields, (field) => field === 'stickyEnds');
+  }
 
   get availablePartTypes() {
     return _.keys(this.types);
@@ -37,24 +70,6 @@ class WipRdpAbstractSequence extends Sequence {
     var partType = this.get('partType');
     var partTypeInfo = this.types[partType] || {stickyEndNames: []};
     return _.clone(partTypeInfo.stickyEndNames);
-  }
-
-  get optionalFields() {
-    var fields = super.optionalFields.concat([
-      // obtains 'shortName' from Sequence Factory
-      'sourceSequenceName',
-      'desiredStickyEnds',
-      // Define the portion of the template sequence that should be used in
-      // the final product
-      'frm', // inclusive
-      'size',
-      // A copy of the original template sequence
-      'originalSequenceBases',
-      // We need rdpEdits to instantiate the non-WIP RDP SequenceModel
-      'rdpEdits',
-      'partType',
-    ]);
-    return _.reject(fields, (field) => field === 'stickyEnds');
   }
 
   get isProteinCoding() {
@@ -82,60 +97,8 @@ class WipRdpAbstractSequence extends Sequence {
     return partType === RdpTypes.types.OTHER;
   }
 
-  getWipRdpCompliantSequenceModel(attributes) {
-    var desiredWipRdpSequence = this._getDesiredSequenceModel(attributes);
-    desiredWipRdpSequence.transformSequenceForRdp();
-    return desiredWipRdpSequence;
-  }
-
-  _getDesiredSequenceModel(attributes) {
-    if(attributes.stickyEnds) {
-      throw new TypeError('attributes for _getDesiredSequenceModel must not contain "stickyEnds"');
-    }
-    if(attributes.frm === undefined || attributes.size === undefined) {
-      throw new TypeError('attributes for _getDesiredSequenceModel must specify "frm" and "size"');
-    }
-    attributes.originalSequenceBases = attributes.sequence;
-    var newSequenceModel = new this.NextClass(attributes);
-
-    // Delete the bases
-    var topFrm = attributes.frm + attributes.size;
-    var remaining = attributes.originalSequenceBases.length - topFrm;
-    if(remaining > 0) newSequenceModel.deleteBases(topFrm, remaining, this.STICKY_END_ANY);
-    if(attributes.frm > 0 ) newSequenceModel.deleteBases(0, attributes.frm, this.STICKY_END_ANY);
-    return newSequenceModel;
-  }
-
-  /**
-   * @method  transformSequenceForRdp
-   * @throw  {TypeError} If the sequence is invalid
-   * @return {array<RdpEdit>}
-   */
-  transformSequenceForRdp() {
-    this.validationBeforeTransform();
-
-    var rdpEdits = transformSequenceForRdp(this);
-    this.set({rdpEdits});
-    return rdpEdits;
-  }
-
-  validationBeforeTransform() {
-    var desiredStickyEnds = this.get('desiredStickyEnds');
-    if(!(desiredStickyEnds && desiredStickyEnds.start && desiredStickyEnds.end)) {
-      throw new TypeError('Must provide "desiredStickyEnds"');
-    }
-    var partType = this.get('partType');
-    if(!this.validPartType(partType)) {
-      throw new TypeError(`Invalid partType: "${partType}"`);
-    }
-    if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {
-      throw new TypeError(`Invalid desiredStickyEnd: "${desiredStickyEnds.name}"`);
-    }
-  }
-
-  errors() {
-    var rdpEdits = this.get('rdpEdits');
-    return _.filter(rdpEdits, (rdpEdit) => rdpEdit.level === RdpEdit.levels.ERROR);
+  getWipRdpCompliantSequenceModel() {
+    return new this.NextClass(this.toJSON());
   }
 }
 

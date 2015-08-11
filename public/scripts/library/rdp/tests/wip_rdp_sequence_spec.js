@@ -43,9 +43,9 @@ describe('WIP RDP sequence model', function() {
 });
 
 
-describe('RDP sequence transformation', function() {
+describe('WIP RDP sequence transformation of', function() {
   // TODO NEXT:  Refactor WipRdp class functions to use same model attributes, etc.
-  describe('transform PCR CDS RDP part', function() {
+  describe('PCR CDS RDP part', function() {
     beforeAll(function() {
       stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
     });
@@ -56,23 +56,26 @@ describe('RDP sequence transformation', function() {
 
     var attributes, sequenceModel;
     beforeEach(function(done) {
-      attributes = {
-        sequence: 'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA',
-        partType: RdpTypes.types.CDS,
-      };
-      sequenceModel = new WipRdpPcrSequence(attributes);
-      _.extend(attributes, {
-        desiredStickyEnds: stickyEndsXZ(),
-        sourceSequenceName: 'The one before',
-        frm: 0,
-        size: 45,
-      });
       done();
     });
 
     var testGettingRdpPcrSequence = function(partType, expectedSequence, done) {
-      attributes.partType = partType;
-      var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel(attributes);
+      var sequence = 'CCCTGACCCAAACCCAAACCCAAACCCAAACCCAAACCC'+'TGATGA';
+      attributes = {
+        sequence,
+      };
+      sequenceModel = new WipRdpPcrSequence(attributes);
+      // We test that the WIP model can updated and
+      // `getWipRdpCompliantSequenceModel` yields the desired result
+      sequenceModel.set({
+        partType,
+        desiredStickyEnds: stickyEndsXZ(),
+        sourceSequenceName: 'The one before',
+        frm: 0,
+        size: sequence.length,
+        shortName: 'sh',
+      });
+      var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
 
       compliantSequenceModel.getRdpPcrSequenceModel()
       .then(function(rdpPcrSequenceModel) {
@@ -95,37 +98,66 @@ describe('RDP sequence transformation', function() {
     });
   });
 
-  it('should transform oligo protein coding sequence', function() {
-    var attributes = {
-      sequence: 'GTGTAGAAATAG',
-      partType: RdpTypes.types.PROTEIN_LINKER,
-      desiredStickyEnds: stickyEndsZX(),
-    };
-    var sequenceModel = new WipRdpOligoSequence(attributes);
-    attributes.frm = 0;
-    attributes.size = 12;
-    var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel(attributes);
-    var data = compliantSequenceModel.toJSON();
-    data.stickyEnds = stickyEndsZX();
-    data.shortName = 'thing';
-    var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
-    expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('CGGCGTGTAGAAGATG');
-  });
+  describe('oligo RDP part', function() {
+    it('should transform ZX oligo PROTEIN_LINKER sequence', function() {
+      var sequenceModel = new WipRdpOligoSequence({sequence: 'GTGTAGAAATAG'});
+      // We test that the WIP model can updated and
+      // `getWipRdpCompliantSequenceModel` yields the desired result
+      sequenceModel.set({
+        partType: RdpTypes.types.PROTEIN_LINKER,
+        desiredStickyEnds: stickyEndsZX(),
+        frm: 0,
+        size: 12,
+        shortName: 'sh',
+        sourceSequenceName: 'parent',
+      });
+      var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
+      var data = compliantSequenceModel.toJSON();
+      data.stickyEnds = stickyEndsZX();
+      data.shortName = 'thing';
+      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
+      expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('CGGCGTGTAGAAGATG');
+    });
 
-  it('should transform oligo promoter sequence', function() {
-    var attributes = {
-      sequence: 'GTGTAG',
-      partType: RdpTypes.types.PROMOTER,
-      desiredStickyEnds: stickyEndsZX(),
-    };
-    var sequenceModel = new WipRdpOligoSequence(attributes);
-    attributes.frm = 0;
-    attributes.size = 12;
-    var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel(attributes);
-    var data = compliantSequenceModel.toJSON();
-    data.stickyEnds = stickyEndsZX();
-    data.shortName = 'thing';
-    var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
-    expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('CGGCGTGTAGGATG');
+    it('should transform XZ oligo MODIFIER sequence', function() {
+      var sequenceModel = new WipRdpOligoSequence({sequence: 'GTGTAGAAATAG'});
+      // We test that the WIP model can updated and
+      // `getWipRdpCompliantSequenceModel` yields the desired result
+      sequenceModel.set({
+        partType: RdpTypes.types.MODIFIER,
+        desiredStickyEnds: stickyEndsXZ(),
+        frm: 0,
+        size: 12,
+        shortName: 'sh',
+        sourceSequenceName: 'parent',
+      });
+      var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
+      var data = compliantSequenceModel.toJSON();
+      data.stickyEnds = stickyEndsZX();
+      data.shortName = 'thing';
+      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
+
+      expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('GATGTAGCGCGGC');
+    });
+
+    it('should transform oligo promoter sequence', function() {
+      var sequenceModel = new WipRdpOligoSequence({sequence: 'GTGTAG'});
+      // We test that the WIP model can updated and
+      // `getWipRdpCompliantSequenceModel` yields the desired result
+      sequenceModel.set({
+        partType: RdpTypes.types.PROMOTER,
+        desiredStickyEnds: stickyEndsXZ(),
+        frm: 0,
+        size: 6,
+        shortName: 'sh',
+        sourceSequenceName: 'parent',
+      });
+      var compliantSequenceModel = sequenceModel.getWipRdpCompliantSequenceModel();
+      var data = compliantSequenceModel.toJSON();
+      data.stickyEnds = stickyEndsZX();
+      data.shortName = 'thing';
+      var rdpSequenceModel = compliantSequenceModel.getRdpOligoSequence(data);
+      expect(rdpSequenceModel.getSequence(rdpSequenceModel.STICKY_END_FULL)).toEqual('GATGGTGTAGCGGC');
+    });
   });
 });

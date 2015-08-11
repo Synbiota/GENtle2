@@ -1,7 +1,7 @@
 import sequenceModelFactory from 'gentle-sequence-model/factory';
 import Backbone from 'backbone';
 
-// Todo – test with Backbone.Model instead of Backbone.DeepModel
+// TODO – test with Backbone.Model instead of Backbone.DeepModel
 var Sequence = sequenceModelFactory(Backbone.DeepModel);
 
 import Handlers from '../event_handlers';
@@ -9,56 +9,59 @@ import {stubCurrentUser} from '../../../common/tests/stubs';
 
 
 describe('handling keyboard selection events', function() {
-  stubCurrentUser();
+  var mockSequence, mockSequenceWithStartStickyEnd, mockSequenceWithBothStickyEnds;
+  beforeAll(function() {
+    stubCurrentUser();
 
-  var stickyEndSequence = 'GAAGA';
-  var mockSequence = new Sequence({
-    name: 'Test sequence',
-    sequence: 'ATGCATGCATGCATGCATGC' + stickyEndSequence,
-    stickyEnds: {
-      end: {
-        sequence: stickyEndSequence,
-        reverse: true,
-        offset: 2,
-        size: 3,
-        name: "Z'",
+    var stickyEndSequence = 'GAAGA';
+    mockSequence = new Sequence({
+      name: 'Test sequence',
+      sequence: 'ATGCATGCATGCATGCATGC' + stickyEndSequence,
+      stickyEnds: {
+        end: {
+          sequence: stickyEndSequence,
+          reverse: true,
+          offset: 2,
+          size: 3,
+          name: "Z'",
+        }
       }
-    }
-  });
+    });
 
-  var mockSequenceWithStartStickyEnd = new Sequence({
-    name: 'Test sequence',
-    sequence: stickyEndSequence + 'ATGCATGCATGCATGCATGC',
-    stickyEnds: {
-      start: {
-        sequence: stickyEndSequence,
-        reverse: false,
-        offset: 2,
-        size: 3,
-        name: "X",
+    mockSequenceWithStartStickyEnd = new Sequence({
+      name: 'Test sequence',
+      sequence: stickyEndSequence + 'ATGCATGCATGCATGCATGC',
+      stickyEnds: {
+        start: {
+          sequence: stickyEndSequence,
+          reverse: false,
+          offset: 2,
+          size: 3,
+          name: "X",
+        }
       }
-    }
-  });
+    });
 
-  var mockSequenceWithBothStickyEnds = new Sequence({
-    name: 'Test sequence',
-    sequence: stickyEndSequence + 'ATGCATGCATGCATGCATGC' + stickyEndSequence,
-    stickyEnds: {
-      start: {
-        sequence: stickyEndSequence,
-        reverse: false,
-        offset: 2,
-        size: 3,
-        name: "X",
-      },
-      end: {
-        sequence: stickyEndSequence,
-        reverse: true,
-        offset: 2,
-        size: 3,
-        name: "Z'",
+    mockSequenceWithBothStickyEnds = new Sequence({
+      name: 'Test sequence',
+      sequence: stickyEndSequence + 'ATGCATGCATGCATGCATGC' + stickyEndSequence,
+      stickyEnds: {
+        start: {
+          sequence: stickyEndSequence,
+          reverse: false,
+          offset: 2,
+          size: 3,
+          name: "X",
+        },
+        end: {
+          sequence: stickyEndSequence,
+          reverse: true,
+          offset: 2,
+          size: 3,
+          name: "Z'",
+        }
       }
-    }
+    });
   });
 
   it('selects to end of sequence on that line', function() {

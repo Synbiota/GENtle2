@@ -235,7 +235,7 @@ function sequenceModelFactory(BackboneModel) {
      * @return {Array<String>}
      */
     get allFields() {
-      var allFields = allFields || _.unique(this.requiredFields.concat(this.optionalFields));
+      var allFields = _.unique(this.requiredFields.concat(this.optionalFields));
       return allFields;
     }
 
@@ -340,8 +340,8 @@ function sequenceModelFactory(BackboneModel) {
       }
 
       var attributeNames = _.keys(attributes);
-      var missingAttributes = _.without(this.requiredFields, ...attributeNames);
-      var extraAttributes = _.without(attributeNames, ...this.allFields);
+      var missingAttributes = _.unique(_.without(this.requiredFields, ...attributeNames));
+      var extraAttributes = _.unique(_.without(attributeNames, ...this.allFields));
       if(missingAttributes.length) {
         errors.push(`${this.constructor.name} is missing the following attributes: ${missingAttributes.join(', ')}`);
       }

@@ -7,6 +7,7 @@ import _ from 'underscore.mixed';
 
 export default function testAllSequenceModels(Sequence) {
 
+describe('test all sequence models', function() {
   var initialSequenceContent = 'ATCGATCGATCGATCG';
   var stickyEnds = {
     start: {
@@ -1276,4 +1277,5 @@ export default function testAllSequenceModels(Sequence) {
     });
   });
 
+});
 }

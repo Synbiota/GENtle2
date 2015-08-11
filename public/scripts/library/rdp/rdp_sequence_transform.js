@@ -1,5 +1,6 @@
 import _ from 'underscore';
 import RdpEdit from './rdp_edit';
+import WipRdpReadyAbstractSequence from './wip_rdp_ready_abstract_sequence';
 import {
   firstCodonIsMethionine,
   lastStopCodonsRemoved,
@@ -12,6 +13,9 @@ import {
 
 
 var calculateTransformationFunctionInstances = function(sequenceModel) {
+  if(!(sequenceModel instanceof WipRdpReadyAbstractSequence)) {
+    throw new TypeError(`Expected instance of class derived from WipRdpReadyAbstractSequence but got: ${sequenceModel.constructor.name}`);
+  }
   var transforms = [];
   var desiredStickyEnds = sequenceModel.get('desiredStickyEnds');
 
