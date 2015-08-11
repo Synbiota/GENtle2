@@ -82,7 +82,6 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
       // TODO: OPTIMISE:  see above.
       endBasesDifferentToTemplate = 2;
     } else {
-      // TODO: add a test for these
       // NOTE:  `-1` because `to` for `getPcrProductAndPrimers` is inclusive.
       to = this.getLength(this.STICKY_END_ANY) - 1;
       endBasesDifferentToTemplate = 0;
