@@ -49,6 +49,10 @@ describe('WIP RDP sequence model', function() {
 
 describe('WIP RDP sequence transformation of', function() {
   beforeAll(function() {
+    // Need to set class name attributes as CircleCi doesn't work properly
+    WipRdpReadyPcrSequence.className = 'WipRdpReadyPcrSequence';
+    WipRdpReadyOligoSequence.className = 'WipRdpReadyOligoSequence';
+
     stubSequenceModelSaves(WipRdpReadyPcrSequence);
     stubSequenceModelSaves(WipRdpReadyOligoSequence);
   });

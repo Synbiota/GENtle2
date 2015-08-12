@@ -73,6 +73,10 @@ var getOligoSequence = function() {
 
 describe('RDP sequence transforms', function() {
   beforeAll(function() {
+    // Need to set class name attributes as CircleCi doesn't work properly
+    WipRdpReadyPcrSequence.className = 'WipRdpReadyPcrSequence';
+    WipRdpReadyOligoSequence.className = 'WipRdpReadyOligoSequence';
+
     stubSequenceModelSaves(WipRdpReadyPcrSequence);
     stubSequenceModelSaves(WipRdpReadyOligoSequence);
     stubCurrentUser();
@@ -244,7 +248,7 @@ describe('RDP sequence transforms', function() {
           var attributes = sequenceAttributes();
           delete attributes.desiredStickyEnds;
           new WipRdpReadyPcrSequence(attributes);
-        }).toThrowError(TypeError, 'WipRdpReadyPcrSequence is missing the following attributes: desiredStickyEnds');
+        }).toThrowError(TypeError, /(WipRdpReadyPcrSequence)? is missing the following attributes: desiredStickyEnds/);
       });
 
       it('should throw an error if last base is unsupported', function() {

@@ -15,7 +15,7 @@ var stubCurrentUser = function() {
 var originalSaveFunctions = {
 };
 var stubSequenceModelSaves = function(SequenceClass) {
-  var name = SequenceClass.name;
+  var name = SequenceClass.className;
   if(originalSaveFunctions[name]) {
     console.warn(`Already stubbed ${name}`);
     return;
@@ -25,7 +25,7 @@ var stubSequenceModelSaves = function(SequenceClass) {
 };
 
 var restoreSequenceModelSaves = function(SequenceClass) {
-  var name = SequenceClass.name;
+  var name = SequenceClass.className;
   if(originalSaveFunctions[name]) {
     SequenceClass.prototype.save = originalSaveFunctions[name];
     delete originalSaveFunctions[name];
