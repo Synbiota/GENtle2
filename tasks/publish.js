@@ -41,9 +41,11 @@ gulp.task('publish', ['deleteManifest', 'index'], function() {
     files.push(file);
   });
 
-  glob.sync('./public/vendor/bootstrap/fonts/*.*').forEach(function(file) {
-    files.push(file.replace('./public/', ''));
-  });
+  glob.sync('./public/vendor/bootstrap/fonts/*.*')
+    .concat(glob.sync('./public/images/**/*.{svg,png,jpg,ico}'))
+    .forEach(function(file) {
+      files.push(file.replace('./public/', ''));
+    });
 
   var promises = _.map(files, function(file) {
     var def = Q.defer();
