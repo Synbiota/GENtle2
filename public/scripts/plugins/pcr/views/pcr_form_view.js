@@ -56,7 +56,7 @@ export default Backbone.View.extend({
     if(this.model.get(tryShowingModalKey)) {
       if(shouldShowModal()) {
         Modal.show({
-          title: 'Make source sequence RDP-compliant',
+          title: 'New RDP Part',
           displayFooter: false,
           bodyView: new OnboardingHelpView()
         }).on('hide', () => {
