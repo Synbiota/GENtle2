@@ -9,24 +9,27 @@ export default Backbone.View.extend({
 
   className: 'chromatograph-legend-child',
 
-  // events: {
-  // },
+  events: {
+    'click .remove-button': 'removeFragment',
+    'click .flip-button': 'flipFragment'
+  },
 
   initialize: function(options = {}){
 
     this.model = options.model || Gentle.currentSequence;
 
-    this.listenTo(this.model, 'change:chromatogramFragments', this.render);
+    this.listenTo(this.model, 'add:chromatogramFragment remove:chromatogramFragment', this.render);
 
   },
 
   serialize: function(){
     var fragments = this.model.get('chromatogramFragments');
 
-    var fragmentLabels = _.map(fragments, function(fragment) {
+    var fragmentLabels = _.map(fragments, function(fragment, index) {
       return {
         name: fragment.name,
-        length: fragment.length
+        length: fragment.length,
+        index: index
       };
     });
 
@@ -34,5 +37,18 @@ export default Backbone.View.extend({
       fragmentLabels: fragmentLabels
     }
   },
+
+  removeFragment: function(e){
+
+    var index = e.currentTarget.parentElement.attributes['data-index'].value
+
+    this.model.removeChromatogramAt(index)
+  },
+
+  flipFragment: function(e){
+    var index = e.currentTarget.parentElement.attributes['data-index'].value
+
+    this.model.fipFragmentAt(index)
+  }
 
 })

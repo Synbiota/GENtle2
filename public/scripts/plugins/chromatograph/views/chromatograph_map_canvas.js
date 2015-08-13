@@ -49,6 +49,7 @@ export default class ChromatographMapCanvas {
     this.view.parentView().on('resize', _.debounce(this.refresh, 200));
     this.$canvas.on('click', this.handleClick);
 
+
   }
 
   render() {

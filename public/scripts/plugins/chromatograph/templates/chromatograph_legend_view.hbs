@@ -5,7 +5,13 @@
 </div>
 
 {{#each fragmentLabels}}
-  <div class="fragment-label" style="height: 95px; padding-top: 45px;">
+  <div class="fragment-label" style="height: 95px; padding-top: 45px;" data-index="{{index}}">
+    <div class="remove-button">
+      Remove
+    </div>
+    <div class="flip-button">
+      Flip
+    </div>
     {{fragmentLabel}}
     {{name}}
   </div>

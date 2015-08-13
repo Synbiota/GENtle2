@@ -43,7 +43,7 @@ export default Backbone.View.extend({
 
     this.listenTo(
       this.model,
-      'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments',
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments add:chromatogramFragment remove:chromatogramFragment',
       _.debounce(this.render, 500),
       this
     );

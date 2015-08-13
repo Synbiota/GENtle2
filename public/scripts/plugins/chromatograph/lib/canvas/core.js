@@ -228,6 +228,13 @@ class SequenceCanvasCore {
 
   }
 
+  removeRow(index) {
+
+    // _this.rows = _.reject(_this.rows, {id: rowId});
+    this.rows.splice(index + 1, 1)
+
+  }
+
   _mixinJqueryEvents() {
     var $el = $(this);
     _.each(['on', 'off', 'one', 'trigger'], (fnName) => {

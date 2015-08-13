@@ -1558,9 +1558,8 @@ function sequenceModelFactory(BackboneModel) {
       return this.getConsensus().slice(startBase, endBase+1);
     }
 
-    updateConsensus(fragment){
-      var consensus = this.getConsensus(),
-          fragmentStart = fragment.position,
+    applyConsensus(consensus, fragment) {
+      var fragmentStart = fragment.position,
           fragmentEnd   = fragment.position + fragment.sequence.length
 
       var updatedFragment = _.map(
@@ -1575,13 +1574,33 @@ function sequenceModelFactory(BackboneModel) {
 
                               }).join('')
 
+      var updatedConsensus = consensus.slice(0, fragmentStart) + updatedFragment + consensus.slice(fragmentEnd)
 
-      this.set('consensus', consensus.slice(0, fragmentStart) + updatedFragment + consensus.slice(fragmentEnd));
+      return updatedConsensus;
+    }
 
+    resetConsensus(fragment){
+      var consensus = this.getSequence(),
+          fragments = this.get('chromatogramFragments'),
+          _this = this;
+
+      _.forEach(fragments, function(fragment){
+        consensus = _this.applyConsensus(consensus, fragment)
+      });
+
+      this.set('consensus', consensus)
+    }
+
+    updateConsensus(fragment){
+      var consensus = this.getConsensus(),
+          updatedConsensus = this.applyConsensus(consensus, fragment);
+
+      this.set('consensus', updatedConsensus);
     }
 
     addChromatogram(chromatogram){
       // var fragment = new Sequence(chromatogram)
+      var fragments = this.get('chromatogramFragments')
       var fragment = chromatogram;
 
       var seq1 = this.ntseq || new Nt.Seq().read(this.getSequence());
@@ -1600,9 +1619,28 @@ function sequenceModelFactory(BackboneModel) {
       this.updateConsensus(fragment);
 
       this.set('chromatogramFragments',
-        this.get('chromatogramFragments').concat(fragment)
+        fragments.concat(fragment)
         ).throttledSave();
 
+      this.trigger('add:chromatogramFragment', fragments, fragment);
+
+    }
+
+    removeChromatogramAt(index){
+
+      var fragments = this.get('chromatogramFragments');
+
+      // fragments = _.without(fragments, function(fragment){
+      //   return fragment.id == id
+      // })
+
+      fragments.splice(index, 1);
+
+      this.resetConsensus();
+
+      this.set('chromatogramFragments', fragments)
+
+      this.trigger('remove:chromatogramFragment', fragments, index);
     }
 
     clone() {

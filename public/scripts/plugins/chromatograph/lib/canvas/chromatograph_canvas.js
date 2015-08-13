@@ -37,9 +37,12 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
 
     var _this = this;
 
-    this.view.listenTo(this.sequence, 'change:chromatogramFragments', function(sequence, fragments){
-      var fragment = fragments[fragments.length-1];
+    this.view.listenTo(this.sequence, 'add:chromatogramFragment', function(fragments, fragment){
       _this.addChromatograph(fragment)
+    });
+
+    this.view.listenTo(this.sequence, 'remove:chromatogramFragment', function(fragments, index){
+      _this.removeChromatograph(index);
     });
 
     _.forEach(this.sequence.get('chromatogramFragments'), function(fragment){
@@ -57,6 +60,15 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
     });
 
     if (!options.silent) this.display2d();
+  }
+
+  removeChromatograph(index, options = {silent: false}){
+
+    // var index = fragment.index;
+    this.removeRow(index);
+
+    if (!options.silent) this.display2d();
+
   }
 
 }
