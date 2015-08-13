@@ -3,13 +3,14 @@ import Backbone from 'backbone';
 import Gentle from 'gentle';
 import allStickyEnds from '../../../common/lib/sticky_ends';
 import {makeOptions} from '../../../common/lib/utils';
-import Modal         from '../../../common/views/modal_view';
-import RdpEdit             from 'gentle-rdp/rdp_edit';
+import Modal from '../../../common/views/modal_view';
+import RdpEdit from 'gentle-rdp/rdp_edit';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 
 import template from '../templates/pcr_form_view.hbs';
 import rdpErrorsTemplate from '../templates/rdp_errors.hbs';
 import EditsView from './pcr_edits_view';
+import OnboardingHelpView from './onboarding_help_view';
 import {humaniseRdpLabel} from '../lib/utils';
 
 
@@ -22,6 +23,11 @@ var convertForSelect = function(values) {
   });
 };
 
+const hideModalKey = 'newRdpPartHideModal';
+
+var shouldShowModal = function() {
+  return !Gentle.currentUser.get(hideModalKey);
+};
 
 export default Backbone.View.extend({
   manage: true,
@@ -44,6 +50,23 @@ export default Backbone.View.extend({
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
     var partType = this.model.get('partType');
+
+    var tryShowingModalKey = 'tryShowingModal';
+
+    if(this.model.get(tryShowingModalKey)) {
+      if(shouldShowModal()) {
+        Modal.show({
+          title: 'Make source sequence RDP-compliant',
+          displayFooter: false,
+          bodyView: new OnboardingHelpView()
+        }).on('hide', () => {
+          this.model.set(tryShowingModalKey, false).throttledSave();
+        });
+      } else {
+        this.model.set(tryShowingModalKey, false).throttledSave();
+      }
+    }
+
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
