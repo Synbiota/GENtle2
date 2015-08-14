@@ -10,15 +10,10 @@
 <br>
 <form class="form-horizontal new-pcr-product-form" style="line-height: 9px;">
 
-  <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_name"><small>RDP Part name</small></label>
-    <div class="col-sm-6 {{#if state.invalid.name}}has-error{{/if}}">
-      <input type="text" class="form-control input-sm form-control" id="newProduct_name" maxlength="255" required="required" value="{{state.name}}">
-    </div>
-  </div>
 
   <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_shortName"><small>RDP Part short name</small></label>
+    <input type="hidden" id="newProduct_name" value="{{state.name}}" />
+    <label class="col-sm-6 control-label" for="newProduct_shortName"><small>RDP Part name</small></label>
     <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
       <input type="text" class="form-control input-sm form-control" id="newProduct_shortName" maxlength="255" required="required" value="{{state.shortName}}">
     </div>
@@ -31,7 +26,7 @@
       <small>(optional)</small>
     </div>
     <div class="col-sm-6 {{#if state.invalid.shortName}}has-error{{/if}}">
-      <textarea class="form-control input form-control" id="newProduct_desc" value="{{state.desc}}"></textarea>
+      <textarea class="form-control input form-control" id="newProduct_desc" >{{state.desc}}</textarea>
     </div>
   </div>
 
@@ -61,12 +56,12 @@
   <div class="form-group">
     <label class="col-sm-6 control-label" for="newProduct_partType"><small>RDP Part type</small></label>
     <div class="col-sm-6">
-      {{{select availablePartTypes id="newProduct_partType" class="col-sm-6 form-control input-sm" selected=state.partType}}}
+      {{{select availablePartTypes id="newProduct_partType" class="col-sm-6 form-control input-sm" selected=state.partType required=true }}}
     </div>
   </div>
 
   <div class="form-group">
-    <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>RDP orientation</small></label>
+    <label class="col-sm-6 control-label" for="newProduct_stickyEnds"><small>RDP Format</small></label>
     <div class="col-sm-6">
       {{{select availableStickyEndNameOptions id="newProduct_stickyEnds" class="col-sm-6 form-control input-sm"}}}
     </div>
@@ -80,34 +75,6 @@
   </div> --}}
   {{#unless state.calculating}}
     <br>
-    {{#unless rdpOligoSequence }}
-    <strong>Optimized RDP PCR primer parameters</strong>
-    <div class="separator"></div>
-    <div class="form-group" style="line-height: 10px;">
-      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Melting temperature</small></label>
-      <div class="col-sm-6">
-        <p class="form-control-static"><small>68.5&deg;C</small></p>
-      </div>
-      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Oligo concentration</small></label>
-      <div class="col-sm-6">
-        <p class="form-control-static"><small>0.25&mu;m</small></p>
-      </div>
-      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Na<sup>+</sup> concentration</small></label>
-      <div class="col-sm-6">
-        <p class="form-control-static"><small>50mM</small></p>
-      </div>
-      <label class="col-sm-5 col-sm-offset-1 control-label"><small>Mg<sup>++</sup> concentration</small></label>
-      <div class="col-sm-6">
-        <p class="form-control-static"><small>2mM</small></p>
-      </div>
-      <label class="col-sm-5 col-sm-offset-1 control-label"><small>dNTPs concentration</small></label>
-      <div class="col-sm-6">
-        <p class="form-control-static"><small>0.2mM</small></p>
-      </div>
-    </div>
-
-    <br>
-    {{/unless}}
     <button class="btn btn-primary">Create new RDP part</button>
     <button class="cancel-new-pcr-product-form btn btn-default">Cancel</button>
     <br><br>

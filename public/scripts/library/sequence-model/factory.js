@@ -204,7 +204,7 @@ function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
-        stickyEndFormat: STICKY_END_OVERHANG
+        stickyEndFormat: STICKY_END_OVERHANG,
       };
     }
 

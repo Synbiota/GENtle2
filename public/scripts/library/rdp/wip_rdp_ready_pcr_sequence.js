@@ -94,6 +94,8 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
       endBasesDifferentToTemplate,
       stickyEnds: desiredStickyEnds,
       name: this.get('name'),
+      shortName: this.get('shortName'),
+      desc: this.get('desc'),
     };
     return dataAndOptionsForPcr;
   }

@@ -29,10 +29,18 @@ Displays select tag with options (and optional optgroups)
   * `selected`
 
 **/
+
 Handlebars.registerHelper('select', function(context, options) {
-  var output = `<select id="${options.hash.id}" name="${options.hash.name}" class="${options.hash.class}">`;
-  output += makeOptions(context, options);
+  
+  var required = "";
+  if(options.hash.required) {
+    required = " required ";
+  }
+
+  var output = `<select id="${options.hash.id}" name="${options.hash.name}" class="${options.hash.class}" ${required}>`;		
+  output += makeOptions(context, options);	
   return output +'</select>';
+
 });
 
 var formatThousands = function(context, offset) {
