@@ -44,7 +44,7 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     }
     var name = attributes.desiredStickyEnds && attributes.desiredStickyEnds.name;
     if(!_.contains(this.availableStickyEndNames, name)) {
-      errors.push(`Invalid desiredStickyEnd: "${name}"`);
+      errors.push(`Invalid desiredStickyEnds: "${name}"`);
     }
     return errors;
   }

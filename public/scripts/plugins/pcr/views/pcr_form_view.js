@@ -31,48 +31,46 @@ export default Backbone.View.extend({
   events: {
     'change input, textarea': 'updateState',
     'change #newProduct_partType': 'updateStateAndRenderStickyEndsOption',
-    'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
-    'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
+    'keyup #newProduct_frm, #newProduct_to': 'updateStateAndRenderSequence',
+    'change #newProduct_frm, #newProduct_to': 'updateStateAndRenderSequence',
     'submit .new-pcr-product-form': 'calculateRdpEdits',
     'click .cancel-new-pcr-product-form': 'cancel'
   },
 
-  initialize: function({selectionFrom, selectionTo}) {
+  initialize: function() {
     if(this.model.getStickyEnds(false)) {
       throw new Error('sequenceModel for RDP part creation can not yet have stickyEnds');
     }
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
-    var partType = this.model.get('partType');
 
-    
-    // if description has not been set/modified, set it to name
-    var desc = this.model.get("desc")
-    if(!desc) {
-      desc = this.model.get('name')
-    }
+    var attributes = this.model.toJSON();
+    attributes = _.defaults(attributes, {
+      frm: 0,
+      size: this.model.getLength(this.model.STICKY_END_ANY),
+      // if description has not been set/modified, set it to name
+      desc: this.model.get('name'),
+    }, this.model.get('meta.pcr.defaults') || {});
+    this.model.set(attributes);
 
-    this.state = _.defaults({
-      from: selectionFrom || 0,
-      to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
-      name: this.model.get('name'),
-      sourceSequenceName: this.model.get('sourceSequenceName'),
-      desc: desc,
-    }, this.model.get('meta.pcr.defaults') || {}, {
-      targetMeltingTemperature: 68.5, 
-      partType,
-    });
-    this.validateState();
+    this.state = {};
+    this.validateModelState();
+  },
+
+  getState: function() {
+    var state = _.extend({}, this.state, this.model.toJSON());
+    state.to = state.frm + state.size - 1;
+    return state;
   },
 
   validateFields: function() {
-    return ['name', 'from', 'to', 'targetMeltingTemperature'];
+    return ['name', 'frm', 'to'];
   },
 
   serialize: function() {
     return {
       rdpOligoSequence: this.hasRdpOligoSequence,
-      state: this.state,
+      state: this.getState(),
       availablePartTypes: this.availablePartTypes(),
       availableStickyEndNameOptions: this.availableStickyEndNameOptions(),
     };
@@ -102,7 +100,7 @@ export default Backbone.View.extend({
   updateStateAndRenderSequence: function(event) {
     event.preventDefault();
     this.updateState();
-    if(!(this.state.invalid.from || this.state.invalid.to)) {
+    if(!(this.state.invalid.frm || this.state.invalid.to)) {
       this.updateCanvas();
     }
   },
@@ -114,48 +112,53 @@ export default Backbone.View.extend({
   },
 
   updateCanvas: function() {
-    this.parentView().updateCanvasHighlight(this.state.from, this.state.to);
+    var state = this.getState();
+    this.parentView().updateCanvasHighlight(state.frm, state.to);
   },
-
 
   updateState: function() {
-    var partType = this.getFieldFor('partType').val();
-    _.extend(this.state, {
-      name: this.getFieldFor('name').val(),
+    var attributes = {
       shortName: this.getFieldFor('shortName').val(),
-      partType,
+      partType: this.getFieldFor('partType').val(),
       desc: this.getFieldFor('desc').val(),
-    });
-    // `availableStickyEndNameOptions()` requires updated this.state.partType
-    this.model.set({partType});
-    if(!this.hasRdpOligoSequence) {
-      _.extend(this.state, {
-        from: this.getFieldFor('from').val() - 1,
-        to: this.getFieldFor('to').val() - 1,
-      });
-    }
-
-    this.validateState();
-    this.updateFormErrors();
-  },
-
-  validateState: function() {
-    var isPositiveInteger = (val) => _.isNumber(val) && !_.isNaN(val) && val >= 0;
-    var validBp = (val) => isPositiveInteger(val) && val < this.model.getLength();
-
-    this.state.invalid = {
-      name: !this.state.name,
-      targetMeltingTemperature: !isPositiveInteger(this.state.targetMeltingTemperature),
     };
     if(!this.hasRdpOligoSequence) {
-      _.extend(this.state.invalid, {
-        from: !validBp(this.state.from),
-        to: !validBp(this.state.to),
+      var frm = this.getFieldFor('frm').val() - 1;
+      _.extend(attributes, {
+        frm,
+        size: this.getFieldFor('to').val() - frm,
       });
-      if(this.state.from > this.state.to) {
-        var frm = this.state.from;
-        this.state.from = this.state.to;
-        this.state.to = frm;
+    }
+    this.model.set(attributes);
+    // Have to update desiredStickyEnds after partType as former is dependent
+    // on latter
+    var desiredStickyEnds = this.getStickyEnds();
+    this.model.set({desiredStickyEnds});
+
+    this.validateModelState();
+    this.updateFormErrors();
+    if(!this.state.invalid.any) {
+      this.model.throttledSave();
+    }
+  },
+
+  validateModelState: function() {
+    var isPositiveInteger = (val) => _.isInteger(val) && val >= 0;
+    var validBp = (val) => isPositiveInteger(val) && val < this.model.getLength();
+    var modelState = this.getState();
+
+    this.state.invalid = {
+      name: !modelState.name,
+    };
+    if(!this.hasRdpOligoSequence) {
+      this.state.invalid.frm = !validBp(modelState.frm);
+      this.state.invalid.to = !validBp(modelState.to);
+      if(modelState.frm > modelState.to) {
+        this.model.set({
+          frm: modelState.to,
+          size: modelState.frm - modelState.to,
+        })
+        this.render();
       }
     }
 
@@ -178,24 +181,12 @@ export default Backbone.View.extend({
   },
 
   getStickyEnds: function() {
-    return _.find(allStickyEnds(), {name: this.getFieldFor('stickyEnds').val()});
-  },
-
-  getData: function() {
-    var data = _.pick(this.state,
-      'name',
-      'partType',
-      'shortName',
-      'desc',
-      'sourceSequenceName',
-      'from',
-      'to',
-      'targetMeltingTemperature'
-    );
-    data.sequence = this.model.getSequence(this.model.STICKY_END_ANY);
-    data.features = this.model.getFeatures();
-    data.desiredStickyEnds = this.getStickyEnds();
-    return data;
+    var name = this.getFieldFor('stickyEnds').val();
+    // Check it's valid
+    if(!_.contains(this.model.availableStickyEndNames, name)) {
+      name = this.model.availableStickyEndNames[0];
+    }
+    return _.find(allStickyEnds(), {name});
   },
 
   calculateRdpEdits: function(event) {
@@ -205,13 +196,7 @@ export default Backbone.View.extend({
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
         console.log(this.state.invalid)
       } else {
-        var attributes = this.getData();
-        attributes.frm = attributes.from;
-        attributes.size = attributes.to - attributes.from + 1;
-        delete attributes.from;
-        delete attributes.to;
-        // TODO refactor to keep same sequenceModel?
-        var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel(attributes);
+        var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel();
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
         var errors = desiredWipRdpSequence.errors();
 

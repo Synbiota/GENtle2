@@ -265,12 +265,12 @@ describe('RDP sequence transforms', function() {
       });
 
       describe('PCR sequence', function() {
-        it('should throw an error if an invalid desiredStickyEnd is provided', function() {
+        it('should throw an error if an invalid desiredStickyEnds is provided', function() {
           var attributes = sequenceAttributes();
           attributes.desiredStickyEnds = stickyEndsZX();
           expect(function() {
             new WipRdpReadyPcrSequence(attributes);
-          }).toThrowError(TypeError, 'Invalid desiredStickyEnd: "Z-X\'"');
+          }).toThrowError(TypeError, 'Invalid desiredStickyEnds: "Z-X\'"');
         });
 
         it('should throw an error if an invalid partType is provided', function() {
@@ -283,13 +283,13 @@ describe('RDP sequence transforms', function() {
       });
 
       describe('oligo sequence', function() {
-        it('should throw an error if an invalid desiredStickyEnd is provided', function() {
+        it('should throw an error if an invalid desiredStickyEnds is provided', function() {
           var attributes = sequenceAttributes();
           attributes.desiredStickyEnds = stickyEndsXZ();
           attributes.partType = RdpTypes.types.PROTEIN_LINKER;
           expect(function() {
             new WipRdpReadyOligoSequence(attributes);
-          }).toThrowError(TypeError, 'Invalid desiredStickyEnd: "X-Z\'"');
+          }).toThrowError(TypeError, 'Invalid desiredStickyEnds: "X-Z\'"');
         });
 
         it('should throw an error if an invalid partType is provided', function() {

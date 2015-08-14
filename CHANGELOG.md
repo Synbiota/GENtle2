@@ -2,6 +2,8 @@
 
 ## develop
 
+* James  2015-08-14  Persist new RDP part form data across page reloads and view changes.
+
 ## 0.7.0
 
 * Dave/James  2015-08-14  Changes to new RDP part creation and form:
