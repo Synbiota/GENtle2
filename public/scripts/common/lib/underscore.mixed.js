@@ -206,6 +206,14 @@ _.mixin({
       timeoutId = setTimeout(delayed, wait);
       return this;
     };
+  },
+
+  isFloat: function(num) {
+    return _.isNumber(num) && !_.isNaN(num);
+  },
+
+  isInteger: function(int) {
+    return _.isFloat(int) && Math.floor(int) === int;
   }
 });
 
