@@ -2,6 +2,8 @@
 
 ## develop
 
+## 0.7.0
+
 * Dave/James  2015-08-14  Changes to new RDP part creation and form:
     * No default RDP Part Type.  Validation requires selecting a part type.
     * Rename 'RDP Orientation' to 'RDP Format' .
