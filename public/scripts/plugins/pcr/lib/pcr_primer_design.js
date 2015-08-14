@@ -170,7 +170,7 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
  * @return {PcrProductSequence}
  */
 var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion) {
-  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds', 'shortName', 'desc']);
+  opts = _.pick(opts, ['name', 'frm', 'to', 'stickyEnds', 'shortName', 'desc']);
 
   var regionOfInterest = sequenceModel.getSubSeq(opts.frm, opts.to, sequenceModel.STICKY_END_FULL);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start && opts.stickyEnds.start.sequence || '';

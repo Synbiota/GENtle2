@@ -43,8 +43,8 @@ var frm = 9;
 var to = 149;
 
 var opts = {
-  from: frm,
-  to: to,
+  frm,
+  to,
   name: "Violacein A",
   shortName: "VioA",
   desc: "The Violacein A gene.",
