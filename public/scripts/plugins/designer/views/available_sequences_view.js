@@ -7,6 +7,7 @@ import xScrollingUi from '../lib/x_scrolling_ui';
 import Gentle from 'gentle';
 import cleanSearchableText from '../lib/clean_searchable_text';
 import hoverDescription from '../lib/hover_description';
+import tooltip from 'tooltip';
 
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
@@ -106,6 +107,7 @@ var AvailableSequenceView = Backbone.View.extend({
     pModel.removeAvailableSequenceBySequenceId(sequenceId);
     pModel.throttledSave();
     $element.remove();
+    tooltip.hide();
     this.render();
   }
 
