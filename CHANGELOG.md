@@ -2,7 +2,13 @@
 
 ## develop
 
-* Dave/James  2015-08-14  Added validation requiring selection of part type when creating RDP part.
+* Dave/James  2015-08-14  Changes to new RDP part creation and form:
+    * No default RDP Part Type.  Validation requires selecting a part type.
+    * Rename 'RDP Orientation' to 'RDP Format' .
+    * Remove 'RDP Part name' from form & rename 'RDP Part short name' to 'RDP Part name'
+    * Add source file name to 'Description'
+    * (For PCR form) Remove PCR parameters
+    * Add TTm and Tm for PCR primers.
 * James  2015-08-10  Change CDS part type to 'Fusion Protein CDS' and add 'CDS with stop' part type.
 
 ## 0.6.2
