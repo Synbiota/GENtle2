@@ -5,8 +5,8 @@
     <desc>Created with Sketch.</desc>
     <defs></defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
-        <g id="new-RDP-part-onboarding" sketch:type="MSArtboardGroup" transform="translate(-416.000000, -599.000000)">
-            <g id="Modal" sketch:type="MSLayerGroup" transform="translate(391.000000, 384.000000)">
+        <g id="new-RDP-part-onboarding" sketch:type="MSArtboardGroup" transform="translate(-415.000000, -454.000000)">
+            <g id="newRDPonboarding" sketch:type="MSLayerGroup" transform="translate(390.000000, 239.000000)">
                 <g id="oligo" transform="translate(25.000000, 211.000000)">
                     <g id="after-oligo" transform="translate(21.000000, 181.000000)">
                         <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="50" y="14" width="143" height="9"></rect>
@@ -44,10 +44,10 @@
                         </text>
                         <path d="M131.5,140.5 L131.5,180.699501" id="Line" stroke="#979797" stroke-linecap="square" fill="#66686A" sketch:type="MSShapeGroup"></path>
                         <path id="Line-decoration-1" d="M131.5,180.699501 L134.5,169.899501 L128.5,169.899501 L131.5,180.699501 Z" stroke="#979797" stroke-linecap="square" fill="#66686A"></path>
-                        <text id="...80bp-or-shorter" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="18" font-weight="normal" fill="#333333">
-                            <tspan x="64" y="17">...80bp or shorter</tspan>
-                        </text>
                     </g>
+                    <text id="...60bp-or-shorter" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="18" font-weight="normal" fill="#333333">
+                        <tspan x="64" y="17">...60bp or shorter</tspan>
+                    </text>
                 </g>
             </g>
         </g>
