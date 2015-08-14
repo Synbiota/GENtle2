@@ -24,7 +24,6 @@ class WipRdpAbstractSequence extends Sequence {
     delete options.types;
   }
 
-
   get availablePartTypes() {
     return _.keys(this.types);
   }
@@ -41,7 +40,7 @@ class WipRdpAbstractSequence extends Sequence {
 
   get optionalFields() {
     var fields = super.optionalFields.concat([
-      // obtains 'shortName' from Sequence Factory
+      // obtains 'name', 'shortName' and 'desc' from Sequence Factory
       'sourceSequenceName',
       'desiredStickyEnds',
       // Define the portion of the template sequence that should be used in
