@@ -1638,7 +1638,7 @@ function sequenceModelFactory(BackboneModel) {
 
       this.resetConsensus();
 
-      this.set('chromatogramFragments', fragments)
+      this.set('chromatogramFragments', fragments).throttledSave();
 
       this.trigger('remove:chromatogramFragment', fragments, index);
     }
@@ -1667,7 +1667,7 @@ function sequenceModelFactory(BackboneModel) {
 
       this.resetConsensus();
 
-      this.set('chromatogramFragments', fragments)
+      this.set('chromatogramFragments', fragments).throttledSave();
 
       this.trigger('reverseComplement:chromatogramFragment', fragments, index)
     }
