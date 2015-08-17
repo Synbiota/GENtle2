@@ -29,7 +29,8 @@ export default Backbone.View.extend({
       return {
         name: fragment.name,
         length: fragment.length,
-        index: index
+        index: index,
+        orientation: fragment.isComplement ? "3'/5'" : "5'/3'"
       };
     });
 

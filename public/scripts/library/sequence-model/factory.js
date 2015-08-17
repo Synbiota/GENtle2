@@ -1618,9 +1618,9 @@ function sequenceModelFactory(BackboneModel) {
 
       this.updateConsensus(fragment);
 
-      this.set('chromatogramFragments',
-        fragments.concat(fragment)
-        ).throttledSave();
+      fragments = fragments.concat(fragment)
+
+      this.set('chromatogramFragments', fragments).throttledSave();
 
       this.trigger('add:chromatogramFragment', fragments, fragment);
 
