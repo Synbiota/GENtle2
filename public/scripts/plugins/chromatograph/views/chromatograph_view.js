@@ -38,7 +38,7 @@ export default Backbone.View.extend({
     this.initSecondaryViews();
 
 
-    this.listenTo(this.model, 'change:chromatogramFragments', function(model, chromatogramFragments){
+    this.listenTo(this.model, 'add:chromatogramFragment remove:chromatogramFragment', function(model, chromatogramFragments){
       if (chromatogramFragments.length){
         this.$el.find('.chromatograph-import-wrapper').hide();
       } else {

@@ -1603,7 +1603,7 @@ function sequenceModelFactory(BackboneModel) {
       var fragments = this.get('chromatogramFragments')
       var fragment = chromatogram;
 
-      var seq1 = this.ntseq || new Nt.Seq().read(this.getSequence());
+      var seq1 = this.ntSeq || new Nt.Seq().read(this.getSequence());
       var seq2 = new Nt.Seq().read(chromatogram.sequence);
 
       var map = seq1.mapSequence(seq2).best();
@@ -1641,6 +1641,35 @@ function sequenceModelFactory(BackboneModel) {
       this.set('chromatogramFragments', fragments)
 
       this.trigger('remove:chromatogramFragment', fragments, index);
+    }
+
+    complementChromatogramAt(index){
+      var fragments = this.get('chromatogramFragments'),
+          fragment = fragments[index];
+
+      var seq1 = this.ntseq || new Nt.Seq().read(this.getSequence());
+      var seq2 = fragment.isComplement ?
+                  new Nt.Seq().read(fragment.reverseComplement).complement() :
+                  new Nt.Seq().read(fragment.sequence).complement();
+
+      var map = seq1.mapSequence(seq2).best();
+
+      fragment.isComplement = !fragment.isComplement;
+      fragment.reverseComplement = seq2.sequence();
+
+
+      fragment.position = map.position;
+      fragment.mask = map.alignmentMask().sequence();
+
+
+
+      fragments.splice(index, 1, fragment)
+
+      this.resetConsensus();
+
+      this.set('chromatogramFragments', fragments)
+
+      this.trigger('reverseComplement:chromatogramFragment', fragments, index)
     }
 
     clone() {

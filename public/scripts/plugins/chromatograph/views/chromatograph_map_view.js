@@ -41,9 +41,16 @@ export default Backbone.View.extend({
       'updateCursor'
     );
 
+    var _this = this;
+
+    this.listenTo(this.model, 'reverseComplement:chromatogramFragment', function(){
+      _this.processFragments();
+      _this.processDefectMarks();
+    })
+
     this.listenTo(
       this.model,
-      'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments add:chromatogramFragment remove:chromatogramFragment',
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments add:chromatogramFragment remove:chromatogramFragment reverseComplement:chromatogramFragment',
       _.debounce(this.render, 500),
       this
     );

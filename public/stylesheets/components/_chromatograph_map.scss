@@ -16,6 +16,10 @@ $chromatograph-legend-width: 100px;
 
   padding-right: 3px;
   border-right: 5px solid #ddd;
+
+  .clickable {
+    cursor: pointer;
+  }
 }
 
 .sequence-canvas-outlet.with-legend {
