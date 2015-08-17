@@ -86,7 +86,8 @@ export default Backbone.View.extend({
         from: position,
         to: position + length,
         offsetPercent: position/sequenceLength * 100,
-        widthPercent: length/sequenceLength * 100
+        widthPercent: length/sequenceLength * 100,
+        arrowDirection: fragment.isComplement ? 'left' : 'right'
       });
     });
   },

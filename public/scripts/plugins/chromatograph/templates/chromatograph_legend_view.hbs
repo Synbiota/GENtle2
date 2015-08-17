@@ -6,11 +6,11 @@
 
 {{#each fragmentLabels}}
   <div class="fragment-label" style="height: 95px; padding-top: 45px;" data-index="{{index}}">
-    <div>
-      <span class="glyphicon glyphicon-remove clickable remove-button"></span>
-      <span class="glyphicon glyphicon-refresh clickable flip-button"></span>
-    </div>
     {{fragmentLabel}}
     {{name}}
+    <div>
+      <span class="glyphicon glyphicon-refresh clickable flip-button"></span>
+      <span class="glyphicon glyphicon-remove clickable remove-button"></span>
+    </div>
   </div>
 {{/each}}

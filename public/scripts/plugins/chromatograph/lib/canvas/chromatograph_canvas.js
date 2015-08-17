@@ -45,6 +45,15 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
       _this.removeChromatograph(index);
     });
 
+    this.view.listenTo(this.sequence, 'reverseComplement:chromatogramFragment', function(fragments, index){
+
+      index = parseInt(index)
+
+      _.extend(_this.rows[index + 1].sequence, fragments[index])
+
+      _this.display2d();
+    });
+
     _.forEach(this.sequence.get('chromatogramFragments'), function(fragment){
       _this.addChromatograph(fragment, {silent: true});
     });

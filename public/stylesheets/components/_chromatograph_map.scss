@@ -150,7 +150,7 @@ $chromatograph-legend-width: 100px;
   .chromatograph-map-fragment {
     position: relative;
 
-    height: 5px;
+    height: 8px;
     margin-top: 5px;
     margin-bottom: 5px;
 
@@ -164,6 +164,43 @@ $chromatograph-legend-width: 100px;
       width: 100%;
       background-color: #202022;
     }
+
+
+    &.with-arrow{
+
+      &.right:after{
+        border-left-color: #909093;
+        left: 100%;
+      }
+
+      &.right:hover:after {
+        border-left-color: #488fb2;
+      }
+
+      &.left:after{
+        border-right-color: #909093;
+        right: 100%;
+      }
+
+      &.left:hover:after {
+        border-right-color: #488fb2;
+      }
+
+      &:after{
+        top: 50%;
+        border: solid transparent;
+        content: " ";
+        height: 0;
+        width: 0;
+        position: absolute;
+        pointer-events: none;
+
+        border-width: 4px;
+        margin-top: -4px;
+      }
+
+    }
+
   }
 
   .chromatograph-map-visible-range {
