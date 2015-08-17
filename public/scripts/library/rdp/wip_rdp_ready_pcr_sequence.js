@@ -16,7 +16,7 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
     this.set({_type: wip_rdp_ready_pcr_sequence}, {silent: true});
   }
 
-  getRdpPcrSequenceModel() {
+  getRdpSequenceModel() {
     if(this.getStickyEnds(false)) throw new Error('wipRdpPcrSequence for PCR primer creation can not yet have stickyEnds');
 
     // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
@@ -51,7 +51,7 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
     // used as part of annealing region of the reverse primer
 
     var frm = 0;
-    var startBasesDifferentToTemplate = 0;
+    var prependNStartBases = 0;
     var desiredStickyEnds = this.get('desiredStickyEnds');
     if(desiredStickyEnds.start.name === "X") {
       if(this.isProteinCoding) {
@@ -65,11 +65,11 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
       }
 
       // TODO: OPTIMISE:  see above.
-      startBasesDifferentToTemplate = 0;
+      prependNStartBases = 0;
     }
 
     var to;
-    var endBasesDifferentToTemplate;
+    var prependNEndBases;
     if(this.isProteinCoding && !this.isCdsWithStop) {
       // Irrespective of if the transformation involved converting the last base
       // into a C or G, we will exclude the last 3 bases from the sequence so
@@ -80,18 +80,18 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
 
       // We assume the TT of TTC is different from the original sequence.
       // TODO: OPTIMISE:  see above.
-      endBasesDifferentToTemplate = 2;
+      prependNEndBases = 2;
     } else {
       // NOTE:  `-1` because `to` for `getPcrProductAndPrimers` is inclusive.
       to = this.getLength(this.STICKY_END_ANY) - 1;
-      endBasesDifferentToTemplate = 0;
+      prependNEndBases = 0;
     }
 
     var dataAndOptionsForPcr = {
       frm,
-      startBasesDifferentToTemplate,
+      prependNStartBases,
       to,
-      endBasesDifferentToTemplate,
+      prependNEndBases,
       stickyEnds: desiredStickyEnds,
       name: this.get('name'),
       shortName: this.get('shortName'),

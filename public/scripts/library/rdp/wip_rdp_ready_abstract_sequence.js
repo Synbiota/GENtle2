@@ -46,6 +46,9 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     if(!_.contains(this.availableStickyEndNames, name)) {
       errors.push(`Invalid desiredStickyEnds: "${name}"`);
     }
+    if(!this.getRdpSequenceModel) {
+      errors.push('Class error: has not implemented `getRdpSequenceModel` method.');
+    }
     return errors;
   }
 

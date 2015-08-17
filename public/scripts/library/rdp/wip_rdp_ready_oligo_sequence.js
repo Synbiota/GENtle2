@@ -16,7 +16,7 @@ class WipRdpReadyOligoSequence extends WipRdpReadyAbstractSequence {
     this.set({_type: wip_rdp_ready_oligo_sequence}, {silent: true});
   }
 
-  getRdpOligoSequence() {
+  getRdpSequenceModel() {
     var attributes = _.deepClone(this.attributes);
     // stickyEnds not yet present on transformedSequence so we don't need to
     // specify any stickyEnd format
