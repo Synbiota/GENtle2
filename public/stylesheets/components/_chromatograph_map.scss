@@ -165,6 +165,9 @@ $chromatograph-legend-width: 100px;
       background-color: #202022;
     }
 
+    &.clickable {
+      cursor: pointer;
+    }
 
     &.with-arrow{
 

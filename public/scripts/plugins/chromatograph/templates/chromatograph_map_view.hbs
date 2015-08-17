@@ -35,7 +35,7 @@
 
   <div class="chromtagraph-map-fragments">
     {{#each fragments}}
-      <div href="#" class="chromatograph-map-fragment sequence-fragment with-arrow {{arrowDirection}}" data-fragment-id="{{id}}" style="left: {{offsetPercent}}%; width: {{widthPercent}}%;">
+      <div class="chromatograph-map-fragment sequence-fragment with-arrow {{arrowDirection}} clickable" data-fragment-id="{{id}}" style="left: {{offsetPercent}}%; width: {{widthPercent}}%;">
       </div>
     {{/each}}
   </div>

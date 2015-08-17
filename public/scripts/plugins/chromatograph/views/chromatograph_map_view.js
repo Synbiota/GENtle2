@@ -19,9 +19,9 @@ export default Backbone.View.extend({
 
   events: {
     'click .chromatograph-toggle-dropdown'  : 'toggleDropdown',
-    'click .chromatograph-map-fragment'     : 'goToFragment',
-    'mouseenter .chromatograph-map-fragment': 'showFragmentTooltip',
-    'mouseleave .chromatograph-map-fragment': 'hideFragmentTooltip',
+    'click .sequence-fragment.chromatograph-map-fragment'     : 'goToFragment',
+    'mouseenter .sequence-fragment.chromatograph-map-fragment': 'showFragmentTooltip',
+    'mouseleave .sequence-fragment.chromatograph-map-fragment': 'hideFragmentTooltip',
     'click .chromatograph-map-defect-mark'  : 'goToDefect',
     'click canvas'                          : 'goToBase'
     // 'click .linear-map-feature': 'goToFeature'
@@ -116,7 +116,6 @@ export default Backbone.View.extend({
   goToDefect: function(event){
     var base = $(event.currentTarget).data('base');
 
-    console.log(event, base)
     this.sequenceCanvas.scrollToBase(base);
     event.preventDefault();
   },
