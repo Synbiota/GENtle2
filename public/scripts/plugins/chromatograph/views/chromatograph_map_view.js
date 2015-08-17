@@ -213,7 +213,7 @@ export default Backbone.View.extend({
   processDefectMarks: function(){
     var maxBase = this.model.getLength(),
         consensus = this.model.getConsensus(),
-        markThreshold = 20,
+        markThreshold = 40,
         _this = this,
         mark, prevMark;
 
@@ -380,6 +380,8 @@ export default Backbone.View.extend({
       );
 
       sequenceCanvas.on('scroll', this.updateCursor)
+
+      // this.render();
 
 
     } else {

@@ -1649,13 +1649,13 @@ function sequenceModelFactory(BackboneModel) {
 
       var seq1 = this.ntseq || new Nt.Seq().read(this.getSequence());
       var seq2 = fragment.isComplement ?
-                  new Nt.Seq().read(fragment.reverseComplement).complement() :
+                  new Nt.Seq().read(fragment.sequence) :
                   new Nt.Seq().read(fragment.sequence).complement();
 
       var map = seq1.mapSequence(seq2).best();
 
       fragment.isComplement = !fragment.isComplement;
-      fragment.reverseComplement = seq2.sequence();
+      // fragment.reverseComplement = seq2.sequence();
 
 
       fragment.position = map.position;
