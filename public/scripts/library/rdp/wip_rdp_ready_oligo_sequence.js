@@ -1,4 +1,5 @@
 // TODO import underscore.mixed
+import Q from 'q';
 import _ from 'underscore';
 import WipRdpReadyAbstractSequence from './wip_rdp_ready_abstract_sequence';
 import RdpOligoSequence from './rdp_oligo_sequence';
@@ -13,33 +14,8 @@ class WipRdpReadyOligoSequence extends WipRdpReadyAbstractSequence {
     options.NextClass = RdpOligoSequence;
     options.types = RdpTypes.oligoTypes;
     super(attrs, options);
-    this.set({_type: wip_rdp_ready_oligo_sequence}, {silent: true});
-  }
-
-  getRdpSequenceModel() {
-    var attributes = _.deepClone(this.attributes);
-    // stickyEnds not yet present on transformedSequence so we don't need to
-    // specify any stickyEnd format
-    var mainSequence = this.getSequence(this.STICKY_END_ANY);
-
-    attributes.stickyEnds = this.getShortenedStickyEnds();
-    if(this.isProteinCoding) {
-      if(attributes.stickyEnds.start.name === 'X') {
-        mainSequence = mainSequence.slice(3);
-      }
-      mainSequence = mainSequence.substr(0, mainSequence.length - 1);
-    }
-
-    attributes.sequence = (
-      attributes.stickyEnds.start.sequence +
-      mainSequence +
-      attributes.stickyEnds.end.sequence
-    );
-
-    attributes.features = this.getFeatures(this.STICKY_END_ANY);
-    attributes.rdpEdits = this.get('rdpEdits');
-    var newRdpOligoSequence = new RdpOligoSequence(attributes);
-    return newRdpOligoSequence;
+    var desiredStickyEnds = this.getShortenedStickyEnds();
+    this.set({_type: wip_rdp_ready_oligo_sequence, desiredStickyEnds}, {silent: false});
   }
 
   getShortenedStickyEnds() {
@@ -51,6 +27,14 @@ class WipRdpReadyOligoSequence extends WipRdpReadyAbstractSequence {
     start.offset = 0;
     end.offset = 0;
     return stickyEnds;
+  }
+
+  getRdpSequenceModel() {
+    var error = super.getRdpSequenceModel();
+    if(error) return error;
+
+    var newRdpOligoSequence = new RdpOligoSequence(this.attributes);
+    return Q.resolve(newRdpOligoSequence);
   }
 }
 
