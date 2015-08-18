@@ -23,5 +23,10 @@ describe('numberOfSimilarBases', function() {
     var similar = numberOfSimilarBases(sequenceBases2, sequenceBases1, -3, 2, false);
     expect(similar).toEqual(3);
   });
+
+  it('should return when given values out of range', function() {
+    var similar = numberOfSimilarBases(sequenceBases2, sequenceBases1, -3, 20, false);
+    expect(similar).toEqual(0);
+  });
 });
 
