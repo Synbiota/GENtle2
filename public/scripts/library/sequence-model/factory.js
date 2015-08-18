@@ -11,7 +11,6 @@ import HistorySteps from '../../sequence/models/history_steps';
 
 import Nt from 'ntseq';
 
-
 const STICKY_END_FULL = 'full';
 const STICKY_END_OVERHANG = 'overhang';
 const STICKY_END_NONE = 'none';
@@ -231,25 +230,6 @@ function sequenceModelFactory(BackboneModel) {
           }
         }
       });
-
-      this.setNonEnumerableFields();
-
-    }
-
-    get STICKY_END_FULL() {
-      return STICKY_END_FULL;
-    }
-
-    get STICKY_END_OVERHANG() {
-      return STICKY_END_OVERHANG;
-    }
-
-    get STICKY_END_NONE() {
-      return STICKY_END_NONE;
-    }
-
-    get STICKY_END_ANY() {
-      return STICKY_END_ANY;
     }
 
     /**
@@ -372,7 +352,6 @@ function sequenceModelFactory(BackboneModel) {
       if(extraAttributes.length) {
         // console.warn(`Assigned the following disallowed attributes to ${this.constructor.name}: ${extraAttributes.join(', ')}`);
       }
-
       return errors;
     }
 
@@ -414,6 +393,7 @@ function sequenceModelFactory(BackboneModel) {
           attribute[attr] = this.transformAttributeValue(attr, val);
         });
       }
+
       var ret = super.set(attribute, value, options);
 
 
