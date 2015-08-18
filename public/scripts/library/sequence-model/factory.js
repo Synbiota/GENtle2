@@ -933,7 +933,7 @@ function sequenceModelFactory(BackboneModel) {
       }).length;
     }
 
-    insertBases(bases, beforeBase, options = {}){
+    insertBases(bases, beforeBase, options={}) {
       var seq = super.get('sequence'),
           stickyEndFormat = options.stickyEndFormat || this.getStickyEndFormat(),
           adjustedBeforeBase,

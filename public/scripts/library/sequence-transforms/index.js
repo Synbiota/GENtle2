@@ -133,9 +133,9 @@ var numberOfSimilarBases = function(sequenceBases1, sequenceBases2, offsetFrom1T
     } else {
       break;
     }
-  };
+  }
   return Math.abs(similar);
-}
+};
 
 
 export default {
