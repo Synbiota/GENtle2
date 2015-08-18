@@ -164,15 +164,15 @@ let preparePcrPrimerAttributesFromAnnealingPrimer = function(annealingPrimer, st
  * function extracted to aid testing.
  *
  * @param  {SequenceModel}  sequenceModel
- * @param  {Object}  opts must contain `name`, `from`, `to`, `stickyEnds`
+ * @param  {Object}  opts must contain `name`, `frm`, `to`, `stickyEnds`
  * @param  {PrimerModel}  forwardAnnealingRegion
  * @param  {PrimerModel}  reverseAnnealingRegion
  * @return {PcrProductSequence}
  */
 var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnnealingRegion, reverseAnnealingRegion) {
-  opts = _.pick(opts, ['name', 'from', 'to', 'stickyEnds', 'shortName']);
+  opts = _.pick(opts, ['name', 'frm', 'to', 'stickyEnds', 'shortName', 'desc']);
 
-  var regionOfInterest = sequenceModel.getSubSeq(opts.from, opts.to, sequenceModel.STICKY_END_FULL);
+  var regionOfInterest = sequenceModel.getSubSeq(opts.frm, opts.to, sequenceModel.STICKY_END_FULL);
   var startStickyEnd = opts.stickyEnds && opts.stickyEnds.start && opts.stickyEnds.start.sequence || '';
   var endStickyEnd = opts.stickyEnds && opts.stickyEnds.end && opts.stickyEnds.end.sequence || '';
 
@@ -195,7 +195,8 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
     forwardPrimer: forwardPrimer,
     reversePrimer: reversePrimer,
     stickyEnds: opts.stickyEnds,
-    shortName: shortName
+    shortName: shortName,
+    desc: opts.desc,
   });
   pcrProduct.set('features', calculateFeatures(pcrProduct));
   // pcrProduct.set('meta.pcr.options', opts);
@@ -209,13 +210,13 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
  * a sequence and postprocess to append any stickyEnds requested.
  *
  * @param  {SequenceModel} sequenceModel
- * @param  {Object} opts  opts.from and opts.to specify the start and the end
+ * @param  {Object} opts  opts.frm and opts.to specify the start and the end
  *                        of the ROI (Region of interest, the desired sequence).
  *                        They are inclusive.  (`to` is NOT exclusive).
  *                        They are 0 indexed relative to start of the forward
  *                        strand, including the StickyEnds (TODO: check this).
  *
- *                        (`from` specifies the start of the forward
+ *                        (`frm` specifies the start of the forward
  *                         primer sequence
  *                         `to` specifies the start of the reverse primer
  *                         sequence).
@@ -242,20 +243,20 @@ var calculatePcrProductFromPrimers = function(sequenceModel, opts, forwardAnneal
  */
 var getPcrProductAndPrimers = function(sequenceModel, opts) {
   let valid = (_.isNumber(opts.to)   && (!_.isNaN(opts.to)) &&
-               _.isNumber(opts.from) && (!_.isNaN(opts.from)));
-  if(!valid) { return Q.reject('Must specify `opts.from` and `opts.to`'); }
-  valid = opts.from <= opts.to;
-  if(!valid) { return Q.reject('`from` must be <= `to`'); }
+               _.isNumber(opts.frm) && (!_.isNaN(opts.frm)));
+  if(!valid) { return Q.reject('Must specify `opts.frm` and `opts.to`'); }
+  valid = opts.frm <= opts.to;
+  if(!valid) { return Q.reject('`frm` must be <= `to`'); }
   opts = defaultPCRPrimerOptions(opts);
 
-  let maxSearchSpace = opts.to + 1 - opts.from;
+  let maxSearchSpace = opts.to + 1 - opts.frm;
   let forwardSequenceOptions = {
-    from: opts.from,  // TODO check if `opts.from` includes the sticky ends or not.
+    frm: opts.frm,  // TODO check if `opts.frm` includes the sticky ends or not.
     maxSearchSpace: maxSearchSpace,
   };
   let len = sequenceModel.getLength(sequenceModel.STICKY_END_FULL);
   let reverseSequenceOptions = {
-    from: len - opts.to - 1,  // TODO check if `opts.to` includes the sticky ends or not.
+    frm: len - opts.to - 1,  // TODO check if `opts.to` includes the sticky ends or not.
     maxSearchSpace: maxSearchSpace,
     findOnReverseStrand: true,
   };

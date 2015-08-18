@@ -7,7 +7,7 @@
   var template    = require('../templates/navbar_view.hbs'),
       Gentle      = require('gentle'),
       Backbone    = require('backbone'),
-      tooltip     = require('gentle-utils/tooltip'),
+      tooltip     = require('tooltip'),
       NavbarView;
 
   NavbarView = Backbone.View.extend({
@@ -143,7 +143,7 @@
         $tabsElements.each(function(i, element) {
           var $element = $(element);
           if($element.find('span.name').width() > $element.width()) {
-            $element.tooltip({
+            $element.gentleTooltip({
               placement: 'bottom',
               container: 'body'
             });
@@ -157,7 +157,7 @@
     },
 
     showMenuButtonTooltip: function() {
-      tooltip.show('New sequence, part, or circuit');
+      tooltip.show('New sequence, part, or circuit', {view: this});
     },
 
     hideMenuButtonTooltip: function() {

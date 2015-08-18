@@ -4,7 +4,7 @@
 @submodule SequenceCanvas
 @static
 **/
-import SynbioData from 'gentle-utils/synbio_data';
+import SynbioData from 'gentledna-utils/dist/synbio_data';
 import _ from 'underscore';
 
 var iupacToBasesMap, toComplementsMap,
@@ -104,6 +104,40 @@ var areComplementary = function(sequence1, sequence2) {
 };
 
 
+/**
+ * @function numberOfSimilarBases  Given to strings of sequence bases, how they
+ *           related / align to each other, a starting position on the first,
+ *           and a direction, return the number of bases in that direction
+ *           (including the start base), which are identical. 
+ * @param  {string}  sequenceBases1
+ * @param  {string}  sequenceBases2
+ * @param  {integer}  offsetFrom1To2  If sequenceBases1 are AAATGCA and
+ *                                    sequenceBases2 are       TGC, and the
+ *                                    second was a subset of the first, then
+ *                                    this should have a value of 3.
+ * @param  {integer}  startPositionOn1
+ * @param  {boolean} forwards
+ * @return {integer}
+ */
+var numberOfSimilarBases = function(sequenceBases1, sequenceBases2, offsetFrom1To2, startPositionOn1, forwards=true) {
+  var similar = 0;
+  while(true) {
+    var base1 = sequenceBases1[startPositionOn1 + similar];
+    var base2 = sequenceBases2[startPositionOn1 + similar - offsetFrom1To2];
+    if(base1 === base2) {
+      if(forwards) {
+        similar += 1;
+      } else {
+        similar -= 1;
+      }
+    } else {
+      break;
+    }
+  };
+  return Math.abs(similar);
+}
+
+
 export default {
   codonToAALong,
   codonToAAShort,
@@ -112,4 +146,5 @@ export default {
   toReverseComplements,
   isPalindromic,
   areComplementary,
+  numberOfSimilarBases,
 };

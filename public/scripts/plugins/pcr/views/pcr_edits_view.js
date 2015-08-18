@@ -98,7 +98,7 @@ export default Backbone.View.extend({
     };
 
     var transformMessages = {
-      TERMINAL_STOP_CODON_REMOVED: {
+      LAST_STOP_CODONS_REMOVED: {
         titleBefore: 'Remove stop codon',
         titleAfter: 'Removed stop codon',
       },

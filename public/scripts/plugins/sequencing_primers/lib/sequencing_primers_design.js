@@ -65,7 +65,7 @@ var _getPrimers = function(sequenceModel, options, sequencingPrimers, deferredAl
 
   if(sequenceLength > basesSequenced) {
     var sequenceOptions = {
-      from: frm,
+      frm: frm,
       maxSearchSpace: maxSearchSpace,
       findOnReverseStrand: options.findOnReverseStrand,
     };

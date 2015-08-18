@@ -9,6 +9,8 @@ import PcrPrimer from '../lib/pcr_primer';
 import PcrProductSequence from '../lib/product';
 import SequenceModel from '../../../sequence/models/sequence';
 import SequenceRange from '../../../library/sequence-model/range';
+import RdpTypes from 'gentle-rdp/rdp_types';
+import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
 
 import idtMeltingTemperatureStub from './idt_stub';
 import {stubCurrentUser} from '../../../common/tests/stubs';
@@ -36,15 +38,16 @@ var sequence = (
   reverseAnnealingRegionSequence +
   remainingSequence
 );
-var sequenceModel;
 
 var frm = 9;
 var to = 149;
 
 var opts = {
-  from: frm,
-  to: to,
-  name: "vioA",
+  frm,
+  to,
+  name: "Violacein A",
+  shortName: "VioA",
+  desc: "The Violacein A gene.",
   stickyEnds: {
     start: {
       sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
@@ -80,6 +83,8 @@ var reverseAnnealingRegionSequenceComplement = SequenceTransforms.toReverseCompl
 
 
 describe('calculating PCR primers', function() {
+  var wipRdpPcrSequence;
+
   beforeAll(function() {
     stubCurrentUser();
     stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
@@ -90,47 +95,47 @@ describe('calculating PCR primers', function() {
   });
 
   beforeEach(function() {
-    sequenceModel = new SequenceModel({sequence});
+    wipRdpPcrSequence = new WipRdpPcrSequence({sequence, partType: RdpTypes.types.CDS});
   });
 
-  it('errors on from being < to', function(done) {
-    let options = {
-      from: 10,
+  it('errors on frm being < to', function(done) {
+    var options = {
+      frm: 10,
       to: 9,
     };
-    getPcrProductAndPrimers(sequenceModel, options)
+    getPcrProductAndPrimers(wipRdpPcrSequence, options)
     .then(function() {
       // We should not get here.
       expect(true).toEqual(undefined);
       done();
     })
     .catch(function(e) {
-      expect(e.toString()).toEqual('`from` must be <= `to`');
+      expect(e.toString()).toEqual('`frm` must be <= `to`');
       done();
     })
     .done();
   });
 
-  it('errors on `to - from` being too small', function(done) {
-    let options = {
-      from: 10,
-      to: 18, // remember to is inclusive
+  it('errors on `to - frm` being too small', function(done) {
+    var options = {
+      frm: 10,
+      to: 18, // remember `to` is inclusive
     };
-    getPcrProductAndPrimers(sequenceModel, options)
+    getPcrProductAndPrimers(wipRdpPcrSequence, options)
     .then(function() {
       // We should not get here.
       expect(true).toEqual(undefined);
       done();
     })
     .catch(function(e) {
-      expect(/`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(e.toString())).toEqual(true);
+      expect(/`sequenceOptions.frm` is too large or sequence is too short to leave enough sequence length to find the primer$/.test(e.toString())).toEqual(true);
       done();
     })
     .done();
   });
 
   it('succeeds', function(done) {
-    getPcrProductAndPrimers(sequenceModel, opts)
+    getPcrProductAndPrimers(wipRdpPcrSequence, opts)
     .then(function(pcrProduct) {
       // models and child models/associations
       expect(pcrProduct instanceof PcrProductSequence).toEqual(true);
@@ -248,6 +253,8 @@ describe('calculating PCR product from primers', function() {
   var reversePrimer;
 
   beforeAll(function() {
+    var sequenceModel = new SequenceModel({sequence});
+
     var forwardAnnealingRegion = new Primer({
       parentSequence: sequenceModel,
       range: {
@@ -274,14 +281,12 @@ describe('calculating PCR product from primers', function() {
     reversePrimer = pcrProduct.get('reversePrimer');
   });
 
-  beforeEach(function() {
-    sequenceModel = new SequenceModel({sequence});
-  });
-
   it('correct attributes', function() {
     // expect(pcrProduct.get('meta.pcr.options.to')).toEqual(to);
     // expect(pcrProduct.get('meta.pcr.options.from')).toEqual(frm);
-    expect(pcrProduct.get('name')).toEqual('vioA');
+    expect(pcrProduct.get('name')).toEqual('Violacein A');
+    expect(pcrProduct.get('shortName')).toEqual("X-VioA-Z'");
+    expect(pcrProduct.get('desc')).toEqual('The Violacein A gene.');
     expect(pcrProduct.getSequence(pcrProduct.STICKY_END_FULL)).toEqual(expectedPcrProductSequence);
   });
 

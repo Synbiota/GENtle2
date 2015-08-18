@@ -4,7 +4,7 @@ import switchSequenceContext from './_switch_sequence_context';
 import drawAnnotation from './_feature_draw_annotation';
 import drawPrimer from './_feature_draw_primer';
 import SVG from 'svg.js';
-import tooltip from 'gentle-utils/tooltip';
+import tooltip from 'tooltip';
 import tooltipTemplate from './_feature_tooltip_template.html';
 
 

@@ -12,6 +12,9 @@ RdpTypes.pcrTypes = {
   CDS: {
     stickyEndNames: [XZ],
   },
+  CDS_WITH_STOP: {
+    stickyEndNames: [XZ],
+  },
   MODIFIER: {
     stickyEndNames: BOTH, // We should favour XZ
   },
@@ -62,6 +65,7 @@ _.deepFreeze(RdpTypes.types);
 RdpTypes.meta = {
   proteinCoding: [
     RdpTypes.types.CDS,
+    RdpTypes.types.CDS_WITH_STOP,
     RdpTypes.types.MODIFIER,
     RdpTypes.types.PROTEIN_LINKER,
   ]

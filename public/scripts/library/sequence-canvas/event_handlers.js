@@ -5,6 +5,10 @@ import Modal from '../../common/views/modal_view';
 
 var alertUneditableStickyEnd = () => alert('Unable to edit the sticky ends of a sequence');
 
+var hasMeta = function(event) {
+  return event.metaKey || event.ctrlKey;
+};
+
 /**
 Event handlers for SequenceCanvas
 @class SequenceCanvasHandlers
@@ -115,12 +119,13 @@ class Handlers {
   @param event [event] Keydown event
   **/
   handleKeydown(event) {
+    var meta = hasMeta(event);
 
     if (~_.values(Hotkeys).indexOf(event.which)) {
 
       this.handleHotkey(event);
 
-    } else if (event.metaKey && event.which == this.commandKeys.A) {
+    } else if (meta && event.which === this.commandKeys.A) {
       event.preventDefault();
       let editableRange = this.sequence.editableRange(true);
 
@@ -129,15 +134,15 @@ class Handlers {
       // Select next character
       this.displayCaret(editableRange.to);
 
-    } else if (event.metaKey && event.which == this.commandKeys.C) {
+    } else if (meta && event.which === this.commandKeys.C) {
 
       this.handleCopy();
 
-    } else if (event.metaKey && event.which == this.commandKeys.V) {
+    } else if (meta && event.which === this.commandKeys.V) {
 
       this.handlePaste();
 
-    } else if (event.metaKey && event.which == this.commandKeys.Z) {
+    } else if (meta && event.which === this.commandKeys.Z) {
 
       this.handleUndo(event);
 
@@ -154,7 +159,7 @@ class Handlers {
 
     if (this[handlerName]) {
       event.preventDefault();
-      this[handlerName].call(this, event.shiftKey, event.metaKey);
+      this[handlerName].call(this, event.shiftKey, hasMeta(event));
     }
 
   }

@@ -46,7 +46,7 @@ var _getSequenceToSearch = function(potentialPrimerModel) {
   let primer = potentialPrimerModel;
   primer.totalSequenceLength = primer.sequenceModel.getLength(primer.sequenceModel.STICKY_END_FULL);
 
-  primer.frm = primer.sequenceOptions.from;
+  primer.frm = primer.sequenceOptions.frm;
   if(primer.sequenceOptions.findOnReverseStrand) {
     primer.frm = primer.totalSequenceLength - primer.frm;
     primer.frm = Math.max(0, primer.frm - primer.sequenceOptions.maxSearchSpace);
@@ -69,7 +69,7 @@ var _getSequenceToSearch = function(potentialPrimerModel) {
       }));
     } else {
       primer.deferred.reject(new errors.SequenceTooShort({
-        message: "`sequenceOptions.from` is too large or sequence is too short to leave enough sequence length to find the primer",
+        message: "`sequenceOptions.frm` is too large or sequence is too short to leave enough sequence length to find the primer",
         data,
       }));
     }
@@ -82,10 +82,10 @@ class PotentialPrimer {
    * @constructor PotentialPrimer
    * @param  {SequenceModel} sequenceModel
    * @param  {Object} sequenceOptions  Keys:
-   *     `from`: The first base (0 indexed, and relative to the whole sequence (sticky ends included, using
-   *             `STICKY_END_FULL`).  If `findOnReverseStrand` is `true` then from refers to the reverse strand,
+   *     `frm`: The first base (0 indexed, and relative to the whole sequence (sticky ends included, using
+   *             `STICKY_END_FULL`).  If `findOnReverseStrand` is `true` then `frm` refers to the reverse strand,
    *             indexed from the end. e.g. if sequence.getLength(STICKY_END_FULL) returns 10, and
-   *             `findOnReverseStrand` is `true`, then a value of `from` of 3 refers to bases 7 (10 - 3).
+   *             `findOnReverseStrand` is `true`, then a value of `frm` of 3 refers to bases 7 (10 - 3).
    *             NOTE:  the `frm` value then set on the PotentialPrimer instance refers to the position on the forward
    *             strand which will be the lower bound used when calculating the subSequence of the sequenceModel,
    *             regardless of `findOnReverseStrand`.
@@ -289,7 +289,11 @@ class PotentialPrimer {
           this.deferred.resolve(resultingPrimer);
         }
       }
-    }).catch(namedHandleError('primer_calculation, checkWithIDT'));
+    })
+    .catch((error) => {
+      this.deferred.reject(new errors.IdtError({message: error.toString()}));
+      namedHandleError('primer_calculation, checkWithIDT')(error);
+    });
   }
 
   storePrimer(TmFromIDT=undefined, ourTm=undefined) {
@@ -318,7 +322,8 @@ class PotentialPrimer {
     var sortedPrimerAttributesWithOurTms = _.sortBy(primerAttributesWithOurTms, ({score}) => score);
     sortedPrimerAttributesWithOurTms.reverse();
 
-    var maxIdtQueries = 30;
+    // A rough measure of approximately how many queries it might be reasonable to make.
+    var maxIdtQueries = this.maxPrimerLength - this.minPrimerLength + 1;
     var bestPrimerAttributesWithOurTm = sortedPrimerAttributesWithOurTms.slice(0, maxIdtQueries);
     if(sortedPrimerAttributesWithOurTms.length > maxIdtQueries) console.warn(`We were about to send ${sortedPrimerAttributesWithOurTms.length} queries to IDT but will only send ${bestPrimerAttributesWithOurTm.length}`);
 
@@ -329,6 +334,10 @@ class PotentialPrimer {
         .then((IdtTemp) => {
           this.notifyProgress();
           return IdtTemp;
+        })
+        .catch((error) => {
+          this.deferred.reject(new errors.IdtError({message: error.toString()}));
+          namedHandleError('primer_calculation, nearestBestPrimer')(error);
         });
     });
 
@@ -426,7 +435,7 @@ class PotentialPrimer {
  */
 var optimalPrimer4 = function(sequenceModel, sequenceOptions, opts) {
   sequenceOptions = _.defaults(sequenceOptions, {
-    from: 0,
+    frm: 0,
     maxSearchSpace: opts.maxSearchSpace,
     findOnReverseStrand: false,
   });

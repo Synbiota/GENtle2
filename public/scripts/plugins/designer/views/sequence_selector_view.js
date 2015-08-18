@@ -3,7 +3,7 @@ import template from '../templates/sequence_selector_view.hbs';
 import _ from 'underscore';
 import $ from 'jquery';
 import hoverDescription from '../lib/hover_description';
-import tooltip from 'gentle-utils/tooltip';
+import tooltip from 'tooltip';
 
 var pluckData = function(sequence, selectedSequence) {
   return sequence && {

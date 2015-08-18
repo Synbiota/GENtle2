@@ -1,9 +1,9 @@
 import _ from 'underscore';
-import classMixin from 'gentle-utils/class_mixin';
+import classMixin from 'gentledna-utils/dist/class_mixin';
 import Core from 'gentle-sequence-canvas/core';
 import EventHandlers from 'gentle-sequence-canvas/event_handlers';
 import Utilities from 'gentle-sequence-canvas/utilities';
-import Memoizable from 'gentle-utils/memoizable';
+import Memoizable from 'gentledna-utils/dist/memoizable';
 import {dnaTextColour} from './sequence_calculations';
 
 import ContextMenu from './_sequence_canvas_context_menu';

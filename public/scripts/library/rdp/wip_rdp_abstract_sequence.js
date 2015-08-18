@@ -6,24 +6,22 @@ import RdpEdit from './rdp_edit';
 
 
 class WipRdpAbstractSequence extends Sequence {
-  constructor(attributes, ...other) {
-    if(!attributes.Klass) throw new TypeError('Must provide Klass attribute');
-    if(!attributes.types) throw new TypeError('Must provide types attribute');
-    var Klass = attributes.Klass;
-    var types = _.clone(attributes.types);
-    delete attributes.Klass;
-    delete attributes.types;
-
+  constructor(attributes, options={}) {
     attributes.readOnly = true;
-    super(attributes, ...other);
-    this.Klass = Klass;
-    this.types = types;
+    // We haven't registered `rdpEdits` as an association and we should never
+    // have any stored that we instantiate the WipRdp__Sequences from so set it
+    // to an empty list just in case:
+    attributes.rdpEdits = [];
+    super(attributes, options);
+  }
 
-    // Check partType is valid
-    var partType = this.get('partType');
-    if(!this.validPartType(partType)) {
-      throw new Error(`partType "${partType}" is invalid for this sequenceModel`);
-    }
+  preValidationSetup(attributes, options) {
+    if(!options.Klass) throw new TypeError('Must provide options with "Klass" key');
+    if(!options.types) throw new TypeError('Must provide options with "types" key');
+    this.Klass = options.Klass;
+    this.types = _.clone(options.types);
+    delete options.Klass;
+    delete options.types;
   }
 
   get availablePartTypes() {
@@ -42,7 +40,7 @@ class WipRdpAbstractSequence extends Sequence {
 
   get optionalFields() {
     var fields = super.optionalFields.concat([
-      // obtains 'shortName' from Sequence Factory
+      // obtains 'name', 'shortName' and 'desc' from Sequence Factory
       'sourceSequenceName',
       'desiredStickyEnds',
       // Define the portion of the template sequence that should be used in
@@ -52,7 +50,6 @@ class WipRdpAbstractSequence extends Sequence {
       // A copy of the original template sequence
       'originalSequenceBases',
       // We need rdpEdits to instantiate the non-WIP RDP SequenceModel
-      // TODO: add an association for rdpEdits ?
       'rdpEdits',
       'partType',
     ]);
@@ -62,6 +59,11 @@ class WipRdpAbstractSequence extends Sequence {
   get isProteinCoding() {
     var partType = this.get('partType');
     return _.contains(RdpTypes.meta.proteinCoding, partType);
+  }
+
+  get isCdsWithStop() {
+    var partType = this.get('partType');
+    return partType === RdpTypes.types.CDS_WITH_STOP;
   }
 
   get isRBS() {
@@ -79,18 +81,18 @@ class WipRdpAbstractSequence extends Sequence {
     return partType === RdpTypes.types.OTHER;
   }
 
-  getRdpCompliantSequenceModel(attributes) {
-    var desiredWipRdpSequence = this.getDesiredSequenceModel(attributes);
+  getWipRdpCompliantSequenceModel(attributes) {
+    var desiredWipRdpSequence = this._getDesiredSequenceModel(attributes);
     desiredWipRdpSequence.transformSequenceForRdp();
     return desiredWipRdpSequence;
   }
 
-  getDesiredSequenceModel(attributes) {
+  _getDesiredSequenceModel(attributes) {
     if(attributes.stickyEnds) {
-      throw new TypeError('attributes for getDesiredSequenceModel must not contain "stickyEnds"');
+      throw new TypeError('attributes for _getDesiredSequenceModel must not contain "stickyEnds"');
     }
     if(attributes.frm === undefined || attributes.size === undefined) {
-      throw new TypeError('attributes for getDesiredSequenceModel must specify "frm" and "size"');
+      throw new TypeError('attributes for _getDesiredSequenceModel must specify "frm" and "size"');
     }
     attributes.originalSequenceBases = attributes.sequence;
     var newSequenceModel = new this.Klass(attributes);
@@ -122,7 +124,7 @@ class WipRdpAbstractSequence extends Sequence {
       throw new TypeError('Must provide "desiredStickyEnds"');
     }
     var partType = this.get('partType');
-    if(!_.contains(this.availablePartTypes, partType)) {
+    if(!this.validPartType(partType)) {
       throw new TypeError(`Invalid partType: "${partType}"`);
     }
     if(!_.contains(this.availableStickyEndNames, desiredStickyEnds.name)) {

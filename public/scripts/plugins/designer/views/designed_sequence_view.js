@@ -214,7 +214,7 @@ export default Backbone.View.extend({
     if(!_.isArray(indices)) indices = [indices];
     if(indices.length === 0) return;
 
-    _.each(indices, function(index) {
+    _.each(indices, (index) => {
       var last = index === $draggables.length;
       var $draggable = $($draggables[last ? index-1 : index]);
 
@@ -224,11 +224,7 @@ export default Backbone.View.extend({
         left: $draggable.offset().left + 
           $draggableContainer.parent().scrollLeft() + 
           lastOffset
-      }).tooltip({
-        container: 'body',
-        placement: 'top',
-        animation: false
-      });
+      }).gentleTooltip({view: this});
 
       $diagnosticContainer.append($element);
     });
