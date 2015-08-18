@@ -150,7 +150,7 @@ $chromatograph-legend-width: 100px;
   .chromatograph-map-fragment {
     position: relative;
 
-    height: 8px;
+    height: 6px;
     margin-top: 5px;
     margin-bottom: 5px;
 
@@ -198,8 +198,8 @@ $chromatograph-legend-width: 100px;
         position: absolute;
         pointer-events: none;
 
-        border-width: 4px;
-        margin-top: -4px;
+        border-width: 8px;
+        margin-top: -8px;
       }
 
     }

@@ -230,6 +230,8 @@ class SequenceCanvasCore {
 
   removeRow(index) {
 
+    index = parseInt(index)
+
     // _this.rows = _.reject(_this.rows, {id: rowId});
     this.rows.splice(index + 1, 1)
 

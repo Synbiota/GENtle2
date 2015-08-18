@@ -18,7 +18,7 @@ export default Backbone.View.extend({
 
     this.model = options.model || Gentle.currentSequence;
 
-    this.listenTo(this.model, 'add:chromatogramFragment remove:chromatogramFragment', this.render);
+    this.listenTo(this.model, 'add:chromatogramFragment remove:chromatogramFragment reverseComplement:chromatogramFragment', this.render);
 
   },
 
@@ -30,7 +30,7 @@ export default Backbone.View.extend({
         name: fragment.name,
         length: fragment.length,
         index: index,
-        orientation: fragment.isComplement ? "3'/5'" : "5'/3'"
+        isComplement: fragment.isComplement,
       };
     });
 

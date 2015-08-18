@@ -11,11 +11,15 @@
       {{name}}
     </div>
     <div>
-      {{orientation}}
+      {{#if isComplement}}
+        3' <span class="glyphicon glyphicon-arrow-right"></span> 5'
+      {{else}}
+        5' <span class="glyphicon glyphicon-arrow-right"></span> 3'
+      {{/if}}
     </div>
     <div>
       <span class="glyphicon glyphicon-refresh clickable flip-button"></span>
-      <span class="glyphicon glyphicon-remove clickable remove-button"></span>
+      <span class="glyphicon glyphicon-trash clickable remove-button"></span>
     </div>
   </div>
 {{/each}}
