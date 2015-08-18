@@ -124,7 +124,7 @@ var numberOfSimilarBases = function(sequenceBases1, sequenceBases2, offsetFrom1T
   while(true) {
     var base1 = sequenceBases1[startPositionOn1 + similar];
     var base2 = sequenceBases2[startPositionOn1 + similar - offsetFrom1To2];
-    if(base1 === base2) {
+    if(base1 === base2 && !_.isUndefined(base1)) {
       if(forwards) {
         similar += 1;
       } else {
