@@ -9,6 +9,7 @@ import cleanSearchableText from '../lib/clean_searchable_text';
 import hoverDescription from '../lib/hover_description';
 import tooltip from 'tooltip';
 
+
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
   manage: true,
@@ -100,9 +101,7 @@ var AvailableSequenceView = Backbone.View.extend({
 
     var $element = $(event.currentTarget).parent();
     var pModel = this.parentView().model;
-    var availSequences = pModel.get('availableSequences');
     var sequenceId = $element.data('sequence_id');
-
 
     pModel.removeAvailableSequenceBySequenceId(sequenceId);
     pModel.throttledSave();
@@ -110,8 +109,6 @@ var AvailableSequenceView = Backbone.View.extend({
     tooltip.hide();
     this.render();
   }
-
-
 });
 
 export default AvailableSequenceView;

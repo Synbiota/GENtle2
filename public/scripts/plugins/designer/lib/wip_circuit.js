@@ -196,14 +196,12 @@ export default class WipCircuit extends Sequence {
 
   removeAvailableSequenceAtIndex(index) {
     this.get('availableSequences').splice(index, 1);
-     
     this.saveAvailableSequencesToCurrentUser();
-    
   }
 
   removeAvailableSequenceBySequenceId(id) {
     var remainder = _.reject(this.get('availableSequences'), function(seq) {
-      return seq.get('id') == id;
+      return seq.get('id') === id;
     });
 
     this.set('availableSequences', remainder);
@@ -219,8 +217,6 @@ export default class WipCircuit extends Sequence {
     this.get('sequences').splice(index, 1);
     this.diagnoseSequence();
   }
-
-  
 
   moveSequence(oldIndex, newIndex) {
     if(oldIndex === newIndex) return;
