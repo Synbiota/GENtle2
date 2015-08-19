@@ -8,7 +8,7 @@ import _ from 'underscore';
 // import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
 import ChromatographMapCanvas from './chromatograph_map_canvas';
 
-import tooltip from 'gentledna-utils/dist/tooltip';
+import tooltip from 'tooltip';
 
 export default Backbone.View.extend({
   manage: true,
