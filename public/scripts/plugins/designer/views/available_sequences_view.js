@@ -7,11 +7,17 @@ import xScrollingUi from '../lib/x_scrolling_ui';
 import Gentle from 'gentle';
 import cleanSearchableText from '../lib/clean_searchable_text';
 import hoverDescription from '../lib/hover_description';
+import tooltip from 'tooltip';
+
 
 var AvailableSequenceView = Backbone.View.extend({
   template: template,
   manage: true,
   className: 'designer-available-sequences',
+
+  events: {
+    'click .designer-draggable-trash': 'onTrashClick'
+  },
 
   initialize: function(){
     this.listenTo(Gentle, 'designer:availableSequences:filter', this.filterAvailableSequences, this);
@@ -88,8 +94,21 @@ var AvailableSequenceView = Backbone.View.extend({
         $el.addClass('designer-draggable-hidden');
       } 
     });
-  }
+  },
 
+  onTrashClick: function(event) {
+    event.stopPropagation();
+
+    var $element = $(event.currentTarget).parent();
+    var pModel = this.parentView().model;
+    var sequenceId = $element.data('sequence_id');
+
+    pModel.removeAvailableSequenceBySequenceId(sequenceId);
+    pModel.throttledSave();
+    $element.remove();
+    tooltip.hide();
+    this.render();
+  }
 });
 
 export default AvailableSequenceView;

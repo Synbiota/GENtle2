@@ -36,7 +36,6 @@ $designer-draggable-stickyEnds-color: (
     }
   }
 
-
   &.ui-draggable-dragging {
     box-shadow: 0 0 3px transparentize(#222, .5);
     z-index: 4000;
@@ -476,10 +475,23 @@ $designer-draggable-stickyEnds-color: (
   .designer-draggable {
     margin-right: 20px;
     margin-bottom: 10px;
-    width: 200px;
+    padding-left: 25px;
+    width: 210px;
     height: 40px;
+
     .designer-draggable-wrapper {
       height: 36px;
+    }
+
+    .designer-draggable-trash {
+      left: 2px;
+      top: 8px;
+    }
+    
+    &:hover {
+      .designer-draggable-trash {
+        display: block;
+      }
     }
   }
 }   
