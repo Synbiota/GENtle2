@@ -8,6 +8,7 @@ import SequenceTransforms from 'gentle-sequence-transforms';
 
 import SequenceRange from './range';
 import HistorySteps from '../../sequence/models/history_steps';
+import Sequences from '../../sequence/models/sequences';
 
 import Nt from 'ntseq';
 
@@ -70,7 +71,17 @@ function sequenceModelFactory(BackboneModel) {
   //    },
   //    ...
   //  ]
-  let associations = [];
+  let associations = [
+    {
+      klass: Sequence,
+      classAssociations: [
+        {
+          associationName: 'chromatogramFragments',
+          many: true,
+        }
+      ]
+    }
+  ];
 
   var associationsForKlass = function(klass) {
     return _.find(associations, (association) => association.klass === klass);
@@ -207,6 +218,7 @@ function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
+        chromatogramFragments: new Sequences(),
         stickyEndFormat: STICKY_END_OVERHANG,
       };
     }
@@ -1635,6 +1647,15 @@ function sequenceModelFactory(BackboneModel) {
       return this._throttledSave();
     }
 
+    getChromatogramFragments(){
+
+      if (this.attributes.chromatogramFragments.toJSON == undefined) {
+        this.attributes.chromatogramFragments = new Sequences();
+      }
+
+      return this.attributes.chromatogramFragments;
+    }
+
     getConsensus(){
       return super.get('consensus') || this.getSequence();
     }
@@ -1644,22 +1665,22 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     applyConsensus(consensus, fragment) {
-      var fragmentStart = fragment.position,
-          fragmentEnd   = fragment.position + fragment.sequence.length
+      var fragmentStart = fragment.get('position'),
+          fragmentEnd   = fragmentStart + fragment.getLength();
 
       var updatedFragment = _.map(
                               consensus.slice(fragmentStart, fragmentEnd),
                               function(point, i){
 
-                                if ( point != fragment.mask[i] ){
+                                if ( point != fragment.get('mask')[i] ){
                                   return '-';
                                 } else {
                                   return point;
                                 }
 
-                              }).join('')
+                              }).join('');
 
-      var updatedConsensus = consensus.slice(0, fragmentStart) + updatedFragment + consensus.slice(fragmentEnd)
+      var updatedConsensus = consensus.slice(0, fragmentStart) + updatedFragment + consensus.slice(fragmentEnd);
 
       return updatedConsensus;
     }
@@ -1685,8 +1706,11 @@ function sequenceModelFactory(BackboneModel) {
 
     addChromatogram(chromatogram){
       // var fragment = new Sequence(chromatogram)
-      var fragments = this.get('chromatogramFragments')
-      var fragment = chromatogram;
+      // var fragments = this.get('chromatogramFragments')
+      // var fragment = chromatogram;
+
+      var fragments = this.getChromatogramFragments();
+      var fragment = new Sequence(chromatogram);
 
       var seq1 = this.ntSeq || new Nt.Seq().read(this.getSequence());
       var seq2 = new Nt.Seq().read(chromatogram.sequence);
@@ -1698,22 +1722,41 @@ function sequenceModelFactory(BackboneModel) {
       // });
       // fragment.set('alignmentMask', map.alignmentMask().sequence())
 
-      fragment.position = map.position;
-      fragment.mask = map.alignmentMask().sequence();
+      // fragment.position = map.position;
+      // fragment.mask = map.alignmentMask().sequence();
+
+      fragment.set('position', map.position);
+      fragment.set('mask', map.alignmentMask().sequence());
+
+      fragments.add(_.extend({
+        'position': map.position,
+        'mask': map.alignmentMask().sequence()
+      },
+        chromatogram
+      ));
 
       this.updateConsensus(fragment);
+      // this.updateConsensus(chromatogram);
 
-      fragments = fragments.concat(fragment)
+      // fragments = fragments.concat(fragment)
 
-      this.set('chromatogramFragments', fragments).throttledSave();
+      // this.set('chromatogramFragments', fragments).throttledSave();
+
+      // this.getChromatogramFragments().add(fragment)
+      this.throttledSave();
 
       this.trigger('add:chromatogramFragment', fragments, fragment);
+
+      window.a = this;
+      debugger
 
     }
 
     removeChromatogramAt(index){
 
-      var fragments = this.get('chromatogramFragments');
+      // var fragments = this.get('chromatogramFragments');
+
+      var fragments = this.getChromatogramFragments();
 
       // fragments = _.without(fragments, function(fragment){
       //   return fragment.id == id

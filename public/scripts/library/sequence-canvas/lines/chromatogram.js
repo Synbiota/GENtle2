@@ -19,13 +19,11 @@ export default class Chromatogram extends Line {
     const pageMargins = layoutSettings.pageMargins;
 
     const sequence = this.sequence || sequenceCanvas.sequence;
-    const rawData = sequence.chromatogramData
-    // sequence.get('chromatogramData');
-    const maxDataValue = sequence.maxChromatogramValue || 65536;
-    // sequence.get('maxChromatogramValue') || 65536;
 
-    const peaks = sequence.chromatogramPeaks;
-    // sequence.get('chromatogramPeaks');
+    const rawData = sequence.get('chromatogramData');
+    const maxDataValue = sequence.get('maxChromatogramValue') || 65536;
+    const peaks = sequence.get('chromatogramPeaks');
+
     const height = this.height;
 
     // const normalizedWidth = layoutSettings.chromatographDims.width;

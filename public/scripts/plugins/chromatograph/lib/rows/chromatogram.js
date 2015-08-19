@@ -17,9 +17,6 @@ export default class Chromatogram extends Row {
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
         textColour: "#414",
-        getSubSeq: function(){
-          return this.sequence.slice(arguments[0], arguments[1] + 1);
-        }
         // selectionColour: LineStyles.dna.selection.fill,
         // selectionTextColour: LineStyles.dna.selection.color
       }],

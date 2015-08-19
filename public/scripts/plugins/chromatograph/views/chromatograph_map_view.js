@@ -50,7 +50,7 @@ export default Backbone.View.extend({
 
     this.listenTo(
       this.model,
-      'change:sequence change:features.* change:features change:displaySettings.rows.res.* change:chromatogramFragments add:chromatogramFragment remove:chromatogramFragment reverseComplement:chromatogramFragment',
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.* *:chromatogramFragments reverseComplement:chromatogramFragment',
       _.debounce(this.render, 500),
       this
     );
@@ -73,21 +73,21 @@ export default Backbone.View.extend({
 
     this.fragments = [];
 
-    _.forEach(this.model.get('chromatogramFragments'), function(fragment, i){
+    this.model.getChromatogramFragments().forEach(function(fragment, i){
 
-      var position = fragment.position || 0,
-          length   = fragment.sequence.length || 0,
+      var position = fragment.get('position') || 0,
+          length   = fragment.getLength() || 0,
           sequenceLength = _this.model.getLength();
       // if (fragment.map) position = fragment.map.position;
 
       _this.fragments.push({
         id: ++id,
-        name: fragment.name || 'Fragment ' + id,
+        name: fragment.get('name') || 'Fragment ' + id,
         from: position,
         to: position + length,
         offsetPercent: position/sequenceLength * 100,
         widthPercent: length/sequenceLength * 100,
-        arrowDirection: fragment.isComplement ? 'left' : 'right'
+        arrowDirection: fragment.get('isComplement') ? 'left' : 'right'
       });
     });
   },

@@ -23,14 +23,14 @@ export default Backbone.View.extend({
   },
 
   serialize: function(){
-    var fragments = this.model.get('chromatogramFragments');
+    var fragments = this.model.getChromatogramFragments();
 
-    var fragmentLabels = _.map(fragments, function(fragment, index) {
+    var fragmentLabels = fragments.map(function(fragment, index) {
       return {
-        name: fragment.name,
-        length: fragment.length,
+        name: fragment.get('name'),
+        length: fragment.getLength(),
         index: index,
-        isComplement: fragment.isComplement,
+        isComplement: fragment.get('isComplement'),
       };
     });
 
