@@ -24,6 +24,7 @@ export default class Chromatogram extends Line {
     const maxDataValue = sequence.get('maxChromatogramValue') || 65536;
     const peaks = sequence.get('chromatogramPeaks');
 
+
     const height = this.height;
 
     // const normalizedWidth = layoutSettings.chromatographDims.width;

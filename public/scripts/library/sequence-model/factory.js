@@ -71,17 +71,7 @@ function sequenceModelFactory(BackboneModel) {
   //    },
   //    ...
   //  ]
-  let associations = [
-    {
-      klass: Sequence,
-      classAssociations: [
-        {
-          associationName: 'chromatogramFragments',
-          many: true,
-        }
-      ]
-    }
-  ];
+  let associations = [];
 
   var associationsForKlass = function(klass) {
     return _.find(associations, (association) => association.klass === klass);
@@ -183,7 +173,6 @@ function sequenceModelFactory(BackboneModel) {
 
       // Run all preProcessors on attributes
       attributes = _.reduce(preProcessors, (attribs, pp) => pp(attribs), attributes);
-
       super(attributes, options);
       this.disabledSave = options.disabledSave;
       this.getComplements = _.bind(_.partial(this.getTransformedSubSeq, 'complements', {}), this);
@@ -1650,7 +1639,7 @@ function sequenceModelFactory(BackboneModel) {
     getChromatogramFragments(){
 
       if (this.attributes.chromatogramFragments.toJSON == undefined) {
-        this.attributes.chromatogramFragments = new Sequences();
+        this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
       }
 
       return this.attributes.chromatogramFragments;
@@ -1747,9 +1736,6 @@ function sequenceModelFactory(BackboneModel) {
 
       this.trigger('add:chromatogramFragment', fragments, fragment);
 
-      window.a = this;
-      debugger
-
     }
 
     removeChromatogramAt(index){
@@ -1810,11 +1796,15 @@ function sequenceModelFactory(BackboneModel) {
       var classAssociations = allAssociationsForInstance(this);
       _.each(classAssociations, ({associationName}) => {
         var associationAttributes = this.attributes[associationName];
-
         if(associationAttributes) {
           if(associationAttributes instanceof BackboneModel) {
             associationAttributes = associationAttributes.toJSON();
           }
+
+          if (associationAttributes.toJSON){
+            associationAttributes = associationAttributes.toJSON();
+          }
+
           attributes.meta = attributes.meta || {};
           attributes.meta.associations = attributes.meta.associations || {};
           attributes.meta.associations[associationName] = associationAttributes;

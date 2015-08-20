@@ -54,14 +54,13 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
       _this.display2d();
     });
 
-    _.forEach(this.sequence.getChromatogramFragments(), function(fragment){
+    this.sequence.getChromatogramFragments().forEach(function(fragment){
       _this.addChromatograph(fragment, {silent: true});
     });
 
   }
 
   addChromatograph(fragment, options = {silent: false}){
-
     this.addRows({
       chromatogram: ['Chromatogram', {
         sequence: fragment
