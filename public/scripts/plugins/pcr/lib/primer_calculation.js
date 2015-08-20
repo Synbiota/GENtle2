@@ -33,51 +33,56 @@ var logger = function(...msg) {
 };
 
 
-/**
- * @function _getSequenceToSearch
- * function extracted to aid testing.  Ultimately it sets several attributes on
- * the potentialPrimerModel including:
- *   * totalSequenceLength
- *   * frm
- *   * sequenceToSearch
- * @param  {PotentialPrimer} potentialPrimerModel
- */
-var _getSequenceToSearch = function(potentialPrimerModel) {
-  let primer = potentialPrimerModel;
-  primer.totalSequenceLength = primer.sequenceModel.getLength(primer.sequenceModel.STICKY_END_FULL);
-
-  primer.frm = primer.sequenceOptions.frm;
-  if(primer.sequenceOptions.findOnReverseStrand) {
-    primer.frm = primer.totalSequenceLength - primer.frm;
-    primer.frm = Math.max(0, primer.frm - primer.sequenceOptions.maxSearchSpace);
-  }
-
-  let to = primer.frm + primer.sequenceOptions.maxSearchSpace - 1;
-  primer.sequenceToSearch = primer.sequenceModel.getSubSeq(primer.frm, to, primer.sequenceModel.STICKY_END_FULL);
-  if(primer.sequenceOptions.findOnReverseStrand) {
-    primer.sequenceToSearch = SequenceTransforms.toReverseComplements(primer.sequenceToSearch);
-  }
-
-  // Check there are enough bases to satisfy the minimum size for a primer
-  // (a valid primer may of course still not be found)
-  if(primer.sequenceToSearch.length < primer.options.minPrimerLength) {
-    var data = {sequenceToSearch: primer.sequenceToSearch, minPrimerLength: primer.options.minPrimerLength};
-    if(primer.sequenceOptions.findOnReverseStrand) {
-      primer.deferred.reject(new errors.SequenceTooShort({
-        message: "sequence is too short to leave enough sequence length to find the primer",
-        data,
-      }));
-    } else {
-      primer.deferred.reject(new errors.SequenceTooShort({
-        message: "`sequenceOptions.frm` is too large or sequence is too short to leave enough sequence length to find the primer",
-        data,
-      }));
-    }
-  }
-};
-
-
 class PotentialPrimer {
+  /**
+   * @method _getSequenceToSearch
+   * Function extracted to static method to aid testing.  Ultimately it returns
+   * attributes which should be applied to the potentialPrimerModel.
+   * @param  {PotentialPrimer} potentialPrimerModel
+   * @return {Object} Contains the following keys:
+   *                  * totalSequenceLength
+   *                  * frm
+   *                  * sequenceToSearch
+   */
+  static _getSequenceToSearch(potentialPrimerModel) {
+    var primer = potentialPrimerModel;
+    var totalSequenceLength = primer.sequenceModel.getLength(primer.sequenceModel.STICKY_END_FULL);
+
+    var frm = primer.sequenceOptions.frm;
+    if(primer.sequenceOptions.findOnReverseStrand) {
+      frm = totalSequenceLength - frm;
+      frm = Math.max(0, frm - primer.sequenceOptions.maxSearchSpace);
+    }
+
+    var to = frm + primer.sequenceOptions.maxSearchSpace - 1;
+    var sequenceToSearch = primer.sequenceModel.getSubSeq(frm, to, primer.sequenceModel.STICKY_END_FULL);
+    if(primer.sequenceOptions.findOnReverseStrand) {
+      sequenceToSearch = SequenceTransforms.toReverseComplements(sequenceToSearch);
+    }
+
+    // Check there are enough bases to satisfy the minimum size for a primer
+    // (a valid primer may of course still not be found)
+    if(sequenceToSearch.length < primer.options.minPrimerLength) {
+      var data = {sequenceToSearch, minPrimerLength: primer.options.minPrimerLength};
+      if(primer.sequenceOptions.findOnReverseStrand) {
+        primer.deferred.reject(new errors.SequenceTooShort({
+          message: "sequence is too short to leave enough sequence length to find the primer",
+          data,
+        }));
+      } else {
+        primer.deferred.reject(new errors.SequenceTooShort({
+          message: "`sequenceOptions.frm` is too large or sequence is too short to leave enough sequence length to find the primer",
+          data,
+        }));
+      }
+    }
+    return {
+      totalSequenceLength,
+      frm,
+      sequenceToSearch,
+    };
+  }
+
   /**
    * @constructor PotentialPrimer
    * @param  {SequenceModel} sequenceModel
@@ -99,7 +104,11 @@ class PotentialPrimer {
     this.sequenceModel = sequenceModel;
     this.sequenceOptions = sequenceOptions;
     this.options = options;
-    _getSequenceToSearch(this);
+    var vals = PotentialPrimer._getSequenceToSearch(this);
+    // Could use _.extend but want to be explicit about what we're doing.
+    this.totalSequenceLength = vals.totalSequenceLength;
+    this.frm = vals.frm;
+    this.sequenceToSearch = vals.sequenceToSearch;
 
     this.i = 0;
     this.minPrimerLength = options.minPrimerLength;
@@ -455,13 +464,17 @@ var stubOutIDTMeltingTemperature = function(newFunction) {
 };
 
 var restoreIDTMeltingTemperature = function() {
-  IDTMeltingTemperature = oldIDTMeltingTemperature;
-  oldIDTMeltingTemperature = undefined;
+  if(oldIDTMeltingTemperature) {
+    IDTMeltingTemperature = oldIDTMeltingTemperature;
+    oldIDTMeltingTemperature = undefined;
+  } else {
+    throw new Error('No oldIDTMeltingTemperature function to restore');
+  }
 };
 
 
 export default {
-  _getSequenceToSearch,
+  PotentialPrimer,
   optimalPrimer4,
   stubOutIDTMeltingTemperature,
   _IDTMeltingTemperature,
