@@ -68,7 +68,7 @@ export default Backbone.View.extend({
     }
     
     // if description has not been set/modified, set it to name
-    var desc = this.model.get("desc")
+    var desc = this.model.get('desc')
     if(!desc) {
       desc = this.model.get('name')
     }
@@ -101,8 +101,8 @@ export default Backbone.View.extend({
 
   availablePartTypes: function() {
     var baseTypes = convertForSelect(this.model.availablePartTypes);
-    var blank = {name: "Select RDP Part Type",
-                 value: "",
+    var blank = {name: 'Select RDP Part Type',
+                 value: '',
                  disabled: true,
                  isSelected: true};
     
