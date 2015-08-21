@@ -66,12 +66,19 @@ export default Backbone.View.extend({
         this.model.set(tryShowingModalKey, false).throttledSave();
       }
     }
+    
+    // if description has not been set/modified, set it to name
+    var desc = this.model.get("desc")
+    if(!desc) {
+      desc = this.model.get('name')
+    }
 
     this.state = _.defaults({
       from: selectionFrom || 0,
       to: selectionTo || this.model.getLength(this.model.STICKY_END_ANY)-1,
       name: this.model.get('name'),
       sourceSequenceName: this.model.get('sourceSequenceName'),
+      desc: desc,
     }, this.model.get('meta.pcr.defaults') || {}, {
       targetMeltingTemperature: 68.5, 
       partType,
@@ -93,7 +100,14 @@ export default Backbone.View.extend({
   },
 
   availablePartTypes: function() {
-    return convertForSelect(this.model.availablePartTypes);
+    var baseTypes = convertForSelect(this.model.availablePartTypes);
+    var blank = {name: "Select RDP Part Type",
+                 value: "",
+                 disabled: true,
+                 isSelected: true};
+    
+    baseTypes.unshift(blank)
+    return baseTypes;
   },
 
   availableStickyEndNameOptions: function() {
@@ -215,11 +229,13 @@ export default Backbone.View.extend({
     try {
       if(this.state.invalid.any) {
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
+        console.log(this.state.invalid)
       } else {
-        var data = this.getData();
-        var attributes = _.pick(data, 'name', 'sequence', 'features', 'sourceSequenceName', 'partType', 'desiredStickyEnds');
-        attributes.frm = data.from;
-        attributes.size = data.to - data.from + 1;
+        var attributes = this.getData();
+        attributes.frm = attributes.from;
+        attributes.size = attributes.to - attributes.from + 1;
+        delete attributes.from;
+        delete attributes.to;
         // TODO refactor to keep same sequenceModel?
         var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel(attributes);
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
@@ -249,10 +265,10 @@ export default Backbone.View.extend({
 
   createNewRdpPart: function(desiredWipRdpSequence) {
     this.state.calculating = true;
-    var data = this.getData();
-    data.shortName = data.desiredStickyEnds.start.name +'-'+ data.shortName +'-'+ data.desiredStickyEnds.end.name;
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
+      var data = this.getData();
+      data.shortName = data.desiredStickyEnds.start.name +'-'+ data.shortName +'-'+ data.desiredStickyEnds.end.name;
       data.stickyEnds = data.desiredStickyEnds;
       var newRdpOligoSequence = wipRdpOligoSequence.getRdpOligoSequence(data);
 

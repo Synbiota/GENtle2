@@ -45,7 +45,9 @@ var to = 149;
 var opts = {
   frm,
   to,
-  name: "vioA",
+  name: "Violacein A",
+  shortName: "VioA",
+  desc: "The Violacein A gene.",
   stickyEnds: {
     start: {
       sequence: 'CCTGCAGTCAGTGGTCTCTAGAG',
@@ -282,7 +284,9 @@ describe('calculating PCR product from primers', function() {
   it('correct attributes', function() {
     // expect(pcrProduct.get('meta.pcr.options.to')).toEqual(to);
     // expect(pcrProduct.get('meta.pcr.options.from')).toEqual(frm);
-    expect(pcrProduct.get('name')).toEqual('vioA');
+    expect(pcrProduct.get('name')).toEqual('Violacein A');
+    expect(pcrProduct.get('shortName')).toEqual("X-VioA-Z'");
+    expect(pcrProduct.get('desc')).toEqual('The Violacein A gene.');
     expect(pcrProduct.getSequence(pcrProduct.STICKY_END_FULL)).toEqual(expectedPcrProductSequence);
   });
 
