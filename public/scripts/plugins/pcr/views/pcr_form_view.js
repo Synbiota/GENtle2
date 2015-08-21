@@ -58,7 +58,7 @@ export default Backbone.View.extend({
         Modal.show({
           title: 'New RDP Part',
           displayFooter: false,
-          bodyView: new OnboardingHelpView()
+          bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
         }).on('hide', () => {
           this.model.set(tryShowingModalKey, false).throttledSave();
         });

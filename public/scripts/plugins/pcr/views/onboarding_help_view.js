@@ -12,6 +12,14 @@ export default View.extend({
     'change input': 'toggleShowNextTime'
   },
 
+  initialize: function(options) {
+    this.isOligo = options.isOligo;
+  },
+
+  serialize: function() {
+    return { isOligo: this.isOligo }
+  },
+
   toggleShowNextTime(event) {
     var checked = this.$(event.target).is(':checked');
     Gentle.currentUser.set(hideModalKey, !checked);

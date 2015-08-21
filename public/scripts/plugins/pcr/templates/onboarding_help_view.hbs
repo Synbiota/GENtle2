@@ -1,4 +1,4 @@
-<div class="row">
+<div class="row"> 
   <div class="col-xs-12 text-center">
     <strong>If your source sequence is...</strong>
     <br>
@@ -12,10 +12,19 @@
 
 <div class="row">
   <div class="col-xs-6 text-center">
-    <img src="images/new-rdp-part_onboarding-help/oligo-2.svg" style="width: 90%" />
+    {{#if isOligo }}
+      <img src="images/new-rdp-part_onboarding-help/selected-oligo.svg" style="width: 90%" />
+    {{else}}
+      <img src="images/new-rdp-part_onboarding-help/oligo.svg" style="width: 90%" />
+    {{/if}}
   </div>
   <div class="col-xs-6 text-center">
-    <img src="images/new-rdp-part_onboarding-help/PCR.svg" style="width: 90%" />
+    {{#if isOligo}}
+      <img src="images/new-rdp-part_onboarding-help/PCR.svg" style="width: 90%" />
+      
+    {{else}}
+      <img src="images/new-rdp-part_onboarding-help/selected-PCR.svg" style="width: 90%" />
+    {{/if}}
   </div>
 </div>
 
