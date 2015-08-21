@@ -2,6 +2,8 @@
 
 ## develop
 
+* Alex/Dave  2015-08-13  Added new RDP part onboarding help dialog
+
 ## 0.7.0
 
 * Dave/James  2015-08-14  Changes to new RDP part creation and form:

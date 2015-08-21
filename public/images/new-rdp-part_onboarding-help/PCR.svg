@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="281px" height="248px" viewBox="0 0 281 248" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
+    <title>PCR</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="new-RDP-part-onboarding" sketch:type="MSArtboardGroup" transform="translate(-744.000000, -593.000000)">
+            <g id="Modal" sketch:type="MSLayerGroup" transform="translate(391.000000, 384.000000)">
+                <g id="PCR" transform="translate(353.000000, 206.000000)">
+                    <g id="after-PCR" transform="translate(17.000000, 186.000000)">
+                        <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="50" y="14" width="143" height="9"></rect>
+                        <text id="anneal" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                            <tspan x="30" y="62">BsaI digest to create RDP part</tspan>
+                        </text>
+                        <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#66686A">
+                            <tspan x="0" y="12">5'</tspan>
+                        </text>
+                        <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#BDC3C7">
+                            <tspan x="234" y="41">5'</tspan>
+                        </text>
+                        <rect id="anti-sense" fill="#BDC3C7" sketch:type="MSShapeGroup" x="50" y="23" width="143" height="9"></rect>
+                        <rect id="Rectangle-5" fill="#2ECC71" sketch:type="MSShapeGroup" x="193" y="23" width="42" height="9"></rect>
+                        <rect id="Rectangle-5" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="14" width="42" height="9"></rect>
+                    </g>
+                    <g id="before-PCR" transform="translate(0.000000, 55.000000)">
+                        <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="68" y="14" width="143" height="9"></rect>
+                        <text id="anneal" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                            <tspan x="28" y="72">create PCR product with RDP ends</tspan>
+                        </text>
+                        <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#66686A">
+                            <tspan x="0" y="12">5'</tspan>
+                        </text>
+                        <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#BDC3C7">
+                            <tspan x="271" y="41">5'</tspan>
+                        </text>
+                        <rect id="anti-sense" fill="#BDC3C7" sketch:type="MSShapeGroup" x="68" y="23" width="143" height="9"></rect>
+                        <rect id="Rectangle-5" fill="#2ECC71" sketch:type="MSShapeGroup" x="211" y="23" width="42" height="9"></rect>
+                        <rect id="Rectangle-5" fill-opacity="0.25" fill="#2ECC71" sketch:type="MSShapeGroup" x="211" y="14" width="60" height="9"></rect>
+                        <rect id="Rectangle-5" fill-opacity="0.25" fill="#2ECC71" sketch:type="MSShapeGroup" x="211" y="23" width="60" height="9"></rect>
+                        <rect id="Rectangle-5" fill="#F1C40F" sketch:type="MSShapeGroup" x="26" y="14" width="42" height="9"></rect>
+                        <rect id="Rectangle-5" fill-opacity="0.25" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="14" width="60" height="9"></rect>
+                        <rect id="Rectangle-5" fill-opacity="0.25" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="23" width="60" height="9"></rect>
+                    </g>
+                    <text id="...-longer-than-80bp" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="18" font-weight="normal" line-spacing="20" fill="#333333">
+                        <tspan x="61" y="17">... longer than 80bp</tspan>
+                    </text>
+                    <path d="M143.5,145.5 L143.5,185.699501" id="Line" stroke="#979797" stroke-linecap="square" fill="#66686A" sketch:type="MSShapeGroup"></path>
+                    <path id="Line-decoration-1" d="M143.5,185.699501 L146.5,174.899501 L140.5,174.899501 L143.5,185.699501 Z" stroke="#979797" stroke-linecap="square" fill="#66686A"></path>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

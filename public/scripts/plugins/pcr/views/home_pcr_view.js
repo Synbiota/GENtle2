@@ -90,6 +90,7 @@ export default Backbone.View.extend({
       displaySettings: {
         primaryView: primaryView
       },
+      tryShowingModal: true,
       sourceSequenceName: loadedSequence.name,
       features: loadedSequence.features,
     });
