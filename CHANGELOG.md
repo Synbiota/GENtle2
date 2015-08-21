@@ -2,7 +2,7 @@
 
 ## develop
 
-* Alex  2015-08-13  Added new RDP part onboarding help dialog
+* Alex/Dave  2015-08-13  Added new RDP part onboarding help dialog
 * James  2015-08-10  Change CDS part type to 'Fusion Protein CDS' and add 'CDS with stop' part type.
 
 ## 0.6.2
