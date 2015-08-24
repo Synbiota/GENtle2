@@ -2,6 +2,7 @@
 
 ## develop
 
+* James  2015-08-19  The PCR primer designer (`getPcrPrimerAnnealingRegions` and `getPcrProductAndPrimers`) now accept sequenceModel with stickyEnds.  This is so that extension regions that were previously appended afterwards (and could affect the primer annealing temperatures) can now be appended before hand and taken into consideration with relation to the underlying template DNA the `originalSequenceBases`.
 * James  2015-08-14  Persist new RDP part form data across page reloads and view changes.
 
 ## 0.7.0

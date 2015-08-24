@@ -20,10 +20,8 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
     var error = super.getRdpSequenceModel();
     if(error) return error;
 
-    // getPcrProductAndPrimers uses the stickyEnds attribute in `dataAndOptions`
-    // and the tempSequence sequenceBases to calculate the primers and new
-    // sequenceBases.
     var options = this.getOptionsForPcr();
+    // Calculate the primers
     return getPcrProductAndPrimers(this, options)
     .then((pcrProduct) => {
       var attributes = this.toJSON();
@@ -42,10 +40,16 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
   }
 
   getOptionsForPcr() {
-    var frm = this.get('frm');
+    // Remember:  `frm` and `size` refer to where the sequence attribute
+    // initially came from inside `originalSequenceBases`, so aren't very useful
+    // here.
+    var sameBasesFrm = this.get('sameBasesFrm');
+    var sameBasesSize = this.get('sameBasesSize');
     return {
-      frm,
-      to: frm + this.get('size'),
+      primerAnnealingFrm: sameBasesFrm,
+      primerAnnealingTo:  sameBasesFrm + sameBasesSize,
+      // Include extensions up and "down" stream of the annealing regions.
+      prependBases: true,
     };
   }
 }
