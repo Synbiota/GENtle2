@@ -366,7 +366,7 @@ function sequenceModelFactory(BackboneModel) {
       var value;
       var customGet = "get" + _.ucFirst(attribute);
 
-      if (this[customGet]){
+      if(this[customGet]){
         deprecated(this, `get('${attribute}')`, customGet);
         value = this[customGet](options);
       } else {
@@ -392,7 +392,6 @@ function sequenceModelFactory(BackboneModel) {
       }
 
       var ret = super.set(attribute, value, options);
-
 
       this.setNonEnumerableFields();
       return ret;

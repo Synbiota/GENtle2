@@ -7,9 +7,13 @@ import RdpEdit from './rdp_edit';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
 
+// stickyEnds will never be present on transformedSequence so we don't need to
+// specify any stickyEnd format
+var stickyEndFormat = WipRdpAbstractSequence.STICKY_END_ANY;
+
 var modifyBasesOptions = {
   updateHistory: false,
-  stickyEndFormat: WipRdpAbstractSequence.STICKY_END_ANY,
+  stickyEndFormat,
 };
 
 /**
@@ -76,7 +80,7 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
    */
   expandSameBases() {
     var originalSequenceBases = this.get('originalSequenceBases');
-    var sequence = this.get('sequence');
+    var sequence = this.getSequence(stickyEndFormat);
     var originalToCurrentSequenceOffset = this.get('originalToCurrentSequenceOffset');
     var sameBasesFrm = this.get('sameBasesFrm');
     var sameBasesSize = this.get('sameBasesSize');
@@ -91,7 +95,7 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     this.set({
       sameBasesFrm: sameBasesFrm - reverseSimilar,
       sameBasesSize: sameBasesSize + reverseSimilar + forwardSimilar,
-    })
+    });
   }
 
   deleteBases(firstBase, length, options={}) {
@@ -241,11 +245,15 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     return _.filter(rdpEdits, (rdpEdit) => rdpEdit.level === RdpEdit.levels.ERROR);
   }
 
-
   /**
-   * @method  getRdpSequenceModel  Not idempotent.  Checks the model has the
-   *          correct attributes before modifying the sequence and returning a
-   *          new.
+   * @method  getRdpSequenceModel  Not idempotent.  Checks the model has
+   *          successfully been transformed to have an RDP compliant sequence
+   *          (minus the RDP sticky ends).
+   *          Checks the model then has the correct attributes before modifying
+   *          the sequence to add the desiredStickyEnd sequences (essential for
+   *          calculating correct PCR primers and melting temperatures).
+   *          Subclasses return a Rejected Promise or a Promise that resolves
+   *          with the rdpSequenceModel.
    *          TODO: refactor transformSequenceForRdp to accept models with
    *          stickyEnds and move this code into the constructor so that
    *          `getRdpSequenceModel` can become idempotent.  Would be useful
@@ -266,10 +274,6 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
       error = Q.reject('sequenceModel must have desiredStickyEnds');
     }
     if(error) return error;
-
-    // stickyEnds not yet present on transformedSequence so we don't need to
-    // specify any stickyEnd format
-    var stickyEndFormat = this.STICKY_END_ANY;
 
     if(this.isProteinCoding) {
       if(desiredStickyEnds.start.name === 'X') {
