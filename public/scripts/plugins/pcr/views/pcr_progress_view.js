@@ -27,7 +27,7 @@ export default Backbone.View.extend({
 
   makePrimers: function(wipRdpPcrSequence) {
     this.wipRdpPcrSequence = wipRdpPcrSequence;
-    this.wipRdpPcrSequence.getRdpPcrSequenceModel()
+    this.wipRdpPcrSequence.getRdpSequenceModel()
     .then((rdpPcrSequenceModel) => {
       // ensures Gentle routes view to the RDP PCR product result view
       rdpPcrSequenceModel.set({'displaySettings.primaryView': 'rdp_pcr'});

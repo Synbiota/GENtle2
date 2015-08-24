@@ -226,7 +226,7 @@ export default Backbone.View.extend({
     this.state.calculating = true;
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
-      var newRdpOligoSequence = wipRdpOligoSequence.getRdpOligoSequence();
+      var newRdpOligoSequence = wipRdpOligoSequence.getRdpSequenceModel();
 
       // ensures Gentle routes view to the RDP oligo product result view
       newRdpOligoSequence.set('displaySettings.primaryView', 'rdp_oligo');
