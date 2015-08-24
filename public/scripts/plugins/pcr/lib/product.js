@@ -1,3 +1,4 @@
+import _ from 'underscore';
 import {version1GenericPreProcessor} from 'gentledna-utils/dist/preprocessor';
 import SequenceModel from '../../../sequence/models/sequence';
 import SequencesCollection from '../../../sequence/models/sequences';
@@ -28,16 +29,17 @@ class PcrProductSequence extends SequenceModel {
     return super.requiredFields.concat([
       'forwardPrimer',
       'reversePrimer',
-      'stickyEnds'
+    ]);
+  }
+
+  get optionalFields() {
+    return super.optionalFields.concat([
+      'stickyEnds',
     ]);
   }
 
   validateFields(attributes) {
     var errors = super.validateFields(attributes);
-    // Remove once stickyEnds are a class in their own right and their
-    // constructor would raise this error instead / return an empty stickyEnds
-    // instance
-    if(!attributes.stickyEnds) errors.push(`stickyEnds provided as attribute but were: ${attributes.stickyEnds}`);
     return errors;
   }
 }
