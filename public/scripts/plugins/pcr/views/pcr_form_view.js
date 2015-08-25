@@ -39,7 +39,7 @@ export default Backbone.View.extend({
     'change #newProduct_partType': 'updateStateAndRenderStickyEndsOption',
     'keyup #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
     'change #newProduct_from, #newProduct_to': 'updateStateAndRenderSequence',
-    'submit .new-pcr-product-form': 'calculateRdpEdits',
+    'submit .new-pcr-product-form': 'showProcessModal',
     'click .cancel-new-pcr-product-form': 'cancel'
   },
 
@@ -51,21 +51,21 @@ export default Backbone.View.extend({
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
     var partType = this.model.get('partType');
 
-    var tryShowingModalKey = 'tryShowingModal';
+    
 
-    if(this.model.get(tryShowingModalKey)) {
-      if(shouldShowModal()) {
-        Modal.show({
-          title: 'New RDP Part',
-          displayFooter: false,
-          bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
-        }).on('hide', () => {
-          this.model.set(tryShowingModalKey, false).throttledSave();
-        });
-      } else {
-        this.model.set(tryShowingModalKey, false).throttledSave();
-      }
-    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     // if description has not been set/modified, set it to name
     var desc = this.model.get('desc')
@@ -226,6 +226,7 @@ export default Backbone.View.extend({
 
   calculateRdpEdits: function(event) {
     event.preventDefault();
+    console.log('calculateRdpEdits')
     try {
       if(this.state.invalid.any) {
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
@@ -240,6 +241,7 @@ export default Backbone.View.extend({
         var desiredWipRdpSequence = this.model.getWipRdpCompliantSequenceModel(attributes);
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
         var errors = desiredWipRdpSequence.errors();
+        
 
         if(errors.length) {
           this.renderKnownRdpErrors(errors);
@@ -253,7 +255,11 @@ export default Backbone.View.extend({
             bodyView: new EditsView({
               transforms: rdpEdits
             })
-          }).once('confirm', () => {
+          }).on('confirm', () => {
+            console.log('calculateRdpEdits confirm')
+            this.createNewRdpPart(desiredWipRdpSequence);
+          }).on('hide', () => {
+            console.log('calcualteRdpEdits hide');
             this.createNewRdpPart(desiredWipRdpSequence);
           });
         }
@@ -263,8 +269,40 @@ export default Backbone.View.extend({
     }
   },
 
+  showProcessModal: function(event) {
+    event.preventDefault();
+    var tryShowingModalKey = 'tryShowingModalFalse';
+    console.log('showProcessModal');
+                                                                                
+    //if(this.model.get(tryShowingModalKey)) {
+      //console.log('model is get');
+      if(shouldShowModal()) {
+        console.log('should show modal')
+        Modal.show({
+          title: 'New RDP Part',
+          displayFooter: false,
+          bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
+        }).on('hide', () => {
+          console.log('modal hide')
+          this.model.set(tryShowingModalKey, false).throttledSave();
+          this.calculateRdpEdits(event);
+        }).on('confirm', () => {
+          console.log('modal confirm')
+          this.calculateRdpEdits(event);
+        });
+      } else {
+        console.log('should not show modal')
+        this.model.set(tryShowingModalKey, false).throttledSave();
+        this.calculateRdpEdits(event);
+      }
+    //}
+
+
+  },
+
   createNewRdpPart: function(desiredWipRdpSequence) {
     this.state.calculating = true;
+    console.log('createNewRdpPart')
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
       var data = this.getData();

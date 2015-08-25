@@ -38,6 +38,8 @@ var Modal = Backbone.View.extend({
   },
 
   hide(confirm) {
+    console.log('Modal hide');
+    console.log(confirm);
     this.$el.off('hide.bs.modal').modal('hide');
     this.removeView('.modal-body');
     this.trigger(confirm ? 'confirm' : 'cancel');
@@ -48,6 +50,7 @@ var Modal = Backbone.View.extend({
 
   confirm(event) {
     if(event) event.preventDefault();
+    console.log('Modal confirm');
     this.hide(true);
   },
 
