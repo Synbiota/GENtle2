@@ -10,23 +10,23 @@ var wip_rdp_ready_oligo_sequence = 'wip_rdp_ready_oligo_sequence';
 
 
 class WipRdpReadyOligoSequence extends WipRdpReadyAbstractSequence {
-  constructor(attrs, options={}) {
-    options.NextClass = RdpOligoSequence;
-    options.types = RdpTypes.oligoTypes;
-    super(attrs, options);
-    var desiredStickyEnds = this.getShortenedStickyEnds();
-    this.set({_type: wip_rdp_ready_oligo_sequence, desiredStickyEnds}, {silent: false});
-  }
-
-  getShortenedStickyEnds() {
-    var stickyEnds = _.deepClone(this.get('desiredStickyEnds'));
-    var start = stickyEnds.start;
+  static getShortenedStickyEnds(desiredStickyEnds) {
+    desiredStickyEnds = _.deepClone(desiredStickyEnds);
+    var start = desiredStickyEnds.start;
     start.sequence = start.sequence.substr(start.offset, start.size);
-    var end = stickyEnds.end;
+    var end = desiredStickyEnds.end;
     end.sequence = end.sequence.substr(0, end.size);
     start.offset = 0;
     end.offset = 0;
-    return stickyEnds;
+    return desiredStickyEnds;
+  }
+
+  constructor(attrs, options={}) {
+    options.NextClass = RdpOligoSequence;
+    options.types = RdpTypes.oligoTypes;
+    attrs.desiredStickyEnds = WipRdpReadyOligoSequence.getShortenedStickyEnds(attrs.desiredStickyEnds);
+    super(attrs, options);
+    this.set({_type: wip_rdp_ready_oligo_sequence}, {silent: false});
   }
 
   getRdpSequenceModel() {
