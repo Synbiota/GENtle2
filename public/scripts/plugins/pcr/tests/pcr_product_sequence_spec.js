@@ -99,4 +99,10 @@ describe('PcrProductSequence', function() {
     var serialised = pcrProductSequence.toJSON();
     expect(serialised.meta.associations.forwardPrimer.range.size).toEqual(10);
   });
+
+  it('a valid model should save without error', function() {
+    expect(pcrProductSequence.validationError).toEqual(null);
+    pcrProductSequence.save();
+    expect(pcrProductSequence.validationError.length).toEqual(0);
+  });
 });
