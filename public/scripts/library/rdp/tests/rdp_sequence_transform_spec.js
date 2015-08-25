@@ -38,7 +38,7 @@ var sequenceAttributes = function() {
 };
 
 
-var pcrSequenceModel, oligoSequenceModel, rdpEdits;
+var mockRdpReadyPcrSequenceModel, mockRdpReadyOligoSequenceModel, rdpEdits;
 
 var makeSequence = function(Klass, bases, desiredStickyEnds=stickyEndsXZ(), partType=undefined) {
   var attributes = sequenceAttributes();
@@ -52,26 +52,39 @@ var makeSequence = function(Klass, bases, desiredStickyEnds=stickyEndsXZ(), part
 };
 
 var makePcrSequence = function(bases, desiredStickyEnds=undefined, partType=RdpTypes.types.CDS) {
-  pcrSequenceModel = makeSequence(WipRdpReadyPcrSequence, bases, desiredStickyEnds, partType);
-  return pcrSequenceModel;
+  mockRdpReadyPcrSequenceModel = makeSequence(WipRdpReadyPcrSequence, bases, desiredStickyEnds, partType);
 };
 
 var makeOligoSequence = function(bases, desiredStickyEnds=undefined, partType=RdpTypes.types.PROMOTER) {
-  oligoSequenceModel = makeSequence(WipRdpReadyOligoSequence, bases, desiredStickyEnds, partType);
-  return oligoSequenceModel;
+  mockRdpReadyOligoSequenceModel = makeSequence(WipRdpReadyOligoSequence, bases, desiredStickyEnds, partType);
 };
 
 
-var getPcrSequence = function() {
-  return pcrSequenceModel.getSequence(pcrSequenceModel.STICKY_END_FULL);
+var FULL = WipRdpReadyPcrSequence.STICKY_END_FULL;
+
+var getPcrSequenceBases = function(format=FULL) {
+  return mockRdpReadyPcrSequenceModel.getSequence(format);
 };
 
-var getOligoSequence = function() {
-  return oligoSequenceModel.getSequence(oligoSequenceModel.STICKY_END_FULL);
+var getOligoSequenceBases = function(format=FULL) {
+  return mockRdpReadyOligoSequenceModel.getSequence(format);
+};
+
+
+var stubClassFunction = function(Klass, functionName) {
+  var oldFunction = Klass.prototype[functionName];
+  Klass.prototype[functionName] = () => {};
+  var unstub = function() {
+    Klass.prototype[functionName] = oldFunction;
+  };
+  return unstub;
 };
 
 
 describe('RDP sequence transforms', function() {
+  var unstubPcr;
+  var unstubOligo;
+
   beforeAll(function() {
     // Need to set class name attributes as CircleCi doesn't work properly
     WipRdpReadyPcrSequence.className = 'WipRdpReadyPcrSequence';
@@ -88,10 +101,20 @@ describe('RDP sequence transforms', function() {
   });
 
   describe('calculateTransformationFunctionInstances', function() {
+    beforeAll(function() {
+      unstubPcr = stubClassFunction(WipRdpReadyPcrSequence, '_transformSequenceForRdp');
+      unstubOligo = stubClassFunction(WipRdpReadyOligoSequence, '_transformSequenceForRdp');
+    });
+
+    afterAll(function() {
+      unstubPcr();
+      unstubOligo();
+    });
+
     describe('for RDP PCR', function() {
       it("Fusion Protein CDS X-Z'", function() {
         makePcrSequence('AAT', stickyEndsXZ(), RdpTypes.types.CDS);
-        var transforms = calculateTransformationFunctionInstances(pcrSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyPcrSequenceModel);
         expect(transforms.length).toEqual(4);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
@@ -101,7 +124,7 @@ describe('RDP sequence transforms', function() {
 
       it("CDS with STOP X-Z'", function() {
         makePcrSequence('AATTGA', stickyEndsXZ(), RdpTypes.types.CDS_WITH_STOP);
-        var transforms = calculateTransformationFunctionInstances(pcrSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyPcrSequenceModel);
         expect(transforms.length).toEqual(3);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_CODON_IS_STOP);
@@ -110,7 +133,7 @@ describe('RDP sequence transforms', function() {
 
       it("Modifier X-Z'", function() {
         makePcrSequence('AAT', stickyEndsXZ(), RdpTypes.types.MODIFIER);
-        var transforms = calculateTransformationFunctionInstances(pcrSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyPcrSequenceModel);
         expect(transforms.length).toEqual(4);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
@@ -120,7 +143,7 @@ describe('RDP sequence transforms', function() {
 
       it("Modifier Z-X'", function() {
         makePcrSequence('AAT', stickyEndsZX(), RdpTypes.types.MODIFIER);
-        var transforms = calculateTransformationFunctionInstances(pcrSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyPcrSequenceModel);
         expect(transforms.length).toEqual(3);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_G);
@@ -129,14 +152,14 @@ describe('RDP sequence transforms', function() {
 
       it("Other X-Z'", function() {
         makePcrSequence('AAT', stickyEndsXZ(), RdpTypes.types.OTHER);
-        var transforms = calculateTransformationFunctionInstances(pcrSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyPcrSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Other Z-X'", function() {
         makePcrSequence('AAT', stickyEndsZX(), RdpTypes.types.OTHER);
-        var transforms = calculateTransformationFunctionInstances(pcrSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyPcrSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -146,21 +169,21 @@ describe('RDP sequence transforms', function() {
     describe('for RDP oligo', function() {
       it("RBS Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.RBS);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(1);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.FIRST_CODON_IS_STOP);
       });
 
       it("Terminator Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.TERMINATOR);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(1);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.FIRST_CODON_IS_STOP);
       });
 
       it("Modifier X-Z'", function() {
         makeOligoSequence('AAT', stickyEndsXZ(), RdpTypes.types.MODIFIER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(4);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.METHIONINE_START_CODON);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
@@ -170,7 +193,7 @@ describe('RDP sequence transforms', function() {
 
       it("Modifier Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.MODIFIER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(3);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_G);
@@ -179,7 +202,7 @@ describe('RDP sequence transforms', function() {
 
       it("Protein linker Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.PROTEIN_LINKER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(3);
         expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.LAST_STOP_CODONS_REMOVED);
         expect(transforms[1].rdpEditType).toEqual(RdpEdit.types.LAST_BASE_IS_G);
@@ -188,42 +211,42 @@ describe('RDP sequence transforms', function() {
 
       it("Promoter X-Z'", function() {
         makeOligoSequence('AAT', stickyEndsXZ(), RdpTypes.types.PROMOTER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Promoter Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.PROMOTER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Operator X-Z'", function() {
         makeOligoSequence('AAT', stickyEndsXZ(), RdpTypes.types.OPERATOR);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Operator Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.OPERATOR);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Other X-Z'", function() {
         makeOligoSequence('AAT', stickyEndsXZ(), RdpTypes.types.OTHER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
 
       it("Other Z-X'", function() {
         makeOligoSequence('AAT', stickyEndsZX(), RdpTypes.types.OTHER);
-        var transforms = calculateTransformationFunctionInstances(oligoSequenceModel);
+        var transforms = calculateTransformationFunctionInstances(mockRdpReadyOligoSequenceModel);
         expect(transforms.length).toEqual(0);
         // expect(transforms[0].rdpEditType).toEqual(RdpEdit.types.EARLY_STOP_CODON);
       });
@@ -313,7 +336,7 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[1].type).toEqual(RdpEdit.types.NOT_MULTIPLE_OF_3);
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.ERROR);
 
-        expect(getPcrSequence()).toEqual('AC');
+        expect(getPcrSequenceBases()).toEqual('AC');
       });
 
       it('should error if stickyEnds are present', function() {
@@ -328,12 +351,22 @@ describe('RDP sequence transforms', function() {
     });
 
 
-    describe('sequence possible to make RDP compliant', function() {
+    describe('sequence possible to make RDP compliant (before sticky ends added)', function() {
+      beforeAll(function() {
+        unstubPcr = stubClassFunction(WipRdpReadyPcrSequence, '_addRdpStickyEnds');
+        unstubOligo = stubClassFunction(WipRdpReadyOligoSequence, '_addRdpStickyEnds');
+      });
+
+      afterAll(function() {
+        unstubPcr();
+        unstubOligo();
+      });
+
       it('if no transformations to make', function() {
         makePcrSequence('ATGAAC');
 
         expect(rdpEdits.length).toEqual(0);
-        expect(getPcrSequence()).toEqual('ATGAAC');
+        expect(getPcrSequenceBases()).toEqual('ATGAAC');
       });
 
       it('should transform Fusion protein CDS with conversion of start codon', function() {
@@ -349,7 +382,7 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[2].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
         expect(rdpEdits[2].level).toEqual(RdpEdit.levels.WARN);
 
-        expect(getPcrSequence()).toEqual('ATGTAG' + ARGININE);
+        expect(getPcrSequenceBases()).toEqual('ATGTAG' + ARGININE);
       });
 
       it('should transform Fusion protein CDS with addition of start codon', function() {
@@ -361,7 +394,7 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[1].type).toEqual(RdpEdit.types.LAST_BASE_IS_C_NO_AA_CHANGE);
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.NORMAL);
 
-        expect(getPcrSequence()).toEqual('ATGACCTGTTTTAAAAAC');
+        expect(getPcrSequenceBases()).toEqual('ATGACCTGTTTTAAAAAC');
       });
 
       it('should transform CDS_WITH_STOP with multiple stops', function() {
@@ -372,7 +405,7 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[1].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
         expect(rdpEdits[1].level).toEqual(RdpEdit.levels.WARN);
 
-        expect(getPcrSequence()).toEqual('ATGCCCTGACCCTGATGA');
+        expect(getPcrSequenceBases()).toEqual('ATGCCCTGACCCTGATGA');
       });
 
       it('should transform CDS_WITH_STOP with no STOP codon as last codon', function() {
@@ -385,7 +418,7 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[2].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
         expect(rdpEdits[2].level).toEqual(RdpEdit.levels.WARN);
 
-        expect(getPcrSequence()).toEqual('ATGCCCTGACCCTAG');
+        expect(getPcrSequenceBases()).toEqual('ATGCCCTGACCCTAG');
       });
 
       it('should transform oligo', function() {
@@ -398,7 +431,7 @@ describe('RDP sequence transforms', function() {
         expect(rdpEdits[2].type).toEqual(RdpEdit.types.EARLY_STOP_CODON);
         expect(rdpEdits[2].level).toEqual(RdpEdit.levels.WARN);
 
-        expect(getOligoSequence()).toEqual('GTGTAGAAG');
+        expect(getOligoSequenceBases()).toEqual('GTGTAGAAG');
       });
     });
   });

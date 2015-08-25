@@ -1,16 +1,14 @@
 import _ from 'underscore';
 import WipRdpReadyPcrSequence from '../wip_rdp_ready_pcr_sequence';
 import RdpTypes from '../rdp_types';
-import {
-  stickyEndsXZ,
-  stickyEndsZX,
-} from './fixtures';
+import {stickyEndsXZ} from './fixtures';
 
 
 describe('WipRdpReadyAbstractSequence', function() {
-  var spyAndStub = function(_sequence) {
-    spyOn(_sequence, 'save');
-    spyOn(_sequence, 'throttledSave');
+  var spyAndStubMethods = function(Klass) {
+    spyOn(Klass.prototype, 'save');
+    spyOn(Klass.prototype, 'throttledSave');
+    spyOn(Klass.prototype, '_addRdpStickyEnds');
   };
 
   var makeSequenceModel = function(attributes={}) {
@@ -23,7 +21,7 @@ describe('WipRdpReadyAbstractSequence', function() {
       size: 5,
       partType: RdpTypes.types.PROMOTER,
     });
-    spyAndStub(WipRdpReadyPcrSequence.prototype);
+    spyAndStubMethods(WipRdpReadyPcrSequence);
     return new WipRdpReadyPcrSequence(attributes);
   };
 

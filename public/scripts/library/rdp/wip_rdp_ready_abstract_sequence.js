@@ -18,7 +18,7 @@ var modifyBasesOptions = {
 
 /**
  * Should be generated from calling `getWipRdpCompliantSequenceModel`
- * subclases of WipRdpAbstractSequence class
+ * method of WipRdpAbstractSequence subclasses
  */
 class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
   constructor(attributes, options={}) {
@@ -32,6 +32,7 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     attributes.sameBasesFrm = 0;
     attributes.sameBasesSize = attributes.sequence.length;
     super(attributes, options);
+    this._instantiated = true;
     this._transformSequenceForRdp();
   }
 
@@ -61,11 +62,30 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     if(!this.validPartType(attributes.partType)) {
       errors.push(`Invalid partType: "${attributes.partType}"`);
     }
-    var name = attributes.desiredStickyEnds && attributes.desiredStickyEnds.name;
-    if(!_.contains(this.availableStickyEndNames, name)) {
-      errors.push(`Invalid desiredStickyEnds: "${name}"`);
+    if(!this._instantiated) {
+      if(attributes.stickyEnds) {
+        errors.push('sequenceModel can not have stickyEnds yet');
+      }
+      var desiredStickyEnds = attributes.desiredStickyEnds;
+      var name = desiredStickyEnds && desiredStickyEnds.name;
+      if(!_.contains(this.availableStickyEndNames, name)) {
+        errors.push(`Invalid desiredStickyEnds: "${name}"`);
+      }
+      if(!desiredStickyEnds || !desiredStickyEnds.start || !desiredStickyEnds.end) {
+        errors.push('sequenceModel must have desiredStickyEnds');
+      }
     }
     return errors;
+  }
+
+  /**
+   * @method save  Over ridden with NoOp as this instance should only be
+   * generated from calling `getWipRdpCompliantSequenceModel`
+   * method of WipRdpAbstractSequence subclasses
+   * @return {SequenceModel}  this instance.
+   */
+  save() {
+    return this;
   }
 
   /**
@@ -228,14 +248,40 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
     if(frm > 0 ) this.deleteBases(0, frm, modifyBasesOptions);
 
     var rdpEdits = transformSequenceForRdp(this);
+    this.set({rdpEdits});
+
+    if(!this.errors().length) this._addRdpStickyEnds();
+  }
+
+  _addRdpStickyEnds() {
     var desiredStickyEnds = this.get('desiredStickyEnds');
     var shortName = (
       desiredStickyEnds.start.name + '-' +
       this.get('shortName') + '-' +
       desiredStickyEnds.end.name
     );
+    var startStickyEndSequence = desiredStickyEnds.start.sequence;
+    var endStickyEndSequence = desiredStickyEnds.end.sequence;
+    if(this.isProteinCoding) {
+      if(desiredStickyEnds.start.name === 'X') {
+        // the ATG has been added / or has been confirmed as being already
+        // present, so don't add it again in the form of the
+        // ATG from the GATG of the X stickyEnd
+        startStickyEndSequence = startStickyEndSequence.substr(0, startStickyEndSequence.length - 3);
+      }
+
+      if(!this.isCdsWithStop) {
+        // Remove the first base of the stickyEnd to ensure the correct reading
+        // frame is maintained
+        endStickyEndSequence = endStickyEndSequence.slice(1);
+      }
+    }
+    var len = this.getLength(stickyEndFormat);
+    this.insertBases(endStickyEndSequence, len, modifyBasesOptions);
+    this.insertBases(startStickyEndSequence, 0, modifyBasesOptions);
     this.set({
-      rdpEdits,
+      stickyEnds: desiredStickyEnds,
+      desiredStickyEnds: undefined,
       shortName,
     });
   }
@@ -246,9 +292,9 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
   }
 
   /**
-   * @method  getRdpSequenceModel  Not idempotent.  Checks the model has
+   * @method  getRdpSequenceModel  Idempotent.  Checks the model has
    *          successfully been transformed to have an RDP compliant sequence
-   *          (minus the RDP sticky ends).
+   *          including the RDP sticky ends.
    *          Checks the model then has the correct attributes before modifying
    *          the sequence to add the desiredStickyEnd sequences (essential for
    *          calculating correct PCR primers and melting temperatures).
@@ -262,40 +308,9 @@ class WipRdpReadyAbstractSequence extends WipRdpAbstractSequence {
    * @return {Rejected Promise or undefined}
    */
   getRdpSequenceModel() {
-    var error;
     if(this.errors().length) {
-      error = Q.reject('Can not call getRdpSequenceModel if there were errors making this into an RDP sequence');
+      return Q.reject('Can not call getRdpSequenceModel if there were errors making this into an RDP sequence');
     }
-    if(this.getStickyEnds(false)) {
-      error = Q.reject('sequenceModel can not have stickyEnds');
-    }
-    var desiredStickyEnds = _.deepClone(this.get('desiredStickyEnds'));
-    if(!desiredStickyEnds || !desiredStickyEnds.start || !desiredStickyEnds.end) {
-      error = Q.reject('sequenceModel must have desiredStickyEnds');
-    }
-    if(error) return error;
-
-    if(this.isProteinCoding) {
-      if(desiredStickyEnds.start.name === 'X') {
-        // the ATG has been added / or has been confirmed as being already
-        // present, so don't add it again in the form of the
-        // ATG from the GATG of the X stickyEnd
-        var seq = desiredStickyEnds.start.sequence;
-        desiredStickyEnds.start.sequence = seq.substr(0, seq.length - 3);
-      }
-      if(!this.isCdsWithStop) {
-        // Remove the first base of the stickyEnd to ensure the correct reading
-        // frame is maintained
-        desiredStickyEnds.end.sequence = desiredStickyEnds.end.sequence.slice(1);
-      }
-    }
-    this.insertBases(desiredStickyEnds.start.sequence, 0, modifyBasesOptions);
-    var len = this.getLength(stickyEndFormat);
-    this.insertBases(desiredStickyEnds.end.sequence, len, modifyBasesOptions);
-    this.set({
-      stickyEnds: desiredStickyEnds,
-      desiredStickyEnds: undefined,
-    });
     return undefined;
   }
 }
