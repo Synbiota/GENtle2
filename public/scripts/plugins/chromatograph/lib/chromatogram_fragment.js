@@ -1,14 +1,17 @@
 import SequenceModel from '../../../sequence/models/sequence';
 import SequencesCollection from '../../../sequence/models/sequences';
 
+import Nt from 'ntseq';
+
 var classType = 'chromatogramFragment'
 
 class ChromatogramFragment extends SequenceModel {
 
-  // constructor(attrs, ...args) {
-  //   super(attrs, ...args);
-  //   this.set({_type: classType}, {silent: true});
-  // }
+  constructor(attrs, ...args) {
+    super(attrs, ...args);
+    this.set({_type: classType}, {silent: true});
+    window.a = this;
+  }
 
   // constructor(attributes, options={}) {
   //   // FIXME:  `uniqueId` does not work across browser sessions.
@@ -44,6 +47,24 @@ class ChromatogramFragment extends SequenceModel {
   // }
 
   complement(){
+
+    var parentSequence = this.get('parentSequence').parentSequence,
+        sequence = this.getSequence(),
+        isComplement = this.get('isComplement');
+
+    var seq1 = parentSequence.ntseq || new Nt.Seq().read(parentSequence.getSequence()),
+        seq2 = isComplement ?
+                new Nt.Seq().read(sequence) :
+                new Nt.Seq().read(sequence).complement(),
+        map = seq1.mapSequence(seq2).best();
+
+    this.set('isComplement', !isComplement)
+    this.set('position', map.position)
+    this.set('mask', map.alignmentMask().sequence())
+
+    this.throttledSave();
+    this.trigger('reverseComplement:chromatogramFragment', this)
+
 
   }
 

@@ -1,5 +1,6 @@
 import Gentle from 'gentle';
 import SequenceModel from '../../sequence/models/sequence';
+import SequencesCollection from '../../sequence/models/sequences';
 import ChromatographView from './views/chromatograph_view';
 import ChromatographSettingsView from './views/chromatograph_settings_view'
 import ChromatogramFragment from './lib/chromatogram_fragment.js'
@@ -27,4 +28,13 @@ var version1PcrProductPreProcessor = version1GenericPreProcessor('chromatogramFr
 
 SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 
-SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true);
+// SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true, function(){
+//   if (this.attributes.chromatogramFragments.toJSON == undefined) {
+//     this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
+//     this.attributes.chromatogramFragments.parentSequence = this;
+//   }
+
+//   return this.attributes.chromatogramFragments;
+// });
+
+SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true, SequencesCollection);

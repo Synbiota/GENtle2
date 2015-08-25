@@ -35,7 +35,7 @@ var SequencesCollection = Backbone.Collection.extend({
           attributes = item.toJSON();
         } else if(_.isObject(item.attributes)) {
           attributes = item.attributes;
-        } 
+        }
 
         return JSON.stringify(attributes);
       } else {
@@ -44,7 +44,7 @@ var SequencesCollection = Backbone.Collection.extend({
     },
     // fix for "illegal access" error on Android when JSON.parse is passed null
     deserialize: function (data) {
-      return data && JSON.parse(data);  
+      return data && JSON.parse(data);
     }
   }),
   serialize: function() { return _.map(this.models, function(model) { return model.serialize(); }); }

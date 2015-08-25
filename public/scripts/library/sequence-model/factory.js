@@ -46,8 +46,12 @@ let instantiateSingle = function(constructor, otherArgs, fieldValue) {
  */
 let instantiate = function(association, fieldValue, otherArgs) {
   if(association.many) {
-    // Instantiate an array of new instances of the given constructor
-    fieldValue = _.map(fieldValue, _.partial(instantiateSingle, association.constructor, otherArgs));
+    if (association.collection){
+      fieldValue = new association.collection(fieldValue);
+    } else{
+      // Instantiate an array of new instances of the given constructor
+      fieldValue = _.map(fieldValue, _.partial(instantiateSingle, association.constructor, otherArgs));
+    }
   } else if(!_.isUndefined(fieldValue)) {
     fieldValue = instantiateSingle(association.constructor, otherArgs, fieldValue);
   }
@@ -93,7 +97,7 @@ function sequenceModelFactory(BackboneModel) {
    * @constructor
    */
   class Sequence extends BackboneModel {
-    static registerAssociation(constructor, rawAssociationName, many=false) {
+    static registerAssociation(constructor, rawAssociationName, many=false, collection) {
       if(rawAssociationName.endsWith('s')) {
         throw new Error(`associationName "${rawAssociationName}" can not end with an "s".`);
       }
@@ -107,7 +111,8 @@ function sequenceModelFactory(BackboneModel) {
       if(_(classAssociationsObject.classAssociations).findWhere({associationName: associationName})) {
         throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered for "${klass.name}".`);
       }
-      classAssociationsObject.classAssociations.push({associationName, many, constructor});
+
+      classAssociationsObject.classAssociations.push({associationName, many, constructor, collection});
     }
 
     /**
@@ -198,6 +203,7 @@ function sequenceModelFactory(BackboneModel) {
       this.ntSeq = new Nt.Seq().read(this.getSequence());
 
       this.setNonEnumerableFields();
+
     }
 
     defaults() {
@@ -1636,14 +1642,15 @@ function sequenceModelFactory(BackboneModel) {
       return this._throttledSave();
     }
 
-    getChromatogramFragments(){
+    // getChromatogramFragments(){
 
-      if (this.attributes.chromatogramFragments.toJSON == undefined) {
-        this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
-      }
+    //   if (this.attributes.chromatogramFragments.toJSON == undefined) {
+    //     this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
+    //     this.attributes.chromatogramFragments.parentSequence = this;
+    //   }
 
-      return this.attributes.chromatogramFragments;
-    }
+    //   return this.attributes.chromatogramFragments;
+    // }
 
     getConsensus(){
       return super.get('consensus') || this.getSequence();
