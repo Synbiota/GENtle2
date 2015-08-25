@@ -24,16 +24,12 @@ class WipRdpReadyPcrSequence extends WipRdpReadyAbstractSequence {
     // Calculate the primers
     return getPcrProductAndPrimers(this, options)
     .then((pcrProduct) => {
-      var attributes = this.toJSON();
-      var generalAttributes = _.pick(attributes, 'name', 'shortName', 'desc', 'features');
-      var rdpSpecificAttributes = _.pick(attributes, 'partType', 'sourceSequenceName', 'rdpEdits');
+      var pcrProductAttributes = pcrProduct.toJSON();
       var rdpPcrAttributes = _.extend(
         {displaySettings: {}},
-        pcrProduct.toJSON(),
-        generalAttributes,
-        rdpSpecificAttributes,
-        {_type: 'rdp_pcr_product'}
+        pcrProductAttributes
       );
+      delete rdpPcrAttributes._type;
       var rdpPcrSequenceModel = new RdpPcrSequence(rdpPcrAttributes);
       return rdpPcrSequenceModel;
     });
