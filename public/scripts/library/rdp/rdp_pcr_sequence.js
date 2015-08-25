@@ -16,12 +16,17 @@ class RdpPcrSequence extends PcrProductSequence {
 
   get requiredFields() {
     return super.requiredFields.concat([
-      // stickyEnds, forwardPrimer and reversePrimer are requiredFields of PcrProductSequence
+      // forwardPrimer and reversePrimer are requiredFields of PcrProductSequence
+      'stickyEnds',
       'sourceSequenceName',
       'shortName',
       'partType',
       'rdpEdits'
     ]);
+  }
+
+  get optionalFields() {
+    return _.reject(super.optionalFields, (field) => field === 'stickyEnds');
   }
 }
 
