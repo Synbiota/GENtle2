@@ -149,28 +149,6 @@ var calculateFeatures = function(pcrProductModel) {
   }
   ];
 
-  if(pcrProductModel.getStickyEnds(false)) {
-    var stickyEnds = pcrProductModel.getStickyEnds(true);
-    var sequenceNts = pcrProductModel.getSequence(stickyEndFormat);
-    features = [{
-      name: stickyEnds.start.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: 0,
-        to: stickyEnds.start.sequence.length-1
-      }]
-    },
-    {
-      name: stickyEnds.end.name + ' end',
-      _type: 'sticky_end',
-      ranges: [{
-        from: sequenceNts.length - 1,
-        to: sequenceNts.length - stickyEnds.end.sequence.length - 2,
-      }]
-    }];
-  }
-
-
   return features;
 };
 
