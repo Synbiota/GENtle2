@@ -132,7 +132,7 @@ export default Backbone.View.extend({
           to: stickyEnds.start.size + stickyEnds.start.offset - 1,
           reverseComplement: false,
         }]
-      })
+      });
     }
 
     if(!(model instanceof RdpOligoSequence) || rdpOligoReverseStrand) {

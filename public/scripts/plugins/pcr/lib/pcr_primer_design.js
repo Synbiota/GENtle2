@@ -222,6 +222,7 @@ var calculatePcrProduct = function(sequenceModel, forwardAnnealingRegion, revers
     reversePrimer: reversePrimerAttributes,
     features: [],
   });
+  delete attributes.id;
 
   var pcrProduct = new PcrProductSequence(attributes);
   pcrProduct.set('features', calculateFeatures(pcrProduct));
