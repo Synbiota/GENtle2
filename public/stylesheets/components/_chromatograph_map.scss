@@ -1,4 +1,4 @@
-$chromatograph-legend-width: 100px;
+$chromatograph-legend-width: 95px;
 
 // Put this in separate file later
 .sequence-chromatograph-wrapper {
@@ -43,11 +43,11 @@ $chromatograph-legend-width: 100px;
 
 
 .chromatograph-map-legend {
-  width: $chromatograph-legend-width;
+  width: $chromatograph-legend-width - 5;
   height: 100%;
   float: left;
 
-  border-right: 5px solid #ddd;
+  // border-right: 5px solid #ddd;
   text-align: right;
 
   padding-top: 70px;
@@ -60,11 +60,15 @@ $chromatograph-legend-width: 100px;
 
 .chromatograph-map-container {
   position: relative;
-  height: 100%;
+  // height: 100%;
   // width: auto;
+  min-height: 100%;
   width: 100%;
-  margin-right: -$chromatograph-legend-width;
+  margin-right: -($chromatograph-legend-width - 5);
   margin-left: auto;
+
+  border-left: 5px solid #ddd;
+
 }
 
 .chromatograph-map-cursor {
@@ -106,11 +110,13 @@ $chromatograph-legend-width: 100px;
 
   background-color: white;
 
+  overflow-x: hidden;
+  overflow-y: scroll;
+
   &.open {
     height: 300px;
   }
 
-  overflow: hidden;
   border-bottom: 20px solid #e5e5e5;
 
   .chromatograph-toggle-dropdown {
@@ -145,6 +151,10 @@ $chromatograph-legend-width: 100px;
     border-top: 5px solid red;
     border-right: 5px solid transparent;
     border-left: 5px solid transparent;
+  }
+
+  .chromatograph-map-fragments {
+    padding-bottom: 2px;
   }
 
   .chromatograph-map-fragment {

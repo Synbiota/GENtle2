@@ -51,6 +51,8 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
 
       _.extend(_this.rows[index + 1].sequence, fragments[index])
 
+      _this.scrollToBase(fragments[index].position)
+
       _this.display2d();
     });
 

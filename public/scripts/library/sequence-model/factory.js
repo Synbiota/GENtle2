@@ -207,6 +207,7 @@ function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
+        chromatogramFragments: [],
         stickyEndFormat: STICKY_END_OVERHANG,
       };
     }
