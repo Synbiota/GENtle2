@@ -144,10 +144,9 @@ describe('RdpPcrSequence model', function() {
       }
     }
   };
-  var rdpPcrSequence;
 
-  it('should instantiate from json data from server', function() {
-    rdpPcrSequence = new RdpPcrSequence(attributes);
+  var itShouldInstantiateCorrectly = function(attrs) {
+    var rdpPcrSequence = new RdpPcrSequence(attrs);
     expect(rdpPcrSequence.get('_type')).toEqual('rdp_pcr_product');
     expect(rdpPcrSequence.get('rdpEdits').length).toEqual(1);
     var rdpEdit = rdpPcrSequence.get('rdpEdits')[0];
@@ -156,10 +155,21 @@ describe('RdpPcrSequence model', function() {
     expect(rdpEdit.contextAfter instanceof RdpSequenceFeature).toEqual(true);
     expect(rdpEdit.contextBefore.ranges.length).toEqual(1);
     expect(rdpEdit.contextBefore.ranges[0] instanceof SequenceRange).toEqual(true);
+  };
+
+  it('should instantiate from json data from server', function() {
+    itShouldInstantiateCorrectly(attributes);
   });
 
   it('should serialise', function() {
+    var rdpPcrSequence = new RdpPcrSequence(attributes);
     var json = rdpPcrSequence.toJSON();
     expect(json.meta.associations.rdpEdits[0].contextAfter.ranges[0].size).toEqual(3);
+  });
+
+  it('should instantiate from serialised', function() {
+    var rdpPcrSequence = new RdpPcrSequence(attributes);
+    var json = rdpPcrSequence.toJSON();
+    itShouldInstantiateCorrectly(json);
   });
 });
