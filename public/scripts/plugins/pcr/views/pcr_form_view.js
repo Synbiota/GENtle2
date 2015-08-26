@@ -50,21 +50,6 @@ export default Backbone.View.extend({
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
     var partType = this.model.get('partType');
-
-    
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     // if description has not been set/modified, set it to name
@@ -242,12 +227,15 @@ export default Backbone.View.extend({
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
         var errors = desiredWipRdpSequence.errors();
         
+        console.log('desiredWipRdpSequence:');
+        console.log(desiredWipRdpSequence);
 
         if(errors.length) {
           this.renderKnownRdpErrors(errors);
         } else if(rdpEdits.length === 0) {
           this.createNewRdpPart(desiredWipRdpSequence);
         } else {
+          //
           Modal.show({
             title: 'Make source sequence RDP-compliant',
             subTitle: 'The following edit(s) must be made to the source sequence to convert it to an RDP-compliant part',
@@ -256,15 +244,15 @@ export default Backbone.View.extend({
               transforms: rdpEdits
             })
           }).on('confirm', () => {
-            console.log('calculateRdpEdits confirm')
-            this.createNewRdpPart(desiredWipRdpSequence);
-          }).on('hide', () => {
-            console.log('calcualteRdpEdits hide');
+            console.log('confirm from calculateRdpEdits modal');
+            console.log(desiredWipRdpSequence);
             this.createNewRdpPart(desiredWipRdpSequence);
           });
+            
         }
       }
     } catch(error) {
+      console.log(error);
       this.handleUnexpectedError(error);
     }
   },
@@ -283,13 +271,11 @@ export default Backbone.View.extend({
           displayFooter: false,
           bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
         }).on('hide', () => {
-          console.log('modal hide')
-          this.model.set(tryShowingModalKey, false).throttledSave();
+          console.log('hide from showProcessModal');
+
+          //this.model.set(tryShowingModalKey, false).throttledSave();
           this.calculateRdpEdits(event);
-        }).on('confirm', () => {
-          console.log('modal confirm')
-          this.calculateRdpEdits(event);
-        });
+        })
       } else {
         console.log('should not show modal')
         this.model.set(tryShowingModalKey, false).throttledSave();
