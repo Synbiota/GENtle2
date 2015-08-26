@@ -100,9 +100,10 @@ describe('PcrProductSequence', function() {
     expect(serialised.meta.associations.forwardPrimer.range.size).toEqual(10);
   });
 
-  it('a valid model should save without error', function() {
+  it('a valid model should save without validation error', function() {
     expect(pcrProductSequence.validationError).toEqual(null);
-    pcrProductSequence.save();
-    expect(pcrProductSequence.validationError.length).toEqual(0);
+    Backbone.sync = () => {};
+    pcrProductSequence.save();  // calls _validate
+    expect(pcrProductSequence.validationError).toEqual(null);
   });
 });
