@@ -1,3 +1,4 @@
+import Q from 'q';
 import Backbone from 'backbone';
 import template from '../templates/modal_view.hbs';
 import _ from 'underscore';
@@ -37,26 +38,26 @@ var Modal = Backbone.View.extend({
     return this;
   },
 
-  hide(confirm) {
-    console.log('ModalView.js hide');
-    console.log(confirm);
+  hideModal(confirm) {
+    console.log('hideModal', confirm)
     this.$el.off('hide.bs.modal').modal('hide');
     this.removeView('.modal-body');
-    this.trigger(confirm ? 'confirm' : 'cancel');
-    this.trigger('hide');
+    var modalFinishedClearupDeferred = Q.defer();
+    this.trigger(confirm ? 'confirm' : 'cancel', modalFinishedClearupDeferred.promise);
+    this.trigger('hide', modalFinishedClearupDeferred.promise);
     this.off('confirm cancel hide');
-    return this;
+    modalFinishedClearupDeferred.resolve();
   },
 
   confirm(event) {
     if(event) event.preventDefault();
     console.log('ModalView.js confirm');
-    this.hide(true);
+    this.hideModal(true);
   },
 
   cancel(event) {
     if(event) event.preventDefault();
-    this.hide(false);
+    this.hideModal(false);
   },
 
   serialize() {

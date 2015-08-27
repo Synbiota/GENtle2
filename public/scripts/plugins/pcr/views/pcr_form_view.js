@@ -270,12 +270,15 @@ export default Backbone.View.extend({
           title: 'New RDP Part',
           displayFooter: false,
           bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
-        }).on('hide', () => {
-          console.log('hide from showProcessModal');
+        }).on('hide', (modalFinishedClearup) => {
+          modalFinishedClearup.then(() => {
+            console.log('hide from showProcessModal');
 
-          //this.model.set(tryShowingModalKey, false).throttledSave();
-          this.calculateRdpEdits(event);
-        })
+            //this.model.set(tryShowingModalKey, false).throttledSave();
+
+            this.calculateRdpEdits(event);
+          });
+        });
       } else {
         console.log('should not show modal')
         this.model.set(tryShowingModalKey, false).throttledSave();
