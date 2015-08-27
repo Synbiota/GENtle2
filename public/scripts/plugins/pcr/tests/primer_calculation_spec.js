@@ -1,8 +1,9 @@
+import _ from 'underscore';
 import idtMeltingTemperatureStub from './idt_stub';
 import {stubOutIDTMeltingTemperature, restoreIDTMeltingTemperature} from '../lib/primer_calculation';
 import {stubCurrentUser} from '../../../common/tests/stubs';
 import {defaultSequencingPrimerOptions, defaultPCRPrimerOptions} from '../lib/primer_defaults';
-import {optimalPrimer4, _getSequenceToSearch} from '../lib/primer_calculation';
+import {optimalPrimer4, PotentialPrimer} from '../lib/primer_calculation';
 import SequenceModel from '../../../sequence/models/sequence';
 import SequenceTransforms from 'gentle-sequence-transforms';
 
@@ -77,6 +78,10 @@ describe('finding optimal primers', function() {
     onlyContainingReverseUniversalPrimer = 'GATCACTACCGGGCGTATT' + 'AAAAAAAAAA' + 'GATCACTACCGGGCGTATT';
 
     stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+  });
+
+  afterAll(function() {
+    restoreIDTMeltingTemperature();
   });
 
   beforeEach(function(done) {
@@ -270,7 +275,7 @@ describe('getting sequence to search for primer', function() {
   var constructPrimerModel = function(correctedFrom, reverseStrand=false, minPrimerLen=undefined) {
     errors = [];
     var sequenceModel = new SequenceModel({sequence});
-    var primerModel = {
+    var mockPrimerModel = {
       deferred: {
         reject: function(error) {
           errors.push(error);
@@ -286,20 +291,24 @@ describe('getting sequence to search for primer', function() {
         minPrimerLength: minPrimerLen || minPrimerLength
       },
     };
-    _getSequenceToSearch(primerModel);
-    return primerModel;
+    var vals = PotentialPrimer._getSequenceToSearch(mockPrimerModel);
+    // Could use _.extend but want to be explicit about what we're doing.
+    mockPrimerModel.totalSequenceLength = vals.totalSequenceLength;
+    mockPrimerModel.frm = vals.frm;
+    mockPrimerModel.sequenceToSearch = vals.sequenceToSearch;
+    return mockPrimerModel;
   };
 
   it('returns the forward sequence, defaulting to start', function() {
-    var primerModel = constructPrimerModel(0);
-    expect(primerModel.frm).toEqual(0);
-    expect(primerModel.sequenceToSearch).toEqual('GCTCAAGCCG');
+    var mockPrimerModel = constructPrimerModel(0);
+    expect(mockPrimerModel.frm).toEqual(0);
+    expect(mockPrimerModel.sequenceToSearch).toEqual('GCTCAAGCCG');
   });
 
   it('returns the forward sequence', function() {
-    var primerModel = constructPrimerModel(35, false);
-    expect(primerModel.frm).toEqual(35);
-    expect(primerModel.sequenceToSearch).toEqual('AATAT');
+    var mockPrimerModel = constructPrimerModel(35, false);
+    expect(mockPrimerModel.frm).toEqual(35);
+    expect(mockPrimerModel.sequenceToSearch).toEqual('AATAT');
   });
 
   it('errors if frm is too large (and the forward sequence is requested)', function() {
@@ -309,22 +318,22 @@ describe('getting sequence to search for primer', function() {
   });
 
   it('returns the reverse sequence, defaulting to end', function() {
-    var primerModel = constructPrimerModel(0, true);
-    expect(primerModel.frm).toEqual(30);
-    expect(primerModel.sequenceToSearch).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
+    var mockPrimerModel = constructPrimerModel(0, true);
+    expect(mockPrimerModel.frm).toEqual(30);
+    expect(mockPrimerModel.sequenceToSearch).toEqual('ATATTGCGCC');  // complement of GGCGCAATAT
   });
 
   it('returns the reverse sequence', function() {
-    var primerModel = constructPrimerModel(5, true);
-    expect(primerModel.frm).toEqual(25);
-    expect(primerModel.sequenceToSearch).toEqual('GCGCCGTGCG');  // complement of CGCACGGCGC
+    var mockPrimerModel = constructPrimerModel(5, true);
+    expect(mockPrimerModel.frm).toEqual(25);
+    expect(mockPrimerModel.sequenceToSearch).toEqual('GCGCCGTGCG');  // complement of CGCACGGCGC
   });
 
   it('copes when frm is too large and the reverse strand is requested', function() {
-    var primerModel = constructPrimerModel(35, true);
+    var mockPrimerModel = constructPrimerModel(35, true);
     expect(errors.length).toEqual(0);
-    expect(primerModel.frm).toEqual(0);
-    expect(primerModel.sequenceToSearch).toEqual('CGGCTTGAGC');  // complement of GCTCAAGCCG
+    expect(mockPrimerModel.frm).toEqual(0);
+    expect(mockPrimerModel.sequenceToSearch).toEqual('CGGCTTGAGC');  // complement of GCTCAAGCCG
   });
 
   it('errors when sequence is too small and the reverse strand is requested', function() {

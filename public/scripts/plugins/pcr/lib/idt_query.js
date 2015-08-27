@@ -1,9 +1,6 @@
 import Proxy from '../../../common/lib/proxy';
 import _ from 'underscore';
 import Q from 'q';
-// import Tms from '../tests/melting_temperatures';
-// var cache = _.clone(Tms);  // makes running development faster with known sequences
-var cache = {};
 
 
 var url = "http://www.idtdna.com/AnalyzerService/AnalyzerService.asmx/Analyze";
@@ -17,6 +14,7 @@ var cacheKey = function(sequence, options) {
 // Call IDT at most every N milliseconds
 var rateLimitedYqlGetXml = Proxy.getRateLimitedYqlGetXml(100);
 
+var cache = {};
 var getResults = function(sequence, options) {
   var key = cacheKey(sequence, options);
   if(_.has(cache, key)) {

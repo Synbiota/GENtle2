@@ -24,28 +24,13 @@ export default Backbone.View.extend({
   template: template,
   className: 'pcr',
 
-  events: {
-    // 'click .show-new-pcr-product-form': 'showFormFn',
-  },
-
-  // `{showForm: showForm}={}` as first argument is required because
-  // `var actualView = new primaryView.view(argumentsForView[0], argumentsForView[1], argumentsForView[2]);`
-  // was replaced with `var actualView = new primaryView.view(...argumentsForView);`
-  // in sequence_view and for some reason the default options are not
-  // correctly passed by the Backbone View's
-  // `this.initialize.apply(this, arguments);` so just having `{showForm}`
-  // will throw an exception.
-  initialize: function() { //{showForm: showForm}={}, argumentsForFormView={}) {
+  initialize: function() {
     var model = this.model = Gentle.currentSequence;
     if(model instanceof RdpPcrSequence || model instanceof RdpOligoSequence) {
       this.viewState = viewStates.product;
     } else if(model instanceof WipRdpPcrSequence || model instanceof WipRdpOligoSequence) {
       this.viewState = viewStates.form;
     }
-    // var args = {model: model};
-    // this.formView = new FormView(_.extend(argumentsForFormView, args));
-    // this.progressView = new ProgressView(args);
-    // 
     var canvasView = this.canvasView = new CanvasView();
     this.setView('#pcr-canvas-container', canvasView);
 
@@ -147,7 +132,7 @@ export default Backbone.View.extend({
           to: stickyEnds.start.size + stickyEnds.start.offset - 1,
           reverseComplement: false,
         }]
-      })
+      });
     }
 
     if(!(model instanceof RdpOligoSequence) || rdpOligoReverseStrand) {

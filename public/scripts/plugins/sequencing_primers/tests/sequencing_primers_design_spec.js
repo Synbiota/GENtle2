@@ -2,7 +2,6 @@
 import _ from 'underscore';
 import Q from 'q';
 
-import PrimerCalculation from '../../pcr/lib/primer_calculation';
 import {getAllPrimersAndProductsHelper} from '../lib/sequencing_primers_design';
 import idtMeltingTemperatureStub from '../../pcr/tests/idt_stub';
 import TemporarySequenceModel from '../../../sequence/models/temporary_sequence';
@@ -49,7 +48,7 @@ var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProdu
 };
 
 
-var getAllPrimersAndProducts_TestFactory = function(sequenceModel, expectedPrimersAndProducts) {
+var getAllPrimersAndProducts_TestFactory = function(sequenceModel, expectedPrimersAndProducts, done) {
   return getAllPrimersAndProductsHelper(sequenceModel)
   .then(function(calculatedPrimersAndProducts) {
     checkResult(expectedPrimersAndProducts, calculatedPrimersAndProducts);
@@ -57,12 +56,15 @@ var getAllPrimersAndProducts_TestFactory = function(sequenceModel, expectedPrime
   .catch(function(e) {
     console.error(e);
     expect(e.toString()).toEqual(false);
-  });
+  })
+  .finally(function() {
+    done();
+  })
+  .done();
 };
 
-
-var sequence863 = new TemporarySequenceModel({
-  sequence: (
+var sequence863;
+var sequence863Bases = (
   'AAAAAAAAA' +
   'AAAATTTTATTGGAAGGGGAGGAGG' +  // forward primer 1
   'AAAAAAAATGATTAAAAATTTATTGGCAATTTTAGATTTAAAATCTTTAGTACTCAATGCAATAAATTAT' +
@@ -84,8 +86,8 @@ var sequence863 = new TemporarySequenceModel({
   'ATATACACAATTTAAGGACAATTGAAAAAACTTGGTATGCACGACATGCATTAGTTATTATGGGAGGTAA' +
   'TTTTACTATTCCTATGGATTTGATGACTACT' +
   'ATAGATTTTATTGGAGAGAAGGGGG' +  // reverse primer 1
-  'GAAA')
-});
+  'GAAA'
+);
 
 
 var expected863Primers = [
@@ -230,8 +232,8 @@ var reverseUniversalPrimerV1 = 'GATCACTACCGGGCGTATT';
 // reverse complement
 var reverseUniversalPrimerV1RevComp = 'AATACGCCCGGTAGTGATC';
 
-var shortSequence = new TemporarySequenceModel({
-  sequence: (
+var shortSequence;
+var shortSequenceBases = (
   'TTATGACAACTTGACGGCTACATCATTCACTTTTTCTTCAC' +                              // 41:   0- 40  (41)
   forwardUniversalPrimerV1 +                                                 // 20:  41- 60  (61)
   'AACCGGCACTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTG' +             // 58:  61-118  (119)
@@ -242,8 +244,8 @@ var shortSequence = new TemporarySequenceModel({
   'GGTCTGACAGCTCGAGGCTTGGATTCTCACCAATAAAAAACGCCCGGCGGCAACCGAGCGTTCTGAACAA' + // 70: 399-468  (469)
   'ATCCAGATGGAGTTCTGAGGTCATTACTGGATCTATCAACAGGAGTCCAAGCGAGCTCGATATCAAATTA' + // 70: 469-538  (539)
   reverseUniversalPrimerV1 +                                                 // 19: 539-557  (558)
-  'CG')                                                                      //  2: 558-559  (560)
-});
+  'CG'                                                                       //  2: 558-559  (560)
+);
 
 
 var expectedShortSequencePrimers = [
@@ -308,27 +310,28 @@ var expectedShortSequencePrimers = [
 
 
 describe('finding Sequencing Primers', function() {
+  var garbageLength = defaultSequencingPrimerOptions().garbageSequenceDna;
+  var spacerBases = function(numberOfSpacerBases) {
+    return _.times(numberOfSpacerBases, () => 'A').join('');
+  };
+
   beforeAll(function() {
     stubCurrentUser();
     stubOutIDTMeltingTemperature(idtMeltingTemperatureStub);
+    sequence863 = new TemporarySequenceModel({sequence: sequence863Bases});
+    shortSequence = new TemporarySequenceModel({sequence: shortSequenceBases});
   });
-
 
   afterAll(function(done) {
     restoreIDTMeltingTemperature();
     done();
   });
 
-  var garbageLength = defaultSequencingPrimerOptions().garbageSequenceDna;
-  var spacerBases = function(numberOfSpacerBases) {
-    return _.times(numberOfSpacerBases, () => 'A').join('');
-  };
-  var originalTimeout
-
+  var originalTimeout;
   beforeEach(function(done) {
-    done();
     originalTimeout = jasmine.DEFAULT_TIMEOUT_INTERVAL;
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000;
+    done();
   });
 
   afterEach(function() {
@@ -336,15 +339,11 @@ describe('finding Sequencing Primers', function() {
   });
 
   it('find primers for sequence863', function(done) {
-    getAllPrimersAndProducts_TestFactory(sequence863, expected863Primers)
-    .then(done)
-    .done();
+    getAllPrimersAndProducts_TestFactory(sequence863, expected863Primers, done);
   });
 
   it('find forward primers for sequence from Mike', function(done) {
-    getAllPrimersAndProducts_TestFactory(shortSequence, expectedShortSequencePrimers)
-    .then(done)
-    .done();
+    getAllPrimersAndProducts_TestFactory(shortSequence, expectedShortSequencePrimers, done);
   });
 
   describe('check for universal primers', function() {

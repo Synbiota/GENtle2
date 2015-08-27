@@ -5,34 +5,37 @@ import {stubCurrentUser} from '../../common/tests/stubs';
 
 stubCurrentUser();
 
-var stickyEndedSequence = new SequenceModel({
-  sequence: 'AATGCTT',
-  stickyEnds: {
-    start: {
-      offset: 2,
-      size: 1,
-      reverse: true,
-      name: '',
-      sequence: '',
-    },
-    end: {
-      offset: 2,
-      size: 1,
-      reverse: false,
-      name: '',
-      sequence: '',
-    }
-  }
-});
-
 var defaultColour = '#222';
 var complementaryColour = '#999';
 var stickyEndColour = '#59955C';
 var hiddenColouring = '#fff';
 
+
 describe('dnaTextColour', function() {
-  var forwardDnaColour = _.partial(dnaTextColour, stickyEndedSequence, false, defaultColour, '');
-  var reverseDnaColour = _.partial(dnaTextColour, stickyEndedSequence, true, complementaryColour, '');
+  var forwardDnaColour, reverseDnaColour, stickyEndedSequence;
+  beforeAll(function() {
+    stickyEndedSequence = new SequenceModel({
+      sequence: 'AATGCTT',
+      stickyEnds: {
+        start: {
+          offset: 2,
+          size: 1,
+          reverse: true,
+          name: '',
+          sequence: '',
+        },
+        end: {
+          offset: 2,
+          size: 1,
+          reverse: false,
+          name: '',
+          sequence: '',
+        }
+      }
+    });
+    forwardDnaColour = _.partial(dnaTextColour, stickyEndedSequence, false, defaultColour, '');
+    reverseDnaColour = _.partial(dnaTextColour, stickyEndedSequence, true, complementaryColour, '');
+  });
 
   describe('full stickyEnd view', function() {
     beforeEach(function() {

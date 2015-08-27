@@ -2,7 +2,7 @@
 var stickyEndsXZ = function() {
   return {
     start: {
-      sequence: 'C' + 'GATG',
+      sequence: 'G' + 'GATG',
       reverse: false,
       offset: 1,
       size: 4,
@@ -22,16 +22,16 @@ var stickyEndsXZ = function() {
 var stickyEndsZX = function() {
   return {
     start: {
-      sequence: 'TA' + 'CGGC',
+      sequence: 'G' + 'CGGC',
       reverse: false,
-      offset: 2,
+      offset: 1,
       size: 4,
       name: "Z",
     },
     end: {
-      sequence: 'GATG' + 'C',
+      sequence: 'GATG' + 'TA',
       reverse: true,
-      offset: 1,
+      offset: 2,
       size: 4,
       name: "X'",
     },
