@@ -1,16 +1,16 @@
 import SequenceModel from '../../../sequence/models/sequence';
 import SequencesCollection from '../../../sequence/models/sequences';
+import ChromatogramFragments from './chromatogram_fragments';
 
 import Nt from 'ntseq';
 
-var classType = 'chromatogramFragment'
+var classType = 'chromatogramFragment';
 
 class ChromatogramFragment extends SequenceModel {
 
   constructor(attrs, ...args) {
     super(attrs, ...args);
     this.set({_type: classType}, {silent: true});
-    window.a = this;
   }
 
   // constructor(attributes, options={}) {
@@ -48,7 +48,7 @@ class ChromatogramFragment extends SequenceModel {
 
   complement(){
 
-    var parentSequence = this.get('parentSequence').parentSequence,
+    var parentSequence = this.collection.parentSequence,
         sequence = this.getSequence(),
         isComplement = this.get('isComplement');
 
@@ -66,6 +66,27 @@ class ChromatogramFragment extends SequenceModel {
     this.trigger('reverseComplement:chromatogramFragment', this)
 
 
+  }
+
+  applyConsensus(consensus) {
+    var _this         = this,
+        fragmentStart = this.get('position'),
+        fragmentEnd   = fragmentStart + this.getLength();
+
+    var updatedFragment = _.map(
+                            consensus.slice(fragmentStart, fragmentEnd),
+                            function(point, i){
+                              if ( point != _this.get('mask')[i] ){
+                                return '-';
+                              } else {
+                                return point;
+                              }
+
+                            }).join('');
+
+    var updatedConsensus = consensus.slice(0, fragmentStart) + updatedFragment + consensus.slice(fragmentEnd);
+
+    return updatedConsensus;
   }
 
   //consensus can go under collections?
@@ -86,6 +107,7 @@ class ChromatogramFragment extends SequenceModel {
 }
 
 
-SequencesCollection.registerConstructor(ChromatogramFragment, classType);
+// SequencesCollection.registerConstructor(ChromatogramFragment, classType);
+ChromatogramFragments.registerConstructor(ChromatogramFragment, classType);
 
 export default ChromatogramFragment;

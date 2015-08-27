@@ -47,7 +47,7 @@ let instantiateSingle = function(constructor, otherArgs, fieldValue) {
 let instantiate = function(association, fieldValue, otherArgs) {
   if(association.many) {
     if (association.collection && !(fieldValue instanceof Backbone.Collection)){
-      fieldValue = new association.collection(fieldValue);
+      fieldValue = new association.collection(fieldValue, otherArgs);
     } else{
       // Instantiate an array of new instances of the given constructor
       fieldValue = _.map(fieldValue, _.partial(instantiateSingle, association.constructor, otherArgs));
@@ -213,7 +213,6 @@ function sequenceModelFactory(BackboneModel) {
         readOnly: false,
         isCircular: false,
         history: new HistorySteps(),
-        chromatogramFragments: new Sequences(),
         stickyEndFormat: STICKY_END_OVERHANG,
       };
     }
@@ -229,9 +228,15 @@ function sequenceModelFactory(BackboneModel) {
         if(_.has(this.attributes, associationName)) {
           let value = this.attributes[associationName];
           if(many) {
-            _.each(value, function(subVal) {
-              if(_.isFunction(subVal.validate)) subVal.validate();
-            });
+            if (value instanceof Backbone.Collection){
+              value.each(function(subVal){
+                if(_.isFunction(subVal.validate)) subVal.validate();
+              })
+            } else {
+              _.each(value, function(subVal) {
+                if(_.isFunction(subVal.validate)) subVal.validate();
+              });
+            }
           } else {
             if(_.isFunction(value.validate)) value.validate();
           }
@@ -1642,15 +1647,15 @@ function sequenceModelFactory(BackboneModel) {
       return this._throttledSave();
     }
 
-    // getChromatogramFragments(){
+    getChromatogramFragments(){
 
-    //   if (this.attributes.chromatogramFragments.toJSON == undefined) {
-    //     this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
-    //     this.attributes.chromatogramFragments.parentSequence = this;
-    //   }
+      // if (this.attributes.chromatogramFragments.toJSON == undefined) {
+      //   this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
+      //   this.attributes.chromatogramFragments.parentSequence = this;
+      // }
 
-    //   return this.attributes.chromatogramFragments;
-    // }
+      return this.attributes.chromatogramFragments;
+    }
 
     getConsensus(){
       return super.get('consensus') || this.getSequence();

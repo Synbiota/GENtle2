@@ -4,6 +4,7 @@ import SequencesCollection from '../../sequence/models/sequences';
 import ChromatographView from './views/chromatograph_view';
 import ChromatographSettingsView from './views/chromatograph_settings_view'
 import ChromatogramFragment from './lib/chromatogram_fragment.js'
+import ChromatogramFragments from './lib/chromatogram_fragments.js'
 import {version1GenericPreProcessor} from 'gentledna-utils/dist/preprocessor';
 
 
@@ -37,4 +38,4 @@ SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 //   return this.attributes.chromatogramFragments;
 // });
 
-SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true, SequencesCollection);
+SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true, ChromatogramFragments);
