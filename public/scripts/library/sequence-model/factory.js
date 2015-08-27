@@ -46,7 +46,7 @@ let instantiateSingle = function(constructor, otherArgs, fieldValue) {
  */
 let instantiate = function(association, fieldValue, otherArgs) {
   if(association.many) {
-    if (association.collection){
+    if (association.collection && !(fieldValue instanceof Backbone.Collection)){
       fieldValue = new association.collection(fieldValue);
     } else{
       // Instantiate an array of new instances of the given constructor
