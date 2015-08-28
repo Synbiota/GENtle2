@@ -50,8 +50,16 @@ export default Backbone.View.extend({
 
     this.listenTo(
       this.model,
-      'change:sequence change:features.* change:features change:displaySettings.rows.res.* *:chromatogramFragments reverseComplement:chromatogramFragment',
+      'change:sequence change:features.* change:features change:displaySettings.rows.res.*',
       _.debounce(this.render, 500),
+      this
+    );
+
+    this.listenTo(
+      this.model.get('chromatogramFragments'),
+      'add remove reverseComplement',
+      _.debounce(this.render, 500),
+      // this.render,
       this
     );
 

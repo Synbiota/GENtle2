@@ -18,12 +18,17 @@ export default Backbone.View.extend({
 
     this.model = options.model || Gentle.currentSequence;
 
-    this.listenTo(this.model, 'add:chromatogramFragment remove:chromatogramFragment reverseComplement:chromatogramFragment', this.render);
+    // this.listenTo(this.model, 'add:chromatogramFragment remove:chromatogramFragment reverseComplement:chromatogramFragment', this.render);
+    this.listenTo(
+      this.model,
+      'add remove reverseComplement',
+      this.render
+      );
 
   },
 
   serialize: function(){
-    var fragments = this.model.getChromatogramFragments();
+    var fragments = this.model.get('chromatogramFragments');
 
     var fragmentLabels = fragments.map(function(fragment, index) {
       return {
