@@ -91,7 +91,7 @@ export default class ChromatographMapCanvas {
 
   drawConsensus() {
     var artist = this.artist;
-    var fullConsensus = this.model.getConsensus();
+    var fullConsensus = this.model.get('chromatogramFragments').getConsensus();
     var _this = this;
 
     var head = {

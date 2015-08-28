@@ -40,15 +40,18 @@ export default Backbone.View.extend({
   },
 
   removeFragment: function(e){
-    var index = e.currentTarget.parentElement.parentElement.attributes['data-index'].value
+    var index = e.currentTarget.parentElement.parentElement.attributes['data-index'].value,
+        fragments = this.model.get('chromatogramFragments');
 
-    this.model.removeChromatogramAt(index)
+    fragments.remove(fragments.at(index))
+
   },
 
   flipFragment: function(e){
     var index = e.currentTarget.parentElement.parentElement.attributes['data-index'].value
 
-    this.model.complementChromatogramAt(index)
+    this.model.get('chromatogramFragments').at(index).complement()
+
   }
 
 })

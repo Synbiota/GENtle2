@@ -11,6 +11,8 @@ class ChromatogramFragments extends SequencesCollection {
 
     this.parentSequence = options.parentSequence;
 
+    window.b = this;
+
   }
 
   model(attrs, ...args){
