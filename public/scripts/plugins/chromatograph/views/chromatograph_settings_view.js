@@ -23,7 +23,7 @@ export default Backbone.View.extend({
       Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name).then ( function ( sequences ) {
         if ( sequences.length ) {
           _.forEach(sequences, function(sequence){
-            Gentle.currentSequence.addChromatogram(sequence)
+            Gentle.currentSequence.get('chromatogramFragments').add(sequence);
           })
         }
          else alert('Could not parse the sequence.');
@@ -57,7 +57,7 @@ export default Backbone.View.extend({
 
     dropzone.init.call(this, $dropzone, function(sequences) {
       _.forEach(sequences, function(sequence){
-        Gentle.currentSequence.addChromatogram(sequence)
+        Gentle.currentSequence.get('chromatogramFragments').add(sequence);
       })
     });
 

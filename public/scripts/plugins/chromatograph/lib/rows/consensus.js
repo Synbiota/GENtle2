@@ -13,8 +13,8 @@ export default class Consensus extends Row {
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
         textColour: "#414",
-        getSubSeq: function(){
-          return this.getConsensusSubSeq.apply(this, arguments)
+        getSubSeq: function(...args){
+          return this.get('chromatogramFragments').getConsensusSubSeq(...args)
         }
       }],
       consensus: ['Consensus', {

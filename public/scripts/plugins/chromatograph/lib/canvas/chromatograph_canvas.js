@@ -42,8 +42,8 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
     this.view.listenTo(fragments, 'add', function(fragment){
       _this.addChromatograph(fragment)
     });
-    this.view.listenTo(fragments, 'remove', function(fragment){
-      _this.removeChromatograph(fragment)
+    this.view.listenTo(fragments, 'remove', function(fragment, fragments, options){
+      _this.removeChromatograph(options.index + 1)
     })
     this.view.listenTo(fragments, 'reverseComplement', function(fragment){
       var index = fragments.indexOf(fragment)
@@ -52,7 +52,7 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
       _this.display2d();
     })
 
-    this.sequence.getChromatogramFragments().forEach(function(fragment){
+    this.sequence.get('chromatogramFragments').forEach(function(fragment){
       _this.addChromatograph(fragment, {silent: true});
     });
 
@@ -70,11 +70,9 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
 
   removeChromatograph(index, options = {silent: false}){
 
-    // var index = fragment.index;
     this.removeRow(index);
 
     if (!options.silent) this.display2d();
-
   }
 
 }

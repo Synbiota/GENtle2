@@ -219,7 +219,7 @@ export default Backbone.View.extend({
 
   processDefectMarks: function(){
     var maxBase = this.model.getLength(),
-        consensus = this.model.getConsensus(),
+        consensus = this.model.get('chromatogramFragments').getConsensus(),
         markThreshold = 40,
         _this = this,
         mark, prevMark;

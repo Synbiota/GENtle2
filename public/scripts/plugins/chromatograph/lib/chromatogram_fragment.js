@@ -62,7 +62,6 @@ class ChromatogramFragment extends SequenceModel {
     this.set('position', map.position)
     this.set('mask', map.alignmentMask().sequence())
 
-    this.throttledSave();
     this.trigger('reverseComplement', this)
 
 

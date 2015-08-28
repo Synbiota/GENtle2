@@ -38,6 +38,7 @@ export default class Consensus extends Line {
         sequence        = sequenceCanvas.sequence,
         artist          = sequenceCanvas.artist,
         selection       = sequenceCanvas.selection,
+        fragments       = sequence.get('chromatogramFragments'),
         k, subSequence, character;
 
     var _this = this,
@@ -81,7 +82,7 @@ export default class Consensus extends Line {
         );
     }
 
-    _.forEach(sequence.getConsensus().slice(baseRange[0], baseRange[1] + 1), function(base, i){
+    _.forEach(fragments.getConsensus().slice(baseRange[0], baseRange[1] + 1), function(base, i){
 
         if (_.contains(['A', 'C', 'G', 'T'], base)){
           drawRect(i, 'good')

@@ -175,7 +175,7 @@ export default Backbone.View.extend({
 
   afterRender: function() {
 
-    if (this.model.getChromatogramFragments().length){
+    if (this.model.get('chromatogramFragments').length){
       this.$el.find('.chromatograph-import-wrapper').hide();
     } else {
       this.$el.find('.chromatograph-import-wrapper').show();
