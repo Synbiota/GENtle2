@@ -23,7 +23,7 @@ var convertForSelect = function(values) {
   });
 };
 
-const hideModalKey = 'newRdpPartHideModal';
+var hideModalKey = '';
 
 var shouldShowModal = function() {
   return !Gentle.currentUser.get(hideModalKey);
@@ -50,6 +50,13 @@ export default Backbone.View.extend({
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
     var partType = this.model.get('partType');
+
+    if(this.hasRdpOligoSequence) {
+      hideModalKey = 'hideRdpOligoModal';
+
+    } else {
+      hideModalKey = 'hideRdpPcrModal';
+    }
     
     
     // if description has not been set/modified, set it to name
@@ -211,11 +218,9 @@ export default Backbone.View.extend({
 
   calculateRdpEdits: function(event) {
     event.preventDefault();
-    console.log('calculateRdpEdits')
     try {
       if(this.state.invalid.any) {
         alert('Some RDP part details are incorrect or missing.  Please correct them first.');
-        console.log(this.state.invalid)
       } else {
         var attributes = this.getData();
         attributes.frm = attributes.from;
@@ -227,8 +232,6 @@ export default Backbone.View.extend({
         var rdpEdits = desiredWipRdpSequence.get('rdpEdits');
         var errors = desiredWipRdpSequence.errors();
         
-        console.log('desiredWipRdpSequence:');
-        console.log(desiredWipRdpSequence);
 
         if(errors.length) {
           this.renderKnownRdpErrors(errors);
@@ -244,54 +247,42 @@ export default Backbone.View.extend({
               transforms: rdpEdits
             })
           }).on('confirm', () => {
-            console.log('confirm from calculateRdpEdits modal');
-            console.log(desiredWipRdpSequence);
             this.createNewRdpPart(desiredWipRdpSequence);
           });
             
         }
       }
     } catch(error) {
-      console.log(error);
       this.handleUnexpectedError(error);
     }
   },
 
   showProcessModal: function(event) {
     event.preventDefault();
-    var tryShowingModalKey = 'tryShowingModalFalse';
-    console.log('showProcessModal');
                                                                                 
-    //if(this.model.get(tryShowingModalKey)) {
-      //console.log('model is get');
-      if(shouldShowModal()) {
-        console.log('should show modal')
-        Modal.show({
-          title: 'New RDP Part',
-          displayFooter: false,
-          bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
-        }).on('hide', (modalFinishedClearup) => {
-          modalFinishedClearup.then(() => {
-            console.log('hide from showProcessModal');
+    if(shouldShowModal()) {
+      Modal.show({
+        title: 'New RDP Part',
+        displayFooter: false,
+        bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
+      }).on('hide', (modalFinishedClearup) => {
+        modalFinishedClearup.then(() => {
 
-            //this.model.set(tryShowingModalKey, false).throttledSave();
+          //this.model.set(tryShowingModalKey, false).throttledSave();
 
-            this.calculateRdpEdits(event);
-          });
+          this.calculateRdpEdits(event);
         });
-      } else {
-        console.log('should not show modal')
-        this.model.set(tryShowingModalKey, false).throttledSave();
-        this.calculateRdpEdits(event);
-      }
-    //}
+      });
+    } else {
+      //this.model.set(tryShowingModalKey, false).throttledSave();
+      this.calculateRdpEdits(event);
+    }
 
 
   },
 
   createNewRdpPart: function(desiredWipRdpSequence) {
     this.state.calculating = true;
-    console.log('createNewRdpPart')
     if(this.hasRdpOligoSequence) {
       var wipRdpOligoSequence = desiredWipRdpSequence;
       var data = this.getData();
