@@ -49,6 +49,9 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
       var index = fragments.indexOf(fragment)
 
       _.extend(_this.rows[index + 1].sequence, fragment)
+
+      _this.scrollToBase(fragment.get('position'));
+
       _this.display2d();
     })
 
@@ -64,6 +67,8 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
         sequence: fragment
       }]
     });
+
+    this.scrollToBase(fragment.get('position'))
 
     if (!options.silent) this.refresh();
   }
