@@ -65,14 +65,14 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
       }]
     });
 
-    if (!options.silent) this.display2d();
+    if (!options.silent) this.refresh();
   }
 
   removeChromatograph(index, options = {silent: false}){
 
     this.removeRow(index);
 
-    if (!options.silent) this.display2d();
+    if (!options.silent) this.refresh();
   }
 
 }

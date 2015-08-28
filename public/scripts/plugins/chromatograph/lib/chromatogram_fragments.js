@@ -13,7 +13,6 @@ class ChromatogramFragments extends SequencesCollection {
 
     this.parentSequence = options.parentSequence;
 
-    window.b = this;
     var _this = this;
 
     this.on('add', function(fragment){
