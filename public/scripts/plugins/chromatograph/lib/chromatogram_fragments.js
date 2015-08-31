@@ -11,9 +11,17 @@ class ChromatogramFragments extends SequencesCollection {
 
     var options = args[0];
 
-    this.parentSequence = options.parentSequence;
+    var parentSequence = this.parentSequence = options.parentSequence;
 
     var _this = this;
+
+    var bubbleEvents = ['add', 'remove', 'reverseComplement']
+
+    this.on('all', function(eventName){
+      if (_.contains(bubbleEvents, eventName)) {
+        parentSequence.trigger(eventName + ':chromatogramFragments')
+      }
+    })
 
     this.on('add', function(fragment){
       var parentSequence = _this.parentSequence,
@@ -31,7 +39,7 @@ class ChromatogramFragments extends SequencesCollection {
     });
 
     this.on('add remove reverseComplement', function(){
-      _this.parentSequence.throttledSave();
+      parentSequence.throttledSave();
     })
 
   }

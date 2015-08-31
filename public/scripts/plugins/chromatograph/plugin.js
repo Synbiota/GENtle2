@@ -29,13 +29,11 @@ var version1PcrProductPreProcessor = version1GenericPreProcessor('chromatogramFr
 
 SequenceModel.registerPreProcessor(version1PcrProductPreProcessor);
 
-// SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true, function(){
-//   if (this.attributes.chromatogramFragments.toJSON == undefined) {
-//     this.attributes.chromatogramFragments = new Sequences(this.attributes.chromatogramFragments);
-//     this.attributes.chromatogramFragments.parentSequence = this;
-//   }
-
-//   return this.attributes.chromatogramFragments;
-// });
-
 SequenceModel.registerAssociation(ChromatogramFragment, 'chromatogramFragment', true, ChromatogramFragments);
+
+// SequenceModel.registerAssociation({
+//   name: 'chromatogramFragment',
+//   model: ChromatogramFragment,
+//   collection: ChromatogramFragments,
+//   many: true,
+// })
