@@ -1,6 +1,7 @@
 import SequencesCollection from '../../../sequence/models/sequences';
 import _ from 'underscore';
 import Nt from 'ntseq';
+import smartMemoizeAndClear from 'gentledna-utils/dist/smart_memoize_and_clear';
 
 
 var classType = 'chromatogramFragment';
@@ -16,6 +17,10 @@ class ChromatogramFragments extends SequencesCollection {
     var _this = this;
 
     var bubbleEvents = ['add', 'remove', 'reverseComplement']
+
+    smartMemoizeAndClear(this, {
+      getConsensus: `add remove reverseComplement`
+    })
 
     this.on('all', function(eventName ,...args){
       if (_.contains(bubbleEvents, eventName)) {
@@ -67,69 +72,6 @@ class ChromatogramFragments extends SequencesCollection {
     return this.getConsensus().slice(startBase, endBase+1);
   }
 
-  // addChromatogram(chromatogram){
-  //   // var fragment = new Sequence(chromatogram)
-  //   // var fragments = this.get('chromatogramFragments')
-  //   // var fragment = chromatogram;
-
-  //   var fragments = this.getChromatogramFragments();
-  //   var fragment = new Sequence(chromatogram);
-
-  //   var seq1 = this.ntSeq || new Nt.Seq().read(this.getSequence());
-  //   var seq2 = new Nt.Seq().read(chromatogram.sequence);
-
-  //   var map = seq1.mapSequence(seq2).best();
-
-  //   // fragment.set('map', {
-  //   //   position: map.position
-  //   // });
-  //   // fragment.set('alignmentMask', map.alignmentMask().sequence())
-
-  //   // fragment.position = map.position;
-  //   // fragment.mask = map.alignmentMask().sequence();
-
-  //   fragment.set('position', map.position);
-  //   fragment.set('mask', map.alignmentMask().sequence());
-
-  //   fragments.add(_.extend({
-  //     'position': map.position,
-  //     'mask': map.alignmentMask().sequence()
-  //   },
-  //     chromatogram
-  //   ));
-
-  //   this.updateConsensus(fragment);
-  //   // this.updateConsensus(chromatogram);
-
-  //   // fragments = fragments.concat(fragment)
-
-  //   // this.set('chromatogramFragments', fragments).throttledSave();
-
-  //   // this.getChromatogramFragments().add(fragment)
-  //   this.throttledSave();
-
-  //   this.trigger('add:chromatogramFragment', fragments, fragment);
-
-  // }
-
-  // resetConsensus(fragment){
-  //   var consensus = this.getSequence(),
-  //       fragments = this.get('chromatogramFragments'),
-  //       _this = this;
-
-  //   _.forEach(fragments, function(fragment){
-  //     consensus = _this.applyConsensus(consensus, fragment)
-  //   });
-
-  //   this.set('consensus', consensus)
-  // }
-
-  // updateConsensus(fragment){
-  //   var consensus = this.getConsensus(),
-  //       updatedConsensus = this.applyConsensus(consensus, fragment);
-
-  //   this.set('consensus', updatedConsensus);
-  // }
 }
 
 
