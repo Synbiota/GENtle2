@@ -89,6 +89,25 @@ function sequenceModelFactory(BackboneModel) {
     return allAssociations;
   };
 
+  var allAssociationDefaults = function(){
+    _.chain(associations)
+     .pluck('classAssociations')
+     .flatten()
+     .map(function(val){
+        if (val.associationName && val.collection){
+          let defaultVal = {};
+          defaultVal[val.associationName] = [];
+
+          return defaultVal;
+        }
+      })
+     .compact()
+     .reduce(function(memo, value){
+        return _.extend(memo, value);
+      }, {})
+     .value()
+  }
+
   let preProcessors = [];
 
   /**
@@ -111,7 +130,6 @@ function sequenceModelFactory(BackboneModel) {
       if(_(classAssociationsObject.classAssociations).findWhere({associationName: associationName})) {
         throw new Error(`Constructor "${rawAssociationName}" (${associationName}) already registered for "${klass.name}".`);
       }
-
       classAssociationsObject.classAssociations.push({associationName, many, constructor, collection});
     }
 
@@ -207,14 +225,18 @@ function sequenceModelFactory(BackboneModel) {
     }
 
     defaults() {
-      return {
-        id: _.uniqueId(),
-        version: 0,
-        readOnly: false,
-        isCircular: false,
-        history: new HistorySteps(),
-        stickyEndFormat: STICKY_END_OVERHANG,
-      };
+
+      var associationDefaults = allAssociationDefaults(),
+          defaults = {
+            id: _.uniqueId(),
+            version: 0,
+            readOnly: false,
+            isCircular: false,
+            history: new HistorySteps(),
+            stickyEndFormat: STICKY_END_OVERHANG,
+          };
+
+      return _.extend(defaults, associationDefaults);
     }
 
     preValidationSetup(attributes, options) {

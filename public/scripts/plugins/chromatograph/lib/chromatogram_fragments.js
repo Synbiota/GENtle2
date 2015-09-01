@@ -17,9 +17,9 @@ class ChromatogramFragments extends SequencesCollection {
 
     var bubbleEvents = ['add', 'remove', 'reverseComplement']
 
-    this.on('all', function(eventName){
+    this.on('all', function(eventName ,...args){
       if (_.contains(bubbleEvents, eventName)) {
-        parentSequence.trigger(eventName + ':chromatogramFragments')
+        parentSequence.trigger(eventName + ':chromatogramFragments', ...args)
       }
     })
 

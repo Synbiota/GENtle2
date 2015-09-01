@@ -19,8 +19,8 @@ export default Backbone.View.extend({
     this.model = options.model || Gentle.currentSequence;
 
     this.listenTo(
-      this.model.get('chromatogramFragments'),
-      'add remove reverseComplement',
+      this.model,
+      'add:chromatogramFragments remove:chromatogramFragments reverseComplement:chromatogramFragments',
       this.render
       );
 

@@ -43,7 +43,7 @@ export default Backbone.View.extend({
 
     var _this = this;
 
-    this.listenTo(this.model, 'reverseComplement:chromatogramFragment', function(){
+    this.listenTo(this.model, 'reverseComplement:chromatogramFragments', function(){
       _this.processFragments();
       _this.processDefectMarks();
     })
@@ -56,8 +56,8 @@ export default Backbone.View.extend({
     );
 
     this.listenTo(
-      this.model.get('chromatogramFragments'),
-      'add remove reverseComplement',
+      this.model,
+      'add:chromatogramFragments remove:chromatogramFragments reverseComplement:chromatogramFragments',
       _.debounce(this.render, 500),
       // this.render,
       this
