@@ -491,11 +491,11 @@ class SequenceCanvasCore {
 
 
         drawStart = _.map(moveOffset, function(n, i){
-          return n > 0 ? canvasDims[i] - n : 0;
+          return ((canvasDims[i] > n) && (n > 0)) ? canvasDims[i] - n : 0;
         })
 
         drawEnd = _.map(moveOffset, function(n, i){
-          return n >= 0 ? canvasDims[i] : -n;
+          return ((n >= 0) || (-n > canvasDims[i])) ? canvasDims[i] : -n;
         })
 
       } else {

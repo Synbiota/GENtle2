@@ -19,7 +19,7 @@ class ChromatogramFragments extends SequencesCollection {
     var bubbleEvents = ['add', 'remove', 'reverseComplement']
 
     smartMemoizeAndClear(this, {
-      getConsensus: `add remove reverseComplement`
+      getConsensus: 'add remove reverseComplement'
     })
 
     this.on('all', function(eventName ,...args){
