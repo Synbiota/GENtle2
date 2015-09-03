@@ -23,12 +23,6 @@ var convertForSelect = function(values) {
   });
 };
 
-const hideModalKey = 'newRdpPartHideModal';
-
-var shouldShowModal = function() {
-  return !Gentle.currentUser.get(hideModalKey);
-};
-
 export default Backbone.View.extend({
   manage: true,
   template: template,
@@ -54,7 +48,7 @@ export default Backbone.View.extend({
     var tryShowingModalKey = 'tryShowingModal';
 
     if(this.model.get(tryShowingModalKey)) {
-      if(shouldShowModal()) {
+      if(OnboardingHelpView.shouldShowModal(this.hasRdpOligoSequence)) {
         Modal.show({
           title: 'New RDP Part',
           displayFooter: false,

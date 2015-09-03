@@ -1,30 +1,15 @@
-<div class="row"> 
+<div class="row">
   <div class="col-xs-12 text-center">
-    <strong>If your source sequence is...</strong>
-    <br>
-    <br>
-    <img src="images/new-rdp-part_onboarding-help/source-sequence.svg" />
-    <br>
-    <br>
-    <br>
+    {{#if isOligo}}
+      <img src="images/new-rdp-part_onboarding-help/content_oligo.svg" style="width: 60%" />
+    {{else}}
+      <img src="images/new-rdp-part_onboarding-help/content_PCR.svg" style="width: 60%" />
+    {{/if}}
   </div>
 </div>
-
-<div class="row">
-  <div class="col-xs-6 text-center">
-    {{#if isOligo }}
-      <img src="images/new-rdp-part_onboarding-help/selected-oligo.svg" style="width: 90%" />
-    {{else}}
-      <img src="images/new-rdp-part_onboarding-help/oligo.svg" style="width: 90%" />
-    {{/if}}
-  </div>
-  <div class="col-xs-6 text-center">
-    {{#if isOligo}}
-      <img src="images/new-rdp-part_onboarding-help/PCR.svg" style="width: 90%" />
-      
-    {{else}}
-      <img src="images/new-rdp-part_onboarding-help/selected-PCR.svg" style="width: 90%" />
-    {{/if}}
+<div class="row" style="margin-bottom: -15px;">
+  <div class="col-xs-12 text-right">
+    <button class="btn btn-default new-rdp-part_onboarding-help-continue">Continue</button>
   </div>
 </div>
 
