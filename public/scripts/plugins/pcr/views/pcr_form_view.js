@@ -10,7 +10,6 @@ import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import template from '../templates/pcr_form_view.hbs';
 import rdpErrorsTemplate from '../templates/rdp_errors.hbs';
 import EditsView from './pcr_edits_view';
-import OnboardingHelpView from './onboarding_help_view';
 import {humaniseRdpLabel} from '../lib/utils';
 
 
@@ -44,22 +43,6 @@ export default Backbone.View.extend({
     this.hasRdpOligoSequence = this.model instanceof WipRdpOligoSequence;
     this.hasRdpPcrSequence = !this.hasRdpOligoSequence;
     var partType = this.model.get('partType');
-
-    var tryShowingModalKey = 'tryShowingModal';
-
-    if(this.model.get(tryShowingModalKey)) {
-      if(OnboardingHelpView.shouldShowModal(this.hasRdpOligoSequence)) {
-        Modal.show({
-          title: 'New RDP Part',
-          displayFooter: false,
-          bodyView: new OnboardingHelpView({isOligo: this.hasRdpOligoSequence})
-        }).on('hide', () => {
-          this.model.set(tryShowingModalKey, false).throttledSave();
-        });
-      } else {
-        this.model.set(tryShowingModalKey, false).throttledSave();
-      }
-    }
     
     // if description has not been set/modified, set it to name
     var desc = this.model.get('desc')

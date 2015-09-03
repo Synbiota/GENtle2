@@ -2,6 +2,7 @@ import {View} from 'backbone';
 import template from '../templates/onboarding_help_view.hbs';
 import Gentle from 'gentle';
 import Modal from '../../../common/views/modal_view';
+import _ from 'underscore';
 
 const hidePcrModalKey = 'newRdpPartHideModalPcr';
 const hideOligoModalKey = 'newRdpPartHideModalOligo';
@@ -13,7 +14,9 @@ var OnboardingHelpView = View.extend({
 
   events: {
     'change input': 'toggleShowNextTime',
-    'click .new-rdp-part_onboarding-help-continue': 'hideModal'
+    'click .new-rdp-part_onboarding-help-continue': 'confirmModal',
+    'click .new-rdp-part_onboarding-help-pcr': 'choosePcr',
+    'click .new-rdp-part_onboarding-help-oligo': 'chooseOligo'
   },
 
   initialize: function(options) {
@@ -21,7 +24,7 @@ var OnboardingHelpView = View.extend({
   },
 
   serialize: function() {
-    return { isOligo: this.isOligo };
+    return _.pick(this, 'isOligo', 'isUncertain');
   },
 
   toggleShowNextTime(event) {
@@ -29,9 +32,19 @@ var OnboardingHelpView = View.extend({
     Gentle.currentUser.set(getKey(this.isOligo), !checked);
   },
 
-  hideModal: function(event) {
+  confirmModal: function(event) {
     event.preventDefault();
     Modal.confirm();
+  },
+
+  chooseOligo: function(event) {
+    event.preventDefault();
+    Modal.confirm(null, {method: 'oligo'});
+  },
+
+  choosePcr: function(event) {
+    event.preventDefault();
+    Modal.confirm(null, {method: 'pcr'});
   }
 });
 

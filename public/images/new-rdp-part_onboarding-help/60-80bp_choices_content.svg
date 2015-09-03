@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="609px" height="406px" viewBox="0 0 609 406" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
+    <!-- Generator: Sketch 3.3.3 (12072) - http://www.bohemiancoding.com/sketch -->
+    <title>choices content</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
+        <g id="60-80bp" sketch:type="MSArtboardGroup" transform="translate(-403.000000, -398.000000)">
+            <g id="60-80bp-newRDPonboarding" sketch:type="MSLayerGroup" transform="translate(378.000000, 165.000000)">
+                <g id="choices-content" transform="translate(25.000000, 230.000000)">
+                    <path d="M305.5,6.5 L305.5,408.214172" id="Line" stroke="#E8E8E8" stroke-linecap="square" sketch:type="MSShapeGroup"></path>
+                    <g id="60-80bp-oligo">
+                        <g id="after-oligo" transform="translate(21.000000, 260.000000)">
+                            <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="50" y="14" width="143" height="9"></rect>
+                            <text id="anneal" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                                <tspan x="52" y="62">anneal to create RDP part</tspan>
+                            </text>
+                            <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#66686A">
+                                <tspan x="0" y="12">5'</tspan>
+                            </text>
+                            <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#BDC3C7">
+                                <tspan x="234" y="41">5'</tspan>
+                            </text>
+                            <rect id="anti-sense" fill="#BDC3C7" sketch:type="MSShapeGroup" x="50" y="23" width="143" height="9"></rect>
+                            <rect id="Rectangle-5" fill="#2ECC71" sketch:type="MSShapeGroup" x="193" y="23" width="42" height="9"></rect>
+                            <rect id="Rectangle-5" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="14" width="42" height="9"></rect>
+                        </g>
+                        <g id="before-oligo" transform="translate(0.000000, 79.000000)">
+                            <g id="sense-+-Rectangle-5" transform="translate(6.000000, 0.000000)">
+                                <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="50" y="48" width="143" height="9"></rect>
+                                <rect id="Rectangle-5" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="48" width="42" height="9"></rect>
+                                <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#66686A">
+                                    <tspan x="0" y="46">5'</tspan>
+                                </text>
+                            </g>
+                            <g id="anti-sense-+-Rectangle-5" transform="translate(56.000000, 87.000000)">
+                                <rect id="anti-sense" fill="#BDC3C7" sketch:type="MSShapeGroup" x="0" y="0" width="143" height="9"></rect>
+                                <rect id="Rectangle-5" fill="#2ECC71" sketch:type="MSShapeGroup" x="143" y="0" width="42" height="9"></rect>
+                                <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#BDC3C7">
+                                    <tspan x="184" y="18">5'</tspan>
+                                </text>
+                            </g>
+                            <text id="synthesize-2-single-" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" sketch:alignment="middle" fill="#333333">
+                                <tspan x="0.396" y="122">synthesize 2 single-stranded oligonucleotides</tspan>
+                                <tspan x="96.59" y="138">with RDP ends</tspan>
+                            </text>
+                            <path d="M143.5,147.5 L143.5,187.699501" id="Line" stroke="#979797" stroke-linecap="square" fill="#66686A" sketch:type="MSShapeGroup"></path>
+                            <path id="Line-decoration-1" d="M143.5,187.699501 L146.5,176.899501 L140.5,176.899501 L143.5,187.699501 Z" stroke="#979797" stroke-linecap="square" fill="#66686A"></path>
+                        </g>
+                        <text id="•--if-you-don't-have" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                            <tspan x="20" y="49">	• 	if you don't have a template</tspan>
+                            <tspan x="20" y="65">	• 	if PCR primer is hard to design</tspan>
+                        </text>
+                        <text id="Type-something" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="16" font-weight="420" sketch:alignment="middle" fill="#333333">
+                            <tspan x="65.972" y="16">Oligo-based creation</tspan>
+                        </text>
+                    </g>
+                    <g id="60-80bp-PCR" transform="translate(316.000000, 0.000000)">
+                        <g id="after-PCR" transform="translate(29.000000, 260.000000)">
+                            <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="50" y="14" width="143" height="9"></rect>
+                            <text id="anneal" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                                <tspan x="30" y="62">BsaI digest to create RDP part</tspan>
+                            </text>
+                            <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#66686A">
+                                <tspan x="0" y="12">5'</tspan>
+                            </text>
+                            <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#BDC3C7">
+                                <tspan x="234" y="41">5'</tspan>
+                            </text>
+                            <rect id="anti-sense" fill="#BDC3C7" sketch:type="MSShapeGroup" x="50" y="23" width="143" height="9"></rect>
+                            <rect id="Rectangle-5" fill="#2ECC71" sketch:type="MSShapeGroup" x="193" y="23" width="42" height="9"></rect>
+                            <rect id="Rectangle-5" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="14" width="42" height="9"></rect>
+                        </g>
+                        <g id="before-PCR" transform="translate(12.000000, 129.000000)">
+                            <rect id="sense" fill="#66686A" sketch:type="MSShapeGroup" x="68" y="14" width="143" height="9"></rect>
+                            <text id="anneal" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                                <tspan x="28" y="72">create PCR product with RDP ends</tspan>
+                            </text>
+                            <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#66686A">
+                                <tspan x="0" y="12">5'</tspan>
+                            </text>
+                            <text id="5'" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="12" font-weight="420" fill="#BDC3C7">
+                                <tspan x="271" y="41">5'</tspan>
+                            </text>
+                            <rect id="anti-sense" fill="#BDC3C7" sketch:type="MSShapeGroup" x="68" y="23" width="143" height="9"></rect>
+                            <rect id="Rectangle-5" fill="#2ECC71" sketch:type="MSShapeGroup" x="211" y="23" width="42" height="9"></rect>
+                            <rect id="Rectangle-5" fill-opacity="0.25" fill="#2ECC71" sketch:type="MSShapeGroup" x="211" y="14" width="60" height="9"></rect>
+                            <rect id="Rectangle-5" fill-opacity="0.25" fill="#2ECC71" sketch:type="MSShapeGroup" x="211" y="23" width="60" height="9"></rect>
+                            <rect id="Rectangle-5" fill="#F1C40F" sketch:type="MSShapeGroup" x="26" y="14" width="42" height="9"></rect>
+                            <rect id="Rectangle-5" fill-opacity="0.25" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="14" width="60" height="9"></rect>
+                            <rect id="Rectangle-5" fill-opacity="0.25" fill="#F1C40F" sketch:type="MSShapeGroup" x="8" y="24" width="60" height="9"></rect>
+                        </g>
+                        <path d="M155.5,226.5 L155.5,266.699501" id="Line" stroke="#979797" stroke-linecap="square" fill="#66686A" sketch:type="MSShapeGroup"></path>
+                        <path id="Line-decoration-1" d="M155.5,266.699501 L158.5,255.899501 L152.5,255.899501 L155.5,266.699501 Z" stroke="#979797" stroke-linecap="square" fill="#66686A"></path>
+                        <text id="•--if-you-have-a-tem" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="14" font-weight="normal" fill="#333333">
+                            <tspan x="0" y="49">	• 	if you have a template</tspan>
+                            <tspan x="0" y="65">	• 	PCR primers are delivered faster than </tspan>
+                            <tspan x="36" y="81">oligos</tspan>
+                            <tspan x="0" y="97">	• 	less expensive than oligo-based</tspan>
+                        </text>
+                        <text id="Type-something" sketch:type="MSTextLayer" font-family="Helvetica Neue" font-size="16" font-weight="420" sketch:alignment="middle" fill="#333333">
+                            <tspan x="102.588" y="16">PCR creation</tspan>
+                        </text>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

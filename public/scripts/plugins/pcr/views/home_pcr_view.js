@@ -10,8 +10,8 @@ import Filetypes from '../../../common/lib/filetypes/filetypes';
 import WipRdpPcrSequence from '../lib/wip_rdp_pcr_sequence';
 import WipRdpOligoSequence from 'gentle-rdp/wip_rdp_oligo_sequence';
 import Gentle from 'gentle';
-import RdpTypes from 'gentle-rdp/rdp_types';
-
+import Modal from '../../../common/views/modal_view';
+import OnboardingHelpView from './onboarding_help_view';
 
 export default Backbone.View.extend({
   manage: true,
@@ -51,7 +51,7 @@ export default Backbone.View.extend({
     return Filetypes.guessTypeAndParseFromArrayBuffer(result.content, result.name)
     .then((sequences) => {
       if ( sequences.length === 1 ) {
-        this.createNewSequence(sequences[0]);
+        this.displayOnboardingHelpModal(sequences[0]);
       } else{
        alert('Could not parse the sequence.');
       }
@@ -63,20 +63,58 @@ export default Backbone.View.extend({
     .done();
   },
 
-  /**
-   * @methode createNewSequence
-   * @param  {Object} loadedSequence
-   * @return {undefined}
-   */
-  createNewSequence: function(loadedSequence) {
+  displayOnboardingHelpModal: function(loadedSequence) {
+    console.log('prout')
     if(loadedSequence.stickyEnds) {
       alert('The source sequence cannot already be an RDP part.');
       return;
     }
 
     var sequenceBases = loadedSequence.sequence;
+    var sequenceLength = sequenceBases.length;
+
+    if(Gentle.featureEnabled('rdp_oligo')) {
+
+      if(sequenceLength >= 60 && sequenceLength <= 80) {
+        Modal.show({
+          title: 'New RDP Part',
+          displayFooter: false,
+          bodyView: new OnboardingHelpView({isUncertain: true})
+        }).once('confirm', ({method}) => {
+          this.createNewSequence(loadedSequence, method === 'oligo');
+        });
+
+      } else {
+        let isOligo = sequenceBases.length < 80;
+
+        if(OnboardingHelpView.shouldShowModal(isOligo)) {
+          Modal.show({
+            title: 'New RDP Part',
+            displayFooter: false,
+            bodyView: new OnboardingHelpView({isOligo, isUncertain: false})
+          }).once('confirm', () => {
+            this.createNewSequence(loadedSequence, isOligo);
+          });
+        } else {
+          this.createNewSequence(loadedSequence, isOligo);
+        }
+      }
+    } else {
+      this.createNewSequence(loadedSequence, false);
+    }
+  },
+
+  /**
+   * @methode createNewSequence
+   * @param  {Object} loadedSequence
+   * @return {undefined}
+   */
+  createNewSequence: function(loadedSequence, isOligo) {
+    var sequenceBases = loadedSequence.sequence;
+    var sequenceLength = sequenceBases.length;
     var Klass, primaryView;
-    if(Gentle.featureEnabled('rdp_oligo') && sequenceBases.length < 80) {
+
+    if(isOligo) {
       Klass = WipRdpOligoSequence;
       primaryView = 'rdp_oligo';
     } else {
@@ -90,7 +128,6 @@ export default Backbone.View.extend({
       displaySettings: {
         primaryView: primaryView
       },
-      tryShowingModal: true,
       sourceSequenceName: loadedSequence.name,
       features: loadedSequence.features,
     });

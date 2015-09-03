@@ -1,24 +1,46 @@
-<div class="row">
-  <div class="col-xs-12 text-center">
-    {{#if isOligo}}
-      <img src="images/new-rdp-part_onboarding-help/content_oligo.svg" style="width: 60%" />
-    {{else}}
-      <img src="images/new-rdp-part_onboarding-help/content_PCR.svg" style="width: 60%" />
-    {{/if}}
+{{#unless isUncertain}}
+  <div class="row">
+    <div class="col-xs-12 text-center">
+      {{#if isOligo}}
+        <img src="images/new-rdp-part_onboarding-help/content_oligo.svg" style="width: 60%" />
+      {{else}}
+        <img src="images/new-rdp-part_onboarding-help/content_PCR.svg" style="width: 60%" />
+      {{/if}}
+    </div>
   </div>
-</div>
-<div class="row" style="margin-bottom: -15px;">
-  <div class="col-xs-12 text-right">
-    <button class="btn btn-default new-rdp-part_onboarding-help-continue">Continue</button>
+  <div class="row" style="margin-bottom: -15px;">
+    <div class="col-xs-12 text-right">
+      <button class="btn btn-default new-rdp-part_onboarding-help-continue">Continue</button>
+    </div>
   </div>
-</div>
 
-<br>
+  <br>
 
-<div class="modal-footer text-left">
-  <div class="checkbox" style="margin: 0;">
-    <label>
-      <input type="checkbox" name="showNextTime" checked="checked" value="show"> Show this dialog the next time I make a new RDP part
-    </label>
+  <div class="modal-footer text-left">
+    <div class="checkbox" style="margin: 0;">
+      <label>
+        <input type="checkbox" name="showNextTime" checked="checked" value="show"> Show this dialog the next time I make a new RDP part
+      </label>
+    </div>
   </div>
-</div>
+{{else}}
+  
+  <div class="row" style="margin-bottom: -35px; overflow: hidden;">
+    <div class="col-xs-12 text-center">
+      <img src="images/new-rdp-part_onboarding-help/60-80bp_source_seq.svg" style="width: 60%" />
+      <br>
+      <br>
+      <br>
+      <img src="images/new-rdp-part_onboarding-help/60-80bp_choices_content.svg" style="width: 97%" />
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-xs-6 text-center">
+      <button class="btn btn-default new-rdp-part_onboarding-help-oligo">Oligo-based</button>
+    </div>
+    <div class="col-xs-6 text-center">
+      <button class="btn btn-default new-rdp-part_onboarding-help-pcr">PCR</button>
+    </div>
+  </div>
+  <br>
+{{/unless}}

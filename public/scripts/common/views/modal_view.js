@@ -37,23 +37,23 @@ var Modal = Backbone.View.extend({
     return this;
   },
 
-  hide(confirm) {
+  hide(confirm, data) {
     this.$el.off('hide.bs.modal').modal('hide');
     this.removeView('.modal-body');
-    this.trigger(confirm ? 'confirm' : 'cancel');
-    this.trigger('hide');
+    this.trigger(confirm ? 'confirm' : 'cancel', data);
+    this.trigger('hide', data);
     this.off('confirm cancel hide');
     return this;
   },
 
-  confirm(event) {
+  confirm(event, data) {
     if(event) event.preventDefault();
-    this.hide(true);
+    this.hide(true, data);
   },
 
-  cancel(event) {
+  cancel(event, data) {
     if(event) event.preventDefault();
-    this.hide(false);
+    this.hide(false, data);
   },
 
   serialize() {
