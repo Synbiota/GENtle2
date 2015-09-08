@@ -631,13 +631,14 @@ class SequenceCanvasCore {
       if (row.sequence && row.sequence.get('position')){
         var position = row.sequence.get('position');
         var relativePosition = baseRange[0] - position;
+        var sequenceLength = row.sequence.getLength();
 
         if (relativePosition < 0) {
           xOffset -= relativePosition * baseWidth;
         }
 
         adjustedRange = _.map(baseRange, function(base){
-          return Math.max(base - position, 0);
+          return Math.min(Math.max(base - position, 0), sequenceLength);
         });
 
       }

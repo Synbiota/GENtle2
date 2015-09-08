@@ -37,7 +37,7 @@ export default class Chromatogram extends Line {
      * from the neighbouring bases on either side.
      *
      * For base 0, we start with data[0]. The right side is the same.
-     * For base peaks.length, the left side is the same, and we end with data[data.length-1].
+     * For base peaks.length - 1, the left side is the same, and we end with data[data.length-1].
      *
      * @param  {Array}    data  Individual array of raw chromatograph data (one nucleotide only).
      * @param  {Integer}  base  Index of base.
@@ -48,11 +48,13 @@ export default class Chromatogram extends Line {
                     0 :
                     peaks[base] - Math.floor((peaks[base] - peaks[base - 1])/2),
 
-          end   = base === peaks.length ?
+          end   = base === peaks.length - 1 ?
                     data.length :
                     peaks[base + 1] - Math.floor((peaks[base + 1] - peaks[base])/2);
+          //Shouldn't use Math.floor, should have separate handling for even and odd differences
+          //between peaks.
 
-      return data.slice(start, end);
+      return data.slice(start, end + 1);
     }
 
     /**
@@ -66,7 +68,7 @@ export default class Chromatogram extends Line {
      */
     function normalize(x, rawData){
       var normalized = _.map(rawData, function(data, i){
-        var xIncrement = normalizedWidth/rawData.length,
+        var xIncrement = normalizedWidth/(rawData.length-1),
             xPos = x + (xIncrement * i),
             yPos = y + height * ( 1 - data / maxDataValue );
 
@@ -121,19 +123,13 @@ export default class Chromatogram extends Line {
      */
     function drawChromatogram(){
 
-      // toBase += 1;
-
       _.forEach(['A','C','G','T'], function(nucleotide, i){
 
         var points = [],
             base = fromBase,
-            numBases = toBase - fromBase;
+            numBases = toBase - fromBase + 1; //e.g. [1,1] will draw one nucleotide.
 
-        // Corner case for last peak, we want to include the information afterwards without resorting to
-        // calling a toBase index that doesn't exist.
-        if (toBase == peaks.length-1) numBases++;
-
-        for (var j = 0; j <= numBases; j++){
+        for (var j = 0; j < numBases; j++){
 
           var data = getRelevantData(rawData[i], base + j),
               normalized = normalize(x + j * normalizedWidth, data);
