@@ -127,6 +127,9 @@ class PotentialPrimer {
     this.meltingTemperatureTolerance = options.meltingTemperatureTolerance;
     this.IDTmeltingTemperatureProximity = options.IDTmeltingTemperatureProximity;
 
+    this.checkSelfDimers = options.checkSelfDimers;
+    this.selfDimersRejectionThreshold = options.selfDimersRejectionThreshold;
+
     this.primersEncountered = {};
 
     var totalProgress = options.maxPrimerLength - options.minPrimerLength + 1;
@@ -157,6 +160,11 @@ class PotentialPrimer {
         continue;
       }
 
+      if(!this.selfDimersOk()) {
+        this.shiftPotentialPrimer();
+        continue;
+      }
+
       if(this.goodGCContent()) {
         var ourTm = SequenceCalculations.meltingTemperature(this.potentialPrimer);
         var largest = this.targetMeltingTemperature + this.meltingTemperatureTolerance + this.IDTmeltingTemperatureProximity;
@@ -164,8 +172,10 @@ class PotentialPrimer {
         logger('ourTm', this.potentialPrimer, ourTm, 'largest, smallest: ', largest, smallest);
         if(ourTm > largest) {
           this.i += 1;
+          continue;
         } else if (ourTm < smallest) {
           this.growOrShiftPotentialPrimer();
+          continue;
         } else {
           // Our calculated Tm seems good so check with IDT.
           // Now we are waiting on IDT to confirm if we have found a primer
@@ -177,6 +187,7 @@ class PotentialPrimer {
         }
       } else {
         this.growOrShiftPotentialPrimer();
+        continue;
       }
     }
 
@@ -225,6 +236,17 @@ class PotentialPrimer {
   goodGCContent() {
     var GC = gcContent(this.potentialPrimer);
     return ((GC <= (this.targetGcContent + this.targetGcContentTolerance)) && (GC >= (this.targetGcContent - this.targetGcContentTolerance)));
+  }
+
+  selfDimersOk() {
+    if(!this.checkSelfDimers) return true;
+
+    const selfDimers = SequenceCalculations.selfDimers(
+      this.potentialPrimer, 
+      this.selfDimersRejectionThreshold
+    );
+
+    return selfDimers.length === 0; 
   }
 
   growOrShiftPotentialPrimer(incrementSize=1) {
@@ -446,7 +468,12 @@ var optimalPrimer4 = function(sequenceModel, sequenceOptions, opts) {
   sequenceOptions = _.defaults(sequenceOptions, {
     frm: 0,
     maxSearchSpace: opts.maxSearchSpace,
-    findOnReverseStrand: false,
+    findOnReverseStrand: false
+  });
+
+  _.defaults(opts, {
+    checkSelfDimers: false,
+    selfDimersRejectionThreshold: 4
   });
 
   var potentialPrimer = new PotentialPrimer(sequenceModel, sequenceOptions, opts);

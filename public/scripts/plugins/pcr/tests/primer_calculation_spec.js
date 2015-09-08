@@ -54,8 +54,13 @@ var optimalPrimer4_TestFactory = function(done, sequenceBases, expectations, opt
   sequenceOptions = _.defaults(sequenceOptions, {
     frm: 0,
     maxSearchSpace: 500,
-    findOnReverseStrand: false,
+    findOnReverseStrand: false
   });
+
+
+  // TODO Check behaviour of self dimer checks
+  options = _.omit(options, 'checkSelfDimers');
+  
   optimalPrimer4(sequenceModel, sequenceOptions, options)
   .then(function(primer) {
     checkResult(primer, expectations);

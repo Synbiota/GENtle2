@@ -335,7 +335,7 @@ var longestCommonSubsequence = function(sequence1, sequence2, threshold = 0) {
     }
   }
 
-  return result.size >= threshold ? result : null;
+  return result.size >= (threshold || 1) ? result : null;
 };
 
 const selfDimersThreshold = 4;

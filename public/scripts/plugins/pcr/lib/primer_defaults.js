@@ -21,6 +21,8 @@ var defaultSequencingPrimerOptions = function(options={}) {
     meltingTemperatureTolerance: 1.5,
     useIDT: true,
     IDTmeltingTemperatureProximity: 0.5,
+    checkSelfDimers: true,
+    selfDimersRejectionThreshold: 4
   });
   return options;
 };

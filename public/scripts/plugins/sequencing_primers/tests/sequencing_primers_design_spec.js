@@ -49,7 +49,8 @@ var checkResult = function(expectedPrimersAndProducts, calculatedPrimersAndProdu
 
 
 var getAllPrimersAndProducts_TestFactory = function(sequenceModel, expectedPrimersAndProducts, done) {
-  return getAllPrimersAndProductsHelper(sequenceModel)
+  // TODO check behaviour of self dimers check
+  return getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
   .then(function(calculatedPrimersAndProducts) {
     checkResult(expectedPrimersAndProducts, calculatedPrimersAndProducts);
   })
@@ -356,7 +357,8 @@ describe('finding Sequencing Primers', function() {
       var deferredProducts = Q.defer();
       var deferredNotification = Q.defer();
 
-      getAllPrimersAndProductsHelper(sequenceModel)
+      // TODO check behaviour of self dimers check
+      getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
       .then(function(val) {
         // console. log ('then...', val)
         deferredProducts.resolve(val);
@@ -434,7 +436,8 @@ describe('finding Sequencing Primers', function() {
         sequence: forwardUniversalPrimerV1 + spacerBases(1000) + reverseUniversalPrimerV1
       });
 
-      getAllPrimersAndProductsHelper(sequenceModel)
+      // TODO check behaviour of self dimers check
+      getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
       .then(function(val) {
         // We should never get here.
         console.error("ERROR : ", val);
@@ -462,7 +465,8 @@ describe('finding Sequencing Primers', function() {
       var dNoReverseUniversalPrimerWarning = Q.defer();
       var dError = Q.defer();
 
-      getAllPrimersAndProductsHelper(sequenceModel)
+      // TODO check behaviour of self dimers check
+      getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
       .then(function(val) {
         // We should never get here.
         console.error("ERROR : ", val);
@@ -502,7 +506,8 @@ describe('finding Sequencing Primers', function() {
         sequence: forwardUniversalPrimerV1 + spacerBases(garbageLength - 1) + reverseUniversalPrimerV1
       });
 
-      getAllPrimersAndProductsHelper(sequenceModel)
+      // TODO check behaviour of self dimers check
+      getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
       .then(function(val) {
         // We should never get here.
         console.error("ERROR : ", val);
@@ -533,7 +538,8 @@ describe('finding Sequencing Primers', function() {
       var dNoReverseUniversalPrimerWarning = Q.defer();
       var dError = Q.defer();
 
-      getAllPrimersAndProductsHelper(sequenceModel)
+      // TODO check behaviour of self dimers check
+      getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
       .then(function(val) {
         // We should never get here.
         console.error("ERROR : ", val);
@@ -573,7 +579,8 @@ describe('finding Sequencing Primers', function() {
     it('scenario 4: should error when sequence too short to find primers', function(done) {
       var sequenceModel = new TemporarySequenceModel({sequence: 'ACTA'});
 
-      getAllPrimersAndProductsHelper(sequenceModel)
+      // TODO check behaviour of self dimers check
+      getAllPrimersAndProductsHelper(sequenceModel, {checkSelfDimers: false})
       .then(function(val) {
         // We should never get here.
         console.error("ERROR : ", val);
