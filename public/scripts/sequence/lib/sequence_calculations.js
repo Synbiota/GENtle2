@@ -298,6 +298,76 @@ var dnaTextColour = function(sequenceModel, reverse, defaultColour, base_unused,
   return colour;
 };
 
+var longestCommonSubsequence = function(sequence1, sequence2, threshold = 0) {
+  const length = Math.min(sequence1.length, sequence2.length);
+  var result = {size: 0};
+  var i = 0;
+  var subLength = 0;
+  var currentSubSeq = '';
+
+  while(i < length) {
+    if(
+      threshold > 0 && 
+      subLength === 0 && 
+      sequence1.substr(i, threshold) === sequence2.substr(i, threshold)
+    ) {
+      currentSubSeq = sequence1.substr(i, threshold);
+      subLength = threshold;
+    } else if(
+      subLength >= threshold && 
+      i + subLength < length && 
+      sequence1[i+subLength] === sequence2[i+subLength]
+    ) {
+      currentSubSeq += sequence1[i+subLength];
+      subLength++;
+    } else {
+      if(currentSubSeq.length > result.size) {
+        result = {
+          subSeq: currentSubSeq,
+          index: i,
+          size: currentSubSeq.length
+        };
+      }
+
+      i += subLength + 1;
+      subLength = 0;
+      currentSubSeq = '';
+    }
+  }
+
+  return result.size >= threshold ? result : null;
+};
+
+const selfDimersThreshold = 4;
+
+var selfDimers = function(sequence, threshold = selfDimersThreshold) {
+  sequence = getStringSequence(sequence);
+  const length = sequence.length;
+  var results = [];
+
+  for(let i = -length + threshold; i < length - threshold + 1; i++) {
+    let sequence1, sequence2;
+    if(i < 0) {
+      sequence1 = sequence;
+      sequence2 = SequenceTransforms.toReverseComplements(sequence).substr(-i, length);
+    } else {
+      sequence1 = sequence.substr(i, length);
+      sequence2 = SequenceTransforms.toReverseComplements(sequence);
+    }
+
+    let result = longestCommonSubsequence(sequence1, sequence2, threshold);
+
+    if(result) {
+      results.push(_.extend(result, {
+        offset: i
+      }));
+    }
+  }
+
+  return results;
+};
+
+
 
 window.calc = {
   deltaEnthalpy: deltaEnthalpy,
@@ -322,4 +392,6 @@ export default {
   molecularWeight: molecularWeight,
   nearestNeighborsCalculator: nearestNeighborsCalculator,
   dnaTextColour,
+  longestCommonSubsequence,
+  selfDimers
 };
