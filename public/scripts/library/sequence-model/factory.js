@@ -90,23 +90,23 @@ function sequenceModelFactory(BackboneModel) {
   };
 
   var allAssociationDefaults = function(){
-    _.chain(associations)
-     .pluck('classAssociations')
-     .flatten()
-     .map(function(val){
-        if (val.associationName && val.collection){
-          let defaultVal = {};
-          defaultVal[val.associationName] = [];
+    return  _.chain(associations)
+             .pluck('classAssociations')
+             .flatten()
+             .map(function(val){
+                if (val.associationName && val.collection){
+                  let defaultVal = {};
+                  defaultVal[val.associationName] = [];
 
-          return defaultVal;
-        }
-      })
-     .compact()
-     .reduce(function(memo, value){
-        return _.extend(memo, value);
-      }, {})
-     .value()
-  }
+                  return defaultVal;
+                }
+              })
+             .compact()
+             .reduce(function(memo, value){
+                return _.extend(memo, value);
+              }, {})
+             .value();
+  };
 
   let preProcessors = [];
 
