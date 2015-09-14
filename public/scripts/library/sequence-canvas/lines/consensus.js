@@ -25,6 +25,10 @@ export default class Consensus extends Line {
       'bad': {
         height: 20,
         color: '#EF000F',
+      },
+      'none': {
+        height: 0,
+        color: '#FFF'
       }
     }
 
@@ -85,11 +89,13 @@ export default class Consensus extends Line {
     _.forEach(fragments.getConsensus().slice(baseRange[0], baseRange[1] + 1), function(base, i){
 
         if (_.contains(['A', 'C', 'G', 'T'], base)){
-          drawRect(i, 'good')
+          drawRect(i, 'good');
         } else if (_.contains(['N'], base)){
-          drawRect(i, 'medium')
+          drawRect(i, 'medium');
+        } else if (_.contains([' '], base)){
+          drawRect(i, 'none');
         } else {
-          drawRect(i, 'bad')
+          drawRect(i, 'bad');
         }
 
     });

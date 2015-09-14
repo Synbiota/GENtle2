@@ -38,6 +38,11 @@ export default class ChromatographMapCanvas {
       'bad': {
         height: 20,
         color: '#EF000F',
+      },
+
+      'none': {
+        height: 0,
+        color: '#FFF'
       }
     };
 
@@ -124,6 +129,8 @@ export default class ChromatographMapCanvas {
         return 'good'
       } else if (_.contains(['N'], base)){
         return 'medium'
+      } else if (_.contains([' '], base)){
+        return 'none'
       } else {
         return 'bad'
       }

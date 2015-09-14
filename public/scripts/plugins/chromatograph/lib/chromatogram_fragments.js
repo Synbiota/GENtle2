@@ -57,7 +57,13 @@ class ChromatogramFragments extends SequencesCollection {
   }
 
   getConsensus(){
-    var consensus = this.parentSequence.getSequence();
+    // var consensus = this.parentSequence.getSequence();
+    // consensus = _.map(consensus, )
+
+    var consensus = ''
+    for (var i = 0; i < this.parentSequence.getLength(); i++){
+      consensus += ' '
+    }
 
     this.each(function(fragment){
       consensus = fragment.applyConsensus(consensus);
