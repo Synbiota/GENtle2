@@ -16,7 +16,19 @@ export default class Chromatogram extends Row {
         height: 15,
         baseLine: 15,
         textFont: LineStyles.dna.text.font,
-        textColour: "#414",
+        textColour: "#414"
+      }],
+      chromatogram_dna_complement: ['DNA_XY', {
+        height: 15,
+        baseLine: 15,
+        textFont: LineStyles.dna.text.font,
+        textColour: function(){
+          return this.sequence.get('isComplement') ? "#d3d3d3" : "#fff";
+        },
+        getSubSeq: function(startBase, endBase){
+          return this.getComplement().substr(startBase, endBase - startBase + 1)
+          // return this.get('chromatogramFragments').getConsensusSubSeq(...args)
+        }
         // selectionColour: LineStyles.dna.selection.fill,
         // selectionTextColour: LineStyles.dna.selection.color
       }],

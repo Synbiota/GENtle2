@@ -57,6 +57,15 @@ export default class ChromatographCanvas extends SequenceCanvasMixin {
       _this.addChromatograph(fragment, {silent: true});
     });
 
+
+    // Jump to the first available fragment if exists on switching to tab. Should keep scroll position when
+    // switching between though.
+    this.afterNextRedraw(function(){
+      if (_this.rows[1]){
+        _this.scrollToBase(_this.rows[1].sequence.get('position'));
+      }
+    })
+
   }
 
   addChromatograph(fragment, options = {silent: false}){

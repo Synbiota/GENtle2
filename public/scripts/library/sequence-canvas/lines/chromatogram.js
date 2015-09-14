@@ -23,6 +23,7 @@ export default class Chromatogram extends Line {
     const rawData = sequence.get('chromatogramData');
     const maxDataValue = sequence.get('maxChromatogramValue') || 65536;
     const peaks = sequence.get('chromatogramPeaks');
+    const isComplement = sequence.get('isComplement');
 
 
     const height = this.height;
@@ -44,6 +45,10 @@ export default class Chromatogram extends Line {
      * @return {Array}          Raw data of range base-1 to base.
      */
     function getRelevantData(data, base){
+      if (isComplement){
+        base = (peaks.length - 1) - base;
+      }
+
       var start = base === 0 ?
                     0 :
                     peaks[base] - Math.floor((peaks[base] - peaks[base - 1])/2),
@@ -54,7 +59,14 @@ export default class Chromatogram extends Line {
           //Shouldn't use Math.floor, should have separate handling for even and odd differences
           //between peaks.
 
-      return data.slice(start, end + 1);
+      var relevantData = data.slice(start, end + 1);
+
+      if (isComplement){
+        relevantData.reverse();
+      }
+
+
+      return relevantData;
     }
 
     /**
