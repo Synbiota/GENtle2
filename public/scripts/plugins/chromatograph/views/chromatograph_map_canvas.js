@@ -4,6 +4,7 @@ import Artist from '../../../common/lib/graphics/artist';
 import _ from 'underscore';
 // import RestrictionEnzymes from '../../sequence/lib/restriction_enzymes';
 import Styles from '../../../styles.json';
+import ConsensusLine from '../../../library/sequence-canvas/lines/consensus'
 
 var LineStyles = Styles.sequences.lines;
 
@@ -19,6 +20,7 @@ export default class ChromatographMapCanvas {
     this.$canvas = options.$canvas;
     this.artist = new Artist(options.$canvas);
 
+    this.sequence = this.model;
 
     this.tempDims = {
       yOffset: 100,
@@ -46,6 +48,10 @@ export default class ChromatographMapCanvas {
       }
     };
 
+    this.consensusLine = new ConsensusLine(this, {
+      height: 10,
+    });
+
     _.bindAll(this, 'render', 'refresh', 'handleClick');
     this.refresh();
 
@@ -53,7 +59,6 @@ export default class ChromatographMapCanvas {
 
     this.view.parentView().on('resize', _.debounce(this.refresh, 200));
     this.$canvas.on('click', this.handleClick);
-
 
   }
 
@@ -95,66 +100,11 @@ export default class ChromatographMapCanvas {
   }
 
   drawConsensus() {
-    var artist = this.artist;
-    var fullConsensus = this.model.get('chromatogramFragments').getConsensus();
-    var _this = this;
-
-    var head = {
-      type: getType(fullConsensus[0]),
-      position: 0
-    };
 
     // var baseWidth = Math.max(1, Math.round(this.canvasDims.width/this.model.getLength()));
     var baseWidth = this.canvasDims.width/this.model.getLength();
 
-    function drawRect(start, end, type){
-
-      var setting = _this.consensusSettings[type];
-
-      artist.rect(
-          start * baseWidth,
-          _this.tempDims.yOffset - setting.height,
-          (end - start) * baseWidth,
-          setting.height,
-          {
-            fillStyle: setting.color
-          }
-        );
-    }
-
-    function getType(base){
-      var type;
-
-      if (_.contains(['A', 'C', 'G', 'T'], base)){
-        return 'good'
-      } else if (_.contains(['N'], base)){
-        return 'medium'
-      } else if (_.contains([' '], base)){
-        return 'none'
-      } else {
-        return 'bad'
-      }
-
-    }
-
-
-
-    _.forEach(fullConsensus, function(base, i){
-
-      if (head.type != getType(base) || (i == fullConsensus.length - 1)){
-        drawRect(head.position, i, head.type);
-        head = {
-          type: getType(base),
-          position: i
-        };
-      }
-
-      if (i == (fullConsensus.length - 1)){
-        drawRect(head.position, fullConsensus.length, head.type)
-      }
-
-    });
-
+    this.consensusLine.draw(0, 90, [0, this.model.getLength()-1], baseWidth);
 
   }
 
