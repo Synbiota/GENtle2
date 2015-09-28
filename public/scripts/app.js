@@ -31,7 +31,7 @@ var currentUser = Gentle.currentUser = new CurrentUser({id: 'current-user'});
 Gentle.sequences.fetch();
 Gentle.currentUser.fetch();
 
-Gentle.enableFeatures('blast', 'sequencingPrimers');
+Gentle.enableFeatures('blast');
 
 Gentle.router = new Router();
 window.gentle = Gentle;

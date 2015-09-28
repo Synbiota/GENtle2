@@ -1,4 +1,4 @@
-/** 
+/**
 @module Common
 @submodule Views
 @class NavbarView
@@ -60,12 +60,16 @@
           this.visibleTabIds.splice(visibleTabIdsIdx, 1);
         }
         sequence.destroy();
-        nextSequence = Gentle.sequences.last();
-        if(nextSequence) {
+
+        var sequences = Gentle.sequences.where({readOnly: false});
+
+        if (sequences.length){
+          nextSequence = _.last(sequences);
           Gentle.router.sequence(nextSequence.get('id'));
         } else {
           Gentle.router.home();
         }
+
       }
     },
 
@@ -83,23 +87,28 @@
           maxDropdownWidth,
           _this = this;
 
+      sequences = _.reject(sequences, function(sequence){
+        return sequence.readOnly;
+      })
+
       // In order to properly determine tab spacing, we need to allow the view to render, and grab width data.
       // So we do nothing on initial render, and only display tabs once we have that initial data.
       if (!this.initialRender){
 
         calculatedMaxTabWidth = Math.max(
-          Math.floor(availableWidth / Gentle.sequences.models.length),
+          Math.floor(availableWidth / sequences.length),
           this.minTabWidth
         );
 
         nbVisibleTabs = Math.floor(availableWidth / calculatedMaxTabWidth);
 
         // If the dropdown tab is visible, we need to factor for its width.
-        if (nbVisibleTabs < Gentle.sequences.models.length)
+        if (nbVisibleTabs < sequences.length)
           nbVisibleTabs = Math.floor( (availableWidth-dropdownWidth) /calculatedMaxTabWidth)
 
         if(this.visibleTabIds.length <= nbVisibleTabs) {
           this.visibleTabIds = _.initial(_.pluck(sequences, 'id'), sequences.length - nbVisibleTabs);
+
         } else {
           this.visibleTabIds = _.initial(this.visibleTabIds, this.visibleTabIds.length - nbVisibleTabs);
         }
@@ -125,7 +134,7 @@
         maxDropdownWidth: maxDropdownWidth,
         visibleTabs: visibleTabs,
         //We need to make sure the dropdown tab is visible for first render to get its dimensions.
-        hiddenTabs: hiddenTabs || this.initialRender, 
+        hiddenTabs: hiddenTabs || this.initialRender,
         atHome: Backbone.history.fragment == 'home',
       };
     },

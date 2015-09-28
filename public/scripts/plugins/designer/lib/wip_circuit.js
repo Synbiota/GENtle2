@@ -41,7 +41,7 @@ export default class WipCircuit extends Sequence {
     this.diagnoseSequence();
 
     this.on(
-      'change:sequences change:cap change:anchor', 
+      'change:sequences change:cap change:anchor',
       _.bind(this.diagnoseSequence, this)
     );
 
@@ -71,6 +71,7 @@ export default class WipCircuit extends Sequence {
       availableCaps: [],
       sequences: [],
       isCircular: true,
+      isWIPCircuit: true,
       errors: []
     });
   }
@@ -94,7 +95,7 @@ export default class WipCircuit extends Sequence {
   /**
    * Moves anchors and caps from the availableSequences array to the available Anchors and availableCaps arrays
    * @method  initAvailableAnchorsAndCaps
-   * @return {undefined} 
+   * @return {undefined}
    */
   _initAvailableAnchorsAndCaps() {
     var availableSequences = this.get('availableSequences');
@@ -108,12 +109,12 @@ export default class WipCircuit extends Sequence {
     };
 
     _.each(
-      _.filter(availableSequences, detectAnchor), 
+      _.filter(availableSequences, detectAnchor),
       moveSequence(this.get('availableAnchors'))
     );
 
     _.each(
-      _.filter(availableSequences, detectCap), 
+      _.filter(availableSequences, detectCap),
       moveSequence(this.get('availableCaps'))
     );
   }
@@ -160,7 +161,7 @@ export default class WipCircuit extends Sequence {
     }
 
     var newSequences = _.reject(
-      _.map(sequences, sequence => new TemporarySequence(sequence)), 
+      _.map(sequences, sequence => new TemporarySequence(sequence)),
       function(sequence) {
         return _.some(existingSequences, function(existingSequence) {
           return existingSequence.getSequence() === sequence.getSequence();
@@ -285,9 +286,9 @@ export default class WipCircuit extends Sequence {
     if(anchor) sequences.push(anchor);
     sequences = sequences.concat(this.get('sequences'));
     if(cap) sequences.push(cap);
-    
+
     var finalSequence = Sequence.concatenateSequences(
-      sequences, 
+      sequences,
       false
     );
 
