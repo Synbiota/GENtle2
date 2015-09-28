@@ -51,7 +51,8 @@
 
     closeSequence: function(event) {
       event.preventDefault();
-      var sequence = Gentle.sequences.get($(event.currentTarget).closest('a').data('sequence_id')),
+      var sequences = Gentle.sequences,
+          sequence = sequences.get($(event.currentTarget).closest('a').data('sequence_id')),
           nextSequence, visibleTabIdsIdx;
 
       if(sequence) {
@@ -61,10 +62,10 @@
         }
         sequence.destroy();
 
-        var sequences = Gentle.sequences.where({readOnly: false});
+        // var sequences = Gentle.sequences.where({readOnly: false});
 
         if (sequences.length){
-          nextSequence = _.last(sequences);
+          nextSequence = sequences.last();
           Gentle.router.sequence(nextSequence.get('id'));
         } else {
           Gentle.router.home();
@@ -87,9 +88,9 @@
           maxDropdownWidth,
           _this = this;
 
-      sequences = _.reject(sequences, function(sequence){
-        return sequence.readOnly;
-      })
+      // sequences = _.reject(sequences, function(sequence){
+      //   return sequence.readOnly;
+      // })
 
       // In order to properly determine tab spacing, we need to allow the view to render, and grab width data.
       // So we do nothing on initial render, and only display tabs once we have that initial data.
