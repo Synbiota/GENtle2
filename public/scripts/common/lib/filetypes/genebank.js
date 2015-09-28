@@ -113,7 +113,7 @@
       delete v['_last'] ;
       var range = [] ; // Default : Unknown = empty TODO FIXME
       var r = v['ranges'] ;
-      v.name = v._importData.product || v._importData.gene || 'Unnamed';
+      v.name = v._importData.product || v._importData.gene || v._importData.label || 'Unnamed';
       v.desc = v._importData.note || '';
       
       var m = r.match ( /^\d+$/ ) ;
