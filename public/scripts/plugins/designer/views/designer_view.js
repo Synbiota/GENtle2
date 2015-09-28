@@ -39,7 +39,7 @@ var DesignerView = Backbone.View.extend({
     }
 
     var specialSequenceNames = [
-      'x-z', 'x-z\'', 'z-x', 'z-x\'', 
+      'x-z', 'x-z\'', 'z-x', 'z-x\'',
       'x-adp-z\'', 'x-Inv-z', 'z-adp-x\'', 'z-Inv-x',
       'anc-Ori-x\'', 'z-ChlR-cap'
     ];
@@ -49,12 +49,12 @@ var DesignerView = Backbone.View.extend({
     ];
 
     var filterbyStickyEnds = _.partial(_.bind(
-      model.filterAvailableSequencesByStickyEnds, 
+      model.filterAvailableSequencesByStickyEnds,
       model
     ), _, specialSequenceNames);
 
     this.setView(
-      '.designer-available-sequences-outlet.outlet-1', 
+      '.designer-available-sequences-outlet.outlet-1',
       new AvailableSequencesView({
         name: 'x-z\' Parts',
         getSequences: filterbyStickyEnds(outlet1StickyEndNames)
@@ -66,7 +66,7 @@ var DesignerView = Backbone.View.extend({
     ];
 
     this.setView(
-      '.designer-available-sequences-outlet.outlet-2', 
+      '.designer-available-sequences-outlet.outlet-2',
       new AvailableSequencesView({
         name: 'z-x\' Parts',
         getSequences: filterbyStickyEnds(outlet2StickyEndNames)
@@ -76,14 +76,14 @@ var DesignerView = Backbone.View.extend({
     var outlet3StickyEndNames = outlet1StickyEndNames.concat(outlet2StickyEndNames);
 
     this.setView(
-      '.designer-available-sequences-outlet.outlet-3', 
+      '.designer-available-sequences-outlet.outlet-3',
       new AvailableSequencesView({
         name: 'Adapter and inverter parts',
         getSequences: filterbyStickyEnds(outlet3StickyEndNames, true)
       })
     );
 
-    var designedSequenceView = this.designedSequenceView = 
+    var designedSequenceView = this.designedSequenceView =
       new DesignedSequenceView({model: this.model});
     this.setView('.designer-designed-sequence-outlet', designedSequenceView);
 
@@ -159,7 +159,7 @@ var DesignerView = Backbone.View.extend({
   },
 
   setupDropzone: function() {
-    var $dropzone = 
+    var $dropzone =
       this.$('.fullscreen-filedropzone');
 
     dropzone.init.call(this, $dropzone, this.addAvailableSequences);
@@ -212,7 +212,7 @@ var DesignerView = Backbone.View.extend({
       });
     } else {
       var attributes = this.model.assembleSequences();
-      this.model.destroy();
+      // this.model.destroy();
       Gentle.addSequencesAndNavigate([attributes]);
     }
   }

@@ -282,6 +282,7 @@ export default class WipCircuit extends Sequence {
     var anchor = this.get('anchor');
     var cap = this.get('cap');
     var isCircular = this.get('isCircular');
+    var numAssembled = parseInt(this.get('numAssembled')) || 0;
 
     if(anchor) sequences.push(anchor);
     sequences = sequences.concat(this.get('sequences'));
@@ -292,9 +293,12 @@ export default class WipCircuit extends Sequence {
       false
     );
 
+    numAssembled++;
+    this.set('numAssembled', numAssembled).throttledSave();
+
     finalSequence.set({
       _type: 'circuit',
-      name: this.get('name') + '-RDP',
+      name: this.get('name') + '-RDP ' + numAssembled,
       isCircular
     });
 
