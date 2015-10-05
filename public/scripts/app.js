@@ -63,6 +63,9 @@ var addableSequences = _.filter(preloadedSequences, function(sequence) {
 
 if(addableSequences.length) {
   Gentle.addSequences(addableSequences);
+  _.defer(function(){
+    Gentle.router.home()
+  })
 }
 
 // end custom build
