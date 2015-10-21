@@ -16,3 +16,8 @@ deployment:
     branch: /feature\/.*/
     commands:
       - "ASSET_DIR=$CIRCLE_BRANCH BUGSNAG_RELEASE_STAGE=$CIRCLE_BRANCH gulp publish"
+
+  version:
+    branch: /version\/.*/
+    commands:
+      - "ASSET_DIR=$CIRCLE_BRANCH BUGSNAG_RELEASE_STAGE=$CIRCLE_BRANCH gulp publish"
