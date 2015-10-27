@@ -1,6 +1,6 @@
 $designer-header-height: 50px;
 $designer-designed-sequence-height: 116px;
-$designer-available-sequences-header-height: 44px;
+$designer-available-sequences-header-height: 10px;
 $designer-border-style: solid #ddd;
 
 $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
@@ -11,6 +11,8 @@ $designer-draggable-stickyEnds-color: (
   // 'da20': $brand-info,
   // 'dt20': $brand-info
 );
+
+$designer-plasmid-map-width: 510px;
 
 .designer {
   height: 100%;
@@ -230,7 +232,7 @@ $designer-draggable-stickyEnds-color: (
   //     &.active {
   //       color: red;
   //     }
-  //   }  
+  //   }
 
   //   .designer-designed-sequence-chunk-position {
   //     float: left;
@@ -241,7 +243,7 @@ $designer-draggable-stickyEnds-color: (
   //     width: 42px;
   //     text-align: left;
   //     @include text-overflow();
-  //   }    
+  //   }
 
   //   .designer-designed-sequence-chunk {
 
@@ -345,28 +347,23 @@ $designer-draggable-stickyEnds-color: (
   position: absolute;
   top: $designer-available-sequences-header-height;
   bottom: 0;
-  right: 0;
   left: 0;
   overflow: auto;
   padding-left: 10px;
 
   &.outlet-1 {
-    padding-left: 20px;
+    // padding-left: 20px;
   }
 
   &.outlet-1, &.outlet-2 {
-    width: 33%;
+    width: 50%;
   }
 
-  &.outlet-2, &.outlet-3 {
+  &.outlet-2 {
     border-left: 1px $designer-border-style;
-    left: 33%;
-  }
-
-  &.outlet-3 {
-    width: 34%;
-    left: 66%;
-    padding-right: 20px;
+    left: 50%;
+    padding-right: 10px;
+    border-right: 1px $designer-border-style;
   }
 }
 
@@ -383,7 +380,7 @@ $designer-draggable-stickyEnds-color: (
 //   &.incompatible-sequences {
 //     i.incompatible-sequences {
 //       display: initial;
-//     }  
+//     }
 //   }
 
 //   &.lacks-sticky-end-sequences {
@@ -404,7 +401,7 @@ $designer-draggable-stickyEnds-color: (
 //     display: inline-block;
 //   }
 
-  
+
 
 //   .designer-available-sequence-features {
 //     position: relative;
@@ -459,11 +456,29 @@ $designer-draggable-stickyEnds-color: (
 //   }
 // }
 
+.designer-plasmid-map-container {
+  position: absolute;
+  top: $designer-header-height + $designer-designed-sequence-height;
+  width: $designer-plasmid-map-width;
+  right: 0;
+  bottom: 0;
+  background-color: #e5e5e5;
+}
+
+.designer-plasmid-map-outlet {
+  position: absolute;
+  top: $designer-available-sequences-header-height;
+  bottom: 0;
+  left: 0;
+  right: 10px;
+}
+
 .designer-available-sequences-container {
   position: absolute;
   top: $designer-header-height + $designer-designed-sequence-height;
-  width: 100%;
   bottom: 0;
+  left: 0;
+  right: $designer-plasmid-map-width;
   background-color: #e5e5e5;
 }
 
@@ -482,7 +497,7 @@ $designer-draggable-stickyEnds-color: (
       height: 36px;
     }
   }
-}   
+}
 
 .designer-diagnostic-error, .designer-diagnostic-success {
   position: absolute;
@@ -572,7 +587,7 @@ $designer-draggable-stickyEnds-color: (
       &.selected {
         background: #ddd;
       }
- 
+
       & > a {
         font-size: 13px;
         padding: 10px 10px;

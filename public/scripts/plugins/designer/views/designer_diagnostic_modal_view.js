@@ -1,7 +1,7 @@
 import Backbone from 'backbone';
 import _ from 'underscore';
 import {
-  CANNOT_CIRCULARIZE, 
+  CANNOT_CIRCULARIZE,
   INCOMPATIBLE_STICKY_ENDS,
   MISSING_ANCHOR,
   MISSING_CAP

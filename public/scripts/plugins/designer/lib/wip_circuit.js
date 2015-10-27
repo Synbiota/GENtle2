@@ -9,7 +9,6 @@ const INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
 const CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
 const MISSING_CAP = 'MISSING_CAP';
 const MISSING_ANCHOR = 'MISSING_ANCHOR';
-
 const MISSING_EITHER_STICKY_END = 'MISSING_EITHER_STICKY_END';
 
 const currentUserKey = 'designer.availableSequences';
@@ -42,7 +41,10 @@ export default class WipCircuit extends Sequence {
 
     this.on(
       'change:sequences change:cap change:anchor',
-      _.bind(this.diagnoseSequence, this)
+      _.bind(function(){
+        this.diagnoseSequence();
+        this.updateSelfSequence();
+      }, this)
     );
 
     if(this.get('availableSequences').length === 0) {
@@ -198,12 +200,12 @@ export default class WipCircuit extends Sequence {
 
   insertSequence(beforeIndex, sequence) {
     this.get('sequences').splice(beforeIndex, 0, sequence);
-    this.diagnoseSequence();
+    this.trigger("change:sequences");
   }
 
   removeSequenceAtIndex(index) {
     this.get('sequences').splice(index, 1);
-    this.diagnoseSequence();
+    this.trigger("change:sequences");
   }
 
   moveSequence(oldIndex, newIndex) {
@@ -303,6 +305,20 @@ export default class WipCircuit extends Sequence {
     });
 
     return finalSequence.toJSON();
+  }
+
+  updateSelfSequence(){
+
+    var errors = this.get('errors');
+    var attributes, sequence;
+
+    if (this.get('sequences').length === 0){
+      this.set('sequence', '');
+    } else if (errors.length === 0){
+      attributes = this.assembleSequences();
+      this.set('sequence', attributes.sequence);
+    }
+
   }
 
   loadAvailableSequencesFromCurrentUser() {

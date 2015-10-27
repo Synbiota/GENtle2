@@ -3,6 +3,7 @@ import _ from 'underscore';
 import template from '../templates/designer_view_template.hbs';
 import AvailableSequencesView from './available_sequences_view';
 import DesignedSequenceView from './designed_sequence_view';
+import PlasmidMapView from '../../../plasmid_map/views/plasmid_map_view';
 import Gentle from 'gentle';
 import uploadMultipleSequences from '../../../common/lib/upload_multiple_sequences';
 import Modal from '../../../common/views/modal_view';
@@ -83,6 +84,13 @@ var DesignerView = Backbone.View.extend({
       })
     );
 
+    this.setView(
+      '.designer-plasmid-map-outlet',
+      new PlasmidMapView({
+        designerView: true
+      })
+    );
+
     var designedSequenceView = this.designedSequenceView =
       new DesignedSequenceView({model: this.model});
     this.setView('.designer-designed-sequence-outlet', designedSequenceView);
@@ -131,7 +139,7 @@ var DesignerView = Backbone.View.extend({
     return {
       sequenceName: this.model.get('name'),
       circulariseDna: this.model.get('isCircular'),
-      emptyAvailableSequences: this.model.get('availableSequences').length === 0
+      emptyAvailableSequences: this.model.get('availableSequences').length === 0,
     };
   },
 
@@ -212,6 +220,7 @@ var DesignerView = Backbone.View.extend({
       });
     } else {
       var attributes = this.model.assembleSequences();
+      // this.model.set('sequence', attributes.sequence);
       // this.model.destroy();
       Gentle.addSequencesAndNavigate([attributes]);
     }
