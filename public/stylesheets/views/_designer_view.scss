@@ -673,3 +673,28 @@ $designer-plasmid-map-width: 510px;
     margin-top: 0;
   }
 }
+
+.designer-name {
+  border-radius: 4px;
+  border: 1px solid transparent;
+  display: inline-block;
+  max-width: 900px;
+  padding: 2px 8px;
+  text-overflow: ellipsis;
+
+  .glyphicon {
+    opacity: 0;
+    color: transparent;
+  }
+
+  &:hover {
+    cursor: pointer;
+    border: 1px solid #ccc;
+
+    .glyphicon {
+      opacity: 1;
+      color: #ccc;
+    }
+
+  }
+}

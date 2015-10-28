@@ -32,6 +32,7 @@
       this.debouncedRender = _.debounce(this.render, 200);
       Gentle.sequences.on('add remove reset sort', this.render, this);
       // Gentle.sequences.on('change', this.debouncedRender, this);
+      this.listenTo(Gentle.sequences, 'change:name', this.render, this)
       $(window).on('resize', this.debouncedRender);
     },
     navigateToSequence: function(event) {
