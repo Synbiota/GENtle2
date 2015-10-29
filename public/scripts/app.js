@@ -87,6 +87,11 @@ if (Gentle.visibleSequences().length == 0) {
 
   addableSequences.push(sequence);
 
+  // Make sure we navigate to the newly created sequence.
+  _.defer(function(){
+    Gentle.router.sequence(sequence.get('id'));
+  });
+
 }
 
 if(addableSequences.length) {

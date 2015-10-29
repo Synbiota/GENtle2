@@ -48,6 +48,13 @@ export default Backbone.View.extend({
       getSelectedSequence: () => model.get(selectedAttr)
     });
 
+    // Select first value by default.
+    var currentSelected = this.model.get(selectedAttr);
+    var available = this.model.get(availableAttr);
+    if (!currentSelected && (available)) {
+      this.model.set(selectedAttr, available[0]);
+    }
+
     this.listenTo(selectorView, 'select', (sequence) => {
       model.set(selectedAttr, sequence).throttledSave();
       selectorView.render();
@@ -80,7 +87,7 @@ export default Backbone.View.extend({
   insertFromAvailableSequence: function(sequenceId, beforeIndex = 0) {
     var model = this.model;
     var sequence = _.find(
-      model.get('availableSequences'), 
+      model.get('availableSequences'),
       s => s.get('id') === sequenceId
     );
     model.insertSequence(beforeIndex, sequence);
@@ -221,8 +228,8 @@ export default Backbone.View.extend({
       var lastOffset = last ? $draggable.outerWidth(true) : 0;
 
       var $element = $(html).css({
-        left: $draggable.offset().left + 
-          $draggableContainer.parent().scrollLeft() + 
+        left: $draggable.offset().left +
+          $draggableContainer.parent().scrollLeft() +
           lastOffset
       }).gentleTooltip({view: this});
 
@@ -254,8 +261,8 @@ export default Backbone.View.extend({
           (index < sequencesLength || model.get('cap'))
         ) {
           let stickyEndName = (
-            index === sequencesLength ? 
-              sequences[index - 1].getStickyEnds().end.name : 
+            index === sequencesLength ?
+              sequences[index - 1].getStickyEnds().end.name :
               sequences[index].getStickyEnds().start.name
           ).replace(/[^\w]/g, '').toLowerCase();
 
@@ -291,7 +298,7 @@ export default Backbone.View.extend({
 
     // var maxWidth = $draggableContainer.parent().width() - 150;
 
-    var padding = parseInt($draggableContainer.css('paddingRight'), 10) + 
+    var padding = parseInt($draggableContainer.css('paddingRight'), 10) +
       parseInt($draggableContainer.css('paddingLeft'), 10);
 
     // $draggableContainer.width(Math.max(totalWidth + padding + 250, maxWidth));
