@@ -4,6 +4,17 @@
   {{{designer-draggable .}}}
 {{/each}}
 
+<div class="more-info-dropdown dropup">
+  <button class="dropdown-toggle btn-link" data-toggle="dropdown">More info for..</button>
+  <ul class="dropdown-menu dropdown-menu-right">
+    {{#each sequences}}
+      <li>
+        <a href="#" class="sequence-details" data-name="{{this.attributes.name}}">{{this.attributes.name}}</a>
+      </li>
+    {{/each}}
+  </ul>
+</div>
+
 {{!-- <h5 class="designer-available-sequence-name">
   <i class="glyphicon glyphicon-info-sign incompatible-sequences" title="Sticky ends are not complementary with ends in assembled sequence."></i>
   <i class="glyphicon glyphicon-warning-sign lacks-sticky-end-sequences" title="One or both ends lack sticky ends."></i>

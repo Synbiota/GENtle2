@@ -351,6 +351,12 @@ $designer-plasmid-map-width: 510px;
   overflow: auto;
   padding-left: 10px;
 
+    .more-info-dropdown {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+    }
+
   &.outlet-1 {
     // padding-left: 20px;
   }
@@ -362,8 +368,12 @@ $designer-plasmid-map-width: 510px;
   &.outlet-2 {
     border-left: 1px $designer-border-style;
     left: 50%;
-    padding-right: 10px;
     border-right: 1px $designer-border-style;
+    padding-right: 10px;
+
+    .more-info-dropdown{
+      right: 15px;
+    }
   }
 }
 
@@ -483,6 +493,7 @@ $designer-plasmid-map-width: 510px;
 }
 
 .designer-available-sequences {
+  position: relative;
   user-select: none;
   background: white;
   padding: 10px 20px;

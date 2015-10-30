@@ -13,13 +13,17 @@ var AvailableSequenceView = Backbone.View.extend({
   manage: true,
   className: 'designer-available-sequences',
 
+  events: {
+    'click .sequence-details': 'showSequenceDetails'
+  },
+
   initialize: function(){
     this.listenTo(Gentle, 'designer:availableSequences:filter', this.filterAvailableSequences, this);
   },
 
   serialize: function() {
     return {
-      sequences: this.getSequences(), 
+      sequences: this.getSequences(),
       name: this.name
     };
   },
@@ -29,7 +33,7 @@ var AvailableSequenceView = Backbone.View.extend({
       var $el = $(el);
       var sequenceId = $el.data('sequence_id');
       var sequence = _.find(
-        this.parentView().model.get('availableSequences'), 
+        this.parentView().model.get('availableSequences'),
         s => s.get('id') === sequenceId
       );
       if(!sequence) return;
@@ -86,8 +90,20 @@ var AvailableSequenceView = Backbone.View.extend({
       var $el = $(el);
       if(!~$el.data('searchable').indexOf(query)) {
         $el.addClass('designer-draggable-hidden');
-      } 
+      }
     });
+  },
+
+  // Clone a hidden library sequence, make visible and navigate to it.
+  showSequenceDetails: function(e){
+    e.preventDefault();
+
+    var name = this.$el.find(e.target).data('name'),
+        sequence = Gentle.sequences.findWhere({'name': name});
+
+    sequence = sequence.clone().set('hidden', false);
+
+    Gentle.addSequencesAndNavigate([sequence]);
   }
 
 });
