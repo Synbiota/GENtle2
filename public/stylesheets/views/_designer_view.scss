@@ -148,7 +148,7 @@ $designer-plasmid-map-width: 510px;
   .designer-designed-sequence-chunks {
     white-space: nowrap;
     padding: 20px 0;
-    margin-right: -160px;
+    // margin-right: -160px;
     display: inline-block
   }
 
@@ -481,6 +481,10 @@ $designer-plasmid-map-width: 510px;
   bottom: 0;
   left: 0;
   right: 10px;
+
+  &.invalid {
+    opacity: 0.3
+  }
 }
 
 .designer-available-sequences-container {
@@ -606,6 +610,10 @@ $designer-plasmid-map-width: 510px;
       }
     }
   }
+}
+
+.designer-cap-dropdown {
+  margin: 0;
 }
 
 @each $sticky-end, $color in $designer-draggable-stickyEnds-color {

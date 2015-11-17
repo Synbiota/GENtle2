@@ -214,7 +214,6 @@ export default class PlasmidMapCanvas {
         artist = _this.artist,
         colors = LineStyles.features.color,
         radii = this.radii.features;
-
     _.each(featuresStack, function(features, i) {
       _.each(features, function(feature) {
         var startAngle = Math.PI * 2 * feature.from / len,

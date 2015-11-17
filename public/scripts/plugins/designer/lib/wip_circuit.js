@@ -316,7 +316,10 @@ export default class WipCircuit extends Sequence {
       this.set('sequence', '');
     } else if (errors.length === 0){
       attributes = this.assembleSequences();
-      this.set('sequence', attributes.sequence);
+      this.set({
+        'sequence': attributes.sequence,
+        'features': attributes.features
+      });
     }
 
   }

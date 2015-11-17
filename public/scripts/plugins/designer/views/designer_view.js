@@ -56,6 +56,7 @@ var DesignerView = Backbone.View.extend({
       model
     ), _, specialSequenceNames);
 
+    // Setup avialiable sequence bins
     this.setView(
       '.designer-available-sequences-outlet.outlet-1',
       new AvailableSequencesView({
@@ -86,6 +87,7 @@ var DesignerView = Backbone.View.extend({
       })
     );
 
+    // Setup plasmid map
     this.setView(
       '.designer-plasmid-map-outlet',
       new PlasmidMapView({
@@ -93,6 +95,9 @@ var DesignerView = Backbone.View.extend({
       })
     );
 
+    this.listenTo(this.model, 'change:errors', this.updateErrors, this)
+
+    // Setup drag and drop sequence designer
     var designedSequenceView = this.designedSequenceView =
       new DesignedSequenceView({model: this.model});
     this.setView('.designer-designed-sequence-outlet', designedSequenceView);
@@ -150,6 +155,7 @@ var DesignerView = Backbone.View.extend({
   },
 
   afterRender: function() {
+    this.updateErrors();
     this.updateDisabled();
     this.setupDropzone();
   },
@@ -210,7 +216,6 @@ var DesignerView = Backbone.View.extend({
   },
 
   editName: function(e){
-
     var _this = this;
 
     Modal.show({
@@ -227,6 +232,18 @@ var DesignerView = Backbone.View.extend({
       _this.model.throttledSave();
       _this.render();
     });
+  },
+
+  // Update error feedback over plasmid map.
+  updateErrors: function(){
+    var $plasmidMapContainer = this.$('.designer-plasmid-map-outlet'),
+        errors = this.model.get('errors');
+
+    if (errors.length){
+      $plasmidMapContainer.addClass('invalid');
+    } else {
+      $plasmidMapContainer.removeClass('invalid');
+    }
   },
 
   assembleSequence: function() {

@@ -302,7 +302,7 @@ export default Backbone.View.extend({
       parseInt($draggableContainer.css('paddingLeft'), 10);
 
     // $draggableContainer.width(Math.max(totalWidth + padding + 250, maxWidth));
-    $draggableContainer.width(totalWidth + padding + 250);
+    // $draggableContainer.width(totalWidth + padding + 250);
   }
 
 });
