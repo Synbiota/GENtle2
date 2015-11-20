@@ -6,8 +6,10 @@ $designer-border-style: solid #ddd;
 $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
 
 $designer-draggable-stickyEnds-color: (
-  x: $brand-warning,
-  z: $brand-success,
+  // x: $brand-warning,
+  // z: $brand-success,
+  x: #dc0015,
+  z: #1556a5,
   // 'da20': $brand-info,
   // 'dt20': $brand-info
 );
@@ -520,13 +522,13 @@ $designer-plasmid-map-width: 510px;
   width: 26px;
   height: 26px;
   margin-left: -20px;
-  border: 2px solid $brand-danger;
+  border: 2px solid $brand-warning;
   z-index: 4001;
   background: white;
   border-radius: 13px;
   text-align: center;
   padding-top: 3px;
-  color: $brand-danger;
+  color: $brand-warning;
   padding-left: 1px;
   cursor: help;
   box-shadow: 0 0 0 2px white;
