@@ -106,7 +106,6 @@ var AvailableSequenceView = Backbone.View.extend({
     sequence = sequence.clone().set('hidden', false);
 
     Gentle.addSequencesAndNavigate([sequence]);
-  }
 
     var $element = $(event.currentTarget).parent();
     var pModel = this.parentView().model;
