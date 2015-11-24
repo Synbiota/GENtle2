@@ -18,7 +18,8 @@ Gentle.addPlugin('home', {
   name: 'designer',
   title: 'New RDP circuit',
   view: HomeDesignerView,
-  order: 10
+  order: -1,
+  active: true,
 });
 
 SequencesCollection.registerConstructor(WipCircuit, 'wip_circuit');

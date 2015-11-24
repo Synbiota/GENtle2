@@ -24,10 +24,10 @@
 
       defaultTabs = [{
         name: 'new-sequence',
-        title: 'New sequence',
+        title: 'Upload File',
         view: ParentNewSequenceView,
-        active: true
-      }, 
+        active: false
+      },
       ];
 
       tabsFromPlugins = _.pluck(_.where(Gentle.plugins, {type: 'home'}), 'data');
@@ -37,10 +37,10 @@
     },
 
     addTab: function(tab) {
-     
+
       if (tab.name != "ncbi") {
         this.tabs.push(tab);
-      }  
+      }
     },
 
     afterRender: function() {
@@ -53,6 +53,7 @@
     },
 
     serialize: function() {
+
       return {
         tabs: _.sortBy(_.filter(this.tabs, function(tab) {
           return tab.visible === undefined || tab.visible();

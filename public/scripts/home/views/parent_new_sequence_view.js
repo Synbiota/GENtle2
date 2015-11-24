@@ -23,12 +23,12 @@
     events: {
       //'submit .home-new-sequence-form': 'createNewSequenceFromText',
       //'click .home-open-file-form a.btn': 'this.clickInputElement',
-      //'change .home-open-file-form input[name=file]': 'this.openSequenceFromFile'    
+      //'change .home-open-file-form input[name=file]': 'this.openSequenceFromFile'
     },
 
     createNewSequenceFromText: function(event) {
       event.preventDefault();
-      
+
       var $form     = $('.home-new-sequence-form').first(),
           text      = this.convertSmartQuotes($form.find('[name=sequence]').val()),
           name      = $form.find('[name=name]').val() || 'Unnamed';
@@ -39,7 +39,7 @@
       .done();
     },
 
-    
+
     convertSmartQuotes: function(text) {
       // single quotes -> '
       return text.replace(/[\u2018\u2019]/g,"\'");
@@ -50,8 +50,8 @@
       this.newSequenceView = new NewSequenceView();
       this.ncbiView = new NCBIView();
       this.setView('.home-open-file', this.openFileView);
-      this.setView('.home-new-sequence', this.newSequenceView);
-      this.setView('.home-ncbi',this.ncbiView);
+      // this.setView('.home-new-sequence', this.newSequenceView);
+      // this.setView('.home-ncbi',this.ncbiView);
     },
 
 

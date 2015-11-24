@@ -30,9 +30,13 @@
                 <span class="text-info"><i class="glyphicon glyphicon-lock"></i></span>
                 &middot;
               {{/if}}
-              <span class="text-muted">{{shortFormNumber length}}bp</span>
-              &middot;
-              <span class="text-success">DNA</span>
+              {{#if isWIPCircuit}}
+                <span class="text-muted"> New Circuit </span>
+              {{else}}
+                <span class="text-muted"> {{shortFormNumber length}}bp </span>
+                &middot;
+                <span class="text-success">DNA</span>
+              {{/if}}
             </small>
           </a>
         </li>

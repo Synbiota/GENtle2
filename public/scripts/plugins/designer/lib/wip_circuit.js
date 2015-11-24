@@ -3,6 +3,7 @@ import TemporarySequence from '../../../sequence/models/temporary_sequence';
 import preloadedAnchorsAndCaps from './anchors_and_caps.json';
 import _ from 'underscore';
 import Gentle from 'gentle';
+import preloadedSequences from '../../../preloaded_sequences.json';
 
 const INCOMPATIBLE_STICKY_ENDS = 'INCOMPATIBLE_STICKY_ENDS';
 const CANNOT_CIRCULARIZE = 'CANNOT_CIRCULARIZE';
@@ -15,12 +16,12 @@ const currentUserKey = 'designer.availableSequences';
 
 var detectAnchor = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
-  return stickyEnds && stickyEnds.start && /^da(20|18)$/i.test(stickyEnds.start.name);
+  return stickyEnds && stickyEnds.start && /^(da(20|18)|anc)$/i.test(stickyEnds.start.name);
 };
 
 var detectCap = function(sequence) {
   var stickyEnds = sequence.getStickyEnds();
-  return stickyEnds && stickyEnds.end && /^dt(20|18)$/i.test(stickyEnds.end.name);
+  return stickyEnds && stickyEnds.end && /^(dt(20|18)|cap)$/i.test(stickyEnds.end.name);
 };
 
 var isValidPart = function(sequence) {
@@ -40,7 +41,7 @@ export default class WipCircuit extends Sequence {
     this.diagnoseSequence();
 
     this.on(
-      'change:sequences change:cap change:anchor', 
+      'change:sequences change:cap change:anchor',
       _.bind(this.diagnoseSequence, this)
     );
 
@@ -70,6 +71,7 @@ export default class WipCircuit extends Sequence {
       availableCaps: [],
       sequences: [],
       isCircular: true,
+      isWIPCircuit: true,
       errors: []
     });
   }
@@ -93,7 +95,7 @@ export default class WipCircuit extends Sequence {
   /**
    * Moves anchors and caps from the availableSequences array to the available Anchors and availableCaps arrays
    * @method  initAvailableAnchorsAndCaps
-   * @return {undefined} 
+   * @return {undefined}
    */
   _initAvailableAnchorsAndCaps() {
     var availableSequences = this.get('availableSequences');
@@ -107,12 +109,12 @@ export default class WipCircuit extends Sequence {
     };
 
     _.each(
-      _.filter(availableSequences, detectAnchor), 
+      _.filter(availableSequences, detectAnchor),
       moveSequence(this.get('availableAnchors'))
     );
 
     _.each(
-      _.filter(availableSequences, detectCap), 
+      _.filter(availableSequences, detectCap),
       moveSequence(this.get('availableCaps'))
     );
   }
@@ -159,7 +161,7 @@ export default class WipCircuit extends Sequence {
     }
 
     var newSequences = _.reject(
-      _.map(sequences, sequence => new TemporarySequence(sequence)), 
+      _.map(sequences, sequence => new TemporarySequence(sequence)),
       function(sequence) {
         return _.some(existingSequences, function(existingSequence) {
           return existingSequence.getSequence() === sequence.getSequence();
@@ -294,19 +296,23 @@ export default class WipCircuit extends Sequence {
     var anchor = this.get('anchor');
     var cap = this.get('cap');
     var isCircular = this.get('isCircular');
+    var numAssembled = parseInt(this.get('numAssembled')) || 0;
 
     if(anchor) sequences.push(anchor);
     sequences = sequences.concat(this.get('sequences'));
     if(cap) sequences.push(cap);
-    
+
     var finalSequence = Sequence.concatenateSequences(
-      sequences, 
+      sequences,
       false
     );
 
+    numAssembled++;
+    this.set('numAssembled', numAssembled).throttledSave();
+
     finalSequence.set({
       _type: 'circuit',
-      name: this.get('name') + '-RDP',
+      name: this.get('name') + '-RDP ' + numAssembled,
       isCircular
     });
 
@@ -315,7 +321,10 @@ export default class WipCircuit extends Sequence {
 
   loadAvailableSequencesFromCurrentUser() {
     var sequences = Gentle.currentUser.get(currentUserKey) || [];
-    if(_.isArray(sequences) && sequences.length) {
+
+    if(!_.isArray(sequences) || sequences.length === 0) {
+      this.addAvailableSequences(preloadedSequences);
+    } else if(_.isArray(sequences) && sequences.length) {
       this.addAvailableSequences(sequences, null, false);
     }
   }

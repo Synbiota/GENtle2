@@ -55,11 +55,12 @@ Gentle.addPlugin('sequence-primary-view', {
 //   visible: Gentle.featureFlag('rdp')
 // });
 
-Gentle.addPlugin('home', {
-  name: 'rdp',
-  title: 'New RDP part',
-  view: HomePcrView
-});
+// Gentle.addPlugin('home', {
+//   name: 'rdp',
+//   title: 'New RDP part',
+//   view: HomePcrView,
+//   visible: () => Gentle.featureEnabled('rdp_pcr')
+// });
 
 
 var version1PcrProductPreProcessor = version1GenericPreProcessor('pcrProducts');
