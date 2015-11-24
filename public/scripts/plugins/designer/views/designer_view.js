@@ -3,10 +3,12 @@ import _ from 'underscore';
 import template from '../templates/designer_view_template.hbs';
 import AvailableSequencesView from './available_sequences_view';
 import DesignedSequenceView from './designed_sequence_view';
+import PlasmidMapView from '../../../plasmid_map/views/plasmid_map_view';
 import Gentle from 'gentle';
 import uploadMultipleSequences from '../../../common/lib/upload_multiple_sequences';
 import Modal from '../../../common/views/modal_view';
 import DiagnosticModalView from './designer_diagnostic_modal_view';
+import EditNameView from './designer_edit_name_modal_view';
 import CannotUploadModalView from './designer_cannot_upload_modal_view';
 import cleanSearchableText from '../lib/clean_searchable_text';
 import Q from 'q';
@@ -26,7 +28,8 @@ var DesignerView = Backbone.View.extend({
     'click .assemble-sequence-btn': 'assembleSequence',
     'keydown .designer-available-sequences-filter input': 'filterAvailableSequences',
     'click .designer-available-sequences-filter-clear': 'clearFilter',
-    'click .designer-available-sequences-clear-all': 'clearAvailableSequences'
+    'click .designer-available-sequences-clear-all': 'clearAvailableSequences',
+    'click .designer-name': 'editName'
   },
 
   initialize: function() {
@@ -53,6 +56,7 @@ var DesignerView = Backbone.View.extend({
       model
     ), _, specialSequenceNames);
 
+    // Setup avialiable sequence bins
     this.setView(
       '.designer-available-sequences-outlet.outlet-1',
       new AvailableSequencesView({
@@ -83,6 +87,17 @@ var DesignerView = Backbone.View.extend({
       })
     );
 
+    // Setup plasmid map
+    this.setView(
+      '.designer-plasmid-map-outlet',
+      new PlasmidMapView({
+        designerView: true
+      })
+    );
+
+    this.listenTo(this.model, 'change:errors', this.updateErrors, this)
+
+    // Setup drag and drop sequence designer
     var designedSequenceView = this.designedSequenceView =
       new DesignedSequenceView({model: this.model});
     this.setView('.designer-designed-sequence-outlet', designedSequenceView);
@@ -131,7 +146,7 @@ var DesignerView = Backbone.View.extend({
     return {
       sequenceName: this.model.get('name'),
       circulariseDna: this.model.get('isCircular'),
-      emptyAvailableSequences: this.model.get('availableSequences').length === 0
+      emptyAvailableSequences: this.model.get('availableSequences').length === 0,
     };
   },
 
@@ -140,6 +155,7 @@ var DesignerView = Backbone.View.extend({
   },
 
   afterRender: function() {
+    this.updateErrors();
     this.updateDisabled();
     this.setupDropzone();
   },
@@ -199,6 +215,37 @@ var DesignerView = Backbone.View.extend({
     this.render();
   },
 
+  editName: function(e){
+    var _this = this;
+
+    Modal.show({
+      title: 'Edit Name',
+      confirmLabel: 'OK',
+      cancelLabel: 'Cancel',
+      bodyView: new EditNameView({
+        model: this.model
+      })
+    }).once('confirm', function(){
+      var newName = this.options.bodyView.$('input').val();
+
+      _this.model.set('name', newName);
+      _this.model.throttledSave();
+      _this.render();
+    });
+  },
+
+  // Update error feedback over plasmid map.
+  updateErrors: function(){
+    var $plasmidMapContainer = this.$('.designer-plasmid-map-outlet'),
+        errors = this.model.get('errors');
+
+    if (errors.length){
+      $plasmidMapContainer.addClass('invalid');
+    } else {
+      $plasmidMapContainer.removeClass('invalid');
+    }
+  },
+
   assembleSequence: function() {
     var errors = this.model.get('errors');
     if(errors.length > 0) {
@@ -212,6 +259,7 @@ var DesignerView = Backbone.View.extend({
       });
     } else {
       var attributes = this.model.assembleSequences();
+      // this.model.set('sequence', attributes.sequence);
       // this.model.destroy();
       Gentle.addSequencesAndNavigate([attributes]);
     }

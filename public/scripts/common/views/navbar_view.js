@@ -4,13 +4,14 @@
 @class NavbarView
 **/
 // define(function(require) {
-  var template    = require('../templates/navbar_view.hbs'),
-      Gentle      = require('gentle'),
-      Backbone    = require('backbone'),
-      tooltip     = require('tooltip'),
-      NavbarView;
 
-  NavbarView = Backbone.View.extend({
+  import template from '../templates/navbar_view.hbs';
+  import Gentle from 'gentle';
+  import Backbone from 'backbone';
+  import tooltip from 'tooltip';
+  import WipCircuit from '../../plugins/designer/lib/wip_circuit';
+
+  var NavbarView = Backbone.View.extend({
     manage: true,
     template: template,
     events: {
@@ -31,9 +32,9 @@
       this.debouncedRender = _.debounce(this.render, 200);
       Gentle.sequences.on('add remove reset sort', this.render, this);
       // Gentle.sequences.on('change', this.debouncedRender, this);
+      this.listenTo(Gentle.sequences, 'change:name', this.render, this)
       $(window).on('resize', this.debouncedRender);
     },
-
     navigateToSequence: function(event) {
       var $target = $(event.currentTarget),
           $refTarget = $(event.target);
@@ -51,7 +52,7 @@
 
     closeSequence: function(event) {
       event.preventDefault();
-      var sequences = Gentle.sequences,
+      var sequences = Gentle.visibleSequences(),
           sequence = sequences.get($(event.currentTarget).closest('a').data('sequence_id')),
           nextSequence, visibleTabIdsIdx;
 
@@ -62,12 +63,22 @@
         }
         sequence.destroy();
 
-        // var sequences = Gentle.sequences.where({readOnly: false});
-
         if (sequences.length){
           nextSequence = sequences.last();
           Gentle.router.sequence(nextSequence.get('id'));
         } else {
+
+          // var newSequence  = new WipCircuit({
+          //   name: 'New Circuit',
+          //   sequence: '',
+          //   displaySettings: {
+          //     primaryView: 'designer'
+          //   },
+          //   availableSequences: []
+          // });
+
+          // Gentle.addSequencesAndNavigate([newSequence]);
+
           Gentle.router.home();
         }
 
@@ -79,7 +90,7 @@
       var dropdownWidth = this.$el.find('.dropdown').width() || 0,
           secondaryDropdownWidth = $('#secondary-view-dropdown').width(),
           availableWidth = this.$el.find('#sequence-tabs').width() + dropdownWidth - secondaryDropdownWidth,
-          sequences = Gentle.sequences.serialize(),
+          sequences = Gentle.visibleSequences().serialize(),
           currentSequenceId = Gentle.currentSequence && Gentle.currentSequence.get('id'),
           calculatedMaxTabWidth,
           nbVisibleTabs,
@@ -87,10 +98,6 @@
           hiddenTabs,
           maxDropdownWidth,
           _this = this;
-
-      // sequences = _.reject(sequences, function(sequence){
-      //   return sequence.readOnly;
-      // })
 
       // In order to properly determine tab spacing, we need to allow the view to render, and grab width data.
       // So we do nothing on initial render, and only display tabs once we have that initial data.

@@ -5,6 +5,7 @@
 **/
 import Backbone from 'backbone';
 import _ from 'underscore';
+import Sequences from '../../sequence/models/sequences';
 
 var Gentle = {};
 
@@ -39,6 +40,15 @@ export default _.extend(Gentle, Backbone.Events, {
     } else {
       alert('Could not parse the sequence.');
     }
+  },
+
+  visibleSequences() {
+
+    var visibleSequences = Gentle.sequences.reject(function(sequence){
+                              return sequence.get('hidden');
+                            });
+    return new Sequences(visibleSequences);
+
   },
 
   featureFlag(feature) {

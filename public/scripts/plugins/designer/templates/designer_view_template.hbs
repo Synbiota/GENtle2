@@ -4,7 +4,12 @@
   <div class="pull-right">
     <button class="btn btn-primary assemble-sequence-btn">Assemble circuit</button>
   </div>
-  <h4>{{sequenceName}}</h4>
+  <div class="designer-name">
+    <span class="h4">
+      {{sequenceName}}
+    </span>
+    <span class="glyphicon glyphicon-pencil"></span>
+  </div>
 </div>
 
 
@@ -23,6 +28,8 @@
 
   {{#unless emptyAvailableSequences}}
 
+  {{!-- Remove for rainbow kit --}}
+  {{!--
     <div class="designer-available-sequences-header">
       <div class="pull-right">
         <button class="btn btn-default btn-xs designer-available-sequences-clear-all">
@@ -38,12 +45,15 @@
         <span class="glyphicon glyphicon-search form-control-feedback"></span>
         <span class="glyphicon glyphicon-remove designer-available-sequences-filter-clear form-control-feedback hide"></span>
       </div>
-      
+
     </div>
+      --}}
+
 
     <div class="designer-available-sequences-outlet outlet-1"></div>
     <div class="designer-available-sequences-outlet outlet-2"></div>
-    <div class="designer-available-sequences-outlet outlet-3"></div>
+    {{!-- <div class="designer-available-sequences-outlet outlet-3"></div> --}}
+
 
   {{else}}
 
@@ -60,7 +70,12 @@
 
 </div>
 
-{{#unless emptyAvailableSequences}}
+<div class="designer-plasmid-map-container">
+  <div class="designer-plasmid-map-outlet"></div>
+</div>
+
+{{!-- Removed for rainbow kit --}}
+{{!-- {{#unless emptyAvailableSequences}}
 
   <div class="designer-add-available-sequences designer-trigger-file-upload-input">
     <h4>
@@ -70,9 +85,9 @@
     Drag and drop
     <br>
     <small>
-      or 
+      or
       <button class="fake-btn-link">choose files</button>
     </small>
   </div>
 
-{{/unless}}
+{{/unless}} --}}

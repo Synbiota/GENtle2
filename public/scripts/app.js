@@ -20,6 +20,8 @@ import blast from './plugins/blast/plugin';
 import pcr from './plugins/pcr/plugin';
 import sequencing_primers from './plugins/sequencing_primers/plugin';
 
+import WipCircuit from './plugins/designer/lib/wip_circuit';
+
 import tooltip from 'tooltip';
 
 var plugins = [ncbi, designer, blast, pcr, sequencing_primers];
@@ -55,17 +57,45 @@ window.testProcess = process.env;
 import preloadedSequences from './preloaded_sequences';
 import { STICKY_END_FULL } from './sequence/models/sequence';
 
-var addableSequences = _.filter(preloadedSequences, function(sequence) {
-  return !Gentle.sequences.some(existingSequence => {
-    return existingSequence.getSequence(STICKY_END_FULL) === sequence.sequence;
+// var addableSequences = _.filter(preloadedSequences, function(sequence) {
+//   return !Gentle.sequences.some(existingSequence => {
+//     return existingSequence.getSequence(STICKY_END_FULL) === sequence.sequence;
+//   });
+// });
+
+var addableSequences = _.chain(preloadedSequences)
+                        .filter(function(sequence) {
+                          return !Gentle.sequences.some(existingSequence => {
+                            return existingSequence.getSequence(STICKY_END_FULL) === sequence.sequence;
+                          });
+                        })
+                        .map(function(sequence){
+                          sequence.hidden = true;
+                          return sequence;
+                        })
+                        .value();
+
+if (Gentle.visibleSequences().length == 0) {
+  var sequence  = new WipCircuit({
+    name: 'New Circuit',
+    sequence: '',
+    displaySettings: {
+      primaryView: 'designer'
+    },
+    availableSequences: []
   });
-});
+
+  addableSequences.push(sequence);
+
+  // Make sure we navigate to the newly created sequence.
+  _.defer(function(){
+    Gentle.router.sequence(sequence.get('id'));
+  });
+
+}
 
 if(addableSequences.length) {
   Gentle.addSequences(addableSequences);
-  _.defer(function(){
-    Gentle.router.home()
-  })
 }
 
 // end custom build

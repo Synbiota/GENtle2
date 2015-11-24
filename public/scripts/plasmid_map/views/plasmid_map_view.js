@@ -10,8 +10,14 @@ var PlasmidMapView = Backbone.View.extend({
   className: 'plasmid-map',
   template: template,
 
-  initialize: function() {
-    this.model = Gentle.currentSequence;
+  initialize: function(opts = {}) {
+
+    this.model = opts.sequence || Gentle.currentSequence;
+    // this.withoutVisibleRange = opts.withoutVisibleRange;
+    if (opts.designerView){
+      this.withoutVisibleRange = true;
+      this.$el.addClass('designer-view');
+    }
   },
 
   initPlasmidMap: function(){
@@ -22,12 +28,14 @@ var PlasmidMapView = Backbone.View.extend({
       $canvas: this.$('#plasmid_map_canvas')
     });
 
-    this.parentView().sequenceCanvas.once('change:layoutHelpers', function() {
-      _this.plasmidMapCanvas = new PlasmidMapVisibleRangeCanvas({
-        view: _this,
-        $canvas: _this.$('#plasmid_map_canvas-visible-range')
+    if (!this.withoutVisibleRange){
+      this.parentView().sequenceCanvas.once('change:layoutHelpers', function() {
+        _this.plasmidMapCanvas = new PlasmidMapVisibleRangeCanvas({
+          view: _this,
+          $canvas: _this.$('#plasmid_map_canvas-visible-range')
+        });
       });
-    });
+    }
   },
 
   afterRender: function(){

@@ -5,6 +5,12 @@
   bottom: 0px;
   width: 500px;
 
+  &.designer-view {
+    background-color: white;
+    position: absolute;
+    top: 0;
+  }
+
   .plasmid-map-canvas {
     height: 100%;
     width: 500px;
