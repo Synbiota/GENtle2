@@ -84,6 +84,7 @@ var AvailableSequenceView = Backbone.View.extend({
 
   filterAvailableSequences: function({query}) {
     this.$('.designer-draggable-hidden').removeClass('designer-draggable-hidden');
+    this.$('.more-info-dropdown').removeClass('hidden');
     this.$el.parent().scrollTop(0);
     if(!query || query.length === 0) return;
     _.each(this.$('.designer-draggable'), (el) => {
@@ -92,6 +93,7 @@ var AvailableSequenceView = Backbone.View.extend({
         $el.addClass('designer-draggable-hidden');
       }
     });
+    this.$('.more-info-dropdown').addClass('hidden');
   },
 
   // Clone a hidden library sequence, make visible and navigate to it.
