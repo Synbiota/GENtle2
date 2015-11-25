@@ -518,17 +518,6 @@ $designer-plasmid-map-width: 510px;
     .designer-draggable-wrapper {
       height: 36px;
     }
-
-    .designer-draggable-trash {
-      left: 2px;
-      top: 8px;
-    }
-
-    &:hover {
-      .designer-draggable-trash {
-        display: block;
-      }
-    }
   }
 }
 
