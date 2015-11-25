@@ -353,9 +353,10 @@ $designer-plasmid-map-width: 510px;
   padding-left: 10px;
 
     .more-info-dropdown {
-      position: absolute;
-      bottom: 5px;
-      right: 5px;
+      // position: absolute;
+      // bottom: 5px;
+      // right: 5px;
+      position: relative;
     }
 
   &.outlet-1 {
