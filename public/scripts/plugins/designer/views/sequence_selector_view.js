@@ -12,7 +12,7 @@ var pluckData = function(sequence, selectedSequence) {
     endStickyEnd: sequence.getStickyEnds().end.name.toLowerCase().replace(/[^\w]/g, ''),
     id: sequence.get('id'),
     description: sequence.get('desc'),
-    isSelected: selectedSequence && 
+    isSelected: selectedSequence &&
       selectedSequence.get('id') === sequence.get('id')
   };
 };
@@ -27,15 +27,14 @@ export default Backbone.View.extend({
 
   serialize() {
     var selectedSequence = this.getSelectedSequence();
-
     return {
       label: this.label,
       selectedSequence: pluckData(selectedSequence),
       sequences: _.sortBy(
         _.map(
-          this.getSequences(), 
+          this.getSequences(),
           _.partial(pluckData, _, selectedSequence)
-        ), 
+        ),
         'name'
       )
     };
@@ -60,7 +59,7 @@ export default Backbone.View.extend({
     var $button = $label.parent();
 
     this.previousClasses = _.filter(
-      $button[0].className.split(/\s+/), 
+      $button[0].className.split(/\s+/),
       (klass) => /^designer\-sequence\-selector\-/.test(klass)
     );
 

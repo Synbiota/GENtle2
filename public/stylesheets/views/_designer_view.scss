@@ -1,6 +1,6 @@
 $designer-header-height: 50px;
 $designer-designed-sequence-height: 116px;
-$designer-available-sequences-header-height: 10px;
+$designer-available-sequences-header-height: 45px;
 $designer-border-style: solid #ddd;
 
 $designer-draggable-colors: deep_map_get($shared-styles, 'rdp_parts');
@@ -363,19 +363,23 @@ $designer-plasmid-map-width: 510px;
     // padding-left: 20px;
   }
 
-  &.outlet-1, &.outlet-2 {
-    width: 50%;
+  &.outlet-1, &.outlet-2, &.outlet-3 {
+    width: 33%;
   }
 
   &.outlet-2 {
     border-left: 1px $designer-border-style;
-    left: 50%;
+    left: 33%;
     border-right: 1px $designer-border-style;
-    padding-right: 10px;
+    // padding-right: 10px;
 
     .more-info-dropdown{
       right: 15px;
     }
+  }
+
+  &.outlet-3 {
+    left: 66%;
   }
 }
 
@@ -502,7 +506,7 @@ $designer-plasmid-map-width: 510px;
   position: relative;
   user-select: none;
   background: white;
-  padding: 10px 20px;
+  padding: 10px 15px;
   min-height: 100%;
 
   .designer-draggable {
@@ -512,6 +516,17 @@ $designer-plasmid-map-width: 510px;
     height: 40px;
     .designer-draggable-wrapper {
       height: 36px;
+    }
+
+    .designer-draggable-trash {
+      left: 2px;
+      top: 8px;
+    }
+
+    &:hover {
+      .designer-draggable-trash {
+        display: block;
+      }
     }
   }
 }
@@ -615,7 +630,7 @@ $designer-plasmid-map-width: 510px;
 }
 
 .designer-cap-dropdown {
-  margin: 0;
+  margin: 0 15px;
 }
 
 @each $sticky-end, $color in $designer-draggable-stickyEnds-color {
