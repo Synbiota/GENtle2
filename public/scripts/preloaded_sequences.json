@@ -2673,10 +2673,10 @@
         "hasGutters":false
       }
     },
-    "name":"x-c.βGalα-z'",
+    "name":"x-c.\u03b2Gal\u03b1-z'",
     "sequence":"GATGACCATGATTACGCTGGCCGTCGTTTTACAACGTCGTGACTGGGAAAACCCTGGCGTTACCCAACTTAATCGCCTTGCAGCACATCCCCCTTTCGCCAGCTGGCGTAATAGCGAAGAGGCCCGCACCGATCGCCCTTCCCAACAGTTGCGCAGCCTGAATGGCGAATGGCGCCTGATGCGGTATTTTCTCCTTACGCATCTGTGCGGTATTTCACACCGCATATGGTGCACTCTCAGTACAATCTGCTCTGATGCCGCCGGC",
     "_type":"dna",
-    "desc":"c.βGalα (β-Galactosidase α complementation factor) encodes the first 88 amino acids of β−Galactosidase (β-Gal), a large enzyme of approximately 1000 amino acids in length. β-Gal catalyzes the breakdown of the sugar disaccharide lactose, to its simple monosaccharide constituents, glucose and galactose. β-Gal is also capable of breaking down the lactose analogue X-Gal (see biochemicals) that results in a blue-green colour upon cleavage. \nThe strain of E. coli provided with the kit carries a mutation of the β-Gal gene where the first 88 amino acids of the polypeptide coding sequence have been deleted, rendering β-Gal inactive. Activity is restored however with the expression of c.βGalα producing coloured colonies (or liquid cultures) grown in the presence of X-Gal.\n\nVersion RDP 2.0\nPlate: D5",
+    "desc":"c.\u03b2Gal\u03b1 (\u03b2-Galactosidase \u03b1 complementation factor) encodes the first 88 amino acids of \u03b2−Galactosidase (\u03b2-Gal), a large enzyme of approximately 1000 amino acids in length. \u03b2-Gal catalyzes the breakdown of the sugar disaccharide lactose, to its simple monosaccharide constituents, glucose and galactose. \u03b2-Gal is also capable of breaking down the lactose analogue X-Gal (see biochemicals) that results in a blue-green colour upon cleavage. \nThe strain of E. coli provided with the kit carries a mutation of the \u03b2-Gal gene where the first 88 amino acids of the polypeptide coding sequence have been deleted, rendering \u03b2-Gal inactive. Activity is restored however with the expression of c.\u03b2Gal\u03b1 producing coloured colonies (or liquid cultures) grown in the presence of X-Gal.\n\nVersion RDP 2.0\nPlate: D5",
     "stickyEnds":{
       "start":{
         "name":"x",
@@ -2703,7 +2703,7 @@
         "desc":"",
         "_id":"1448385096638-10a44",
         "_type":"cds",
-        "name":"x-c.βGalα-z'"
+        "name":"x-c.\u03b2Gal\u03b1-z'"
       }
     ]
   },
