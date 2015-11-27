@@ -95,7 +95,7 @@ var DesignerView = Backbone.View.extend({
       })
     );
 
-    this.listenTo(this.model, 'change:errors', this.updateErrors, this)
+    this.listenTo(this.model, 'change:errors', this.updateErrors, this);
 
     // Setup drag and drop sequence designer
     var designedSequenceView = this.designedSequenceView =

@@ -1,6 +1,5 @@
 [
   {
-
     "id":"1448385014553-10718",
     "version":0,
     "readOnly":false,
@@ -944,7 +943,7 @@
         "reverse":false
       },
       "end":{
-        "name":"z'",
+        "name":"x'",
         "offset":0,
         "size":4,
         "reverse":true
@@ -2266,7 +2265,7 @@
         "reverse":false
       },
       "end":{
-        "name":"z",
+        "name":"z'",
         "offset":0,
         "size":4,
         "reverse":true
@@ -2552,76 +2551,12 @@
           ]
         },
         "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"Anc-Origin-X'",
-    "sequence":"TTTTTTTTTTTTTTTTTTAGGTGACGTCGGACTCTTGAGACCCAGAAATCATCCTTAGCGAAAGCTAAGGATTTTTTTTATCTGAAATTCTGCCTCGTGATACGCCTATTTTTACTGCATGCTTCCTCGCTCACTGACTCGCTGCGCTCGGTCGTTCGGCTGCGGCGACCGGTATCAGCTCACTCAAAGGCGGTAATACGGTTATCCACAGAATCAGGGGATAACGCAGGAAAGAACATGTGAGCAAAAGGCCAGCAAAAGGCCAGGAACCGTAAAAAGGCCGCGTTGCTGGCGTTTTTCCATAGGCTCCGCCCCCCTGACGAGCATCACAAAAATCGACGCTCAAGTCAGAGGTGGCGAAACCCGACAGGACTATAAAGATACCAGGCGTTTCCCCCTGGAAGCTCCCTCGTGCGCTCTCCTGTTCCGACCCTGCCGCTTACCGGATACCTGTCCGCCTTTCTCCCTTCGGGAAGCGTGGCGCTTTCTCATAGCTCACGCTGTAGGTATCTCAGTTCGGTGTAGGTCGTTCGCTCCAAGCTGGGCTGTGTGCACGAACCCCCCGTTCAGCCCGACCGCTGCGCCTTATCCGGTAACTATCGTCTTGAGTCCAACCCGGTAAGACACGACTTATCGCCACTGGCAGCAGCCACTGGTAACAGGATTAGCAGAGCGAGGTATGTAGGCGGTGCTACAGAGTTCTTGAAGTGGTGGCCTAACTACGGCTACACTAGAAGGACAGTATTTGGTATCTGCGCTCTGCTGAAGCCAGTTACCTTCGGAAAAAGAGTTGGTAGCTCTTGATCCGGCAAACAAACCACCGCTGGTAGCGGTGGTTTTTTTGTTTGCAAGCAGCAGATTACGCGCAGAAAAAAAGGATCTCAAGAAGATCCTTTGATCTTTTCTACGGGGTCTGACGCTCAGTGGAACGAAAACTCACGTTAAGGGATTTTGGTCATGAGATTATCAAAAAGGATCTTCACCTAGATCCTTTTAAATTAAAAATGAAGTTTTAAATCAATCTAAAGTATATATGAGTAAACTTGGTCTGACAGCTCGAGGCTTGGATTCTCACCAATAAAAAACGCCCGGCGGCAACCGAGCGTTCTGAACAAATCCAGATGGAGTTCTCGAGTGCCACTTGACGTCTAAGAAACCAGACGTCTAAGAAACCAGAATTCTCATGACATTAACATGCAGAACGCGAAGTAATCTTTTCGGTTTTAAAGAAAAAGGGCAGGGTGGTGACACCTTGCCCGTTTTTTTGCCGGAGGTCTCAAGAG",
-    "_type":"dna",
-    "desc":"The Anchor is a specialized RDP part which is attached to magnetic beads. It has a region complementary to the Cap which will allow the plasmid to self-circularize once the final assembly is released from the beads. The Anchor also contains the origin of replication for the plasmid, which is required for proper functioning. This part ends with an X' RDP end.",
-    "stickyEnds":{
-      "start":{
-        "name":"Anc",
-        "offset":0,
-        "size":19,
-        "reverse":true
-      },
-      "end":{
-        "name":"x'",
-        "offset":0,
-        "size":4,
-        "reverse":true
       }
     },
-    "features":[
-      {
-        "ranges":[
-          {
-            "from":0,
-            "to":1282,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721163-1f3d8",
-        "name":"dAn-ori-x'",
-        "_type":"misc"
-      }
-    ]
-  },
-  {
-    "id":"1444058721194-1023a",
-    "version":0,
-    "readOnly":false,
-    "isCircular":false,
-    "history":{
-
-    },
-    "stickyEndFormat":"overhang",
-    "displaySettings":{
-      "rows":{
-        "numbering":true,
-        "features":true,
-        "complements":true,
-        "aa":"none",
-        "aaOffset":0,
-        "res":{
-          "display":true,
-          "custom":[
-            "BsaI",
-            "NotI"
-          ]
-        },
-        "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"X-AmilCP-Z'",
-    "sequence":"AGAGGCAACGTCTTTCGTCTTCAATAACAATTTACGGCTAGCGACTGCCTAGGTACTATGTTGGTACCAGATTCGCCAGTCGAAATAGGAGGTATCAATGAGTGTGATCGCTAAACAAATGACCTACAAGGTTTATATGTCAGGCACGGTCAATGGACACTACTTTGAGGTCGAAGGCGATGGAAAAGGTAAGCCCTACGAGGGGGAGCAGACGGTAAAGCTCACTGTCACCAAGGGCGGACCTCTGCCATTTGCTTGGGATATTTTATCACCACAGTGTCAGTACGGAAGCATACCATTCACCAAGTACCCTGAAGACATCCCTGACTATGTAAAGCAGTCATTCCCGGAGGGCTATACATGGGAGAGGATCATGAACTTTGAAGATGGTGCAGTGTGTACTGTCAGCAATGATTCCAGCATCCAAGGCAACTGTTTCATCTACCATGTCAAGTTCTCTGGTTTGAACTTTCCTCCCAATGGACCTGTCATGCAGAAGAAGACACAGGGCTGGGAACCCAACACTGAGCGTCTCTTTGCACGAGATGGAATGCTGCTAGGAAACAACTTTATGGCTCTGAAGTTAGAAGGAGGCGGTCACTATTTGTGTGAATTTAAAACTACTTACAAGGCAAAGAAGCCTGTGAAGATGCCAGGGTATCACTATGTTGACCGCAAACTGGATGTAACCAATCACAACAAGGATTACACTTCGGTTGAGCAGTGTGAAATTTCCATTGCACGCAAACCTGTGGTCGCCTGATGAACTAGTATGCATGAGA",
+    "name":"x-c.VioD-z'",
+    "sequence":"GATGAAGATTCTGGTCATTGGTGCTGGTCCAGCTGGTCTGGTTTTCGCATCCCAACTGAAGCAGGCACGCCCTTTGTGGGCCATTGACATCGTGGAGAAGAATGACGAGCAAGAAGTGCTGGGCTGGGGTGTCGTGCTGCCTGGCCGTCCGGGTCAGCACCCGGCGAACCCGCTGTCCTATCTGGATGCACCGGAGCGTCTGAATCCGCAATTTCTGGAGGACTTCAAACTGGTGCATCATAATGAGCCGTCCTTGATGTCCACGGGCGTTTTGTTGTGCGGCGTGGAGCGTCGCGGTCTGGTTCACGCGCTGCGCGATAAGTGCCGCAGCCAAGGCATTGCTATTCGTTTCGAAAGCCCGTTGCTGGAACACGGTGAGCTGCCGCTGGCGGACTATGATCTGGTGGTCCTGGCTAATGGTGTTAATCACAAAACCGCGCATTTCACCGAGGCTCTGGTCCCGCAGGTGGACTACGGCCGCAATAAGTACATTTGGTATGGCACTAGCCAGCTGTTCGATCAGATGAATCTGGTTTTTCGTACCCATGGTAAAGATATCTTTATCGCGCATGCCTATAAGTATAGCGATACCATGAGCACGTTCATTGTCGAATGTAGCGAAGAGACTTACGCACGCGCACGCCTGGGCGAAATGTCCGAAGAGGCGAGCGCAGAATACGTTGCTAAGGTGTTCCAGGCCGAGCTGGGTGGTCACGGCCTGGTGAGCCAGCCGGGTCTGGGTTGGCGTAACTTCATGACGTTGTCTCATGACCGTTGTCATGATGGTAAGTTGGTTCTGCTGGGTGACGCGCTGCAAAGCGGTCACTTTAGCATCGGCCACGGCACCACGATGGCCGTGGTGGTGGCGCAGCTGCTGGTTAAAGCGCTGTGTACCGAAGATGGTGTGCCTGCCGCGCTGAAACGTTTCGAAGAGCGTGCCCTGCCGCTGGTGCAGTTGTTCCGTGGCCACGCAGACAACAGCCGCGTTTGGTTCGAAACCGTCGAAGAGCGCATGCACCTGTCCTCGGCGGAATTTGTGCAAAGCTTCGACGCACGCCGCAAAAGCCTGCCGCCGATGCCGGAAGCACTGGCGCAGAATCTGCGTTATGCTTTGCAGCGCTGATGATCACGGC",
     "_type":"dna",
-    "desc":"amilCP codes for blue chromoprotein, and is derived from the coral Acropora millepora. It appears blue after expression. This part must be placed after an X' RDP end.",
+    "desc":"The Violacein pathway is derived from the soil bacterium Chromobacterium violaceum. It is composed of five enzymes (VioA,B,C,D and E) that work step-wise to convert the amino acid tryptophan, to violacein, a deep purple compound with purported anti-cancer and antimicrobial properties. By using different combinations of the parts, bacterial colonies or cultures can be made to turn violet (VioA,B,E,D,C), royal blue (VioA,B,E,C), or greenish-black  (VioA,B,E,D)\n\nThe flavoenzyme VioA and the heme protein VioB work in conjunction to oxidize and dimerize l-tryptophan to a nascent product that can default to the off pathway metabolite chromopyrrolic acid. In the presence of VioE, the intermediate instead undergoes on-pathway [1,2] indole rearrangement to prodeoxyviolacein. The last two enzymes in the pathway are flavin-dependent oxygenases, VioC and VioD, that act sequentially. VioD hydroxylates one indole ring at the 5-position to yield proviolacein, and VioC then acts on the other indole ring at the 2-position to create the oxindole and complete violacein formation. \n(http://www.ncbi.nlm.nih.gov/pubmed/17176066)\n\nVersion RDP 2.0\nPlate: C4",
     "stickyEnds":{
       "start":{
         "name":"x",
@@ -2637,326 +2572,23 @@
       }
     },
     "features":[
-      {
-        "ranges":[
-          {
-            "from":0,
-            "to":781,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is the Genomikon Part that encodes for Blue chromoprotein",
-        "_id":"1444058721167-1ed2e",
-        "name":"X--Blue_Chromoprotein_(amiCP)--Z'",
-        "_type":"genomikon_part"
-      },
-      {
-        "ranges":[
-          {
-            "from":10,
-            "to":86,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721167-1c0d9",
-        "name":"Constitutive Promoter",
-        "_type":"promoter"
-      },
-      {
-        "ranges":[
-          {
-            "from":86,
-            "to":92,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721167-1747e",
-        "name":"Ribosomal Binding Site",
-        "_type":"rbs"
-      },
-      {
-        "ranges":[
-          {
-            "from":97,
-            "to":765,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is the coding sequence for AmilCP",
-        "_id":"1444058721167-1b732",
-        "name":"Blue Chromoprotein",
-        "_type":"cds"
-      }
-    ]
-  },
-  {
-    "id":"1444058721202-1c7b7",
-    "version":0,
-    "readOnly":false,
-    "isCircular":false,
-    "history":{
-
-    },
-    "stickyEndFormat":"overhang",
-    "displaySettings":{
-      "rows":{
-        "numbering":true,
-        "features":true,
-        "complements":true,
-        "aa":"none",
-        "aaOffset":0,
-        "res":{
-          "display":true,
-          "custom":[
-            "BsaI",
-            "NotI"
-          ]
-        },
-        "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"X-GFP-Z'",
-    "sequence":"AGAGGCAACGTCTTTCGTCTTCAATAACAACTGACAGCTAGCCTGACCCTAGGTATAATGTTGGTACCTACTAGAGAAAGAGGAGAAATACTAGATGTCTTATTCAAAGCATGGCATCGTACAAGAAATGAAGACGAAATACCATATGGAAGGCAGTGTCAATGGCCATGAATTTACGATCGAAGGTGTAGGAACTGGGCACCCTTACGAAGGGAAACAGATGTCCGAATTAGTGATCATCAAGCCTGCGGGAAAACCCCTTCCATTCTCCTTTGACATACTGTCATCAGTCTTTCAATATGGAAACCGTTGCTTCACAAAGTACCCGGCAGACATGCCTGACTATTTCAAGCAAGCATTCCCAGATGGAATGTCATATGAAAGGTCATTTCTATTTGAGGATGGAGCAGTTGCTACAGCCAGCTGGAACATTCGTCTCGAAGGAAATTGCTTCATCCACAAATCCATCTTTCATGGCGTAAACTTTCCCGCTGATGGACCCGTAATGAAAAAGAAGACAATTGACTGGGATAAGTCCTTCGAAAAAATGACTGTGTCTAAAGAGGTGCTAAGAGGTGACGTGACTATGTTTCTTATGCTCGAAGGAGGTGGTTCTCACAGATGCCAATTTCACTCCACTTACAAAACAGAGAAGCCGGTCACACTGCCCCCGAATCATGTCGTAGAACATCAAATTGTGAGGACCGACCTTGGCCAAAGTGCAAAAGGCTTTACAGTCAAGCTGGAAGCACATGCCGCGGCTCATGTTAACCCTTTGAAGGTTAAATGATGAACTAGTATGCATGAGA",
-    "_type":"dna",
-    "desc":"GFP codes for a green fluorescent protein derived from the coral Acropora millepora. It appears yellow after expression but turns green under UV light.",
-    "stickyEnds":{
-      "start":{
-        "name":"x",
-        "offset":0,
-        "size":4,
-        "reverse":false
-      },
-      "end":{
-        "name":"z'",
-        "offset":0,
-        "size":4,
-        "reverse":true
-      }
-    },
-    "features":[
-      {
-        "ranges":[
-          {
-            "from":0,
-            "to":808,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is the Genomikon Part for GFP",
-        "_id":"1444058721170-18388",
-        "name":"X--Green_Fluorescent_Protein--Z'",
-        "_type":"genomikon_part"
-      },
-      {
-        "ranges":[
-          {
-            "from":10,
-            "to":73,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721170-1e6d6",
-        "name":"Constitutive Promoter",
-        "_type":"promoter"
-      },
-      {
-        "ranges":[
-          {
-            "from":73,
-            "to":88,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721170-1d823",
-        "name":"RBS",
-        "_type":"rbs"
-      },
-      {
-        "ranges":[
-          {
-            "from":94,
-            "to":792,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721170-1b08b",
-        "name":"Green Fluorescent Protein CDS",
-        "_type":"cds"
-      }
-    ]
-  },
-  {
-    "id":"1444058721208-190eb",
-    "version":0,
-    "readOnly":false,
-    "isCircular":false,
-    "history":{
-
-    },
-    "stickyEndFormat":"overhang",
-    "displaySettings":{
-      "rows":{
-        "numbering":true,
-        "features":true,
-        "complements":true,
-        "aa":"none",
-        "aaOffset":0,
-        "res":{
-          "display":true,
-          "custom":[
-            "BsaI",
-            "NotI"
-          ]
-        },
-        "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"X-Linker-Z'",
-    "sequence":"AGAGCCTGTCCTTCACCCTTAGGTGCACCGGACAGGAAGTGGGAATCCACGTGGGAGA",
-    "_type":"dna",
-    "desc":"This is a short, non-functional piece of DNA that converts an X' end into a Z' end. This particular orientation can also be used instead of a colour part if you wish to not express a colour at all.",
-    "stickyEnds":{
-      "start":{
-        "name":"X",
-        "offset":0,
-        "size":4,
-        "reverse":false
-      },
-      "end":{
-        "name":"Z'",
-        "offset":0,
-        "size":4,
-        "reverse":true
-      }
-    },
-    "features":[
-      {
-        "ranges":[
-          {
-            "from":0,
-            "to":57,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is the X--Z' linker",
-        "_id":"1444058721172-11930",
-        "name":"X--Genomikon_LInker--Z'",
-        "_type":"misc"
-      }
-    ]
-  },
-  {
-    "id":"1444058721214-14ae8",
-    "version":0,
-    "readOnly":false,
-    "isCircular":false,
-    "history":{
-
-    },
-    "stickyEndFormat":"overhang",
-    "displaySettings":{
-      "rows":{
-        "numbering":true,
-        "features":true,
-        "complements":true,
-        "aa":"none",
-        "aaOffset":0,
-        "res":{
-          "display":true,
-          "custom":[
-            "BsaI",
-            "NotI"
-          ]
-        },
-        "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"X-RFP-Z'",
-    "sequence":"AGAGGCAACGTCTTTCGTCTTCAATAACAACTGACAGCTAGCCTGACCCTAGGTATAATGTTGGTACCTACTAGAGAAAGAGGAGAAATACTAGATGGCTTCCTCCGAAGACGTTATCAAAGAGTTCATGCGTTTCAAAGTTCGTATGGAAGGTTCCGTTAACGGTCACGAGTTCGAAATCGAAGGTGAAGGTGAAGGTCGTCCGTACGAAGGCACCCAGACCGCTAAACTGAAAGTTACCAAAGGTGGTCCGCTGCCGTTCGCTTGGGACATCCTGTCCCCGCAGTTCCAGTACGGTTCCAAAGCTTACGTTAAACACCCGGCTGACATCCCGGACTACCTGAAACTGTCCTTCCCGGAAGGTTTCAAATGGGAACGTGTTATGAACTTCGAAGACGGTGGTGTTGTTACCGTTACCCAGGACTCCTCCCTGCAAGACGGTGAGTTCATCTACAAAGTTAAACTGCGTGGCACCAACTTCCCGTCCGACGGTCCGGTTATGCAGAAAAAAACCATGGGTTGGGAAGCTTCCACCGAACGTATGTACCCGGAAGACGGTGCTCTGAAAGGTGAAATCAAAATGCGTCTGAAACTGAAAGACGGTGGTCACTACGACGCTGAAGTTAAAACCACCTACATGGCTAAAAAACCGGTTCAGCTGCCGGGTGCTTACAAAACCGACATCAAACTGGACATCACCTCCCACAACGAAGACTACACCATCGTTGAACAGTACGAACGTGCTGAAGGTCGTCACTCCACCGGTGCTTGATGAACTAGTATGCATGAGA",
-    "_type":"dna",
-    "desc":"RFP is an engineered mutant of red fluorescent protein derived from the coral Discosoma striata. It appears red after expression.",
-    "stickyEnds":{
-      "start":{
-        "name":"x",
-        "offset":0,
-        "size":4,
-        "reverse":false
-      },
-      "end":{
-        "name":"z'",
-        "offset":0,
-        "size":4,
-        "reverse":true
-      }
-    },
-    "features":[
-      {
-        "ranges":[
-          {
-            "from":0,
-            "to":790,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is red fluorescent protein",
-        "_id":"1444058721176-12332",
-        "name":"X--Red_Fluorescent_Protein --Z'",
-        "_type":"genomikon_part"
-      },
       {
         "ranges":[
           {
             "from":4,
-            "to":76,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is a constitutive promoter for K12 E. coli",
-        "_id":"1444058721176-1d26a",
-        "name":"Constitutive Promoter",
-        "_type":"promoter"
-      },
-      {
-        "ranges":[
-          {
-            "from":76,
-            "to":87,
+            "to":1128,
             "reverseComplement":false
           }
         ],
         "desc":"",
-        "_id":"1444058721176-16f3a",
-        "name":"RBS",
-        "_type":"rbs"
-      },
-      {
-        "ranges":[
-          {
-            "from":94,
-            "to":774,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is the CDS for ",
-        "_id":"1444058721176-1e0cf",
-        "name":"Red Fluorescent Protein",
-        "_type":"cds"
+        "_id":"1448385096630-17c37",
+        "_type":"cds",
+        "name":"x-c.VioD-z'"
       }
     ]
   },
   {
-    "id":"1444058721221-1962a",
+    "id":"1448385096761-15111",
     "version":0,
     "readOnly":false,
     "isCircular":false,
@@ -2979,85 +2611,164 @@
           ]
         },
         "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
+      }
     },
-    "name":"Z-ChlrR-Cap",
-    "sequence":"GAGACTCGAGTTGATCGGGCACGTAAGAGGTTCCAACTTTCACCATAATGAAATAAGATCACTACCGGGCGTATTTTTTGAGTTATCGAGATTTTCAGGAGCTAAGGAAGCTAAAATGGAGAAAAAAATCACTGGATATACCACCGTTGATATATCCCAATGGCATCGTAAAGAACATTTTGAGGCATTTCAGTCAGTTGCTCAATGTACCTATAACCAGACCGTTCAGCTGGATATTACGGCCTTTTTAAAGACCGTAAAGAAAAATAAGCACAAGTTTTATCCGGCCTTTATTCACATTCTTGCCCGCCTGATGAATGCTCATCCGGAATTTCGTATGGCAATGAAAGACGGTGAGCTGGTGATATGGGATAGTGTTCACCCTTGTTACACCGTTTTCCATGAGCAAACTGAAACGTTTTCATCGCTCTGGAGTGAATACCACGACGATTTCCGGCAGTTTCTACACATATATTCGCAAGATGTGGCGTGTTACGGTGAAAACCTGGCCTATTTCCCTAAAGGGTTTATTGAGAATATGTTTTTCGTCTCAGCCAATCCCTGGGTGAGTTTCACCAGTTTTGATTTAAACGTGGCCAATATGGACAACTTCTTCGCCCCCGTTTTCACCATGGGCAAATATTATACGCAAGGCGACAAGGTGCTGATGCCGCTGGCGATTCAGGTTCATCATGCCGTTTGTGATGGCTTCCATGTCGGCAGAATGCTTAATGAATTACAACAGTACTGCGATGAGTGGCAGGGCGGGGCGTAATTTGATATCGAGCTCAGAGGGTGACGTCGGATTTTTTTTTTTTTTTTTTA",
+    "name":"x-c.VioE-z'",
+    "sequence":"GATGGAGAACCGTGAGCCACCACTGTTGCCAGCCCGTTGGAGCAGCGCCTATGTCTCTTATTGGAGCCCGATGCTGCCGGATGACCAGCTGACCAGCGGCTATTGCTGGTTCGACTATGAACGTGACATCTGTCGTATTGACGGCCTGTTCAATCCGTGGAGCGAGCGTGATACTGGTTATCGCCTGTGGATGTCGGAGGTTGGTAATGCGGCCAGCGGCCGTACCTGGAAACAAAAAGTCGCCTATGGTCGTGAGCGTACCGCCCTGGGTGAACAGCTGTGTGAGCGTCCGCTGGATGATGAGACTGGCCCTTTTGCCGAATTGTTCCTGCCACGCGATGTCCTGCGCCGTCTGGGTGCCCGTCACATTGGCCGTCGCGTGGTTCTGGGTCGCGAAGCGGACGGTTGGCGTTACCAGCGCCCAGGTAAAGGTCCGAGCACCCTGTACCTGGATGCGGCGAGCGGCACTCCACTGCGCATGGTCACCGGCGATGAAGCGTCGCGTGCAAGCCTGCGTGATTTTCCGAATGTGAGCGAGGCGGAGATCCCGGACGCGGTTTTCGCGGCCAAGCGCGGC",
     "_type":"dna",
-    "desc":"The Cap is a specialized RDP part which is always used to end the assembly. It has a region complementary to the Anchor which will allow the plasmid to self-circularize when the final assembly is released from the beads. The Cap also contains a chloramphenicol-resistance marker which allows only the bacterial colonies that have successfully taken up the plasmid to survive on a chloramphenicol plate. The part preceding the Cap must end with a Z' end.",
+    "desc":"The Violacein pathway is derived from the soil bacterium Chromobacterium violaceum. It is composed of five enzymes (VioA,B,C,D and E) that work step-wise to convert the amino acid tryptophan, to violacein, a deep purple compound with purported anti-cancer and antimicrobial properties. By using different combinations of the parts, bacterial colonies or cultures can be made to turn violet (VioA,B,E,D,C), royal blue (VioA,B,E,C), or greenish-black  (VioA,B,E,D)\n\nThe flavoenzyme VioA and the heme protein VioB work in conjunction to oxidize and dimerize l-tryptophan to a nascent product that can default to the off pathway metabolite chromopyrrolic acid. In the presence of VioE, the intermediate instead undergoes on-pathway [1,2] indole rearrangement to prodeoxyviolacein. The last two enzymes in the pathway are flavin-dependent oxygenases, VioC and VioD, that act sequentially. VioD hydroxylates one indole ring at the 5-position to yield proviolacein, and VioC then acts on the other indole ring at the 2-position to create the oxindole and complete violacein formation. \n(http://www.ncbi.nlm.nih.gov/pubmed/17176066)\n\nVersion RDP 2.0\nPlate: D4",
     "stickyEnds":{
       "start":{
-        "name":"z",
+        "name":"x",
         "offset":0,
         "size":4,
         "reverse":false
       },
       "end":{
-        "name":"cap",
+        "name":"z'",
         "offset":0,
-        "size":19,
-        "reverse":false
+        "size":4,
+        "reverse":true
       }
     },
     "features":[
       {
         "ranges":[
           {
-            "from":0,
-            "to":824,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"This is the Genomikon Part that causes the bacteria to be resistant to chloramphenicol.",
-        "_id":"1444058721179-1518b",
-        "name":"Z--Chloramphenicol_acetyltransferase--CAP",
-        "_type":"genomikon_part"
-      },
-      {
-        "ranges":[
-          {
-            "from":10,
-            "to":103,
+            "from":4,
+            "to":572,
             "reverseComplement":false
           }
         ],
         "desc":"",
-        "_id":"1444058721179-14993",
-        "name":"Promoter",
-        "_type":"promoter"
-      },
-      {
-        "ranges":[
-          {
-            "from":103,
-            "to":109,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721179-1e599",
-        "name":"Ribosomal Binding Site",
-        "_type":"rbs"
-      },
-      {
-        "ranges":[
-          {
-            "from":115,
-            "to":774,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1444058721180-191fb",
-        "name":"Chloramphenicol Acetyltransferase",
-        "_type":"cds"
+        "_id":"1448385096635-189b2",
+        "_type":"cds",
+        "name":"x-c.VioE-z'"
       }
     ]
   },
   {
-    "id":"1444058721224-1dc0c",
+    "id":"1448385096765-172e8",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      }
+    },
+    "name":"x-c.βGalα-z'",
+    "sequence":"GATGACCATGATTACGCTGGCCGTCGTTTTACAACGTCGTGACTGGGAAAACCCTGGCGTTACCCAACTTAATCGCCTTGCAGCACATCCCCCTTTCGCCAGCTGGCGTAATAGCGAAGAGGCCCGCACCGATCGCCCTTCCCAACAGTTGCGCAGCCTGAATGGCGAATGGCGCCTGATGCGGTATTTTCTCCTTACGCATCTGTGCGGTATTTCACACCGCATATGGTGCACTCTCAGTACAATCTGCTCTGATGCCGCCGGC",
+    "_type":"dna",
+    "desc":"c.βGalα (β-Galactosidase α complementation factor) encodes the first 88 amino acids of β−Galactosidase (β-Gal), a large enzyme of approximately 1000 amino acids in length. β-Gal catalyzes the breakdown of the sugar disaccharide lactose, to its simple monosaccharide constituents, glucose and galactose. β-Gal is also capable of breaking down the lactose analogue X-Gal (see biochemicals) that results in a blue-green colour upon cleavage. \nThe strain of E. coli provided with the kit carries a mutation of the β-Gal gene where the first 88 amino acids of the polypeptide coding sequence have been deleted, rendering β-Gal inactive. Activity is restored however with the expression of c.βGalα producing coloured colonies (or liquid cultures) grown in the presence of X-Gal.\n\nVersion RDP 2.0\nPlate: D5",
+    "stickyEnds":{
+      "start":{
+        "name":"x",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"z'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":260,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385096638-10a44",
+        "_type":"cds",
+        "name":"x-c.βGalα-z'"
+      }
+    ]
+  },
+  {
+    "id":"1448385096771-1dbc5",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      }
+    },
+    "name":"x-cs.VioABE-z'",
+    "sequence":"GATGAAACATTCTTCCGATATCTGCATTGTTGGTGCTGGTATTTCTGGTTTGACGTGCGCAAGCCATCTGCTGGACAGCCCGGCATGCCGTGGTCTGAGCCTGCGTATCTTTGACATGCAGCAAGAAGCCGGTGGCCGTATCCGCAGCAAAATGCTGGATGGTAAGGCAAGCATTGAACTGGGCGCAGGTCGCTACTCCCCTCAGTTGCACCCGCATTTCCAAAGCGCAATGCAGCACTATAGCCAAAAGAGCGAAGTCTATCCGTTCACCCAGTTGAAGTTCAAATCTCACGTGCAGCAAAAGCTGAAGCGCGCCATGAATGAACTGTCCCCGCGTCTGAAAGAGCATGGTAAAGAGAGCTTTTTGCAGTTTGTCAGCCGTTATCAAGGTCACGATAGCGCGGTTGGTATGATCCGCTCTATGGGTTACGACGCACTGTTCCTGCCGGATATCAGCGCAGAAATGGCCTACGACATTGTGGGTAAGCACCCGGAGATCCAGAGCGTGACGGACAACGACGCGAACCAATGGTTTGCAGCGGAAACGGGCTTTGCTGGTCTGATTCAGGGCATCAAGGCTAAGGTTAAGGCGGCAGGTGCGCGTTTTAGCCTGGGTTATCGTCTGCTGAGCGTCCGTACCGACGGTGACGGCTACCTGCTGCAACTGGCAGGTGACGACGGCTGGAAACTGGAGCACCGTACCCGCCATCTGATTCTGGCGATTCCGCCGAGCGCGATGGCGGGTTTGAATGTTGATTTTCCAGAAGCCTGGTCCGGTGCGCGCTATGGCAGCCTGCCGCTGTTTAAGGGCTTTCTGACGTACGGTGAGCCGTGGTGGTTGGACTACAAACTGGACGATCAGGTGCTGATTGTTGACAACCCGCTGCGCAAAATCTATTTCAAAGGCGATAAGTACCTGTTCTTCTATACCGATAGCGAGATGGCGAATTACTGGCGCGGTTGTGTCGCGGAGGGCGAGGACGGTTACCTGGAGCAAATTCGCACCCATTTGGCTAGCGCACTGGGTATCGTCCGTGAACGTATCCCGCAACCGCTGGCACACGTTCACAAGTATTGGGCGCACGGCGTTGAGTTTTGCCGTGATTCTGATATTGACCACCCGAGCGCACTGTCTCATCGCGACAGCGGTATCATCGCGTGCTCCGATGCGTACACGGAGCATTGTGGTTGGATGGAGGGCGGTCTGCTGAGCGCCCGTGAGGCAAGCCGTCTGCTGTTGCAGCGTATCGCCGCCGGCTGAGTACCATTAAAGAGGAGAAATGATGAGCATTCTGGATTTCCCGCGTATCCACTTCCGTGGCTGGGCCCGTGTCAATGCGCCGACCGCGAACCGCGATCCGCACGGCCACATCGATATGGCCAGCAATACCGTGGCGATGGCGGGTGAGCCGTTCGACCTGGCACGCCATCCTACGGAGTTCCACCGTCACCTGCGCTCCCTGGGTCCGCGCTTCGGCTTGGATGGTCGTGCTGACCCGGAAGGCCCGTTCAGCCTGGCCGAGGGCTACAACGCTGCCGGTAACAACCACTTTTCGTGGGAGAGCGCAACCGTTAGCCACGTGCAATGGGATGGCGGTGAGGCGGATCGTGGTGACGGTCTGGTCGGTGCTCGTTTGGCACTGTGGGGTCACTACAATGATTATCTGCGTACCACCTTCAATCGTGCTCGTTGGGTCGACAGCGACCCGACGCGCCGTGACGCTGCACAAATCTATGCGGGCCAATTCACCATTAGCCCGGCTGGTGCCGGTCCGGGTACGCCGTGGCTGTTTACGGCAGACATTGATGATAGCCATGGTGCACGTTGGACGCGTGGCGGCCACATTGCAGAGCGTGGCGGCCACTTCTTGGATGAAGAGTTTGGTCTGGCACGCCTGTTTCAGTTCTCTGTGCCGAAAGATCACCCACATTTTCTGTTTCACCCGGGTCCGTTTGATTCCGAGGCCTGGCGTCGTCTGCAATTGGCTCTGGAGGATGACGACGTTCTGGGTCTGACCGTGCAATATGCGTTGTTCAATATGAGCACCCCGCCTCAGCCGAACAGCCCGGTTTTTCACGATATGGTCGGTGTTGTCGGTCTGTGGCGTCGTGGTGAACTGGCGAGCTACCCGGCTGGTCGTCTGCTGCGTCCGCGTCAACCGGGTCTGGGTGACCTGACCCTGCGCGTCAACGGTGGTCGCGTTGCGCTGAATTTGGCGTGTGCCATTCCGTTCAGCACTCGTGCCGCGCAGCCAAGCGCACCGGACCGCCTGACCCCGGACCTGGGTGCCAAACTGCCGCTGGGCGATCTGCTGCTGCGTGATGAGGACGGCGCACTGTTGGCACGTGTGCCGCAGGCTCTGTACCAAGACTATTGGACGAATCACGGTATTGTGGACCTGCCGCTGCTGCGCGAACCGCGTGGTAGCTTGACCCTGAGCAGCGAACTGGCGGAGTGGCGTGAGCAAGACTGGGTCACCCAAAGCGACGCGTCTAACCTGTACCTGGAGGCACCGGATCGCCGTCACGGTCGCTTTTTCCCTGAGAGCATCGCGCTGCGCAGCTACTTTCGCGGTGAAGCGCGTGCGCGTCCGGATATCCCGCATCGTATCGAGGGCATGGGCCTGGTCGGCGTCGAATCTCGTCAGGATGGCGACGCTGCGGAATGGCGTCTGACGGGTCTGCGTCCGGGTCCGGCACGCATTGTTCTGGACGATGGTGCCGAGGCGATCCCTCTGCGTGTTCTGCCTGACGATTGGGCGCTGGATGACGCGACCGTCGAAGAAGTGGATTACGCCTTTTTGTACCGCCACGTTATGGCGTATTACGAGCTGGTGTATCCATTCATGAGCGACAAGGTGTTTTCCCTGGCTGATCGTTGCAAATGTGAAACGTACGCACGTCTGATGTGGCAGATGTGTGATCCGCAGAACCGCAACAAGTCCTATTACATGCCGAGCACCCGCGAACTGTCGGCACCGAAAGCTCGTTTGTTCTTGAAGTATCTGGCCCACGTGGAAGGCCAGGCACGCCTGCAAGCACCTCCGCCAGCGGGTCCGGCACGCATTGAATCTAAAGCCCAGTTGGCGGCAGAGCTGCGTAAAGCCGTCGACCTGGAGCTGTCTGTGATGCTGCAATACCTGTACGCGGCGTATAGCATTCCGAACTATGCACAGGGCCAACAACGTGTTCGTGACGGTGCGTGGACCGCCGAGCAGCTGCAACTGGCGTGCGGTAGCGGTGACCGTCGCCGTGATGGCGGTATTCGTGCAGCACTGCTGGAAATTGCTCATGAAGAAATGATTCATTACCTGGTCGTTAACAACCTGCTGATGGCCCTGGGCGAGCCGTTCTACGCGGGTGTCCCGCTGATGGGCGAAGCGGCACGTCAGGCGTTTGGCCTGGACACCGAGTTCGCTCTGGAACCGTTTAGCGAAAGCACGCTGGCACGTTTTGTTCGTCTGGAATGGCCGCACTTTATCCCAGCACCGGGCAAATCCATCGCGGACTGCTATGCCGCCATTCGTCAGGCGTTTTTGGATCTGCCGGACTTGTTTGGTGGCGAGGCAGGTAAGCGTGGCGGTGAACACCACCTGTTCCTGAATGAGCTGACCAACCGTGCGCATCCGGGTTATCAACTGGAAGTTTTCGATCGCGACTCGGCGCTGTTTGGTATTGCATTTGTGACCGATCAGGGCGAAGGTGGCGCTCTGGACAGCCCGCACTACGAACATAGCCATTTTCAACGTCTGCGTGAAATGAGCGCGCGTATCATGGCTCAAAGCGCACCGTTCGAACCGGCGCTGCCGGCGTTGCGTAATCCGGTTCTGGATGAGAGCCCGGGTTGCCAACGTGTCGCAGACGGTCGTGCGCGTGCGCTGATGGCATTGTACCAAGGCGTTTATGAGCTGATGTTTGCGATGATGGCGCAGCACTTCGCCGTGAAACCGCTGGGTAGCTTGCGTCGCAGCCGCCTGATGAACGCAGCAATCGATCTGATGACCGGTCTGTTGCGTCCGCTGAGCTGCGCGCTGATGAACCTGCCAAGCGGCATCGCCGGTCGCACGGCCGGTCCGCCGCTGCCGGGTCCGGTTGACACCCGTAGCTATGACGACTACGCGCTGGGCTGTCGCATGCTGGCACGCCGTTGCGAGCGTCTGCTGGAGCAGGCGAGCATGCTGGAACCGGGTTGGCTGCCGGATGCGCAGATGGAGCTGCTGGATTTCTATCGTCGCCAAATGCTGGACTTGGCGTGCGGCAAACTGAGCCGCGAGGCCTAAGGATCCCGGCTGAGTACCATTAAAGAGGAGAAATGATGGAGAACCGTGAGCCACCACTGTTGCCAGCCCGTTGGAGCAGCGCCTATGTCTCTTATTGGAGCCCGATGCTGCCGGATGACCAGCTGACCAGCGGCTATTGCTGGTTCGACTATGAACGTGACATCTGTCGTATTGACGGCCTGTTCAATCCGTGGAGCGAGCGTGATACTGGTTATCGCCTGTGGATGTCGGAGGTTGGTAATGCGGCCAGCGGCCGTACCTGGAAACAAAAAGTCGCCTATGGTCGTGAGCGTACCGCCCTGGGTGAACAGCTGTGTGAGCGTCCGCTGGATGATGAGACTGGCCCTTTTGCCGAATTGTTCCTGCCACGCGATGTCCTGCGCCGTCTGGGTGCCCGTCACATTGGCCGTCGCGTGGTTCTGGGTCGCGAAGCGGACGGTTGGCGTTACCAGCGCCCAGGTAAAGGTCCGAGCACCCTGTACCTGGATGCGGCGAGCGGCACTCCACTGCGCATGGTCACCGGCGATGAAGCGTCGCGTGCAAGCCTGCGTGATTTTCCGAATGTGAGCGAGGCGGAGATCCCGGACGCGGTTTTCGCGGCCAAGCGCGGC",
+    "_type":"dna",
+    "desc":"The Violacein pathway is derived from the soil bacterium Chromobacterium violaceum. It is composed of five enzymes (VioA,B,C,D and E) that work step-wise to convert the amino acid tryptophan, to violacein, a deep purple compound with purported anti-cancer and antimicrobial properties. By using different combinations of the parts, bacterial colonies or cultures can be made to turn violet (VioA,B,E,D,C), royal blue (VioA,B,E,C), or greenish-black  (VioA,B,E,D). This is a cassette containing VioABE.\n\nThe flavoenzyme VioA and the heme protein VioB work in conjunction to oxidize and dimerize l-tryptophan to a nascent product that can default to the off pathway metabolite chromopyrrolic acid. In the presence of VioE, the intermediate instead undergoes on-pathway [1,2] indole rearrangement to prodeoxyviolacein. The last two enzymes in the pathway are flavin-dependent oxygenases, VioC and VioD, that act sequentially. VioD hydroxylates one indole ring at the 5-position to yield proviolacein, and VioC then acts on the other indole ring at the 2-position to create the oxindole and complete violacein formation. \n(http://www.ncbi.nlm.nih.gov/pubmed/17176066)\n\nVersion RDP 2.0\nPlate: E5",
+    "stickyEnds":{
+      "start":{
+        "name":"x",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"z'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":4886,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385096645-10cb0",
+        "_type":"misc",
+        "name":"x-cs.VioABE-z'"
+      }
+    ]
+  },
+  {
+    "id":"1448385104305-17976",
     "version":0,
     "readOnly":false,
     "isCircular":false,
@@ -3084,10 +2795,10 @@
       "secondaryView":"linear",
       "primaryView":"edition"
     },
-    "name":"Z-Linker-X'",
-    "sequence":"GAGACCTGTCCTTCACCCTTAGGTGCACCGGACAGGAAGTGGGAATCCACGTGGAGAG",
+    "name":"z-Rbs.1-x'",
+    "sequence":"CGGCTGAAACTCACACACGAAAGTCTTGATG",
     "_type":"dna",
-    "desc":"This is a short, non-functional piece of DNA that converts a Z' end into an X' end. This particular orientation can be used to join multiple colour parts together to enhance the strength of the colour or to make secondary colours.",
+    "desc":"Ribosome binding sites (Rbs's) are always positioned to the immediate left of a CDS and therefore are only provided in the Z-X' format. By making limited changes to their DNA sequences, it is possible to create different Rbs's whose binding strength with the ribosome varies over a broad range, from weak (Rbs.1) to very strong (Rbs.4). The rate of protein synthesis of a particular CDS varies in direct proportion to the strength of the Rbs. \n\nVersion RDP 2.0\nPlate: A9",
     "stickyEnds":{
       "start":{
         "name":"z",
@@ -3106,15 +2817,317 @@
       {
         "ranges":[
           {
-            "from":0,
-            "to":57,
+            "from":4,
+            "to":26,
             "reverseComplement":false
           }
         ],
-        "desc":"This is the Z--X' linker",
-        "_id":"1444058721182-19b04",
-        "name":"Z--Genomikon_LInker--X'",
-        "_type":"misc"
+        "desc":"",
+        "_id":"1448385104298-12e16",
+        "_type":"rbs",
+        "name":"z-Rbs.1-x'"
+      }
+    ]
+  },
+  {
+    "id":"1448385104316-16d8a",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      }
+    },
+    "name":"z-Rbs.2-x'",
+    "sequence":"CGGCTGAAACTCACACAGGAAAGTCTTGATG",
+    "_type":"dna",
+    "desc":"Ribosome binding sites (Rbs's) are always positioned to the immediate left of a CDS and therefore are only provided in the Z-X' format. By making limited changes to their DNA sequences, it is possible to create different Rbs's whose binding strength with the ribosome varies over a broad range, from weak (Rbs.1) to very strong (Rbs.4). The rate of protein synthesis of a particular CDS varies in direct proportion to the strength of the Rbs. \n\nVersion RDP 2.0\nPlate: C9",
+    "stickyEnds":{
+      "start":{
+        "name":"z",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"x'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":26,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385104300-13c7a",
+        "_type":"rbs",
+        "name":"z-Rbs.2-x'"
+      }
+    ]
+  },
+  {
+    "id":"1448385104322-1d15e",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      }
+    },
+    "name":"z-Rbs.3-x'",
+    "sequence":"CGGCTGAAACATTAAAGAGGAGAAATCTTGATG",
+    "_type":"dna",
+    "desc":"Ribosome binding sites (Rbs's) are always positioned to the immediate left of a CDS and therefore are only provided in the Z-X' format. By making limited changes to their DNA sequences, it is possible to create different Rbs's whose binding strength with the ribosome varies over a broad range, from weak (Rbs.1) to very strong (Rbs.4). The rate of protein synthesis of a particular CDS varies in direct proportion to the strength of the Rbs. \n\nVersion RDP 2.0\nPlate: B9",
+    "stickyEnds":{
+      "start":{
+        "name":"z",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"x'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":28,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385104302-1bc4c",
+        "_type":"rbs",
+        "name":"z-Rbs.3-x'"
+      }
+    ]
+  },
+  {
+    "id":"1448385104327-1d8e4",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      }
+    },
+    "name":"z-Rbs.4-x'",
+    "sequence":"CGGCTGAAACAAAGAGGAGAAATCTTGATG",
+    "_type":"dna",
+    "desc":"Ribosome binding sites (Rbs's) are always positioned to the immediate left of a CDS and therefore are only provided in the Z-X' format. By making limited changes to their DNA sequences, it is possible to create different Rbs's whose binding strength with the ribosome varies over a broad range, from weak (Rbs.1) to very strong (Rbs.4). The rate of protein synthesis of a particular CDS varies in direct proportion to the strength of the Rbs. \n\nVersion RDP 2.0\nPlate: D9",
+    "stickyEnds":{
+      "start":{
+        "name":"z",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"x'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":25,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385104304-1214b",
+        "_type":"rbs",
+        "name":"z-Rbs.4-x'"
+      }
+    ]
+  },
+  {
+    "id":"1448385109779-161e0",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      },
+      "secondaryView":"linear",
+      "primaryView":"edition"
+    },
+    "name":"x-t.Ter-z'",
+    "sequence":"GATGTGATGAGGGTCGGGCGGATTACTCGCCCGAAAAAAAACTTGTTTTCGGC",
+    "_type":"dna",
+    "desc":"t.Ter, a transcription terminator is a section of nucleic acid sequence that marks the end of a gene or operon in genomic DNA during transcription. This sequence mediates transcriptional termination by providing signals in the newly synthesized mRNA that trigger processes which release the mRNA from the transcriptional complex. These processes include the direct interaction of the mRNA secondary structure with the complex and/or the indirect activities of recruited termination factors. Release of the transcriptional complex frees RNA polymerase and related transcriptional machinery to begin transcription of new mRNAs.To terminate transcription.\n\nt.Ter's are always placed to the immediate right of  a CDS.\n\nVersion RDP 2.0\nPlate: D2",
+    "stickyEnds":{
+      "start":{
+        "name":"x",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"z'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":48,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385109774-1e296",
+        "_type":"terminator",
+        "name":"x-t.Ter-z'"
+      }
+    ]
+  },
+  {
+    "id":"1448385109791-1294d",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      }
+    },
+    "name":"z-t.Ter-x'",
+    "sequence":"CGGCTGATGAGGGTCGGGCGGATTACTCGCCCGAAAAAAAACTTGTTTTGATG",
+    "_type":"dna",
+    "desc":"t.Ter, a transcription terminator is a section of nucleic acid sequence that marks the end of a gene or operon in genomic DNA during transcription. This sequence mediates transcriptional termination by providing signals in the newly synthesized mRNA that trigger processes which release the mRNA from the transcriptional complex. These processes include the direct interaction of the mRNA secondary structure with the complex and/or the indirect activities of recruited termination factors. Release of the transcriptional complex frees RNA polymerase and related transcriptional machinery to begin transcription of new mRNAs.To terminate transcription.\n\nt.Ter's are always placed to the immediate right of  a CDS.\n\nVersion RDP 2.0\nPlate: D8",
+    "stickyEnds":{
+      "start":{
+        "name":"z",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"x'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":48,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448385109778-149bc",
+        "_type":"terminator",
+        "name":"z-t.Ter-x'"
       }
     ]
   },
