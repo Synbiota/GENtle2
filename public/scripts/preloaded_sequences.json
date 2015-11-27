@@ -455,13 +455,13 @@
     "desc":"Operators (O) provide the flexibility to confer new or enhanced regulatory possibilities for CDS expression. They can be combined with either constitutive or regulatable promoters. Operators are provided in both the X-Z' or Z-X' formats and can therefore be placed to either or both sides of a promoter. \n\nThe TetR operator, the binding site for the TetR repressor protein that is encoded by the c.OTt .Rpr CDS. Regulating any CDS that uses OTt must also be accompanied by an expressible form of  c.OTt .Rpr that has been included some where else in the circuit design. The expression of any CDS that is placed under the regulation of OTt is repressed in the absence of the inducer ATC and induced by its presence.\n\nVersion RDP 2.0\nPlate: A8",
     "stickyEnds":{
       "start":{
-        "name":"x",
+        "name":"z",
         "offset":0,
         "size":4,
         "reverse":false
       },
       "end":{
-        "name":"z'",
+        "name":"x'",
         "offset":0,
         "size":4,
         "reverse":true
@@ -2708,6 +2708,130 @@
     ]
   },
   {
+    "id":"1448475024745-1525e",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      },
+      "secondaryView":"linear",
+      "primaryView":"edition"
+    },
+    "name":"x-cs.ApR-z'",
+    "sequence":"GATGCTAAATACATTCAAATATCTATCCGCTCATGAGACAATAACCCTGATAAATGCTTCAATAATATTGAAAAAGGAAGAATATGAGTATTCAACATTTCCGTGTCGCCCTTATTCCCTTTTTTGCGGCATTTTGCCTTCCTGTTTTTGCTCACCCAGAAACGCTGGTGAAAGTAAAAGATGCCGAAGATCAGTTGGGTGCACGTGTGGGTTACATCGAACTGGACCTCAACAGCGGTAAGATTCTTGAGAGTTTTCGCCCCGAAGAACGTTTCCCAATGATGAGCACTTTTAAAGTTCTGCTCTGTGGCGCGGTATTATCCCGTATTGACGCCGGGCAAGAGCAACTCGGTCGCCGCATACACTATTCTCAGAATGACTTGGTTGAGTACTCACCAGTCACAGAAAAGCATCTTACGGACGGCATGACAGTACGCGAATTATGCAGCGCTGCCATAACCATGAGTGATAACACGGCGGCCAACTTACTTCTGACAACGATCGGAGGACCGAAGGAGCTTACCGCTTTTTTGCACAACATGGGTGATCATGTAACTCGCCTTGATCGTTGGGAACCGGAGCTGAATGAAGCCATACCAAACGACGAGCGTGACACCACGATGCCTGTAGCTATGGCAACAACGTTGCGCAAACTCTTAACTGGCGAACTTCTTACTCTCGCTTCCCGGCAACAATTAATAGACTGGATGGAGGCGGATAAAGTTGCAGGACCACTTCTGCGCTCGGCCCTTCCGGCTGGCTGGTTTATTGCTGATAAATCTGGAGCCGGTGAGCGTGGGTCCCGCGGTATTATTGCAGCCCTGGGGCCAGATGGTAAGCCCTCCCGTATCGTAGTTATCTACACGACGGGGAGCCAGGCAACTATGGACGAACGTAATCGCCAGATCGCTGAGATAGGTGCCTCCCTGATTAAGCATTGGTAATAACGGC",
+    "_type":"dna",
+    "desc":"(ampicillin resistance) expresses the enzyme beta-lactamase, that breaks down the antibiotic ampicillin thereby rendering cells resistant\n\nVersion RDP 2.0\nPlate: G2",
+    "stickyEnds":{
+      "start":{
+        "name":"x",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"z'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":946,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448475024742-1f84e",
+        "_type":"misc",
+        "name":"cs.ApR"
+      }
+    ],
+  },
+  {
+    "id":"1448475037527-15ea0",
+    "version":0,
+    "readOnly":false,
+    "isCircular":false,
+    "history":{
+
+    },
+    "stickyEndFormat":"overhang",
+    "displaySettings":{
+      "rows":{
+        "numbering":true,
+        "features":true,
+        "complements":true,
+        "aa":"none",
+        "aaOffset":0,
+        "res":{
+          "display":true,
+          "custom":[
+            "BsaI",
+            "NotI"
+          ]
+        },
+        "hasGutters":false
+      },
+      "secondaryView":"linear",
+      "primaryView":"edition"
+    },
+    "name":"x-cs.KnR-z'",
+    "sequence":"GATGCTGATCCTTCAACTCAGCAAAAGTTCGATTTATTCAACAAAGCCACGTTGTGTCTCAAAATCTCTGATGTTACATTGCACAAGATAAAAATATATCATCATGAACAATAAAACTGTCTGCTTACATAAACAGTAATACAAGGGGTGTTATGAGCCATATTCAACGGGAAACGTCTTGCTCCCGTCCGCGCTTAAACTCCAACATGGACGCTGATTTATATGGGTATAAATGGGCTCGCGATAATGTCGGGCAATCAGGTGCGACAATCTATCGCTTGTATGGGAAGCCCGATGCGCCAGAGTTGTTTCTGAAACATGGCAAAGGTAGCGTTGCCAATGATGTTACAGATGAGATGGTCCGTCTCAACTGGCTGACGGAGTTTATGCCTCTCCCGACCATCAAGCATTTTATCCGTACTCCTGATGATGCGTGGTTACTCACCACCGCGATTCCTGGGAAAACAGCCTTCCAGGTATTAGAAGAATATCCTGATTCAGGTGAAAATATTGTTGATGCGCTGGCCGTGTTCCTGCGCCGGTTACATTCGATTCCTGTTTGTAATTGTCCTTTTAACAGCGATCGTGTATTTCGTCTTGCTCAGGCGCAATCACGCATGAATAACGGTTTGGTTGATGCGAGTGATTTTGATGACGAGCGTAATGGCTGGCCTGTTGAACAAGTCTGGAAAGAAATGCACAAGCTCTTGCCATTCTCACCGGATTCAGTCGTCACTCATGGTGATTTCTCACTTGATAACCTTATTTTTGACGAGGGGAAATTAATAGGTTGTATTGATGTTGGACGGGTCGGAATCGCAGACCGTTACCAGGACCTTGCCATTCTTTGGAACTGCCTCGGTGAGTTTTCTCCTTCATTACAGAAACGGCTTTTTCAAAAATATGGTATTGATAATCCTGATATGAATAAATTGCAGTTTCATTTGATGCTCGATGAGTTTTTCTAATAACGGC",
+    "_type":"dna",
+    "desc":"(kanamycin resistance) expresses the enzyme Neomycin phosphotransferase II which modifies the antibiotic kanamycin to an inactive form thereby rendering cells resistant.\n\nVersion RDP 2.0\nPlate: H2",
+    "stickyEnds":{
+      "start":{
+        "name":"x",
+        "offset":0,
+        "size":4,
+        "reverse":false
+      },
+      "end":{
+        "name":"z'",
+        "offset":0,
+        "size":4,
+        "reverse":true
+      }
+    },
+    "features":[
+      {
+        "ranges":[
+          {
+            "from":4,
+            "to":970,
+            "reverseComplement":false
+          }
+        ],
+        "desc":"",
+        "_id":"1448475037526-1c147",
+        "_type":"misc",
+        "name":"x-cs.KnR-z'"
+      }
+    ],
+  },
+  {
     "id":"1448385096771-1dbc5",
     "version":0,
     "readOnly":false,
@@ -3130,129 +3254,5 @@
         "name":"z-t.Ter-x'"
       }
     ]
-  },
-  {
-    "id":"1448475024745-1525e",
-    "version":0,
-    "readOnly":false,
-    "isCircular":false,
-    "history":{
-
-    },
-    "stickyEndFormat":"overhang",
-    "displaySettings":{
-      "rows":{
-        "numbering":true,
-        "features":true,
-        "complements":true,
-        "aa":"none",
-        "aaOffset":0,
-        "res":{
-          "display":true,
-          "custom":[
-            "BsaI",
-            "NotI"
-          ]
-        },
-        "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"x-cs.ApR-z'",
-    "sequence":"GATGCTAAATACATTCAAATATCTATCCGCTCATGAGACAATAACCCTGATAAATGCTTCAATAATATTGAAAAAGGAAGAATATGAGTATTCAACATTTCCGTGTCGCCCTTATTCCCTTTTTTGCGGCATTTTGCCTTCCTGTTTTTGCTCACCCAGAAACGCTGGTGAAAGTAAAAGATGCCGAAGATCAGTTGGGTGCACGTGTGGGTTACATCGAACTGGACCTCAACAGCGGTAAGATTCTTGAGAGTTTTCGCCCCGAAGAACGTTTCCCAATGATGAGCACTTTTAAAGTTCTGCTCTGTGGCGCGGTATTATCCCGTATTGACGCCGGGCAAGAGCAACTCGGTCGCCGCATACACTATTCTCAGAATGACTTGGTTGAGTACTCACCAGTCACAGAAAAGCATCTTACGGACGGCATGACAGTACGCGAATTATGCAGCGCTGCCATAACCATGAGTGATAACACGGCGGCCAACTTACTTCTGACAACGATCGGAGGACCGAAGGAGCTTACCGCTTTTTTGCACAACATGGGTGATCATGTAACTCGCCTTGATCGTTGGGAACCGGAGCTGAATGAAGCCATACCAAACGACGAGCGTGACACCACGATGCCTGTAGCTATGGCAACAACGTTGCGCAAACTCTTAACTGGCGAACTTCTTACTCTCGCTTCCCGGCAACAATTAATAGACTGGATGGAGGCGGATAAAGTTGCAGGACCACTTCTGCGCTCGGCCCTTCCGGCTGGCTGGTTTATTGCTGATAAATCTGGAGCCGGTGAGCGTGGGTCCCGCGGTATTATTGCAGCCCTGGGGCCAGATGGTAAGCCCTCCCGTATCGTAGTTATCTACACGACGGGGAGCCAGGCAACTATGGACGAACGTAATCGCCAGATCGCTGAGATAGGTGCCTCCCTGATTAAGCATTGGTAATAACGGC",
-    "_type":"dna",
-    "desc":"(ampicillin resistance) expresses the enzyme beta-lactamase, that breaks down the antibiotic ampicillin thereby rendering cells resistant\n\nVersion RDP 2.0\nPlate: G2",
-    "stickyEnds":{
-      "start":{
-        "name":"x",
-        "offset":0,
-        "size":4,
-        "reverse":false
-      },
-      "end":{
-        "name":"z'",
-        "offset":0,
-        "size":4,
-        "reverse":true
-      }
-    },
-    "features":[
-      {
-        "ranges":[
-          {
-            "from":4,
-            "to":946,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1448475024742-1f84e",
-        "_type":"misc",
-        "name":"cs.ApR"
-      }
-    ],
-  },
-  {
-    "id":"1448475037527-15ea0",
-    "version":0,
-    "readOnly":false,
-    "isCircular":false,
-    "history":{
-
-    },
-    "stickyEndFormat":"overhang",
-    "displaySettings":{
-      "rows":{
-        "numbering":true,
-        "features":true,
-        "complements":true,
-        "aa":"none",
-        "aaOffset":0,
-        "res":{
-          "display":true,
-          "custom":[
-            "BsaI",
-            "NotI"
-          ]
-        },
-        "hasGutters":false
-      },
-      "secondaryView":"linear",
-      "primaryView":"edition"
-    },
-    "name":"x-cs.KnR-z'",
-    "sequence":"GATGCTGATCCTTCAACTCAGCAAAAGTTCGATTTATTCAACAAAGCCACGTTGTGTCTCAAAATCTCTGATGTTACATTGCACAAGATAAAAATATATCATCATGAACAATAAAACTGTCTGCTTACATAAACAGTAATACAAGGGGTGTTATGAGCCATATTCAACGGGAAACGTCTTGCTCCCGTCCGCGCTTAAACTCCAACATGGACGCTGATTTATATGGGTATAAATGGGCTCGCGATAATGTCGGGCAATCAGGTGCGACAATCTATCGCTTGTATGGGAAGCCCGATGCGCCAGAGTTGTTTCTGAAACATGGCAAAGGTAGCGTTGCCAATGATGTTACAGATGAGATGGTCCGTCTCAACTGGCTGACGGAGTTTATGCCTCTCCCGACCATCAAGCATTTTATCCGTACTCCTGATGATGCGTGGTTACTCACCACCGCGATTCCTGGGAAAACAGCCTTCCAGGTATTAGAAGAATATCCTGATTCAGGTGAAAATATTGTTGATGCGCTGGCCGTGTTCCTGCGCCGGTTACATTCGATTCCTGTTTGTAATTGTCCTTTTAACAGCGATCGTGTATTTCGTCTTGCTCAGGCGCAATCACGCATGAATAACGGTTTGGTTGATGCGAGTGATTTTGATGACGAGCGTAATGGCTGGCCTGTTGAACAAGTCTGGAAAGAAATGCACAAGCTCTTGCCATTCTCACCGGATTCAGTCGTCACTCATGGTGATTTCTCACTTGATAACCTTATTTTTGACGAGGGGAAATTAATAGGTTGTATTGATGTTGGACGGGTCGGAATCGCAGACCGTTACCAGGACCTTGCCATTCTTTGGAACTGCCTCGGTGAGTTTTCTCCTTCATTACAGAAACGGCTTTTTCAAAAATATGGTATTGATAATCCTGATATGAATAAATTGCAGTTTCATTTGATGCTCGATGAGTTTTTCTAATAACGGC",
-    "_type":"dna",
-    "desc":"(kanamycin resistance) expresses the enzyme Neomycin phosphotransferase II which modifies the antibiotic kanamycin to an inactive form thereby rendering cells resistant.\n\nVersion RDP 2.0\nPlate: H2",
-    "stickyEnds":{
-      "start":{
-        "name":"x",
-        "offset":0,
-        "size":4,
-        "reverse":false
-      },
-      "end":{
-        "name":"z'",
-        "offset":0,
-        "size":4,
-        "reverse":true
-      }
-    },
-    "features":[
-      {
-        "ranges":[
-          {
-            "from":4,
-            "to":970,
-            "reverseComplement":false
-          }
-        ],
-        "desc":"",
-        "_id":"1448475037526-1c147",
-        "_type":"misc",
-        "name":"x-cs.KnR-z'"
-      }
-    ],
   }
 ]
