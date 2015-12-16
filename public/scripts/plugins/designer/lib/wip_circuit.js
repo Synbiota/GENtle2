@@ -314,6 +314,7 @@ export default class WipCircuit extends Sequence {
 
     if (this.get('sequences').length === 0){
       this.set('sequence', '');
+      this.set('features', []);
     } else if (errors.length === 0){
       attributes = this.assembleSequences();
       this.set({
